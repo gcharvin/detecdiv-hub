@@ -1,0 +1,2 @@
+"""DetecDiv hub API package."""
+
