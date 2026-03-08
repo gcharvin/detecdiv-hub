@@ -16,6 +16,8 @@ class Settings(BaseSettings):
     matlab_repo_root: str = ""
     log_level: str = "INFO"
     worker_poll_interval_sec: float = 5.0
+    default_user_key: str = "localdev"
+    auto_provision_users: bool = True
 
     model_config = SettingsConfigDict(
         env_prefix="DETECDIV_HUB_",
@@ -27,4 +29,3 @@ class Settings(BaseSettings):
 @lru_cache(maxsize=1)
 def get_settings() -> Settings:
     return Settings()
-

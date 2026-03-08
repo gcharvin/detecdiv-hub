@@ -5,27 +5,287 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session, joinedload
 
 from api.db import get_db
-from api.models import Project, ProjectLocation
-from api.schemas import ProjectDetail, ProjectSummary
+from api.models import (
+    Project,
+    ProjectAcl,
+    ProjectGroup,
+    ProjectGroupMember,
+    ProjectLocation,
+    ProjectNote,
+    User,
+)
+from api.schemas import (
+    ProjectAclCreate,
+    ProjectAclSummary,
+    ProjectDetail,
+    ProjectGroupCreate,
+    ProjectGroupDetail,
+    ProjectGroupSummary,
+    ProjectNoteCreate,
+    ProjectNoteSummary,
+    ProjectSummary,
+    UserSummary,
+)
+from api.services.users import ensure_project_readable, get_current_user, get_or_create_user, project_access_filter, user_can_edit_project
 
 
 router = APIRouter(prefix="/projects", tags=["projects"])
+groups_router = APIRouter(prefix="/project-groups", tags=["project-groups"])
+users_router = APIRouter(prefix="/users", tags=["users"])
 
 
 @router.get("", response_model=list[ProjectSummary])
-def list_projects(db: Session = Depends(get_db)) -> list[Project]:
-    stmt = select(Project).order_by(Project.project_name.asc())
-    return list(db.scalars(stmt))
+def list_projects(
+    group_id: UUID | None = None,
+    owned_only: bool = False,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> list[Project]:
+    stmt = (
+        select(Project)
+        .options(joinedload(Project.owner))
+        .where(project_access_filter(current_user))
+        .order_by(Project.project_name.asc())
+    )
+    if owned_only:
+        stmt = stmt.where(Project.owner_user_id == current_user.id)
+    if group_id is not None:
+        stmt = (
+            stmt.join(ProjectGroupMember)
+            .join(ProjectGroup)
+            .where(
+                ProjectGroupMember.group_id == group_id,
+                ProjectGroup.id == group_id,
+                ProjectGroup.owner_user_id == current_user.id,
+            )
+        )
+    return list(db.scalars(stmt).unique())
 
 
 @router.get("/{project_id}", response_model=ProjectDetail)
-def get_project(project_id: UUID, db: Session = Depends(get_db)) -> Project:
+def get_project(
+    project_id: UUID,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> Project:
     stmt = (
         select(Project)
-        .options(joinedload(Project.locations).joinedload(ProjectLocation.storage_root))
+        .options(
+            joinedload(Project.owner),
+            joinedload(Project.acl_entries),
+            joinedload(Project.locations).joinedload(ProjectLocation.storage_root),
+        )
         .where(Project.id == project_id)
     )
     project = db.scalars(stmt).unique().first()
-    if project is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Project not found")
-    return project
+    return ensure_project_readable(project, current_user)
+
+
+@router.get("/{project_id}/acl", response_model=list[ProjectAclSummary])
+def list_project_acl(
+    project_id: UUID,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> list[ProjectAcl]:
+    project = db.scalars(
+        select(Project)
+        .options(joinedload(Project.acl_entries).joinedload(ProjectAcl.user))
+        .where(Project.id == project_id)
+    ).unique().first()
+    project = ensure_project_readable(project, current_user)
+    if not user_can_edit_project(project, current_user):
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Project ACL is not editable")
+    return list(project.acl_entries)
+
+
+@router.post("/{project_id}/acl", response_model=ProjectAclSummary)
+def create_project_acl(
+    project_id: UUID,
+    payload: ProjectAclCreate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> ProjectAcl:
+    project = db.scalars(
+        select(Project)
+        .options(joinedload(Project.acl_entries))
+        .where(Project.id == project_id)
+    ).unique().first()
+    project = ensure_project_readable(project, current_user)
+    if not user_can_edit_project(project, current_user):
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Project ACL is not editable")
+
+    target_user = get_or_create_user(db, user_key=payload.user_key, display_name=payload.user_key)
+    acl = db.scalars(
+        select(ProjectAcl).where(ProjectAcl.project_id == project_id, ProjectAcl.user_id == target_user.id)
+    ).first()
+    if acl is None:
+        acl = ProjectAcl(project_id=project_id, user_id=target_user.id, access_level=payload.access_level)
+        db.add(acl)
+    else:
+        acl.access_level = payload.access_level
+    db.commit()
+    db.refresh(acl)
+    return db.scalars(
+        select(ProjectAcl).options(joinedload(ProjectAcl.user)).where(ProjectAcl.id == acl.id)
+    ).first()
+
+
+@router.get("/{project_id}/notes", response_model=list[ProjectNoteSummary])
+def list_project_notes(
+    project_id: UUID,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> list[ProjectNote]:
+    project = db.scalars(
+        select(Project)
+        .options(joinedload(Project.acl_entries))
+        .where(Project.id == project_id)
+    ).unique().first()
+    ensure_project_readable(project, current_user)
+
+    stmt = (
+        select(ProjectNote)
+        .options(joinedload(ProjectNote.author))
+        .where(ProjectNote.project_id == project_id)
+        .order_by(ProjectNote.is_pinned.desc(), ProjectNote.updated_at.desc())
+    )
+    return list(db.scalars(stmt))
+
+
+@router.post("/{project_id}/notes", response_model=ProjectNoteSummary)
+def create_project_note(
+    project_id: UUID,
+    payload: ProjectNoteCreate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> ProjectNote:
+    project = db.scalars(
+        select(Project)
+        .options(joinedload(Project.acl_entries))
+        .where(Project.id == project_id)
+    ).unique().first()
+    project = ensure_project_readable(project, current_user)
+    if not user_can_edit_project(project, current_user):
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Project is not editable")
+
+    note = ProjectNote(
+        project_id=project.id,
+        author_user_id=current_user.id,
+        note_text=payload.note_text,
+        is_pinned=payload.is_pinned,
+    )
+    db.add(note)
+    db.commit()
+    db.refresh(note)
+    return note
+
+
+@groups_router.get("", response_model=list[ProjectGroupSummary])
+def list_project_groups(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> list[ProjectGroup]:
+    stmt = (
+        select(ProjectGroup)
+        .options(joinedload(ProjectGroup.owner))
+        .where(ProjectGroup.owner_user_id == current_user.id)
+        .order_by(ProjectGroup.display_name.asc())
+    )
+    return list(db.scalars(stmt))
+
+
+@groups_router.post("", response_model=ProjectGroupSummary)
+def create_project_group(
+    payload: ProjectGroupCreate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> ProjectGroup:
+    group = ProjectGroup(
+        owner_user_id=current_user.id,
+        group_key=payload.group_key,
+        display_name=payload.display_name,
+        description=payload.description,
+        metadata_json=payload.metadata_json,
+    )
+    db.add(group)
+    db.commit()
+    db.refresh(group)
+    return group
+
+
+@groups_router.get("/{group_id}", response_model=ProjectGroupDetail)
+def get_project_group(
+    group_id: UUID,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> ProjectGroupDetail:
+    group = db.scalars(
+        select(ProjectGroup)
+        .options(joinedload(ProjectGroup.owner))
+        .where(ProjectGroup.id == group_id, ProjectGroup.owner_user_id == current_user.id)
+    ).first()
+    if group is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Project group not found")
+
+    projects = list(
+        db.scalars(
+            select(Project)
+            .join(ProjectGroupMember)
+            .options(joinedload(Project.owner))
+            .where(ProjectGroupMember.group_id == group_id)
+            .order_by(Project.project_name.asc())
+        ).unique()
+    )
+    detail = ProjectGroupDetail.model_validate(group)
+    detail.projects = [ProjectSummary.model_validate(project) for project in projects]
+    detail.project_count = len(projects)
+    return detail
+
+
+@groups_router.post("/{group_id}/projects/{project_id}", response_model=ProjectGroupDetail)
+def add_project_to_group(
+    group_id: UUID,
+    project_id: UUID,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> ProjectGroupDetail:
+    group = db.scalars(
+        select(ProjectGroup)
+        .where(ProjectGroup.id == group_id, ProjectGroup.owner_user_id == current_user.id)
+    ).first()
+    if group is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Project group not found")
+
+    project = db.scalars(
+        select(Project)
+        .options(joinedload(Project.acl_entries), joinedload(Project.owner))
+        .where(Project.id == project_id)
+    ).unique().first()
+    project = ensure_project_readable(project, current_user)
+
+    existing = db.scalars(
+        select(ProjectGroupMember).where(
+            ProjectGroupMember.group_id == group_id,
+            ProjectGroupMember.project_id == project_id,
+        )
+    ).first()
+    if existing is None:
+        db.add(ProjectGroupMember(group_id=group_id, project_id=project_id))
+        db.commit()
+
+    return get_project_group(group_id=group_id, db=db, current_user=current_user)
+
+
+@users_router.get("/me", response_model=UserSummary)
+def get_me(current_user: User = Depends(get_current_user)) -> User:
+    return current_user
+
+
+@users_router.get("", response_model=list[UserSummary])
+def list_users(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> list[User]:
+    if current_user.role not in {"admin", "service"}:
+        return [current_user]
+    return list(db.scalars(select(User).where(User.is_active.is_(True)).order_by(User.display_name.asc())))

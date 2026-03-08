@@ -14,15 +14,13 @@ class HealthResponse(HubBaseModel):
     service: str = "detecdiv-hub"
 
 
-class ProjectSummary(HubBaseModel):
+class UserSummary(HubBaseModel):
     id: UUID
-    project_key: str | None = None
-    project_name: str
-    status: str
-    health_status: str
-    metadata_json: dict[str, Any] = Field(default_factory=dict)
-    created_at: datetime | None = None
-    updated_at: datetime | None = None
+    user_key: str
+    display_name: str
+    email: str | None = None
+    role: str
+    is_active: bool
 
 
 class StorageRootSummary(HubBaseModel):
@@ -42,8 +40,74 @@ class ProjectLocationSummary(HubBaseModel):
     storage_root: StorageRootSummary
 
 
+class ProjectSummary(HubBaseModel):
+    id: UUID
+    project_key: str | None = None
+    project_name: str
+    status: str
+    health_status: str
+    visibility: str
+    project_mat_bytes: int = 0
+    project_dir_bytes: int = 0
+    estimated_raw_bytes: int = 0
+    total_bytes: int = 0
+    metadata_json: dict[str, Any] = Field(default_factory=dict)
+    owner: UserSummary | None = None
+    created_at: datetime | None = None
+    updated_at: datetime | None = None
+
+
 class ProjectDetail(ProjectSummary):
     locations: list[ProjectLocationSummary] = Field(default_factory=list)
+
+
+class ProjectAclSummary(HubBaseModel):
+    id: int
+    access_level: str
+    user: UserSummary
+    created_at: datetime | None = None
+
+
+class ProjectAclCreate(HubBaseModel):
+    user_key: str
+    access_level: str = "viewer"
+
+
+class ProjectNoteSummary(HubBaseModel):
+    id: int
+    note_text: str
+    is_pinned: bool
+    author: UserSummary | None = None
+    created_at: datetime | None = None
+    updated_at: datetime | None = None
+
+
+class ProjectNoteCreate(HubBaseModel):
+    note_text: str
+    is_pinned: bool = False
+
+
+class ProjectGroupSummary(HubBaseModel):
+    id: UUID
+    group_key: str
+    display_name: str
+    description: str | None = None
+    metadata_json: dict[str, Any] = Field(default_factory=dict)
+    owner: UserSummary | None = None
+    created_at: datetime | None = None
+    updated_at: datetime | None = None
+
+
+class ProjectGroupDetail(ProjectGroupSummary):
+    project_count: int = 0
+    projects: list[ProjectSummary] = Field(default_factory=list)
+
+
+class ProjectGroupCreate(HubBaseModel):
+    group_key: str
+    display_name: str
+    description: str | None = None
+    metadata_json: dict[str, Any] = Field(default_factory=dict)
 
 
 class JobCreateRequest(HubBaseModel):
@@ -83,6 +147,8 @@ class IndexRequest(HubBaseModel):
     storage_root_name: str | None = None
     host_scope: str = "server"
     root_type: str = "project_root"
+    owner_user_key: str | None = None
+    visibility: str = "private"
     clear_existing_for_root: bool = False
     requested_by: str | None = None
     metadata_json: dict[str, Any] = Field(default_factory=dict)
@@ -93,6 +159,8 @@ class IndexResponse(HubBaseModel):
     source_kind: str
     source_path: str
     storage_root_name: str
+    owner_user_key: str
+    visibility: str
     scanned_projects: int
     indexed_projects: int
     deleted_projects: int = 0

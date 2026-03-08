@@ -5,6 +5,7 @@ import hashlib
 import json
 import sqlite3
 import sys
+from datetime import datetime, timezone
 from pathlib import Path
 
 from sqlalchemy import select
@@ -14,8 +15,11 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
+from api.config import get_settings
 from api.db import SessionLocal
 from api.models import Project, ProjectLocation, StorageRoot
+from api.services.storage_metrics import safe_dir_size, safe_file_size
+from api.services.users import get_or_create_user
 
 
 def parse_args() -> argparse.Namespace:
@@ -34,6 +38,8 @@ def parse_args() -> argparse.Namespace:
         default="project_root",
         help="Root type assigned to imported storage roots.",
     )
+    parser.add_argument("--owner-user-key", default=None)
+    parser.add_argument("--visibility", default="private", choices=["private", "shared", "public"])
     return parser.parse_args()
 
 
@@ -144,28 +150,55 @@ def parse_metadata(row: sqlite3.Row) -> dict:
     return metadata
 
 
-def upsert_project(session, row: sqlite3.Row, storage_root: StorageRoot) -> Project:
+def upsert_project(
+    session,
+    row: sqlite3.Row,
+    storage_root: StorageRoot,
+    *,
+    owner_user_id,
+    visibility: str,
+) -> Project:
     project_key = build_project_key(
         row["project_mat_abs"],
         row["project_rel_from_root"],
         row["name"],
     )
     project = session.scalars(select(Project).where(Project.project_key == project_key)).first()
+    metadata = parse_metadata(row)
+    mat_path = Path(row["project_mat_abs"])
+    dir_path = Path(row["project_dir_abs"])
+    project_mat_bytes = safe_file_size(mat_path)
+    project_dir_bytes = safe_dir_size(dir_path)
+    total_bytes = project_mat_bytes + project_dir_bytes
+    size_timestamp = datetime.now(timezone.utc)
+
     if project is None:
         project = Project(
+            owner_user_id=owner_user_id,
             project_key=project_key,
             project_name=row["name"],
+            visibility=visibility,
             status="indexed",
             health_status=row["health_status"] or "ok",
-            metadata_json=parse_metadata(row),
+            project_mat_bytes=project_mat_bytes,
+            project_dir_bytes=project_dir_bytes,
+            total_bytes=total_bytes,
+            last_size_scan_at=size_timestamp,
+            metadata_json=metadata,
         )
         session.add(project)
         session.flush()
     else:
+        project.owner_user_id = owner_user_id
         project.project_name = row["name"]
+        project.visibility = visibility
         project.status = "indexed"
         project.health_status = row["health_status"] or "ok"
-        project.metadata_json = parse_metadata(row)
+        project.project_mat_bytes = project_mat_bytes
+        project.project_dir_bytes = project_dir_bytes
+        project.total_bytes = total_bytes
+        project.last_size_scan_at = size_timestamp
+        project.metadata_json = metadata
         session.flush()
 
     relative_path = build_location_relative_path(
@@ -216,6 +249,8 @@ def build_location_relative_path(
 
 def main() -> None:
     args = parse_args()
+    settings = get_settings()
+    owner_user_key = args.owner_user_key or settings.default_user_key
     sqlite_catalog = Path(args.sqlite_catalog).expanduser().resolve()
     if not sqlite_catalog.is_file():
         raise SystemExit(f"SQLite catalog not found: {sqlite_catalog}")
@@ -228,6 +263,7 @@ def main() -> None:
     imported_projects = 0
     imported_roots: set[str] = set()
     with SessionLocal() as session:
+        owner = get_or_create_user(session, user_key=owner_user_key, display_name=owner_user_key)
         for row in rows:
             storage_root = get_or_create_storage_root(
                 session,
@@ -236,14 +272,20 @@ def main() -> None:
                 host_scope=args.host_scope,
             )
             imported_roots.add(storage_root.name)
-            upsert_project(session, row, storage_root)
+            upsert_project(
+                session,
+                row,
+                storage_root,
+                owner_user_id=owner.id,
+                visibility=args.visibility,
+            )
             imported_projects += 1
 
         session.commit()
 
     print(
         f"Imported {imported_projects} projects from {sqlite_catalog} "
-        f"into {len(imported_roots)} storage roots."
+        f"into {len(imported_roots)} storage roots for owner {owner_user_key}."
     )
 
 

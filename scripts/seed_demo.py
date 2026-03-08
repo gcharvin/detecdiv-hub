@@ -5,7 +5,9 @@ import uuid
 from sqlalchemy import select
 
 from api.db import SessionLocal
+from api.config import get_settings
 from api.models import ExecutionTarget, Project, ProjectLocation, StorageRoot
+from api.services.users import get_or_create_user
 
 
 def get_or_create_storage_root(session, *, name: str, root_type: str, host_scope: str, path_prefix: str):
@@ -37,17 +39,22 @@ def get_or_create_execution_target(session, *, target_key: str, display_name: st
     return target
 
 
-def create_demo_project(session, *, project_key: str, project_name: str, linux_root, windows_root):
+def create_demo_project(session, *, owner, project_key: str, project_name: str, linux_root, windows_root):
     project = session.scalars(select(Project).where(Project.project_key == project_key)).first()
     if project is not None:
         return project
 
     project = Project(
         id=uuid.uuid4(),
+        owner_user_id=owner.id,
         project_key=project_key,
         project_name=project_name,
+        visibility="private",
         status="indexed",
         health_status="ok",
+        project_mat_bytes=0,
+        project_dir_bytes=0,
+        total_bytes=0,
         metadata_json={
             "source": "seed_demo",
             "matlab_loader": "shallowLoad",
@@ -80,7 +87,9 @@ def create_demo_project(session, *, project_key: str, project_name: str, linux_r
 
 
 def main() -> None:
+    settings = get_settings()
     with SessionLocal() as session:
+        owner = get_or_create_user(session, user_key=settings.default_user_key, display_name=settings.default_user_key)
         linux_projects = get_or_create_storage_root(
             session,
             name="server_projects",
@@ -111,6 +120,7 @@ def main() -> None:
 
         create_demo_project(
             session,
+            owner=owner,
             project_key="demo_project_alpha",
             project_name="Demo Project Alpha",
             linux_root=linux_projects,
@@ -118,6 +128,7 @@ def main() -> None:
         )
         create_demo_project(
             session,
+            owner=owner,
             project_key="demo_project_beta",
             project_name="Demo Project Beta",
             linux_root=linux_projects,
@@ -131,4 +142,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-

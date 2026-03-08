@@ -1,29 +1,35 @@
+from __future__ import annotations
+
 import uuid
 from datetime import datetime
 
-from sqlalchemy import DateTime, ForeignKey, Integer, String, Text, func
+from sqlalchemy import BIGINT, Boolean, DateTime, ForeignKey, Integer, String, Text, func
 from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from api.db import Base
 
 
-class Project(Base):
-    __tablename__ = "detecdiv_projects"
+class User(Base):
+    __tablename__ = "users"
 
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    project_key: Mapped[str | None] = mapped_column(String, unique=True)
-    project_name: Mapped[str] = mapped_column(String, nullable=False)
-    status: Mapped[str] = mapped_column(String, nullable=False, default="indexed")
-    health_status: Mapped[str] = mapped_column(String, nullable=False, default="ok")
+    user_key: Mapped[str] = mapped_column(String, nullable=False, unique=True)
+    display_name: Mapped[str] = mapped_column(String, nullable=False)
+    email: Mapped[str | None] = mapped_column(String)
+    role: Mapped[str] = mapped_column(String, nullable=False, default="user")
+    is_active: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
     metadata_json: Mapped[dict] = mapped_column(JSONB, nullable=False, default=dict)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
     )
 
-    jobs: Mapped[list["Job"]] = relationship(back_populates="project")
-    locations: Mapped[list["ProjectLocation"]] = relationship(back_populates="project")
+    owned_projects: Mapped[list["Project"]] = relationship(back_populates="owner")
+    owned_raw_datasets: Mapped[list["RawDataset"]] = relationship(back_populates="owner")
+    project_acl_entries: Mapped[list["ProjectAcl"]] = relationship(back_populates="user")
+    project_groups: Mapped[list["ProjectGroup"]] = relationship(back_populates="owner")
+    project_notes: Mapped[list["ProjectNote"]] = relationship(back_populates="author")
 
 
 class StorageRoot(Base):
@@ -40,6 +46,87 @@ class StorageRoot(Base):
     )
 
     project_locations: Mapped[list["ProjectLocation"]] = relationship(back_populates="storage_root")
+    raw_dataset_locations: Mapped[list["RawDatasetLocation"]] = relationship(back_populates="storage_root")
+
+
+class RawDataset(Base):
+    __tablename__ = "raw_datasets"
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    owner_user_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("users.id", ondelete="SET NULL")
+    )
+    external_key: Mapped[str | None] = mapped_column(String, unique=True)
+    microscope_name: Mapped[str | None] = mapped_column(String)
+    acquisition_label: Mapped[str] = mapped_column(String, nullable=False)
+    visibility: Mapped[str] = mapped_column(String, nullable=False, default="private")
+    status: Mapped[str] = mapped_column(String, nullable=False, default="discovered")
+    completeness_status: Mapped[str] = mapped_column(String, nullable=False, default="unknown")
+    total_bytes: Mapped[int] = mapped_column(BIGINT, nullable=False, default=0)
+    last_size_scan_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    started_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    ended_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    metadata_json: Mapped[dict] = mapped_column(JSONB, nullable=False, default=dict)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
+    )
+
+    owner: Mapped[User | None] = relationship(back_populates="owned_raw_datasets")
+    locations: Mapped[list["RawDatasetLocation"]] = relationship(back_populates="raw_dataset")
+
+
+class RawDatasetLocation(Base):
+    __tablename__ = "raw_dataset_locations"
+
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    raw_dataset_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("raw_datasets.id", ondelete="CASCADE"), nullable=False
+    )
+    storage_root_id: Mapped[int] = mapped_column(
+        ForeignKey("storage_roots.id", ondelete="RESTRICT"), nullable=False
+    )
+    relative_path: Mapped[str] = mapped_column(String, nullable=False)
+    is_preferred: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
+    access_mode: Mapped[str] = mapped_column(String, nullable=False, default="read")
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
+    )
+
+    raw_dataset: Mapped[RawDataset] = relationship(back_populates="locations")
+    storage_root: Mapped[StorageRoot] = relationship(back_populates="raw_dataset_locations")
+
+
+class Project(Base):
+    __tablename__ = "detecdiv_projects"
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    owner_user_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("users.id", ondelete="SET NULL")
+    )
+    project_key: Mapped[str | None] = mapped_column(String, unique=True)
+    project_name: Mapped[str] = mapped_column(String, nullable=False)
+    visibility: Mapped[str] = mapped_column(String, nullable=False, default="private")
+    status: Mapped[str] = mapped_column(String, nullable=False, default="indexed")
+    health_status: Mapped[str] = mapped_column(String, nullable=False, default="ok")
+    project_mat_bytes: Mapped[int] = mapped_column(BIGINT, nullable=False, default=0)
+    project_dir_bytes: Mapped[int] = mapped_column(BIGINT, nullable=False, default=0)
+    estimated_raw_bytes: Mapped[int] = mapped_column(BIGINT, nullable=False, default=0)
+    total_bytes: Mapped[int] = mapped_column(BIGINT, nullable=False, default=0)
+    last_size_scan_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    metadata_json: Mapped[dict] = mapped_column(JSONB, nullable=False, default=dict)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
+    )
+
+    owner: Mapped[User | None] = relationship(back_populates="owned_projects")
+    jobs: Mapped[list["Job"]] = relationship(back_populates="project")
+    locations: Mapped[list["ProjectLocation"]] = relationship(back_populates="project")
+    acl_entries: Mapped[list["ProjectAcl"]] = relationship(back_populates="project")
+    notes: Mapped[list["ProjectNote"]] = relationship(back_populates="project")
+    group_memberships: Mapped[list["ProjectGroupMember"]] = relationship(back_populates="project")
 
 
 class ProjectLocation(Base):
@@ -55,7 +142,7 @@ class ProjectLocation(Base):
     relative_path: Mapped[str] = mapped_column(String, nullable=False)
     project_file_name: Mapped[str | None] = mapped_column(String)
     access_mode: Mapped[str] = mapped_column(String, nullable=False, default="readwrite")
-    is_preferred: Mapped[bool] = mapped_column(nullable=False, default=False)
+    is_preferred: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
@@ -63,6 +150,80 @@ class ProjectLocation(Base):
 
     project: Mapped[Project] = relationship(back_populates="locations")
     storage_root: Mapped[StorageRoot] = relationship(back_populates="project_locations")
+
+
+class ProjectAcl(Base):
+    __tablename__ = "project_acl"
+
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    project_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("detecdiv_projects.id", ondelete="CASCADE"), nullable=False
+    )
+    user_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False
+    )
+    access_level: Mapped[str] = mapped_column(String, nullable=False, default="viewer")
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+    project: Mapped[Project] = relationship(back_populates="acl_entries")
+    user: Mapped[User] = relationship(back_populates="project_acl_entries")
+
+
+class ProjectGroup(Base):
+    __tablename__ = "project_groups"
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    owner_user_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False
+    )
+    group_key: Mapped[str] = mapped_column(String, nullable=False)
+    display_name: Mapped[str] = mapped_column(String, nullable=False)
+    description: Mapped[str | None] = mapped_column(Text)
+    metadata_json: Mapped[dict] = mapped_column(JSONB, nullable=False, default=dict)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
+    )
+
+    owner: Mapped[User] = relationship(back_populates="project_groups")
+    members: Mapped[list["ProjectGroupMember"]] = relationship(back_populates="group")
+
+
+class ProjectGroupMember(Base):
+    __tablename__ = "project_group_members"
+
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    group_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("project_groups.id", ondelete="CASCADE"), nullable=False
+    )
+    project_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("detecdiv_projects.id", ondelete="CASCADE"), nullable=False
+    )
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+    group: Mapped[ProjectGroup] = relationship(back_populates="members")
+    project: Mapped[Project] = relationship(back_populates="group_memberships")
+
+
+class ProjectNote(Base):
+    __tablename__ = "project_notes"
+
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    project_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("detecdiv_projects.id", ondelete="CASCADE"), nullable=False
+    )
+    author_user_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("users.id", ondelete="SET NULL")
+    )
+    note_text: Mapped[str] = mapped_column(Text, nullable=False)
+    is_pinned: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
+    )
+
+    project: Mapped[Project] = relationship(back_populates="notes")
+    author: Mapped[User | None] = relationship(back_populates="project_notes")
 
 
 class Pipeline(Base):
@@ -84,9 +245,9 @@ class ExecutionTarget(Base):
     display_name: Mapped[str] = mapped_column(String, nullable=False)
     target_kind: Mapped[str] = mapped_column(String, nullable=False)
     host_name: Mapped[str | None] = mapped_column(String)
-    supports_gpu: Mapped[bool] = mapped_column(nullable=False, default=False)
-    supports_matlab: Mapped[bool] = mapped_column(nullable=False, default=False)
-    supports_python: Mapped[bool] = mapped_column(nullable=False, default=True)
+    supports_gpu: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
+    supports_matlab: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
+    supports_python: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
     status: Mapped[str] = mapped_column(String, nullable=False, default="online")
     metadata_json: Mapped[dict] = mapped_column(JSONB, nullable=False, default=dict)
 
@@ -97,6 +258,9 @@ class Job(Base):
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     project_id: Mapped[uuid.UUID | None] = mapped_column(
         UUID(as_uuid=True), ForeignKey("detecdiv_projects.id", ondelete="SET NULL")
+    )
+    raw_dataset_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("raw_datasets.id", ondelete="SET NULL")
     )
     pipeline_id: Mapped[uuid.UUID | None] = mapped_column(
         UUID(as_uuid=True), ForeignKey("pipelines.id", ondelete="SET NULL")
@@ -121,3 +285,16 @@ class Job(Base):
     )
 
     project: Mapped[Project | None] = relationship(back_populates="jobs")
+
+
+class Artifact(Base):
+    __tablename__ = "artifacts"
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    job_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("jobs.id", ondelete="CASCADE"), nullable=False
+    )
+    artifact_kind: Mapped[str] = mapped_column(String, nullable=False)
+    uri: Mapped[str] = mapped_column(Text, nullable=False)
+    metadata_json: Mapped[dict] = mapped_column(JSONB, nullable=False, default=dict)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())

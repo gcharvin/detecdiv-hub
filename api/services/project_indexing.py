@@ -2,18 +2,23 @@ from __future__ import annotations
 
 import hashlib
 from dataclasses import dataclass
+from datetime import datetime, timezone
 from pathlib import Path
 
 from sqlalchemy import delete, select
 from sqlalchemy.orm import Session
 
-from api.models import Project, ProjectLocation, StorageRoot
+from api.models import Project, ProjectLocation, StorageRoot, User
+from api.services.storage_metrics import safe_dir_size, safe_file_size
+from api.services.users import get_or_create_user
 
 
 @dataclass
 class ProjectIndexResult:
     root_path: str
     storage_root_name: str
+    owner_user_key: str
+    visibility: str
     scanned_projects: int
     indexed_projects: int
     deleted_projects: int
@@ -26,12 +31,15 @@ def index_project_root(
     storage_root_name: str | None = None,
     host_scope: str = "server",
     root_type: str = "project_root",
+    owner_user_key: str,
+    visibility: str = "private",
     clear_existing_for_root: bool = False,
 ) -> ProjectIndexResult:
     root = Path(root_path).expanduser().resolve()
     if not root.is_dir():
         raise ValueError(f"Project root does not exist: {root}")
 
+    owner = get_or_create_user(session, user_key=owner_user_key, display_name=owner_user_key)
     storage_root = get_or_create_storage_root(
         session,
         root_path=str(root),
@@ -55,6 +63,8 @@ def index_project_root(
         scanned_projects += 1
         project = upsert_project_from_paths(
             session,
+            owner=owner,
+            visibility=visibility,
             storage_root=storage_root,
             root_path=root,
             mat_path=mat_path,
@@ -83,6 +93,8 @@ def index_project_root(
     return ProjectIndexResult(
         root_path=str(root),
         storage_root_name=storage_root.name,
+        owner_user_key=owner.user_key,
+        visibility=visibility,
         scanned_projects=scanned_projects,
         indexed_projects=indexed_projects,
         deleted_projects=deleted_projects,
@@ -127,6 +139,8 @@ def get_or_create_storage_root(
 def upsert_project_from_paths(
     session: Session,
     *,
+    owner: User,
+    visibility: str,
     storage_root: StorageRoot,
     root_path: Path,
     mat_path: Path,
@@ -135,6 +149,11 @@ def upsert_project_from_paths(
     relative_parent = project_relative_parent(root_path, mat_path)
     project_key = build_project_key(str(mat_path), relative_parent, mat_path.stem)
     project = session.scalars(select(Project).where(Project.project_key == project_key)).first()
+
+    project_mat_bytes = safe_file_size(mat_path)
+    project_dir_bytes = safe_dir_size(project_dir)
+    total_bytes = project_mat_bytes + project_dir_bytes
+    size_timestamp = datetime.now(timezone.utc)
     metadata = {
         "source": "hub_indexer",
         "project_mat_abs": str(mat_path),
@@ -144,18 +163,31 @@ def upsert_project_from_paths(
 
     if project is None:
         project = Project(
+            owner_user_id=owner.id,
             project_key=project_key,
             project_name=mat_path.stem,
+            visibility=visibility,
             status="indexed",
             health_status="ok",
+            project_mat_bytes=project_mat_bytes,
+            project_dir_bytes=project_dir_bytes,
+            estimated_raw_bytes=0,
+            total_bytes=total_bytes,
+            last_size_scan_at=size_timestamp,
             metadata_json=metadata,
         )
         session.add(project)
         session.flush()
     else:
+        project.owner_user_id = owner.id
         project.project_name = mat_path.stem
+        project.visibility = visibility
         project.status = "indexed"
         project.health_status = "ok"
+        project.project_mat_bytes = project_mat_bytes
+        project.project_dir_bytes = project_dir_bytes
+        project.total_bytes = total_bytes
+        project.last_size_scan_at = size_timestamp
         project.metadata_json = metadata
         session.flush()
 

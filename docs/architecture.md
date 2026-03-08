@@ -42,6 +42,14 @@ It is designed to support:
   - queued/running/completed requests
 - `artifacts`
   - files or URIs produced by jobs
+- `users`
+  - authenticated or provisioned hub users
+- `project_acl`
+  - explicit per-project sharing entries
+- `project_groups`
+  - user-defined project collections
+- `project_notes`
+  - collaborative or private notes attached to projects
 
 Future entity extensions that should be planned now:
 
@@ -169,6 +177,13 @@ be able to report:
 - raw-data size
 - derived artifact size
 - rolled-up per-user and per-group usage
+
+The current schema already carries first project-level size fields:
+
+- `project_mat_bytes`
+- `project_dir_bytes`
+- `estimated_raw_bytes`
+- `total_bytes`
 
 ### Deletion workflow
 

@@ -60,6 +60,24 @@ The demo seed adds:
 - one execution target
 - two sample projects with both Linux and Windows-facing locations
 
+## Governance model
+
+The hub now includes a first governance layer:
+
+- `users`
+- project ownership
+- private-by-default visibility
+- per-project ACL entries
+- project groups
+- project notes
+- project size accounting fields
+
+In local development, the API resolves the current user from:
+
+- `?user_key=...`
+- `X-DetecDiv-User`
+- or `DETECDIV_HUB_DEFAULT_USER_KEY` as fallback
+
 ## Import real projects from the local SQLite catalog
 
 If you already indexed real projects with the MATLAB catalog browser, you can
@@ -84,14 +102,22 @@ The hub can now scan a DetecDiv project root directly, without importing a
 local SQLite catalog first:
 
 ```powershell
-python scripts\index_project_root.py "C:\Users\charvin\SynologyDrive\Data\DetecDivProjects" --host-scope client
+python scripts\index_project_root.py "C:\Users\charvin\SynologyDrive\Data\DetecDivProjects" --host-scope client --owner-user-key localdev
 ```
 
 Or through the API:
 
 ```powershell
-curl -Method POST -ContentType "application/json" -Body '{"source_kind":"project_root","source_path":"C:\\Users\\charvin\\SynologyDrive\\Data\\DetecDivProjects","host_scope":"client"}' http://127.0.0.1:8000/indexing
+curl -Method POST -ContentType "application/json" -Body '{"source_kind":"project_root","source_path":"C:\\Users\\charvin\\SynologyDrive\\Data\\DetecDivProjects","host_scope":"client","visibility":"private"}' "http://127.0.0.1:8000/indexing?user_key=localdev"
 ```
 
 For a deployed server, the indexed `source_path` should be the server-side
 canonical root. Clients then remap that root locally using their own settings.
+
+## Basic governance endpoints
+
+```powershell
+curl "http://127.0.0.1:8000/users/me?user_key=localdev"
+curl "http://127.0.0.1:8000/projects?user_key=localdev"
+curl "http://127.0.0.1:8000/project-groups?user_key=localdev"
+```

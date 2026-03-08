@@ -53,7 +53,8 @@ Useful API checks once the server is running:
 
 ```powershell
 curl http://127.0.0.1:8000/health
-curl http://127.0.0.1:8000/projects
+curl "http://127.0.0.1:8000/users/me?user_key=localdev"
+curl "http://127.0.0.1:8000/projects?user_key=localdev"
 ```
 
 ## Import a real SQLite catalog
@@ -76,15 +77,24 @@ curl http://127.0.0.1:8000/projects
 You can also index a DetecDiv root directly into PostgreSQL:
 
 ```powershell
-python scripts\index_project_root.py "C:\Users\charvin\SynologyDrive\Data\DetecDivProjects" --host-scope client
+python scripts\index_project_root.py "C:\Users\charvin\SynologyDrive\Data\DetecDivProjects" --host-scope client --owner-user-key localdev
 ```
 
 Or by calling the API:
 
 ```powershell
-curl -Method POST -ContentType "application/json" -Body '{"source_kind":"project_root","source_path":"C:\\Users\\charvin\\SynologyDrive\\Data\\DetecDivProjects","host_scope":"client"}' http://127.0.0.1:8000/indexing
+curl -Method POST -ContentType "application/json" -Body '{"source_kind":"project_root","source_path":"C:\\Users\\charvin\\SynologyDrive\\Data\\DetecDivProjects","host_scope":"client","visibility":"private"}' "http://127.0.0.1:8000/indexing?user_key=localdev"
 ```
 
 On the real Linux server, the hub should index the canonical server path.
 MATLAB clients should not reuse that path directly; they should map it to their
 own Samba mount using the hub client settings.
+
+## Governance smoke test
+
+With one imported private catalog under `localdev`, you should see:
+
+- `localdev` sees all owned projects
+- another user sees nothing until a project ACL is added
+- project groups are scoped to the owner
+- project notes are attached through project-level API routes
