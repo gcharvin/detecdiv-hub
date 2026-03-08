@@ -4,6 +4,7 @@ import hashlib
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
+from typing import Callable
 
 from sqlalchemy import delete, select
 from sqlalchemy.orm import Session
@@ -20,9 +21,12 @@ class ProjectIndexResult:
     storage_root_name: str
     owner_user_key: str
     visibility: str
+    total_projects: int
     scanned_projects: int
     indexed_projects: int
+    failed_projects: int
     deleted_projects: int
+    stale_cleanup_skipped: bool
 
 
 def index_project_root(
@@ -35,6 +39,9 @@ def index_project_root(
     owner_user_key: str,
     visibility: str = "private",
     clear_existing_for_root: bool = False,
+    continue_on_error: bool = True,
+    commit_each: bool = False,
+    progress_callback: Callable[..., None] | None = None,
 ) -> ProjectIndexResult:
     root = Path(root_path).expanduser().resolve()
     if not root.is_dir():
@@ -60,22 +67,69 @@ def index_project_root(
     seen_project_ids: set = set()
     indexed_projects = 0
     scanned_projects = 0
-    for mat_path, project_dir in iter_project_candidates(root):
-        scanned_projects += 1
-        project = upsert_project_from_paths(
-            session,
-            owner=owner,
-            visibility=visibility,
-            storage_root=storage_root,
-            root_path=root,
-            mat_path=mat_path,
-            project_dir=project_dir,
+    failed_projects = 0
+    candidates = list(iter_project_candidates(root))
+    total_projects = len(candidates)
+    if progress_callback is not None:
+        progress_callback(
+            status="running",
+            total_projects=total_projects,
+            scanned_projects=0,
+            indexed_projects=0,
+            failed_projects=0,
+            deleted_projects=0,
+            current_project_path=None,
+            message=f"Discovered {total_projects} project candidates under {root}.",
         )
-        seen_project_ids.add(project.id)
-        indexed_projects += 1
+
+    for mat_path, project_dir in candidates:
+        scanned_projects += 1
+        try:
+            project = upsert_project_from_paths(
+                session,
+                owner=owner,
+                visibility=visibility,
+                storage_root=storage_root,
+                root_path=root,
+                mat_path=mat_path,
+                project_dir=project_dir,
+            )
+            seen_project_ids.add(project.id)
+            indexed_projects += 1
+            if progress_callback is not None:
+                progress_callback(
+                    status="running",
+                    total_projects=total_projects,
+                    scanned_projects=scanned_projects,
+                    indexed_projects=indexed_projects,
+                    failed_projects=failed_projects,
+                    deleted_projects=0,
+                    current_project_path=str(mat_path),
+                    message=f"Indexed {mat_path.name} ({scanned_projects}/{total_projects}).",
+                )
+            if commit_each:
+                session.commit()
+        except Exception as exc:
+            session.rollback()
+            failed_projects += 1
+            if progress_callback is not None:
+                progress_callback(
+                    status="running",
+                    total_projects=total_projects,
+                    scanned_projects=scanned_projects,
+                    indexed_projects=indexed_projects,
+                    failed_projects=failed_projects,
+                    deleted_projects=0,
+                    current_project_path=str(mat_path),
+                    message=f"Failed to index {mat_path.name}: {exc}",
+                    error_text=str(exc),
+                )
+            if not continue_on_error:
+                raise
 
     deleted_projects = 0
-    if clear_existing_for_root and existing_project_ids:
+    stale_cleanup_skipped = False
+    if clear_existing_for_root and existing_project_ids and failed_projects == 0:
         stale_ids = existing_project_ids - seen_project_ids
         for project_id in stale_ids:
             session.execute(
@@ -90,15 +144,44 @@ def index_project_root(
             if remaining is None:
                 session.execute(delete(Project).where(Project.id == project_id))
             deleted_projects += 1
+        if commit_each:
+            if progress_callback is not None:
+                progress_callback(
+                    status="running",
+                    total_projects=total_projects,
+                    scanned_projects=scanned_projects,
+                    indexed_projects=indexed_projects,
+                    failed_projects=failed_projects,
+                    deleted_projects=deleted_projects,
+                    current_project_path=None,
+                    message=f"Removed {deleted_projects} stale project rows.",
+                )
+            session.commit()
+    elif clear_existing_for_root and failed_projects > 0:
+        stale_cleanup_skipped = True
+        if progress_callback is not None:
+            progress_callback(
+                status="running",
+                total_projects=total_projects,
+                scanned_projects=scanned_projects,
+                indexed_projects=indexed_projects,
+                failed_projects=failed_projects,
+                deleted_projects=0,
+                current_project_path=None,
+                message="Skipped stale-row cleanup because some projects failed to index.",
+            )
 
     return ProjectIndexResult(
         root_path=str(root),
         storage_root_name=storage_root.name,
         owner_user_key=owner.user_key,
         visibility=visibility,
+        total_projects=total_projects,
         scanned_projects=scanned_projects,
         indexed_projects=indexed_projects,
+        failed_projects=failed_projects,
         deleted_projects=deleted_projects,
+        stale_cleanup_skipped=stale_cleanup_skipped,
     )
 
 

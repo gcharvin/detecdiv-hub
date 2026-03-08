@@ -42,6 +42,8 @@ It is designed to support:
   - queued/running/completed requests
 - `artifacts`
   - files or URIs produced by jobs
+- `indexing_jobs`
+  - auditable asynchronous scans with progress, errors, and final counts
 - `users`
   - authenticated or provisioned hub users
 - `project_acl`
@@ -240,3 +242,22 @@ currently targets:
 - project grouping
 - preview-first deletion
 - direct hub-side indexing
+- live indexing progress and recent indexing history
+
+### Pipeline registry direction
+
+Pipelines will become central once the hub starts dispatching real processing.
+The `pipelines` table should evolve from a placeholder into a registry that
+captures:
+
+- a stable `pipeline_key`
+- a human-readable name and semantic version
+- runtime kind (`matlab`, `python`, or hybrid)
+- parameter schema and defaults
+- expected input type (`project`, `raw_dataset`, batch)
+- execution-target compatibility
+- provenance links so each launched job records the exact pipeline definition used
+
+This registry should stay separate from historical `pipeline runs` discovered in
+project folders. One defines what can be launched; the other records what did
+happen.

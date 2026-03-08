@@ -2,6 +2,7 @@ const state = {
   userKey: localStorage.getItem("detecdivHub.userKey") || "localdev",
   projects: [],
   groups: [],
+  indexingJobs: [],
   selectedProject: null,
   selectedProjectDetail: null,
   notes: [],
@@ -38,8 +39,13 @@ const els = {
   indexVisibility: document.querySelector("#index-visibility"),
   indexClearExisting: document.querySelector("#index-clear-existing"),
   indexButton: document.querySelector("#index-button"),
+  indexJobsRefreshButton: document.querySelector("#index-jobs-refresh-button"),
+  activeIndexJob: document.querySelector("#active-index-job"),
+  indexJobsTableBody: document.querySelector("#index-jobs-table tbody"),
   statusLine: document.querySelector("#status-line"),
 };
+
+let dashboardPollHandle = null;
 
 function setStatus(message) {
   els.statusLine.textContent = message;
@@ -93,6 +99,26 @@ function humanBytes(value) {
   return `${num.toFixed(idx === 0 ? 0 : 2)} ${units[idx]}`;
 }
 
+function formatTimestamp(value) {
+  if (!value) {
+    return "";
+  }
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) {
+    return `${value}`;
+  }
+  return date.toLocaleString();
+}
+
+function progressPercent(job) {
+  const total = Number(job.total_projects || 0);
+  const scanned = Number(job.scanned_projects || 0);
+  if (total <= 0) {
+    return 0;
+  }
+  return Math.max(0, Math.min(100, Math.round((100 * scanned) / total)));
+}
+
 function setSummary(summary) {
   state.summary = summary;
   els.summaryTotalProjects.textContent = summary.total_projects;
@@ -133,6 +159,47 @@ function renderProjects() {
     `;
     tr.addEventListener("click", () => selectProject(project.id));
     els.projectsTableBody.appendChild(tr);
+  }
+}
+
+function renderIndexingJobs() {
+  els.indexJobsTableBody.innerHTML = "";
+  const activeJob = state.indexingJobs.find((job) => job.status === "queued" || job.status === "running");
+  const latestJob = activeJob || state.indexingJobs[0] || null;
+
+  if (!latestJob) {
+    els.activeIndexJob.className = "job-highlight empty-state";
+    els.activeIndexJob.textContent = "No indexing jobs yet.";
+  } else {
+    const pct = progressPercent(latestJob);
+    const statusClass = latestJob.status === "running" || latestJob.status === "queued"
+      ? "running"
+      : latestJob.status.startsWith("completed")
+        ? "completed"
+        : "failed";
+    els.activeIndexJob.className = `job-highlight ${statusClass}`;
+    els.activeIndexJob.innerHTML = `
+      <div class="job-title">${latestJob.status} | ${latestJob.source_path}</div>
+      <div>${latestJob.message || "No status message."}</div>
+      <div class="stack-item-meta">
+        scanned ${latestJob.scanned_projects}/${latestJob.total_projects} | indexed ${latestJob.indexed_projects} | failed ${latestJob.failed_projects} | deleted ${latestJob.deleted_projects}
+      </div>
+      <div class="progress-bar"><div class="progress-fill" style="width: ${pct}%"></div></div>
+    `;
+  }
+
+  for (const job of state.indexingJobs) {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${job.status}</td>
+      <td>${job.source_path}</td>
+      <td>${job.scanned_projects}/${job.total_projects} (${progressPercent(job)}%)</td>
+      <td>${job.indexed_projects}</td>
+      <td>${job.failed_projects}</td>
+      <td>${formatTimestamp(job.updated_at || job.created_at)}</td>
+    `;
+    tr.title = job.message || "";
+    els.indexJobsTableBody.appendChild(tr);
   }
 }
 
@@ -241,7 +308,13 @@ async function refreshDashboard() {
   setSummary(summary);
   renderGroupFilter();
   await refreshProjects();
+  await refreshIndexingJobs();
   setStatus(`Connected as ${summary.user.user_key}.`);
+}
+
+async function refreshIndexingJobs() {
+  state.indexingJobs = await apiGet("/indexing/jobs?limit=25");
+  renderIndexingJobs();
 }
 
 async function refreshProjects() {
@@ -403,9 +476,33 @@ async function runIndexing() {
     clear_existing_for_root: els.indexClearExisting.checked,
     metadata_json: {},
   };
-  const response = await apiPost("/indexing", payload);
-  await refreshDashboard();
-  setStatus(`Indexed ${response.indexed_projects} projects from ${response.source_path}.`);
+  const response = await apiPost("/indexing/jobs", payload);
+  await refreshIndexingJobs();
+  setStatus(`Queued indexing job ${response.job.id} for ${response.job.source_path}.`);
+}
+
+async function pollDashboard() {
+  if (!state.userKey) {
+    return;
+  }
+  const hasActiveJob = state.indexingJobs.some((job) => job.status === "queued" || job.status === "running");
+  if (!hasActiveJob) {
+    return;
+  }
+  try {
+    await refreshDashboard();
+  } catch (error) {
+    setStatus(String(error));
+  }
+}
+
+function ensureDashboardPolling() {
+  if (dashboardPollHandle !== null) {
+    return;
+  }
+  dashboardPollHandle = window.setInterval(() => {
+    pollDashboard().catch((error) => setStatus(String(error)));
+  }, 5000);
 }
 
 els.userKey.value = state.userKey;
@@ -419,5 +516,7 @@ els.shareButton.addEventListener("click", () => shareProject().catch((error) => 
 els.addToGroupButton.addEventListener("click", () => addSelectedProjectToGroup().catch((error) => setStatus(String(error))));
 els.previewDeleteButton.addEventListener("click", () => previewDelete().catch((error) => setStatus(String(error))));
 els.indexButton.addEventListener("click", () => runIndexing().catch((error) => setStatus(String(error))));
+els.indexJobsRefreshButton.addEventListener("click", () => refreshIndexingJobs().catch((error) => setStatus(String(error))));
 
+ensureDashboardPolling();
 refreshDashboard().catch((error) => setStatus(String(error)));

@@ -189,6 +189,44 @@ class IndexRequest(HubBaseModel):
     metadata_json: dict[str, Any] = Field(default_factory=dict)
 
 
+class IndexJobSummary(HubBaseModel):
+    id: UUID
+    source_kind: str
+    source_path: str
+    storage_root_name: str | None = None
+    host_scope: str
+    root_type: str
+    visibility: str
+    clear_existing_for_root: bool = False
+    status: str
+    total_projects: int = 0
+    scanned_projects: int = 0
+    indexed_projects: int = 0
+    failed_projects: int = 0
+    deleted_projects: int = 0
+    current_project_path: str | None = None
+    message: str | None = None
+    error_text: str | None = None
+    owner: UserSummary | None = None
+    requested_by: UserSummary | None = None
+    created_at: datetime | None = None
+    started_at: datetime | None = None
+    finished_at: datetime | None = None
+    updated_at: datetime | None = None
+
+
+class IndexJobDetail(IndexJobSummary):
+    metadata_json: dict[str, Any] = Field(default_factory=dict)
+    result_json: dict[str, Any] = Field(default_factory=dict)
+
+
+class IndexJobLaunchResponse(HubBaseModel):
+    status: str
+    launch_mode: str
+    job: IndexJobSummary
+    message: str
+
+
 class IndexResponse(HubBaseModel):
     status: str
     source_kind: str
@@ -198,7 +236,10 @@ class IndexResponse(HubBaseModel):
     visibility: str
     scanned_projects: int
     indexed_projects: int
+    failed_projects: int = 0
     deleted_projects: int = 0
+    total_projects: int = 0
+    stale_cleanup_skipped: bool = False
     message: str
 
 

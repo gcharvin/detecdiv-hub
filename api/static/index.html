@@ -135,7 +135,7 @@
         <div class="panel-header">
           <div>
             <h2>Index Root</h2>
-            <p class="muted">Index a project root directly from the hub.</p>
+            <p class="muted">Queue a project-root scan directly on the hub host.</p>
           </div>
         </div>
         <div class="index-form">
@@ -159,7 +159,35 @@
             <input id="index-clear-existing" type="checkbox" />
             <span>Clear stale rows for this root</span>
           </label>
-          <button id="index-button" class="primary">Run indexing</button>
+          <button id="index-button" class="primary">Queue indexing</button>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-header">
+          <div>
+            <h2>Indexing Activity</h2>
+            <p class="muted">Queued and running scans with live progress.</p>
+          </div>
+          <button id="index-jobs-refresh-button">Refresh jobs</button>
+        </div>
+        <div id="active-index-job" class="job-highlight empty-state">
+          No indexing jobs yet.
+        </div>
+        <div class="table-wrap jobs-table-wrap">
+          <table id="index-jobs-table">
+            <thead>
+              <tr>
+                <th>Status</th>
+                <th>Source</th>
+                <th>Progress</th>
+                <th>Indexed</th>
+                <th>Failed</th>
+                <th>Updated</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
         </div>
       </section>
 

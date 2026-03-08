@@ -43,8 +43,9 @@ def main() -> None:
         session.commit()
 
     print(
-        f"Indexed {result.indexed_projects} project(s) from {result.root_path} "
-        f"into storage root {result.storage_root_name} for owner {result.owner_user_key}."
+        f"Indexed {result.indexed_projects}/{result.total_projects} project(s) from {result.root_path} "
+        f"into storage root {result.storage_root_name} for owner {result.owner_user_key}. "
+        f"Failures: {result.failed_projects}, stale deletions: {result.deleted_projects}."
     )
 
 

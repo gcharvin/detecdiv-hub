@@ -150,7 +150,15 @@ Current web UI capabilities:
 - share a project with another user
 - create groups and add a project to a group
 - preview and execute deletion
-- launch hub-side indexing on a project root
+- queue hub-side indexing on a project root
+- follow indexing progress and recent indexing history
+
+Async indexing endpoints:
+
+```powershell
+curl -Method POST -ContentType "application/json" -Body '{"source_kind":"project_root","source_path":"C:\\Users\\charvin\\SynologyDrive\\Data\\DetecDivProjects","host_scope":"client","visibility":"private"}' "http://127.0.0.1:8000/indexing/jobs?user_key=localdev"
+curl "http://127.0.0.1:8000/indexing/jobs?user_key=localdev"
+```
 
 ## Safe project deletion
 
@@ -178,3 +186,17 @@ Current behavior:
 - physical project files are deleted only if `delete_project_files=true`
 - linked raw data is deleted only if explicitly requested and not shared with other projects
 - deletion is logged in `project_deletion_events`
+
+## Install systemd units on Linux
+
+The repository now includes a helper script that renders and installs concrete
+systemd units from the actual repo path and service user:
+
+```bash
+sudo bash ./scripts/install_systemd.sh \
+  --repo-root /srv/detecdiv/detecdiv-hub \
+  --service-user detecdiv \
+  --env-file /etc/detecdiv-hub/detecdiv-hub.env \
+  --api-host 127.0.0.1 \
+  --api-port 8000
+```

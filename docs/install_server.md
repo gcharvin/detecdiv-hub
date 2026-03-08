@@ -120,11 +120,12 @@ python scripts/seed_demo.py
 ## 7. Install the systemd services
 
 ```bash
-sudo cp /srv/detecdiv/detecdiv-hub/ops/systemd/detecdiv-api.service /etc/systemd/system/
-sudo cp /srv/detecdiv/detecdiv-hub/ops/systemd/detecdiv-worker.service /etc/systemd/system/
-sudo systemctl daemon-reload
-sudo systemctl enable detecdiv-api detecdiv-worker
-sudo systemctl start detecdiv-api detecdiv-worker
+sudo bash /srv/detecdiv/detecdiv-hub/scripts/install_systemd.sh \
+  --repo-root /srv/detecdiv/detecdiv-hub \
+  --service-user detecdiv \
+  --env-file /etc/detecdiv-hub/detecdiv-hub.env \
+  --api-host 127.0.0.1 \
+  --api-port 8000
 ```
 
 Check status:
@@ -139,6 +140,11 @@ Tail logs:
 ```bash
 sudo journalctl -u detecdiv-api -u detecdiv-worker -f
 ```
+
+If you are deploying under a different Linux user or a different repo path,
+adjust `--service-user` and `--repo-root` accordingly. The service templates in
+[`ops/systemd`](C:/Users/charvin/Documents/MATLAB/detecdiv-hub/ops/systemd) are
+examples; the install script generates concrete units for the target machine.
 
 ## 8. Optional: put Nginx in front
 

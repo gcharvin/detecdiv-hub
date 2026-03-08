@@ -155,6 +155,10 @@ h3 {
   max-height: 62vh;
 }
 
+.jobs-table-wrap {
+  max-height: 28vh;
+}
+
 table {
   width: 100%;
   border-collapse: collapse;
@@ -232,6 +236,48 @@ tbody tr.selected {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
+}
+
+.job-highlight {
+  margin-bottom: 14px;
+  padding: 14px 16px;
+  background: var(--panel-strong);
+  border: 1px solid rgba(120, 96, 61, 0.12);
+  border-radius: 14px;
+}
+
+.job-highlight.running {
+  border-color: rgba(174, 124, 26, 0.35);
+  background: rgba(174, 124, 26, 0.08);
+}
+
+.job-highlight.completed {
+  border-color: rgba(44, 122, 75, 0.25);
+  background: rgba(44, 122, 75, 0.08);
+}
+
+.job-highlight.failed {
+  border-color: rgba(155, 44, 44, 0.25);
+  background: rgba(155, 44, 44, 0.08);
+}
+
+.job-title {
+  font-size: 1rem;
+  margin-bottom: 6px;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 10px;
+  border-radius: 999px;
+  overflow: hidden;
+  background: rgba(28, 27, 26, 0.08);
+  margin-top: 10px;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent) 0%, #d98c3c 100%);
 }
 
 .field {

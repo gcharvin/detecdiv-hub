@@ -50,6 +50,7 @@ Core entities:
 - `detecdiv_projects`: DetecDiv projects derived from raw datasets
 - `project_raw_links`: many-to-many mapping between projects and raw datasets
 - `pipelines`: pipeline templates or references
+- `indexing_jobs`: auditable asynchronous scans of project or raw-data roots
 - `jobs`: queued/running/completed processing requests
 - `artifacts`: outputs produced by jobs
 - `execution_targets`: local workstation, server CPU, server GPU, etc.
@@ -141,6 +142,12 @@ For new features, agents should first identify which layer is affected:
 - support streaming or scheduled ingestion from microscope storage
 - define server-side execution wrappers for `matlab -batch`
 - define structured logs and artifact retention rules
+- define a first-class pipeline registry with:
+  - stable pipeline keys and versions
+  - runtime kind (`matlab`, `python`, hybrid)
+  - parameter schema/defaults
+  - compatibility constraints for execution targets
+  - provenance links between a launched job and the exact pipeline definition used
 
 ## Required future capabilities
 

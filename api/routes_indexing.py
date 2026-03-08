@@ -1,15 +1,77 @@
+from uuid import UUID
+
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
 from api.config import get_settings
 from api.db import get_db
 from api.models import User
-from api.schemas import IndexRequest, IndexResponse
+from api.schemas import (
+    IndexJobDetail,
+    IndexJobLaunchResponse,
+    IndexJobSummary,
+    IndexRequest,
+    IndexResponse,
+)
+from api.services.indexing_jobs import (
+    create_indexing_job,
+    get_indexing_job_for_user,
+    launch_indexing_job,
+    list_indexing_jobs_for_user,
+)
 from api.services.project_indexing import index_project_root
 from api.services.users import get_current_user
 
 
 router = APIRouter(prefix="/indexing", tags=["indexing"])
+
+
+@router.post("/jobs", response_model=IndexJobLaunchResponse, status_code=status.HTTP_202_ACCEPTED)
+def create_job(
+    payload: IndexRequest,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> IndexJobLaunchResponse:
+    if payload.source_kind != "project_root":
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Only source_kind=project_root is implemented.",
+        )
+
+    job = create_indexing_job(db, payload=payload, current_user=current_user)
+    db.commit()
+    job = get_indexing_job_for_user(db, job_id=job.id, current_user=current_user)
+    if job is None:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Failed to reload job.")
+    launch_indexing_job(job.id)
+    return IndexJobLaunchResponse(
+        status="queued",
+        launch_mode="async",
+        job=IndexJobSummary.model_validate(job),
+        message="Indexing job accepted.",
+    )
+
+
+@router.get("/jobs", response_model=list[IndexJobSummary])
+def list_jobs(
+    limit: int = 20,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> list[IndexJobSummary]:
+    jobs = list_indexing_jobs_for_user(db, current_user=current_user, limit=min(max(limit, 1), 100))
+    return [IndexJobSummary.model_validate(job) for job in jobs]
+
+
+@router.get("/jobs/{job_id}", response_model=IndexJobDetail)
+def get_job(
+    job_id: UUID,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> IndexJobDetail:
+    job = get_indexing_job_for_user(db, job_id=job_id, current_user=current_user)
+    if job is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Indexing job not found.")
+    return IndexJobDetail.model_validate(job)
 
 
 @router.post("", response_model=IndexResponse)
@@ -51,8 +113,11 @@ def request_index(
         storage_root_name=result.storage_root_name,
         owner_user_key=result.owner_user_key,
         visibility=result.visibility,
+        total_projects=result.total_projects,
         scanned_projects=result.scanned_projects,
         indexed_projects=result.indexed_projects,
+        failed_projects=result.failed_projects,
         deleted_projects=result.deleted_projects,
+        stale_cleanup_skipped=result.stale_cleanup_skipped,
         message="Project root indexed successfully.",
     )

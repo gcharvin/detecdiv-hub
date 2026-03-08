@@ -30,6 +30,12 @@ class User(Base):
     project_acl_entries: Mapped[list["ProjectAcl"]] = relationship(back_populates="user")
     project_groups: Mapped[list["ProjectGroup"]] = relationship(back_populates="owner")
     project_notes: Mapped[list["ProjectNote"]] = relationship(back_populates="author")
+    requested_indexing_jobs: Mapped[list["IndexingJob"]] = relationship(
+        back_populates="requested_by", foreign_keys="IndexingJob.requested_by_user_id"
+    )
+    owned_indexing_jobs: Mapped[list["IndexingJob"]] = relationship(
+        back_populates="owner", foreign_keys="IndexingJob.owner_user_id"
+    )
 
 
 class StorageRoot(Base):
@@ -278,6 +284,49 @@ class ProjectDeletionEvent(Base):
     executed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
 
     project: Mapped[Project] = relationship(back_populates="deletion_events")
+
+
+class IndexingJob(Base):
+    __tablename__ = "indexing_jobs"
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    requested_by_user_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("users.id", ondelete="SET NULL")
+    )
+    owner_user_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("users.id", ondelete="SET NULL")
+    )
+    source_kind: Mapped[str] = mapped_column(String, nullable=False, default="project_root")
+    source_path: Mapped[str] = mapped_column(Text, nullable=False)
+    storage_root_name: Mapped[str | None] = mapped_column(String)
+    host_scope: Mapped[str] = mapped_column(String, nullable=False, default="server")
+    root_type: Mapped[str] = mapped_column(String, nullable=False, default="project_root")
+    visibility: Mapped[str] = mapped_column(String, nullable=False, default="private")
+    clear_existing_for_root: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
+    status: Mapped[str] = mapped_column(String, nullable=False, default="queued")
+    total_projects: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    scanned_projects: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    indexed_projects: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    failed_projects: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    deleted_projects: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    current_project_path: Mapped[str | None] = mapped_column(Text)
+    message: Mapped[str | None] = mapped_column(Text)
+    error_text: Mapped[str | None] = mapped_column(Text)
+    metadata_json: Mapped[dict] = mapped_column(JSONB, nullable=False, default=dict)
+    result_json: Mapped[dict] = mapped_column(JSONB, nullable=False, default=dict)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    started_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    finished_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
+    )
+
+    requested_by: Mapped[User | None] = relationship(
+        back_populates="requested_indexing_jobs", foreign_keys=[requested_by_user_id]
+    )
+    owner: Mapped[User | None] = relationship(
+        back_populates="owned_indexing_jobs", foreign_keys=[owner_user_id]
+    )
 
 
 class Pipeline(Base):

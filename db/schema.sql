@@ -155,6 +155,34 @@ CREATE TABLE IF NOT EXISTS project_deletion_events (
     executed_at TIMESTAMPTZ
 );
 
+CREATE TABLE IF NOT EXISTS indexing_jobs (
+    id UUID PRIMARY KEY,
+    requested_by_user_id UUID REFERENCES users(id) ON DELETE SET NULL,
+    owner_user_id UUID REFERENCES users(id) ON DELETE SET NULL,
+    source_kind TEXT NOT NULL DEFAULT 'project_root',
+    source_path TEXT NOT NULL,
+    storage_root_name TEXT,
+    host_scope TEXT NOT NULL DEFAULT 'server',
+    root_type TEXT NOT NULL DEFAULT 'project_root',
+    visibility TEXT NOT NULL DEFAULT 'private',
+    clear_existing_for_root BOOLEAN NOT NULL DEFAULT FALSE,
+    status TEXT NOT NULL DEFAULT 'queued',
+    total_projects INTEGER NOT NULL DEFAULT 0,
+    scanned_projects INTEGER NOT NULL DEFAULT 0,
+    indexed_projects INTEGER NOT NULL DEFAULT 0,
+    failed_projects INTEGER NOT NULL DEFAULT 0,
+    deleted_projects INTEGER NOT NULL DEFAULT 0,
+    current_project_path TEXT,
+    message TEXT,
+    error_text TEXT,
+    metadata_json JSONB NOT NULL DEFAULT '{}'::jsonb,
+    result_json JSONB NOT NULL DEFAULT '{}'::jsonb,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    started_at TIMESTAMPTZ,
+    finished_at TIMESTAMPTZ,
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
 CREATE TABLE IF NOT EXISTS pipelines (
     id UUID PRIMARY KEY,
     pipeline_key TEXT UNIQUE,
@@ -248,3 +276,5 @@ CREATE INDEX IF NOT EXISTS idx_project_groups_owner_user_id ON project_groups(ow
 CREATE INDEX IF NOT EXISTS idx_project_group_members_project_id ON project_group_members(project_id);
 CREATE INDEX IF NOT EXISTS idx_project_notes_project_id ON project_notes(project_id);
 CREATE INDEX IF NOT EXISTS idx_project_deletion_events_project_id ON project_deletion_events(project_id);
+CREATE INDEX IF NOT EXISTS idx_indexing_jobs_status_created_at ON indexing_jobs(status, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_indexing_jobs_requested_by_user_id ON indexing_jobs(requested_by_user_id);
