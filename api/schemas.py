@@ -2,15 +2,19 @@ from datetime import datetime
 from typing import Any
 from uuid import UUID
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 
-class HealthResponse(BaseModel):
+class HubBaseModel(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+
+class HealthResponse(HubBaseModel):
     status: str = "ok"
     service: str = "detecdiv-hub"
 
 
-class ProjectSummary(BaseModel):
+class ProjectSummary(HubBaseModel):
     id: UUID
     project_key: str | None = None
     project_name: str
@@ -21,7 +25,28 @@ class ProjectSummary(BaseModel):
     updated_at: datetime | None = None
 
 
-class JobCreateRequest(BaseModel):
+class StorageRootSummary(HubBaseModel):
+    id: int
+    name: str
+    root_type: str
+    host_scope: str
+    path_prefix: str
+
+
+class ProjectLocationSummary(HubBaseModel):
+    id: int
+    relative_path: str
+    project_file_name: str | None = None
+    access_mode: str
+    is_preferred: bool
+    storage_root: StorageRootSummary
+
+
+class ProjectDetail(ProjectSummary):
+    locations: list[ProjectLocationSummary] = Field(default_factory=list)
+
+
+class JobCreateRequest(HubBaseModel):
     project_id: UUID | None = None
     pipeline_id: UUID | None = None
     execution_target_id: UUID | None = None
@@ -32,7 +57,7 @@ class JobCreateRequest(BaseModel):
     params_json: dict[str, Any] = Field(default_factory=dict)
 
 
-class JobSummary(BaseModel):
+class JobSummary(HubBaseModel):
     id: UUID
     project_id: UUID | None = None
     pipeline_id: UUID | None = None
@@ -52,9 +77,8 @@ class JobSummary(BaseModel):
     updated_at: datetime | None = None
 
 
-class IndexRequest(BaseModel):
+class IndexRequest(HubBaseModel):
     source_kind: str = "project_root"
     source_path: str
     requested_by: str | None = None
     metadata_json: dict[str, Any] = Field(default_factory=dict)
-

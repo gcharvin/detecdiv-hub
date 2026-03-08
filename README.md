@@ -43,3 +43,37 @@ uvicorn api.app:app --reload --host 127.0.0.1 --port 8000
 ```
 
 See [docs/architecture.md](docs/architecture.md) and [AGENTS.md](AGENTS.md).
+
+## Bootstrap a local development database
+
+This repository expects PostgreSQL. Create a database first, then:
+
+```bash
+python scripts/bootstrap_db.py
+python scripts/seed_demo.py
+uvicorn api.app:app --reload --host 127.0.0.1 --port 8000
+```
+
+The demo seed adds:
+
+- two storage roots
+- one execution target
+- two sample projects with both Linux and Windows-facing locations
+
+## Import real projects from the local SQLite catalog
+
+If you already indexed real projects with the MATLAB catalog browser, you can
+import them into PostgreSQL:
+
+```powershell
+python scripts\import_catalog_sqlite.py "C:\Users\charvin\Documents\MATLAB\DetecDiv-catalog\catalog\detecdiv_catalog.sqlite"
+```
+
+This creates:
+
+- one `storage_root` per imported catalog root
+- one `detecdiv_project` per SQLite catalog project
+- one `project_location` pointing to the original local `.mat` location
+
+This is the shortest path to test the hub against real projects before adding a
+server-side indexer.

@@ -23,6 +23,46 @@ class Project(Base):
     )
 
     jobs: Mapped[list["Job"]] = relationship(back_populates="project")
+    locations: Mapped[list["ProjectLocation"]] = relationship(back_populates="project")
+
+
+class StorageRoot(Base):
+    __tablename__ = "storage_roots"
+
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    name: Mapped[str] = mapped_column(String, nullable=False, unique=True)
+    root_type: Mapped[str] = mapped_column(String, nullable=False)
+    host_scope: Mapped[str] = mapped_column(String, nullable=False)
+    path_prefix: Mapped[str] = mapped_column(String, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
+    )
+
+    project_locations: Mapped[list["ProjectLocation"]] = relationship(back_populates="storage_root")
+
+
+class ProjectLocation(Base):
+    __tablename__ = "project_locations"
+
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    project_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("detecdiv_projects.id", ondelete="CASCADE"), nullable=False
+    )
+    storage_root_id: Mapped[int] = mapped_column(
+        ForeignKey("storage_roots.id", ondelete="RESTRICT"), nullable=False
+    )
+    relative_path: Mapped[str] = mapped_column(String, nullable=False)
+    project_file_name: Mapped[str | None] = mapped_column(String)
+    access_mode: Mapped[str] = mapped_column(String, nullable=False, default="readwrite")
+    is_preferred: Mapped[bool] = mapped_column(nullable=False, default=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
+    )
+
+    project: Mapped[Project] = relationship(back_populates="locations")
+    storage_root: Mapped[StorageRoot] = relationship(back_populates="project_locations")
 
 
 class Pipeline(Base):
@@ -81,4 +121,3 @@ class Job(Base):
     )
 
     project: Mapped[Project | None] = relationship(back_populates="jobs")
-
