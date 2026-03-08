@@ -58,6 +58,18 @@ CREATE TABLE IF NOT EXISTS detecdiv_projects (
     visibility TEXT NOT NULL DEFAULT 'private',
     status TEXT NOT NULL DEFAULT 'indexed',
     health_status TEXT NOT NULL DEFAULT 'ok',
+    fov_count INTEGER NOT NULL DEFAULT 0,
+    roi_count INTEGER NOT NULL DEFAULT 0,
+    classifier_count INTEGER NOT NULL DEFAULT 0,
+    processor_count INTEGER NOT NULL DEFAULT 0,
+    pipeline_run_count INTEGER NOT NULL DEFAULT 0,
+    available_raw_count INTEGER NOT NULL DEFAULT 0,
+    missing_raw_count INTEGER NOT NULL DEFAULT 0,
+    run_json_count INTEGER NOT NULL DEFAULT 0,
+    h5_count INTEGER NOT NULL DEFAULT 0,
+    h5_bytes BIGINT NOT NULL DEFAULT 0,
+    latest_run_status TEXT,
+    latest_run_at TIMESTAMPTZ,
     project_mat_bytes BIGINT NOT NULL DEFAULT 0,
     project_dir_bytes BIGINT NOT NULL DEFAULT 0,
     estimated_raw_bytes BIGINT NOT NULL DEFAULT 0,
@@ -206,6 +218,18 @@ ALTER TABLE raw_datasets ADD COLUMN IF NOT EXISTS last_size_scan_at TIMESTAMPTZ;
 
 ALTER TABLE detecdiv_projects ADD COLUMN IF NOT EXISTS owner_user_id UUID REFERENCES users(id) ON DELETE SET NULL;
 ALTER TABLE detecdiv_projects ADD COLUMN IF NOT EXISTS visibility TEXT NOT NULL DEFAULT 'private';
+ALTER TABLE detecdiv_projects ADD COLUMN IF NOT EXISTS fov_count INTEGER NOT NULL DEFAULT 0;
+ALTER TABLE detecdiv_projects ADD COLUMN IF NOT EXISTS roi_count INTEGER NOT NULL DEFAULT 0;
+ALTER TABLE detecdiv_projects ADD COLUMN IF NOT EXISTS classifier_count INTEGER NOT NULL DEFAULT 0;
+ALTER TABLE detecdiv_projects ADD COLUMN IF NOT EXISTS processor_count INTEGER NOT NULL DEFAULT 0;
+ALTER TABLE detecdiv_projects ADD COLUMN IF NOT EXISTS pipeline_run_count INTEGER NOT NULL DEFAULT 0;
+ALTER TABLE detecdiv_projects ADD COLUMN IF NOT EXISTS available_raw_count INTEGER NOT NULL DEFAULT 0;
+ALTER TABLE detecdiv_projects ADD COLUMN IF NOT EXISTS missing_raw_count INTEGER NOT NULL DEFAULT 0;
+ALTER TABLE detecdiv_projects ADD COLUMN IF NOT EXISTS run_json_count INTEGER NOT NULL DEFAULT 0;
+ALTER TABLE detecdiv_projects ADD COLUMN IF NOT EXISTS h5_count INTEGER NOT NULL DEFAULT 0;
+ALTER TABLE detecdiv_projects ADD COLUMN IF NOT EXISTS h5_bytes BIGINT NOT NULL DEFAULT 0;
+ALTER TABLE detecdiv_projects ADD COLUMN IF NOT EXISTS latest_run_status TEXT;
+ALTER TABLE detecdiv_projects ADD COLUMN IF NOT EXISTS latest_run_at TIMESTAMPTZ;
 ALTER TABLE detecdiv_projects ADD COLUMN IF NOT EXISTS project_mat_bytes BIGINT NOT NULL DEFAULT 0;
 ALTER TABLE detecdiv_projects ADD COLUMN IF NOT EXISTS project_dir_bytes BIGINT NOT NULL DEFAULT 0;
 ALTER TABLE detecdiv_projects ADD COLUMN IF NOT EXISTS estimated_raw_bytes BIGINT NOT NULL DEFAULT 0;

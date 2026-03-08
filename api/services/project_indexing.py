@@ -9,6 +9,7 @@ from sqlalchemy import delete, select
 from sqlalchemy.orm import Session
 
 from api.models import Project, ProjectLocation, StorageRoot, User
+from api.services.project_inventory import inspect_project_directory
 from api.services.storage_metrics import safe_dir_size, safe_file_size
 from api.services.users import get_or_create_user
 
@@ -154,11 +155,13 @@ def upsert_project_from_paths(
     project_dir_bytes = safe_dir_size(project_dir)
     total_bytes = project_mat_bytes + project_dir_bytes
     size_timestamp = datetime.now(timezone.utc)
+    inventory = inspect_project_directory(project_dir)
     metadata = {
         "source": "hub_indexer",
         "project_mat_abs": str(mat_path),
         "project_dir_abs": str(project_dir),
         "project_rel_from_root": str(project_dir.relative_to(root_path)),
+        "inventory": inventory.metadata_json(),
     }
 
     if project is None:
@@ -169,6 +172,18 @@ def upsert_project_from_paths(
             visibility=visibility,
             status="indexed",
             health_status="ok",
+            fov_count=0,
+            roi_count=0,
+            classifier_count=inventory.classifier_count,
+            processor_count=inventory.processor_count,
+            pipeline_run_count=inventory.pipeline_run_count,
+            available_raw_count=0,
+            missing_raw_count=0,
+            run_json_count=inventory.run_json_count,
+            h5_count=inventory.h5_count,
+            h5_bytes=inventory.h5_bytes,
+            latest_run_status=inventory.latest_run_status,
+            latest_run_at=inventory.latest_run_at,
             project_mat_bytes=project_mat_bytes,
             project_dir_bytes=project_dir_bytes,
             estimated_raw_bytes=0,
@@ -179,16 +194,34 @@ def upsert_project_from_paths(
         session.add(project)
         session.flush()
     else:
+        existing_fov_count = int(project.fov_count or 0)
+        existing_roi_count = int(project.roi_count or 0)
+        existing_available_raw_count = int(project.available_raw_count or 0)
+        existing_missing_raw_count = int(project.missing_raw_count or 0)
+        merged_metadata = dict(project.metadata_json or {})
+        merged_metadata.update(metadata)
         project.owner_user_id = owner.id
         project.project_name = mat_path.stem
         project.visibility = visibility
         project.status = "indexed"
-        project.health_status = "ok"
+        project.health_status = "raw_missing" if existing_missing_raw_count > 0 else "ok"
+        project.fov_count = existing_fov_count
+        project.roi_count = existing_roi_count
+        project.classifier_count = inventory.classifier_count
+        project.processor_count = inventory.processor_count
+        project.pipeline_run_count = inventory.pipeline_run_count
+        project.available_raw_count = existing_available_raw_count
+        project.missing_raw_count = existing_missing_raw_count
+        project.run_json_count = inventory.run_json_count
+        project.h5_count = inventory.h5_count
+        project.h5_bytes = inventory.h5_bytes
+        project.latest_run_status = inventory.latest_run_status
+        project.latest_run_at = inventory.latest_run_at
         project.project_mat_bytes = project_mat_bytes
         project.project_dir_bytes = project_dir_bytes
         project.total_bytes = total_bytes
         project.last_size_scan_at = size_timestamp
-        project.metadata_json = metadata
+        project.metadata_json = merged_metadata
         session.flush()
 
     location = session.scalars(

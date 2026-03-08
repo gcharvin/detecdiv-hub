@@ -47,6 +47,18 @@ class ProjectSummary(HubBaseModel):
     status: str
     health_status: str
     visibility: str
+    fov_count: int = 0
+    roi_count: int = 0
+    classifier_count: int = 0
+    processor_count: int = 0
+    pipeline_run_count: int = 0
+    available_raw_count: int = 0
+    missing_raw_count: int = 0
+    run_json_count: int = 0
+    h5_count: int = 0
+    h5_bytes: int = 0
+    latest_run_status: str | None = None
+    latest_run_at: datetime | None = None
     project_mat_bytes: int = 0
     project_dir_bytes: int = 0
     estimated_raw_bytes: int = 0
@@ -188,3 +200,23 @@ class IndexResponse(HubBaseModel):
     indexed_projects: int
     deleted_projects: int = 0
     message: str
+
+
+class DashboardHealthBucket(HubBaseModel):
+    health_status: str
+    project_count: int
+    total_bytes: int = 0
+
+
+class DashboardSummary(HubBaseModel):
+    user: UserSummary
+    total_projects: int = 0
+    owned_projects: int = 0
+    shared_projects: int = 0
+    public_projects: int = 0
+    total_bytes: int = 0
+    owned_bytes: int = 0
+    note_count: int = 0
+    group_count: int = 0
+    deleted_projects: int = 0
+    health: list[DashboardHealthBucket] = Field(default_factory=list)

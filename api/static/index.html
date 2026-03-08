@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>DetecDiv Hub</title>
+    <link rel="stylesheet" href="/web/styles.css" />
+  </head>
+  <body>
+    <div class="page-shell">
+      <header class="hero">
+        <div>
+          <div class="eyebrow">DetecDiv Hub</div>
+          <h1>Catalog, governance, and storage review</h1>
+          <p class="hero-copy">
+            Browse indexed projects, inspect storage footprint, manage sharing,
+            and trigger indexing without MATLAB.
+          </p>
+        </div>
+        <div class="hero-actions">
+          <label class="field compact">
+            <span>User key</span>
+            <input id="user-key" type="text" placeholder="localdev" />
+          </label>
+          <button id="connect-button" class="primary">Connect</button>
+        </div>
+      </header>
+
+      <section class="summary-grid" id="summary-grid">
+        <article class="summary-card">
+          <div class="summary-label">Projects</div>
+          <div id="summary-total-projects" class="summary-value">0</div>
+        </article>
+        <article class="summary-card">
+          <div class="summary-label">Owned</div>
+          <div id="summary-owned-projects" class="summary-value">0</div>
+        </article>
+        <article class="summary-card">
+          <div class="summary-label">Total Storage</div>
+          <div id="summary-total-bytes" class="summary-value">0 B</div>
+        </article>
+        <article class="summary-card">
+          <div class="summary-label">Groups</div>
+          <div id="summary-group-count" class="summary-value">0</div>
+        </article>
+      </section>
+
+      <section class="toolbar">
+        <label class="field">
+          <span>Group filter</span>
+          <select id="group-filter">
+            <option value="">All projects</option>
+          </select>
+        </label>
+        <label class="toggle">
+          <input id="owned-only" type="checkbox" />
+          <span>Owned only</span>
+        </label>
+        <button id="refresh-button">Refresh</button>
+        <button id="new-group-button">New group</button>
+      </section>
+
+      <section class="layout-grid">
+        <main class="panel">
+          <div class="panel-header">
+            <div>
+              <h2>Projects</h2>
+              <p id="project-count-label" class="muted">0 visible projects</p>
+            </div>
+            <div class="status-pill" id="user-label">User: not connected</div>
+          </div>
+          <div class="table-wrap">
+            <table id="projects-table">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Owner</th>
+                  <th>Visibility</th>
+                  <th>Health</th>
+                  <th>Runs</th>
+                  <th>H5</th>
+                  <th>Size</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </main>
+
+        <aside class="panel detail-panel">
+          <div class="panel-header">
+            <div>
+              <h2>Project Details</h2>
+              <p id="detail-subtitle" class="muted">Select a project</p>
+            </div>
+          </div>
+
+          <div id="detail-empty" class="empty-state">
+            No project selected.
+          </div>
+
+          <div id="detail-content" class="detail-content hidden">
+            <dl class="detail-list" id="detail-list"></dl>
+
+            <section class="subpanel">
+              <div class="subpanel-header">
+                <h3>Notes</h3>
+                <button id="add-note-button">Add note</button>
+              </div>
+              <div id="notes-list" class="stack-list"></div>
+            </section>
+
+            <section class="subpanel">
+              <div class="subpanel-header">
+                <h3>Access</h3>
+                <button id="share-button">Share</button>
+              </div>
+              <div id="acl-list" class="stack-list"></div>
+            </section>
+
+            <section class="subpanel">
+              <div class="subpanel-header">
+                <h3>Actions</h3>
+              </div>
+              <div class="action-stack">
+                <button id="add-to-group-button">Add to group</button>
+                <button id="preview-delete-button" class="danger">Preview delete</button>
+              </div>
+            </section>
+          </div>
+        </aside>
+      </section>
+
+      <section class="panel">
+        <div class="panel-header">
+          <div>
+            <h2>Index Root</h2>
+            <p class="muted">Index a project root directly from the hub.</p>
+          </div>
+        </div>
+        <div class="index-form">
+          <label class="field">
+            <span>Source path</span>
+            <input id="index-source-path" type="text" placeholder="/srv/detecdiv/projects" />
+          </label>
+          <label class="field">
+            <span>Storage root name</span>
+            <input id="index-storage-root-name" type="text" placeholder="server_projects" />
+          </label>
+          <label class="field">
+            <span>Visibility</span>
+            <select id="index-visibility">
+              <option value="private">private</option>
+              <option value="shared">shared</option>
+              <option value="public">public</option>
+            </select>
+          </label>
+          <label class="toggle">
+            <input id="index-clear-existing" type="checkbox" />
+            <span>Clear stale rows for this root</span>
+          </label>
+          <button id="index-button" class="primary">Run indexing</button>
+        </div>
+      </section>
+
+      <footer class="footer">
+        <div id="status-line">Ready.</div>
+      </footer>
+    </div>
+
+    <script src="/web/app.js" defer></script>
+  </body>
+</html>

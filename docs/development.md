@@ -55,6 +55,13 @@ Useful API checks once the server is running:
 curl http://127.0.0.1:8000/health
 curl "http://127.0.0.1:8000/users/me?user_key=localdev"
 curl "http://127.0.0.1:8000/projects?user_key=localdev"
+curl "http://127.0.0.1:8000/dashboard/summary?user_key=localdev"
+```
+
+Open the browser UI:
+
+```powershell
+start http://127.0.0.1:8000/web/
 ```
 
 ## Import a real SQLite catalog
@@ -89,6 +96,14 @@ curl -Method POST -ContentType "application/json" -Body '{"source_kind":"project
 On the real Linux server, the hub should index the canonical server path.
 MATLAB clients should not reuse that path directly; they should map it to their
 own Samba mount using the hub client settings.
+
+Direct hub indexing currently enriches each project with:
+
+- classifier and processor counts
+- `run.json` discovery across pipeline/classification/processor folders
+- H5 artifact counts and byte footprint
+- latest observed run status/timestamp
+- compact top-level inventory metadata
 
 ## Governance smoke test
 

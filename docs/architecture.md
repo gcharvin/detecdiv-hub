@@ -185,6 +185,22 @@ The current schema already carries first project-level size fields:
 - `estimated_raw_bytes`
 - `total_bytes`
 
+The current implementation also carries a first inventory layer directly on
+projects:
+
+- `classifier_count`
+- `processor_count`
+- `pipeline_run_count`
+- `run_json_count`
+- `h5_count`
+- `h5_bytes`
+- `latest_run_status`
+- `latest_run_at`
+
+These metrics are intentionally lightweight and server-computable without
+MATLAB. Richer FOV/ROI/raw linkage can still be imported from the MATLAB-side
+catalog when available.
+
 ### Deletion workflow
 
 Project deletion should not begin as a bare `DELETE FROM` operation. The target
@@ -213,3 +229,14 @@ removing the project from normal listings.
 The API should be designed so that a browser-based frontend can browse and
 manage the catalog without MATLAB. The MATLAB client should be one client among
 others, not the sole interaction surface.
+
+The repository now includes a minimal web UI served by FastAPI under `/web/`.
+It is intentionally framework-free for easy deployment on the Linux server and
+currently targets:
+
+- project browsing and filtering
+- size and health inspection
+- notes and ACL review
+- project grouping
+- preview-first deletion
+- direct hub-side indexing

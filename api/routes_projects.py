@@ -65,7 +65,7 @@ def list_projects(
                 ProjectGroup.owner_user_id == current_user.id,
             )
         )
-    return list(db.scalars(stmt).unique())
+    return [project_summary_view(project) for project in db.scalars(stmt).unique()]
 
 
 @router.get("/{project_id}", response_model=ProjectDetail)
@@ -323,7 +323,7 @@ def get_project_group(
         ).unique()
     )
     detail = ProjectGroupDetail.model_validate(group)
-    detail.projects = [ProjectSummary.model_validate(project) for project in projects]
+    detail.projects = [project_summary_view(project) for project in projects]
     detail.project_count = len(projects)
     return detail
 
@@ -375,3 +375,52 @@ def list_users(
     if current_user.role not in {"admin", "service"}:
         return [current_user]
     return list(db.scalars(select(User).where(User.is_active.is_(True)).order_by(User.display_name.asc())))
+
+
+def project_summary_view(project: Project) -> ProjectSummary:
+    return ProjectSummary.model_validate(
+        {
+            "id": project.id,
+            "project_key": project.project_key,
+            "project_name": project.project_name,
+            "status": project.status,
+            "health_status": project.health_status,
+            "visibility": project.visibility,
+            "fov_count": project.fov_count,
+            "roi_count": project.roi_count,
+            "classifier_count": project.classifier_count,
+            "processor_count": project.processor_count,
+            "pipeline_run_count": project.pipeline_run_count,
+            "available_raw_count": project.available_raw_count,
+            "missing_raw_count": project.missing_raw_count,
+            "run_json_count": project.run_json_count,
+            "h5_count": project.h5_count,
+            "h5_bytes": project.h5_bytes,
+            "latest_run_status": project.latest_run_status,
+            "latest_run_at": project.latest_run_at,
+            "project_mat_bytes": project.project_mat_bytes,
+            "project_dir_bytes": project.project_dir_bytes,
+            "estimated_raw_bytes": project.estimated_raw_bytes,
+            "total_bytes": project.total_bytes,
+            "metadata_json": summarize_metadata(project.metadata_json),
+            "owner": project.owner,
+            "created_at": project.created_at,
+            "updated_at": project.updated_at,
+        }
+    )
+
+
+def summarize_metadata(metadata_json: dict | None) -> dict:
+    metadata = dict(metadata_json or {})
+    inventory = metadata.get("inventory")
+    if not isinstance(inventory, dict):
+        return metadata
+
+    trimmed_inventory = dict(inventory)
+    for key in ("pipeline_runs", "classifier_runs", "processor_runs"):
+        records = inventory.get(key)
+        if isinstance(records, list):
+            trimmed_inventory[f"{key}_count"] = len(records)
+            trimmed_inventory.pop(key, None)
+    metadata["inventory"] = trimmed_inventory
+    return metadata

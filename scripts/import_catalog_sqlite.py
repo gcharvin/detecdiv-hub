@@ -18,6 +18,7 @@ if str(REPO_ROOT) not in sys.path:
 from api.config import get_settings
 from api.db import SessionLocal
 from api.models import Project, ProjectLocation, StorageRoot
+from api.services.project_inventory import inspect_project_directory
 from api.services.storage_metrics import safe_dir_size, safe_file_size
 from api.services.users import get_or_create_user
 
@@ -171,6 +172,8 @@ def upsert_project(
     project_dir_bytes = safe_dir_size(dir_path)
     total_bytes = project_mat_bytes + project_dir_bytes
     size_timestamp = datetime.now(timezone.utc)
+    inventory = inspect_project_directory(dir_path)
+    metadata["inventory"] = inventory.metadata_json()
 
     if project is None:
         project = Project(
@@ -180,6 +183,18 @@ def upsert_project(
             visibility=visibility,
             status="indexed",
             health_status=row["health_status"] or "ok",
+            fov_count=int(row["fov_count"] or 0),
+            roi_count=int(row["roi_count"] or 0),
+            classifier_count=max(int(row["classifier_count"] or 0), inventory.classifier_count),
+            processor_count=max(int(row["processor_count"] or 0), inventory.processor_count),
+            pipeline_run_count=max(int(row["pipeline_run_count"] or 0), inventory.pipeline_run_count),
+            available_raw_count=int(row["available_raw_count"] or 0),
+            missing_raw_count=int(row["missing_raw_count"] or 0),
+            run_json_count=inventory.run_json_count,
+            h5_count=inventory.h5_count,
+            h5_bytes=inventory.h5_bytes,
+            latest_run_status=inventory.latest_run_status,
+            latest_run_at=inventory.latest_run_at,
             project_mat_bytes=project_mat_bytes,
             project_dir_bytes=project_dir_bytes,
             total_bytes=total_bytes,
@@ -194,6 +209,18 @@ def upsert_project(
         project.visibility = visibility
         project.status = "indexed"
         project.health_status = row["health_status"] or "ok"
+        project.fov_count = int(row["fov_count"] or 0)
+        project.roi_count = int(row["roi_count"] or 0)
+        project.classifier_count = max(int(row["classifier_count"] or 0), inventory.classifier_count)
+        project.processor_count = max(int(row["processor_count"] or 0), inventory.processor_count)
+        project.pipeline_run_count = max(int(row["pipeline_run_count"] or 0), inventory.pipeline_run_count)
+        project.available_raw_count = int(row["available_raw_count"] or 0)
+        project.missing_raw_count = int(row["missing_raw_count"] or 0)
+        project.run_json_count = inventory.run_json_count
+        project.h5_count = inventory.h5_count
+        project.h5_bytes = inventory.h5_bytes
+        project.latest_run_status = inventory.latest_run_status
+        project.latest_run_at = inventory.latest_run_at
         project.project_mat_bytes = project_mat_bytes
         project.project_dir_bytes = project_dir_bytes
         project.total_bytes = total_bytes

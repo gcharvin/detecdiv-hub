@@ -18,6 +18,7 @@ the control plane around it.
 
 - PostgreSQL schema for projects, raw datasets, pipelines, jobs, and artifacts
 - FastAPI service for listing projects and submitting jobs
+- browser-based web UI served directly by FastAPI at `/web/`
 - worker loop that polls queued jobs and dispatches execution
 - scripts for local development from a Windows client using SSH tunnels
 - deployment stubs for Linux services
@@ -72,6 +73,16 @@ The hub now includes a first governance layer:
 - project notes
 - project size accounting fields
 
+The project catalog now also exposes richer direct indexing metrics:
+
+- `fov_count`, `roi_count` when imported from the MATLAB SQLite catalog
+- `classifier_count`, `processor_count`
+- `pipeline_run_count`
+- total `run_json_count` across pipeline/classification/processor runs
+- `h5_count` and `h5_bytes`
+- latest observed run status and timestamp
+- compact inventory metadata in `metadata_json.inventory`
+
 In local development, the API resolves the current user from:
 
 - `?user_key=...`
@@ -120,7 +131,26 @@ canonical root. Clients then remap that root locally using their own settings.
 curl "http://127.0.0.1:8000/users/me?user_key=localdev"
 curl "http://127.0.0.1:8000/projects?user_key=localdev"
 curl "http://127.0.0.1:8000/project-groups?user_key=localdev"
+curl "http://127.0.0.1:8000/dashboard/summary?user_key=localdev"
 ```
+
+## Web UI
+
+The hub now serves a minimal browser UI at:
+
+- [http://127.0.0.1:8000/web/](http://127.0.0.1:8000/web/)
+
+Current web UI capabilities:
+
+- connect as one hub user via `user_key`
+- browse projects with owner/group filters
+- inspect per-project storage and inventory metrics
+- review notes and ACL entries
+- add notes
+- share a project with another user
+- create groups and add a project to a group
+- preview and execute deletion
+- launch hub-side indexing on a project root
 
 ## Safe project deletion
 
