@@ -80,5 +80,20 @@ class JobSummary(HubBaseModel):
 class IndexRequest(HubBaseModel):
     source_kind: str = "project_root"
     source_path: str
+    storage_root_name: str | None = None
+    host_scope: str = "server"
+    root_type: str = "project_root"
+    clear_existing_for_root: bool = False
     requested_by: str | None = None
     metadata_json: dict[str, Any] = Field(default_factory=dict)
+
+
+class IndexResponse(HubBaseModel):
+    status: str
+    source_kind: str
+    source_path: str
+    storage_root_name: str
+    scanned_projects: int
+    indexed_projects: int
+    deleted_projects: int = 0
+    message: str

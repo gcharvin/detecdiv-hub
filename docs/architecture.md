@@ -43,6 +43,25 @@ It is designed to support:
 - `artifacts`
   - files or URIs produced by jobs
 
+Future entity extensions that should be planned now:
+
+- `users`
+  - authenticated users of the hub
+- `project_acl` or equivalent sharing tables
+  - who can see or modify which project
+- `project_groups`
+  - user-defined named collections of projects
+- `project_group_members`
+  - membership of projects inside groups
+- `project_notes`
+  - free-text or structured notes on projects
+- `fovs` and `fov_annotations`
+  - future exposed position-level metadata such as mutant or condition
+- `storage_usage_snapshots`
+  - measured project/raw/derived storage footprints
+- `deletion_requests` and `deletion_artifacts`
+  - auditable cleanup workflows
+
 ## Distributed path model
 
 Do not assume one absolute path works everywhere.
@@ -62,6 +81,12 @@ Examples:
 
 The same resource can therefore be resolved differently depending on host.
 
+This matters for permissions and destructive actions:
+
+- the server should decide what physical data can actually be deleted
+- clients may only request deletion or cleanup through the API
+- clients should not be trusted as the source of canonical paths
+
 ## Execution model
 
 Jobs can be requested in one of three modes:
@@ -80,6 +105,13 @@ Typical flow:
 3. API inserts a queued job.
 4. Worker claims the job and executes it.
 5. Worker updates status and artifacts.
+
+Execution must remain secondary to governance:
+
+- ownership and access checks should happen before listing or executing on a
+  project
+- destructive actions must be authorized separately from read access
+- storage accounting should be available before offering deletion workflows
 
 ## Client/server development workflow
 
@@ -107,3 +139,50 @@ Key requirement:
 
 That logic belongs in ingestion workers, not in the database itself.
 
+## Additional product constraints
+
+### Multi-user visibility
+
+The default assumption should be private-by-default visibility:
+
+- a user sees their own projects
+- shared visibility is explicit
+- admin/service accounts may have broader access
+
+### Notes and annotations
+
+Two layers of metadata will coexist:
+
+- hub-managed metadata used for indexing, filtering, and collaboration
+- DetecDiv project metadata that may ultimately belong in the `shallow` object
+
+If a field must travel with the project outside the hub, prefer eventually
+storing it in the DetecDiv project format and syncing it with the hub.
+
+### Storage footprint
+
+Disk pressure is a first-class problem, not a secondary metric. The hub should
+be able to report:
+
+- project folder size
+- project `.mat` size
+- raw-data size
+- derived artifact size
+- rolled-up per-user and per-group usage
+
+### Deletion workflow
+
+Project deletion should not begin as a bare `DELETE FROM` operation. The target
+model is:
+
+1. preview what would be deleted
+2. report size to reclaim
+3. require explicit confirmation and authorization
+4. execute server-side cleanup
+5. log what happened
+
+### Web UI
+
+The API should be designed so that a browser-based frontend can browse and
+manage the catalog without MATLAB. The MATLAB client should be one client among
+others, not the sole interaction surface.

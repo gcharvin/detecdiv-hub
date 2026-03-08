@@ -77,3 +77,21 @@ This creates:
 
 This is the shortest path to test the hub against real projects before adding a
 server-side indexer.
+
+## Index a project root directly from the hub
+
+The hub can now scan a DetecDiv project root directly, without importing a
+local SQLite catalog first:
+
+```powershell
+python scripts\index_project_root.py "C:\Users\charvin\SynologyDrive\Data\DetecDivProjects" --host-scope client
+```
+
+Or through the API:
+
+```powershell
+curl -Method POST -ContentType "application/json" -Body '{"source_kind":"project_root","source_path":"C:\\Users\\charvin\\SynologyDrive\\Data\\DetecDivProjects","host_scope":"client"}' http://127.0.0.1:8000/indexing
+```
+
+For a deployed server, the indexed `source_path` should be the server-side
+canonical root. Clients then remap that root locally using their own settings.

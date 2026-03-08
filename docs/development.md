@@ -70,3 +70,21 @@ Then restart the API if needed and query the imported projects:
 ```powershell
 curl http://127.0.0.1:8000/projects
 ```
+
+## Direct hub-side indexing
+
+You can also index a DetecDiv root directly into PostgreSQL:
+
+```powershell
+python scripts\index_project_root.py "C:\Users\charvin\SynologyDrive\Data\DetecDivProjects" --host-scope client
+```
+
+Or by calling the API:
+
+```powershell
+curl -Method POST -ContentType "application/json" -Body '{"source_kind":"project_root","source_path":"C:\\Users\\charvin\\SynologyDrive\\Data\\DetecDivProjects","host_scope":"client"}' http://127.0.0.1:8000/indexing
+```
+
+On the real Linux server, the hub should index the canonical server path.
+MATLAB clients should not reuse that path directly; they should map it to their
+own Samba mount using the hub client settings.

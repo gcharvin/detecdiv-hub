@@ -63,6 +63,22 @@ Core entities:
 4. Support a Windows client connecting through SSH tunnels to server API/DB.
 5. Prepare for asynchronous ingestion of microscope data as it lands on server storage.
 
+## Product priorities to keep in mind
+
+The repository is not just a technical queue runner. It must evolve into a
+usable multi-user catalog for real data stewardship. Keep these product needs
+explicit in future threads:
+
+1. access control and authorship
+2. reliable project deletion and storage reclamation
+3. storage footprint accounting
+4. project grouping and filtering
+5. project- and FOV-level annotations
+6. a web UI that does not depend on MATLAB
+
+These items are not optional polish. They affect the schema and ownership model
+early, so they should be considered before the job system gets too rigid.
+
 ## Coding guidelines
 
 - Prefer small, explicit modules over clever abstractions.
@@ -89,6 +105,14 @@ Jobs should carry:
 - requested execution mode: `auto`, `server`, or `local`
 - resolved execution target
 - enough metadata to reconstruct what happened later
+
+Server paths and client paths must remain separate concerns:
+
+- the hub stores canonical server-visible locations
+- each client maps those locations locally through Samba or other mounts
+- the hub must not depend on one user's Windows drive letters
+- client settings may include path-prefix mappings, but the database should
+  keep stable server-side roots as the primary reference
 
 ## Agent workflow expectations
 
@@ -117,6 +141,49 @@ For new features, agents should first identify which layer is affected:
 - support streaming or scheduled ingestion from microscope storage
 - define server-side execution wrappers for `matlab -batch`
 - define structured logs and artifact retention rules
+
+## Required future capabilities
+
+The following capabilities should shape upcoming schema and API changes:
+
+- Project access control:
+  - each project should have an owner or author
+  - users should normally see only projects they own or are granted access to
+  - groups and shared access must be possible
+- Project deletion:
+  - deleting a project should support a safe dry-run mode
+  - deletion may include derived artifacts, project folders, and optionally
+    linked raw data if explicitly requested and safe
+  - deletion must be auditable and reversible where possible
+- Storage accounting:
+  - the hub should measure project footprint, raw-data footprint, and total
+    owned storage
+  - these metrics should be queryable for cleanup and quota decisions
+- User grouping:
+  - users should be able to organize projects into named groups or collections
+  - filtering by group should be first-class in API and UI
+- Notes and annotations:
+  - projects need user-editable notes
+  - FOVs will eventually need annotations such as mutant, condition, or other
+    biological context
+  - if a note semantically belongs to the DetecDiv project object itself, the
+    long-term source of truth may need to be pushed back into the `shallow`
+    project format rather than living only in the hub DB
+- Web interface:
+  - plan for a browser-based UI that can browse the catalog without MATLAB
+  - the API should therefore avoid MATLAB-specific assumptions in its contract
+
+## Recommended implementation order
+
+Unless a thread has a narrower goal, the default order should be:
+
+1. authentication, users, and project ownership
+2. server/client path mapping and stable storage-root semantics
+3. richer project/raw indexing including size accounting
+4. notes, project groups, and annotation primitives
+5. safe deletion workflows with dry-run and audit trail
+6. web UI
+7. remote execution and job orchestration hardening
 
 ## Non-goals for the early phase
 
