@@ -43,7 +43,7 @@ pip install -e .
 uvicorn api.app:app --reload --host 127.0.0.1 --port 8000
 ```
 
-See [docs/architecture.md](docs/architecture.md) and [AGENTS.md](AGENTS.md).
+See [docs/architecture.md](docs/architecture.md), [docs/install_server.md](docs/install_server.md), [docs/install_client.md](docs/install_client.md), and [AGENTS.md](AGENTS.md).
 
 ## Bootstrap a local development database
 

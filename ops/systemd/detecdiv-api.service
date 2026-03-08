@@ -6,11 +6,10 @@ After=network.target
 Type=simple
 User=detecdiv
 WorkingDirectory=/srv/detecdiv/detecdiv-hub
-Environment=DETECDIV_HUB_DATABASE_URL=postgresql+psycopg://detecdiv:detecdiv@localhost:5432/detecdiv_hub
+EnvironmentFile=/etc/detecdiv-hub/detecdiv-hub.env
 ExecStart=/srv/detecdiv/detecdiv-hub/.venv/bin/uvicorn api.app:app --host 0.0.0.0 --port 8000
 Restart=always
 RestartSec=5
 
 [Install]
 WantedBy=multi-user.target
-

@@ -6,11 +6,10 @@ After=network.target
 Type=simple
 User=detecdiv
 WorkingDirectory=/srv/detecdiv/detecdiv-hub
-Environment=DETECDIV_HUB_DATABASE_URL=postgresql+psycopg://detecdiv:detecdiv@localhost:5432/detecdiv_hub
+EnvironmentFile=/etc/detecdiv-hub/detecdiv-hub.env
 ExecStart=/srv/detecdiv/detecdiv-hub/.venv/bin/python worker/run_worker.py
 Restart=always
 RestartSec=5
 
 [Install]
 WantedBy=multi-user.target
-
