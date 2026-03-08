@@ -196,6 +196,18 @@ model is:
 4. execute server-side cleanup
 5. log what happened
 
+The current implementation already supports:
+
+- preview endpoint with reclaimable bytes
+- explicit confirmation for execution
+- optional deletion of project files
+- optional deletion of linked raw data when not shared elsewhere
+- deletion audit rows in `project_deletion_events`
+
+The current implementation performs a logical delete in the catalog and a
+physical delete of files only when requested. This preserves auditability while
+removing the project from normal listings.
+
 ### Web UI
 
 The API should be designed so that a browser-based frontend can browse and

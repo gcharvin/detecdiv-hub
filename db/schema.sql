@@ -129,6 +129,20 @@ CREATE TABLE IF NOT EXISTS project_notes (
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
+CREATE TABLE IF NOT EXISTS project_deletion_events (
+    id UUID PRIMARY KEY,
+    project_id UUID NOT NULL REFERENCES detecdiv_projects(id) ON DELETE CASCADE,
+    requested_by_user_id UUID REFERENCES users(id) ON DELETE SET NULL,
+    status TEXT NOT NULL DEFAULT 'previewed',
+    delete_project_files BOOLEAN NOT NULL DEFAULT FALSE,
+    delete_linked_raw_data BOOLEAN NOT NULL DEFAULT FALSE,
+    reclaimable_bytes BIGINT NOT NULL DEFAULT 0,
+    preview_json JSONB NOT NULL DEFAULT '{}'::jsonb,
+    result_json JSONB NOT NULL DEFAULT '{}'::jsonb,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    executed_at TIMESTAMPTZ
+);
+
 CREATE TABLE IF NOT EXISTS pipelines (
     id UUID PRIMARY KEY,
     pipeline_key TEXT UNIQUE,
@@ -209,3 +223,4 @@ CREATE INDEX IF NOT EXISTS idx_project_acl_user_id ON project_acl(user_id);
 CREATE INDEX IF NOT EXISTS idx_project_groups_owner_user_id ON project_groups(owner_user_id);
 CREATE INDEX IF NOT EXISTS idx_project_group_members_project_id ON project_group_members(project_id);
 CREATE INDEX IF NOT EXISTS idx_project_notes_project_id ON project_notes(project_id);
+CREATE INDEX IF NOT EXISTS idx_project_deletion_events_project_id ON project_deletion_events(project_id);

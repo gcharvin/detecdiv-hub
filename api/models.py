@@ -74,6 +74,7 @@ class RawDataset(Base):
 
     owner: Mapped[User | None] = relationship(back_populates="owned_raw_datasets")
     locations: Mapped[list["RawDatasetLocation"]] = relationship(back_populates="raw_dataset")
+    project_links: Mapped[list["ProjectRawLink"]] = relationship(back_populates="raw_dataset")
 
 
 class RawDatasetLocation(Base):
@@ -124,9 +125,11 @@ class Project(Base):
     owner: Mapped[User | None] = relationship(back_populates="owned_projects")
     jobs: Mapped[list["Job"]] = relationship(back_populates="project")
     locations: Mapped[list["ProjectLocation"]] = relationship(back_populates="project")
+    raw_links: Mapped[list["ProjectRawLink"]] = relationship(back_populates="project")
     acl_entries: Mapped[list["ProjectAcl"]] = relationship(back_populates="project")
     notes: Mapped[list["ProjectNote"]] = relationship(back_populates="project")
     group_memberships: Mapped[list["ProjectGroupMember"]] = relationship(back_populates="project")
+    deletion_events: Mapped[list["ProjectDeletionEvent"]] = relationship(back_populates="project")
 
 
 class ProjectLocation(Base):
@@ -150,6 +153,23 @@ class ProjectLocation(Base):
 
     project: Mapped[Project] = relationship(back_populates="locations")
     storage_root: Mapped[StorageRoot] = relationship(back_populates="project_locations")
+
+
+class ProjectRawLink(Base):
+    __tablename__ = "project_raw_links"
+
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    project_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("detecdiv_projects.id", ondelete="CASCADE"), nullable=False
+    )
+    raw_dataset_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("raw_datasets.id", ondelete="CASCADE"), nullable=False
+    )
+    link_type: Mapped[str] = mapped_column(String, nullable=False, default="source")
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+    project: Mapped[Project] = relationship(back_populates="raw_links")
+    raw_dataset: Mapped[RawDataset] = relationship(back_populates="project_links")
 
 
 class ProjectAcl(Base):
@@ -224,6 +244,28 @@ class ProjectNote(Base):
 
     project: Mapped[Project] = relationship(back_populates="notes")
     author: Mapped[User | None] = relationship(back_populates="project_notes")
+
+
+class ProjectDeletionEvent(Base):
+    __tablename__ = "project_deletion_events"
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    project_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("detecdiv_projects.id", ondelete="CASCADE"), nullable=False
+    )
+    requested_by_user_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("users.id", ondelete="SET NULL")
+    )
+    status: Mapped[str] = mapped_column(String, nullable=False, default="previewed")
+    delete_project_files: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
+    delete_linked_raw_data: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
+    reclaimable_bytes: Mapped[int] = mapped_column(BIGINT, nullable=False, default=0)
+    preview_json: Mapped[dict] = mapped_column(JSONB, nullable=False, default=dict)
+    result_json: Mapped[dict] = mapped_column(JSONB, nullable=False, default=dict)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    executed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+
+    project: Mapped[Project] = relationship(back_populates="deletion_events")
 
 
 class Pipeline(Base):

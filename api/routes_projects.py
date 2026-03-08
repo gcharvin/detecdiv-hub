@@ -8,6 +8,7 @@ from api.db import get_db
 from api.models import (
     Project,
     ProjectAcl,
+    ProjectDeletionEvent,
     ProjectGroup,
     ProjectGroupMember,
     ProjectLocation,
@@ -18,6 +19,9 @@ from api.schemas import (
     ProjectAclCreate,
     ProjectAclSummary,
     ProjectDetail,
+    ProjectDeletionPreview,
+    ProjectDeletionRequest,
+    ProjectDeletionResult,
     ProjectGroupCreate,
     ProjectGroupDetail,
     ProjectGroupSummary,
@@ -26,6 +30,7 @@ from api.schemas import (
     ProjectSummary,
     UserSummary,
 )
+from api.services.project_deletion import build_deletion_preview, execute_project_deletion, record_deletion_preview
 from api.services.users import ensure_project_readable, get_current_user, get_or_create_user, project_access_filter, user_can_edit_project
 
 
@@ -44,6 +49,7 @@ def list_projects(
     stmt = (
         select(Project)
         .options(joinedload(Project.owner))
+        .where(Project.status != "deleted")
         .where(project_access_filter(current_user))
         .order_by(Project.project_name.asc())
     )
@@ -75,10 +81,90 @@ def get_project(
             joinedload(Project.acl_entries),
             joinedload(Project.locations).joinedload(ProjectLocation.storage_root),
         )
-        .where(Project.id == project_id)
+        .where(Project.id == project_id, Project.status != "deleted")
     )
     project = db.scalars(stmt).unique().first()
     return ensure_project_readable(project, current_user)
+
+
+@router.post("/{project_id}/deletion-preview", response_model=ProjectDeletionPreview)
+def preview_project_deletion(
+    project_id: UUID,
+    payload: ProjectDeletionRequest,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> ProjectDeletionPreview:
+    project = db.scalars(
+        select(Project)
+        .options(
+            joinedload(Project.owner),
+            joinedload(Project.acl_entries),
+            joinedload(Project.locations).joinedload(ProjectLocation.storage_root),
+        )
+        .where(Project.id == project_id, Project.status != "deleted")
+    ).unique().first()
+    project = ensure_project_readable(project, current_user)
+    if not user_can_edit_project(project, current_user):
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Project is not deletable")
+
+    preview = build_deletion_preview(
+        db,
+        project=project,
+        delete_project_files=payload.delete_project_files,
+        delete_linked_raw_data=payload.delete_linked_raw_data,
+    )
+    record_deletion_preview(db, preview=preview, requested_by_user=current_user)
+    db.commit()
+    return ProjectDeletionPreview(
+        project_id=project.id,
+        project_name=project.project_name,
+        delete_project_files=payload.delete_project_files,
+        delete_linked_raw_data=payload.delete_linked_raw_data,
+        reclaimable_bytes=preview.reclaimable_bytes,
+        preview_json=preview.preview_json,
+    )
+
+
+@router.delete("/{project_id}", response_model=ProjectDeletionResult)
+def delete_project(
+    project_id: UUID,
+    delete_project_files: bool = False,
+    delete_linked_raw_data: bool = False,
+    confirm: bool = False,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> ProjectDeletionResult:
+    if not confirm:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Deletion requires confirm=true")
+
+    project = db.scalars(
+        select(Project)
+        .options(
+            joinedload(Project.owner),
+            joinedload(Project.acl_entries),
+            joinedload(Project.locations).joinedload(ProjectLocation.storage_root),
+        )
+        .where(Project.id == project_id, Project.status != "deleted")
+    ).unique().first()
+    project = ensure_project_readable(project, current_user)
+    if not user_can_edit_project(project, current_user):
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Project is not deletable")
+
+    preview = build_deletion_preview(
+        db,
+        project=project,
+        delete_project_files=delete_project_files,
+        delete_linked_raw_data=delete_linked_raw_data,
+    )
+    event = execute_project_deletion(db, preview=preview, requested_by_user=current_user)
+    db.commit()
+    return ProjectDeletionResult(
+        event_id=event.id,
+        project_id=project_id,
+        status=event.status,
+        reclaimable_bytes=event.reclaimable_bytes,
+        result_json=event.result_json,
+    )
 
 
 @router.get("/{project_id}/acl", response_model=list[ProjectAclSummary])
@@ -90,7 +176,7 @@ def list_project_acl(
     project = db.scalars(
         select(Project)
         .options(joinedload(Project.acl_entries).joinedload(ProjectAcl.user))
-        .where(Project.id == project_id)
+        .where(Project.id == project_id, Project.status != "deleted")
     ).unique().first()
     project = ensure_project_readable(project, current_user)
     if not user_can_edit_project(project, current_user):
@@ -108,7 +194,7 @@ def create_project_acl(
     project = db.scalars(
         select(Project)
         .options(joinedload(Project.acl_entries))
-        .where(Project.id == project_id)
+        .where(Project.id == project_id, Project.status != "deleted")
     ).unique().first()
     project = ensure_project_readable(project, current_user)
     if not user_can_edit_project(project, current_user):
@@ -139,7 +225,7 @@ def list_project_notes(
     project = db.scalars(
         select(Project)
         .options(joinedload(Project.acl_entries))
-        .where(Project.id == project_id)
+        .where(Project.id == project_id, Project.status != "deleted")
     ).unique().first()
     ensure_project_readable(project, current_user)
 
@@ -232,7 +318,7 @@ def get_project_group(
             select(Project)
             .join(ProjectGroupMember)
             .options(joinedload(Project.owner))
-            .where(ProjectGroupMember.group_id == group_id)
+            .where(ProjectGroupMember.group_id == group_id, Project.status != "deleted")
             .order_by(Project.project_name.asc())
         ).unique()
     )
@@ -259,7 +345,7 @@ def add_project_to_group(
     project = db.scalars(
         select(Project)
         .options(joinedload(Project.acl_entries), joinedload(Project.owner))
-        .where(Project.id == project_id)
+        .where(Project.id == project_id, Project.status != "deleted")
     ).unique().first()
     project = ensure_project_readable(project, current_user)
 

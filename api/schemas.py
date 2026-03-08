@@ -73,6 +73,29 @@ class ProjectAclCreate(HubBaseModel):
     access_level: str = "viewer"
 
 
+class ProjectDeletionRequest(HubBaseModel):
+    delete_project_files: bool = False
+    delete_linked_raw_data: bool = False
+    confirm: bool = False
+
+
+class ProjectDeletionPreview(HubBaseModel):
+    project_id: UUID
+    project_name: str
+    delete_project_files: bool
+    delete_linked_raw_data: bool
+    reclaimable_bytes: int = 0
+    preview_json: dict[str, Any] = Field(default_factory=dict)
+
+
+class ProjectDeletionResult(HubBaseModel):
+    event_id: UUID
+    project_id: UUID
+    status: str
+    reclaimable_bytes: int = 0
+    result_json: dict[str, Any] = Field(default_factory=dict)
+
+
 class ProjectNoteSummary(HubBaseModel):
     id: int
     note_text: str

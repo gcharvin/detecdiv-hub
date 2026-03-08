@@ -121,3 +121,30 @@ curl "http://127.0.0.1:8000/users/me?user_key=localdev"
 curl "http://127.0.0.1:8000/projects?user_key=localdev"
 curl "http://127.0.0.1:8000/project-groups?user_key=localdev"
 ```
+
+## Safe project deletion
+
+Project deletion now follows a preview-first workflow:
+
+1. ask for a deletion preview
+2. inspect reclaimable bytes and affected paths
+3. confirm deletion explicitly
+
+Preview:
+
+```powershell
+curl -Method POST -ContentType "application/json" -Body '{"delete_project_files":true,"delete_linked_raw_data":false,"confirm":false}' "http://127.0.0.1:8000/projects/<PROJECT_ID>/deletion-preview?user_key=localdev"
+```
+
+Execute:
+
+```powershell
+curl -Method DELETE "http://127.0.0.1:8000/projects/<PROJECT_ID>?user_key=localdev&delete_project_files=true&delete_linked_raw_data=false&confirm=true"
+```
+
+Current behavior:
+
+- the project is hidden from normal project listing after deletion
+- physical project files are deleted only if `delete_project_files=true`
+- linked raw data is deleted only if explicitly requested and not shared with other projects
+- deletion is logged in `project_deletion_events`

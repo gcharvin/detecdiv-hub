@@ -98,3 +98,13 @@ With one imported private catalog under `localdev`, you should see:
 - another user sees nothing until a project ACL is added
 - project groups are scoped to the owner
 - project notes are attached through project-level API routes
+
+## Deletion smoke test
+
+Recommended flow on a temporary project:
+
+1. index a disposable project root
+2. call `/projects/{id}/deletion-preview`
+3. verify `reclaimable_bytes`
+4. call `DELETE /projects/{id}` with `confirm=true`
+5. verify the files are gone and the project no longer appears in `/projects`
