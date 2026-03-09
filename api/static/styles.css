@@ -98,6 +98,18 @@ h3 {
   align-items: end;
 }
 
+.session-box {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.login-panel {
+  margin-bottom: 14px;
+}
+
 .hero-nav {
   display: flex;
   gap: 10px;

@@ -87,6 +87,8 @@ DETECDIV_HUB_API_PORT=8000
 DETECDIV_HUB_LOG_LEVEL=INFO
 DETECDIV_HUB_DEFAULT_USER_KEY=localdev
 DETECDIV_HUB_AUTO_PROVISION_USERS=true
+DETECDIV_HUB_ALLOW_LEGACY_USER_KEY_AUTH=true
+DETECDIV_HUB_SESSION_DURATION_HOURS=168
 DETECDIV_HUB_MATLAB_COMMAND=/usr/local/MATLAB/R2025a/bin/matlab
 DETECDIV_HUB_MATLAB_REPO_ROOT=/srv/detecdiv/DetecDiv
 ```
@@ -101,6 +103,19 @@ set -a
 set +a
 . .venv/bin/activate
 python scripts/bootstrap_db.py
+'
+```
+
+Create the first password-backed admin account:
+
+```bash
+sudo -u detecdiv -H bash -lc '
+cd /srv/detecdiv/detecdiv-hub
+set -a
+. /etc/detecdiv-hub/detecdiv-hub.env
+set +a
+. .venv/bin/activate
+python scripts/set_user_password.py localdev change_me --role admin --display-name "Local Admin"
 '
 ```
 
@@ -202,6 +217,9 @@ or behind Nginx:
 ```text
 http://SERVER_OR_HOSTNAME/web/
 ```
+
+Then log in through the web UI with the admin account created above. Legacy
+`user_key` auth can remain enabled for MATLAB clients during migration.
 
 ## 11. Update procedure
 

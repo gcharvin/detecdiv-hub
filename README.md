@@ -78,6 +78,7 @@ The demo seed adds:
 The hub now includes a first governance layer:
 
 - `users`
+- password-backed login sessions
 - project ownership
 - private-by-default visibility
 - per-project ACL entries
@@ -97,9 +98,16 @@ The project catalog now also exposes richer direct indexing metrics:
 
 In local development, the API resolves the current user from:
 
+- a bearer session token or HTTP-only session cookie
 - `?user_key=...`
 - `X-DetecDiv-User`
 - or `DETECDIV_HUB_DEFAULT_USER_KEY` as fallback
+
+For a real deployment, create at least one password-backed admin user:
+
+```bash
+python scripts/set_user_password.py localdev localdev --role admin --display-name localdev
+```
 
 ## Import real projects from the local SQLite catalog
 
@@ -156,7 +164,7 @@ The hub now serves a minimal browser UI at:
 
 Current web UI capabilities:
 
-- connect as one hub user via `user_key`
+- login with `user_key` + password, with legacy fallback still available
 - browse projects with name/owner/group/storage-root filters
 - limit the number of visible projects in the table
 - inspect per-project storage and inventory metrics
@@ -170,6 +178,8 @@ Current web UI capabilities:
 - follow indexing progress and recent indexing history
 - search and filter projects by name, owner, and storage root
 - manage a first pipeline registry
+- review active sessions and revoke stale ones
+- review pipelines observed from indexed project runs and import them into the registry
 
 The UI is now split across two pages:
 
@@ -212,14 +222,21 @@ Current behavior:
 
 ## Pipeline registry
 
-The hub now exposes a minimal `pipelines` registry separate from discovered
-historical pipeline runs in project folders.
+The hub now exposes:
+
+- a minimal independent `pipelines` registry
+- a dynamic `pipelines/observed` view built from project-linked run history
+
+This keeps pipelines independent from projects while still surfacing what has
+been observed in indexed project folders.
 
 Examples:
 
 ```powershell
 curl "http://127.0.0.1:8000/pipelines?user_key=localdev"
+curl "http://127.0.0.1:8000/pipelines/observed?user_key=localdev"
 curl -Method POST -ContentType "application/json" -Body '{"pipeline_key":"segmentation_v2","display_name":"Segmentation V2","version":"2.0","runtime_kind":"matlab","metadata_json":{"entrypoint":"pipelineRun"}}' "http://127.0.0.1:8000/pipelines?user_key=localdev"
+curl -Method POST "http://127.0.0.1:8000/pipelines/import-observed?user_key=localdev"
 ```
 
 ## Install systemd units on Linux

@@ -5,9 +5,22 @@ CREATE TABLE IF NOT EXISTS users (
     email TEXT,
     role TEXT NOT NULL DEFAULT 'user',
     is_active BOOLEAN NOT NULL DEFAULT TRUE,
+    password_hash TEXT,
     metadata_json JSONB NOT NULL DEFAULT '{}'::jsonb,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS user_sessions (
+    id UUID PRIMARY KEY,
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    token_hash TEXT NOT NULL UNIQUE,
+    status TEXT NOT NULL DEFAULT 'active',
+    client_label TEXT,
+    last_seen_at TIMESTAMPTZ,
+    expires_at TIMESTAMPTZ NOT NULL,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    revoked_at TIMESTAMPTZ
 );
 
 CREATE TABLE IF NOT EXISTS storage_roots (
@@ -243,6 +256,7 @@ ALTER TABLE raw_datasets ADD COLUMN IF NOT EXISTS owner_user_id UUID REFERENCES 
 ALTER TABLE raw_datasets ADD COLUMN IF NOT EXISTS visibility TEXT NOT NULL DEFAULT 'private';
 ALTER TABLE raw_datasets ADD COLUMN IF NOT EXISTS total_bytes BIGINT NOT NULL DEFAULT 0;
 ALTER TABLE raw_datasets ADD COLUMN IF NOT EXISTS last_size_scan_at TIMESTAMPTZ;
+ALTER TABLE users ADD COLUMN IF NOT EXISTS password_hash TEXT;
 
 ALTER TABLE detecdiv_projects ADD COLUMN IF NOT EXISTS owner_user_id UUID REFERENCES users(id) ON DELETE SET NULL;
 ALTER TABLE detecdiv_projects ADD COLUMN IF NOT EXISTS visibility TEXT NOT NULL DEFAULT 'private';
@@ -278,3 +292,4 @@ CREATE INDEX IF NOT EXISTS idx_project_notes_project_id ON project_notes(project
 CREATE INDEX IF NOT EXISTS idx_project_deletion_events_project_id ON project_deletion_events(project_id);
 CREATE INDEX IF NOT EXISTS idx_indexing_jobs_status_created_at ON indexing_jobs(status, created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_indexing_jobs_requested_by_user_id ON indexing_jobs(requested_by_user_id);
+CREATE INDEX IF NOT EXISTS idx_user_sessions_user_id ON user_sessions(user_id, status, expires_at);

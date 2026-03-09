@@ -1,9 +1,15 @@
 const state = {
   userKey: localStorage.getItem("detecdivHub.userKey") || "localdev",
+  sessionToken: localStorage.getItem("detecdivHub.sessionToken") || "",
+  authMode: "",
+  currentUser: null,
   projects: [],
   groups: [],
   storageRoots: [],
   pipelines: [],
+  observedPipelines: [],
+  sessions: [],
+  users: [],
   indexingJobs: [],
   selectedProject: null,
   selectedProjectDetail: null,
@@ -13,8 +19,13 @@ const state = {
 };
 
 const els = {
-  userKey: document.querySelector("#user-key"),
+  loginPanel: document.querySelector("#login-panel"),
+  loginUserKey: document.querySelector("#login-user-key"),
+  loginPassword: document.querySelector("#login-password"),
+  loginButton: document.querySelector("#login-button"),
+  sessionLabel: document.querySelector("#session-label"),
   connectButton: document.querySelector("#connect-button"),
+  logoutButton: document.querySelector("#logout-button"),
   projectSearch: document.querySelector("#project-search"),
   ownerFilter: document.querySelector("#owner-filter"),
   storageRootFilter: document.querySelector("#storage-root-filter"),
@@ -51,9 +62,15 @@ const els = {
   indexJobsTableBody: document.querySelector("#index-jobs-table tbody"),
   pipelineSearch: document.querySelector("#pipeline-search"),
   pipelineRuntimeFilter: document.querySelector("#pipeline-runtime-filter"),
+  pipelineSourceFilter: document.querySelector("#pipeline-source-filter"),
   refreshPipelinesButton: document.querySelector("#refresh-pipelines-button"),
+  importObservedPipelinesButton: document.querySelector("#import-observed-pipelines-button"),
   newPipelineButton: document.querySelector("#new-pipeline-button"),
   pipelinesTableBody: document.querySelector("#pipelines-table tbody"),
+  usersTableBody: document.querySelector("#users-table tbody"),
+  newUserButton: document.querySelector("#new-user-button"),
+  sessionsTableBody: document.querySelector("#sessions-table tbody"),
+  refreshSessionsButton: document.querySelector("#refresh-sessions-button"),
   statusLine: document.querySelector("#status-line"),
 };
 
@@ -65,41 +82,74 @@ function setStatus(message) {
   }
 }
 
-function currentQuery() {
-  return `user_key=${encodeURIComponent(state.userKey)}`;
+function authHeaders(extra = {}) {
+  const headers = { ...extra };
+  if (state.sessionToken) {
+    headers.Authorization = `Bearer ${state.sessionToken}`;
+  }
+  return headers;
 }
 
-async function apiGet(path) {
+function currentQuery() {
+  if (!state.sessionToken && state.userKey) {
+    return `user_key=${encodeURIComponent(state.userKey)}`;
+  }
+  return "";
+}
+
+function withIdentity(path) {
+  const query = currentQuery();
+  if (!query) {
+    return path;
+  }
   const separator = path.includes("?") ? "&" : "?";
-  const response = await fetch(`${path}${separator}${currentQuery()}`);
+  return `${path}${separator}${query}`;
+}
+
+async function apiJson(path, options = {}) {
+  const response = await fetch(withIdentity(path), {
+    credentials: "same-origin",
+    headers: authHeaders(options.headers || {}),
+    ...options,
+  });
   if (!response.ok) {
+    if (response.status === 401) {
+      state.sessionToken = "";
+      state.currentUser = null;
+      state.authMode = "";
+      localStorage.removeItem("detecdivHub.sessionToken");
+      updateSessionUi();
+    }
     throw new Error(await response.text());
   }
-  return response.json();
+  const text = await response.text();
+  return text ? JSON.parse(text) : {};
 }
 
-async function apiPost(path, payload) {
-  const separator = path.includes("?") ? "&" : "?";
-  const response = await fetch(`${path}${separator}${currentQuery()}`, {
+function apiGet(path) {
+  return apiJson(path);
+}
+
+function apiPost(path, payload) {
+  return apiJson(path, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload || {}),
   });
-  if (!response.ok) {
-    throw new Error(await response.text());
-  }
-  return response.json();
 }
 
-async function apiDelete(path) {
-  const separator = path.includes("?") ? "&" : "?";
-  const response = await fetch(`${path}${separator}${currentQuery()}`, {
+function apiPatch(path, payload) {
+  return apiJson(path, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload || {}),
+  });
+}
+
+function apiDelete(path) {
+  return apiJson(path, {
     method: "DELETE",
   });
-  if (!response.ok) {
-    throw new Error(await response.text());
-  }
-  return response.json();
 }
 
 function humanBytes(value) {
@@ -133,13 +183,45 @@ function progressPercent(job) {
   return Math.max(0, Math.min(100, Math.round((100 * scanned) / total)));
 }
 
+function isAdmin() {
+  return state.currentUser && ["admin", "service"].includes(state.currentUser.role);
+}
+
+function updateSessionUi() {
+  if (els.loginUserKey) {
+    els.loginUserKey.value = state.userKey || "";
+  }
+  const authenticated = Boolean(state.currentUser);
+  if (els.loginPanel) {
+    els.loginPanel.classList.toggle("hidden", authenticated);
+  }
+  if (els.sessionLabel) {
+    if (!authenticated) {
+      els.sessionLabel.textContent = "Not logged in.";
+    } else if (state.authMode === "legacy") {
+      els.sessionLabel.textContent = `Legacy identity: ${state.currentUser.display_name} (${state.currentUser.user_key})`;
+    } else {
+      els.sessionLabel.textContent = `Session: ${state.currentUser.display_name} (${state.currentUser.user_key})`;
+    }
+  }
+  if (els.userLabel) {
+    els.userLabel.textContent = authenticated
+      ? `User: ${state.currentUser.display_name} (${state.currentUser.user_key})`
+      : "User: not connected";
+  }
+  if (els.logoutButton) {
+    els.logoutButton.disabled = !authenticated;
+  }
+}
+
 function setSummary(summary) {
   state.summary = summary;
   if (els.summaryTotalProjects) els.summaryTotalProjects.textContent = summary.total_projects;
   if (els.summaryOwnedProjects) els.summaryOwnedProjects.textContent = summary.owned_projects;
   if (els.summaryTotalBytes) els.summaryTotalBytes.textContent = humanBytes(summary.total_bytes);
   if (els.summaryGroupCount) els.summaryGroupCount.textContent = summary.group_count;
-  if (els.userLabel) els.userLabel.textContent = `User: ${summary.user.display_name} (${summary.user.user_key})`;
+  state.currentUser = summary.user || null;
+  updateSessionUi();
 }
 
 function renderGroupFilter() {
@@ -197,22 +279,41 @@ function renderProjects() {
   }
 }
 
+function pipelineRows() {
+  const sourceFilter = els.pipelineSourceFilter ? els.pipelineSourceFilter.value : "";
+  if (sourceFilter === "registry") {
+    return state.pipelines;
+  }
+  if (sourceFilter === "observed") {
+    return state.observedPipelines;
+  }
+  return [...state.pipelines, ...state.observedPipelines];
+}
+
 function renderPipelines() {
   if (!els.pipelinesTableBody) {
     return;
   }
   els.pipelinesTableBody.innerHTML = "";
-  for (const pipeline of state.pipelines) {
+  for (const pipeline of pipelineRows()) {
     const tr = document.createElement("tr");
+    const source = pipeline.source || "registry";
+    const version = pipeline.version || "observed";
+    const updated = pipeline.updated_at || pipeline.latest_run_at || pipeline.created_at;
+    const projectCount = pipeline.project_count || 0;
     tr.innerHTML = `
       <td>${pipeline.display_name}</td>
+      <td>${source}</td>
       <td>${pipeline.pipeline_key || ""}</td>
-      <td>${pipeline.version}</td>
+      <td>${version}</td>
       <td>${pipeline.runtime_kind}</td>
-      <td>${formatTimestamp(pipeline.updated_at || pipeline.created_at)}</td>
+      <td>${projectCount}</td>
+      <td>${formatTimestamp(updated)}</td>
     `;
     tr.title = JSON.stringify(pipeline.metadata_json || {});
-    tr.addEventListener("click", () => editPipeline(pipeline));
+    if (source === "registry") {
+      tr.addEventListener("click", () => editPipeline(pipeline));
+    }
     els.pipelinesTableBody.appendChild(tr);
   }
 }
@@ -258,6 +359,46 @@ function renderIndexingJobs() {
     `;
     tr.title = job.message || "";
     els.indexJobsTableBody.appendChild(tr);
+  }
+}
+
+function renderNotes() {
+  if (!els.notesList) {
+    return;
+  }
+  els.notesList.innerHTML = "";
+  if (!state.notes.length) {
+    els.notesList.innerHTML = `<div class="stack-item">No notes.</div>`;
+    return;
+  }
+  for (const note of state.notes) {
+    const div = document.createElement("div");
+    div.className = "stack-item";
+    div.innerHTML = `
+      <div class="stack-item-meta">${note.author ? note.author.user_key : "unknown"} | ${formatTimestamp(note.updated_at || note.created_at)}${note.is_pinned ? " | pinned" : ""}</div>
+      <div>${note.note_text}</div>
+    `;
+    els.notesList.appendChild(div);
+  }
+}
+
+function renderAcl() {
+  if (!els.aclList) {
+    return;
+  }
+  els.aclList.innerHTML = "";
+  if (!state.acl.length) {
+    els.aclList.innerHTML = `<div class="stack-item">Owner only.</div>`;
+    return;
+  }
+  for (const item of state.acl) {
+    const div = document.createElement("div");
+    div.className = "stack-item";
+    div.innerHTML = `
+      <div class="stack-item-meta">${item.user?.display_name || item.user?.user_key || "unknown"}</div>
+      <div>${item.access_level}</div>
+    `;
+    els.aclList.appendChild(div);
   }
 }
 
@@ -316,51 +457,140 @@ function renderDetail() {
   els.detailContent.classList.remove("hidden");
 }
 
-function renderNotes() {
-  if (!els.notesList) {
+function renderUsers() {
+  if (!els.usersTableBody) {
     return;
   }
-  els.notesList.innerHTML = "";
-  if (!state.notes.length) {
-    els.notesList.innerHTML = `<div class="stack-item">No notes.</div>`;
-    return;
-  }
-  for (const note of state.notes) {
-    const div = document.createElement("div");
-    div.className = "stack-item";
-    div.innerHTML = `
-      <div class="stack-item-meta">${note.author ? note.author.user_key : "unknown"} | ${note.updated_at || note.created_at || ""}${note.is_pinned ? " | pinned" : ""}</div>
-      <div>${note.note_text}</div>
+  els.usersTableBody.innerHTML = "";
+  const users = state.users.length ? state.users : (state.currentUser ? [state.currentUser] : []);
+  for (const user of users) {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${user.user_key}</td>
+      <td>${user.display_name}</td>
+      <td>${user.role}</td>
+      <td>${user.is_active ? "yes" : "no"}</td>
     `;
-    els.notesList.appendChild(div);
+    tr.addEventListener("click", () => editUser(user));
+    els.usersTableBody.appendChild(tr);
   }
 }
 
-function renderAcl() {
-  if (!els.aclList) {
+function renderSessions() {
+  if (!els.sessionsTableBody) {
     return;
   }
-  els.aclList.innerHTML = "";
-  if (!state.acl.length) {
-    els.aclList.innerHTML = `<div class="stack-item">Owner only.</div>`;
-    return;
+  els.sessionsTableBody.innerHTML = "";
+  for (const session of state.sessions) {
+    const tr = document.createElement("tr");
+    const tdUser = document.createElement("td");
+    tdUser.textContent = session.user ? session.user.user_key : "";
+    const tdClient = document.createElement("td");
+    tdClient.textContent = session.client_label || "";
+    const tdLastSeen = document.createElement("td");
+    tdLastSeen.textContent = formatTimestamp(session.last_seen_at);
+    const tdExpires = document.createElement("td");
+    tdExpires.textContent = formatTimestamp(session.expires_at);
+    const tdAction = document.createElement("td");
+    const button = document.createElement("button");
+    button.textContent = "Revoke";
+    button.disabled = !isAdmin() && session.user?.id !== state.currentUser?.id;
+    button.addEventListener("click", (event) => {
+      event.stopPropagation();
+      revokeSession(session.id).catch((error) => setStatus(String(error)));
+    });
+    tdAction.appendChild(button);
+    tr.append(tdUser, tdClient, tdLastSeen, tdExpires, tdAction);
+    els.sessionsTableBody.appendChild(tr);
   }
-  for (const item of state.acl) {
-    const div = document.createElement("div");
-    div.className = "stack-item";
-    div.innerHTML = `
-      <div class="stack-item-meta">${item.user?.display_name || item.user?.user_key || "unknown"}</div>
-      <div>${item.access_level}</div>
-    `;
-    els.aclList.appendChild(div);
+}
+
+async function login() {
+  const userKey = (els.loginUserKey?.value || "").trim();
+  const password = els.loginPassword?.value || "";
+  if (!userKey || !password) {
+    throw new Error("User key and password are required.");
   }
+  const response = await apiPost("/auth/login", {
+    user_key: userKey,
+    password,
+    client_label: "web-ui",
+  });
+  state.userKey = userKey;
+  state.sessionToken = response.session_token;
+  state.currentUser = response.user;
+  state.authMode = "session";
+  localStorage.setItem("detecdivHub.userKey", state.userKey);
+  localStorage.setItem("detecdivHub.sessionToken", state.sessionToken);
+  if (els.loginPassword) {
+    els.loginPassword.value = "";
+  }
+  updateSessionUi();
+  await refreshDashboard();
+  setStatus(`Logged in as ${response.user.user_key}.`);
+}
+
+async function logout() {
+  try {
+    if (state.currentUser) {
+      await apiPost("/auth/logout", {});
+    }
+  } catch (error) {
+    setStatus(String(error));
+  }
+  state.sessionToken = "";
+  state.currentUser = null;
+  state.authMode = "";
+  localStorage.removeItem("detecdivHub.sessionToken");
+  updateSessionUi();
+  setStatus("Logged out.");
+}
+
+async function restoreSession() {
+  try {
+    const session = await apiGet("/auth/legacy-session");
+    if (session.authenticated) {
+      state.currentUser = session.user;
+      state.authMode = session.auth_mode || "session";
+      state.userKey = session.user?.user_key || state.userKey;
+      updateSessionUi();
+      await refreshDashboard();
+      return;
+    }
+  } catch (error) {
+    setStatus(String(error));
+  }
+
+  if (state.userKey) {
+    try {
+      const session = await apiGet("/auth/session");
+      if (session.authenticated) {
+        state.currentUser = session.user;
+        state.authMode = "legacy";
+        updateSessionUi();
+        await refreshDashboard();
+        setStatus(`Connected in legacy mode as ${session.user.user_key}.`);
+        return;
+      }
+    } catch {
+      // Ignore legacy fallback errors and show login panel.
+    }
+  }
+
+  state.currentUser = null;
+  updateSessionUi();
+  setStatus("Login required.");
 }
 
 async function refreshDashboard() {
-  state.userKey = els.userKey.value.trim() || "localdev";
-  localStorage.setItem("detecdivHub.userKey", state.userKey);
+  if (!state.currentUser && !state.userKey) {
+    updateSessionUi();
+    return;
+  }
 
   setStatus("Refreshing dashboard...");
+  localStorage.setItem("detecdivHub.userKey", state.userKey || "");
+
   const [summary, groups, storageRoots] = await Promise.all([
     apiGet("/dashboard/summary"),
     apiGet("/project-groups"),
@@ -377,17 +607,22 @@ async function refreshDashboard() {
   setSummary(summary);
   renderGroupFilter();
   renderStorageRootFilter();
-  await refreshProjects();
-  if (els.indexJobsTableBody) {
-    await refreshIndexingJobs();
-  }
-  if (els.pipelinesTableBody) {
-    await refreshPipelines();
-  }
+
+  await Promise.all([
+    refreshProjects(),
+    refreshPipelines(),
+    refreshUsers(),
+    refreshSessions(),
+    refreshIndexingJobs(),
+  ]);
+
   setStatus(`Connected as ${summary.user.user_key}.`);
 }
 
 async function refreshIndexingJobs() {
+  if (!els.indexJobsTableBody && !els.activeIndexJob) {
+    return;
+  }
   state.indexingJobs = await apiGet("/indexing/jobs?limit=25");
   renderIndexingJobs();
 }
@@ -396,31 +631,14 @@ async function refreshProjects() {
   if (!els.projectCountLabel) {
     return;
   }
-  const groupId = els.groupFilter.value;
-  const ownedOnly = els.ownedOnly.checked;
   const params = new URLSearchParams();
-  const search = els.projectSearch ? els.projectSearch.value.trim() : "";
-  const ownerKey = els.ownerFilter ? els.ownerFilter.value.trim() : "";
-  const storageRootName = els.storageRootFilter ? els.storageRootFilter.value : "";
-  const limit = els.projectLimit ? els.projectLimit.value : "50";
-  if (groupId) {
-    params.set("group_id", groupId);
-  }
-  if (ownedOnly) {
-    params.set("owned_only", "true");
-  }
-  if (search) {
-    params.set("search", search);
-  }
-  if (ownerKey) {
-    params.set("owner_key", ownerKey);
-  }
-  if (storageRootName) {
-    params.set("storage_root_name", storageRootName);
-  }
-  if (limit) {
-    params.set("limit", limit);
-  }
+  if (els.groupFilter?.value) params.set("group_id", els.groupFilter.value);
+  if (els.ownedOnly?.checked) params.set("owned_only", "true");
+  if (els.projectSearch?.value.trim()) params.set("search", els.projectSearch.value.trim());
+  if (els.ownerFilter?.value.trim()) params.set("owner_key", els.ownerFilter.value.trim());
+  if (els.storageRootFilter?.value) params.set("storage_root_name", els.storageRootFilter.value);
+  if (els.projectLimit?.value) params.set("limit", els.projectLimit.value);
+
   state.projects = await apiGet(`/projects${params.toString() ? `?${params.toString()}` : ""}`);
   renderProjects();
   if (state.selectedProject) {
@@ -442,16 +660,32 @@ async function refreshPipelines() {
     return;
   }
   const params = new URLSearchParams();
-  const search = els.pipelineSearch ? els.pipelineSearch.value.trim() : "";
-  const runtime = els.pipelineRuntimeFilter ? els.pipelineRuntimeFilter.value : "";
-  if (search) {
-    params.set("search", search);
-  }
-  if (runtime) {
-    params.set("runtime_kind", runtime);
-  }
-  state.pipelines = await apiGet(`/pipelines${params.toString() ? `?${params.toString()}` : ""}`);
+  if (els.pipelineSearch?.value.trim()) params.set("search", els.pipelineSearch.value.trim());
+  if (els.pipelineRuntimeFilter?.value) params.set("runtime_kind", els.pipelineRuntimeFilter.value);
+  const [registry, observed] = await Promise.all([
+    apiGet(`/pipelines${params.toString() ? `?${params.toString()}` : ""}`),
+    apiGet(`/pipelines/observed${params.toString() ? `?${params.toString()}` : ""}`),
+  ]);
+  state.pipelines = registry.map((item) => ({ ...item, source: "registry", project_count: item.project_count || 0 }));
+  state.observedPipelines = observed;
   renderPipelines();
+}
+
+async function refreshUsers() {
+  if (!els.usersTableBody) {
+    return;
+  }
+  state.users = await apiGet("/users");
+  renderUsers();
+}
+
+async function refreshSessions() {
+  if (!els.sessionsTableBody) {
+    return;
+  }
+  const suffix = isAdmin() ? "?all_users=true" : "";
+  state.sessions = await apiGet(`/auth/sessions${suffix}`);
+  renderSessions();
 }
 
 async function selectProject(projectId) {
@@ -521,19 +755,10 @@ async function editProject() {
   if (!visibility) {
     return;
   }
-  await fetch(`/projects/${state.selectedProjectDetail.id}?${currentQuery()}`, {
-    method: "PATCH",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      owner_user_key: ownerUserKey.trim() || null,
-      visibility,
-      metadata_json: {},
-    }),
-  }).then(async (response) => {
-    if (!response.ok) {
-      throw new Error(await response.text());
-    }
-    return response.json();
+  await apiPatch(`/projects/${state.selectedProjectDetail.id}`, {
+    owner_user_key: ownerUserKey.trim() || null,
+    visibility,
+    metadata_json: {},
   });
   await refreshDashboard();
   await selectProject(state.selectedProjectDetail.id);
@@ -613,17 +838,16 @@ async function runIndexing() {
   if (!sourcePath) {
     throw new Error("Source path is required.");
   }
-  const payload = {
+  const response = await apiPost("/indexing/jobs", {
     source_kind: "project_root",
     source_path: sourcePath,
-    storage_root_name: els.indexStorageRootName.value.trim() || null,
+    storage_root_name: els.indexStorageRootName?.value.trim() || null,
     host_scope: "server",
     root_type: "project_root",
-    visibility: els.indexVisibility.value,
-    clear_existing_for_root: els.indexClearExisting.checked,
+    visibility: els.indexVisibility?.value || "private",
+    clear_existing_for_root: Boolean(els.indexClearExisting?.checked),
     metadata_json: {},
-  };
-  const response = await apiPost("/indexing/jobs", payload);
+  });
   await refreshIndexingJobs();
   setStatus(`Queued indexing job ${response.job.id} for ${response.job.source_path}.`);
 }
@@ -663,26 +887,78 @@ async function editPipeline(pipeline) {
   if (runtimeKind === null) {
     return;
   }
-  const separator = "?";
-  const response = await fetch(`/pipelines/${pipeline.id}${separator}${currentQuery()}`, {
-    method: "PATCH",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      display_name: displayName,
-      version,
-      runtime_kind: runtimeKind,
-      metadata_json: {},
-    }),
+  await apiPatch(`/pipelines/${pipeline.id}`, {
+    display_name: displayName,
+    version,
+    runtime_kind: runtimeKind,
+    metadata_json: {},
   });
-  if (!response.ok) {
-    throw new Error(await response.text());
-  }
   await refreshPipelines();
   setStatus(`Updated pipeline ${displayName}.`);
 }
 
+async function importObservedPipelines() {
+  const search = els.pipelineSearch?.value.trim() || "";
+  const path = `/pipelines/import-observed${search ? `?search=${encodeURIComponent(search)}` : ""}`;
+  const imported = await apiPost(path, {});
+  await refreshPipelines();
+  setStatus(`Imported ${imported.length} observed pipeline(s) into registry.`);
+}
+
+async function createUser() {
+  if (!isAdmin()) {
+    throw new Error("Admin role required.");
+  }
+  const userKey = window.prompt("User key");
+  if (!userKey) {
+    return;
+  }
+  const displayName = window.prompt("Display name", userKey) || userKey;
+  const role = window.prompt("Role (user/admin/service)", "user") || "user";
+  const password = window.prompt("Temporary password", "");
+  await apiPost("/users", {
+    user_key: userKey,
+    display_name: displayName,
+    role,
+    is_active: true,
+    password: password || null,
+    metadata_json: {},
+  });
+  await refreshUsers();
+  setStatus(`Created user ${userKey}.`);
+}
+
+async function editUser(user) {
+  const displayName = window.prompt("Display name", user.display_name);
+  if (displayName === null) {
+    return;
+  }
+  const role = isAdmin() ? (window.prompt("Role (user/admin/service)", user.role) || user.role) : user.role;
+  const activeText = isAdmin() ? window.prompt("Active? (yes/no)", user.is_active ? "yes" : "no") : null;
+  const password = window.prompt("New password (leave empty to keep unchanged)", "");
+  await apiPatch(`/users/${user.id}`, {
+    display_name: displayName,
+    role,
+    is_active: activeText ? /^y/i.test(activeText) : user.is_active,
+    password: password || null,
+    metadata_json: {},
+  });
+  await refreshUsers();
+  setStatus(`Updated user ${user.user_key}.`);
+}
+
+async function revokeSession(sessionId) {
+  const ok = window.confirm("Revoke this session?");
+  if (!ok) {
+    return;
+  }
+  await apiDelete(`/auth/sessions/${sessionId}`);
+  await refreshSessions();
+  setStatus("Session revoked.");
+}
+
 async function pollDashboard() {
-  if (!state.userKey) {
+  if (!state.currentUser) {
     return;
   }
   const hasActiveJob = state.indexingJobs.some((job) => job.status === "queued" || job.status === "running");
@@ -690,7 +966,10 @@ async function pollDashboard() {
     return;
   }
   try {
-    await refreshDashboard();
+    await refreshIndexingJobs();
+    if (els.projectCountLabel) {
+      await refreshProjects();
+    }
   } catch (error) {
     setStatus(String(error));
   }
@@ -705,8 +984,9 @@ function ensureDashboardPolling() {
   }, 5000);
 }
 
-els.userKey.value = state.userKey;
+if (els.loginButton) els.loginButton.addEventListener("click", () => login().catch((error) => setStatus(String(error))));
 if (els.connectButton) els.connectButton.addEventListener("click", () => refreshDashboard().catch((error) => setStatus(String(error))));
+if (els.logoutButton) els.logoutButton.addEventListener("click", () => logout().catch((error) => setStatus(String(error))));
 if (els.refreshButton) els.refreshButton.addEventListener("click", () => refreshDashboard().catch((error) => setStatus(String(error))));
 if (els.groupFilter) els.groupFilter.addEventListener("change", () => refreshProjects().catch((error) => setStatus(String(error))));
 if (els.projectSearch) els.projectSearch.addEventListener("change", () => refreshProjects().catch((error) => setStatus(String(error))));
@@ -723,9 +1003,14 @@ if (els.previewDeleteButton) els.previewDeleteButton.addEventListener("click", (
 if (els.indexButton) els.indexButton.addEventListener("click", () => runIndexing().catch((error) => setStatus(String(error))));
 if (els.indexJobsRefreshButton) els.indexJobsRefreshButton.addEventListener("click", () => refreshIndexingJobs().catch((error) => setStatus(String(error))));
 if (els.refreshPipelinesButton) els.refreshPipelinesButton.addEventListener("click", () => refreshPipelines().catch((error) => setStatus(String(error))));
+if (els.importObservedPipelinesButton) els.importObservedPipelinesButton.addEventListener("click", () => importObservedPipelines().catch((error) => setStatus(String(error))));
 if (els.newPipelineButton) els.newPipelineButton.addEventListener("click", () => createPipeline().catch((error) => setStatus(String(error))));
 if (els.pipelineSearch) els.pipelineSearch.addEventListener("change", () => refreshPipelines().catch((error) => setStatus(String(error))));
 if (els.pipelineRuntimeFilter) els.pipelineRuntimeFilter.addEventListener("change", () => refreshPipelines().catch((error) => setStatus(String(error))));
+if (els.pipelineSourceFilter) els.pipelineSourceFilter.addEventListener("change", () => renderPipelines());
+if (els.newUserButton) els.newUserButton.addEventListener("click", () => createUser().catch((error) => setStatus(String(error))));
+if (els.refreshSessionsButton) els.refreshSessionsButton.addEventListener("click", () => refreshSessions().catch((error) => setStatus(String(error))));
 
 ensureDashboardPolling();
-refreshDashboard().catch((error) => setStatus(String(error)));
+updateSessionUi();
+restoreSession().catch((error) => setStatus(String(error)));

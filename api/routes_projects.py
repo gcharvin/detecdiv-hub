@@ -17,6 +17,7 @@ from api.models import (
     User,
 )
 from api.schemas import (
+    UserCreate,
     ProjectAclCreate,
     ProjectAclSummary,
     ProjectDetail,
@@ -32,7 +33,9 @@ from api.schemas import (
     ProjectUpdate,
     StorageRootSummary,
     UserSummary,
+    UserUpdate,
 )
+from api.services.auth import set_user_password
 from api.services.project_deletion import build_deletion_preview, execute_project_deletion, record_deletion_preview
 from api.services.users import ensure_project_readable, get_current_user, get_or_create_user, project_access_filter, user_can_edit_project
 
@@ -438,6 +441,67 @@ def list_users(
     if current_user.role not in {"admin", "service"}:
         return [current_user]
     return list(db.scalars(select(User).where(User.is_active.is_(True)).order_by(User.display_name.asc())))
+
+
+@users_router.post("", response_model=UserSummary, status_code=status.HTTP_201_CREATED)
+def create_user(
+    payload: UserCreate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> User:
+    if current_user.role not in {"admin", "service"}:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="User admin required")
+    existing = db.scalars(select(User).where(User.user_key == payload.user_key)).first()
+    if existing is not None:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="User already exists")
+    user = User(
+        user_key=payload.user_key,
+        display_name=payload.display_name,
+        email=payload.email,
+        role=payload.role,
+        is_active=payload.is_active,
+        metadata_json=payload.metadata_json,
+    )
+    db.add(user)
+    db.flush()
+    if payload.password:
+        set_user_password(db, user=user, password=payload.password)
+    db.commit()
+    db.refresh(user)
+    return user
+
+
+@users_router.patch("/{user_id}", response_model=UserSummary)
+def update_user(
+    user_id: UUID,
+    payload: UserUpdate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> User:
+    if current_user.role not in {"admin", "service"} and current_user.id != user_id:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="User admin required")
+    user = db.get(User, user_id)
+    if user is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+
+    if payload.display_name is not None:
+        user.display_name = payload.display_name
+    if payload.email is not None:
+        user.email = payload.email
+    if payload.role is not None and current_user.role in {"admin", "service"}:
+        user.role = payload.role
+    if payload.is_active is not None and current_user.role in {"admin", "service"}:
+        user.is_active = payload.is_active
+    if payload.metadata_json is not None:
+        merged = dict(user.metadata_json or {})
+        merged.update(payload.metadata_json)
+        user.metadata_json = merged
+    if payload.password:
+        set_user_password(db, user=user, password=payload.password)
+
+    db.commit()
+    db.refresh(user)
+    return user
 
 
 @storage_roots_router.get("", response_model=list[StorageRootSummary])

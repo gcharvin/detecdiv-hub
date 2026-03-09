@@ -23,6 +23,54 @@ class UserSummary(HubBaseModel):
     is_active: bool
 
 
+class UserCreate(HubBaseModel):
+    user_key: str
+    display_name: str
+    email: str | None = None
+    role: str = "user"
+    is_active: bool = True
+    password: str | None = None
+    metadata_json: dict[str, Any] = Field(default_factory=dict)
+
+
+class UserUpdate(HubBaseModel):
+    display_name: str | None = None
+    email: str | None = None
+    role: str | None = None
+    is_active: bool | None = None
+    password: str | None = None
+    metadata_json: dict[str, Any] | None = None
+
+
+class AuthLoginRequest(HubBaseModel):
+    user_key: str
+    password: str
+    client_label: str | None = None
+
+
+class AuthLoginResponse(HubBaseModel):
+    user: UserSummary
+    session_token: str
+    expires_at: datetime
+
+
+class AuthSessionResponse(HubBaseModel):
+    authenticated: bool
+    auth_mode: str
+    user: UserSummary | None = None
+    expires_at: datetime | None = None
+
+
+class UserSessionSummary(HubBaseModel):
+    id: UUID
+    status: str
+    client_label: str | None = None
+    last_seen_at: datetime | None = None
+    expires_at: datetime
+    created_at: datetime | None = None
+    user: UserSummary | None = None
+
+
 class StorageRootSummary(HubBaseModel):
     id: int
     name: str
@@ -191,6 +239,20 @@ class PipelineSummary(HubBaseModel):
     metadata_json: dict[str, Any] = Field(default_factory=dict)
     created_at: datetime | None = None
     updated_at: datetime | None = None
+
+
+class ObservedPipelineSummary(HubBaseModel):
+    identity: str
+    display_name: str
+    pipeline_key: str | None = None
+    runtime_kind: str = "matlab"
+    source: str
+    project_count: int = 0
+    run_count: int = 0
+    latest_run_status: str | None = None
+    latest_run_at: datetime | None = None
+    project_names: list[str] = Field(default_factory=list)
+    metadata_json: dict[str, Any] = Field(default_factory=dict)
 
 
 class PipelineCreate(HubBaseModel):

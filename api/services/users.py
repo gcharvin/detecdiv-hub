@@ -1,12 +1,13 @@
 from __future__ import annotations
 
-from fastapi import Depends, Header, HTTPException, Query, status
+from fastapi import Depends, Header, HTTPException, Query, Request, status
 from sqlalchemy import exists, literal, or_, select
 from sqlalchemy.orm import Session
 
 from api.config import get_settings
 from api.db import get_db
 from api.models import Project, ProjectAcl, User
+from api.services.auth import get_user_by_session_token
 
 
 def get_or_create_user(
@@ -31,12 +32,27 @@ def get_or_create_user(
 
 
 def get_current_user(
+    request: Request,
     user_key: str | None = Query(default=None),
     x_detecdiv_user: str | None = Header(default=None),
+    authorization: str | None = Header(default=None),
     db: Session = Depends(get_db),
 ) -> User:
     settings = get_settings()
-    effective_user_key = user_key or x_detecdiv_user or settings.default_user_key
+    bearer_token = None
+    if authorization and authorization.lower().startswith("bearer "):
+        bearer_token = authorization.split(" ", 1)[1].strip()
+
+    cookie_token = None
+    if request is not None:
+        cookie_token = request.cookies.get(settings.session_cookie_name)
+    session_user = get_user_by_session_token(db, bearer_token or cookie_token)
+    if session_user is not None:
+        return session_user
+
+    effective_user_key = None
+    if settings.allow_legacy_user_key_auth:
+        effective_user_key = user_key or x_detecdiv_user or settings.default_user_key
     if not effective_user_key:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Missing user identity")
 

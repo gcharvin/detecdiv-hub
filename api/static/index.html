@@ -8,6 +8,26 @@
   </head>
   <body>
     <div class="page-shell">
+      <section id="login-panel" class="panel login-panel hidden">
+        <div class="panel-header">
+          <div>
+            <h2>Login</h2>
+            <p class="muted">Open a hub session with a user key and password.</p>
+          </div>
+        </div>
+        <div class="toolbar">
+          <label class="field compact">
+            <span>User key</span>
+            <input id="login-user-key" type="text" placeholder="admin" />
+          </label>
+          <label class="field compact">
+            <span>Password</span>
+            <input id="login-password" type="password" placeholder="password" />
+          </label>
+          <button id="login-button" class="primary">Login</button>
+        </div>
+      </section>
+
       <header class="hero">
         <div>
           <div class="eyebrow">DetecDiv Hub</div>
@@ -22,11 +42,11 @@
             <a class="nav-link active" href="/web/">Catalog</a>
             <a class="nav-link" href="/web/indexing.html">Indexing</a>
           </nav>
-          <label class="field compact">
-            <span>User key</span>
-            <input id="user-key" type="text" placeholder="localdev" />
-          </label>
-          <button id="connect-button" class="primary">Connect</button>
+          <div class="session-box">
+            <div id="session-label" class="muted">Not logged in.</div>
+            <button id="connect-button" class="primary">Refresh</button>
+            <button id="logout-button">Logout</button>
+          </div>
         </div>
       </header>
 
@@ -163,9 +183,12 @@
         <div class="panel-header">
           <div>
             <h2>Pipelines</h2>
-            <p class="muted">Registry of launchable processing templates.</p>
+            <p class="muted">Independent registry plus pipelines observed in indexed projects.</p>
           </div>
-          <button id="new-pipeline-button">New pipeline</button>
+          <div class="action-stack">
+            <button id="import-observed-pipelines-button">Import observed</button>
+            <button id="new-pipeline-button">New pipeline</button>
+          </div>
         </div>
         <div class="toolbar pipelines-toolbar">
           <label class="field compact">
@@ -181,6 +204,14 @@
               <option value="hybrid">hybrid</option>
             </select>
           </label>
+          <label class="field compact">
+            <span>Source</span>
+            <select id="pipeline-source-filter">
+              <option value="">Registry + observed</option>
+              <option value="registry">Registry only</option>
+              <option value="observed">Observed only</option>
+            </select>
+          </label>
           <button id="refresh-pipelines-button">Refresh pipelines</button>
         </div>
         <div class="table-wrap jobs-table-wrap">
@@ -188,10 +219,59 @@
             <thead>
               <tr>
                 <th>Name</th>
+                <th>Source</th>
                 <th>Key</th>
                 <th>Version</th>
                 <th>Runtime</th>
+                <th>Projects</th>
                 <th>Updated</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-header">
+          <div>
+            <h2>Users</h2>
+            <p class="muted">Administer hub users and passwords.</p>
+          </div>
+          <button id="new-user-button">New user</button>
+        </div>
+        <div class="table-wrap jobs-table-wrap">
+          <table id="users-table">
+            <thead>
+              <tr>
+                <th>User key</th>
+                <th>Name</th>
+                <th>Role</th>
+                <th>Active</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-header">
+          <div>
+            <h2>Sessions</h2>
+            <p class="muted">Review active sessions and revoke stale ones.</p>
+          </div>
+          <button id="refresh-sessions-button">Refresh sessions</button>
+        </div>
+        <div class="table-wrap jobs-table-wrap">
+          <table id="sessions-table">
+            <thead>
+              <tr>
+                <th>User</th>
+                <th>Client</th>
+                <th>Last seen</th>
+                <th>Expires</th>
+                <th>Action</th>
               </tr>
             </thead>
             <tbody></tbody>

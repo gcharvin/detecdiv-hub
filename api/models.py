@@ -19,6 +19,7 @@ class User(Base):
     email: Mapped[str | None] = mapped_column(String)
     role: Mapped[str] = mapped_column(String, nullable=False, default="user")
     is_active: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
+    password_hash: Mapped[str | None] = mapped_column(Text)
     metadata_json: Mapped[dict] = mapped_column(JSONB, nullable=False, default=dict)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     updated_at: Mapped[datetime] = mapped_column(
@@ -36,6 +37,7 @@ class User(Base):
     owned_indexing_jobs: Mapped[list["IndexingJob"]] = relationship(
         back_populates="owner", foreign_keys="IndexingJob.owner_user_id"
     )
+    sessions: Mapped[list["UserSession"]] = relationship(back_populates="user")
 
 
 class StorageRoot(Base):
@@ -53,6 +55,24 @@ class StorageRoot(Base):
 
     project_locations: Mapped[list["ProjectLocation"]] = relationship(back_populates="storage_root")
     raw_dataset_locations: Mapped[list["RawDatasetLocation"]] = relationship(back_populates="storage_root")
+
+
+class UserSession(Base):
+    __tablename__ = "user_sessions"
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    user_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False
+    )
+    token_hash: Mapped[str] = mapped_column(Text, nullable=False, unique=True)
+    status: Mapped[str] = mapped_column(String, nullable=False, default="active")
+    client_label: Mapped[str | None] = mapped_column(String)
+    last_seen_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    revoked_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+
+    user: Mapped[User] = relationship(back_populates="sessions")
 
 
 class RawDataset(Base):

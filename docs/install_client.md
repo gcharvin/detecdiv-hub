@@ -22,7 +22,7 @@ If you only want the browser UI:
 
 1. open a browser on the PC
 2. browse to `http://SERVER_OR_HOSTNAME:8000/web/`
-3. enter your `user_key`
+3. log in with your `user_key` and password
 
 If the API is not directly exposed on the LAN, use an SSH tunnel first:
 
@@ -81,6 +81,7 @@ In [detecdivCatalogBrowser.m](C:/Users/charvin/Documents/MATLAB/DetecDiv-catalog
 - set `User`
 - set `Hub Root`
 - set `Local Mount`
+- click `Login...` if the hub requires a password-backed session
 
 Typical final values:
 
@@ -96,6 +97,7 @@ Save the config. The browser will then:
 - filter based on your user rights
 - remap server paths to the local Samba mount
 - load local `shallow` projects through `shallowLoad`
+- keep `Local SQLite` available for a purely local catalog when needed
 
 ## 6. MATLAB-only config shortcut
 
@@ -109,6 +111,12 @@ hub.defaultRemoteProjectRoot = '/srv/detecdiv/projects';
 hub.defaultLocalProjectRoot = 'Z:\detecdiv\projects';
 hub = detecdiv_hub_upsert_path_mapping(hub, '/srv/detecdiv/projects', 'Z:\detecdiv\projects');
 detecdiv_hub_settings_set(hub);
+```
+
+Open a hub session explicitly from MATLAB if needed:
+
+```matlab
+[sessionInfo, hub] = detecdiv_hub_login('localdev', 'change_me');
 ```
 
 ## 7. Quick client checks

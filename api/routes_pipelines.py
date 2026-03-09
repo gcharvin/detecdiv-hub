@@ -1,13 +1,14 @@
+from datetime import datetime
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import select
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 
 from api.db import get_db
-from api.models import Pipeline, User
-from api.schemas import PipelineCreate, PipelineSummary, PipelineUpdate
-from api.services.users import get_current_user
+from api.models import Pipeline, Project, User
+from api.schemas import ObservedPipelineSummary, PipelineCreate, PipelineSummary, PipelineUpdate
+from api.services.users import get_current_user, project_access_filter
 
 
 router = APIRouter(prefix="/pipelines", tags=["pipelines"])
@@ -56,6 +57,140 @@ def create_pipeline(
     return pipeline
 
 
+@router.get("/observed", response_model=list[ObservedPipelineSummary])
+def list_observed_pipelines(
+    search: str | None = None,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> list[ObservedPipelineSummary]:
+    stmt = (
+        select(Project)
+        .options(joinedload(Project.owner))
+        .where(Project.status != "deleted")
+        .where(project_access_filter(current_user))
+        .order_by(Project.project_name.asc())
+    )
+    projects = list(db.scalars(stmt).unique())
+
+    aggregated: dict[str, dict] = {}
+    for project in projects:
+        inventory = (project.metadata_json or {}).get("inventory") or {}
+        runs = inventory.get("pipeline_runs") or []
+        if not isinstance(runs, list):
+            continue
+        for run in runs:
+            if not isinstance(run, dict):
+                continue
+            pipeline_key = local_text(run.get("pipeline_id")) or local_text(run.get("tag"))
+            pipeline_path = local_text(run.get("pipeline_path"))
+            display_name = local_pipeline_display_name(run)
+            identity = pipeline_key or pipeline_path or display_name
+            if not identity:
+                continue
+            bucket = aggregated.get(identity)
+            if bucket is None:
+                bucket = {
+                    "identity": identity,
+                    "display_name": display_name,
+                    "pipeline_key": pipeline_key,
+                    "runtime_kind": "matlab",
+                    "source": "project_observed",
+                    "project_ids": set(),
+                    "project_names": [],
+                    "run_count": 0,
+                    "latest_run_status": None,
+                    "latest_run_at": None,
+                    "metadata_json": {"pipeline_path": pipeline_path, "samples": []},
+                }
+                aggregated[identity] = bucket
+
+            bucket["run_count"] += 1
+            if project.id not in bucket["project_ids"]:
+                bucket["project_ids"].add(project.id)
+                if len(bucket["project_names"]) < 8:
+                    bucket["project_names"].append(project.project_name)
+
+            if len(bucket["metadata_json"]["samples"]) < 5:
+                bucket["metadata_json"]["samples"].append(
+                    {
+                        "project_name": project.project_name,
+                        "pipeline_path": pipeline_path,
+                        "status": run.get("status"),
+                        "timestamp": run.get("timestamp"),
+                    }
+                )
+
+            run_time = local_parse_datetime(run.get("timestamp"))
+            if run_time is not None:
+                current_latest = bucket["latest_run_at"]
+                if current_latest is None or run_time > current_latest:
+                    bucket["latest_run_at"] = run_time
+                    bucket["latest_run_status"] = local_text(run.get("status"))
+
+    observed = []
+    pattern = (search or "").strip().lower()
+    for bucket in aggregated.values():
+        project_count = len(bucket.pop("project_ids"))
+        summary = ObservedPipelineSummary.model_validate(
+            {
+                **bucket,
+                "project_count": project_count,
+            }
+        )
+        if pattern:
+            haystack = " ".join(
+                [
+                    summary.display_name or "",
+                    summary.pipeline_key or "",
+                    *summary.project_names,
+                    str(summary.metadata_json.get("pipeline_path") or ""),
+                ]
+            ).lower()
+            if pattern not in haystack:
+                continue
+        observed.append(summary)
+
+    observed.sort(key=lambda item: ((item.display_name or "").lower(), (item.pipeline_key or "").lower()))
+    return observed
+
+
+@router.post("/import-observed", response_model=list[PipelineSummary], status_code=status.HTTP_201_CREATED)
+def import_observed_pipelines(
+    search: str | None = None,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> list[Pipeline]:
+    if current_user.role not in {"admin", "service"}:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Pipeline admin required")
+
+    observed = list_observed_pipelines(search=search, db=db, current_user=current_user)
+    imported: list[Pipeline] = []
+    for item in observed:
+        stmt = select(Pipeline).where(
+            Pipeline.pipeline_key == item.pipeline_key if item.pipeline_key else Pipeline.display_name == item.display_name
+        )
+        pipeline = db.scalars(stmt).first()
+        if pipeline is None:
+            pipeline = Pipeline(
+                pipeline_key=item.pipeline_key,
+                display_name=item.display_name,
+                version="observed",
+                runtime_kind=item.runtime_kind,
+                metadata_json={"source": item.source, "observed": item.metadata_json},
+            )
+            db.add(pipeline)
+        else:
+            merged = dict(pipeline.metadata_json or {})
+            merged["observed"] = item.metadata_json
+            pipeline.metadata_json = merged
+        imported.append(pipeline)
+
+    db.commit()
+    for pipeline in imported:
+        db.refresh(pipeline)
+    return imported
+
+
 @router.get("/{pipeline_id}", response_model=PipelineSummary)
 def get_pipeline(
     pipeline_id: UUID,
@@ -97,3 +232,41 @@ def update_pipeline(
     db.commit()
     db.refresh(pipeline)
     return pipeline
+
+
+def local_text(value) -> str | None:
+    if value in (None, ""):
+        return None
+    return str(value)
+
+
+def local_pipeline_display_name(run: dict) -> str:
+    for key in ("tag", "pipeline_id", "fun"):
+        value = local_text(run.get(key))
+        if value:
+            return value
+    path = local_text(run.get("pipeline_path"))
+    if path:
+        parts = path.replace("\\", "/").split("/")
+        return parts[-1]
+    return "Unnamed observed pipeline"
+
+
+def local_parse_datetime(value) -> datetime | None:
+    if isinstance(value, datetime):
+        return value
+    if value in (None, ""):
+        return None
+    text = str(value).strip()
+    if not text:
+        return None
+    for parser in (
+        lambda: datetime.fromisoformat(text.replace("Z", "+00:00")),
+        lambda: datetime.strptime(text, "%d-%b-%Y %H:%M:%S"),
+        lambda: datetime.strptime(text, "%Y-%m-%d %H:%M:%S"),
+    ):
+        try:
+            return parser()
+        except ValueError:
+            continue
+    return None

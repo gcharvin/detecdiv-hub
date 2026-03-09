@@ -18,6 +18,9 @@ class Settings(BaseSettings):
     worker_poll_interval_sec: float = 5.0
     default_user_key: str = "localdev"
     auto_provision_users: bool = True
+    allow_legacy_user_key_auth: bool = True
+    session_duration_hours: int = 168
+    session_cookie_name: str = "detecdiv_hub_session"
 
     model_config = SettingsConfigDict(
         env_prefix="DETECDIV_HUB_",
