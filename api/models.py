@@ -338,6 +338,10 @@ class Pipeline(Base):
     version: Mapped[str] = mapped_column(String, nullable=False, default="1.0")
     runtime_kind: Mapped[str] = mapped_column(String, nullable=False, default="matlab")
     metadata_json: Mapped[dict] = mapped_column(JSONB, nullable=False, default=dict)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
+    )
 
 
 class ExecutionTarget(Base):

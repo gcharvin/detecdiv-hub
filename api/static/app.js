@@ -2,6 +2,8 @@ const state = {
   userKey: localStorage.getItem("detecdivHub.userKey") || "localdev",
   projects: [],
   groups: [],
+  storageRoots: [],
+  pipelines: [],
   indexingJobs: [],
   selectedProject: null,
   selectedProjectDetail: null,
@@ -13,6 +15,9 @@ const state = {
 const els = {
   userKey: document.querySelector("#user-key"),
   connectButton: document.querySelector("#connect-button"),
+  projectSearch: document.querySelector("#project-search"),
+  ownerFilter: document.querySelector("#owner-filter"),
+  storageRootFilter: document.querySelector("#storage-root-filter"),
   groupFilter: document.querySelector("#group-filter"),
   ownedOnly: document.querySelector("#owned-only"),
   refreshButton: document.querySelector("#refresh-button"),
@@ -32,6 +37,7 @@ const els = {
   aclList: document.querySelector("#acl-list"),
   addNoteButton: document.querySelector("#add-note-button"),
   shareButton: document.querySelector("#share-button"),
+  editProjectButton: document.querySelector("#edit-project-button"),
   addToGroupButton: document.querySelector("#add-to-group-button"),
   previewDeleteButton: document.querySelector("#preview-delete-button"),
   indexSourcePath: document.querySelector("#index-source-path"),
@@ -42,6 +48,11 @@ const els = {
   indexJobsRefreshButton: document.querySelector("#index-jobs-refresh-button"),
   activeIndexJob: document.querySelector("#active-index-job"),
   indexJobsTableBody: document.querySelector("#index-jobs-table tbody"),
+  pipelineSearch: document.querySelector("#pipeline-search"),
+  pipelineRuntimeFilter: document.querySelector("#pipeline-runtime-filter"),
+  refreshPipelinesButton: document.querySelector("#refresh-pipelines-button"),
+  newPipelineButton: document.querySelector("#new-pipeline-button"),
+  pipelinesTableBody: document.querySelector("#pipelines-table tbody"),
   statusLine: document.querySelector("#status-line"),
 };
 
@@ -140,6 +151,18 @@ function renderGroupFilter() {
   els.groupFilter.value = state.groups.some((group) => group.id === currentValue) ? currentValue : "";
 }
 
+function renderStorageRootFilter() {
+  const currentValue = els.storageRootFilter.value;
+  els.storageRootFilter.innerHTML = `<option value="">All roots</option>`;
+  for (const root of state.storageRoots) {
+    const option = document.createElement("option");
+    option.value = root.name;
+    option.textContent = root.name;
+    els.storageRootFilter.appendChild(option);
+  }
+  els.storageRootFilter.value = state.storageRoots.some((root) => root.name === currentValue) ? currentValue : "";
+}
+
 function renderProjects() {
   els.projectsTableBody.innerHTML = "";
   els.projectCountLabel.textContent = `${state.projects.length} visible projects`;
@@ -159,6 +182,23 @@ function renderProjects() {
     `;
     tr.addEventListener("click", () => selectProject(project.id));
     els.projectsTableBody.appendChild(tr);
+  }
+}
+
+function renderPipelines() {
+  els.pipelinesTableBody.innerHTML = "";
+  for (const pipeline of state.pipelines) {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${pipeline.display_name}</td>
+      <td>${pipeline.pipeline_key || ""}</td>
+      <td>${pipeline.version}</td>
+      <td>${pipeline.runtime_kind}</td>
+      <td>${formatTimestamp(pipeline.updated_at || pipeline.created_at)}</td>
+    `;
+    tr.title = JSON.stringify(pipeline.metadata_json || {});
+    tr.addEventListener("click", () => editPipeline(pipeline));
+    els.pipelinesTableBody.appendChild(tr);
   }
 }
 
@@ -294,12 +334,14 @@ async function refreshDashboard() {
   localStorage.setItem("detecdivHub.userKey", state.userKey);
 
   setStatus("Refreshing dashboard...");
-  const [summary, groups] = await Promise.all([
+  const [summary, groups, storageRoots] = await Promise.all([
     apiGet("/dashboard/summary"),
     apiGet("/project-groups"),
+    apiGet("/storage-roots"),
   ]);
 
   state.groups = groups.map((group) => ({ ...group, project_ids: [] }));
+  state.storageRoots = storageRoots;
   for (const group of state.groups) {
     const detail = await apiGet(`/project-groups/${group.id}`);
     group.project_ids = (detail.projects || []).map((project) => project.id);
@@ -307,8 +349,10 @@ async function refreshDashboard() {
 
   setSummary(summary);
   renderGroupFilter();
+  renderStorageRootFilter();
   await refreshProjects();
   await refreshIndexingJobs();
+  await refreshPipelines();
   setStatus(`Connected as ${summary.user.user_key}.`);
 }
 
@@ -321,11 +365,23 @@ async function refreshProjects() {
   const groupId = els.groupFilter.value;
   const ownedOnly = els.ownedOnly.checked;
   const params = new URLSearchParams();
+  const search = els.projectSearch.value.trim();
+  const ownerKey = els.ownerFilter.value.trim();
+  const storageRootName = els.storageRootFilter.value;
   if (groupId) {
     params.set("group_id", groupId);
   }
   if (ownedOnly) {
     params.set("owned_only", "true");
+  }
+  if (search) {
+    params.set("search", search);
+  }
+  if (ownerKey) {
+    params.set("owner_key", ownerKey);
+  }
+  if (storageRootName) {
+    params.set("storage_root_name", storageRootName);
   }
   state.projects = await apiGet(`/projects${params.toString() ? `?${params.toString()}` : ""}`);
   renderProjects();
@@ -341,6 +397,20 @@ async function refreshProjects() {
       renderDetail();
     }
   }
+}
+
+async function refreshPipelines() {
+  const params = new URLSearchParams();
+  const search = els.pipelineSearch.value.trim();
+  const runtime = els.pipelineRuntimeFilter.value;
+  if (search) {
+    params.set("search", search);
+  }
+  if (runtime) {
+    params.set("runtime_kind", runtime);
+  }
+  state.pipelines = await apiGet(`/pipelines${params.toString() ? `?${params.toString()}` : ""}`);
+  renderPipelines();
 }
 
 async function selectProject(projectId) {
@@ -394,6 +464,39 @@ async function addNote() {
   });
   await selectProject(state.selectedProject.id);
   setStatus("Note added.");
+}
+
+async function editProject() {
+  if (!state.selectedProjectDetail) {
+    return;
+  }
+  const currentOwner = state.selectedProjectDetail.owner?.user_key || "";
+  const currentVisibility = state.selectedProjectDetail.visibility || "private";
+  const ownerUserKey = window.prompt("Owner user key", currentOwner);
+  if (ownerUserKey === null) {
+    return;
+  }
+  const visibility = window.prompt("Visibility (private/shared/public)", currentVisibility);
+  if (!visibility) {
+    return;
+  }
+  await fetch(`/projects/${state.selectedProjectDetail.id}?${currentQuery()}`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      owner_user_key: ownerUserKey.trim() || null,
+      visibility,
+      metadata_json: {},
+    }),
+  }).then(async (response) => {
+    if (!response.ok) {
+      throw new Error(await response.text());
+    }
+    return response.json();
+  });
+  await refreshDashboard();
+  await selectProject(state.selectedProjectDetail.id);
+  setStatus("Project updated.");
 }
 
 async function shareProject() {
@@ -481,6 +584,59 @@ async function runIndexing() {
   setStatus(`Queued indexing job ${response.job.id} for ${response.job.source_path}.`);
 }
 
+async function createPipeline() {
+  const displayName = window.prompt("Pipeline display name");
+  if (!displayName) {
+    return;
+  }
+  const pipelineKey = window.prompt("Pipeline key", displayName.toLowerCase().replace(/[^a-z0-9]+/g, "_"));
+  if (pipelineKey === null) {
+    return;
+  }
+  const version = window.prompt("Version", "1.0") || "1.0";
+  const runtimeKind = window.prompt("Runtime kind (matlab/python/hybrid)", "matlab") || "matlab";
+  await apiPost("/pipelines", {
+    display_name: displayName,
+    pipeline_key: pipelineKey.trim() || null,
+    version,
+    runtime_kind: runtimeKind,
+    metadata_json: {},
+  });
+  await refreshPipelines();
+  setStatus(`Created pipeline ${displayName}.`);
+}
+
+async function editPipeline(pipeline) {
+  const displayName = window.prompt("Pipeline display name", pipeline.display_name);
+  if (displayName === null) {
+    return;
+  }
+  const version = window.prompt("Version", pipeline.version);
+  if (version === null) {
+    return;
+  }
+  const runtimeKind = window.prompt("Runtime kind (matlab/python/hybrid)", pipeline.runtime_kind);
+  if (runtimeKind === null) {
+    return;
+  }
+  const separator = "?";
+  const response = await fetch(`/pipelines/${pipeline.id}${separator}${currentQuery()}`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      display_name: displayName,
+      version,
+      runtime_kind: runtimeKind,
+      metadata_json: {},
+    }),
+  });
+  if (!response.ok) {
+    throw new Error(await response.text());
+  }
+  await refreshPipelines();
+  setStatus(`Updated pipeline ${displayName}.`);
+}
+
 async function pollDashboard() {
   if (!state.userKey) {
     return;
@@ -509,14 +665,22 @@ els.userKey.value = state.userKey;
 els.connectButton.addEventListener("click", () => refreshDashboard().catch((error) => setStatus(String(error))));
 els.refreshButton.addEventListener("click", () => refreshDashboard().catch((error) => setStatus(String(error))));
 els.groupFilter.addEventListener("change", () => refreshProjects().catch((error) => setStatus(String(error))));
+els.projectSearch.addEventListener("change", () => refreshProjects().catch((error) => setStatus(String(error))));
+els.ownerFilter.addEventListener("change", () => refreshProjects().catch((error) => setStatus(String(error))));
+els.storageRootFilter.addEventListener("change", () => refreshProjects().catch((error) => setStatus(String(error))));
 els.ownedOnly.addEventListener("change", () => refreshProjects().catch((error) => setStatus(String(error))));
 els.newGroupButton.addEventListener("click", () => createGroup().catch((error) => setStatus(String(error))));
 els.addNoteButton.addEventListener("click", () => addNote().catch((error) => setStatus(String(error))));
 els.shareButton.addEventListener("click", () => shareProject().catch((error) => setStatus(String(error))));
+els.editProjectButton.addEventListener("click", () => editProject().catch((error) => setStatus(String(error))));
 els.addToGroupButton.addEventListener("click", () => addSelectedProjectToGroup().catch((error) => setStatus(String(error))));
 els.previewDeleteButton.addEventListener("click", () => previewDelete().catch((error) => setStatus(String(error))));
 els.indexButton.addEventListener("click", () => runIndexing().catch((error) => setStatus(String(error))));
 els.indexJobsRefreshButton.addEventListener("click", () => refreshIndexingJobs().catch((error) => setStatus(String(error))));
+els.refreshPipelinesButton.addEventListener("click", () => refreshPipelines().catch((error) => setStatus(String(error))));
+els.newPipelineButton.addEventListener("click", () => createPipeline().catch((error) => setStatus(String(error))));
+els.pipelineSearch.addEventListener("change", () => refreshPipelines().catch((error) => setStatus(String(error))));
+els.pipelineRuntimeFilter.addEventListener("change", () => refreshPipelines().catch((error) => setStatus(String(error))));
 
 ensureDashboardPolling();
 refreshDashboard().catch((error) => setStatus(String(error)));

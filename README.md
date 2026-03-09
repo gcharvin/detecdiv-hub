@@ -43,6 +43,18 @@ pip install -e .
 uvicorn api.app:app --reload --host 127.0.0.1 --port 8000
 ```
 
+Shortcuts:
+
+```bash
+./scripts/run_api.sh
+./scripts/run_worker.sh
+```
+
+```powershell
+.\scripts\run_api.ps1
+.\scripts\run_worker.ps1
+```
+
 See [docs/architecture.md](docs/architecture.md), [docs/install_server.md](docs/install_server.md), [docs/install_client.md](docs/install_client.md), and [AGENTS.md](AGENTS.md).
 
 ## Bootstrap a local development database
@@ -132,6 +144,8 @@ curl "http://127.0.0.1:8000/users/me?user_key=localdev"
 curl "http://127.0.0.1:8000/projects?user_key=localdev"
 curl "http://127.0.0.1:8000/project-groups?user_key=localdev"
 curl "http://127.0.0.1:8000/dashboard/summary?user_key=localdev"
+curl "http://127.0.0.1:8000/storage-roots?user_key=localdev"
+curl "http://127.0.0.1:8000/projects?user_key=localdev&search=viterbi&owner_key=localdev&storage_root_name=projects_aizea"
 ```
 
 ## Web UI
@@ -148,10 +162,13 @@ Current web UI capabilities:
 - review notes and ACL entries
 - add notes
 - share a project with another user
+- update project owner and visibility
 - create groups and add a project to a group
 - preview and execute deletion
 - queue hub-side indexing on a project root
 - follow indexing progress and recent indexing history
+- search and filter projects by name, owner, and storage root
+- manage a first pipeline registry
 
 Async indexing endpoints:
 
@@ -186,6 +203,18 @@ Current behavior:
 - physical project files are deleted only if `delete_project_files=true`
 - linked raw data is deleted only if explicitly requested and not shared with other projects
 - deletion is logged in `project_deletion_events`
+
+## Pipeline registry
+
+The hub now exposes a minimal `pipelines` registry separate from discovered
+historical pipeline runs in project folders.
+
+Examples:
+
+```powershell
+curl "http://127.0.0.1:8000/pipelines?user_key=localdev"
+curl -Method POST -ContentType "application/json" -Body '{"pipeline_key":"segmentation_v2","display_name":"Segmentation V2","version":"2.0","runtime_kind":"matlab","metadata_json":{"entrypoint":"pipelineRun"}}' "http://127.0.0.1:8000/pipelines?user_key=localdev"
+```
 
 ## Install systemd units on Linux
 

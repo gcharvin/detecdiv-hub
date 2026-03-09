@@ -243,6 +243,9 @@ currently targets:
 - preview-first deletion
 - direct hub-side indexing
 - live indexing progress and recent indexing history
+- search by project name, owner, and storage root
+- project admin updates such as owner/visibility changes
+- a first pipeline registry UI/API
 
 ### Pipeline registry direction
 

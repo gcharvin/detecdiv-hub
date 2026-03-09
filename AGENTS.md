@@ -38,6 +38,7 @@ cross-host orchestration need.
 Main subsystems:
 
 - `api/`: FastAPI application exposing catalog and job endpoints
+- `api/static/`: lightweight browser UI for search, review, and admin actions
 - `db/`: PostgreSQL schema and future migrations
 - `worker/`: polling worker that executes queued jobs
 - `scripts/`: local dev helpers and SSH helpers
@@ -148,6 +149,13 @@ For new features, agents should first identify which layer is affected:
   - parameter schema/defaults
   - compatibility constraints for execution targets
   - provenance links between a launched job and the exact pipeline definition used
+
+Current implementation note:
+
+- project search by name, owner, and storage root already exists
+- project admin updates currently include owner and visibility changes
+- a first minimal pipeline registry UI/API already exists
+- future work should extend these surfaces instead of reintroducing parallel ones
 
 ## Required future capabilities
 

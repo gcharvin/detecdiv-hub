@@ -1,7 +1,7 @@
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy import select
+from sqlalchemy import or_, select
 from sqlalchemy.orm import Session, joinedload
 
 from api.db import get_db
@@ -13,6 +13,7 @@ from api.models import (
     ProjectGroupMember,
     ProjectLocation,
     ProjectNote,
+    StorageRoot,
     User,
 )
 from api.schemas import (
@@ -28,6 +29,8 @@ from api.schemas import (
     ProjectNoteCreate,
     ProjectNoteSummary,
     ProjectSummary,
+    ProjectUpdate,
+    StorageRootSummary,
     UserSummary,
 )
 from api.services.project_deletion import build_deletion_preview, execute_project_deletion, record_deletion_preview
@@ -37,18 +40,23 @@ from api.services.users import ensure_project_readable, get_current_user, get_or
 router = APIRouter(prefix="/projects", tags=["projects"])
 groups_router = APIRouter(prefix="/project-groups", tags=["project-groups"])
 users_router = APIRouter(prefix="/users", tags=["users"])
+storage_roots_router = APIRouter(prefix="/storage-roots", tags=["storage-roots"])
 
 
 @router.get("", response_model=list[ProjectSummary])
 def list_projects(
     group_id: UUID | None = None,
     owned_only: bool = False,
+    search: str | None = None,
+    owner_key: str | None = None,
+    storage_root_name: str | None = None,
+    visibility: str | None = None,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ) -> list[Project]:
     stmt = (
         select(Project)
-        .options(joinedload(Project.owner))
+        .options(joinedload(Project.owner), joinedload(Project.locations).joinedload(ProjectLocation.storage_root))
         .where(Project.status != "deleted")
         .where(project_access_filter(current_user))
         .order_by(Project.project_name.asc())
@@ -65,6 +73,24 @@ def list_projects(
                 ProjectGroup.owner_user_id == current_user.id,
             )
         )
+    if search:
+        pattern = f"%{search.strip()}%"
+        stmt = stmt.where(
+            or_(
+                Project.project_name.ilike(pattern),
+                Project.project_key.ilike(pattern),
+            )
+        )
+    if owner_key:
+        stmt = stmt.join(User, Project.owner_user_id == User.id).where(User.user_key == owner_key)
+    if storage_root_name:
+        stmt = (
+            stmt.join(ProjectLocation, ProjectLocation.project_id == Project.id)
+            .join(StorageRoot, StorageRoot.id == ProjectLocation.storage_root_id)
+            .where(StorageRoot.name == storage_root_name)
+        )
+    if visibility:
+        stmt = stmt.where(Project.visibility == visibility)
     return [project_summary_view(project) for project in db.scalars(stmt).unique()]
 
 
@@ -85,6 +111,41 @@ def get_project(
     )
     project = db.scalars(stmt).unique().first()
     return ensure_project_readable(project, current_user)
+
+
+@router.patch("/{project_id}", response_model=ProjectDetail)
+def update_project(
+    project_id: UUID,
+    payload: ProjectUpdate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> Project:
+    stmt = (
+        select(Project)
+        .options(
+            joinedload(Project.owner),
+            joinedload(Project.acl_entries),
+            joinedload(Project.locations).joinedload(ProjectLocation.storage_root),
+        )
+        .where(Project.id == project_id, Project.status != "deleted")
+    )
+    project = db.scalars(stmt).unique().first()
+    project = ensure_project_readable(project, current_user)
+    if not user_can_edit_project(project, current_user):
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Project is not editable")
+
+    if payload.visibility is not None:
+        project.visibility = payload.visibility
+    if payload.owner_user_key:
+        new_owner = get_or_create_user(db, user_key=payload.owner_user_key, display_name=payload.owner_user_key)
+        project.owner_user_id = new_owner.id
+    if payload.metadata_json:
+        merged = dict(project.metadata_json or {})
+        merged.update(payload.metadata_json)
+        project.metadata_json = merged
+
+    db.commit()
+    return get_project(project_id=project_id, db=db, current_user=current_user)
 
 
 @router.post("/{project_id}/deletion-preview", response_model=ProjectDeletionPreview)
@@ -375,6 +436,16 @@ def list_users(
     if current_user.role not in {"admin", "service"}:
         return [current_user]
     return list(db.scalars(select(User).where(User.is_active.is_(True)).order_by(User.display_name.asc())))
+
+
+@storage_roots_router.get("", response_model=list[StorageRootSummary])
+def list_storage_roots(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> list[StorageRoot]:
+    _ = current_user
+    stmt = select(StorageRoot).order_by(StorageRoot.name.asc())
+    return list(db.scalars(stmt))
 
 
 def project_summary_view(project: Project) -> ProjectSummary:

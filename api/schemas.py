@@ -73,6 +73,12 @@ class ProjectDetail(ProjectSummary):
     locations: list[ProjectLocationSummary] = Field(default_factory=list)
 
 
+class ProjectUpdate(HubBaseModel):
+    owner_user_key: str | None = None
+    visibility: str | None = None
+    metadata_json: dict[str, Any] = Field(default_factory=dict)
+
+
 class ProjectAclSummary(HubBaseModel):
     id: int
     access_level: str
@@ -174,6 +180,32 @@ class JobSummary(HubBaseModel):
     started_at: datetime | None = None
     finished_at: datetime | None = None
     updated_at: datetime | None = None
+
+
+class PipelineSummary(HubBaseModel):
+    id: UUID
+    pipeline_key: str | None = None
+    display_name: str
+    version: str
+    runtime_kind: str
+    metadata_json: dict[str, Any] = Field(default_factory=dict)
+    created_at: datetime | None = None
+    updated_at: datetime | None = None
+
+
+class PipelineCreate(HubBaseModel):
+    pipeline_key: str | None = None
+    display_name: str
+    version: str = "1.0"
+    runtime_kind: str = "matlab"
+    metadata_json: dict[str, Any] = Field(default_factory=dict)
+
+
+class PipelineUpdate(HubBaseModel):
+    display_name: str | None = None
+    version: str | None = None
+    runtime_kind: str | None = None
+    metadata_json: dict[str, Any] | None = None
 
 
 class IndexRequest(HubBaseModel):
