@@ -14,10 +14,14 @@
           <h1>Catalog, governance, and storage review</h1>
           <p class="hero-copy">
             Browse indexed projects, inspect storage footprint, manage sharing,
-            and trigger indexing without MATLAB.
+            and review pipeline templates without MATLAB.
           </p>
         </div>
         <div class="hero-actions">
+          <nav class="hero-nav">
+            <a class="nav-link active" href="/web/">Catalog</a>
+            <a class="nav-link" href="/web/indexing.html">Indexing</a>
+          </nav>
           <label class="field compact">
             <span>User key</span>
             <input id="user-key" type="text" placeholder="localdev" />
@@ -64,6 +68,15 @@
           <span>Group filter</span>
           <select id="group-filter">
             <option value="">All projects</option>
+          </select>
+        </label>
+        <label class="field compact">
+          <span>Show</span>
+          <select id="project-limit">
+            <option value="25">25</option>
+            <option value="50" selected>50</option>
+            <option value="100">100</option>
+            <option value="200">200</option>
           </select>
         </label>
         <label class="toggle">
@@ -144,66 +157,6 @@
             </section>
           </div>
         </aside>
-      </section>
-
-      <section class="panel">
-        <div class="panel-header">
-          <div>
-            <h2>Index Root</h2>
-            <p class="muted">Queue a project-root scan directly on the hub host.</p>
-          </div>
-        </div>
-        <div class="index-form">
-          <label class="field">
-            <span>Source path</span>
-            <input id="index-source-path" type="text" placeholder="/srv/detecdiv/projects" />
-          </label>
-          <label class="field">
-            <span>Storage root name</span>
-            <input id="index-storage-root-name" type="text" placeholder="server_projects" />
-          </label>
-          <label class="field">
-            <span>Visibility</span>
-            <select id="index-visibility">
-              <option value="private">private</option>
-              <option value="shared">shared</option>
-              <option value="public">public</option>
-            </select>
-          </label>
-          <label class="toggle">
-            <input id="index-clear-existing" type="checkbox" />
-            <span>Clear stale rows for this root</span>
-          </label>
-          <button id="index-button" class="primary">Queue indexing</button>
-        </div>
-      </section>
-
-      <section class="panel">
-        <div class="panel-header">
-          <div>
-            <h2>Indexing Activity</h2>
-            <p class="muted">Queued and running scans with live progress.</p>
-          </div>
-          <button id="index-jobs-refresh-button">Refresh jobs</button>
-        </div>
-        <div id="active-index-job" class="job-highlight empty-state">
-          No indexing jobs yet.
-        </div>
-        <div class="table-wrap jobs-table-wrap">
-          <table id="index-jobs-table">
-            <thead>
-              <tr>
-                <th>Status</th>
-                <th>Source</th>
-                <th>Progress</th>
-                <th>Indexed</th>
-                <th>Failed</th>
-                <th>Updated</th>
-              </tr>
-            </thead>
-            <tbody></tbody>
-          </table>
-        </div>
       </section>
 
       <section class="panel">

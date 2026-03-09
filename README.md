@@ -157,7 +157,8 @@ The hub now serves a minimal browser UI at:
 Current web UI capabilities:
 
 - connect as one hub user via `user_key`
-- browse projects with owner/group filters
+- browse projects with name/owner/group/storage-root filters
+- limit the number of visible projects in the table
 - inspect per-project storage and inventory metrics
 - review notes and ACL entries
 - add notes
@@ -169,6 +170,11 @@ Current web UI capabilities:
 - follow indexing progress and recent indexing history
 - search and filter projects by name, owner, and storage root
 - manage a first pipeline registry
+
+The UI is now split across two pages:
+
+- [http://127.0.0.1:8000/web/](http://127.0.0.1:8000/web/) for catalog/admin work
+- [http://127.0.0.1:8000/web/indexing.html](http://127.0.0.1:8000/web/indexing.html) for indexing
 
 Async indexing endpoints:
 

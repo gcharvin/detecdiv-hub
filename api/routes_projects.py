@@ -51,6 +51,7 @@ def list_projects(
     owner_key: str | None = None,
     storage_root_name: str | None = None,
     visibility: str | None = None,
+    limit: int = 100,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ) -> list[Project]:
@@ -91,6 +92,7 @@ def list_projects(
         )
     if visibility:
         stmt = stmt.where(Project.visibility == visibility)
+    stmt = stmt.limit(min(max(limit, 1), 500))
     return [project_summary_view(project) for project in db.scalars(stmt).unique()]
 
 

@@ -98,6 +98,31 @@ h3 {
   align-items: end;
 }
 
+.hero-nav {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin-right: 4px;
+}
+
+.nav-link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 42px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  border: 1px solid rgba(120, 96, 61, 0.15);
+  background: #fff8ef;
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.nav-link.active {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+}
+
 .summary-grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -132,7 +157,7 @@ h3 {
 
 .layout-grid {
   display: grid;
-  grid-template-columns: minmax(0, 1.6fr) minmax(340px, 0.9fr);
+  grid-template-columns: minmax(0, 1.8fr) minmax(420px, 1.1fr);
   gap: 14px;
   margin-top: 14px;
 }
@@ -152,11 +177,11 @@ h3 {
 
 .table-wrap {
   overflow: auto;
-  max-height: 62vh;
+  max-height: none;
 }
 
 .jobs-table-wrap {
-  max-height: 28vh;
+  max-height: none;
 }
 
 table {
@@ -189,8 +214,7 @@ tbody tr.selected {
 }
 
 .detail-panel {
-  max-height: 76vh;
-  overflow: auto;
+  overflow: visible;
 }
 
 .detail-list {
@@ -374,6 +398,11 @@ button:disabled {
 
   .hero {
     flex-direction: column;
+  }
+
+  .hero-actions {
+    width: 100%;
+    flex-wrap: wrap;
   }
 
   .detail-list {

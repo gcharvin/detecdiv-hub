@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>DetecDiv Hub | Indexing</title>
+    <link rel="stylesheet" href="/web/styles.css" />
+  </head>
+  <body>
+    <div class="page-shell">
+      <header class="hero">
+        <div>
+          <div class="eyebrow">DetecDiv Hub</div>
+          <h1>Indexing jobs and storage ingestion</h1>
+          <p class="hero-copy">
+            Launch project-root scans on the hub host and follow indexing activity without opening MATLAB.
+          </p>
+        </div>
+        <div class="hero-actions">
+          <nav class="hero-nav">
+            <a class="nav-link" href="/web/">Catalog</a>
+            <a class="nav-link active" href="/web/indexing.html">Indexing</a>
+          </nav>
+          <label class="field compact">
+            <span>User key</span>
+            <input id="user-key" type="text" placeholder="localdev" />
+          </label>
+          <button id="connect-button" class="primary">Connect</button>
+        </div>
+      </header>
+
+      <section class="summary-grid" id="summary-grid">
+        <article class="summary-card">
+          <div class="summary-label">Projects</div>
+          <div id="summary-total-projects" class="summary-value">0</div>
+        </article>
+        <article class="summary-card">
+          <div class="summary-label">Owned</div>
+          <div id="summary-owned-projects" class="summary-value">0</div>
+        </article>
+        <article class="summary-card">
+          <div class="summary-label">Total Storage</div>
+          <div id="summary-total-bytes" class="summary-value">0 B</div>
+        </article>
+        <article class="summary-card">
+          <div class="summary-label">Groups</div>
+          <div id="summary-group-count" class="summary-value">0</div>
+        </article>
+      </section>
+
+      <section class="panel">
+        <div class="panel-header">
+          <div>
+            <h2>Index Root</h2>
+            <p class="muted">Queue a project-root scan directly on the hub host.</p>
+          </div>
+          <div class="status-pill" id="user-label">User: not connected</div>
+        </div>
+        <div class="index-form">
+          <label class="field">
+            <span>Source path</span>
+            <input id="index-source-path" type="text" placeholder="/data/projects" />
+          </label>
+          <label class="field">
+            <span>Storage root name</span>
+            <input id="index-storage-root-name" type="text" placeholder="server_projects" />
+          </label>
+          <label class="field">
+            <span>Visibility</span>
+            <select id="index-visibility">
+              <option value="private">private</option>
+              <option value="shared">shared</option>
+              <option value="public">public</option>
+            </select>
+          </label>
+          <label class="toggle">
+            <input id="index-clear-existing" type="checkbox" />
+            <span>Clear stale rows for this root</span>
+          </label>
+          <button id="index-button" class="primary">Queue indexing</button>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-header">
+          <div>
+            <h2>Indexing Activity</h2>
+            <p class="muted">Queued and running scans with live progress.</p>
+          </div>
+          <button id="index-jobs-refresh-button">Refresh jobs</button>
+        </div>
+        <div id="active-index-job" class="job-highlight empty-state">
+          No indexing jobs yet.
+        </div>
+        <div class="table-wrap">
+          <table id="index-jobs-table">
+            <thead>
+              <tr>
+                <th>Status</th>
+                <th>Source</th>
+                <th>Progress</th>
+                <th>Indexed</th>
+                <th>Failed</th>
+                <th>Updated</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </section>
+
+      <footer class="footer">
+        <div id="status-line">Ready.</div>
+      </footer>
+    </div>
+
+    <script src="/web/app.js" defer></script>
+  </body>
+</html>

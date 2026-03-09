@@ -18,6 +18,7 @@ const els = {
   projectSearch: document.querySelector("#project-search"),
   ownerFilter: document.querySelector("#owner-filter"),
   storageRootFilter: document.querySelector("#storage-root-filter"),
+  projectLimit: document.querySelector("#project-limit"),
   groupFilter: document.querySelector("#group-filter"),
   ownedOnly: document.querySelector("#owned-only"),
   refreshButton: document.querySelector("#refresh-button"),
@@ -59,7 +60,9 @@ const els = {
 let dashboardPollHandle = null;
 
 function setStatus(message) {
-  els.statusLine.textContent = message;
+  if (els.statusLine) {
+    els.statusLine.textContent = message;
+  }
 }
 
 function currentQuery() {
@@ -132,14 +135,17 @@ function progressPercent(job) {
 
 function setSummary(summary) {
   state.summary = summary;
-  els.summaryTotalProjects.textContent = summary.total_projects;
-  els.summaryOwnedProjects.textContent = summary.owned_projects;
-  els.summaryTotalBytes.textContent = humanBytes(summary.total_bytes);
-  els.summaryGroupCount.textContent = summary.group_count;
-  els.userLabel.textContent = `User: ${summary.user.display_name} (${summary.user.user_key})`;
+  if (els.summaryTotalProjects) els.summaryTotalProjects.textContent = summary.total_projects;
+  if (els.summaryOwnedProjects) els.summaryOwnedProjects.textContent = summary.owned_projects;
+  if (els.summaryTotalBytes) els.summaryTotalBytes.textContent = humanBytes(summary.total_bytes);
+  if (els.summaryGroupCount) els.summaryGroupCount.textContent = summary.group_count;
+  if (els.userLabel) els.userLabel.textContent = `User: ${summary.user.display_name} (${summary.user.user_key})`;
 }
 
 function renderGroupFilter() {
+  if (!els.groupFilter) {
+    return;
+  }
   const currentValue = els.groupFilter.value;
   els.groupFilter.innerHTML = `<option value="">All projects</option>`;
   for (const group of state.groups) {
@@ -152,6 +158,9 @@ function renderGroupFilter() {
 }
 
 function renderStorageRootFilter() {
+  if (!els.storageRootFilter) {
+    return;
+  }
   const currentValue = els.storageRootFilter.value;
   els.storageRootFilter.innerHTML = `<option value="">All roots</option>`;
   for (const root of state.storageRoots) {
@@ -164,6 +173,9 @@ function renderStorageRootFilter() {
 }
 
 function renderProjects() {
+  if (!els.projectsTableBody || !els.projectCountLabel) {
+    return;
+  }
   els.projectsTableBody.innerHTML = "";
   els.projectCountLabel.textContent = `${state.projects.length} visible projects`;
   for (const project of state.projects) {
@@ -186,6 +198,9 @@ function renderProjects() {
 }
 
 function renderPipelines() {
+  if (!els.pipelinesTableBody) {
+    return;
+  }
   els.pipelinesTableBody.innerHTML = "";
   for (const pipeline of state.pipelines) {
     const tr = document.createElement("tr");
@@ -203,6 +218,9 @@ function renderPipelines() {
 }
 
 function renderIndexingJobs() {
+  if (!els.indexJobsTableBody || !els.activeIndexJob) {
+    return;
+  }
   els.indexJobsTableBody.innerHTML = "";
   const activeJob = state.indexingJobs.find((job) => job.status === "queued" || job.status === "running");
   const latestJob = activeJob || state.indexingJobs[0] || null;
@@ -244,6 +262,9 @@ function renderIndexingJobs() {
 }
 
 function renderDetail() {
+  if (!els.detailEmpty || !els.detailContent || !els.detailSubtitle) {
+    return;
+  }
   if (!state.selectedProjectDetail) {
     els.detailEmpty.classList.remove("hidden");
     els.detailContent.classList.add("hidden");
@@ -296,6 +317,9 @@ function renderDetail() {
 }
 
 function renderNotes() {
+  if (!els.notesList) {
+    return;
+  }
   els.notesList.innerHTML = "";
   if (!state.notes.length) {
     els.notesList.innerHTML = `<div class="stack-item">No notes.</div>`;
@@ -313,6 +337,9 @@ function renderNotes() {
 }
 
 function renderAcl() {
+  if (!els.aclList) {
+    return;
+  }
   els.aclList.innerHTML = "";
   if (!state.acl.length) {
     els.aclList.innerHTML = `<div class="stack-item">Owner only.</div>`;
@@ -351,8 +378,12 @@ async function refreshDashboard() {
   renderGroupFilter();
   renderStorageRootFilter();
   await refreshProjects();
-  await refreshIndexingJobs();
-  await refreshPipelines();
+  if (els.indexJobsTableBody) {
+    await refreshIndexingJobs();
+  }
+  if (els.pipelinesTableBody) {
+    await refreshPipelines();
+  }
   setStatus(`Connected as ${summary.user.user_key}.`);
 }
 
@@ -362,12 +393,16 @@ async function refreshIndexingJobs() {
 }
 
 async function refreshProjects() {
+  if (!els.projectCountLabel) {
+    return;
+  }
   const groupId = els.groupFilter.value;
   const ownedOnly = els.ownedOnly.checked;
   const params = new URLSearchParams();
-  const search = els.projectSearch.value.trim();
-  const ownerKey = els.ownerFilter.value.trim();
-  const storageRootName = els.storageRootFilter.value;
+  const search = els.projectSearch ? els.projectSearch.value.trim() : "";
+  const ownerKey = els.ownerFilter ? els.ownerFilter.value.trim() : "";
+  const storageRootName = els.storageRootFilter ? els.storageRootFilter.value : "";
+  const limit = els.projectLimit ? els.projectLimit.value : "50";
   if (groupId) {
     params.set("group_id", groupId);
   }
@@ -382,6 +417,9 @@ async function refreshProjects() {
   }
   if (storageRootName) {
     params.set("storage_root_name", storageRootName);
+  }
+  if (limit) {
+    params.set("limit", limit);
   }
   state.projects = await apiGet(`/projects${params.toString() ? `?${params.toString()}` : ""}`);
   renderProjects();
@@ -400,9 +438,12 @@ async function refreshProjects() {
 }
 
 async function refreshPipelines() {
+  if (!els.pipelinesTableBody) {
+    return;
+  }
   const params = new URLSearchParams();
-  const search = els.pipelineSearch.value.trim();
-  const runtime = els.pipelineRuntimeFilter.value;
+  const search = els.pipelineSearch ? els.pipelineSearch.value.trim() : "";
+  const runtime = els.pipelineRuntimeFilter ? els.pipelineRuntimeFilter.value : "";
   if (search) {
     params.set("search", search);
   }
@@ -565,6 +606,9 @@ async function previewDelete() {
 }
 
 async function runIndexing() {
+  if (!els.indexSourcePath) {
+    return;
+  }
   const sourcePath = els.indexSourcePath.value.trim();
   if (!sourcePath) {
     throw new Error("Source path is required.");
@@ -662,25 +706,26 @@ function ensureDashboardPolling() {
 }
 
 els.userKey.value = state.userKey;
-els.connectButton.addEventListener("click", () => refreshDashboard().catch((error) => setStatus(String(error))));
-els.refreshButton.addEventListener("click", () => refreshDashboard().catch((error) => setStatus(String(error))));
-els.groupFilter.addEventListener("change", () => refreshProjects().catch((error) => setStatus(String(error))));
-els.projectSearch.addEventListener("change", () => refreshProjects().catch((error) => setStatus(String(error))));
-els.ownerFilter.addEventListener("change", () => refreshProjects().catch((error) => setStatus(String(error))));
-els.storageRootFilter.addEventListener("change", () => refreshProjects().catch((error) => setStatus(String(error))));
-els.ownedOnly.addEventListener("change", () => refreshProjects().catch((error) => setStatus(String(error))));
-els.newGroupButton.addEventListener("click", () => createGroup().catch((error) => setStatus(String(error))));
-els.addNoteButton.addEventListener("click", () => addNote().catch((error) => setStatus(String(error))));
-els.shareButton.addEventListener("click", () => shareProject().catch((error) => setStatus(String(error))));
-els.editProjectButton.addEventListener("click", () => editProject().catch((error) => setStatus(String(error))));
-els.addToGroupButton.addEventListener("click", () => addSelectedProjectToGroup().catch((error) => setStatus(String(error))));
-els.previewDeleteButton.addEventListener("click", () => previewDelete().catch((error) => setStatus(String(error))));
-els.indexButton.addEventListener("click", () => runIndexing().catch((error) => setStatus(String(error))));
-els.indexJobsRefreshButton.addEventListener("click", () => refreshIndexingJobs().catch((error) => setStatus(String(error))));
-els.refreshPipelinesButton.addEventListener("click", () => refreshPipelines().catch((error) => setStatus(String(error))));
-els.newPipelineButton.addEventListener("click", () => createPipeline().catch((error) => setStatus(String(error))));
-els.pipelineSearch.addEventListener("change", () => refreshPipelines().catch((error) => setStatus(String(error))));
-els.pipelineRuntimeFilter.addEventListener("change", () => refreshPipelines().catch((error) => setStatus(String(error))));
+if (els.connectButton) els.connectButton.addEventListener("click", () => refreshDashboard().catch((error) => setStatus(String(error))));
+if (els.refreshButton) els.refreshButton.addEventListener("click", () => refreshDashboard().catch((error) => setStatus(String(error))));
+if (els.groupFilter) els.groupFilter.addEventListener("change", () => refreshProjects().catch((error) => setStatus(String(error))));
+if (els.projectSearch) els.projectSearch.addEventListener("change", () => refreshProjects().catch((error) => setStatus(String(error))));
+if (els.ownerFilter) els.ownerFilter.addEventListener("change", () => refreshProjects().catch((error) => setStatus(String(error))));
+if (els.storageRootFilter) els.storageRootFilter.addEventListener("change", () => refreshProjects().catch((error) => setStatus(String(error))));
+if (els.projectLimit) els.projectLimit.addEventListener("change", () => refreshProjects().catch((error) => setStatus(String(error))));
+if (els.ownedOnly) els.ownedOnly.addEventListener("change", () => refreshProjects().catch((error) => setStatus(String(error))));
+if (els.newGroupButton) els.newGroupButton.addEventListener("click", () => createGroup().catch((error) => setStatus(String(error))));
+if (els.addNoteButton) els.addNoteButton.addEventListener("click", () => addNote().catch((error) => setStatus(String(error))));
+if (els.shareButton) els.shareButton.addEventListener("click", () => shareProject().catch((error) => setStatus(String(error))));
+if (els.editProjectButton) els.editProjectButton.addEventListener("click", () => editProject().catch((error) => setStatus(String(error))));
+if (els.addToGroupButton) els.addToGroupButton.addEventListener("click", () => addSelectedProjectToGroup().catch((error) => setStatus(String(error))));
+if (els.previewDeleteButton) els.previewDeleteButton.addEventListener("click", () => previewDelete().catch((error) => setStatus(String(error))));
+if (els.indexButton) els.indexButton.addEventListener("click", () => runIndexing().catch((error) => setStatus(String(error))));
+if (els.indexJobsRefreshButton) els.indexJobsRefreshButton.addEventListener("click", () => refreshIndexingJobs().catch((error) => setStatus(String(error))));
+if (els.refreshPipelinesButton) els.refreshPipelinesButton.addEventListener("click", () => refreshPipelines().catch((error) => setStatus(String(error))));
+if (els.newPipelineButton) els.newPipelineButton.addEventListener("click", () => createPipeline().catch((error) => setStatus(String(error))));
+if (els.pipelineSearch) els.pipelineSearch.addEventListener("change", () => refreshPipelines().catch((error) => setStatus(String(error))));
+if (els.pipelineRuntimeFilter) els.pipelineRuntimeFilter.addEventListener("change", () => refreshPipelines().catch((error) => setStatus(String(error))));
 
 ensureDashboardPolling();
 refreshDashboard().catch((error) => setStatus(String(error)));
