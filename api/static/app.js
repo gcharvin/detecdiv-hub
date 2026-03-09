@@ -95,6 +95,36 @@ function setStatus(message) {
   }
 }
 
+function clearDashboardState() {
+  state.projects = [];
+  state.groups = [];
+  state.storageRoots = [];
+  state.pipelines = [];
+  state.observedPipelines = [];
+  state.sessions = [];
+  state.users = [];
+  state.indexingJobs = [];
+  state.selectedProject = null;
+  state.selectedProjectDetail = null;
+  state.notes = [];
+  state.acl = [];
+  state.summary = null;
+
+  if (els.summaryTotalProjects) els.summaryTotalProjects.textContent = "0";
+  if (els.summaryOwnedProjects) els.summaryOwnedProjects.textContent = "0";
+  if (els.summaryTotalBytes) els.summaryTotalBytes.textContent = "0 B";
+  if (els.summaryGroupCount) els.summaryGroupCount.textContent = "0";
+
+  renderGroupFilter();
+  renderStorageRootFilter();
+  renderProjects();
+  renderPipelines();
+  renderIndexingJobs();
+  renderUsers();
+  renderSessions();
+  renderDetail();
+}
+
 function authHeaders(extra = {}) {
   const headers = { ...extra };
   if (state.sessionToken) {
@@ -131,6 +161,7 @@ async function apiJson(path, options = {}) {
       state.currentUser = null;
       state.authMode = "";
       localStorage.removeItem("detecdivHub.sessionToken");
+      clearDashboardState();
       updateSessionUi();
     }
     throw new Error(await response.text());
@@ -559,6 +590,7 @@ async function logout() {
   state.currentUser = null;
   state.authMode = "";
   localStorage.removeItem("detecdivHub.sessionToken");
+  clearDashboardState();
   updateSessionUi();
   setStatus("Logged out.");
 }
@@ -595,6 +627,7 @@ async function restoreSession() {
   }
 
   state.currentUser = null;
+  clearDashboardState();
   updateSessionUi();
   setStatus("Login required.");
 }
