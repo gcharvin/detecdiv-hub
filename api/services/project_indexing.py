@@ -5,6 +5,7 @@ from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Callable
+import time
 
 from sqlalchemy import delete, select
 from sqlalchemy.orm import Session
@@ -81,7 +82,7 @@ def index_project_root(
             message=f"Scanning {root} for DetecDiv projects.",
         )
 
-    for mat_path, project_dir in iter_project_candidates(root):
+    for mat_path, project_dir in iter_project_candidates(root, progress_callback=progress_callback):
         total_projects += 1
         scanned_projects += 1
         try:
@@ -99,11 +100,13 @@ def index_project_root(
             if progress_callback is not None:
                 progress_callback(
                     status="running",
+                    phase="indexing",
                     total_projects=total_projects,
                     scanned_projects=scanned_projects,
                     indexed_projects=indexed_projects,
                     failed_projects=failed_projects,
                     deleted_projects=0,
+                    mat_files_seen=total_projects,
                     current_project_path=str(mat_path),
                     message=f"Indexed {mat_path.name} ({indexed_projects} indexed so far).",
                 )
@@ -115,11 +118,13 @@ def index_project_root(
             if progress_callback is not None:
                 progress_callback(
                     status="running",
+                    phase="indexing",
                     total_projects=total_projects,
                     scanned_projects=scanned_projects,
                     indexed_projects=indexed_projects,
                     failed_projects=failed_projects,
                     deleted_projects=0,
+                    mat_files_seen=total_projects,
                     current_project_path=str(mat_path),
                     message=f"Failed to index {mat_path.name}: {exc}",
                     error_text=str(exc),
@@ -148,11 +153,13 @@ def index_project_root(
             if progress_callback is not None:
                 progress_callback(
                     status="running",
+                    phase="cleanup",
                     total_projects=total_projects,
                     scanned_projects=scanned_projects,
                     indexed_projects=indexed_projects,
                     failed_projects=failed_projects,
                     deleted_projects=deleted_projects,
+                    mat_files_seen=total_projects,
                     current_project_path=None,
                     message=f"Removed {deleted_projects} stale project rows.",
                 )
@@ -162,11 +169,13 @@ def index_project_root(
         if progress_callback is not None:
             progress_callback(
                 status="running",
+                phase="cleanup",
                 total_projects=total_projects,
                 scanned_projects=scanned_projects,
                 indexed_projects=indexed_projects,
                 failed_projects=failed_projects,
                 deleted_projects=0,
+                mat_files_seen=total_projects,
                 current_project_path=None,
                 message="Skipped stale-row cleanup because some projects failed to index.",
             )
@@ -174,11 +183,13 @@ def index_project_root(
     if progress_callback is not None and total_projects == 0:
         progress_callback(
             status="running",
+            phase="completed",
             total_projects=0,
             scanned_projects=0,
             indexed_projects=0,
             failed_projects=0,
             deleted_projects=0,
+            mat_files_seen=0,
             current_project_path=None,
             message=f"No DetecDiv project candidates found under {root}.",
         )
@@ -197,13 +208,46 @@ def index_project_root(
     )
 
 
-def iter_project_candidates(root_path: Path):
-    for mat_path in sorted(root_path.rglob("*.mat")):
+def iter_project_candidates(root_path: Path, progress_callback: Callable[..., None] | None = None):
+    mat_files_seen = 0
+    candidate_projects = 0
+    last_report_at = time.monotonic()
+    for mat_path in root_path.rglob("*.mat"):
+        mat_files_seen += 1
+        now = time.monotonic()
+        if progress_callback is not None and (mat_files_seen == 1 or mat_files_seen % 200 == 0 or now - last_report_at >= 3.0):
+            progress_callback(
+                status="running",
+                phase="discovering",
+                total_projects=candidate_projects,
+                scanned_projects=0,
+                indexed_projects=0,
+                failed_projects=0,
+                deleted_projects=0,
+                mat_files_seen=mat_files_seen,
+                current_project_path=str(mat_path),
+                message=f"Discovering DetecDiv projects under {root_path} ({mat_files_seen} .mat files inspected).",
+            )
+            last_report_at = now
         project_dir = mat_path.with_suffix("")
         if not project_dir.is_dir():
             continue
         if not is_detecdiv_project_dir(project_dir):
             continue
+        candidate_projects += 1
+        if progress_callback is not None:
+            progress_callback(
+                status="running",
+                phase="discovering",
+                total_projects=candidate_projects,
+                scanned_projects=0,
+                indexed_projects=0,
+                failed_projects=0,
+                deleted_projects=0,
+                mat_files_seen=mat_files_seen,
+                current_project_path=str(mat_path),
+                message=f"Found {candidate_projects} DetecDiv project candidate(s) after inspecting {mat_files_seen} .mat files.",
+            )
         yield mat_path.resolve(), project_dir.resolve()
 
 

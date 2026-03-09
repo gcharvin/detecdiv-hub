@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from concurrent.futures import ThreadPoolExecutor
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from typing import Any
 from uuid import UUID
 
@@ -9,6 +9,7 @@ from sqlalchemy import or_, select
 from sqlalchemy.orm import Session, joinedload
 
 from api.db import SessionLocal
+from api.config import get_settings
 from api.models import IndexingJob, User
 from api.schemas import IndexRequest
 from api.services.project_indexing import ProjectIndexResult, index_project_root
@@ -37,6 +38,7 @@ def create_indexing_job(
         visibility=payload.visibility,
         clear_existing_for_root=payload.clear_existing_for_root,
         status="queued",
+        phase="queued",
         message="Queued for indexing.",
         metadata_json=payload.metadata_json or {},
     )
@@ -56,7 +58,9 @@ def run_indexing_job(job_id: UUID) -> None:
         if job is None:
             return
         job.status = "running"
+        job.phase = "discovering"
         job.started_at = datetime.now(timezone.utc)
+        job.heartbeat_at = job.started_at
         job.message = "Starting project scan."
         session.commit()
 
@@ -69,16 +73,24 @@ def run_indexing_job(job_id: UUID) -> None:
             owner_user_key = owner.user_key if owner is not None else "localdev"
 
             def on_progress(**kwargs: Any) -> None:
+                now = datetime.now(timezone.utc)
                 job.total_projects = int(kwargs.get("total_projects", job.total_projects or 0))
                 job.scanned_projects = int(kwargs.get("scanned_projects", job.scanned_projects or 0))
                 job.indexed_projects = int(kwargs.get("indexed_projects", job.indexed_projects or 0))
                 job.failed_projects = int(kwargs.get("failed_projects", job.failed_projects or 0))
                 job.deleted_projects = int(kwargs.get("deleted_projects", job.deleted_projects or 0))
+                job.mat_files_seen = int(kwargs.get("mat_files_seen", job.mat_files_seen or 0))
+                if kwargs.get("phase"):
+                    job.phase = str(kwargs["phase"])
                 job.current_project_path = kwargs.get("current_project_path")
                 if kwargs.get("message"):
                     job.message = str(kwargs["message"])
                 if kwargs.get("error_text"):
                     job.error_text = str(kwargs["error_text"])
+                job.heartbeat_at = now
+                job.updated_at = now
+                session.flush()
+                session.commit()
 
             result = index_project_root(
                 session,
@@ -101,7 +113,9 @@ def run_indexing_job(job_id: UUID) -> None:
             if job is None:
                 return
             job.status = "failed"
+            job.phase = "failed"
             job.finished_at = datetime.now(timezone.utc)
+            job.heartbeat_at = job.finished_at
             job.error_text = str(exc)
             job.message = "Indexing failed."
             session.commit()
@@ -109,6 +123,7 @@ def run_indexing_job(job_id: UUID) -> None:
 
 def finalize_indexing_job_success(session: Session, job: IndexingJob, result: ProjectIndexResult) -> None:
     job.status = "completed" if result.failed_projects == 0 else "completed_with_errors"
+    job.phase = "completed"
     job.total_projects = result.total_projects
     job.scanned_projects = result.scanned_projects
     job.indexed_projects = result.indexed_projects
@@ -116,6 +131,7 @@ def finalize_indexing_job_success(session: Session, job: IndexingJob, result: Pr
     job.deleted_projects = result.deleted_projects
     job.current_project_path = None
     job.finished_at = datetime.now(timezone.utc)
+    job.heartbeat_at = job.finished_at
     job.message = (
         f"Indexed {result.indexed_projects}/{result.total_projects} projects"
         f" from {result.root_path}."
@@ -135,12 +151,30 @@ def finalize_indexing_job_success(session: Session, job: IndexingJob, result: Pr
     session.flush()
 
 
+def mark_stale_indexing_jobs(session: Session) -> None:
+    settings = get_settings()
+    cutoff = datetime.now(timezone.utc) - timedelta(minutes=int(settings.indexing_stale_after_minutes))
+    stmt = select(IndexingJob).where(
+        IndexingJob.status == "running",
+        or_(IndexingJob.heartbeat_at == None, IndexingJob.heartbeat_at < cutoff),  # noqa: E711
+    )
+    stale_jobs = list(session.scalars(stmt))
+    for job in stale_jobs:
+        job.status = "stale"
+        job.phase = "stale"
+        job.finished_at = datetime.now(timezone.utc)
+        job.message = "Marked stale after missing heartbeat."
+    if stale_jobs:
+        session.flush()
+
+
 def list_indexing_jobs_for_user(
     session: Session,
     *,
     current_user: User,
     limit: int = 20,
 ) -> list[IndexingJob]:
+    mark_stale_indexing_jobs(session)
     stmt = (
         select(IndexingJob)
         .options(
@@ -165,6 +199,7 @@ def get_indexing_job_for_user(
     job_id: UUID,
     current_user: User,
 ) -> IndexingJob | None:
+    mark_stale_indexing_jobs(session)
     stmt = (
         select(IndexingJob)
         .options(

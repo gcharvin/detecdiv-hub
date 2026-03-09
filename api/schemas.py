@@ -293,11 +293,13 @@ class IndexJobSummary(HubBaseModel):
     visibility: str
     clear_existing_for_root: bool = False
     status: str
+    phase: str = "queued"
     total_projects: int = 0
     scanned_projects: int = 0
     indexed_projects: int = 0
     failed_projects: int = 0
     deleted_projects: int = 0
+    mat_files_seen: int = 0
     current_project_path: str | None = None
     message: str | None = None
     error_text: str | None = None
@@ -305,6 +307,7 @@ class IndexJobSummary(HubBaseModel):
     requested_by: UserSummary | None = None
     created_at: datetime | None = None
     started_at: datetime | None = None
+    heartbeat_at: datetime | None = None
     finished_at: datetime | None = None
     updated_at: datetime | None = None
 

@@ -21,6 +21,7 @@ class Settings(BaseSettings):
     allow_legacy_user_key_auth: bool = True
     session_duration_hours: int = 168
     session_cookie_name: str = "detecdiv_hub_session"
+    indexing_stale_after_minutes: int = 15
 
     model_config = SettingsConfigDict(
         env_prefix="DETECDIV_HUB_",

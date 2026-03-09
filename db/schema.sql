@@ -180,11 +180,13 @@ CREATE TABLE IF NOT EXISTS indexing_jobs (
     visibility TEXT NOT NULL DEFAULT 'private',
     clear_existing_for_root BOOLEAN NOT NULL DEFAULT FALSE,
     status TEXT NOT NULL DEFAULT 'queued',
+    phase TEXT NOT NULL DEFAULT 'queued',
     total_projects INTEGER NOT NULL DEFAULT 0,
     scanned_projects INTEGER NOT NULL DEFAULT 0,
     indexed_projects INTEGER NOT NULL DEFAULT 0,
     failed_projects INTEGER NOT NULL DEFAULT 0,
     deleted_projects INTEGER NOT NULL DEFAULT 0,
+    mat_files_seen INTEGER NOT NULL DEFAULT 0,
     current_project_path TEXT,
     message TEXT,
     error_text TEXT,
@@ -192,6 +194,7 @@ CREATE TABLE IF NOT EXISTS indexing_jobs (
     result_json JSONB NOT NULL DEFAULT '{}'::jsonb,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     started_at TIMESTAMPTZ,
+    heartbeat_at TIMESTAMPTZ,
     finished_at TIMESTAMPTZ,
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
@@ -277,6 +280,9 @@ ALTER TABLE detecdiv_projects ADD COLUMN IF NOT EXISTS project_dir_bytes BIGINT 
 ALTER TABLE detecdiv_projects ADD COLUMN IF NOT EXISTS estimated_raw_bytes BIGINT NOT NULL DEFAULT 0;
 ALTER TABLE detecdiv_projects ADD COLUMN IF NOT EXISTS total_bytes BIGINT NOT NULL DEFAULT 0;
 ALTER TABLE detecdiv_projects ADD COLUMN IF NOT EXISTS last_size_scan_at TIMESTAMPTZ;
+ALTER TABLE indexing_jobs ADD COLUMN IF NOT EXISTS phase TEXT NOT NULL DEFAULT 'queued';
+ALTER TABLE indexing_jobs ADD COLUMN IF NOT EXISTS mat_files_seen INTEGER NOT NULL DEFAULT 0;
+ALTER TABLE indexing_jobs ADD COLUMN IF NOT EXISTS heartbeat_at TIMESTAMPTZ;
 
 CREATE INDEX IF NOT EXISTS idx_projects_name ON detecdiv_projects(project_name);
 CREATE INDEX IF NOT EXISTS idx_projects_owner_user_id ON detecdiv_projects(owner_user_id);
@@ -292,4 +298,5 @@ CREATE INDEX IF NOT EXISTS idx_project_notes_project_id ON project_notes(project
 CREATE INDEX IF NOT EXISTS idx_project_deletion_events_project_id ON project_deletion_events(project_id);
 CREATE INDEX IF NOT EXISTS idx_indexing_jobs_status_created_at ON indexing_jobs(status, created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_indexing_jobs_requested_by_user_id ON indexing_jobs(requested_by_user_id);
+CREATE INDEX IF NOT EXISTS idx_indexing_jobs_heartbeat_at ON indexing_jobs(heartbeat_at DESC);
 CREATE INDEX IF NOT EXISTS idx_user_sessions_user_id ON user_sessions(user_id, status, expires_at);

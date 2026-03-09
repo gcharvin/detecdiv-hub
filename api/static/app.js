@@ -338,11 +338,12 @@ function renderIndexingJobs() {
         : "failed";
     els.activeIndexJob.className = `job-highlight ${statusClass}`;
     els.activeIndexJob.innerHTML = `
-      <div class="job-title">${latestJob.status} | ${latestJob.source_path}</div>
+      <div class="job-title">${latestJob.status} | ${latestJob.phase || "queued"} | ${latestJob.source_path}</div>
       <div>${latestJob.message || "No status message."}</div>
       <div class="stack-item-meta">
-        scanned ${latestJob.scanned_projects}/${latestJob.total_projects} | indexed ${latestJob.indexed_projects} | failed ${latestJob.failed_projects} | deleted ${latestJob.deleted_projects}
+        mat seen ${latestJob.mat_files_seen || 0} | candidates ${latestJob.total_projects} | scanned ${latestJob.scanned_projects} | indexed ${latestJob.indexed_projects} | failed ${latestJob.failed_projects} | deleted ${latestJob.deleted_projects}
       </div>
+      <div class="stack-item-meta">heartbeat ${formatTimestamp(latestJob.heartbeat_at)} | updated ${formatTimestamp(latestJob.updated_at)}</div>
       <div class="progress-bar"><div class="progress-fill" style="width: ${pct}%"></div></div>
     `;
   }
@@ -351,10 +352,13 @@ function renderIndexingJobs() {
     const tr = document.createElement("tr");
     tr.innerHTML = `
       <td>${job.status}</td>
+      <td>${job.phase || ""}</td>
       <td>${job.source_path}</td>
+      <td>${job.mat_files_seen || 0}</td>
       <td>${job.scanned_projects}/${job.total_projects} (${progressPercent(job)}%)</td>
       <td>${job.indexed_projects}</td>
       <td>${job.failed_projects}</td>
+      <td>${formatTimestamp(job.heartbeat_at)}</td>
       <td>${formatTimestamp(job.updated_at || job.created_at)}</td>
     `;
     tr.title = job.message || "";
