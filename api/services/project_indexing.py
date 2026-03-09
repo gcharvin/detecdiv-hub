@@ -68,8 +68,7 @@ def index_project_root(
     indexed_projects = 0
     scanned_projects = 0
     failed_projects = 0
-    candidates = list(iter_project_candidates(root))
-    total_projects = len(candidates)
+    total_projects = 0
     if progress_callback is not None:
         progress_callback(
             status="running",
@@ -79,10 +78,11 @@ def index_project_root(
             failed_projects=0,
             deleted_projects=0,
             current_project_path=None,
-            message=f"Discovered {total_projects} project candidates under {root}.",
+            message=f"Scanning {root} for DetecDiv projects.",
         )
 
-    for mat_path, project_dir in candidates:
+    for mat_path, project_dir in iter_project_candidates(root):
+        total_projects += 1
         scanned_projects += 1
         try:
             project = upsert_project_from_paths(
@@ -105,7 +105,7 @@ def index_project_root(
                     failed_projects=failed_projects,
                     deleted_projects=0,
                     current_project_path=str(mat_path),
-                    message=f"Indexed {mat_path.name} ({scanned_projects}/{total_projects}).",
+                    message=f"Indexed {mat_path.name} ({indexed_projects} indexed so far).",
                 )
             if commit_each:
                 session.commit()
@@ -171,6 +171,18 @@ def index_project_root(
                 message="Skipped stale-row cleanup because some projects failed to index.",
             )
 
+    if progress_callback is not None and total_projects == 0:
+        progress_callback(
+            status="running",
+            total_projects=0,
+            scanned_projects=0,
+            indexed_projects=0,
+            failed_projects=0,
+            deleted_projects=0,
+            current_project_path=None,
+            message=f"No DetecDiv project candidates found under {root}.",
+        )
+
     return ProjectIndexResult(
         root_path=str(root),
         storage_root_name=storage_root.name,
@@ -190,7 +202,42 @@ def iter_project_candidates(root_path: Path):
         project_dir = mat_path.with_suffix("")
         if not project_dir.is_dir():
             continue
+        if not is_detecdiv_project_dir(project_dir):
+            continue
         yield mat_path.resolve(), project_dir.resolve()
+
+
+def is_detecdiv_project_dir(project_dir: Path) -> bool:
+    """Heuristic filter to reject image/frame folders that happen to have sibling MAT files."""
+    if not project_dir.is_dir():
+        return False
+
+    top_level_dir_markers = {"pipeline", "processor", "classification", "classifier", "fov"}
+    try:
+        entries = list(project_dir.iterdir())
+    except OSError:
+        return False
+
+    child_dir_names = {entry.name.lower() for entry in entries if entry.is_dir()}
+    if child_dir_names.intersection(top_level_dir_markers):
+        return True
+
+    # Many valid projects already contain derived H5 outputs somewhere in the tree.
+    try:
+        if next(project_dir.rglob("*.h5"), None) is not None:
+            return True
+    except OSError:
+        return False
+
+    # Some projects may have run metadata without the standard top-level folders.
+    try:
+        if next(project_dir.rglob("run.json"), None) is not None:
+            return True
+    except OSError:
+        return False
+
+    # Reject typical per-image folders such as Pos*/im_* trees when they have no project markers.
+    return False
 
 
 def get_or_create_storage_root(
