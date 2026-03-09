@@ -145,6 +145,26 @@ curl -Method POST -ContentType "application/json" -Body '{"source_kind":"project
 For a deployed server, the indexed `source_path` should be the server-side
 canonical root. Clients then remap that root locally using their own settings.
 
+## Audit a storage root over SSH
+
+For space-pressure work on a NAS or Linux server, you can generate a read-only
+JSON audit over SSH:
+
+```powershell
+python scripts\audit_storage_ssh.py Gilles@10.20.11.250 /data --output .\storage-audit.json
+```
+
+The audit currently includes:
+
+- filesystem usage for the target path
+- largest directories under the target path
+- largest `.tif`, `.h5`, and `.mat` files
+- per-type counts and byte totals
+- Synology-oriented directories such as `#recycle`, `#snapshot`, and `@eaDir`
+
+This is intended as a reusable first step before wiring richer storage
+accounting into the hub database and cleanup workflows.
+
 ## Basic governance endpoints
 
 ```powershell
