@@ -75,6 +75,19 @@ const els = {
 };
 
 let dashboardPollHandle = null;
+let lastPollSucceededAt = null;
+
+const pageFlags = {
+  hasProjectsView: Boolean(els.projectsTableBody),
+  hasProjectGroups: Boolean(els.groupFilter),
+  hasStorageRootFilter: Boolean(els.storageRootFilter),
+  hasProjectDetail: Boolean(els.detailContent),
+  hasPipelinesView: Boolean(els.pipelinesTableBody),
+  hasUsersView: Boolean(els.usersTableBody),
+  hasSessionsView: Boolean(els.sessionsTableBody),
+  hasIndexingView: Boolean(els.indexJobsTableBody || els.activeIndexJob),
+  hasIndexForm: Boolean(els.indexSourcePath),
+};
 
 function setStatus(message) {
   if (els.statusLine) {
@@ -595,30 +608,52 @@ async function refreshDashboard() {
   setStatus("Refreshing dashboard...");
   localStorage.setItem("detecdivHub.userKey", state.userKey || "");
 
-  const [summary, groups, storageRoots] = await Promise.all([
-    apiGet("/dashboard/summary"),
-    apiGet("/project-groups"),
-    apiGet("/storage-roots"),
-  ]);
+  const bootstrapTasks = [apiGet("/dashboard/summary")];
+  if (pageFlags.hasProjectGroups || pageFlags.hasProjectDetail) {
+    bootstrapTasks.push(apiGet("/project-groups"));
+  } else {
+    bootstrapTasks.push(Promise.resolve([]));
+  }
+  if (pageFlags.hasStorageRootFilter || pageFlags.hasIndexForm) {
+    bootstrapTasks.push(apiGet("/storage-roots"));
+  } else {
+    bootstrapTasks.push(Promise.resolve([]));
+  }
+
+  const [summary, groups, storageRoots] = await Promise.all(bootstrapTasks);
 
   state.groups = groups.map((group) => ({ ...group, project_ids: [] }));
   state.storageRoots = storageRoots;
-  for (const group of state.groups) {
-    const detail = await apiGet(`/project-groups/${group.id}`);
-    group.project_ids = (detail.projects || []).map((project) => project.id);
+  if (pageFlags.hasProjectDetail && state.groups.length) {
+    const groupDetails = await Promise.all(
+      state.groups.map((group) => apiGet(`/project-groups/${group.id}`))
+    );
+    for (let index = 0; index < state.groups.length; index += 1) {
+      state.groups[index].project_ids = (groupDetails[index].projects || []).map((project) => project.id);
+    }
   }
 
   setSummary(summary);
   renderGroupFilter();
   renderStorageRootFilter();
 
-  await Promise.all([
-    refreshProjects(),
-    refreshPipelines(),
-    refreshUsers(),
-    refreshSessions(),
-    refreshIndexingJobs(),
-  ]);
+  const refreshTasks = [];
+  if (pageFlags.hasProjectsView) {
+    refreshTasks.push(refreshProjects());
+  }
+  if (pageFlags.hasPipelinesView) {
+    refreshTasks.push(refreshPipelines());
+  }
+  if (pageFlags.hasUsersView) {
+    refreshTasks.push(refreshUsers());
+  }
+  if (pageFlags.hasSessionsView) {
+    refreshTasks.push(refreshSessions());
+  }
+  if (pageFlags.hasIndexingView) {
+    refreshTasks.push(refreshIndexingJobs());
+  }
+  await Promise.all(refreshTasks);
 
   setStatus(`Connected as ${summary.user.user_key}.`);
 }
@@ -965,17 +1000,47 @@ async function pollDashboard() {
   if (!state.currentUser) {
     return;
   }
-  const hasActiveJob = state.indexingJobs.some((job) => job.status === "queued" || job.status === "running");
-  if (!hasActiveJob) {
-    return;
-  }
   try {
-    await refreshIndexingJobs();
-    if (els.projectCountLabel) {
-      await refreshProjects();
+    const pollTasks = [apiGet("/dashboard/summary").then((summary) => setSummary(summary))];
+    if (pageFlags.hasIndexingView) {
+      pollTasks.push(refreshIndexingJobs());
+    }
+    const hasActiveJob = state.indexingJobs.some((job) => job.status === "queued" || job.status === "running");
+    if (pageFlags.hasProjectsView && hasActiveJob) {
+      pollTasks.push(refreshProjects());
+    }
+    await Promise.all(pollTasks);
+    lastPollSucceededAt = new Date();
+    if (pageFlags.hasIndexingView && state.indexingJobs.length) {
+      setStatus(`Auto-refresh OK at ${lastPollSucceededAt.toLocaleTimeString()}.`);
     }
   } catch (error) {
-    setStatus(String(error));
+    const suffix = lastPollSucceededAt
+      ? ` Last successful refresh at ${lastPollSucceededAt.toLocaleTimeString()}.`
+      : "";
+    setStatus(`${String(error)}${suffix}`);
+  }
+}
+
+async function refreshProjectsAndDetail() {
+  await refreshProjects();
+  if (state.selectedProject && pageFlags.hasProjectDetail) {
+    const stillExists = state.projects.find((project) => project.id === state.selectedProject.id);
+    if (stillExists) {
+      await selectProject(stillExists.id);
+    }
+  }
+}
+
+async function forceRefreshCurrentPage() {
+  if (!state.currentUser && !state.userKey) {
+    await restoreSession();
+    return;
+  }
+  if (pageFlags.hasProjectsView || pageFlags.hasIndexingView || pageFlags.hasPipelinesView || pageFlags.hasUsersView || pageFlags.hasSessionsView) {
+    await refreshDashboard();
+  } else if (pageFlags.hasIndexingView) {
+    await refreshIndexingJobs();
   }
 }
 
@@ -985,13 +1050,13 @@ function ensureDashboardPolling() {
   }
   dashboardPollHandle = window.setInterval(() => {
     pollDashboard().catch((error) => setStatus(String(error)));
-  }, 5000);
+  }, 3000);
 }
 
 if (els.loginButton) els.loginButton.addEventListener("click", () => login().catch((error) => setStatus(String(error))));
-if (els.connectButton) els.connectButton.addEventListener("click", () => refreshDashboard().catch((error) => setStatus(String(error))));
+if (els.connectButton) els.connectButton.addEventListener("click", () => forceRefreshCurrentPage().catch((error) => setStatus(String(error))));
 if (els.logoutButton) els.logoutButton.addEventListener("click", () => logout().catch((error) => setStatus(String(error))));
-if (els.refreshButton) els.refreshButton.addEventListener("click", () => refreshDashboard().catch((error) => setStatus(String(error))));
+if (els.refreshButton) els.refreshButton.addEventListener("click", () => forceRefreshCurrentPage().catch((error) => setStatus(String(error))));
 if (els.groupFilter) els.groupFilter.addEventListener("change", () => refreshProjects().catch((error) => setStatus(String(error))));
 if (els.projectSearch) els.projectSearch.addEventListener("change", () => refreshProjects().catch((error) => setStatus(String(error))));
 if (els.ownerFilter) els.ownerFilter.addEventListener("change", () => refreshProjects().catch((error) => setStatus(String(error))));
