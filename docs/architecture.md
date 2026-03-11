@@ -159,6 +159,31 @@ Key requirement:
 
 That logic belongs in ingestion workers, not in the database itself.
 
+## Storage lifecycle execution
+
+Raw dataset archive and restore requests are now modeled as ordinary worker jobs:
+
+1. API validates access and records the request on the raw dataset.
+2. API inserts a queued `jobs` row with `params_json.job_kind` set to either:
+   - `archive_raw_dataset`
+   - `restore_raw_dataset`
+3. The worker claims the job and performs the physical file operation.
+4. The worker updates the raw dataset lifecycle state and appends a
+   `storage_lifecycle_events` audit row.
+
+Current physical behavior:
+
+- archive writes a compressed bundle (`zip` or `tar.gz`)
+- archive can optionally delete the hot source after success
+- restore extracts the archive back to the preferred raw location when missing
+- failures are reflected both on the job and on the raw dataset lifecycle audit
+
+Archive destination resolution:
+
+- first use the request-level `archive_uri` if provided
+- otherwise use `DETECDIV_HUB_DEFAULT_ARCHIVE_ROOT`
+- compression defaults to `DETECDIV_HUB_DEFAULT_ARCHIVE_COMPRESSION`
+
 ## Additional product constraints
 
 ### Multi-user visibility

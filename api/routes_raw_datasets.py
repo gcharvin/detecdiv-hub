@@ -17,6 +17,7 @@ from api.schemas import (
     StorageLifecycleEventSummary,
 )
 from api.services.raw_dataset_lifecycle import (
+    RawDatasetLifecycleConflictError,
     build_archive_preview,
     transition_raw_dataset_to_archive,
     transition_raw_dataset_to_restore,
@@ -184,14 +185,17 @@ def request_raw_dataset_archive(
     if not user_can_edit_raw_dataset(raw_dataset, current_user):
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Raw dataset is not editable")
 
-    transition_raw_dataset_to_archive(
-        db,
-        raw_dataset=raw_dataset,
-        requested_by_user=current_user,
-        archive_uri=payload.archive_uri,
-        archive_compression=payload.archive_compression,
-        mark_archived=payload.mark_archived,
-    )
+    try:
+        transition_raw_dataset_to_archive(
+            db,
+            raw_dataset=raw_dataset,
+            requested_by_user=current_user,
+            archive_uri=payload.archive_uri,
+            archive_compression=payload.archive_compression,
+            mark_archived=payload.mark_archived,
+        )
+    except RawDatasetLifecycleConflictError as exc:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(exc)) from exc
     db.commit()
     return get_raw_dataset(raw_dataset_id=raw_dataset_id, db=db, current_user=current_user)
 
@@ -217,7 +221,10 @@ def request_raw_dataset_restore(
     if not user_can_edit_raw_dataset(raw_dataset, current_user):
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Raw dataset is not editable")
 
-    transition_raw_dataset_to_restore(db, raw_dataset=raw_dataset, requested_by_user=current_user)
+    try:
+        transition_raw_dataset_to_restore(db, raw_dataset=raw_dataset, requested_by_user=current_user)
+    except RawDatasetLifecycleConflictError as exc:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(exc)) from exc
     db.commit()
     return get_raw_dataset(raw_dataset_id=raw_dataset_id, db=db, current_user=current_user)
 

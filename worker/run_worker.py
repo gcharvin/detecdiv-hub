@@ -11,6 +11,7 @@ from sqlalchemy import select
 from api.config import get_settings
 from api.db import SessionLocal
 from api.models import Job
+from worker.storage_lifecycle import execute_storage_lifecycle_job, finalize_storage_lifecycle_failure
 
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
@@ -75,13 +76,19 @@ def mark_job_failed(job_id, error_text: str) -> None:
 
 
 def execute_job(job: Job) -> dict:
-    # Placeholder execution path.
-    # Later this should dispatch based on pipeline/runtime metadata, potentially
-    # calling MATLAB or Python executors.
+    job_kind = (job.params_json or {}).get("job_kind")
     LOGGER.info("Executing job %s on host %s", job.id, socket.gethostname())
+    if job_kind in {"archive_raw_dataset", "restore_raw_dataset"}:
+        with session_scope() as session:
+            job_record = session.get(Job, job.id)
+            if job_record is None:
+                raise ValueError(f"Job {job.id} disappeared before execution")
+            return execute_storage_lifecycle_job(session, job=job_record)
+
     return {
         "worker_host": socket.gethostname(),
         "message": "Placeholder worker execution completed.",
+        "job_kind": job_kind or "generic",
         "requested_mode": job.requested_mode,
         "resolved_mode": job.resolved_mode,
     }
@@ -101,10 +108,13 @@ def run_forever() -> None:
             mark_job_done(job.id, result_json)
             LOGGER.info("Job %s completed", job.id)
         except Exception as exc:  # pragma: no cover - defensive for worker loop
+            with session_scope() as session:
+                job_record = session.get(Job, job.id)
+                if job_record is not None:
+                    finalize_storage_lifecycle_failure(session, job=job_record, error_text=str(exc))
             mark_job_failed(job.id, str(exc))
             LOGGER.exception("Job %s failed", job.id)
 
 
 if __name__ == "__main__":
     run_forever()
-

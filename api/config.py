@@ -23,6 +23,8 @@ class Settings(BaseSettings):
     session_cookie_name: str = "detecdiv_hub_session"
     indexing_stale_after_minutes: int = 15
     default_publication_targets: str = "labguru,elabftw"
+    default_archive_root: str = ""
+    default_archive_compression: str = "zip"
 
     model_config = SettingsConfigDict(
         env_prefix="DETECDIV_HUB_",

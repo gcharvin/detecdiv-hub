@@ -34,6 +34,13 @@ Start worker locally:
 python worker\run_worker.py
 ```
 
+Optional storage lifecycle settings:
+
+```powershell
+$env:DETECDIV_HUB_DEFAULT_ARCHIVE_ROOT="C:\detecdiv-archives"
+$env:DETECDIV_HUB_DEFAULT_ARCHIVE_COMPRESSION="zip"
+```
+
 Open SSH tunnel:
 
 ```powershell
@@ -59,6 +66,18 @@ curl "http://127.0.0.1:8000/raw-datasets?user_key=localdev"
 curl "http://127.0.0.1:8000/projects?user_key=localdev"
 curl "http://127.0.0.1:8000/dashboard/summary?user_key=localdev"
 curl -Method POST -ContentType "application/json" -Body '{"batch_name":"pilot-project-migration","source_kind":"legacy_project_root","source_path":"C:\\Users\\charvin\\SynologyDrive\\Data\\DetecDivProjects","strategy":"pilot","max_items":20}' "http://127.0.0.1:8000/migrations/plans?user_key=localdev"
+```
+
+Queue a raw dataset archive:
+
+```powershell
+curl -Method POST -ContentType "application/json" -Body '{"archive_uri":"C:\\detecdiv-archives","archive_compression":"zip","mark_archived":true}' "http://127.0.0.1:8000/raw-datasets/<RAW_DATASET_ID>/archive?user_key=localdev"
+```
+
+Queue a raw dataset restore:
+
+```powershell
+curl -Method POST "http://127.0.0.1:8000/raw-datasets/<RAW_DATASET_ID>/restore?user_key=localdev"
 ```
 
 Open the browser UI:
