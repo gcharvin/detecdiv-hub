@@ -13,6 +13,7 @@ from api.routes_jobs import router as jobs_router
 from api.routes_migrations import router as migrations_router
 from api.routes_pipelines import router as pipelines_router
 from api.routes_projects import groups_router, router as projects_router, storage_roots_router, users_router
+from api.routes_raw_datasets import router as raw_datasets_router
 from api.schemas import HealthResponse
 
 
@@ -22,6 +23,7 @@ app.include_router(auth_router)
 app.include_router(experiments_router)
 app.include_router(migrations_router)
 app.include_router(projects_router)
+app.include_router(raw_datasets_router)
 app.include_router(groups_router)
 app.include_router(users_router)
 app.include_router(storage_roots_router)

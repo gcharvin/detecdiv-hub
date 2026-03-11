@@ -42,6 +42,12 @@ CREATE TABLE IF NOT EXISTS raw_datasets (
     visibility TEXT NOT NULL DEFAULT 'private',
     status TEXT NOT NULL DEFAULT 'discovered',
     completeness_status TEXT NOT NULL DEFAULT 'unknown',
+    lifecycle_tier TEXT NOT NULL DEFAULT 'hot',
+    archive_status TEXT NOT NULL DEFAULT 'none',
+    archive_uri TEXT,
+    archive_compression TEXT,
+    reclaimable_bytes BIGINT NOT NULL DEFAULT 0,
+    last_accessed_at TIMESTAMPTZ,
     total_bytes BIGINT NOT NULL DEFAULT 0,
     last_size_scan_at TIMESTAMPTZ,
     started_at TIMESTAMPTZ,
@@ -330,8 +336,27 @@ CREATE TABLE IF NOT EXISTS external_publication_records (
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
+CREATE TABLE IF NOT EXISTS storage_lifecycle_events (
+    id UUID PRIMARY KEY,
+    raw_dataset_id UUID NOT NULL REFERENCES raw_datasets(id) ON DELETE CASCADE,
+    requested_by_user_id UUID REFERENCES users(id) ON DELETE SET NULL,
+    event_kind TEXT NOT NULL,
+    from_tier TEXT,
+    to_tier TEXT,
+    archive_status TEXT,
+    reclaimable_bytes BIGINT NOT NULL DEFAULT 0,
+    metadata_json JSONB NOT NULL DEFAULT '{}'::jsonb,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
 ALTER TABLE raw_datasets ADD COLUMN IF NOT EXISTS owner_user_id UUID REFERENCES users(id) ON DELETE SET NULL;
 ALTER TABLE raw_datasets ADD COLUMN IF NOT EXISTS visibility TEXT NOT NULL DEFAULT 'private';
+ALTER TABLE raw_datasets ADD COLUMN IF NOT EXISTS lifecycle_tier TEXT NOT NULL DEFAULT 'hot';
+ALTER TABLE raw_datasets ADD COLUMN IF NOT EXISTS archive_status TEXT NOT NULL DEFAULT 'none';
+ALTER TABLE raw_datasets ADD COLUMN IF NOT EXISTS archive_uri TEXT;
+ALTER TABLE raw_datasets ADD COLUMN IF NOT EXISTS archive_compression TEXT;
+ALTER TABLE raw_datasets ADD COLUMN IF NOT EXISTS reclaimable_bytes BIGINT NOT NULL DEFAULT 0;
+ALTER TABLE raw_datasets ADD COLUMN IF NOT EXISTS last_accessed_at TIMESTAMPTZ;
 ALTER TABLE raw_datasets ADD COLUMN IF NOT EXISTS total_bytes BIGINT NOT NULL DEFAULT 0;
 ALTER TABLE raw_datasets ADD COLUMN IF NOT EXISTS last_size_scan_at TIMESTAMPTZ;
 ALTER TABLE users ADD COLUMN IF NOT EXISTS password_hash TEXT;
@@ -373,6 +398,7 @@ CREATE INDEX IF NOT EXISTS idx_jobs_status_priority ON jobs(status, priority, cr
 CREATE INDEX IF NOT EXISTS idx_jobs_project_id ON jobs(project_id);
 CREATE INDEX IF NOT EXISTS idx_raw_datasets_status ON raw_datasets(status, completeness_status);
 CREATE INDEX IF NOT EXISTS idx_raw_datasets_owner_user_id ON raw_datasets(owner_user_id);
+CREATE INDEX IF NOT EXISTS idx_raw_datasets_lifecycle_tier ON raw_datasets(lifecycle_tier, archive_status);
 CREATE INDEX IF NOT EXISTS idx_project_acl_user_id ON project_acl(user_id);
 CREATE INDEX IF NOT EXISTS idx_project_groups_owner_user_id ON project_groups(owner_user_id);
 CREATE INDEX IF NOT EXISTS idx_project_group_members_project_id ON project_group_members(project_id);
@@ -388,3 +414,4 @@ CREATE INDEX IF NOT EXISTS idx_storage_migration_items_batch_id ON storage_migra
 CREATE INDEX IF NOT EXISTS idx_storage_migration_items_status ON storage_migration_items(status);
 CREATE INDEX IF NOT EXISTS idx_external_publication_records_experiment_project_id ON external_publication_records(experiment_project_id);
 CREATE INDEX IF NOT EXISTS idx_external_publication_records_system_key ON external_publication_records(system_key, status);
+CREATE INDEX IF NOT EXISTS idx_storage_lifecycle_events_raw_dataset_id ON storage_lifecycle_events(raw_dataset_id, created_at DESC);

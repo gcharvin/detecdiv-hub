@@ -9,6 +9,7 @@ from sqlalchemy.orm import Session
 from api.models import ExperimentProject, Project, StorageMigrationBatch, StorageMigrationItem, User
 from api.schemas import StorageMigrationPlanCreate
 from api.services.external_publications import ensure_publication_records
+from api.services.raw_dataset_ingest import ingest_raw_dataset_from_directory
 from api.services.project_indexing import build_project_key, iter_project_candidates, slugify
 
 
@@ -131,6 +132,22 @@ def materialize_migration_item(
             project = session.query(Project).filter(Project.project_key == project_key).first()
             if project is not None:
                 project.experiment_project_id = experiment.id
+    elif item.item_type == "raw_dataset":
+        dataset_dir_path = item.metadata_json.get("dataset_dir_path")
+        if dataset_dir_path:
+            root_path = Path(batch.source_path)
+            dataset_dir = Path(dataset_dir_path)
+            ingest_raw_dataset_from_directory(
+                session,
+                owner=current_user,
+                visibility="private",
+                storage_root_name=batch.storage_root_name,
+                host_scope=batch.host_scope,
+                root_type="raw_root",
+                root_path=root_path,
+                dataset_dir=dataset_dir,
+                preferred_experiment=experiment,
+            )
 
     merged_metadata = dict(item.metadata_json or {})
     merged_metadata["materialized_experiment_id"] = str(experiment.id)
@@ -148,6 +165,7 @@ def attach_item_to_existing_experiment(
     batch: StorageMigrationBatch,
     item: StorageMigrationItem,
     experiment: ExperimentProject,
+    fallback_user: User,
 ) -> ExperimentProject:
     if item.item_type == "detecdiv_project":
         project_key = item.proposed_project_key or item.legacy_key
@@ -155,6 +173,22 @@ def attach_item_to_existing_experiment(
             project = session.query(Project).filter(Project.project_key == project_key).first()
             if project is not None:
                 project.experiment_project_id = experiment.id
+    elif item.item_type == "raw_dataset":
+        dataset_dir_path = item.metadata_json.get("dataset_dir_path")
+        if dataset_dir_path:
+            root_path = Path(batch.source_path)
+            dataset_dir = Path(dataset_dir_path)
+            ingest_raw_dataset_from_directory(
+                session,
+                owner=experiment.owner or fallback_user,
+                visibility=experiment.visibility,
+                storage_root_name=batch.storage_root_name,
+                host_scope=batch.host_scope,
+                root_type="raw_root",
+                root_path=root_path,
+                dataset_dir=dataset_dir,
+                preferred_experiment=experiment,
+            )
 
     merged_metadata = dict(item.metadata_json or {})
     merged_metadata["attached_experiment_id"] = str(experiment.id)

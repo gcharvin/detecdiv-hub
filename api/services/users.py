@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 
 from api.config import get_settings
 from api.db import get_db
-from api.models import ExperimentProject, Project, ProjectAcl, User
+from api.models import ExperimentProject, Project, ProjectAcl, RawDataset, User
 from api.services.auth import get_user_by_session_token
 
 
@@ -135,3 +135,30 @@ def user_can_edit_experiment(experiment: ExperimentProject, user: User) -> bool:
     if user.role in {"admin", "service"}:
         return True
     return experiment.owner_user_id == user.id
+
+
+def raw_dataset_access_filter(user: User):
+    if user.role in {"admin", "service"}:
+        return literal(True)
+    return or_(
+        RawDataset.visibility == "public",
+        RawDataset.owner_user_id == user.id,
+    )
+
+
+def ensure_raw_dataset_readable(raw_dataset: RawDataset | None, user: User) -> RawDataset:
+    if raw_dataset is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Raw dataset not found")
+    if user.role in {"admin", "service"}:
+        return raw_dataset
+    if raw_dataset.visibility == "public":
+        return raw_dataset
+    if raw_dataset.owner_user_id == user.id:
+        return raw_dataset
+    raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Raw dataset not found")
+
+
+def user_can_edit_raw_dataset(raw_dataset: RawDataset, user: User) -> bool:
+    if user.role in {"admin", "service"}:
+        return True
+    return raw_dataset.owner_user_id == user.id

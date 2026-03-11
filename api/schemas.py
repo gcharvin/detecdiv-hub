@@ -87,6 +87,12 @@ class RawDatasetSummary(HubBaseModel):
     visibility: str
     status: str
     completeness_status: str
+    lifecycle_tier: str
+    archive_status: str
+    archive_uri: str | None = None
+    archive_compression: str | None = None
+    reclaimable_bytes: int = 0
+    last_accessed_at: datetime | None = None
     total_bytes: int = 0
     metadata_json: dict[str, Any] = Field(default_factory=dict)
     owner: UserSummary | None = None
@@ -248,10 +254,62 @@ class PublicationRecordSummary(HubBaseModel):
     updated_at: datetime | None = None
 
 
+class StorageLifecycleEventSummary(HubBaseModel):
+    id: UUID
+    event_kind: str
+    from_tier: str | None = None
+    to_tier: str | None = None
+    archive_status: str | None = None
+    reclaimable_bytes: int = 0
+    metadata_json: dict[str, Any] = Field(default_factory=dict)
+    requested_by: UserSummary | None = None
+    created_at: datetime | None = None
+
+
 class ExperimentProjectDetail(ExperimentProjectSummary):
     raw_datasets: list[RawDatasetSummary] = Field(default_factory=list)
     analysis_projects: list[ProjectSummary] = Field(default_factory=list)
     publication_records: list[PublicationRecordSummary] = Field(default_factory=list)
+
+
+class RawDatasetLocationSummary(HubBaseModel):
+    id: int
+    relative_path: str
+    access_mode: str
+    is_preferred: bool
+    storage_root: StorageRootSummary
+
+
+class RawDatasetDetail(RawDatasetSummary):
+    locations: list[RawDatasetLocationSummary] = Field(default_factory=list)
+    experiment_ids: list[UUID] = Field(default_factory=list)
+    analysis_project_ids: list[UUID] = Field(default_factory=list)
+    lifecycle_events: list[StorageLifecycleEventSummary] = Field(default_factory=list)
+
+
+class RawDatasetUpdate(HubBaseModel):
+    owner_user_key: str | None = None
+    visibility: str | None = None
+    lifecycle_tier: str | None = None
+    archive_status: str | None = None
+    archive_uri: str | None = None
+    archive_compression: str | None = None
+    metadata_json: dict[str, Any] | None = None
+
+
+class RawDatasetArchiveRequest(HubBaseModel):
+    archive_uri: str | None = None
+    archive_compression: str | None = None
+    mark_archived: bool = False
+
+
+class RawDatasetArchivePreview(HubBaseModel):
+    raw_dataset_id: UUID
+    acquisition_label: str
+    current_tier: str
+    target_tier: str
+    reclaimable_bytes: int = 0
+    preview_json: dict[str, Any] = Field(default_factory=dict)
 
 
 class ExperimentProjectCreate(HubBaseModel):

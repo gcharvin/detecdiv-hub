@@ -55,6 +55,7 @@ Useful API checks once the server is running:
 curl http://127.0.0.1:8000/health
 curl "http://127.0.0.1:8000/users/me?user_key=localdev"
 curl "http://127.0.0.1:8000/experiments?user_key=localdev"
+curl "http://127.0.0.1:8000/raw-datasets?user_key=localdev"
 curl "http://127.0.0.1:8000/projects?user_key=localdev"
 curl "http://127.0.0.1:8000/dashboard/summary?user_key=localdev"
 curl -Method POST -ContentType "application/json" -Body '{"batch_name":"pilot-project-migration","source_kind":"legacy_project_root","source_path":"C:\\Users\\charvin\\SynologyDrive\\Data\\DetecDivProjects","strategy":"pilot","max_items":20}' "http://127.0.0.1:8000/migrations/plans?user_key=localdev"

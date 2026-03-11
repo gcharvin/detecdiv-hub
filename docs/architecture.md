@@ -27,6 +27,7 @@ It is designed to support:
 
 - `raw_datasets`
   - microscope acquisitions
+  - now also carry lifecycle state such as `hot`, `warm`, `cold`, and archive status
 - `experiment_projects`
   - scientific experiments that group acquisitions and downstream analysis
 - `raw_dataset_locations`
@@ -74,6 +75,8 @@ Future entity extensions that should be planned now:
   - future exposed position-level metadata such as mutant or condition
 - `storage_usage_snapshots`
   - measured project/raw/derived storage footprints
+- `storage_lifecycle_events`
+  - auditable archive and restore transitions for raw datasets
 - `deletion_requests` and `deletion_artifacts`
   - auditable cleanup workflows
 

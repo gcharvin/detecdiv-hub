@@ -194,7 +194,13 @@ def attach_item_to_existing(
     if not user_can_edit_experiment(experiment, current_user):
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Experiment is not editable")
 
-    experiment = attach_item_to_existing_experiment(db, batch=batch, item=item, experiment=experiment)
+    experiment = attach_item_to_existing_experiment(
+        db,
+        batch=batch,
+        item=item,
+        experiment=experiment,
+        fallback_user=current_user,
+    )
     db.commit()
     db.refresh(experiment)
     return experiment_summary_response(experiment)

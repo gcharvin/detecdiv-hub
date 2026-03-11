@@ -40,6 +40,7 @@ class User(Base):
     )
     storage_migration_batches: Mapped[list["StorageMigrationBatch"]] = relationship(back_populates="owner")
     sessions: Mapped[list["UserSession"]] = relationship(back_populates="user")
+    requested_lifecycle_events: Mapped[list["StorageLifecycleEvent"]] = relationship(back_populates="requested_by")
 
 
 class StorageRoot(Base):
@@ -90,6 +91,12 @@ class RawDataset(Base):
     visibility: Mapped[str] = mapped_column(String, nullable=False, default="private")
     status: Mapped[str] = mapped_column(String, nullable=False, default="discovered")
     completeness_status: Mapped[str] = mapped_column(String, nullable=False, default="unknown")
+    lifecycle_tier: Mapped[str] = mapped_column(String, nullable=False, default="hot")
+    archive_status: Mapped[str] = mapped_column(String, nullable=False, default="none")
+    archive_uri: Mapped[str | None] = mapped_column(Text)
+    archive_compression: Mapped[str | None] = mapped_column(String)
+    reclaimable_bytes: Mapped[int] = mapped_column(BIGINT, nullable=False, default=0)
+    last_accessed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     total_bytes: Mapped[int] = mapped_column(BIGINT, nullable=False, default=0)
     last_size_scan_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     started_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
@@ -104,6 +111,7 @@ class RawDataset(Base):
     locations: Mapped[list["RawDatasetLocation"]] = relationship(back_populates="raw_dataset")
     project_links: Mapped[list["ProjectRawLink"]] = relationship(back_populates="raw_dataset")
     experiment_links: Mapped[list["ExperimentRawLink"]] = relationship(back_populates="raw_dataset")
+    lifecycle_events: Mapped[list["StorageLifecycleEvent"]] = relationship(back_populates="raw_dataset")
 
 
 class RawDatasetLocation(Base):
@@ -553,3 +561,25 @@ class ExternalPublicationRecord(Base):
     )
 
     experiment_project: Mapped[ExperimentProject] = relationship(back_populates="publication_records")
+
+
+class StorageLifecycleEvent(Base):
+    __tablename__ = "storage_lifecycle_events"
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    raw_dataset_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("raw_datasets.id", ondelete="CASCADE"), nullable=False
+    )
+    requested_by_user_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("users.id", ondelete="SET NULL")
+    )
+    event_kind: Mapped[str] = mapped_column(String, nullable=False)
+    from_tier: Mapped[str | None] = mapped_column(String)
+    to_tier: Mapped[str | None] = mapped_column(String)
+    archive_status: Mapped[str | None] = mapped_column(String)
+    reclaimable_bytes: Mapped[int] = mapped_column(BIGINT, nullable=False, default=0)
+    metadata_json: Mapped[dict] = mapped_column(JSONB, nullable=False, default=dict)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+    raw_dataset: Mapped[RawDataset] = relationship(back_populates="lifecycle_events")
+    requested_by: Mapped[User | None] = relationship(back_populates="requested_lifecycle_events")
