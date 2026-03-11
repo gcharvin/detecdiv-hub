@@ -11,6 +11,9 @@ const state = {
   sessions: [],
   users: [],
   indexingJobs: [],
+  rawDatasets: [],
+  selectedRawDataset: null,
+  selectedRawDatasetDetail: null,
   migrationPlans: [],
   selectedMigrationPlan: null,
   selectedProject: null,
@@ -62,6 +65,22 @@ const els = {
   indexJobsRefreshButton: document.querySelector("#index-jobs-refresh-button"),
   activeIndexJob: document.querySelector("#active-index-job"),
   indexJobsTableBody: document.querySelector("#index-jobs-table tbody"),
+  rawSearch: document.querySelector("#raw-search"),
+  rawOwnerFilter: document.querySelector("#raw-owner-filter"),
+  rawTierFilter: document.querySelector("#raw-tier-filter"),
+  rawArchiveStatusFilter: document.querySelector("#raw-archive-status-filter"),
+  rawLimit: document.querySelector("#raw-limit"),
+  rawOwnedOnly: document.querySelector("#raw-owned-only"),
+  rawDatasetsTableBody: document.querySelector("#raw-datasets-table tbody"),
+  rawCountLabel: document.querySelector("#raw-count-label"),
+  rawDetailEmpty: document.querySelector("#raw-detail-empty"),
+  rawDetailContent: document.querySelector("#raw-detail-content"),
+  rawDetailSubtitle: document.querySelector("#raw-detail-subtitle"),
+  rawDetailList: document.querySelector("#raw-detail-list"),
+  rawLifecycleEvents: document.querySelector("#raw-lifecycle-events"),
+  rawPreviewArchiveButton: document.querySelector("#raw-preview-archive-button"),
+  rawArchiveButton: document.querySelector("#raw-archive-button"),
+  rawRestoreButton: document.querySelector("#raw-restore-button"),
   migrationBatchName: document.querySelector("#migration-batch-name"),
   migrationSourcePath: document.querySelector("#migration-source-path"),
   migrationSourceKind: document.querySelector("#migration-source-kind"),
@@ -104,6 +123,8 @@ const pageFlags = {
   hasUsersView: Boolean(els.usersTableBody),
   hasSessionsView: Boolean(els.sessionsTableBody),
   hasIndexingView: Boolean(els.indexJobsTableBody || els.activeIndexJob),
+  hasRawDatasetsView: Boolean(els.rawDatasetsTableBody),
+  hasRawDatasetDetail: Boolean(els.rawDetailContent),
   hasIndexForm: Boolean(els.indexSourcePath),
   hasMigrationView: Boolean(els.migrationPlansTableBody || els.migrationDetailContent),
 };
@@ -123,6 +144,9 @@ function clearDashboardState() {
   state.sessions = [];
   state.users = [];
   state.indexingJobs = [];
+  state.rawDatasets = [];
+  state.selectedRawDataset = null;
+  state.selectedRawDatasetDetail = null;
   state.migrationPlans = [];
   state.selectedMigrationPlan = null;
   state.selectedProject = null;
@@ -141,6 +165,8 @@ function clearDashboardState() {
   renderProjects();
   renderPipelines();
   renderIndexingJobs();
+  renderRawDatasets();
+  renderRawDatasetDetail();
   renderMigrationPlans();
   renderMigrationDetail();
   renderUsers();
@@ -430,6 +456,105 @@ function renderIndexingJobs() {
     `;
     tr.title = job.message || "";
     els.indexJobsTableBody.appendChild(tr);
+  }
+}
+
+function renderRawDatasets() {
+  if (!els.rawDatasetsTableBody || !els.rawCountLabel) {
+    return;
+  }
+  els.rawDatasetsTableBody.innerHTML = "";
+  els.rawCountLabel.textContent = `${state.rawDatasets.length} visible raw datasets`;
+  for (const raw of state.rawDatasets) {
+    const tr = document.createElement("tr");
+    if (state.selectedRawDataset && state.selectedRawDataset.id === raw.id) {
+      tr.classList.add("selected");
+    }
+    tr.innerHTML = `
+      <td>${raw.acquisition_label}</td>
+      <td>${raw.owner ? raw.owner.user_key : ""}</td>
+      <td>${raw.lifecycle_tier}</td>
+      <td>${raw.archive_status}</td>
+      <td>${raw.status}</td>
+      <td>${humanBytes(raw.total_bytes)}</td>
+    `;
+    tr.addEventListener("click", () => selectRawDataset(raw.id));
+    els.rawDatasetsTableBody.appendChild(tr);
+  }
+}
+
+function renderRawDatasetDetail() {
+  if (!els.rawDetailEmpty || !els.rawDetailContent || !els.rawDetailSubtitle) {
+    return;
+  }
+  if (!state.selectedRawDatasetDetail) {
+    els.rawDetailEmpty.classList.remove("hidden");
+    els.rawDetailContent.classList.add("hidden");
+    els.rawDetailSubtitle.textContent = "Select a raw dataset";
+    if (els.rawPreviewArchiveButton) els.rawPreviewArchiveButton.disabled = true;
+    if (els.rawArchiveButton) els.rawArchiveButton.disabled = true;
+    if (els.rawRestoreButton) els.rawRestoreButton.disabled = true;
+    if (els.rawLifecycleEvents) {
+      els.rawLifecycleEvents.innerHTML = "";
+    }
+    return;
+  }
+
+  const raw = state.selectedRawDatasetDetail;
+  const owner = raw.owner ? `${raw.owner.display_name} (${raw.owner.user_key})` : "unknown";
+  const fields = [
+    ["Acquisition", raw.acquisition_label],
+    ["Owner", owner],
+    ["Visibility", raw.visibility],
+    ["Status", raw.status],
+    ["Completeness", raw.completeness_status],
+    ["Tier", raw.lifecycle_tier],
+    ["Archive status", raw.archive_status],
+    ["Archive URI", raw.archive_uri || ""],
+    ["Compression", raw.archive_compression || ""],
+    ["Reclaimable", humanBytes(raw.reclaimable_bytes)],
+    ["Total size", humanBytes(raw.total_bytes)],
+    ["Experiments", (raw.experiment_ids || []).join(", ") || "none"],
+    ["Analysis projects", (raw.analysis_project_ids || []).join(", ") || "none"],
+    ["Last accessed", formatTimestamp(raw.last_accessed_at)],
+  ];
+
+  els.rawDetailList.innerHTML = "";
+  for (const [label, value] of fields) {
+    const dt = document.createElement("dt");
+    dt.textContent = label;
+    const dd = document.createElement("dd");
+    dd.textContent = `${value ?? ""}`;
+    els.rawDetailList.append(dt, dd);
+  }
+
+  renderRawLifecycleEvents(raw.lifecycle_events || []);
+  if (els.rawPreviewArchiveButton) els.rawPreviewArchiveButton.disabled = false;
+  if (els.rawArchiveButton) els.rawArchiveButton.disabled = false;
+  if (els.rawRestoreButton) els.rawRestoreButton.disabled = false;
+  els.rawDetailSubtitle.textContent = raw.acquisition_label;
+  els.rawDetailEmpty.classList.add("hidden");
+  els.rawDetailContent.classList.remove("hidden");
+}
+
+function renderRawLifecycleEvents(events) {
+  if (!els.rawLifecycleEvents) {
+    return;
+  }
+  els.rawLifecycleEvents.innerHTML = "";
+  if (!events.length) {
+    els.rawLifecycleEvents.innerHTML = `<div class="stack-item">No lifecycle events.</div>`;
+    return;
+  }
+  for (const event of events) {
+    const div = document.createElement("div");
+    div.className = "stack-item";
+    div.innerHTML = `
+      <div class="stack-item-meta">${event.event_kind} | ${formatTimestamp(event.created_at)}</div>
+      <div>${event.from_tier || ""} -> ${event.to_tier || ""} | archive ${event.archive_status || ""}</div>
+      <div class="stack-item-meta">reclaimable ${humanBytes(event.reclaimable_bytes)}</div>
+    `;
+    els.rawLifecycleEvents.appendChild(div);
   }
 }
 
@@ -829,6 +954,9 @@ async function refreshDashboard() {
   if (pageFlags.hasProjectsView) {
     refreshTasks.push(refreshProjects());
   }
+  if (pageFlags.hasRawDatasetsView) {
+    refreshTasks.push(refreshRawDatasets());
+  }
   if (pageFlags.hasPipelinesView) {
     refreshTasks.push(refreshPipelines());
   }
@@ -855,6 +983,32 @@ async function refreshIndexingJobs() {
   }
   state.indexingJobs = await apiGet("/indexing/jobs?limit=25");
   renderIndexingJobs();
+}
+
+async function refreshRawDatasets() {
+  if (!els.rawDatasetsTableBody) {
+    return;
+  }
+  const params = new URLSearchParams();
+  if (els.rawOwnedOnly?.checked) params.set("owned_only", "true");
+  if (els.rawSearch?.value.trim()) params.set("search", els.rawSearch.value.trim());
+  if (els.rawOwnerFilter?.value.trim()) params.set("owner_key", els.rawOwnerFilter.value.trim());
+  if (els.rawTierFilter?.value) params.set("lifecycle_tier", els.rawTierFilter.value);
+  if (els.rawArchiveStatusFilter?.value) params.set("archive_status", els.rawArchiveStatusFilter.value);
+  if (els.rawLimit?.value) params.set("limit", els.rawLimit.value);
+
+  state.rawDatasets = await apiGet(`/raw-datasets${params.toString() ? `?${params.toString()}` : ""}`);
+  renderRawDatasets();
+  if (state.selectedRawDataset) {
+    const stillExists = state.rawDatasets.find((raw) => raw.id === state.selectedRawDataset.id);
+    if (stillExists) {
+      await selectRawDataset(stillExists.id);
+    } else {
+      state.selectedRawDataset = null;
+      state.selectedRawDatasetDetail = null;
+      renderRawDatasetDetail();
+    }
+  }
 }
 
 async function refreshMigrationPlans() {
@@ -907,6 +1061,17 @@ async function selectMigrationPlan(planId) {
   state.selectedMigrationPlan = detail;
   renderMigrationPlans();
   renderMigrationDetail();
+}
+
+async function selectRawDataset(rawDatasetId) {
+  const raw = state.rawDatasets.find((item) => item.id === rawDatasetId);
+  if (!raw) {
+    return;
+  }
+  state.selectedRawDataset = raw;
+  state.selectedRawDatasetDetail = await apiGet(`/raw-datasets/${rawDatasetId}`);
+  renderRawDatasets();
+  renderRawDatasetDetail();
 }
 
 async function refreshPipelines() {
@@ -1106,6 +1271,53 @@ async function runIndexing() {
   setStatus(`Queued indexing job ${response.job.id} for ${response.job.source_path}.`);
 }
 
+async function previewRawArchive() {
+  if (!state.selectedRawDataset) {
+    return;
+  }
+  const preview = await apiPost(`/raw-datasets/${state.selectedRawDataset.id}/archive-preview`, {});
+  window.alert(
+    `Dataset: ${preview.acquisition_label}\nCurrent tier: ${preview.current_tier}\nTarget tier: ${preview.target_tier}\nReclaimable: ${humanBytes(preview.reclaimable_bytes)}`
+  );
+  setStatus(`Archive preview ready for ${preview.acquisition_label}.`);
+}
+
+async function requestRawArchive() {
+  if (!state.selectedRawDataset) {
+    return;
+  }
+  const archiveUri = window.prompt("Archive URI", state.selectedRawDatasetDetail?.archive_uri || "");
+  if (archiveUri === null) {
+    return;
+  }
+  const archiveCompression = window.prompt(
+    "Archive compression",
+    state.selectedRawDatasetDetail?.archive_compression || "zstd"
+  );
+  if (archiveCompression === null) {
+    return;
+  }
+  const markArchived = window.confirm("Mark as already archived now?");
+  await apiPost(`/raw-datasets/${state.selectedRawDataset.id}/archive`, {
+    archive_uri: archiveUri.trim() || null,
+    archive_compression: archiveCompression.trim() || null,
+    mark_archived: markArchived,
+  });
+  await refreshRawDatasets();
+  await selectRawDataset(state.selectedRawDataset.id);
+  setStatus(`Archive transition requested for ${state.selectedRawDataset.acquisition_label}.`);
+}
+
+async function requestRawRestore() {
+  if (!state.selectedRawDataset) {
+    return;
+  }
+  await apiPost(`/raw-datasets/${state.selectedRawDataset.id}/restore`, {});
+  await refreshRawDatasets();
+  await selectRawDataset(state.selectedRawDataset.id);
+  setStatus(`Restore requested for ${state.selectedRawDataset.acquisition_label}.`);
+}
+
 async function createMigrationPlan() {
   if (!els.migrationSourcePath || !els.migrationBatchName) {
     return;
@@ -1303,6 +1515,9 @@ async function pollDashboard() {
     if (pageFlags.hasIndexingView) {
       pollTasks.push(refreshIndexingJobs());
     }
+    if (pageFlags.hasRawDatasetsView) {
+      pollTasks.push(refreshRawDatasets());
+    }
     if (pageFlags.hasMigrationView) {
       pollTasks.push(refreshMigrationPlans());
     }
@@ -1364,6 +1579,12 @@ if (els.ownerFilter) els.ownerFilter.addEventListener("change", () => refreshPro
 if (els.storageRootFilter) els.storageRootFilter.addEventListener("change", () => refreshProjects().catch((error) => setStatus(String(error))));
 if (els.projectLimit) els.projectLimit.addEventListener("change", () => refreshProjects().catch((error) => setStatus(String(error))));
 if (els.ownedOnly) els.ownedOnly.addEventListener("change", () => refreshProjects().catch((error) => setStatus(String(error))));
+if (els.rawSearch) els.rawSearch.addEventListener("change", () => refreshRawDatasets().catch((error) => setStatus(String(error))));
+if (els.rawOwnerFilter) els.rawOwnerFilter.addEventListener("change", () => refreshRawDatasets().catch((error) => setStatus(String(error))));
+if (els.rawTierFilter) els.rawTierFilter.addEventListener("change", () => refreshRawDatasets().catch((error) => setStatus(String(error))));
+if (els.rawArchiveStatusFilter) els.rawArchiveStatusFilter.addEventListener("change", () => refreshRawDatasets().catch((error) => setStatus(String(error))));
+if (els.rawLimit) els.rawLimit.addEventListener("change", () => refreshRawDatasets().catch((error) => setStatus(String(error))));
+if (els.rawOwnedOnly) els.rawOwnedOnly.addEventListener("change", () => refreshRawDatasets().catch((error) => setStatus(String(error))));
 if (els.newGroupButton) els.newGroupButton.addEventListener("click", () => createGroup().catch((error) => setStatus(String(error))));
 if (els.addNoteButton) els.addNoteButton.addEventListener("click", () => addNote().catch((error) => setStatus(String(error))));
 if (els.shareButton) els.shareButton.addEventListener("click", () => shareProject().catch((error) => setStatus(String(error))));
@@ -1375,6 +1596,9 @@ if (els.indexJobsRefreshButton) els.indexJobsRefreshButton.addEventListener("cli
 if (els.migrationCreateButton) els.migrationCreateButton.addEventListener("click", () => createMigrationPlan().catch((error) => setStatus(String(error))));
 if (els.migrationRefreshButton) els.migrationRefreshButton.addEventListener("click", () => refreshMigrationPlans().catch((error) => setStatus(String(error))));
 if (els.migrationExecutePilotButton) els.migrationExecutePilotButton.addEventListener("click", () => executePilotBatch().catch((error) => setStatus(String(error))));
+if (els.rawPreviewArchiveButton) els.rawPreviewArchiveButton.addEventListener("click", () => previewRawArchive().catch((error) => setStatus(String(error))));
+if (els.rawArchiveButton) els.rawArchiveButton.addEventListener("click", () => requestRawArchive().catch((error) => setStatus(String(error))));
+if (els.rawRestoreButton) els.rawRestoreButton.addEventListener("click", () => requestRawRestore().catch((error) => setStatus(String(error))));
 if (els.refreshPipelinesButton) els.refreshPipelinesButton.addEventListener("click", () => refreshPipelines().catch((error) => setStatus(String(error))));
 if (els.importObservedPipelinesButton) els.importObservedPipelinesButton.addEventListener("click", () => importObservedPipelines().catch((error) => setStatus(String(error))));
 if (els.newPipelineButton) els.newPipelineButton.addEventListener("click", () => createPipeline().catch((error) => setStatus(String(error))));

@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>DetecDiv Hub | Raw Datasets</title>
+    <link rel="stylesheet" href="/web/styles.css" />
+  </head>
+  <body>
+    <div class="page-shell">
+      <section id="login-panel" class="panel login-panel hidden">
+        <div class="panel-header">
+          <div>
+            <h2>Login</h2>
+            <p class="muted">Open a hub session with a user key and password.</p>
+          </div>
+        </div>
+        <div class="toolbar">
+          <label class="field compact">
+            <span>User key</span>
+            <input id="login-user-key" type="text" placeholder="admin" />
+          </label>
+          <label class="field compact">
+            <span>Password</span>
+            <input id="login-password" type="password" placeholder="password" />
+          </label>
+          <button id="login-button" class="primary">Login</button>
+        </div>
+      </section>
+
+      <header class="hero">
+        <div>
+          <div class="eyebrow">DetecDiv Hub</div>
+          <h1>Raw datasets and storage lifecycle</h1>
+          <p class="hero-copy">
+            Review acquisitions, track hot and cold tiers, and request archive or restore transitions from one web UI.
+          </p>
+        </div>
+        <div class="hero-actions">
+          <nav class="hero-nav">
+            <a class="nav-link" href="/web/">Catalog</a>
+            <a class="nav-link active" href="/web/raw-datasets.html">Raw Datasets</a>
+            <a class="nav-link" href="/web/indexing.html">Indexing</a>
+          </nav>
+          <div class="session-box">
+            <div id="session-label" class="muted">Not logged in.</div>
+            <button id="connect-button" class="primary">Refresh</button>
+            <button id="logout-button">Logout</button>
+          </div>
+        </div>
+      </header>
+
+      <section class="summary-grid" id="summary-grid">
+        <article class="summary-card">
+          <div class="summary-label">Projects</div>
+          <div id="summary-total-projects" class="summary-value">0</div>
+        </article>
+        <article class="summary-card">
+          <div class="summary-label">Owned</div>
+          <div id="summary-owned-projects" class="summary-value">0</div>
+        </article>
+        <article class="summary-card">
+          <div class="summary-label">Total Storage</div>
+          <div id="summary-total-bytes" class="summary-value">0 B</div>
+        </article>
+        <article class="summary-card">
+          <div class="summary-label">Groups</div>
+          <div id="summary-group-count" class="summary-value">0</div>
+        </article>
+      </section>
+
+      <section class="toolbar">
+        <label class="field compact">
+          <span>Search</span>
+          <input id="raw-search" type="text" placeholder="dataset, key, microscope..." />
+        </label>
+        <label class="field compact">
+          <span>Owner</span>
+          <input id="raw-owner-filter" type="text" placeholder="owner user key" />
+        </label>
+        <label class="field compact">
+          <span>Tier</span>
+          <select id="raw-tier-filter">
+            <option value="">All tiers</option>
+            <option value="hot">hot</option>
+            <option value="warm">warm</option>
+            <option value="cold">cold</option>
+          </select>
+        </label>
+        <label class="field compact">
+          <span>Archive</span>
+          <select id="raw-archive-status-filter">
+            <option value="">All states</option>
+            <option value="none">none</option>
+            <option value="pending">pending</option>
+            <option value="archived">archived</option>
+            <option value="restoring">restoring</option>
+          </select>
+        </label>
+        <label class="field compact">
+          <span>Show</span>
+          <select id="raw-limit">
+            <option value="25">25</option>
+            <option value="50" selected>50</option>
+            <option value="100">100</option>
+            <option value="200">200</option>
+          </select>
+        </label>
+        <label class="toggle">
+          <input id="raw-owned-only" type="checkbox" />
+          <span>Owned only</span>
+        </label>
+        <button id="refresh-button">Refresh</button>
+      </section>
+
+      <section class="layout-grid">
+        <main class="panel">
+          <div class="panel-header">
+            <div>
+              <h2>Raw Datasets</h2>
+              <p id="raw-count-label" class="muted">0 visible raw datasets</p>
+            </div>
+            <div class="status-pill" id="user-label">User: not connected</div>
+          </div>
+          <div class="table-wrap">
+            <table id="raw-datasets-table">
+              <thead>
+                <tr>
+                  <th>Acquisition</th>
+                  <th>Owner</th>
+                  <th>Tier</th>
+                  <th>Archive</th>
+                  <th>Status</th>
+                  <th>Size</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </main>
+
+        <aside class="panel detail-panel">
+          <div class="panel-header">
+            <div>
+              <h2>Raw Dataset Details</h2>
+              <p id="raw-detail-subtitle" class="muted">Select a raw dataset</p>
+            </div>
+          </div>
+
+          <div id="raw-detail-empty" class="empty-state">
+            No raw dataset selected.
+          </div>
+
+          <div id="raw-detail-content" class="detail-content hidden">
+            <dl class="detail-list" id="raw-detail-list"></dl>
+
+            <section class="subpanel">
+              <div class="subpanel-header">
+                <h3>Lifecycle Events</h3>
+              </div>
+              <div id="raw-lifecycle-events" class="stack-list"></div>
+            </section>
+
+            <section class="subpanel">
+              <div class="subpanel-header">
+                <h3>Actions</h3>
+              </div>
+              <div class="action-stack">
+                <button id="raw-preview-archive-button">Preview archive</button>
+                <button id="raw-archive-button">Request archive</button>
+                <button id="raw-restore-button">Request restore</button>
+              </div>
+            </section>
+          </div>
+        </aside>
+      </section>
+
+      <footer class="footer">
+        <div id="status-line">Ready.</div>
+      </footer>
+    </div>
+
+    <script src="/web/app.js" defer></script>
+  </body>
+</html>
