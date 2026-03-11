@@ -8,6 +8,9 @@ from sqlalchemy.orm import Session, joinedload
 from api.db import get_db
 from api.models import RawDataset, RawDatasetLocation, StorageLifecycleEvent, User
 from api.schemas import (
+    RawDatasetArchivePolicyPreview,
+    RawDatasetArchivePolicyQueueResult,
+    RawDatasetArchivePolicyRequest,
     RawDatasetArchivePreview,
     RawDatasetArchiveRequest,
     RawDatasetDetail,
@@ -16,6 +19,7 @@ from api.schemas import (
     RawDatasetUpdate,
     StorageLifecycleEventSummary,
 )
+from api.services.archive_policy import build_archive_policy_preview
 from api.services.raw_dataset_lifecycle import (
     RawDatasetLifecycleConflictError,
     build_archive_preview,
@@ -160,6 +164,103 @@ def preview_raw_dataset_archive(
         target_tier=preview.target_tier,
         reclaimable_bytes=preview.reclaimable_bytes,
         preview_json=preview.preview_json,
+    )
+
+
+@router.post("/archive-policy/preview", response_model=RawDatasetArchivePolicyPreview)
+def preview_archive_policy(
+    payload: RawDatasetArchivePolicyRequest,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> RawDatasetArchivePolicyPreview:
+    preview = build_archive_policy_preview(
+        db,
+        current_user=current_user,
+        older_than_days=payload.older_than_days,
+        min_total_bytes=payload.min_total_bytes,
+        limit=payload.limit,
+        owner_key=payload.owner_key,
+        search=payload.search,
+        lifecycle_tiers=payload.lifecycle_tiers,
+        archive_statuses=payload.archive_statuses,
+        archive_uri=payload.archive_uri,
+        archive_compression=payload.archive_compression,
+    )
+    return RawDatasetArchivePolicyPreview(
+        generated_at=preview.generated_at,
+        older_than_days=payload.older_than_days,
+        min_total_bytes=payload.min_total_bytes,
+        candidate_count=preview.candidate_count,
+        total_candidate_bytes=preview.total_candidate_bytes,
+        total_reclaimable_bytes=preview.total_reclaimable_bytes,
+        skipped_conflicts=preview.skipped_conflicts,
+        candidates=[
+            {
+                "raw_dataset_id": candidate.raw_dataset.id,
+                "acquisition_label": candidate.raw_dataset.acquisition_label,
+                "owner": candidate.raw_dataset.owner,
+                "lifecycle_tier": candidate.raw_dataset.lifecycle_tier,
+                "archive_status": candidate.raw_dataset.archive_status,
+                "total_bytes": candidate.raw_dataset.total_bytes,
+                "reclaimable_bytes": candidate.reclaimable_bytes,
+                "last_activity_at": candidate.last_activity_at,
+                "suggested_archive_uri": candidate.suggested_archive_uri,
+                "suggested_archive_compression": candidate.suggested_archive_compression,
+            }
+            for candidate in preview.candidates
+        ],
+    )
+
+
+@router.post("/archive-policy/queue", response_model=RawDatasetArchivePolicyQueueResult)
+def queue_archive_policy(
+    payload: RawDatasetArchivePolicyRequest,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> RawDatasetArchivePolicyQueueResult:
+    preview = build_archive_policy_preview(
+        db,
+        current_user=current_user,
+        older_than_days=payload.older_than_days,
+        min_total_bytes=payload.min_total_bytes,
+        limit=payload.limit,
+        owner_key=payload.owner_key,
+        search=payload.search,
+        lifecycle_tiers=payload.lifecycle_tiers,
+        archive_statuses=payload.archive_statuses,
+        archive_uri=payload.archive_uri,
+        archive_compression=payload.archive_compression,
+    )
+
+    queued_job_ids: list[UUID] = []
+    raw_dataset_ids: list[UUID] = []
+    skipped_count = 0
+    for candidate in preview.candidates:
+        try:
+            event = transition_raw_dataset_to_archive(
+                db,
+                raw_dataset=candidate.raw_dataset,
+                requested_by_user=current_user,
+                archive_uri=payload.archive_uri,
+                archive_compression=payload.archive_compression,
+                mark_archived=payload.mark_archived,
+            )
+            job_id = event.metadata_json.get("job_id")
+            if job_id:
+                queued_job_ids.append(UUID(job_id))
+            raw_dataset_ids.append(candidate.raw_dataset.id)
+        except RawDatasetLifecycleConflictError:
+            skipped_count += 1
+
+    db.commit()
+    queued_count = len(raw_dataset_ids)
+    return RawDatasetArchivePolicyQueueResult(
+        generated_at=preview.generated_at,
+        queued_count=queued_count,
+        skipped_count=skipped_count + preview.skipped_conflicts,
+        queued_job_ids=queued_job_ids,
+        raw_dataset_ids=raw_dataset_ids,
+        message=f"Queued {queued_count} raw dataset archive job(s).",
     )
 
 

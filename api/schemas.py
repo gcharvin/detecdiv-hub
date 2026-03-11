@@ -312,6 +312,54 @@ class RawDatasetArchivePreview(HubBaseModel):
     preview_json: dict[str, Any] = Field(default_factory=dict)
 
 
+class RawDatasetArchivePolicyRequest(HubBaseModel):
+    older_than_days: int = 30
+    min_total_bytes: int = 0
+    limit: int = 25
+    owner_key: str | None = None
+    search: str | None = None
+    lifecycle_tiers: list[str] = Field(default_factory=lambda: ["hot"])
+    archive_statuses: list[str] = Field(
+        default_factory=lambda: ["none", "restored", "archive_failed", "restore_failed"]
+    )
+    archive_uri: str | None = None
+    archive_compression: str | None = None
+    mark_archived: bool = False
+
+
+class RawDatasetArchivePolicyCandidate(HubBaseModel):
+    raw_dataset_id: UUID
+    acquisition_label: str
+    owner: UserSummary | None = None
+    lifecycle_tier: str
+    archive_status: str
+    total_bytes: int = 0
+    reclaimable_bytes: int = 0
+    last_activity_at: datetime | None = None
+    suggested_archive_uri: str | None = None
+    suggested_archive_compression: str | None = None
+
+
+class RawDatasetArchivePolicyPreview(HubBaseModel):
+    generated_at: datetime
+    older_than_days: int
+    min_total_bytes: int = 0
+    candidate_count: int = 0
+    total_candidate_bytes: int = 0
+    total_reclaimable_bytes: int = 0
+    skipped_conflicts: int = 0
+    candidates: list[RawDatasetArchivePolicyCandidate] = Field(default_factory=list)
+
+
+class RawDatasetArchivePolicyQueueResult(HubBaseModel):
+    generated_at: datetime
+    queued_count: int = 0
+    skipped_count: int = 0
+    queued_job_ids: list[UUID] = Field(default_factory=list)
+    raw_dataset_ids: list[UUID] = Field(default_factory=list)
+    message: str
+
+
 class ExperimentProjectCreate(HubBaseModel):
     experiment_key: str | None = None
     title: str

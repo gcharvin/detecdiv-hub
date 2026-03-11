@@ -80,6 +80,18 @@ Queue a raw dataset restore:
 curl -Method POST "http://127.0.0.1:8000/raw-datasets/<RAW_DATASET_ID>/restore?user_key=localdev"
 ```
 
+Preview an archive policy batch:
+
+```powershell
+curl -Method POST -ContentType "application/json" -Body '{"older_than_days":30,"min_total_bytes":1073741824,"limit":20,"lifecycle_tiers":["hot"],"archive_statuses":["none","restored"],"archive_uri":"C:\\detecdiv-archives","archive_compression":"zip","mark_archived":true}' "http://127.0.0.1:8000/raw-datasets/archive-policy/preview?user_key=localdev"
+```
+
+Queue an archive policy batch:
+
+```powershell
+curl -Method POST -ContentType "application/json" -Body '{"older_than_days":30,"min_total_bytes":1073741824,"limit":20,"lifecycle_tiers":["hot"],"archive_statuses":["none","restored"],"archive_uri":"C:\\detecdiv-archives","archive_compression":"zip","mark_archived":true}' "http://127.0.0.1:8000/raw-datasets/archive-policy/queue?user_key=localdev"
+```
+
 Open the browser UI:
 
 ```powershell

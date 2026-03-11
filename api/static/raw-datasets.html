@@ -92,9 +92,12 @@
           <select id="raw-archive-status-filter">
             <option value="">All states</option>
             <option value="none">none</option>
-            <option value="pending">pending</option>
+            <option value="archive_queued">archive_queued</option>
             <option value="archived">archived</option>
-            <option value="restoring">restoring</option>
+            <option value="restored">restored</option>
+            <option value="restore_queued">restore_queued</option>
+            <option value="archive_failed">archive_failed</option>
+            <option value="restore_failed">restore_failed</option>
           </select>
         </label>
         <label class="field compact">
@@ -111,6 +114,66 @@
           <span>Owned only</span>
         </label>
         <button id="refresh-button">Refresh</button>
+      </section>
+
+      <section class="panel">
+        <div class="panel-header">
+          <div>
+            <h2>Archive Policy</h2>
+            <p class="muted">
+              Preview cold-storage candidates by age and size, then queue archive jobs in batch.
+            </p>
+          </div>
+        </div>
+        <div class="toolbar">
+          <label class="field compact">
+            <span>Older Than (days)</span>
+            <input id="archive-policy-older-days" type="number" min="0" value="30" />
+          </label>
+          <label class="field compact">
+            <span>Min Size (GB)</span>
+            <input id="archive-policy-min-gb" type="number" min="0" step="0.1" value="5" />
+          </label>
+          <label class="field compact">
+            <span>Candidate Limit</span>
+            <input id="archive-policy-limit" type="number" min="1" max="500" value="25" />
+          </label>
+          <label class="field compact">
+            <span>Archive URI</span>
+            <input id="archive-policy-uri" type="text" placeholder="optional archive root" />
+          </label>
+          <label class="field compact">
+            <span>Compression</span>
+            <select id="archive-policy-compression">
+              <option value="">Default</option>
+              <option value="zip" selected>zip</option>
+              <option value="tar.gz">tar.gz</option>
+            </select>
+          </label>
+          <label class="toggle">
+            <input id="archive-policy-delete-source" type="checkbox" />
+            <span>Delete hot source after archive</span>
+          </label>
+          <button id="archive-policy-preview-button">Preview policy</button>
+          <button id="archive-policy-queue-button" class="primary">Queue archive batch</button>
+        </div>
+        <div id="archive-policy-summary" class="muted">No policy preview yet.</div>
+        <div class="table-wrap">
+          <table id="archive-policy-table">
+            <thead>
+              <tr>
+                <th>Acquisition</th>
+                <th>Owner</th>
+                <th>Tier</th>
+                <th>Last activity</th>
+                <th>Size</th>
+                <th>Reclaimable</th>
+                <th>Archive target</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
       </section>
 
       <section class="layout-grid">

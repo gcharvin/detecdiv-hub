@@ -14,6 +14,7 @@ const state = {
   rawDatasets: [],
   selectedRawDataset: null,
   selectedRawDatasetDetail: null,
+  archivePolicyPreview: null,
   migrationPlans: [],
   selectedMigrationPlan: null,
   selectedProject: null,
@@ -81,6 +82,16 @@ const els = {
   rawPreviewArchiveButton: document.querySelector("#raw-preview-archive-button"),
   rawArchiveButton: document.querySelector("#raw-archive-button"),
   rawRestoreButton: document.querySelector("#raw-restore-button"),
+  archivePolicyOlderDays: document.querySelector("#archive-policy-older-days"),
+  archivePolicyMinGb: document.querySelector("#archive-policy-min-gb"),
+  archivePolicyLimit: document.querySelector("#archive-policy-limit"),
+  archivePolicyUri: document.querySelector("#archive-policy-uri"),
+  archivePolicyCompression: document.querySelector("#archive-policy-compression"),
+  archivePolicyDeleteSource: document.querySelector("#archive-policy-delete-source"),
+  archivePolicyPreviewButton: document.querySelector("#archive-policy-preview-button"),
+  archivePolicyQueueButton: document.querySelector("#archive-policy-queue-button"),
+  archivePolicySummary: document.querySelector("#archive-policy-summary"),
+  archivePolicyTableBody: document.querySelector("#archive-policy-table tbody"),
   migrationBatchName: document.querySelector("#migration-batch-name"),
   migrationSourcePath: document.querySelector("#migration-source-path"),
   migrationSourceKind: document.querySelector("#migration-source-kind"),
@@ -147,6 +158,7 @@ function clearDashboardState() {
   state.rawDatasets = [];
   state.selectedRawDataset = null;
   state.selectedRawDatasetDetail = null;
+  state.archivePolicyPreview = null;
   state.migrationPlans = [];
   state.selectedMigrationPlan = null;
   state.selectedProject = null;
@@ -167,6 +179,7 @@ function clearDashboardState() {
   renderIndexingJobs();
   renderRawDatasets();
   renderRawDatasetDetail();
+  renderArchivePolicyPreview();
   renderMigrationPlans();
   renderMigrationDetail();
   renderUsers();
@@ -535,6 +548,37 @@ function renderRawDatasetDetail() {
   els.rawDetailSubtitle.textContent = raw.acquisition_label;
   els.rawDetailEmpty.classList.add("hidden");
   els.rawDetailContent.classList.remove("hidden");
+}
+
+function renderArchivePolicyPreview() {
+  if (!els.archivePolicySummary || !els.archivePolicyTableBody) {
+    return;
+  }
+  els.archivePolicyTableBody.innerHTML = "";
+  const preview = state.archivePolicyPreview;
+  if (!preview) {
+    els.archivePolicySummary.textContent = "No policy preview yet.";
+    return;
+  }
+
+  els.archivePolicySummary.textContent =
+    `${preview.candidate_count} candidate(s), ${humanBytes(preview.total_candidate_bytes)} total, ` +
+    `${humanBytes(preview.total_reclaimable_bytes)} reclaimable, ${preview.skipped_conflicts} skipped conflicts.`;
+
+  for (const candidate of preview.candidates || []) {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${candidate.acquisition_label}</td>
+      <td>${candidate.owner ? candidate.owner.user_key : ""}</td>
+      <td>${candidate.lifecycle_tier}</td>
+      <td>${formatTimestamp(candidate.last_activity_at)}</td>
+      <td>${humanBytes(candidate.total_bytes)}</td>
+      <td>${humanBytes(candidate.reclaimable_bytes)}</td>
+      <td>${candidate.suggested_archive_uri || ""}</td>
+    `;
+    tr.addEventListener("click", () => selectRawDataset(candidate.raw_dataset_id));
+    els.archivePolicyTableBody.appendChild(tr);
+  }
 }
 
 function renderRawLifecycleEvents(events) {
@@ -1011,6 +1055,55 @@ async function refreshRawDatasets() {
   }
 }
 
+function archivePolicyPayload() {
+  const olderThanDays = Number(els.archivePolicyOlderDays?.value || 30);
+  const minGb = Number(els.archivePolicyMinGb?.value || 0);
+  const limit = Number(els.archivePolicyLimit?.value || 25);
+  return {
+    older_than_days: Number.isFinite(olderThanDays) ? Math.max(0, Math.floor(olderThanDays)) : 30,
+    min_total_bytes: Number.isFinite(minGb) ? Math.max(0, Math.round(minGb * 1024 * 1024 * 1024)) : 0,
+    limit: Number.isFinite(limit) ? Math.max(1, Math.floor(limit)) : 25,
+    owner_key: els.rawOwnerFilter?.value.trim() || null,
+    search: els.rawSearch?.value.trim() || null,
+    lifecycle_tiers: els.rawTierFilter?.value ? [els.rawTierFilter.value] : ["hot"],
+    archive_statuses: els.rawArchiveStatusFilter?.value
+      ? [els.rawArchiveStatusFilter.value]
+      : ["none", "restored", "archive_failed", "restore_failed"],
+    archive_uri: els.archivePolicyUri?.value.trim() || null,
+    archive_compression: els.archivePolicyCompression?.value || null,
+    mark_archived: Boolean(els.archivePolicyDeleteSource?.checked),
+  };
+}
+
+async function previewArchivePolicy() {
+  const preview = await apiPost("/raw-datasets/archive-policy/preview", archivePolicyPayload());
+  state.archivePolicyPreview = preview;
+  renderArchivePolicyPreview();
+  setStatus(
+    `Archive policy preview ready: ${preview.candidate_count} candidate(s), ${humanBytes(preview.total_reclaimable_bytes)} reclaimable.`
+  );
+}
+
+async function queueArchivePolicy() {
+  const payload = archivePolicyPayload();
+  const preview = state.archivePolicyPreview || (await apiPost("/raw-datasets/archive-policy/preview", payload));
+  if (!preview.candidate_count) {
+    setStatus("No archive candidates for the current policy.");
+    return;
+  }
+  const action = payload.mark_archived ? "archive and delete hot source" : "archive";
+  const ok = window.confirm(
+    `Queue ${preview.candidate_count} raw dataset(s) for ${action}?\nPotentially reclaimable: ${humanBytes(preview.total_reclaimable_bytes)}`
+  );
+  if (!ok) {
+    return;
+  }
+  const result = await apiPost("/raw-datasets/archive-policy/queue", payload);
+  await refreshRawDatasets();
+  await previewArchivePolicy();
+  setStatus(result.message);
+}
+
 async function refreshMigrationPlans() {
   if (!els.migrationPlansTableBody) {
     return;
@@ -1292,12 +1385,12 @@ async function requestRawArchive() {
   }
   const archiveCompression = window.prompt(
     "Archive compression",
-    state.selectedRawDatasetDetail?.archive_compression || "zstd"
+    state.selectedRawDatasetDetail?.archive_compression || "zip"
   );
   if (archiveCompression === null) {
     return;
   }
-  const markArchived = window.confirm("Mark as already archived now?");
+  const markArchived = window.confirm("Delete the hot source after successful archive?");
   await apiPost(`/raw-datasets/${state.selectedRawDataset.id}/archive`, {
     archive_uri: archiveUri.trim() || null,
     archive_compression: archiveCompression.trim() || null,
@@ -1599,6 +1692,8 @@ if (els.migrationExecutePilotButton) els.migrationExecutePilotButton.addEventLis
 if (els.rawPreviewArchiveButton) els.rawPreviewArchiveButton.addEventListener("click", () => previewRawArchive().catch((error) => setStatus(String(error))));
 if (els.rawArchiveButton) els.rawArchiveButton.addEventListener("click", () => requestRawArchive().catch((error) => setStatus(String(error))));
 if (els.rawRestoreButton) els.rawRestoreButton.addEventListener("click", () => requestRawRestore().catch((error) => setStatus(String(error))));
+if (els.archivePolicyPreviewButton) els.archivePolicyPreviewButton.addEventListener("click", () => previewArchivePolicy().catch((error) => setStatus(String(error))));
+if (els.archivePolicyQueueButton) els.archivePolicyQueueButton.addEventListener("click", () => queueArchivePolicy().catch((error) => setStatus(String(error))));
 if (els.refreshPipelinesButton) els.refreshPipelinesButton.addEventListener("click", () => refreshPipelines().catch((error) => setStatus(String(error))));
 if (els.importObservedPipelinesButton) els.importObservedPipelinesButton.addEventListener("click", () => importObservedPipelines().catch((error) => setStatus(String(error))));
 if (els.newPipelineButton) els.newPipelineButton.addEventListener("click", () => createPipeline().catch((error) => setStatus(String(error))));
