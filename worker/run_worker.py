@@ -11,6 +11,7 @@ from sqlalchemy import select
 from api.config import get_settings
 from api.db import SessionLocal
 from api.models import Job
+from worker.archive_policy_scheduler import run_archive_policy_if_due
 from worker.storage_lifecycle import execute_storage_lifecycle_job, finalize_storage_lifecycle_failure
 
 
@@ -96,8 +97,15 @@ def execute_job(job: Job) -> dict:
 
 def run_forever() -> None:
     settings = get_settings()
+    last_archive_policy_run_at: datetime | None = None
     LOGGER.info("Starting DetecDiv hub worker")
     while True:
+        with session_scope() as session:
+            last_archive_policy_run_at = run_archive_policy_if_due(
+                session,
+                last_run_at=last_archive_policy_run_at,
+            )
+
         job = claim_next_job()
         if job is None:
             time.sleep(settings.worker_poll_interval_sec)

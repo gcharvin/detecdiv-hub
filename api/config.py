@@ -25,6 +25,19 @@ class Settings(BaseSettings):
     default_publication_targets: str = "labguru,elabftw"
     default_archive_root: str = ""
     default_archive_compression: str = "zip"
+    archive_policy_enabled: bool = False
+    archive_policy_interval_minutes: int = 1440
+    archive_policy_run_as_user_key: str = "localdev"
+    archive_policy_older_than_days: int = 30
+    archive_policy_min_total_bytes: int = 0
+    archive_policy_limit: int = 25
+    archive_policy_owner_key: str = ""
+    archive_policy_search: str = ""
+    archive_policy_lifecycle_tiers: str = "hot"
+    archive_policy_archive_statuses: str = "none,restored,archive_failed,restore_failed"
+    archive_policy_archive_uri: str = ""
+    archive_policy_archive_compression: str = ""
+    archive_policy_delete_hot_source: bool = False
 
     model_config = SettingsConfigDict(
         env_prefix="DETECDIV_HUB_",

@@ -41,6 +41,24 @@ $env:DETECDIV_HUB_DEFAULT_ARCHIVE_ROOT="C:\detecdiv-archives"
 $env:DETECDIV_HUB_DEFAULT_ARCHIVE_COMPRESSION="zip"
 ```
 
+Optional automatic archive policy settings:
+
+```powershell
+$env:DETECDIV_HUB_ARCHIVE_POLICY_ENABLED="true"
+$env:DETECDIV_HUB_ARCHIVE_POLICY_INTERVAL_MINUTES="1440"
+$env:DETECDIV_HUB_ARCHIVE_POLICY_RUN_AS_USER_KEY="archive-bot"
+$env:DETECDIV_HUB_ARCHIVE_POLICY_OLDER_THAN_DAYS="60"
+$env:DETECDIV_HUB_ARCHIVE_POLICY_MIN_TOTAL_BYTES="10737418240"
+$env:DETECDIV_HUB_ARCHIVE_POLICY_LIMIT="50"
+$env:DETECDIV_HUB_ARCHIVE_POLICY_LIFECYCLE_TIERS="hot"
+$env:DETECDIV_HUB_ARCHIVE_POLICY_ARCHIVE_STATUSES="none,restored,archive_failed,restore_failed"
+$env:DETECDIV_HUB_ARCHIVE_POLICY_ARCHIVE_URI="C:\detecdiv-archives"
+$env:DETECDIV_HUB_ARCHIVE_POLICY_ARCHIVE_COMPRESSION="zip"
+$env:DETECDIV_HUB_ARCHIVE_POLICY_DELETE_HOT_SOURCE="false"
+```
+
+In plain terms this means: every 24 hours, queue archive jobs for raw datasets older than 60 days and larger than 10 GB.
+
 Open SSH tunnel:
 
 ```powershell

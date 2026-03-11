@@ -184,6 +184,12 @@ The first archive policy layer is intentionally computed, not persisted:
 - preview and queue operations run against the current catalog state
 - batch queueing reuses the same per-dataset lifecycle job machinery as manual archive requests
 
+The first automatic policy runner is worker-driven:
+
+- one worker periodically evaluates the archive policy from configuration
+- a PostgreSQL advisory lock prevents duplicate global runs when several workers are active
+- the runner only queues per-dataset archive jobs; physical archive work still happens through the normal job loop
+
 Archive destination resolution:
 
 - first use the request-level `archive_uri` if provided
