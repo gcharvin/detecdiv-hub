@@ -15,6 +15,7 @@ const state = {
   selectedRawDataset: null,
   selectedRawDatasetDetail: null,
   archivePolicyPreview: null,
+  automaticArchivePolicyStatus: null,
   migrationPlans: [],
   selectedMigrationPlan: null,
   selectedProject: null,
@@ -82,6 +83,13 @@ const els = {
   rawPreviewArchiveButton: document.querySelector("#raw-preview-archive-button"),
   rawArchiveButton: document.querySelector("#raw-archive-button"),
   rawRestoreButton: document.querySelector("#raw-restore-button"),
+  automaticArchivePolicyPanel: document.querySelector("#automatic-archive-policy-panel"),
+  automaticArchivePolicyReportOnly: document.querySelector("#automatic-archive-policy-report-only"),
+  automaticArchivePolicyRefreshButton: document.querySelector("#automatic-archive-policy-refresh-button"),
+  automaticArchivePolicyRunButton: document.querySelector("#automatic-archive-policy-run-button"),
+  automaticArchivePolicySummary: document.querySelector("#automatic-archive-policy-summary"),
+  automaticArchivePolicyConfig: document.querySelector("#automatic-archive-policy-config"),
+  automaticArchivePolicyRunsTableBody: document.querySelector("#automatic-archive-policy-runs-table tbody"),
   archivePolicyOlderDays: document.querySelector("#archive-policy-older-days"),
   archivePolicyMinGb: document.querySelector("#archive-policy-min-gb"),
   archivePolicyLimit: document.querySelector("#archive-policy-limit"),
@@ -135,6 +143,7 @@ const pageFlags = {
   hasSessionsView: Boolean(els.sessionsTableBody),
   hasIndexingView: Boolean(els.indexJobsTableBody || els.activeIndexJob),
   hasRawDatasetsView: Boolean(els.rawDatasetsTableBody),
+  hasAutomaticArchivePolicy: Boolean(els.automaticArchivePolicyPanel),
   hasRawDatasetDetail: Boolean(els.rawDetailContent),
   hasIndexForm: Boolean(els.indexSourcePath),
   hasMigrationView: Boolean(els.migrationPlansTableBody || els.migrationDetailContent),
@@ -159,6 +168,7 @@ function clearDashboardState() {
   state.selectedRawDataset = null;
   state.selectedRawDatasetDetail = null;
   state.archivePolicyPreview = null;
+  state.automaticArchivePolicyStatus = null;
   state.migrationPlans = [];
   state.selectedMigrationPlan = null;
   state.selectedProject = null;
@@ -179,6 +189,7 @@ function clearDashboardState() {
   renderIndexingJobs();
   renderRawDatasets();
   renderRawDatasetDetail();
+  renderAutomaticArchivePolicyStatus();
   renderArchivePolicyPreview();
   renderMigrationPlans();
   renderMigrationDetail();
@@ -548,6 +559,93 @@ function renderRawDatasetDetail() {
   els.rawDetailSubtitle.textContent = raw.acquisition_label;
   els.rawDetailEmpty.classList.add("hidden");
   els.rawDetailContent.classList.remove("hidden");
+}
+
+function renderAutomaticArchivePolicyStatus() {
+  if (!els.automaticArchivePolicyPanel || !els.automaticArchivePolicySummary) {
+    return;
+  }
+  const canSee = isAdmin();
+  els.automaticArchivePolicyPanel.classList.toggle("hidden", !canSee);
+  if (!canSee) {
+    return;
+  }
+
+  const status = state.automaticArchivePolicyStatus;
+  if (!status) {
+    els.automaticArchivePolicySummary.textContent = "Automatic archive policy status not loaded yet.";
+    if (els.automaticArchivePolicyConfig) {
+      els.automaticArchivePolicyConfig.innerHTML = "";
+    }
+    if (els.automaticArchivePolicyRunsTableBody) {
+      els.automaticArchivePolicyRunsTableBody.innerHTML = "";
+    }
+    return;
+  }
+
+  const config = status.config || {};
+  const lastRun = status.last_run;
+  const summaryBits = [
+    config.enabled ? "enabled" : "disabled",
+    `every ${config.interval_minutes || 0} min`,
+    `older than ${config.older_than_days || 0} day(s)`,
+    `min ${humanBytes(config.min_total_bytes || 0)}`,
+  ];
+  if (lastRun) {
+    summaryBits.push(
+      `last run ${formatTimestamp(lastRun.finished_at || lastRun.started_at || lastRun.created_at)}`,
+      `${lastRun.candidate_count} candidate(s)`,
+      `${lastRun.queued_count} queued`
+    );
+  } else {
+    summaryBits.push("no runs yet");
+  }
+  els.automaticArchivePolicySummary.textContent = summaryBits.join(" | ");
+
+  if (els.automaticArchivePolicyConfig) {
+    const fields = [
+      ["Enabled", config.enabled ? "yes" : "no"],
+      ["Interval", `${config.interval_minutes || 0} min`],
+      ["Run as", config.run_as_user_key || ""],
+      ["Older than", `${config.older_than_days || 0} day(s)`],
+      ["Min size", humanBytes(config.min_total_bytes || 0)],
+      ["Candidate limit", `${config.limit || 0}`],
+      ["Owner filter", config.owner_key || ""],
+      ["Search filter", config.search || ""],
+      ["Lifecycle tiers", (config.lifecycle_tiers || []).join(", ")],
+      ["Archive states", (config.archive_statuses || []).join(", ")],
+      ["Archive URI", config.archive_uri || ""],
+      ["Compression", config.archive_compression || ""],
+      ["Delete hot source", config.delete_hot_source ? "yes" : "no"],
+    ];
+    els.automaticArchivePolicyConfig.innerHTML = "";
+    for (const [label, value] of fields) {
+      const dt = document.createElement("dt");
+      dt.textContent = label;
+      const dd = document.createElement("dd");
+      dd.textContent = value;
+      els.automaticArchivePolicyConfig.append(dt, dd);
+    }
+  }
+
+  if (els.automaticArchivePolicyRunsTableBody) {
+    els.automaticArchivePolicyRunsTableBody.innerHTML = "";
+    for (const run of status.recent_runs || []) {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${formatTimestamp(run.finished_at || run.started_at || run.created_at)}</td>
+        <td>${run.trigger_mode}</td>
+        <td>${run.status}</td>
+        <td>${run.report_only ? "yes" : "no"}</td>
+        <td>${run.candidate_count}</td>
+        <td>${run.queued_count}</td>
+        <td>${humanBytes(run.total_reclaimable_bytes)}</td>
+        <td>${run.triggered_by ? run.triggered_by.user_key : ""}</td>
+      `;
+      tr.title = run.error_text || JSON.stringify(run.result_json || {});
+      els.automaticArchivePolicyRunsTableBody.appendChild(tr);
+    }
+  }
 }
 
 function renderArchivePolicyPreview() {
@@ -1001,6 +1099,9 @@ async function refreshDashboard() {
   if (pageFlags.hasRawDatasetsView) {
     refreshTasks.push(refreshRawDatasets());
   }
+  if (pageFlags.hasAutomaticArchivePolicy) {
+    refreshTasks.push(refreshAutomaticArchivePolicyStatus());
+  }
   if (pageFlags.hasPipelinesView) {
     refreshTasks.push(refreshPipelines());
   }
@@ -1055,6 +1156,28 @@ async function refreshRawDatasets() {
   }
 }
 
+async function refreshAutomaticArchivePolicyStatus() {
+  if (!pageFlags.hasAutomaticArchivePolicy) {
+    return;
+  }
+  if (!isAdmin()) {
+    state.automaticArchivePolicyStatus = null;
+    renderAutomaticArchivePolicyStatus();
+    return;
+  }
+  try {
+    state.automaticArchivePolicyStatus = await apiGet("/raw-datasets/archive-policy/automatic");
+    renderAutomaticArchivePolicyStatus();
+  } catch (error) {
+    if (`${error}`.includes("403")) {
+      state.automaticArchivePolicyStatus = null;
+      renderAutomaticArchivePolicyStatus();
+      return;
+    }
+    throw error;
+  }
+}
+
 function archivePolicyPayload() {
   const olderThanDays = Number(els.archivePolicyOlderDays?.value || 30);
   const minGb = Number(els.archivePolicyMinGb?.value || 0);
@@ -1073,6 +1196,28 @@ function archivePolicyPayload() {
     archive_compression: els.archivePolicyCompression?.value || null,
     mark_archived: Boolean(els.archivePolicyDeleteSource?.checked),
   };
+}
+
+async function runAutomaticArchivePolicy() {
+  if (!isAdmin()) {
+    throw new Error("Admin role required.");
+  }
+  const reportOnly = Boolean(els.automaticArchivePolicyReportOnly?.checked);
+  const action = reportOnly ? "run a report-only preview" : "queue archive jobs";
+  const ok = window.confirm(`Run the automatic archive policy now and ${action}?`);
+  if (!ok) {
+    return;
+  }
+  const run = await apiPost("/raw-datasets/archive-policy/automatic/run", {
+    report_only: reportOnly,
+  });
+  await refreshAutomaticArchivePolicyStatus();
+  if (!reportOnly) {
+    await refreshRawDatasets();
+  }
+  setStatus(
+    `Automatic archive policy run completed: ${run.candidate_count} candidate(s), ${run.queued_count} queued.`
+  );
 }
 
 async function previewArchivePolicy() {
@@ -1611,6 +1756,9 @@ async function pollDashboard() {
     if (pageFlags.hasRawDatasetsView) {
       pollTasks.push(refreshRawDatasets());
     }
+    if (pageFlags.hasAutomaticArchivePolicy && isAdmin()) {
+      pollTasks.push(refreshAutomaticArchivePolicyStatus());
+    }
     if (pageFlags.hasMigrationView) {
       pollTasks.push(refreshMigrationPlans());
     }
@@ -1692,6 +1840,8 @@ if (els.migrationExecutePilotButton) els.migrationExecutePilotButton.addEventLis
 if (els.rawPreviewArchiveButton) els.rawPreviewArchiveButton.addEventListener("click", () => previewRawArchive().catch((error) => setStatus(String(error))));
 if (els.rawArchiveButton) els.rawArchiveButton.addEventListener("click", () => requestRawArchive().catch((error) => setStatus(String(error))));
 if (els.rawRestoreButton) els.rawRestoreButton.addEventListener("click", () => requestRawRestore().catch((error) => setStatus(String(error))));
+if (els.automaticArchivePolicyRefreshButton) els.automaticArchivePolicyRefreshButton.addEventListener("click", () => refreshAutomaticArchivePolicyStatus().catch((error) => setStatus(String(error))));
+if (els.automaticArchivePolicyRunButton) els.automaticArchivePolicyRunButton.addEventListener("click", () => runAutomaticArchivePolicy().catch((error) => setStatus(String(error))));
 if (els.archivePolicyPreviewButton) els.archivePolicyPreviewButton.addEventListener("click", () => previewArchivePolicy().catch((error) => setStatus(String(error))));
 if (els.archivePolicyQueueButton) els.archivePolicyQueueButton.addEventListener("click", () => queueArchivePolicy().catch((error) => setStatus(String(error))));
 if (els.refreshPipelinesButton) els.refreshPipelinesButton.addEventListener("click", () => refreshPipelines().catch((error) => setStatus(String(error))));

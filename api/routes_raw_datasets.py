@@ -8,6 +8,10 @@ from sqlalchemy.orm import Session, joinedload
 from api.db import get_db
 from api.models import RawDataset, RawDatasetLocation, StorageLifecycleEvent, User
 from api.schemas import (
+    ArchivePolicyAutomaticConfig,
+    ArchivePolicyAutomaticRunRequest,
+    ArchivePolicyAutomaticStatus,
+    ArchivePolicyRunSummary,
     RawDatasetArchivePolicyPreview,
     RawDatasetArchivePolicyQueueResult,
     RawDatasetArchivePolicyRequest,
@@ -19,7 +23,15 @@ from api.schemas import (
     RawDatasetUpdate,
     StorageLifecycleEventSummary,
 )
-from api.services.archive_policy import build_archive_policy_preview
+from api.services.archive_policy import (
+    automatic_archive_policy_config,
+    build_archive_policy_preview,
+    execute_archive_policy_run,
+    latest_archive_policy_run,
+    list_archive_policy_runs,
+    release_archive_policy_lock,
+    try_acquire_archive_policy_lock,
+)
 from api.services.raw_dataset_lifecycle import (
     RawDatasetLifecycleConflictError,
     build_archive_preview,
@@ -36,6 +48,14 @@ from api.services.users import (
 
 
 router = APIRouter(prefix="/raw-datasets", tags=["raw-datasets"])
+
+
+def ensure_archive_policy_admin(current_user: User) -> None:
+    if current_user.role not in {"admin", "service"}:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Admin role required for automatic archive policy controls",
+        )
 
 
 @router.get("", response_model=list[RawDatasetSummary])
@@ -264,6 +284,54 @@ def queue_archive_policy(
     )
 
 
+@router.get("/archive-policy/automatic", response_model=ArchivePolicyAutomaticStatus)
+def get_automatic_archive_policy_status(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> ArchivePolicyAutomaticStatus:
+    ensure_archive_policy_admin(current_user)
+    config = automatic_archive_policy_config()
+    last_run = latest_archive_policy_run(db)
+    recent_runs = list_archive_policy_runs(db, limit=10)
+    return ArchivePolicyAutomaticStatus(
+        config=ArchivePolicyAutomaticConfig.model_validate(config.to_json()),
+        last_run=archive_policy_run_summary_view(last_run) if last_run is not None else None,
+        recent_runs=[archive_policy_run_summary_view(run) for run in recent_runs],
+    )
+
+
+@router.post("/archive-policy/automatic/run", response_model=ArchivePolicyRunSummary)
+def run_automatic_archive_policy_now(
+    payload: ArchivePolicyAutomaticRunRequest,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> ArchivePolicyRunSummary:
+    ensure_archive_policy_admin(current_user)
+    if not try_acquire_archive_policy_lock(db):
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Automatic archive policy is already running on another worker or request",
+        )
+
+    try:
+        config = automatic_archive_policy_config()
+        result = execute_archive_policy_run(
+            db,
+            config=config,
+            triggered_by_user=current_user,
+            trigger_mode="manual",
+            report_only=payload.report_only,
+        )
+        db.commit()
+        db.refresh(result.run)
+        return archive_policy_run_summary_view(result.run)
+    except Exception:
+        db.rollback()
+        raise
+    finally:
+        release_archive_policy_lock(db)
+
+
 @router.post("/{raw_dataset_id}/archive", response_model=RawDatasetDetail)
 def request_raw_dataset_archive(
     raw_dataset_id: UUID,
@@ -392,3 +460,25 @@ def raw_dataset_detail_view(raw_dataset: RawDataset) -> RawDatasetDetail:
         )
     ]
     return detail
+
+
+def archive_policy_run_summary_view(run) -> ArchivePolicyRunSummary:
+    return ArchivePolicyRunSummary.model_validate(
+        {
+            "id": run.id,
+            "trigger_mode": run.trigger_mode,
+            "status": run.status,
+            "report_only": run.report_only,
+            "candidate_count": run.candidate_count,
+            "queued_count": run.queued_count,
+            "skipped_count": run.skipped_count,
+            "total_reclaimable_bytes": run.total_reclaimable_bytes,
+            "error_text": run.error_text,
+            "config_json": run.config_json or {},
+            "result_json": run.result_json or {},
+            "triggered_by": run.triggered_by,
+            "created_at": run.created_at,
+            "started_at": run.started_at,
+            "finished_at": run.finished_at,
+        }
+    )

@@ -100,11 +100,14 @@ def run_forever() -> None:
     last_archive_policy_run_at: datetime | None = None
     LOGGER.info("Starting DetecDiv hub worker")
     while True:
-        with session_scope() as session:
-            last_archive_policy_run_at = run_archive_policy_if_due(
-                session,
-                last_run_at=last_archive_policy_run_at,
-            )
+        try:
+            with session_scope() as session:
+                last_archive_policy_run_at = run_archive_policy_if_due(
+                    session,
+                    last_run_at=last_archive_policy_run_at,
+                )
+        except Exception:  # pragma: no cover - defensive around periodic maintenance
+            LOGGER.exception("Automatic archive policy run failed")
 
         job = claim_next_job()
         if job is None:

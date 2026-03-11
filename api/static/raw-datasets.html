@@ -116,10 +116,48 @@
         <button id="refresh-button">Refresh</button>
       </section>
 
+      <section id="automatic-archive-policy-panel" class="panel hidden">
+        <div class="panel-header">
+          <div>
+            <h2>Automatic Archive Policy</h2>
+            <p class="muted">
+              Active background rule, latest execution, and manual runs for validation or immediate action.
+            </p>
+          </div>
+        </div>
+        <div class="toolbar">
+          <label class="toggle">
+            <input id="automatic-archive-policy-report-only" type="checkbox" checked />
+            <span>Report only</span>
+          </label>
+          <button id="automatic-archive-policy-refresh-button">Refresh automatic policy</button>
+          <button id="automatic-archive-policy-run-button" class="primary">Run now</button>
+        </div>
+        <div id="automatic-archive-policy-summary" class="muted">Automatic archive policy is unavailable.</div>
+        <dl id="automatic-archive-policy-config" class="detail-list"></dl>
+        <div class="table-wrap">
+          <table id="automatic-archive-policy-runs-table">
+            <thead>
+              <tr>
+                <th>When</th>
+                <th>Mode</th>
+                <th>Status</th>
+                <th>Report only</th>
+                <th>Candidates</th>
+                <th>Queued</th>
+                <th>Reclaimable</th>
+                <th>By</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </section>
+
       <section class="panel">
         <div class="panel-header">
           <div>
-            <h2>Archive Policy</h2>
+            <h2>Ad Hoc Archive Policy</h2>
             <p class="muted">
               Preview cold-storage candidates by age and size, then queue archive jobs in batch.
             </p>

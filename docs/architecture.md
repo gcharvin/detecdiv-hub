@@ -77,6 +77,8 @@ Future entity extensions that should be planned now:
   - measured project/raw/derived storage footprints
 - `storage_lifecycle_events`
   - auditable archive and restore transitions for raw datasets
+- `archive_policy_runs`
+  - durable history of automatic or manual archive-policy evaluations
 - `deletion_requests` and `deletion_artifacts`
   - auditable cleanup workflows
 
@@ -189,6 +191,7 @@ The first automatic policy runner is worker-driven:
 - one worker periodically evaluates the archive policy from configuration
 - a PostgreSQL advisory lock prevents duplicate global runs when several workers are active
 - the runner only queues per-dataset archive jobs; physical archive work still happens through the normal job loop
+- every automatic or manual execution is recorded in `archive_policy_runs` for admin review
 
 Archive destination resolution:
 

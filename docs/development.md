@@ -110,6 +110,18 @@ Queue an archive policy batch:
 curl -Method POST -ContentType "application/json" -Body '{"older_than_days":30,"min_total_bytes":1073741824,"limit":20,"lifecycle_tiers":["hot"],"archive_statuses":["none","restored"],"archive_uri":"C:\\detecdiv-archives","archive_compression":"zip","mark_archived":true}' "http://127.0.0.1:8000/raw-datasets/archive-policy/queue?user_key=localdev"
 ```
 
+Inspect the automatic archive policy:
+
+```powershell
+curl "http://127.0.0.1:8000/raw-datasets/archive-policy/automatic?user_key=admin"
+```
+
+Run the automatic archive policy manually in report-only mode:
+
+```powershell
+curl -Method POST -ContentType "application/json" -Body '{"report_only":true}' "http://127.0.0.1:8000/raw-datasets/archive-policy/automatic/run?user_key=admin"
+```
+
 Open the browser UI:
 
 ```powershell

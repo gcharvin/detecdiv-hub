@@ -360,6 +360,50 @@ class RawDatasetArchivePolicyQueueResult(HubBaseModel):
     message: str
 
 
+class ArchivePolicyAutomaticConfig(HubBaseModel):
+    enabled: bool
+    interval_minutes: int
+    run_as_user_key: str
+    older_than_days: int
+    min_total_bytes: int = 0
+    limit: int = 0
+    owner_key: str | None = None
+    search: str | None = None
+    lifecycle_tiers: list[str] = Field(default_factory=list)
+    archive_statuses: list[str] = Field(default_factory=list)
+    archive_uri: str | None = None
+    archive_compression: str | None = None
+    delete_hot_source: bool = False
+
+
+class ArchivePolicyRunSummary(HubBaseModel):
+    id: UUID
+    trigger_mode: str
+    status: str
+    report_only: bool = False
+    candidate_count: int = 0
+    queued_count: int = 0
+    skipped_count: int = 0
+    total_reclaimable_bytes: int = 0
+    error_text: str | None = None
+    config_json: dict[str, Any] = Field(default_factory=dict)
+    result_json: dict[str, Any] = Field(default_factory=dict)
+    triggered_by: UserSummary | None = None
+    created_at: datetime | None = None
+    started_at: datetime | None = None
+    finished_at: datetime | None = None
+
+
+class ArchivePolicyAutomaticStatus(HubBaseModel):
+    config: ArchivePolicyAutomaticConfig
+    last_run: ArchivePolicyRunSummary | None = None
+    recent_runs: list[ArchivePolicyRunSummary] = Field(default_factory=list)
+
+
+class ArchivePolicyAutomaticRunRequest(HubBaseModel):
+    report_only: bool = True
+
+
 class ExperimentProjectCreate(HubBaseModel):
     experiment_key: str | None = None
     title: str
