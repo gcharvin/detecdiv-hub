@@ -79,6 +79,21 @@ class StorageRootSummary(HubBaseModel):
     path_prefix: str
 
 
+class RawDatasetSummary(HubBaseModel):
+    id: UUID
+    external_key: str | None = None
+    microscope_name: str | None = None
+    acquisition_label: str
+    visibility: str
+    status: str
+    completeness_status: str
+    total_bytes: int = 0
+    metadata_json: dict[str, Any] = Field(default_factory=dict)
+    owner: UserSummary | None = None
+    created_at: datetime | None = None
+    updated_at: datetime | None = None
+
+
 class ProjectLocationSummary(HubBaseModel):
     id: int
     relative_path: str
@@ -90,6 +105,7 @@ class ProjectLocationSummary(HubBaseModel):
 
 class ProjectSummary(HubBaseModel):
     id: UUID
+    experiment_project_id: UUID | None = None
     project_key: str | None = None
     project_name: str
     status: str
@@ -199,8 +215,139 @@ class ProjectGroupCreate(HubBaseModel):
     metadata_json: dict[str, Any] = Field(default_factory=dict)
 
 
+class ExperimentProjectSummary(HubBaseModel):
+    id: UUID
+    experiment_key: str | None = None
+    title: str
+    visibility: str
+    status: str
+    summary: str | None = None
+    total_raw_bytes: int = 0
+    total_derived_bytes: int = 0
+    raw_dataset_count: int = 0
+    analysis_project_count: int = 0
+    metadata_json: dict[str, Any] = Field(default_factory=dict)
+    owner: UserSummary | None = None
+    started_at: datetime | None = None
+    ended_at: datetime | None = None
+    last_indexed_at: datetime | None = None
+    created_at: datetime | None = None
+    updated_at: datetime | None = None
+
+
+class PublicationRecordSummary(HubBaseModel):
+    id: UUID
+    system_key: str
+    status: str
+    external_id: str | None = None
+    external_url: str | None = None
+    payload_json: dict[str, Any] = Field(default_factory=dict)
+    error_text: str | None = None
+    last_attempt_at: datetime | None = None
+    created_at: datetime | None = None
+    updated_at: datetime | None = None
+
+
+class ExperimentProjectDetail(ExperimentProjectSummary):
+    raw_datasets: list[RawDatasetSummary] = Field(default_factory=list)
+    analysis_projects: list[ProjectSummary] = Field(default_factory=list)
+    publication_records: list[PublicationRecordSummary] = Field(default_factory=list)
+
+
+class ExperimentProjectCreate(HubBaseModel):
+    experiment_key: str | None = None
+    title: str
+    visibility: str = "private"
+    status: str = "indexed"
+    summary: str | None = None
+    metadata_json: dict[str, Any] = Field(default_factory=dict)
+    started_at: datetime | None = None
+    ended_at: datetime | None = None
+    last_indexed_at: datetime | None = None
+
+
+class ExperimentProjectUpdate(HubBaseModel):
+    owner_user_key: str | None = None
+    title: str | None = None
+    visibility: str | None = None
+    status: str | None = None
+    summary: str | None = None
+    metadata_json: dict[str, Any] | None = None
+    started_at: datetime | None = None
+    ended_at: datetime | None = None
+    last_indexed_at: datetime | None = None
+
+
+class StorageMigrationItemSummary(HubBaseModel):
+    id: int
+    item_type: str
+    legacy_path: str
+    legacy_key: str | None = None
+    display_name: str
+    status: str
+    action: str
+    proposed_experiment_key: str | None = None
+    proposed_project_key: str | None = None
+    metadata_json: dict[str, Any] = Field(default_factory=dict)
+    created_at: datetime | None = None
+    updated_at: datetime | None = None
+
+
+class StorageMigrationPlanSummary(HubBaseModel):
+    id: UUID
+    batch_name: str
+    source_kind: str
+    source_path: str
+    storage_root_name: str | None = None
+    host_scope: str
+    root_type: str
+    strategy: str
+    status: str
+    owner: UserSummary | None = None
+    summary_json: dict[str, Any] = Field(default_factory=dict)
+    metadata_json: dict[str, Any] = Field(default_factory=dict)
+    created_at: datetime | None = None
+    updated_at: datetime | None = None
+
+
+class StorageMigrationPlanDetail(StorageMigrationPlanSummary):
+    items: list[StorageMigrationItemSummary] = Field(default_factory=list)
+
+
+class StorageMigrationPlanCreate(HubBaseModel):
+    batch_name: str
+    source_kind: str
+    source_path: str
+    storage_root_name: str | None = None
+    host_scope: str = "server"
+    root_type: str = "legacy_root"
+    strategy: str = "discover_only"
+    max_items: int = 200
+    metadata_json: dict[str, Any] = Field(default_factory=dict)
+
+
+class StorageMigrationItemUpdate(HubBaseModel):
+    status: str | None = None
+    action: str | None = None
+    proposed_experiment_key: str | None = None
+    proposed_project_key: str | None = None
+    metadata_json: dict[str, Any] | None = None
+
+
+class StorageMigrationAttachExistingRequest(HubBaseModel):
+    experiment_key: str
+
+
+class StorageMigrationExecuteResponse(HubBaseModel):
+    plan_id: UUID
+    processed_items: int
+    experiment_ids: list[UUID] = Field(default_factory=list)
+    message: str
+
+
 class JobCreateRequest(HubBaseModel):
     project_id: UUID | None = None
+    raw_dataset_id: UUID | None = None
     pipeline_id: UUID | None = None
     execution_target_id: UUID | None = None
     requested_mode: str = "auto"
@@ -213,6 +360,7 @@ class JobCreateRequest(HubBaseModel):
 class JobSummary(HubBaseModel):
     id: UUID
     project_id: UUID | None = None
+    raw_dataset_id: UUID | None = None
     pipeline_id: UUID | None = None
     execution_target_id: UUID | None = None
     requested_mode: str

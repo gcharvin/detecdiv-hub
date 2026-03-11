@@ -518,6 +518,7 @@ def project_summary_view(project: Project) -> ProjectSummary:
     return ProjectSummary.model_validate(
         {
             "id": project.id,
+            "experiment_project_id": project.experiment_project_id,
             "project_key": project.project_key,
             "project_name": project.project_name,
             "status": project.status,

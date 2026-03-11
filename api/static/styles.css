@@ -196,6 +196,25 @@ h3 {
   max-height: none;
 }
 
+.migration-grid {
+  grid-template-columns: minmax(0, 1.25fr) minmax(520px, 1.4fr);
+}
+
+.migration-items-wrap {
+  max-height: 480px;
+}
+
+.inline-action-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.inline-action-row button {
+  min-height: 34px;
+  padding: 6px 10px;
+}
+
 table {
   width: 100%;
   border-collapse: collapse;

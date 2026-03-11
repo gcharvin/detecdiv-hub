@@ -132,6 +132,115 @@
         </div>
       </section>
 
+      <section class="panel">
+        <div class="panel-header">
+          <div>
+            <h2>Migration Plans</h2>
+            <p class="muted">Stage legacy raw-data and analysis folders before migrating them into the new model.</p>
+          </div>
+          <button id="migration-refresh-button">Refresh plans</button>
+        </div>
+        <div class="index-form">
+          <label class="field">
+            <span>Batch name</span>
+            <input id="migration-batch-name" type="text" placeholder="pilot-march-raw" />
+          </label>
+          <label class="field">
+            <span>Legacy source path</span>
+            <input id="migration-source-path" type="text" placeholder="/srv/microscope/legacy" />
+          </label>
+          <label class="field compact">
+            <span>Source kind</span>
+            <select id="migration-source-kind">
+              <option value="legacy_project_root">legacy_project_root</option>
+              <option value="legacy_raw_root">legacy_raw_root</option>
+            </select>
+          </label>
+          <label class="field compact">
+            <span>Strategy</span>
+            <select id="migration-strategy">
+              <option value="discover_only">discover_only</option>
+              <option value="placeholder_experiments">placeholder_experiments</option>
+              <option value="pilot" selected>pilot</option>
+            </select>
+          </label>
+          <label class="field compact">
+            <span>Storage root name</span>
+            <input id="migration-storage-root-name" type="text" placeholder="server_legacy_raw" />
+          </label>
+          <label class="field compact">
+            <span>Max items</span>
+            <input id="migration-max-items" type="number" min="1" max="5000" value="50" />
+          </label>
+          <button id="migration-create-button" class="primary">Create plan</button>
+        </div>
+      </section>
+
+      <section class="layout-grid migration-grid">
+        <main class="panel">
+          <div class="panel-header">
+            <div>
+              <h2>Planned Batches</h2>
+              <p id="migration-plan-count-label" class="muted">0 plans</p>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table id="migration-plans-table">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Kind</th>
+                  <th>Strategy</th>
+                  <th>Status</th>
+                  <th>Candidates</th>
+                  <th>Created</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </main>
+
+        <aside class="panel detail-panel">
+          <div class="panel-header">
+            <div>
+              <h2>Migration Detail</h2>
+              <p id="migration-detail-subtitle" class="muted">Select a migration plan</p>
+            </div>
+            <button id="migration-execute-pilot-button">Execute pilot batch</button>
+          </div>
+
+          <div id="migration-detail-empty" class="empty-state">
+            No migration plan selected.
+          </div>
+
+          <div id="migration-detail-content" class="detail-content hidden">
+            <dl class="detail-list" id="migration-detail-list"></dl>
+
+            <section class="subpanel">
+              <div class="subpanel-header">
+                <h3>Plan Items</h3>
+              </div>
+              <div class="table-wrap migration-items-wrap">
+                <table id="migration-items-table">
+                  <thead>
+                    <tr>
+                      <th>Name</th>
+                      <th>Type</th>
+                      <th>Action</th>
+                      <th>Status</th>
+                      <th>Experiment key</th>
+                      <th>Controls</th>
+                    </tr>
+                  </thead>
+                  <tbody></tbody>
+                </table>
+              </div>
+            </section>
+          </div>
+        </aside>
+      </section>
+
       <footer class="footer">
         <div id="status-line">Ready.</div>
       </footer>

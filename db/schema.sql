@@ -63,8 +63,36 @@ CREATE TABLE IF NOT EXISTS raw_dataset_locations (
     UNIQUE(raw_dataset_id, storage_root_id, relative_path)
 );
 
+CREATE TABLE IF NOT EXISTS experiment_projects (
+    id UUID PRIMARY KEY,
+    owner_user_id UUID REFERENCES users(id) ON DELETE SET NULL,
+    experiment_key TEXT UNIQUE,
+    title TEXT NOT NULL,
+    visibility TEXT NOT NULL DEFAULT 'private',
+    status TEXT NOT NULL DEFAULT 'indexed',
+    summary TEXT,
+    started_at TIMESTAMPTZ,
+    ended_at TIMESTAMPTZ,
+    total_raw_bytes BIGINT NOT NULL DEFAULT 0,
+    total_derived_bytes BIGINT NOT NULL DEFAULT 0,
+    last_indexed_at TIMESTAMPTZ,
+    metadata_json JSONB NOT NULL DEFAULT '{}'::jsonb,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS experiment_raw_links (
+    id BIGSERIAL PRIMARY KEY,
+    experiment_project_id UUID NOT NULL REFERENCES experiment_projects(id) ON DELETE CASCADE,
+    raw_dataset_id UUID NOT NULL REFERENCES raw_datasets(id) ON DELETE CASCADE,
+    link_type TEXT NOT NULL DEFAULT 'acquisition',
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    UNIQUE(experiment_project_id, raw_dataset_id, link_type)
+);
+
 CREATE TABLE IF NOT EXISTS detecdiv_projects (
     id UUID PRIMARY KEY,
+    experiment_project_id UUID REFERENCES experiment_projects(id) ON DELETE SET NULL,
     owner_user_id UUID REFERENCES users(id) ON DELETE SET NULL,
     project_key TEXT UNIQUE,
     project_name TEXT NOT NULL,
@@ -255,12 +283,60 @@ CREATE TABLE IF NOT EXISTS artifacts (
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
+CREATE TABLE IF NOT EXISTS storage_migration_batches (
+    id UUID PRIMARY KEY,
+    owner_user_id UUID REFERENCES users(id) ON DELETE SET NULL,
+    batch_name TEXT NOT NULL,
+    source_kind TEXT NOT NULL,
+    source_path TEXT NOT NULL,
+    storage_root_name TEXT,
+    host_scope TEXT NOT NULL DEFAULT 'server',
+    root_type TEXT NOT NULL DEFAULT 'legacy_root',
+    strategy TEXT NOT NULL DEFAULT 'discover_only',
+    status TEXT NOT NULL DEFAULT 'planned',
+    metadata_json JSONB NOT NULL DEFAULT '{}'::jsonb,
+    summary_json JSONB NOT NULL DEFAULT '{}'::jsonb,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS storage_migration_items (
+    id BIGSERIAL PRIMARY KEY,
+    batch_id UUID NOT NULL REFERENCES storage_migration_batches(id) ON DELETE CASCADE,
+    item_type TEXT NOT NULL,
+    legacy_path TEXT NOT NULL,
+    legacy_key TEXT,
+    display_name TEXT NOT NULL,
+    status TEXT NOT NULL DEFAULT 'planned',
+    action TEXT NOT NULL DEFAULT 'review',
+    proposed_experiment_key TEXT,
+    proposed_project_key TEXT,
+    metadata_json JSONB NOT NULL DEFAULT '{}'::jsonb,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS external_publication_records (
+    id UUID PRIMARY KEY,
+    experiment_project_id UUID NOT NULL REFERENCES experiment_projects(id) ON DELETE CASCADE,
+    system_key TEXT NOT NULL,
+    status TEXT NOT NULL DEFAULT 'pending',
+    external_id TEXT,
+    external_url TEXT,
+    payload_json JSONB NOT NULL DEFAULT '{}'::jsonb,
+    error_text TEXT,
+    last_attempt_at TIMESTAMPTZ,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
 ALTER TABLE raw_datasets ADD COLUMN IF NOT EXISTS owner_user_id UUID REFERENCES users(id) ON DELETE SET NULL;
 ALTER TABLE raw_datasets ADD COLUMN IF NOT EXISTS visibility TEXT NOT NULL DEFAULT 'private';
 ALTER TABLE raw_datasets ADD COLUMN IF NOT EXISTS total_bytes BIGINT NOT NULL DEFAULT 0;
 ALTER TABLE raw_datasets ADD COLUMN IF NOT EXISTS last_size_scan_at TIMESTAMPTZ;
 ALTER TABLE users ADD COLUMN IF NOT EXISTS password_hash TEXT;
 
+ALTER TABLE detecdiv_projects ADD COLUMN IF NOT EXISTS experiment_project_id UUID REFERENCES experiment_projects(id) ON DELETE SET NULL;
 ALTER TABLE detecdiv_projects ADD COLUMN IF NOT EXISTS owner_user_id UUID REFERENCES users(id) ON DELETE SET NULL;
 ALTER TABLE detecdiv_projects ADD COLUMN IF NOT EXISTS visibility TEXT NOT NULL DEFAULT 'private';
 ALTER TABLE detecdiv_projects ADD COLUMN IF NOT EXISTS fov_count INTEGER NOT NULL DEFAULT 0;
@@ -287,6 +363,12 @@ ALTER TABLE indexing_jobs ADD COLUMN IF NOT EXISTS heartbeat_at TIMESTAMPTZ;
 CREATE INDEX IF NOT EXISTS idx_projects_name ON detecdiv_projects(project_name);
 CREATE INDEX IF NOT EXISTS idx_projects_owner_user_id ON detecdiv_projects(owner_user_id);
 CREATE INDEX IF NOT EXISTS idx_projects_visibility ON detecdiv_projects(visibility);
+CREATE INDEX IF NOT EXISTS idx_projects_experiment_project_id ON detecdiv_projects(experiment_project_id);
+CREATE INDEX IF NOT EXISTS idx_experiment_projects_title ON experiment_projects(title);
+CREATE INDEX IF NOT EXISTS idx_experiment_projects_owner_user_id ON experiment_projects(owner_user_id);
+CREATE INDEX IF NOT EXISTS idx_experiment_projects_visibility ON experiment_projects(visibility);
+CREATE INDEX IF NOT EXISTS idx_experiment_raw_links_experiment_project_id ON experiment_raw_links(experiment_project_id);
+CREATE INDEX IF NOT EXISTS idx_experiment_raw_links_raw_dataset_id ON experiment_raw_links(raw_dataset_id);
 CREATE INDEX IF NOT EXISTS idx_jobs_status_priority ON jobs(status, priority, created_at);
 CREATE INDEX IF NOT EXISTS idx_jobs_project_id ON jobs(project_id);
 CREATE INDEX IF NOT EXISTS idx_raw_datasets_status ON raw_datasets(status, completeness_status);
@@ -300,3 +382,9 @@ CREATE INDEX IF NOT EXISTS idx_indexing_jobs_status_created_at ON indexing_jobs(
 CREATE INDEX IF NOT EXISTS idx_indexing_jobs_requested_by_user_id ON indexing_jobs(requested_by_user_id);
 CREATE INDEX IF NOT EXISTS idx_indexing_jobs_heartbeat_at ON indexing_jobs(heartbeat_at DESC);
 CREATE INDEX IF NOT EXISTS idx_user_sessions_user_id ON user_sessions(user_id, status, expires_at);
+CREATE INDEX IF NOT EXISTS idx_storage_migration_batches_owner_user_id ON storage_migration_batches(owner_user_id);
+CREATE INDEX IF NOT EXISTS idx_storage_migration_batches_created_at ON storage_migration_batches(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_storage_migration_items_batch_id ON storage_migration_items(batch_id);
+CREATE INDEX IF NOT EXISTS idx_storage_migration_items_status ON storage_migration_items(status);
+CREATE INDEX IF NOT EXISTS idx_external_publication_records_experiment_project_id ON external_publication_records(experiment_project_id);
+CREATE INDEX IF NOT EXISTS idx_external_publication_records_system_key ON external_publication_records(system_key, status);

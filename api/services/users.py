@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 
 from api.config import get_settings
 from api.db import get_db
-from api.models import Project, ProjectAcl, User
+from api.models import ExperimentProject, Project, ProjectAcl, User
 from api.services.auth import get_user_by_session_token
 
 
@@ -108,3 +108,30 @@ def user_can_edit_project(project: Project, user: User) -> bool:
         if acl.user_id == user.id and acl.access_level in {"editor", "owner"}:
             return True
     return False
+
+
+def experiment_access_filter(user: User):
+    if user.role in {"admin", "service"}:
+        return literal(True)
+    return or_(
+        ExperimentProject.visibility == "public",
+        ExperimentProject.owner_user_id == user.id,
+    )
+
+
+def ensure_experiment_readable(experiment: ExperimentProject | None, user: User) -> ExperimentProject:
+    if experiment is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Experiment not found")
+    if user.role in {"admin", "service"}:
+        return experiment
+    if experiment.visibility == "public":
+        return experiment
+    if experiment.owner_user_id == user.id:
+        return experiment
+    raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Experiment not found")
+
+
+def user_can_edit_experiment(experiment: ExperimentProject, user: User) -> bool:
+    if user.role in {"admin", "service"}:
+        return True
+    return experiment.owner_user_id == user.id

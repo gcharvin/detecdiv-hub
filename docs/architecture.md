@@ -8,6 +8,7 @@ DetecDiv MATLAB engine.
 It is designed to support:
 
 - central indexing of raw microscope datasets
+- central indexing of experiment-level scientific records
 - central indexing of DetecDiv projects
 - remote browsing from client machines
 - remote execution on a central Linux GPU server
@@ -26,14 +27,18 @@ It is designed to support:
 
 - `raw_datasets`
   - microscope acquisitions
+- `experiment_projects`
+  - scientific experiments that group acquisitions and downstream analysis
 - `raw_dataset_locations`
   - where a dataset is visible on a given host/root
 - `detecdiv_projects`
-  - DetecDiv projects and their metadata
+  - optional DetecDiv analysis workspaces derived from experiments
 - `project_locations`
   - where a project is visible on a given host/root
 - `project_raw_links`
   - project-to-raw lineage
+- `experiment_raw_links`
+  - experiment-to-raw lineage
 - `pipelines`
   - executable pipeline templates or references
 - `execution_targets`
@@ -146,6 +151,8 @@ microscope output folders and create catalog entries or jobs as new data lands.
 Key requirement:
 
 - detect when a dataset is stable enough to process
+- publish experiment metadata to external systems such as Labguru or eLabFTW
+  immediately after successful indexing when configured
 
 That logic belongs in ingestion workers, not in the database itself.
 

@@ -20,6 +20,7 @@ def list_jobs(db: Session = Depends(get_db)) -> list[Job]:
 def create_job(payload: JobCreateRequest, db: Session = Depends(get_db)) -> Job:
     job = Job(
         project_id=payload.project_id,
+        raw_dataset_id=payload.raw_dataset_id,
         pipeline_id=payload.pipeline_id,
         execution_target_id=payload.execution_target_id,
         requested_mode=payload.requested_mode,
@@ -41,4 +42,3 @@ def get_job(job_id: str, db: Session = Depends(get_db)) -> Job:
     if job is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Job not found")
     return job
-

@@ -27,6 +27,7 @@ class User(Base):
     )
 
     owned_projects: Mapped[list["Project"]] = relationship(back_populates="owner")
+    owned_experiment_projects: Mapped[list["ExperimentProject"]] = relationship(back_populates="owner")
     owned_raw_datasets: Mapped[list["RawDataset"]] = relationship(back_populates="owner")
     project_acl_entries: Mapped[list["ProjectAcl"]] = relationship(back_populates="user")
     project_groups: Mapped[list["ProjectGroup"]] = relationship(back_populates="owner")
@@ -37,6 +38,7 @@ class User(Base):
     owned_indexing_jobs: Mapped[list["IndexingJob"]] = relationship(
         back_populates="owner", foreign_keys="IndexingJob.owner_user_id"
     )
+    storage_migration_batches: Mapped[list["StorageMigrationBatch"]] = relationship(back_populates="owner")
     sessions: Mapped[list["UserSession"]] = relationship(back_populates="user")
 
 
@@ -101,6 +103,7 @@ class RawDataset(Base):
     owner: Mapped[User | None] = relationship(back_populates="owned_raw_datasets")
     locations: Mapped[list["RawDatasetLocation"]] = relationship(back_populates="raw_dataset")
     project_links: Mapped[list["ProjectRawLink"]] = relationship(back_populates="raw_dataset")
+    experiment_links: Mapped[list["ExperimentRawLink"]] = relationship(back_populates="raw_dataset")
 
 
 class RawDatasetLocation(Base):
@@ -125,10 +128,59 @@ class RawDatasetLocation(Base):
     storage_root: Mapped[StorageRoot] = relationship(back_populates="raw_dataset_locations")
 
 
+class ExperimentProject(Base):
+    __tablename__ = "experiment_projects"
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    owner_user_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("users.id", ondelete="SET NULL")
+    )
+    experiment_key: Mapped[str | None] = mapped_column(String, unique=True)
+    title: Mapped[str] = mapped_column(String, nullable=False)
+    visibility: Mapped[str] = mapped_column(String, nullable=False, default="private")
+    status: Mapped[str] = mapped_column(String, nullable=False, default="indexed")
+    summary: Mapped[str | None] = mapped_column(Text)
+    started_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    ended_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    total_raw_bytes: Mapped[int] = mapped_column(BIGINT, nullable=False, default=0)
+    total_derived_bytes: Mapped[int] = mapped_column(BIGINT, nullable=False, default=0)
+    last_indexed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    metadata_json: Mapped[dict] = mapped_column(JSONB, nullable=False, default=dict)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
+    )
+
+    owner: Mapped[User | None] = relationship(back_populates="owned_experiment_projects")
+    raw_links: Mapped[list["ExperimentRawLink"]] = relationship(back_populates="experiment_project")
+    analysis_projects: Mapped[list["Project"]] = relationship(back_populates="experiment_project")
+    publication_records: Mapped[list["ExternalPublicationRecord"]] = relationship(back_populates="experiment_project")
+
+
+class ExperimentRawLink(Base):
+    __tablename__ = "experiment_raw_links"
+
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    experiment_project_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("experiment_projects.id", ondelete="CASCADE"), nullable=False
+    )
+    raw_dataset_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("raw_datasets.id", ondelete="CASCADE"), nullable=False
+    )
+    link_type: Mapped[str] = mapped_column(String, nullable=False, default="acquisition")
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+    experiment_project: Mapped[ExperimentProject] = relationship(back_populates="raw_links")
+    raw_dataset: Mapped[RawDataset] = relationship(back_populates="experiment_links")
+
+
 class Project(Base):
     __tablename__ = "detecdiv_projects"
 
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    experiment_project_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("experiment_projects.id", ondelete="SET NULL")
+    )
     owner_user_id: Mapped[uuid.UUID | None] = mapped_column(
         UUID(as_uuid=True), ForeignKey("users.id", ondelete="SET NULL")
     )
@@ -161,6 +213,7 @@ class Project(Base):
     )
 
     owner: Mapped[User | None] = relationship(back_populates="owned_projects")
+    experiment_project: Mapped[ExperimentProject | None] = relationship(back_populates="analysis_projects")
     jobs: Mapped[list["Job"]] = relationship(back_populates="project")
     locations: Mapped[list["ProjectLocation"]] = relationship(back_populates="project")
     raw_links: Mapped[list["ProjectRawLink"]] = relationship(back_populates="project")
@@ -428,3 +481,75 @@ class Artifact(Base):
     uri: Mapped[str] = mapped_column(Text, nullable=False)
     metadata_json: Mapped[dict] = mapped_column(JSONB, nullable=False, default=dict)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+
+class StorageMigrationBatch(Base):
+    __tablename__ = "storage_migration_batches"
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    owner_user_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("users.id", ondelete="SET NULL")
+    )
+    batch_name: Mapped[str] = mapped_column(String, nullable=False)
+    source_kind: Mapped[str] = mapped_column(String, nullable=False)
+    source_path: Mapped[str] = mapped_column(Text, nullable=False)
+    storage_root_name: Mapped[str | None] = mapped_column(String)
+    host_scope: Mapped[str] = mapped_column(String, nullable=False, default="server")
+    root_type: Mapped[str] = mapped_column(String, nullable=False, default="legacy_root")
+    strategy: Mapped[str] = mapped_column(String, nullable=False, default="discover_only")
+    status: Mapped[str] = mapped_column(String, nullable=False, default="planned")
+    metadata_json: Mapped[dict] = mapped_column(JSONB, nullable=False, default=dict)
+    summary_json: Mapped[dict] = mapped_column(JSONB, nullable=False, default=dict)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
+    )
+
+    owner: Mapped[User | None] = relationship(back_populates="storage_migration_batches")
+    items: Mapped[list["StorageMigrationItem"]] = relationship(back_populates="batch")
+
+
+class StorageMigrationItem(Base):
+    __tablename__ = "storage_migration_items"
+
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    batch_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("storage_migration_batches.id", ondelete="CASCADE"), nullable=False
+    )
+    item_type: Mapped[str] = mapped_column(String, nullable=False)
+    legacy_path: Mapped[str] = mapped_column(Text, nullable=False)
+    legacy_key: Mapped[str | None] = mapped_column(String)
+    display_name: Mapped[str] = mapped_column(String, nullable=False)
+    status: Mapped[str] = mapped_column(String, nullable=False, default="planned")
+    action: Mapped[str] = mapped_column(String, nullable=False, default="review")
+    proposed_experiment_key: Mapped[str | None] = mapped_column(String)
+    proposed_project_key: Mapped[str | None] = mapped_column(String)
+    metadata_json: Mapped[dict] = mapped_column(JSONB, nullable=False, default=dict)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
+    )
+
+    batch: Mapped[StorageMigrationBatch] = relationship(back_populates="items")
+
+
+class ExternalPublicationRecord(Base):
+    __tablename__ = "external_publication_records"
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    experiment_project_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("experiment_projects.id", ondelete="CASCADE"), nullable=False
+    )
+    system_key: Mapped[str] = mapped_column(String, nullable=False)
+    status: Mapped[str] = mapped_column(String, nullable=False, default="pending")
+    external_id: Mapped[str | None] = mapped_column(String)
+    external_url: Mapped[str | None] = mapped_column(Text)
+    payload_json: Mapped[dict] = mapped_column(JSONB, nullable=False, default=dict)
+    error_text: Mapped[str | None] = mapped_column(Text)
+    last_attempt_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
+    )
+
+    experiment_project: Mapped[ExperimentProject] = relationship(back_populates="publication_records")

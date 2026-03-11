@@ -11,6 +11,8 @@ const state = {
   sessions: [],
   users: [],
   indexingJobs: [],
+  migrationPlans: [],
+  selectedMigrationPlan: null,
   selectedProject: null,
   selectedProjectDetail: null,
   notes: [],
@@ -60,6 +62,22 @@ const els = {
   indexJobsRefreshButton: document.querySelector("#index-jobs-refresh-button"),
   activeIndexJob: document.querySelector("#active-index-job"),
   indexJobsTableBody: document.querySelector("#index-jobs-table tbody"),
+  migrationBatchName: document.querySelector("#migration-batch-name"),
+  migrationSourcePath: document.querySelector("#migration-source-path"),
+  migrationSourceKind: document.querySelector("#migration-source-kind"),
+  migrationStrategy: document.querySelector("#migration-strategy"),
+  migrationStorageRootName: document.querySelector("#migration-storage-root-name"),
+  migrationMaxItems: document.querySelector("#migration-max-items"),
+  migrationCreateButton: document.querySelector("#migration-create-button"),
+  migrationRefreshButton: document.querySelector("#migration-refresh-button"),
+  migrationPlanCountLabel: document.querySelector("#migration-plan-count-label"),
+  migrationPlansTableBody: document.querySelector("#migration-plans-table tbody"),
+  migrationDetailEmpty: document.querySelector("#migration-detail-empty"),
+  migrationDetailContent: document.querySelector("#migration-detail-content"),
+  migrationDetailSubtitle: document.querySelector("#migration-detail-subtitle"),
+  migrationDetailList: document.querySelector("#migration-detail-list"),
+  migrationItemsTableBody: document.querySelector("#migration-items-table tbody"),
+  migrationExecutePilotButton: document.querySelector("#migration-execute-pilot-button"),
   pipelineSearch: document.querySelector("#pipeline-search"),
   pipelineRuntimeFilter: document.querySelector("#pipeline-runtime-filter"),
   pipelineSourceFilter: document.querySelector("#pipeline-source-filter"),
@@ -87,6 +105,7 @@ const pageFlags = {
   hasSessionsView: Boolean(els.sessionsTableBody),
   hasIndexingView: Boolean(els.indexJobsTableBody || els.activeIndexJob),
   hasIndexForm: Boolean(els.indexSourcePath),
+  hasMigrationView: Boolean(els.migrationPlansTableBody || els.migrationDetailContent),
 };
 
 function setStatus(message) {
@@ -104,6 +123,8 @@ function clearDashboardState() {
   state.sessions = [];
   state.users = [];
   state.indexingJobs = [];
+  state.migrationPlans = [];
+  state.selectedMigrationPlan = null;
   state.selectedProject = null;
   state.selectedProjectDetail = null;
   state.notes = [];
@@ -120,6 +141,8 @@ function clearDashboardState() {
   renderProjects();
   renderPipelines();
   renderIndexingJobs();
+  renderMigrationPlans();
+  renderMigrationDetail();
   renderUsers();
   renderSessions();
   renderDetail();
@@ -410,6 +433,138 @@ function renderIndexingJobs() {
   }
 }
 
+function renderMigrationPlans() {
+  if (!els.migrationPlansTableBody || !els.migrationPlanCountLabel) {
+    return;
+  }
+  els.migrationPlansTableBody.innerHTML = "";
+  els.migrationPlanCountLabel.textContent = `${state.migrationPlans.length} plans`;
+  for (const plan of state.migrationPlans) {
+    const tr = document.createElement("tr");
+    if (state.selectedMigrationPlan && state.selectedMigrationPlan.id === plan.id) {
+      tr.classList.add("selected");
+    }
+    tr.innerHTML = `
+      <td>${plan.batch_name}</td>
+      <td>${plan.source_kind}</td>
+      <td>${plan.strategy}</td>
+      <td>${plan.status}</td>
+      <td>${plan.summary_json?.candidate_count || 0}</td>
+      <td>${formatTimestamp(plan.created_at)}</td>
+    `;
+    tr.title = plan.source_path;
+    tr.addEventListener("click", () => selectMigrationPlan(plan.id));
+    els.migrationPlansTableBody.appendChild(tr);
+  }
+}
+
+function renderMigrationDetail() {
+  if (!els.migrationDetailEmpty || !els.migrationDetailContent || !els.migrationDetailSubtitle) {
+    return;
+  }
+  if (!state.selectedMigrationPlan) {
+    els.migrationDetailEmpty.classList.remove("hidden");
+    els.migrationDetailContent.classList.add("hidden");
+    els.migrationDetailSubtitle.textContent = "Select a migration plan";
+    if (els.migrationExecutePilotButton) {
+      els.migrationExecutePilotButton.disabled = true;
+    }
+    if (els.migrationItemsTableBody) {
+      els.migrationItemsTableBody.innerHTML = "";
+    }
+    return;
+  }
+
+  const plan = state.selectedMigrationPlan;
+  const fields = [
+    ["Batch", plan.batch_name],
+    ["Source kind", plan.source_kind],
+    ["Strategy", plan.strategy],
+    ["Status", plan.status],
+    ["Source path", plan.source_path],
+    ["Storage root", plan.storage_root_name || ""],
+    ["Candidates", plan.summary_json?.candidate_count || 0],
+    ["Type counts", JSON.stringify(plan.summary_json?.item_type_counts || {})],
+    ["Action counts", JSON.stringify(plan.summary_json?.action_counts || {})],
+    ["Created", formatTimestamp(plan.created_at)],
+  ];
+
+  els.migrationDetailList.innerHTML = "";
+  for (const [label, value] of fields) {
+    const dt = document.createElement("dt");
+    dt.textContent = label;
+    const dd = document.createElement("dd");
+    dd.textContent = `${value ?? ""}`;
+    els.migrationDetailList.append(dt, dd);
+  }
+
+  renderMigrationItems(plan.items || []);
+  if (els.migrationExecutePilotButton) {
+    els.migrationExecutePilotButton.disabled = false;
+  }
+  els.migrationDetailSubtitle.textContent = plan.batch_name;
+  els.migrationDetailEmpty.classList.add("hidden");
+  els.migrationDetailContent.classList.remove("hidden");
+}
+
+function renderMigrationItems(items) {
+  if (!els.migrationItemsTableBody) {
+    return;
+  }
+  els.migrationItemsTableBody.innerHTML = "";
+  for (const item of items) {
+    const tr = document.createElement("tr");
+    const keyLabel = item.proposed_experiment_key || "";
+    tr.innerHTML = `
+      <td title="${item.legacy_path}">${item.display_name}</td>
+      <td>${item.item_type}</td>
+      <td>${item.action}</td>
+      <td>${item.status}</td>
+      <td>${keyLabel}</td>
+      <td></td>
+    `;
+    const actionCell = tr.lastElementChild;
+    const controls = document.createElement("div");
+    controls.className = "inline-action-row";
+
+    const pilotButton = document.createElement("button");
+    pilotButton.textContent = "Pilot";
+    pilotButton.addEventListener("click", (event) => {
+      event.stopPropagation();
+      markMigrationItem(item, { action: "review_for_pilot", status: "planned" }).catch((error) => setStatus(String(error)));
+    });
+    controls.appendChild(pilotButton);
+
+    const skipButton = document.createElement("button");
+    skipButton.textContent = "Skip";
+    skipButton.addEventListener("click", (event) => {
+      event.stopPropagation();
+      markMigrationItem(item, { action: "skip", status: "skipped" }).catch((error) => setStatus(String(error)));
+    });
+    controls.appendChild(skipButton);
+
+    const attachButton = document.createElement("button");
+    attachButton.textContent = "Attach existing";
+    attachButton.addEventListener("click", (event) => {
+      event.stopPropagation();
+      attachMigrationItemToExisting(item).catch((error) => setStatus(String(error)));
+    });
+    controls.appendChild(attachButton);
+
+    const materializeButton = document.createElement("button");
+    materializeButton.textContent = "Create placeholder";
+    materializeButton.disabled = item.status === "materialized";
+    materializeButton.addEventListener("click", (event) => {
+      event.stopPropagation();
+      materializeMigrationItem(item).catch((error) => setStatus(String(error)));
+    });
+    controls.appendChild(materializeButton);
+
+    actionCell.appendChild(controls);
+    els.migrationItemsTableBody.appendChild(tr);
+  }
+}
+
 function renderNotes() {
   if (!els.notesList) {
     return;
@@ -686,6 +841,9 @@ async function refreshDashboard() {
   if (pageFlags.hasIndexingView) {
     refreshTasks.push(refreshIndexingJobs());
   }
+  if (pageFlags.hasMigrationView) {
+    refreshTasks.push(refreshMigrationPlans());
+  }
   await Promise.all(refreshTasks);
 
   setStatus(`Connected as ${summary.user.user_key}.`);
@@ -697,6 +855,23 @@ async function refreshIndexingJobs() {
   }
   state.indexingJobs = await apiGet("/indexing/jobs?limit=25");
   renderIndexingJobs();
+}
+
+async function refreshMigrationPlans() {
+  if (!els.migrationPlansTableBody) {
+    return;
+  }
+  state.migrationPlans = await apiGet("/migrations/plans?limit=50");
+  renderMigrationPlans();
+  if (state.selectedMigrationPlan) {
+    const stillExists = state.migrationPlans.find((plan) => plan.id === state.selectedMigrationPlan.id);
+    if (stillExists) {
+      await selectMigrationPlan(stillExists.id);
+    } else {
+      state.selectedMigrationPlan = null;
+      renderMigrationDetail();
+    }
+  }
 }
 
 async function refreshProjects() {
@@ -725,6 +900,13 @@ async function refreshProjects() {
       renderDetail();
     }
   }
+}
+
+async function selectMigrationPlan(planId) {
+  const detail = await apiGet(`/migrations/plans/${planId}`);
+  state.selectedMigrationPlan = detail;
+  renderMigrationPlans();
+  renderMigrationDetail();
 }
 
 async function refreshPipelines() {
@@ -924,6 +1106,89 @@ async function runIndexing() {
   setStatus(`Queued indexing job ${response.job.id} for ${response.job.source_path}.`);
 }
 
+async function createMigrationPlan() {
+  if (!els.migrationSourcePath || !els.migrationBatchName) {
+    return;
+  }
+  const batchName = els.migrationBatchName.value.trim();
+  const sourcePath = els.migrationSourcePath.value.trim();
+  if (!batchName || !sourcePath) {
+    throw new Error("Batch name and legacy source path are required.");
+  }
+  const response = await apiPost("/migrations/plans", {
+    batch_name: batchName,
+    source_kind: els.migrationSourceKind?.value || "legacy_project_root",
+    source_path: sourcePath,
+    storage_root_name: els.migrationStorageRootName?.value.trim() || null,
+    host_scope: "server",
+    root_type: "legacy_root",
+    strategy: els.migrationStrategy?.value || "pilot",
+    max_items: Number(els.migrationMaxItems?.value || 50),
+    metadata_json: {},
+  });
+  await refreshMigrationPlans();
+  await selectMigrationPlan(response.id);
+  setStatus(`Created migration plan ${response.batch_name}.`);
+}
+
+async function markMigrationItem(item, payload) {
+  if (!state.selectedMigrationPlan) {
+    return;
+  }
+  await apiPatch(`/migrations/plans/${state.selectedMigrationPlan.id}/items/${item.id}`, payload);
+  await selectMigrationPlan(state.selectedMigrationPlan.id);
+  setStatus(`Updated migration item ${item.display_name}.`);
+}
+
+async function materializeMigrationItem(item) {
+  if (!state.selectedMigrationPlan) {
+    return;
+  }
+  const response = await apiPost(
+    `/migrations/plans/${state.selectedMigrationPlan.id}/items/${item.id}/materialize`,
+    {}
+  );
+  await selectMigrationPlan(state.selectedMigrationPlan.id);
+  setStatus(`Created placeholder experiment ${response.experiment_key || response.title}.`);
+}
+
+async function attachMigrationItemToExisting(item) {
+  if (!state.selectedMigrationPlan) {
+    return;
+  }
+  const experimentKey = window.prompt("Existing experiment key", item.proposed_experiment_key || "");
+  if (!experimentKey) {
+    return;
+  }
+  const response = await apiPost(
+    `/migrations/plans/${state.selectedMigrationPlan.id}/items/${item.id}/attach-existing`,
+    { experiment_key: experimentKey.trim() }
+  );
+  await selectMigrationPlan(state.selectedMigrationPlan.id);
+  setStatus(`Attached item ${item.display_name} to ${response.experiment_key || response.title}.`);
+}
+
+async function executePilotBatch() {
+  if (!state.selectedMigrationPlan) {
+    return;
+  }
+  const rawValue = window.prompt("Max pilot items", "10");
+  if (!rawValue) {
+    return;
+  }
+  const maxItems = Number(rawValue);
+  if (!Number.isFinite(maxItems) || maxItems <= 0) {
+    throw new Error("Max pilot items must be a positive number.");
+  }
+  const response = await apiPost(
+    `/migrations/plans/${state.selectedMigrationPlan.id}/execute-pilot?max_items=${Math.floor(maxItems)}`,
+    {}
+  );
+  await refreshMigrationPlans();
+  await selectMigrationPlan(state.selectedMigrationPlan.id);
+  setStatus(response.message);
+}
+
 async function createPipeline() {
   const displayName = window.prompt("Pipeline display name");
   if (!displayName) {
@@ -1038,6 +1303,9 @@ async function pollDashboard() {
     if (pageFlags.hasIndexingView) {
       pollTasks.push(refreshIndexingJobs());
     }
+    if (pageFlags.hasMigrationView) {
+      pollTasks.push(refreshMigrationPlans());
+    }
     const hasActiveJob = state.indexingJobs.some((job) => job.status === "queued" || job.status === "running");
     if (pageFlags.hasProjectsView && hasActiveJob) {
       pollTasks.push(refreshProjects());
@@ -1104,6 +1372,9 @@ if (els.addToGroupButton) els.addToGroupButton.addEventListener("click", () => a
 if (els.previewDeleteButton) els.previewDeleteButton.addEventListener("click", () => previewDelete().catch((error) => setStatus(String(error))));
 if (els.indexButton) els.indexButton.addEventListener("click", () => runIndexing().catch((error) => setStatus(String(error))));
 if (els.indexJobsRefreshButton) els.indexJobsRefreshButton.addEventListener("click", () => refreshIndexingJobs().catch((error) => setStatus(String(error))));
+if (els.migrationCreateButton) els.migrationCreateButton.addEventListener("click", () => createMigrationPlan().catch((error) => setStatus(String(error))));
+if (els.migrationRefreshButton) els.migrationRefreshButton.addEventListener("click", () => refreshMigrationPlans().catch((error) => setStatus(String(error))));
+if (els.migrationExecutePilotButton) els.migrationExecutePilotButton.addEventListener("click", () => executePilotBatch().catch((error) => setStatus(String(error))));
 if (els.refreshPipelinesButton) els.refreshPipelinesButton.addEventListener("click", () => refreshPipelines().catch((error) => setStatus(String(error))));
 if (els.importObservedPipelinesButton) els.importObservedPipelinesButton.addEventListener("click", () => importObservedPipelines().catch((error) => setStatus(String(error))));
 if (els.newPipelineButton) els.newPipelineButton.addEventListener("click", () => createPipeline().catch((error) => setStatus(String(error))));
