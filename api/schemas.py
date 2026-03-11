@@ -414,6 +414,10 @@ class MicroManagerIngestAutomaticConfig(HubBaseModel):
     visibility: str
     settle_seconds: int
     max_datasets: int
+    grouping_window_hours: int
+    post_ingest_pipeline_key: str | None = None
+    post_ingest_requested_mode: str | None = None
+    post_ingest_priority: int | None = None
 
 
 class MicroManagerIngestRunSummary(HubBaseModel):

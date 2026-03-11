@@ -71,9 +71,14 @@ $env:DETECDIV_HUB_MICROMANAGER_INGEST_HOST_SCOPE="server"
 $env:DETECDIV_HUB_MICROMANAGER_INGEST_VISIBILITY="private"
 $env:DETECDIV_HUB_MICROMANAGER_INGEST_SETTLE_SECONDS="300"
 $env:DETECDIV_HUB_MICROMANAGER_INGEST_MAX_DATASETS="25"
+$env:DETECDIV_HUB_MICROMANAGER_INGEST_GROUPING_WINDOW_HOURS="12"
+$env:DETECDIV_HUB_MICROMANAGER_POST_INGEST_PIPELINE_KEY="detectdiv_default_raw"
+$env:DETECDIV_HUB_MICROMANAGER_POST_INGEST_REQUESTED_MODE="server"
+$env:DETECDIV_HUB_MICROMANAGER_POST_INGEST_PRIORITY="90"
 ```
 
 In plain terms this means: every 15 minutes, scan the Micro-Manager landing zone and ingest datasets that have stopped changing for at least 5 minutes.
+Acquisitions that look like the same session within a 12-hour window can be grouped into one auto-created experiment, and an optional raw-dataset pipeline can be queued after ingest.
 
 Open SSH tunnel:
 

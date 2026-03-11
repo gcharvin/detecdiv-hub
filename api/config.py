@@ -47,6 +47,10 @@ class Settings(BaseSettings):
     micromanager_ingest_visibility: str = "private"
     micromanager_ingest_settle_seconds: int = 300
     micromanager_ingest_max_datasets: int = 25
+    micromanager_ingest_grouping_window_hours: int = 12
+    micromanager_post_ingest_pipeline_key: str = ""
+    micromanager_post_ingest_requested_mode: str = "server"
+    micromanager_post_ingest_priority: int = 90
 
     model_config = SettingsConfigDict(
         env_prefix="DETECDIV_HUB_",

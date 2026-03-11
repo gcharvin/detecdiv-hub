@@ -711,6 +711,9 @@ function renderMicroManagerIngestStatus() {
       ["Visibility", config.visibility || ""],
       ["Settle time", `${config.settle_seconds || 0} s`],
       ["Max datasets", `${config.max_datasets || 0}`],
+      ["Grouping window", `${config.grouping_window_hours || 0} h`],
+      ["Post-ingest pipeline", config.post_ingest_pipeline_key || ""],
+      ["Post-ingest mode", config.post_ingest_requested_mode || ""],
     ];
     els.micromanagerIngestConfig.innerHTML = "";
     for (const [label, value] of fields) {

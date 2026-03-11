@@ -204,8 +204,9 @@ The first Micro-Manager ingestion path is also worker-driven:
 3. A dataset is only eligible once it has been stable for a configured settle period.
 4. The hub creates or updates:
    - one `raw_dataset`
-   - one auto-created `experiment_project`
+   - one auto-created `experiment_project`, potentially shared by several acquisitions from the same session
    - publication placeholders for external systems
+   - an optional post-ingest pipeline job on the raw dataset
 5. Each run is recorded in `micromanager_ingest_runs`.
 
 This keeps acquisition ingestion aligned with the same catalog model already used for legacy raw-data migration.

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import re
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
@@ -10,7 +11,7 @@ from sqlalchemy import select, text
 from sqlalchemy.orm import Session, joinedload
 
 from api.config import Settings, get_settings
-from api.models import ExperimentProject, MicroManagerIngestRun, RawDataset, User
+from api.models import ExperimentProject, Job, MicroManagerIngestRun, Pipeline, RawDataset, User
 from api.services.external_publications import ensure_publication_records
 from api.services.project_indexing import slugify
 from api.services.raw_dataset_ingest import ingest_raw_dataset_from_directory
@@ -51,6 +52,10 @@ class MicroManagerIngestConfigData:
     visibility: str
     settle_seconds: int
     max_datasets: int
+    grouping_window_hours: int
+    post_ingest_pipeline_key: str | None
+    post_ingest_requested_mode: str
+    post_ingest_priority: int
 
     def to_json(self) -> dict:
         return {
@@ -63,6 +68,10 @@ class MicroManagerIngestConfigData:
             "visibility": self.visibility,
             "settle_seconds": self.settle_seconds,
             "max_datasets": self.max_datasets,
+            "grouping_window_hours": self.grouping_window_hours,
+            "post_ingest_pipeline_key": self.post_ingest_pipeline_key,
+            "post_ingest_requested_mode": self.post_ingest_requested_mode,
+            "post_ingest_priority": self.post_ingest_priority,
         }
 
 
@@ -72,6 +81,10 @@ class MicroManagerDatasetCandidate:
     relative_path: str
     acquisition_label: str
     microscope_name: str | None
+    session_label: str
+    session_date: datetime | None
+    group_key: str
+    group_label: str
     last_modified_at: datetime
     file_count: int
     metadata_json: dict
@@ -86,6 +99,7 @@ class MicroManagerIngestRunExecutionData:
     experiment_count: int
     skipped_count: int
     candidate_paths: list[str]
+    queued_job_ids: list[str]
     report_only: bool
 
 
@@ -101,6 +115,10 @@ def automatic_micromanager_ingest_config(settings: Settings | None = None) -> Mi
         visibility=settings.micromanager_ingest_visibility,
         settle_seconds=max(0, settings.micromanager_ingest_settle_seconds),
         max_datasets=max(1, settings.micromanager_ingest_max_datasets),
+        grouping_window_hours=max(1, settings.micromanager_ingest_grouping_window_hours),
+        post_ingest_pipeline_key=settings.micromanager_post_ingest_pipeline_key or None,
+        post_ingest_requested_mode=settings.micromanager_post_ingest_requested_mode,
+        post_ingest_priority=max(1, settings.micromanager_post_ingest_priority),
     )
 
 
@@ -153,6 +171,7 @@ def discover_micromanager_candidates(
     *,
     landing_root: Path,
     settle_seconds: int,
+    grouping_window_hours: int,
     max_datasets: int,
 ) -> list[MicroManagerDatasetCandidate]:
     now = datetime.now(timezone.utc)
@@ -180,6 +199,15 @@ def discover_micromanager_candidates(
         metadata_json = read_micromanager_metadata(dataset_dir)
         microscope_name = extract_microscope_name(metadata_json)
         acquisition_label = extract_acquisition_label(dataset_dir, metadata_json)
+        session_label = extract_session_label(dataset_dir, metadata_json, acquisition_label=acquisition_label)
+        session_date = extract_session_datetime(metadata_json) or last_modified_at
+        dimensions = extract_acquisition_dimensions(metadata_json)
+        group_key, group_label = build_experiment_grouping(
+            relative_path=str(dataset_dir.relative_to(landing_root)),
+            session_label=session_label,
+            session_date=session_date,
+            grouping_window_hours=grouping_window_hours,
+        )
         completeness_status = "complete"
         candidates.append(
             MicroManagerDatasetCandidate(
@@ -187,6 +215,10 @@ def discover_micromanager_candidates(
                 relative_path=str(dataset_dir.relative_to(landing_root)),
                 acquisition_label=acquisition_label,
                 microscope_name=microscope_name,
+                session_label=session_label,
+                session_date=session_date,
+                group_key=group_key,
+                group_label=group_label,
                 last_modified_at=last_modified_at,
                 file_count=file_count,
                 metadata_json={
@@ -194,6 +226,11 @@ def discover_micromanager_candidates(
                     "relative_path": str(dataset_dir.relative_to(landing_root)),
                     "file_count": file_count,
                     "last_modified_at": last_modified_at.isoformat(),
+                    "session_label": session_label,
+                    "session_date": session_date.isoformat() if session_date else None,
+                    "group_key": group_key,
+                    "group_label": group_label,
+                    "dimensions": dimensions,
                     "micromanager_metadata": metadata_json,
                 },
                 completeness_status=completeness_status,
@@ -304,15 +341,129 @@ def extract_acquisition_label(dataset_dir: Path, metadata_json: dict) -> str:
     return dataset_dir.name
 
 
+def extract_session_label(dataset_dir: Path, metadata_json: dict, *, acquisition_label: str) -> str:
+    summary = metadata_json.get("Summary") if isinstance(metadata_json, dict) else None
+    if isinstance(summary, dict):
+        for key in ("Comment", "Prefix"):
+            value = summary.get(key)
+            if isinstance(value, str) and value.strip():
+                return normalize_session_label(value)
+    return normalize_session_label(acquisition_label or dataset_dir.name)
+
+
+def normalize_session_label(value: str) -> str:
+    compact = re.sub(r"[_\\-]?\\d+$", "", value.strip())
+    compact = re.sub(r"\\s+", " ", compact)
+    compact = compact.strip(" _-")
+    return compact or value.strip()
+
+
+def extract_session_datetime(metadata_json: dict) -> datetime | None:
+    summary = metadata_json.get("Summary") if isinstance(metadata_json, dict) else None
+    if isinstance(summary, dict):
+        for key in ("StartTime", "Date", "DateTime", "Time"):
+            parsed = parse_datetime_guess(summary.get(key))
+            if parsed is not None:
+                return parsed
+    return None
+
+
+def extract_acquisition_dimensions(metadata_json: dict) -> dict:
+    summary = metadata_json.get("Summary") if isinstance(metadata_json, dict) else None
+    if not isinstance(summary, dict):
+        return {}
+    channel_names = summary.get("ChNames")
+    if isinstance(channel_names, list):
+        channel_count = len(channel_names)
+    else:
+        channel_count = safe_int(summary.get("Channels")) or 0
+    return {
+        "channel_count": channel_count,
+        "position_count": safe_int(summary.get("Positions")) or 0,
+        "slice_count": safe_int(summary.get("Slices")) or 0,
+        "frame_count": safe_int(summary.get("Frames")) or 0,
+        "width_px": safe_int(summary.get("Width")) or 0,
+        "height_px": safe_int(summary.get("Height")) or 0,
+        "pixel_type": summary.get("PixelType"),
+        "channel_names": channel_names if isinstance(channel_names, list) else [],
+    }
+
+
+def safe_int(value: object) -> int | None:
+    try:
+        if value in (None, ""):
+            return None
+        return int(value)
+    except (TypeError, ValueError):
+        return None
+
+
+def parse_datetime_guess(value: object) -> datetime | None:
+    if value in (None, ""):
+        return None
+    if isinstance(value, datetime):
+        return value if value.tzinfo is not None else value.replace(tzinfo=timezone.utc)
+    text_value = str(value).strip()
+    if not text_value:
+        return None
+    candidates = (
+        text_value.replace("Z", "+00:00"),
+        text_value,
+    )
+    for candidate in candidates:
+        try:
+            parsed = datetime.fromisoformat(candidate)
+            return parsed if parsed.tzinfo is not None else parsed.replace(tzinfo=timezone.utc)
+        except ValueError:
+            continue
+    for fmt in (
+        "%a %b %d %H:%M:%S %Z %Y",
+        "%a %b %d %H:%M:%S %Y",
+        "%Y-%m-%d %H:%M:%S",
+        "%Y/%m/%d %H:%M:%S",
+        "%d-%b-%Y %H:%M:%S",
+    ):
+        try:
+            parsed = datetime.strptime(text_value, fmt)
+            return parsed.replace(tzinfo=timezone.utc)
+        except ValueError:
+            continue
+    return None
+
+
+def build_experiment_grouping(
+    *,
+    relative_path: str,
+    session_label: str,
+    session_date: datetime | None,
+    grouping_window_hours: int,
+) -> tuple[str, str]:
+    relative_parent = str(Path(relative_path).parent)
+    parent_token = "" if relative_parent in {"", "."} else slugify(relative_parent)
+    session_token = slugify(session_label or "session")
+    if session_date is None:
+        bucket_label = "undated"
+    else:
+        bucket_start = session_date.replace(minute=0, second=0, microsecond=0)
+        bucket_start = bucket_start - timedelta(hours=bucket_start.hour % max(1, grouping_window_hours))
+        bucket_label = bucket_start.strftime("%Y%m%dT%H00")
+    grouping_identity = "::".join(part for part in (parent_token, session_token, bucket_label) if part)
+    grouping_label = session_label or Path(relative_path).name
+    if relative_parent not in {"", "."}:
+        grouping_label = f"{grouping_label} | {relative_parent}"
+    if session_date is not None:
+        grouping_label = f"{grouping_label} ({session_date.strftime('%Y-%m-%d')})"
+    return grouping_identity, grouping_label
+
+
 def build_micromanager_raw_key(dataset_dir: Path, relative_path: str) -> str:
     suffix = hashlib.sha1(f"{dataset_dir}|{relative_path}".encode("utf-8")).hexdigest()[:12]
     return f"mm_{slugify(dataset_dir.name)}_{suffix}"
 
 
-def build_micromanager_experiment_key(relative_path: str, acquisition_label: str) -> str:
-    label = relative_path or acquisition_label
-    suffix = hashlib.sha1(label.encode("utf-8")).hexdigest()[:10]
-    return f"exp_mm_{slugify(acquisition_label)}_{suffix}"
+def build_micromanager_experiment_key(group_key: str, group_label: str) -> str:
+    suffix = hashlib.sha1(group_key.encode("utf-8")).hexdigest()[:10]
+    return f"exp_mm_{slugify(group_label)}_{suffix}"
 
 
 def ensure_micromanager_experiment(
@@ -322,23 +473,26 @@ def ensure_micromanager_experiment(
     visibility: str,
     candidate: MicroManagerDatasetCandidate,
 ) -> tuple[ExperimentProject, bool]:
-    experiment_key = build_micromanager_experiment_key(candidate.relative_path, candidate.acquisition_label)
+    experiment_key = build_micromanager_experiment_key(candidate.group_key, candidate.group_label)
     experiment = session.scalars(select(ExperimentProject).where(ExperimentProject.experiment_key == experiment_key)).first()
     created = False
     if experiment is None:
         experiment = ExperimentProject(
             owner_user_id=owner.id,
             experiment_key=experiment_key,
-            title=candidate.acquisition_label,
+            title=candidate.group_label,
             visibility=visibility,
             status="indexed",
             summary="Auto-created from Micro-Manager ingestion.",
-            started_at=candidate.last_modified_at,
+            started_at=candidate.session_date or candidate.last_modified_at,
             ended_at=candidate.last_modified_at,
             last_indexed_at=datetime.now(timezone.utc),
             metadata_json={
                 "source": "micromanager_ingest",
-                "relative_path": candidate.relative_path,
+                "group_key": candidate.group_key,
+                "group_label": candidate.group_label,
+                "session_label": candidate.session_label,
+                "relative_paths": [candidate.relative_path],
             },
         )
         session.add(experiment)
@@ -351,9 +505,73 @@ def ensure_micromanager_experiment(
         experiment.status = "indexed"
         experiment.last_indexed_at = datetime.now(timezone.utc)
         merged_metadata = dict(experiment.metadata_json or {})
-        merged_metadata.update({"source": "micromanager_ingest", "relative_path": candidate.relative_path})
+        relative_paths = list(merged_metadata.get("relative_paths") or [])
+        if candidate.relative_path not in relative_paths:
+            relative_paths.append(candidate.relative_path)
+        merged_metadata.update(
+            {
+                "source": "micromanager_ingest",
+                "group_key": candidate.group_key,
+                "group_label": candidate.group_label,
+                "session_label": candidate.session_label,
+                "relative_paths": sorted(relative_paths),
+            }
+        )
         experiment.metadata_json = merged_metadata
+        experiment.started_at = min(
+            value for value in [experiment.started_at, candidate.session_date, candidate.last_modified_at] if value is not None
+        )
+        experiment.ended_at = max(
+            value for value in [experiment.ended_at, candidate.last_modified_at] if value is not None
+        )
     return experiment, created
+
+
+def queue_post_ingest_pipeline_job(
+    session: Session,
+    *,
+    config: MicroManagerIngestConfigData,
+    triggered_by_user: User,
+    raw_dataset: RawDataset,
+    experiment: ExperimentProject,
+) -> str | None:
+    if not config.post_ingest_pipeline_key:
+        return None
+
+    pipeline = session.scalars(select(Pipeline).where(Pipeline.pipeline_key == config.post_ingest_pipeline_key)).first()
+    if pipeline is None:
+        return None
+    input_kind = (pipeline.metadata_json or {}).get("input_kind")
+    if input_kind not in (None, "", "raw", "raw_dataset"):
+        return None
+
+    existing_job = session.scalars(
+        select(Job)
+        .where(Job.raw_dataset_id == raw_dataset.id, Job.pipeline_id == pipeline.id)
+        .order_by(Job.created_at.desc())
+        .limit(1)
+    ).first()
+    if existing_job is not None:
+        return None
+
+    job = Job(
+        raw_dataset_id=raw_dataset.id,
+        pipeline_id=pipeline.id,
+        requested_mode=config.post_ingest_requested_mode,
+        priority=config.post_ingest_priority,
+        requested_by=triggered_by_user.user_key,
+        requested_from_host="micromanager_ingest",
+        params_json={
+            "job_kind": "micromanager_post_ingest",
+            "source": "micromanager_ingest",
+            "experiment_project_id": str(experiment.id),
+            "experiment_key": experiment.experiment_key,
+        },
+        status="queued",
+    )
+    session.add(job)
+    session.flush()
+    return str(job.id)
 
 
 def execute_micromanager_ingest_run(
@@ -388,6 +606,7 @@ def execute_micromanager_ingest_run(
         candidates = discover_micromanager_candidates(
             landing_root=landing_root,
             settle_seconds=config.settle_seconds,
+            grouping_window_hours=config.grouping_window_hours,
             max_datasets=config.max_datasets,
         )
 
@@ -397,6 +616,7 @@ def execute_micromanager_ingest_run(
         candidate_paths: list[str] = []
         ingested_dataset_ids: list[str] = []
         experiment_ids: list[str] = []
+        queued_job_ids: list[str] = []
 
         if not report_only:
             for candidate in candidates:
@@ -424,16 +644,27 @@ def execute_micromanager_ingest_run(
                     external_key=build_micromanager_raw_key(candidate.dataset_dir, candidate.relative_path),
                     status="indexed",
                     completeness_status=candidate.completeness_status,
-                    started_at=candidate.last_modified_at,
+                    started_at=candidate.session_date or candidate.last_modified_at,
                     ended_at=candidate.last_modified_at,
+                )
+                queued_job_id = queue_post_ingest_pipeline_job(
+                    session,
+                    config=config,
+                    triggered_by_user=triggered_by_user,
+                    raw_dataset=raw_dataset,
+                    experiment=experiment,
                 )
                 ingested_count += 1
                 if experiment_created:
                     experiment_count += 1
                 ingested_dataset_ids.append(str(raw_dataset.id))
-                experiment_ids.append(str(experiment.id))
+                if str(experiment.id) not in experiment_ids:
+                    experiment_ids.append(str(experiment.id))
+                if queued_job_id:
+                    queued_job_ids.append(queued_job_id)
         else:
             candidate_paths = [str(candidate.dataset_dir) for candidate in candidates]
+            queued_job_ids = []
 
         run.status = "done"
         run.candidate_count = len(candidates)
@@ -448,6 +679,7 @@ def execute_micromanager_ingest_run(
             "ingested_count": ingested_count,
             "experiment_count": experiment_count,
             "skipped_count": skipped_count,
+            "queued_job_ids": queued_job_ids,
         }
         run.finished_at = datetime.now(timezone.utc)
         session.flush()
@@ -458,6 +690,7 @@ def execute_micromanager_ingest_run(
             experiment_count=experiment_count,
             skipped_count=skipped_count,
             candidate_paths=candidate_paths,
+            queued_job_ids=queued_job_ids,
             report_only=report_only,
         )
     except Exception as exc:
