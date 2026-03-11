@@ -29,6 +29,15 @@ def ingest_raw_dataset_from_directory(
     root_path: Path,
     dataset_dir: Path,
     preferred_experiment: ExperimentProject | None = None,
+    source_label: str = "legacy_raw_ingest",
+    source_metadata: dict | None = None,
+    acquisition_label: str | None = None,
+    microscope_name: str | None = None,
+    external_key: str | None = None,
+    status: str = "indexed",
+    completeness_status: str = "complete",
+    started_at: datetime | None = None,
+    ended_at: datetime | None = None,
 ) -> RawDataset:
     storage_root = get_or_create_storage_root(
         session,
@@ -38,33 +47,39 @@ def ingest_raw_dataset_from_directory(
         root_type=root_type,
     )
 
-    external_key = build_raw_dataset_key(dataset_dir)
+    external_key = external_key or build_raw_dataset_key(dataset_dir)
     raw_dataset = session.scalars(select(RawDataset).where(RawDataset.external_key == external_key)).first()
     total_bytes = safe_dir_size(dataset_dir)
     size_timestamp = datetime.now(timezone.utc)
     relative_path = str(dataset_dir.relative_to(root_path))
     metadata = {
-        "source": "legacy_raw_ingest",
+        "source": source_label,
         "dataset_dir_abs": str(dataset_dir),
         "dataset_rel_from_root": relative_path,
     }
+    if source_metadata:
+        metadata.update(source_metadata)
+    effective_label = acquisition_label or dataset_dir.name
+    effective_started_at = started_at or size_timestamp
+    effective_ended_at = ended_at or effective_started_at
 
     if raw_dataset is None:
         raw_dataset = RawDataset(
             owner_user_id=owner.id,
             external_key=external_key,
-            acquisition_label=dataset_dir.name,
+            microscope_name=microscope_name,
+            acquisition_label=effective_label,
             visibility=visibility,
-            status="indexed",
-            completeness_status="complete",
+            status=status,
+            completeness_status=completeness_status,
             lifecycle_tier="hot",
             archive_status="none",
             reclaimable_bytes=0,
             total_bytes=total_bytes,
             last_size_scan_at=size_timestamp,
             last_accessed_at=size_timestamp,
-            started_at=size_timestamp,
-            ended_at=size_timestamp,
+            started_at=effective_started_at,
+            ended_at=effective_ended_at,
             metadata_json=metadata,
         )
         session.add(raw_dataset)
@@ -73,13 +88,16 @@ def ingest_raw_dataset_from_directory(
         merged_metadata = dict(raw_dataset.metadata_json or {})
         merged_metadata.update(metadata)
         raw_dataset.owner_user_id = owner.id
-        raw_dataset.acquisition_label = dataset_dir.name
+        raw_dataset.microscope_name = microscope_name or raw_dataset.microscope_name
+        raw_dataset.acquisition_label = effective_label
         raw_dataset.visibility = visibility
-        raw_dataset.status = "indexed"
-        raw_dataset.completeness_status = "complete"
+        raw_dataset.status = status
+        raw_dataset.completeness_status = completeness_status
         raw_dataset.total_bytes = total_bytes
         raw_dataset.last_size_scan_at = size_timestamp
         raw_dataset.last_accessed_at = size_timestamp
+        raw_dataset.started_at = effective_started_at
+        raw_dataset.ended_at = effective_ended_at
         raw_dataset.metadata_json = merged_metadata
         session.flush()
 

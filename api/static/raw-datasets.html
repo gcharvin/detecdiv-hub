@@ -154,6 +154,44 @@
         </div>
       </section>
 
+      <section id="micromanager-ingest-panel" class="panel hidden">
+        <div class="panel-header">
+          <div>
+            <h2>Micro-Manager Ingestion</h2>
+            <p class="muted">
+              Detect stable acquisitions in the landing zone and ingest them into experiments and raw datasets.
+            </p>
+          </div>
+        </div>
+        <div class="toolbar">
+          <label class="toggle">
+            <input id="micromanager-ingest-report-only" type="checkbox" checked />
+            <span>Report only</span>
+          </label>
+          <button id="micromanager-ingest-refresh-button">Refresh ingestion status</button>
+          <button id="micromanager-ingest-run-button" class="primary">Run now</button>
+        </div>
+        <div id="micromanager-ingest-summary" class="muted">Micro-Manager ingestion is unavailable.</div>
+        <dl id="micromanager-ingest-config" class="detail-list"></dl>
+        <div class="table-wrap">
+          <table id="micromanager-ingest-runs-table">
+            <thead>
+              <tr>
+                <th>When</th>
+                <th>Mode</th>
+                <th>Status</th>
+                <th>Report only</th>
+                <th>Candidates</th>
+                <th>Ingested</th>
+                <th>Experiments</th>
+                <th>By</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </section>
+
       <section class="panel">
         <div class="panel-header">
           <div>

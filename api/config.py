@@ -38,6 +38,15 @@ class Settings(BaseSettings):
     archive_policy_archive_uri: str = ""
     archive_policy_archive_compression: str = ""
     archive_policy_delete_hot_source: bool = False
+    micromanager_ingest_enabled: bool = False
+    micromanager_ingest_interval_minutes: int = 15
+    micromanager_ingest_run_as_user_key: str = "micromanager-bot"
+    micromanager_ingest_root: str = ""
+    micromanager_ingest_storage_root_name: str = ""
+    micromanager_ingest_host_scope: str = "server"
+    micromanager_ingest_visibility: str = "private"
+    micromanager_ingest_settle_seconds: int = 300
+    micromanager_ingest_max_datasets: int = 25
 
     model_config = SettingsConfigDict(
         env_prefix="DETECDIV_HUB_",

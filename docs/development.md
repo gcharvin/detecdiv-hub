@@ -59,6 +59,22 @@ $env:DETECDIV_HUB_ARCHIVE_POLICY_DELETE_HOT_SOURCE="false"
 
 In plain terms this means: every 24 hours, queue archive jobs for raw datasets older than 60 days and larger than 10 GB.
 
+Optional Micro-Manager ingestion settings:
+
+```powershell
+$env:DETECDIV_HUB_MICROMANAGER_INGEST_ENABLED="true"
+$env:DETECDIV_HUB_MICROMANAGER_INGEST_INTERVAL_MINUTES="15"
+$env:DETECDIV_HUB_MICROMANAGER_INGEST_RUN_AS_USER_KEY="micromanager-bot"
+$env:DETECDIV_HUB_MICROMANAGER_INGEST_ROOT="C:\micromanager-landing"
+$env:DETECDIV_HUB_MICROMANAGER_INGEST_STORAGE_ROOT_NAME="microscope-hot"
+$env:DETECDIV_HUB_MICROMANAGER_INGEST_HOST_SCOPE="server"
+$env:DETECDIV_HUB_MICROMANAGER_INGEST_VISIBILITY="private"
+$env:DETECDIV_HUB_MICROMANAGER_INGEST_SETTLE_SECONDS="300"
+$env:DETECDIV_HUB_MICROMANAGER_INGEST_MAX_DATASETS="25"
+```
+
+In plain terms this means: every 15 minutes, scan the Micro-Manager landing zone and ingest datasets that have stopped changing for at least 5 minutes.
+
 Open SSH tunnel:
 
 ```powershell
@@ -120,6 +136,18 @@ Run the automatic archive policy manually in report-only mode:
 
 ```powershell
 curl -Method POST -ContentType "application/json" -Body '{"report_only":true}' "http://127.0.0.1:8000/raw-datasets/archive-policy/automatic/run?user_key=admin"
+```
+
+Inspect Micro-Manager ingestion status:
+
+```powershell
+curl "http://127.0.0.1:8000/micromanager-ingest/status?user_key=admin"
+```
+
+Run Micro-Manager ingestion manually in report-only mode:
+
+```powershell
+curl -Method POST -ContentType "application/json" -Body '{"report_only":true}' "http://127.0.0.1:8000/micromanager-ingest/run?user_key=admin"
 ```
 
 Open the browser UI:

@@ -12,6 +12,7 @@ from api.config import get_settings
 from api.db import SessionLocal
 from api.models import Job
 from worker.archive_policy_scheduler import run_archive_policy_if_due
+from worker.micromanager_ingest_scheduler import run_micromanager_ingest_if_due
 from worker.storage_lifecycle import execute_storage_lifecycle_job, finalize_storage_lifecycle_failure
 
 
@@ -98,6 +99,7 @@ def execute_job(job: Job) -> dict:
 def run_forever() -> None:
     settings = get_settings()
     last_archive_policy_run_at: datetime | None = None
+    last_micromanager_ingest_run_at: datetime | None = None
     LOGGER.info("Starting DetecDiv hub worker")
     while True:
         try:
@@ -108,6 +110,15 @@ def run_forever() -> None:
                 )
         except Exception:  # pragma: no cover - defensive around periodic maintenance
             LOGGER.exception("Automatic archive policy run failed")
+
+        try:
+            with session_scope() as session:
+                last_micromanager_ingest_run_at = run_micromanager_ingest_if_due(
+                    session,
+                    last_run_at=last_micromanager_ingest_run_at,
+                )
+        except Exception:  # pragma: no cover - defensive around periodic maintenance
+            LOGGER.exception("Micro-Manager ingest run failed")
 
         job = claim_next_job()
         if job is None:

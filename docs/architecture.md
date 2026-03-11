@@ -79,6 +79,8 @@ Future entity extensions that should be planned now:
   - auditable archive and restore transitions for raw datasets
 - `archive_policy_runs`
   - durable history of automatic or manual archive-policy evaluations
+- `micromanager_ingest_runs`
+  - durable history of Micro-Manager landing-zone scans and ingests
 - `deletion_requests` and `deletion_artifacts`
   - auditable cleanup workflows
 
@@ -192,6 +194,21 @@ The first automatic policy runner is worker-driven:
 - a PostgreSQL advisory lock prevents duplicate global runs when several workers are active
 - the runner only queues per-dataset archive jobs; physical archive work still happens through the normal job loop
 - every automatic or manual execution is recorded in `archive_policy_runs` for admin review
+
+## Micro-Manager ingestion path
+
+The first Micro-Manager ingestion path is also worker-driven:
+
+1. A landing-zone root is configured for Micro-Manager output.
+2. The worker periodically scans for dataset directories matching Micro-Manager-style markers.
+3. A dataset is only eligible once it has been stable for a configured settle period.
+4. The hub creates or updates:
+   - one `raw_dataset`
+   - one auto-created `experiment_project`
+   - publication placeholders for external systems
+5. Each run is recorded in `micromanager_ingest_runs`.
+
+This keeps acquisition ingestion aligned with the same catalog model already used for legacy raw-data migration.
 
 Archive destination resolution:
 

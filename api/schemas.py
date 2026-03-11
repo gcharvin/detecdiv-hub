@@ -404,6 +404,46 @@ class ArchivePolicyAutomaticRunRequest(HubBaseModel):
     report_only: bool = True
 
 
+class MicroManagerIngestAutomaticConfig(HubBaseModel):
+    enabled: bool
+    interval_minutes: int
+    run_as_user_key: str
+    landing_root: str | None = None
+    storage_root_name: str | None = None
+    host_scope: str
+    visibility: str
+    settle_seconds: int
+    max_datasets: int
+
+
+class MicroManagerIngestRunSummary(HubBaseModel):
+    id: UUID
+    trigger_mode: str
+    status: str
+    report_only: bool = False
+    candidate_count: int = 0
+    ingested_count: int = 0
+    experiment_count: int = 0
+    skipped_count: int = 0
+    error_text: str | None = None
+    config_json: dict[str, Any] = Field(default_factory=dict)
+    result_json: dict[str, Any] = Field(default_factory=dict)
+    triggered_by: UserSummary | None = None
+    created_at: datetime | None = None
+    started_at: datetime | None = None
+    finished_at: datetime | None = None
+
+
+class MicroManagerIngestAutomaticStatus(HubBaseModel):
+    config: MicroManagerIngestAutomaticConfig
+    last_run: MicroManagerIngestRunSummary | None = None
+    recent_runs: list[MicroManagerIngestRunSummary] = Field(default_factory=list)
+
+
+class MicroManagerIngestRunRequest(HubBaseModel):
+    report_only: bool = True
+
+
 class ExperimentProjectCreate(HubBaseModel):
     experiment_key: str | None = None
     title: str

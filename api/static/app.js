@@ -16,6 +16,7 @@ const state = {
   selectedRawDatasetDetail: null,
   archivePolicyPreview: null,
   automaticArchivePolicyStatus: null,
+  micromanagerIngestStatus: null,
   migrationPlans: [],
   selectedMigrationPlan: null,
   selectedProject: null,
@@ -90,6 +91,13 @@ const els = {
   automaticArchivePolicySummary: document.querySelector("#automatic-archive-policy-summary"),
   automaticArchivePolicyConfig: document.querySelector("#automatic-archive-policy-config"),
   automaticArchivePolicyRunsTableBody: document.querySelector("#automatic-archive-policy-runs-table tbody"),
+  micromanagerIngestPanel: document.querySelector("#micromanager-ingest-panel"),
+  micromanagerIngestReportOnly: document.querySelector("#micromanager-ingest-report-only"),
+  micromanagerIngestRefreshButton: document.querySelector("#micromanager-ingest-refresh-button"),
+  micromanagerIngestRunButton: document.querySelector("#micromanager-ingest-run-button"),
+  micromanagerIngestSummary: document.querySelector("#micromanager-ingest-summary"),
+  micromanagerIngestConfig: document.querySelector("#micromanager-ingest-config"),
+  micromanagerIngestRunsTableBody: document.querySelector("#micromanager-ingest-runs-table tbody"),
   archivePolicyOlderDays: document.querySelector("#archive-policy-older-days"),
   archivePolicyMinGb: document.querySelector("#archive-policy-min-gb"),
   archivePolicyLimit: document.querySelector("#archive-policy-limit"),
@@ -144,6 +152,7 @@ const pageFlags = {
   hasIndexingView: Boolean(els.indexJobsTableBody || els.activeIndexJob),
   hasRawDatasetsView: Boolean(els.rawDatasetsTableBody),
   hasAutomaticArchivePolicy: Boolean(els.automaticArchivePolicyPanel),
+  hasMicroManagerIngest: Boolean(els.micromanagerIngestPanel),
   hasRawDatasetDetail: Boolean(els.rawDetailContent),
   hasIndexForm: Boolean(els.indexSourcePath),
   hasMigrationView: Boolean(els.migrationPlansTableBody || els.migrationDetailContent),
@@ -169,6 +178,7 @@ function clearDashboardState() {
   state.selectedRawDatasetDetail = null;
   state.archivePolicyPreview = null;
   state.automaticArchivePolicyStatus = null;
+  state.micromanagerIngestStatus = null;
   state.migrationPlans = [];
   state.selectedMigrationPlan = null;
   state.selectedProject = null;
@@ -190,6 +200,7 @@ function clearDashboardState() {
   renderRawDatasets();
   renderRawDatasetDetail();
   renderAutomaticArchivePolicyStatus();
+  renderMicroManagerIngestStatus();
   renderArchivePolicyPreview();
   renderMigrationPlans();
   renderMigrationDetail();
@@ -648,6 +659,89 @@ function renderAutomaticArchivePolicyStatus() {
   }
 }
 
+function renderMicroManagerIngestStatus() {
+  if (!els.micromanagerIngestPanel || !els.micromanagerIngestSummary) {
+    return;
+  }
+  const canSee = isAdmin();
+  els.micromanagerIngestPanel.classList.toggle("hidden", !canSee);
+  if (!canSee) {
+    return;
+  }
+
+  const status = state.micromanagerIngestStatus;
+  if (!status) {
+    els.micromanagerIngestSummary.textContent = "Micro-Manager ingestion status not loaded yet.";
+    if (els.micromanagerIngestConfig) {
+      els.micromanagerIngestConfig.innerHTML = "";
+    }
+    if (els.micromanagerIngestRunsTableBody) {
+      els.micromanagerIngestRunsTableBody.innerHTML = "";
+    }
+    return;
+  }
+
+  const config = status.config || {};
+  const lastRun = status.last_run;
+  const summaryBits = [
+    config.enabled ? "enabled" : "disabled",
+    `every ${config.interval_minutes || 0} min`,
+    `settle ${config.settle_seconds || 0}s`,
+    `limit ${config.max_datasets || 0}`,
+  ];
+  if (lastRun) {
+    summaryBits.push(
+      `last run ${formatTimestamp(lastRun.finished_at || lastRun.started_at || lastRun.created_at)}`,
+      `${lastRun.candidate_count} candidate(s)`,
+      `${lastRun.ingested_count} ingested`
+    );
+  } else {
+    summaryBits.push("no runs yet");
+  }
+  els.micromanagerIngestSummary.textContent = summaryBits.join(" | ");
+
+  if (els.micromanagerIngestConfig) {
+    const fields = [
+      ["Enabled", config.enabled ? "yes" : "no"],
+      ["Interval", `${config.interval_minutes || 0} min`],
+      ["Run as", config.run_as_user_key || ""],
+      ["Landing root", config.landing_root || ""],
+      ["Storage root name", config.storage_root_name || ""],
+      ["Host scope", config.host_scope || ""],
+      ["Visibility", config.visibility || ""],
+      ["Settle time", `${config.settle_seconds || 0} s`],
+      ["Max datasets", `${config.max_datasets || 0}`],
+    ];
+    els.micromanagerIngestConfig.innerHTML = "";
+    for (const [label, value] of fields) {
+      const dt = document.createElement("dt");
+      dt.textContent = label;
+      const dd = document.createElement("dd");
+      dd.textContent = value;
+      els.micromanagerIngestConfig.append(dt, dd);
+    }
+  }
+
+  if (els.micromanagerIngestRunsTableBody) {
+    els.micromanagerIngestRunsTableBody.innerHTML = "";
+    for (const run of status.recent_runs || []) {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${formatTimestamp(run.finished_at || run.started_at || run.created_at)}</td>
+        <td>${run.trigger_mode}</td>
+        <td>${run.status}</td>
+        <td>${run.report_only ? "yes" : "no"}</td>
+        <td>${run.candidate_count}</td>
+        <td>${run.ingested_count}</td>
+        <td>${run.experiment_count}</td>
+        <td>${run.triggered_by ? run.triggered_by.user_key : ""}</td>
+      `;
+      tr.title = run.error_text || JSON.stringify(run.result_json || {});
+      els.micromanagerIngestRunsTableBody.appendChild(tr);
+    }
+  }
+}
+
 function renderArchivePolicyPreview() {
   if (!els.archivePolicySummary || !els.archivePolicyTableBody) {
     return;
@@ -1102,6 +1196,9 @@ async function refreshDashboard() {
   if (pageFlags.hasAutomaticArchivePolicy) {
     refreshTasks.push(refreshAutomaticArchivePolicyStatus());
   }
+  if (pageFlags.hasMicroManagerIngest) {
+    refreshTasks.push(refreshMicroManagerIngestStatus());
+  }
   if (pageFlags.hasPipelinesView) {
     refreshTasks.push(refreshPipelines());
   }
@@ -1178,6 +1275,28 @@ async function refreshAutomaticArchivePolicyStatus() {
   }
 }
 
+async function refreshMicroManagerIngestStatus() {
+  if (!pageFlags.hasMicroManagerIngest) {
+    return;
+  }
+  if (!isAdmin()) {
+    state.micromanagerIngestStatus = null;
+    renderMicroManagerIngestStatus();
+    return;
+  }
+  try {
+    state.micromanagerIngestStatus = await apiGet("/micromanager-ingest/status");
+    renderMicroManagerIngestStatus();
+  } catch (error) {
+    if (`${error}`.includes("403")) {
+      state.micromanagerIngestStatus = null;
+      renderMicroManagerIngestStatus();
+      return;
+    }
+    throw error;
+  }
+}
+
 function archivePolicyPayload() {
   const olderThanDays = Number(els.archivePolicyOlderDays?.value || 30);
   const minGb = Number(els.archivePolicyMinGb?.value || 0);
@@ -1217,6 +1336,28 @@ async function runAutomaticArchivePolicy() {
   }
   setStatus(
     `Automatic archive policy run completed: ${run.candidate_count} candidate(s), ${run.queued_count} queued.`
+  );
+}
+
+async function runMicroManagerIngest() {
+  if (!isAdmin()) {
+    throw new Error("Admin role required.");
+  }
+  const reportOnly = Boolean(els.micromanagerIngestReportOnly?.checked);
+  const action = reportOnly ? "run a detection-only report" : "ingest datasets now";
+  const ok = window.confirm(`Run Micro-Manager ingestion now and ${action}?`);
+  if (!ok) {
+    return;
+  }
+  const run = await apiPost("/micromanager-ingest/run", {
+    report_only: reportOnly,
+  });
+  await refreshMicroManagerIngestStatus();
+  if (!reportOnly) {
+    await refreshRawDatasets();
+  }
+  setStatus(
+    `Micro-Manager ingest completed: ${run.candidate_count} candidate(s), ${run.ingested_count} ingested, ${run.experiment_count} experiment(s).`
   );
 }
 
@@ -1759,6 +1900,9 @@ async function pollDashboard() {
     if (pageFlags.hasAutomaticArchivePolicy && isAdmin()) {
       pollTasks.push(refreshAutomaticArchivePolicyStatus());
     }
+    if (pageFlags.hasMicroManagerIngest && isAdmin()) {
+      pollTasks.push(refreshMicroManagerIngestStatus());
+    }
     if (pageFlags.hasMigrationView) {
       pollTasks.push(refreshMigrationPlans());
     }
@@ -1842,6 +1986,8 @@ if (els.rawArchiveButton) els.rawArchiveButton.addEventListener("click", () => r
 if (els.rawRestoreButton) els.rawRestoreButton.addEventListener("click", () => requestRawRestore().catch((error) => setStatus(String(error))));
 if (els.automaticArchivePolicyRefreshButton) els.automaticArchivePolicyRefreshButton.addEventListener("click", () => refreshAutomaticArchivePolicyStatus().catch((error) => setStatus(String(error))));
 if (els.automaticArchivePolicyRunButton) els.automaticArchivePolicyRunButton.addEventListener("click", () => runAutomaticArchivePolicy().catch((error) => setStatus(String(error))));
+if (els.micromanagerIngestRefreshButton) els.micromanagerIngestRefreshButton.addEventListener("click", () => refreshMicroManagerIngestStatus().catch((error) => setStatus(String(error))));
+if (els.micromanagerIngestRunButton) els.micromanagerIngestRunButton.addEventListener("click", () => runMicroManagerIngest().catch((error) => setStatus(String(error))));
 if (els.archivePolicyPreviewButton) els.archivePolicyPreviewButton.addEventListener("click", () => previewArchivePolicy().catch((error) => setStatus(String(error))));
 if (els.archivePolicyQueueButton) els.archivePolicyQueueButton.addEventListener("click", () => queueArchivePolicy().catch((error) => setStatus(String(error))));
 if (els.refreshPipelinesButton) els.refreshPipelinesButton.addEventListener("click", () => refreshPipelines().catch((error) => setStatus(String(error))));

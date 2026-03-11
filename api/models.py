@@ -42,6 +42,7 @@ class User(Base):
     sessions: Mapped[list["UserSession"]] = relationship(back_populates="user")
     requested_lifecycle_events: Mapped[list["StorageLifecycleEvent"]] = relationship(back_populates="requested_by")
     archive_policy_runs: Mapped[list["ArchivePolicyRun"]] = relationship(back_populates="triggered_by")
+    micromanager_ingest_runs: Mapped[list["MicroManagerIngestRun"]] = relationship(back_populates="triggered_by")
 
 
 class StorageRoot(Base):
@@ -608,3 +609,27 @@ class ArchivePolicyRun(Base):
     finished_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
 
     triggered_by: Mapped[User | None] = relationship(back_populates="archive_policy_runs")
+
+
+class MicroManagerIngestRun(Base):
+    __tablename__ = "micromanager_ingest_runs"
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    triggered_by_user_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("users.id", ondelete="SET NULL")
+    )
+    trigger_mode: Mapped[str] = mapped_column(String, nullable=False, default="manual")
+    status: Mapped[str] = mapped_column(String, nullable=False, default="running")
+    report_only: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
+    config_json: Mapped[dict] = mapped_column(JSONB, nullable=False, default=dict)
+    result_json: Mapped[dict] = mapped_column(JSONB, nullable=False, default=dict)
+    candidate_count: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    ingested_count: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    experiment_count: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    skipped_count: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    error_text: Mapped[str | None] = mapped_column(Text)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    started_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    finished_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+
+    triggered_by: Mapped[User | None] = relationship(back_populates="micromanager_ingest_runs")
