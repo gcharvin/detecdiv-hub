@@ -11,4 +11,4 @@ build/
 .env
 logs/
 data/
-
+*-audit.json

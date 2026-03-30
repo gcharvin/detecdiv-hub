@@ -31,9 +31,26 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument("ssh_host", help="SSH host or alias, for example Gilles@10.20.11.250 or nas-syno")
     parser.add_argument("target_path", help="Remote path to audit, for example /data")
+    parser.add_argument(
+        "--identity-file",
+        type=Path,
+        default=None,
+        help="Optional SSH private key to pass to ssh with -i.",
+    )
     parser.add_argument("--depth", type=int, default=2, help="Directory depth for du summaries")
     parser.add_argument("--top-dirs", type=int, default=30, help="Number of largest directories to keep")
     parser.add_argument("--top-files", type=int, default=100, help="Number of largest matching files to keep")
+    parser.add_argument(
+        "--per-child-inventory",
+        action="store_true",
+        help="Include one inventory row per immediate child directory under the target path.",
+    )
+    parser.add_argument(
+        "--child-inventory-limit",
+        type=int,
+        default=200,
+        help="Maximum number of child inventory rows to keep after sorting by total size.",
+    )
     parser.add_argument(
         "--output",
         type=Path,
@@ -54,21 +71,38 @@ def main() -> int:
             "directories": args.top_dirs,
             "files": args.top_files,
         },
-        "disk_usage": get_disk_usage(args.ssh_host, args.target_path),
+        "disk_usage": get_disk_usage(args.ssh_host, args.target_path, identity_file=args.identity_file),
         "top_directories": get_top_directories(
             args.ssh_host,
             args.target_path,
+            identity_file=args.identity_file,
             depth=args.depth,
             limit=args.top_dirs,
         ),
         "largest_files": get_largest_files(
             args.ssh_host,
             args.target_path,
+            identity_file=args.identity_file,
             limit=args.top_files,
         ),
-        "file_type_summary": get_file_type_summary(args.ssh_host, args.target_path),
-        "special_directories": get_special_directories(args.ssh_host, args.target_path),
+        "file_type_summary": get_file_type_summary(
+            args.ssh_host,
+            args.target_path,
+            identity_file=args.identity_file,
+        ),
+        "special_directories": get_special_directories(
+            args.ssh_host,
+            args.target_path,
+            identity_file=args.identity_file,
+        ),
     }
+    if args.per_child_inventory:
+        report["child_directory_inventory"] = get_child_directory_inventory(
+            args.ssh_host,
+            args.target_path,
+            identity_file=args.identity_file,
+            limit=args.child_inventory_limit,
+        )
 
     rendered = json.dumps(report, indent=2)
     if args.output is not None:
@@ -77,17 +111,23 @@ def main() -> int:
     return 0
 
 
-def run_ssh_command(ssh_host: str, command: str) -> str:
+def run_ssh_command(ssh_host: str, command: str, *, identity_file: Path | None = None) -> str:
+    ssh_command = ["ssh", "-o", "BatchMode=yes"]
+    if identity_file is not None:
+        ssh_command.extend(["-i", str(identity_file)])
+    ssh_command.extend([ssh_host, "sh", "-s", "--"])
+    normalized_command = command.replace("\r\n", "\n").replace("\r", "\n")
     result = subprocess.run(
-        ["ssh", ssh_host, "sh", "-lc", command],
+        ssh_command,
+        input=normalized_command.encode("utf-8"),
         capture_output=True,
-        text=True,
-        encoding="utf-8",
     )
+    stdout = result.stdout.decode("utf-8", errors="replace")
+    stderr = result.stderr.decode("utf-8", errors="replace")
     if result.returncode != 0:
-        stderr = result.stderr.strip() or "unknown remote error"
+        stderr = stderr.strip() or "unknown remote error"
         raise RuntimeError(f"SSH command failed for {ssh_host}: {stderr}")
-    return result.stdout
+    return stdout
 
 
 def shell_quote(value: str) -> str:
@@ -103,9 +143,9 @@ def build_find_name_clause(patterns: tuple[str, ...]) -> str:
     return "\\( " + " ".join(tokens) + " \\)"
 
 
-def get_disk_usage(ssh_host: str, target_path: str) -> dict:
+def get_disk_usage(ssh_host: str, target_path: str, *, identity_file: Path | None = None) -> dict:
     command = f"df -Pk {shell_quote(target_path)}"
-    output = run_ssh_command(ssh_host, command)
+    output = run_ssh_command(ssh_host, command, identity_file=identity_file)
     lines = [line.strip() for line in output.splitlines() if line.strip()]
     if len(lines) < 2:
         raise RuntimeError(f"Unexpected df output for {target_path!r}: {output!r}")
@@ -124,12 +164,19 @@ def get_disk_usage(ssh_host: str, target_path: str) -> dict:
     }
 
 
-def get_top_directories(ssh_host: str, target_path: str, *, depth: int, limit: int) -> list[dict]:
+def get_top_directories(
+    ssh_host: str,
+    target_path: str,
+    *,
+    identity_file: Path | None = None,
+    depth: int,
+    limit: int,
+) -> list[dict]:
     command = (
         f"du -x -k -d {depth} {shell_quote(target_path)} 2>/dev/null "
         f"| sort -n | tail -n {limit}"
     )
-    output = run_ssh_command(ssh_host, command)
+    output = run_ssh_command(ssh_host, command, identity_file=identity_file)
     rows = []
     for line in output.splitlines():
         line = line.strip()
@@ -146,19 +193,28 @@ def get_top_directories(ssh_host: str, target_path: str, *, depth: int, limit: i
     return rows
 
 
-def get_largest_files(ssh_host: str, target_path: str, *, limit: int) -> list[dict]:
+def get_largest_files(
+    ssh_host: str,
+    target_path: str,
+    *,
+    identity_file: Path | None = None,
+    limit: int,
+) -> list[dict]:
     predicates = " -o ".join(build_find_name_clause(spec.patterns) for spec in FILE_TYPE_SPECS)
     command = (
         f"find {shell_quote(target_path)} -xdev -type f \\( {predicates} \\) "
-        f"-exec stat -c '%s\\t%n' {{}} + 2>/dev/null | sort -nr | head -n {limit}"
+        f"-exec stat -c '%s %n' {{}} + 2>/dev/null | sort -nr | head -n {limit}"
     )
-    output = run_ssh_command(ssh_host, command)
+    output = run_ssh_command(ssh_host, command, identity_file=identity_file)
     rows = []
     for line in output.splitlines():
         line = line.strip()
         if not line:
             continue
-        size_text, path_text = line.split("\t", maxsplit=1)
+        parts = line.split(maxsplit=1)
+        if len(parts) != 2:
+            continue
+        size_text, path_text = parts
         rows.append(
             {
                 "path": path_text,
@@ -169,7 +225,12 @@ def get_largest_files(ssh_host: str, target_path: str, *, limit: int) -> list[di
     return rows
 
 
-def get_file_type_summary(ssh_host: str, target_path: str) -> dict[str, dict]:
+def get_file_type_summary(
+    ssh_host: str,
+    target_path: str,
+    *,
+    identity_file: Path | None = None,
+) -> dict[str, dict]:
     summary: dict[str, dict] = {}
     for spec in FILE_TYPE_SPECS:
         predicate = build_find_name_clause(spec.patterns)
@@ -179,7 +240,7 @@ def get_file_type_summary(ssh_host: str, target_path: str) -> dict[str, dict]:
             f"| awk 'BEGIN {{ count=0; total=0 }} {{ count += 1; total += $1 }} "
             f"END {{ printf \"%d\\t%d\\n\", count, total }}'"
         )
-        output = run_ssh_command(ssh_host, command).strip()
+        output = run_ssh_command(ssh_host, command, identity_file=identity_file).strip()
         if not output:
             count = 0
             total = 0
@@ -194,7 +255,12 @@ def get_file_type_summary(ssh_host: str, target_path: str) -> dict[str, dict]:
     return summary
 
 
-def get_special_directories(ssh_host: str, target_path: str) -> list[dict]:
+def get_special_directories(
+    ssh_host: str,
+    target_path: str,
+    *,
+    identity_file: Path | None = None,
+) -> list[dict]:
     name_clause = " -o ".join(f"-name {shell_quote(name)}" for name in SPECIAL_DIRECTORY_NAMES)
     command = (
         f"find {shell_quote(target_path)} -xdev -type d \\( {name_clause} \\) -print 2>/dev/null "
@@ -203,7 +269,7 @@ def get_special_directories(ssh_host: str, target_path: str) -> list[dict]:
         f"printf '%s\\t%s\\n' \"${{size:-0}}\" \"$dir\"; "
         f"done | sort -nr"
     )
-    output = run_ssh_command(ssh_host, command)
+    output = run_ssh_command(ssh_host, command, identity_file=identity_file)
     rows = []
     for line in output.splitlines():
         line = line.strip()
@@ -218,6 +284,85 @@ def get_special_directories(ssh_host: str, target_path: str) -> list[dict]:
             }
         )
     return rows
+
+
+def get_child_directory_inventory(
+    ssh_host: str,
+    target_path: str,
+    *,
+    identity_file: Path | None = None,
+    limit: int,
+) -> list[dict]:
+    command = f"""
+target={shell_quote(target_path)}
+    find "$target" -mindepth 1 -maxdepth 1 -type d -print 2>/dev/null |
+while IFS= read -r dir; do
+    total_kib=$(du -x -s -k "$dir" 2>/dev/null | awk '{{print $1}}')
+    tif_stats=$(find "$dir" -xdev -type f \\( -iname '*.tif' -o -iname '*.tiff' \\) -exec stat -c '%s' {{}} + 2>/dev/null | awk 'BEGIN {{ count=0; total=0 }} {{ count += 1; total += $1 }} END {{ printf "%d\\t%d", count, total }}')
+    h5_stats=$(find "$dir" -xdev -type f -iname '*.h5' -exec stat -c '%s' {{}} + 2>/dev/null | awk 'BEGIN {{ count=0; total=0 }} {{ count += 1; total += $1 }} END {{ printf "%d\\t%d", count, total }}')
+    mat_stats=$(find "$dir" -xdev -type f -iname '*.mat' -exec stat -c '%s' {{}} + 2>/dev/null | awk 'BEGIN {{ count=0; total=0 }} {{ count += 1; total += $1 }} END {{ printf "%d\\t%d", count, total }}')
+    latest_epoch=$(find "$dir" -xdev -type f -exec stat -c '%Y' {{}} + 2>/dev/null | sort -nr | head -n 1)
+    [ -n "$tif_stats" ] || tif_stats="0\t0"
+    [ -n "$h5_stats" ] || h5_stats="0\t0"
+    [ -n "$mat_stats" ] || mat_stats="0\t0"
+    [ -n "$latest_epoch" ] || latest_epoch="0"
+    printf '%s\\t%s\\t%s\\t%s\\t%s\\t%s\\n' "${{total_kib:-0}}" "$dir" "$tif_stats" "$h5_stats" "$mat_stats" "$latest_epoch"
+done | sort -nr | head -n {int(limit)}
+"""
+    output = run_ssh_command(ssh_host, command, identity_file=identity_file)
+    rows = []
+    for line in output.splitlines():
+        line = line.strip()
+        if not line:
+            continue
+        parts = line.split("\t")
+        if len(parts) != 9:
+            raise RuntimeError(f"Unexpected child inventory row: {line!r}")
+        (
+            total_kib,
+            path_text,
+            tif_count,
+            tif_bytes,
+            h5_count,
+            h5_bytes,
+            mat_count,
+            mat_bytes,
+            latest_epoch,
+        ) = parts[:9]
+        row = {
+            "path": path_text,
+            "total_bytes": kib_to_bytes(total_kib),
+            "tif_count": int(tif_count),
+            "tif_bytes": int(tif_bytes),
+            "h5_count": int(h5_count),
+            "h5_bytes": int(h5_bytes),
+            "mat_count": int(mat_count),
+            "mat_bytes": int(mat_bytes),
+            "latest_mtime": format_epoch(latest_epoch),
+        }
+        row["profile"] = classify_inventory_row(row)
+        rows.append(row)
+    return rows
+
+
+def format_epoch(value: str) -> str | None:
+    epoch = int(value or 0)
+    if epoch <= 0:
+        return None
+    return datetime.fromtimestamp(epoch, tz=timezone.utc).isoformat()
+
+
+def classify_inventory_row(row: dict) -> str:
+    tif_bytes = int(row["tif_bytes"])
+    h5_bytes = int(row["h5_bytes"])
+    mat_bytes = int(row["mat_bytes"])
+    if tif_bytes > 0 and h5_bytes == 0 and mat_bytes == 0:
+        return "raw_only"
+    if tif_bytes == 0 and (h5_bytes > 0 or mat_bytes > 0):
+        return "derived_only"
+    if tif_bytes > 0 and (h5_bytes > 0 or mat_bytes > 0):
+        return "mixed"
+    return "other"
 
 
 def infer_file_kind(path_text: str) -> str:

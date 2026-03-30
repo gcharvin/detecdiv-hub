@@ -154,6 +154,12 @@ JSON audit over SSH:
 python scripts\audit_storage_ssh.py Gilles@10.20.11.250 /data --output .\storage-audit.json
 ```
 
+If your SSH key is not picked up automatically, pass it explicitly:
+
+```powershell
+python scripts\audit_storage_ssh.py Gilles@10.20.11.250 /volume1/DATA --identity-file $HOME\.ssh\id_ed25519_nas --output .\storage-audit.json
+```
+
 The audit currently includes:
 
 - filesystem usage for the target path
@@ -164,6 +170,20 @@ The audit currently includes:
 
 This is intended as a reusable first step before wiring richer storage
 accounting into the hub database and cleanup workflows.
+
+For a targeted cleanup pass inside a user folder such as `Pierre`, you can add
+an inventory row per immediate child directory:
+
+```powershell
+python scripts\audit_storage_ssh.py Gilles@10.20.11.250 /volume1/DATA/Pierre --identity-file $HOME\.ssh\id_ed25519_nas --per-child-inventory --output .\pierre-audit.json
+```
+
+Each child inventory row currently includes:
+
+- `total_bytes`
+- `.tif`, `.h5`, and `.mat` counts and byte totals
+- `latest_mtime`
+- a coarse profile such as `raw_only`, `derived_only`, or `mixed`
 
 ## Basic governance endpoints
 
