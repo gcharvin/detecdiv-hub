@@ -356,11 +356,11 @@ function updateSessionUi() {
   if (els.userLabel) {
     if (authenticated) {
       const modeLabel = state.authMode === "session" ? "session" : (state.authMode || "identity");
-      els.userLabel.textContent = `User: ${state.currentUser.display_name} (${state.currentUser.user_key}) via ${modeLabel}`;
+      els.userLabel.textContent = `Signed in: ${state.currentUser.display_name} (${state.currentUser.user_key}) via ${modeLabel}`;
     } else {
       els.userLabel.textContent = state.userKey
-        ? `User: ${state.userKey} via user_key fallback`
-        : "User: not connected";
+        ? `Signed in: ${state.userKey} via user_key fallback`
+        : "Signed in: not connected";
     }
   }
   if (els.logoutButton) {
@@ -376,6 +376,47 @@ function setSummary(summary) {
   if (els.summaryGroupCount) els.summaryGroupCount.textContent = summary.group_count;
   state.currentUser = summary.user || null;
   updateSessionUi();
+}
+
+function userOptionLabel(user) {
+  return `${user.display_name} (${user.user_key})`;
+}
+
+function renderUserSelect(selectElement, users, options = {}) {
+  if (!selectElement) {
+    return;
+  }
+  const {
+    emptyOptionLabel = "",
+    noUsersLabel = "No user accounts available",
+    selectedValue = "",
+  } = options;
+  selectElement.innerHTML = "";
+  if (emptyOptionLabel) {
+    const blankOption = document.createElement("option");
+    blankOption.value = "";
+    blankOption.textContent = emptyOptionLabel;
+    selectElement.appendChild(blankOption);
+  }
+  for (const user of users) {
+    const option = document.createElement("option");
+    option.value = user.user_key;
+    option.textContent = userOptionLabel(user);
+    selectElement.appendChild(option);
+  }
+  if (!users.length) {
+    const option = document.createElement("option");
+    option.value = "";
+    option.textContent = noUsersLabel;
+    selectElement.appendChild(option);
+  }
+  if (users.some((user) => user.user_key === selectedValue)) {
+    selectElement.value = selectedValue;
+  } else if (emptyOptionLabel) {
+    selectElement.value = "";
+  } else if (users.length) {
+    selectElement.value = users[0].user_key;
+  }
 }
 
 function renderGroupFilter() {
@@ -524,7 +565,7 @@ function renderProjects() {
     }
     tr.innerHTML = `
       <td>${project.project_name}</td>
-      <td>${project.owner ? project.owner.user_key : ""}</td>
+      <td>${project.owner ? userOptionLabel(project.owner) : ""}</td>
       <td>${project.visibility}</td>
       <td>${project.health_status}</td>
       <td>${project.pipeline_run_count}</td>
@@ -636,7 +677,7 @@ function renderRawDatasets() {
     }
     tr.innerHTML = `
       <td>${raw.acquisition_label}</td>
-      <td>${raw.owner ? raw.owner.user_key : ""}</td>
+      <td>${raw.owner ? userOptionLabel(raw.owner) : ""}</td>
       <td>${raw.lifecycle_tier}</td>
       <td>${raw.archive_status}</td>
       <td>${raw.status}</td>
@@ -668,7 +709,7 @@ function renderRawDatasetDetail() {
   const owner = raw.owner ? `${raw.owner.display_name} (${raw.owner.user_key})` : "unknown";
   const fields = [
     ["Acquisition", raw.acquisition_label],
-    ["Owner", owner],
+    ["Project owner", owner],
     ["Visibility", raw.visibility],
     ["Status", raw.status],
     ["Completeness", raw.completeness_status],
@@ -750,7 +791,7 @@ function renderAutomaticArchivePolicyStatus() {
       ["Older than", `${config.older_than_days || 0} day(s)`],
       ["Min size", humanBytes(config.min_total_bytes || 0)],
       ["Candidate limit", `${config.limit || 0}`],
-      ["Owner filter", config.owner_key || ""],
+      ["Project owner filter", config.owner_key || ""],
       ["Search filter", config.search || ""],
       ["Lifecycle tiers", (config.lifecycle_tiers || []).join(", ")],
       ["Archive states", (config.archive_statuses || []).join(", ")],
@@ -1084,7 +1125,7 @@ function renderAcl() {
   }
   els.aclList.innerHTML = "";
   if (!state.acl.length) {
-    els.aclList.innerHTML = `<div class="stack-item">Owner only.</div>`;
+    els.aclList.innerHTML = `<div class="stack-item">Project owner only.</div>`;
     return;
   }
   for (const item of state.acl) {
@@ -1118,7 +1159,7 @@ function renderDetail() {
 
   const fields = [
     ["Project", project.project_name],
-    ["Owner", owner],
+    ["Project owner", owner],
     ["Visibility", project.visibility],
     ["Health", project.health_status],
     ["Status", project.status],
@@ -1184,26 +1225,18 @@ function renderOwnerFilters() {
 
   if (els.ownerFilter) {
     const currentValue = els.ownerFilter.value || "";
-    els.ownerFilter.innerHTML = `<option value="">All owners</option>`;
-    for (const user of users) {
-      const option = document.createElement("option");
-      option.value = user.user_key;
-      option.textContent = `${user.display_name} (${user.user_key})`;
-      els.ownerFilter.appendChild(option);
-    }
-    els.ownerFilter.value = users.some((user) => user.user_key === currentValue) ? currentValue : "";
+    renderUserSelect(els.ownerFilter, users, {
+      emptyOptionLabel: "All project owners",
+      selectedValue: currentValue,
+    });
   }
 
   if (els.rawOwnerFilter) {
     const currentValue = els.rawOwnerFilter.value || "";
-    els.rawOwnerFilter.innerHTML = `<option value="">All owners</option>`;
-    for (const user of users) {
-      const option = document.createElement("option");
-      option.value = user.user_key;
-      option.textContent = `${user.display_name} (${user.user_key})`;
-      els.rawOwnerFilter.appendChild(option);
-    }
-    els.rawOwnerFilter.value = users.some((user) => user.user_key === currentValue) ? currentValue : "";
+    renderUserSelect(els.rawOwnerFilter, users, {
+      emptyOptionLabel: "All project owners",
+      selectedValue: currentValue,
+    });
   }
 }
 
@@ -1213,23 +1246,21 @@ function renderIndexOwnerOptions() {
   }
   const users = availableOwnerUsers();
   const currentValue = els.indexOwnerUserKey.value || state.currentUser?.user_key || state.userKey || "";
-  els.indexOwnerUserKey.innerHTML = "";
-  for (const user of users) {
-    const option = document.createElement("option");
-    option.value = user.user_key;
-    option.textContent = `${user.display_name} (${user.user_key})`;
-    els.indexOwnerUserKey.appendChild(option);
-  }
-  if (!users.length) {
-    const option = document.createElement("option");
-    option.value = "";
-    option.textContent = "No users available";
-    els.indexOwnerUserKey.appendChild(option);
-  }
-  if (users.some((user) => user.user_key === currentValue)) {
-    els.indexOwnerUserKey.value = currentValue;
-  } else if (users.length) {
-    els.indexOwnerUserKey.value = users[0].user_key;
+  renderUserSelect(els.indexOwnerUserKey, users, {
+    noUsersLabel: "No user accounts available",
+    selectedValue: currentValue,
+  });
+}
+
+function renderUserSelectors() {
+  renderOwnerFilters();
+  renderIndexOwnerOptions();
+
+  if (typeof window !== "undefined" && typeof window.requestAnimationFrame === "function") {
+    window.requestAnimationFrame(() => {
+      renderOwnerFilters();
+      renderIndexOwnerOptions();
+    });
   }
 }
 
@@ -1379,8 +1410,7 @@ async function refreshDashboard() {
   setSummary(summary);
   renderGroupFilter();
   renderStorageRootFilter();
-  renderOwnerFilters();
-  renderIndexOwnerOptions();
+  renderUserSelectors();
   renderIndexBrowser();
 
   if (pageFlags.hasIndexForm && browseableStorageRoots().length && !state.indexBrowse?.directories?.length) {
@@ -1678,15 +1708,13 @@ async function refreshUsers() {
   if (!els.usersTableBody) {
     if (els.indexOwnerUserKey) {
       state.users = await apiGet("/users");
-      renderOwnerFilters();
-      renderIndexOwnerOptions();
+      renderUserSelectors();
     }
     return;
   }
   state.users = await apiGet("/users");
   renderUsers();
-  renderOwnerFilters();
-  renderIndexOwnerOptions();
+  renderUserSelectors();
 }
 
 async function refreshSessions() {
@@ -1757,7 +1785,7 @@ async function editProject() {
   }
   const currentOwner = state.selectedProjectDetail.owner?.user_key || "";
   const currentVisibility = state.selectedProjectDetail.visibility || "private";
-  const ownerUserKey = window.prompt("Owner user key", currentOwner);
+  const ownerUserKey = window.prompt("Project owner key", currentOwner);
   if (ownerUserKey === null) {
     return;
   }
@@ -1929,7 +1957,9 @@ async function bulkImportUsers() {
   if (els.bulkImportUsersText) {
     els.bulkImportUsersText.value = "";
   }
-  setStatus(`Imported users: ${response.created_count} created, ${response.updated_count} updated.`);
+  const message = `Imported accounts: ${response.created_count} created, ${response.updated_count} updated.`;
+  setStatus(message);
+  window.alert(message);
 }
 
 async function previewRawArchive() {
@@ -2282,7 +2312,10 @@ if (els.pipelineSearch) els.pipelineSearch.addEventListener("change", () => refr
 if (els.pipelineRuntimeFilter) els.pipelineRuntimeFilter.addEventListener("change", () => refreshPipelines().catch((error) => setStatus(String(error))));
 if (els.pipelineSourceFilter) els.pipelineSourceFilter.addEventListener("change", () => renderPipelines());
 if (els.newUserButton) els.newUserButton.addEventListener("click", () => createUser().catch((error) => setStatus(String(error))));
-if (els.bulkImportUsersButton) els.bulkImportUsersButton.addEventListener("click", () => bulkImportUsers().catch((error) => setStatus(String(error))));
+if (els.bulkImportUsersButton) els.bulkImportUsersButton.addEventListener("click", () => bulkImportUsers().catch((error) => {
+  setStatus(String(error));
+  window.alert(String(error));
+}));
 if (els.refreshSessionsButton) els.refreshSessionsButton.addEventListener("click", () => refreshSessions().catch((error) => setStatus(String(error))));
 
 ensureDashboardPolling();

@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>DetecDiv Hub | Indexing</title>
-    <link rel="stylesheet" href="/web/styles.css" />
+    <link rel="stylesheet" href="/web/styles.css?v=20260401-owner-ui" />
   </head>
   <body>
     <div class="page-shell">
@@ -56,7 +56,7 @@
           <div id="summary-total-projects" class="summary-value">0</div>
         </article>
         <article class="summary-card">
-          <div class="summary-label">Owned</div>
+          <div class="summary-label">My Projects</div>
           <div id="summary-owned-projects" class="summary-value">0</div>
         </article>
         <article class="summary-card">
@@ -75,7 +75,7 @@
             <h2>Index Root</h2>
             <p class="muted">Queue a project-root scan directly on the hub host.</p>
           </div>
-          <div class="status-pill" id="user-label">User: not connected</div>
+          <div class="status-pill" id="user-label">Signed in: not connected</div>
         </div>
         <div class="index-form">
           <label class="field">
@@ -87,7 +87,7 @@
             <input id="index-storage-root-name" type="text" placeholder="server_projects" />
           </label>
           <label class="field">
-            <span>Owner user</span>
+            <span>Project owner</span>
             <select id="index-owner-user-key"></select>
           </label>
           <label class="field">
@@ -280,6 +280,6 @@
       </footer>
     </div>
 
-    <script src="/web/app.js" defer></script>
+    <script src="/web/app.js?v=20260401-owner-ui" defer></script>
   </body>
 </html>

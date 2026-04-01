@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>DetecDiv Hub | Raw Datasets</title>
-    <link rel="stylesheet" href="/web/styles.css" />
+    <link rel="stylesheet" href="/web/styles.css?v=20260401-owner-ui" />
   </head>
   <body>
     <div class="page-shell">
@@ -56,7 +56,7 @@
           <div id="summary-total-projects" class="summary-value">0</div>
         </article>
         <article class="summary-card">
-          <div class="summary-label">Owned</div>
+          <div class="summary-label">My Projects</div>
           <div id="summary-owned-projects" class="summary-value">0</div>
         </article>
         <article class="summary-card">
@@ -75,8 +75,10 @@
           <input id="raw-search" type="text" placeholder="dataset, key, microscope..." />
         </label>
         <label class="field compact">
-          <span>Owner</span>
-          <input id="raw-owner-filter" type="text" placeholder="owner user key" />
+          <span>Project owner</span>
+          <select id="raw-owner-filter">
+            <option value="">All project owners</option>
+          </select>
         </label>
         <label class="field compact">
           <span>Tier</span>
@@ -111,7 +113,7 @@
         </label>
         <label class="toggle">
           <input id="raw-owned-only" type="checkbox" />
-          <span>Owned only</span>
+          <span>Only my datasets</span>
         </label>
         <button id="refresh-button">Refresh</button>
       </section>
@@ -239,7 +241,7 @@
             <thead>
               <tr>
                 <th>Acquisition</th>
-                <th>Owner</th>
+                <th>Project owner</th>
                 <th>Tier</th>
                 <th>Last activity</th>
                 <th>Size</th>
@@ -259,14 +261,14 @@
               <h2>Raw Datasets</h2>
               <p id="raw-count-label" class="muted">0 visible raw datasets</p>
             </div>
-            <div class="status-pill" id="user-label">User: not connected</div>
+            <div class="status-pill" id="user-label">Signed in: not connected</div>
           </div>
           <div class="table-wrap">
             <table id="raw-datasets-table">
               <thead>
                 <tr>
                   <th>Acquisition</th>
-                  <th>Owner</th>
+                  <th>Project owner</th>
                   <th>Tier</th>
                   <th>Archive</th>
                   <th>Status</th>
@@ -319,6 +321,6 @@
       </footer>
     </div>
 
-    <script src="/web/app.js" defer></script>
+    <script src="/web/app.js?v=20260401-owner-ui" defer></script>
   </body>
 </html>

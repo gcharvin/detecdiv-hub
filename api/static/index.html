@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>DetecDiv Hub</title>
-    <link rel="stylesheet" href="/web/styles.css" />
+    <link rel="stylesheet" href="/web/styles.css?v=20260401-owner-ui" />
   </head>
   <body>
     <div class="page-shell">
@@ -57,7 +57,7 @@
           <div id="summary-total-projects" class="summary-value">0</div>
         </article>
         <article class="summary-card">
-          <div class="summary-label">Owned</div>
+          <div class="summary-label">My Projects</div>
           <div id="summary-owned-projects" class="summary-value">0</div>
         </article>
         <article class="summary-card">
@@ -76,9 +76,9 @@
           <input id="project-search" type="text" placeholder="project, key..." />
         </label>
         <label class="field compact">
-          <span>Owner</span>
+          <span>Project owner</span>
           <select id="owner-filter">
-            <option value="">All owners</option>
+            <option value="">All project owners</option>
           </select>
         </label>
         <label class="field">
@@ -104,7 +104,7 @@
         </label>
         <label class="toggle">
           <input id="owned-only" type="checkbox" />
-          <span>Owned only</span>
+          <span>Only my projects</span>
         </label>
         <button id="refresh-button">Refresh</button>
         <button id="new-group-button">New group</button>
@@ -117,14 +117,14 @@
               <h2>Projects</h2>
               <p id="project-count-label" class="muted">0 visible projects</p>
             </div>
-            <div class="status-pill" id="user-label">User: not connected</div>
+            <div class="status-pill" id="user-label">Signed in: not connected</div>
           </div>
           <div class="table-wrap">
             <table id="projects-table">
               <thead>
                 <tr>
                   <th>Name</th>
-                  <th>Owner</th>
+                  <th>Project owner</th>
                   <th>Visibility</th>
                   <th>Health</th>
                   <th>Runs</th>
@@ -238,21 +238,21 @@
       <section class="panel">
         <div class="panel-header">
           <div>
-            <h2>Users</h2>
-            <p class="muted">Administer hub users and passwords.</p>
+            <h2>User Accounts</h2>
+            <p class="muted">Administer hub user accounts and passwords.</p>
           </div>
-          <button id="new-user-button">New user</button>
+          <button id="new-user-button">New account</button>
         </div>
         <section class="subpanel">
           <div class="subpanel-header">
             <div>
               <h3>Bulk Import</h3>
-              <p class="muted">Paste one user per line: `user_key;display_name;email;role`.</p>
+              <p class="muted">Paste one user account per line: `user_key;display_name;email;role`.</p>
             </div>
-            <button id="bulk-import-users-button">Import users</button>
+            <button id="bulk-import-users-button">Import accounts</button>
           </div>
           <label class="field">
-            <span>User list</span>
+            <span>User account list</span>
             <textarea id="bulk-import-users-text" rows="6" placeholder="florian;Florian;florian@example.org;user"></textarea>
           </label>
         </section>
@@ -300,6 +300,6 @@
       </footer>
     </div>
 
-    <script src="/web/app.js" defer></script>
+    <script src="/web/app.js?v=20260401-owner-ui" defer></script>
   </body>
 </html>
