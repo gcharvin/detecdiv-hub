@@ -1,10 +1,10 @@
 :root {
   --bg: #0d0d0f;
-  --panel: #17181b;
-  --panel-strong: #1f2024;
-  --ink: #f2f2f4;
-  --muted: #9ea3aa;
-  --line: #30333a;
+  --panel: #21242a;
+  --panel-strong: #2a2e35;
+  --ink: #d9dde2;
+  --muted: #a7adb6;
+  --line: #383d46;
   --accent: #d0d3d8;
   --accent-dark: #aab0b8;
   --ok: #7fd1a1;
@@ -22,8 +22,8 @@ body {
   margin: 0;
   font-family: Arial, Helvetica, sans-serif;
   background:
-    radial-gradient(circle at top left, rgba(255, 255, 255, 0.04), transparent 24%),
-    linear-gradient(180deg, #121316 0%, var(--bg) 100%);
+    radial-gradient(circle at top left, rgba(255, 255, 255, 0.03), transparent 22%),
+    linear-gradient(180deg, #101114 0%, var(--bg) 100%);
   color: var(--ink);
 }
 
@@ -125,7 +125,7 @@ h3 {
   padding: 10px 14px;
   border-radius: var(--radius);
   border: 1px solid var(--line);
-  background: #1b1c20;
+  background: #252931;
   color: var(--ink);
   text-decoration: none;
 }
@@ -253,7 +253,7 @@ tbody tr {
 
 tbody tr:hover,
 tbody tr.selected {
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(255, 255, 255, 0.06);
 }
 
 .detail-panel {
@@ -365,7 +365,7 @@ tbody tr.selected {
   height: 10px;
   border-radius: var(--radius);
   overflow: hidden;
-  background: #0f1012;
+  background: #17191d;
   margin-top: 10px;
 }
 
@@ -400,7 +400,7 @@ textarea {
   padding: 10px 12px;
   border: 1px solid var(--line);
   border-radius: var(--radius);
-  background: #111215;
+  background: #2a2e35;
   color: var(--ink);
 }
 
@@ -414,7 +414,7 @@ button {
   padding: 10px 14px;
   border-radius: var(--radius);
   border: 1px solid var(--line);
-  background: #202228;
+  background: #2c3138;
   color: var(--ink);
   cursor: pointer;
 }
@@ -450,7 +450,7 @@ button:disabled {
 
 .status-pill {
   padding: 8px 12px;
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(255, 255, 255, 0.06);
   color: var(--ok);
   border-radius: var(--radius);
   border: 1px solid rgba(127, 209, 161, 0.22);
