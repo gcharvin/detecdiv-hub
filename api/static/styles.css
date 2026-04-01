@@ -235,6 +235,17 @@ td {
   font-size: 0.95rem;
 }
 
+#projects-table th:first-child,
+#projects-table td:first-child {
+  width: 40px;
+  padding-right: 4px;
+}
+
+#projects-table input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+}
+
 tbody tr {
   cursor: pointer;
 }
@@ -246,6 +257,20 @@ tbody tr.selected {
 
 .detail-panel {
   overflow: visible;
+}
+
+.bulk-actions-panel {
+  margin-top: 14px;
+}
+
+.danger-panel {
+  margin-top: 14px;
+  border-color: rgba(155, 44, 44, 0.28);
+  background: rgba(155, 44, 44, 0.05);
+}
+
+.danger-copy {
+  color: var(--danger);
 }
 
 .detail-list {

@@ -22,6 +22,9 @@ const state = {
   selectedMigrationPlan: null,
   selectedProject: null,
   selectedProjectDetail: null,
+  selectedProjectIds: [],
+  pendingBulkDelete: null,
+  bulkDeletePreviewToken: 0,
   notes: [],
   acl: [],
   summary: null,
@@ -43,6 +46,12 @@ const els = {
   ownedOnly: document.querySelector("#owned-only"),
   refreshButton: document.querySelector("#refresh-button"),
   newGroupButton: document.querySelector("#new-group-button"),
+  projectSelectAll: document.querySelector("#project-select-all"),
+  projectSelectionSummary: document.querySelector("#project-selection-summary"),
+  selectVisibleButton: document.querySelector("#select-visible-button"),
+  clearSelectionButton: document.querySelector("#clear-selection-button"),
+  bulkDeleteSelectedButton: document.querySelector("#bulk-delete-selected-button"),
+  bulkDeleteVisibleButton: document.querySelector("#bulk-delete-visible-button"),
   projectsTableBody: document.querySelector("#projects-table tbody"),
   projectCountLabel: document.querySelector("#project-count-label"),
   userLabel: document.querySelector("#user-label"),
@@ -61,6 +70,12 @@ const els = {
   editProjectButton: document.querySelector("#edit-project-button"),
   addToGroupButton: document.querySelector("#add-to-group-button"),
   previewDeleteButton: document.querySelector("#preview-delete-button"),
+  bulkDeletePanel: document.querySelector("#bulk-delete-panel"),
+  bulkDeleteSummary: document.querySelector("#bulk-delete-summary"),
+  bulkDeleteMode: document.querySelector("#bulk-delete-mode"),
+  bulkDeleteConfirmText: document.querySelector("#bulk-delete-confirm-text"),
+  bulkDeleteCancelButton: document.querySelector("#bulk-delete-cancel-button"),
+  bulkDeleteConfirmButton: document.querySelector("#bulk-delete-confirm-button"),
   indexSourcePath: document.querySelector("#index-source-path"),
   indexStorageRootName: document.querySelector("#index-storage-root-name"),
   indexOwnerUserKey: document.querySelector("#index-owner-user-key"),
@@ -193,6 +208,9 @@ function clearDashboardState() {
   state.selectedMigrationPlan = null;
   state.selectedProject = null;
   state.selectedProjectDetail = null;
+  state.selectedProjectIds = [];
+  state.pendingBulkDelete = null;
+  state.bulkDeletePreviewToken = 0;
   state.notes = [];
   state.acl = [];
   state.summary = null;
@@ -206,6 +224,8 @@ function clearDashboardState() {
   renderStorageRootFilter();
   renderIndexBrowser();
   renderProjects();
+  renderProjectSelectionControls();
+  renderBulkDeletePanel();
   renderPipelines();
   renderOwnerFilters();
   renderIndexOwnerOptions();
@@ -552,6 +572,103 @@ function renderIndexBrowser() {
   }
 }
 
+function visibleProjectIds() {
+  return state.projects.map((project) => `${project.id}`);
+}
+
+function selectedProjectIds() {
+  const visibleIds = new Set(visibleProjectIds());
+  return state.selectedProjectIds.filter((projectId) => visibleIds.has(`${projectId}`));
+}
+
+function isProjectSelected(projectId) {
+  return state.selectedProjectIds.includes(`${projectId}`);
+}
+
+function setSelectedProjectIds(projectIds) {
+  state.selectedProjectIds = [...new Set((projectIds || []).map((projectId) => `${projectId}`))];
+  if (state.pendingBulkDelete?.scope === "selected") {
+    closeBulkDeletePanel();
+  }
+  renderProjects();
+  renderProjectSelectionControls();
+}
+
+function toggleProjectSelection(projectId, isSelected) {
+  const normalizedId = `${projectId}`;
+  const selected = new Set(state.selectedProjectIds);
+  if (isSelected) {
+    selected.add(normalizedId);
+  } else {
+    selected.delete(normalizedId);
+  }
+  setSelectedProjectIds([...selected]);
+}
+
+function renderProjectSelectionControls() {
+  const visibleIds = visibleProjectIds();
+  const selectedIds = selectedProjectIds();
+  const visibleCount = visibleIds.length;
+  const selectedCount = selectedIds.length;
+
+  if (els.projectSelectAll) {
+    const allVisibleSelected = visibleCount > 0 && selectedCount === visibleCount;
+    const someVisibleSelected = selectedCount > 0 && selectedCount < visibleCount;
+    els.projectSelectAll.checked = allVisibleSelected;
+    els.projectSelectAll.indeterminate = someVisibleSelected;
+    els.projectSelectAll.disabled = visibleCount === 0;
+  }
+  if (els.projectSelectionSummary) {
+    els.projectSelectionSummary.textContent = `${selectedCount} selected / ${visibleCount} visible`;
+  }
+  if (els.clearSelectionButton) {
+    els.clearSelectionButton.disabled = selectedCount === 0;
+  }
+  if (els.selectVisibleButton) {
+    els.selectVisibleButton.disabled = visibleCount === 0;
+  }
+  if (els.bulkDeleteSelectedButton) {
+    els.bulkDeleteSelectedButton.disabled = selectedCount === 0;
+  }
+  if (els.bulkDeleteVisibleButton) {
+    els.bulkDeleteVisibleButton.disabled = visibleCount === 0;
+  }
+}
+
+function renderBulkDeletePanel() {
+  if (!els.bulkDeletePanel || !els.bulkDeleteSummary || !els.bulkDeleteConfirmButton) {
+    return;
+  }
+  const pending = state.pendingBulkDelete;
+  if (!pending || !pending.projectIds?.length) {
+    els.bulkDeletePanel.classList.add("hidden");
+    return;
+  }
+
+  els.bulkDeletePanel.classList.remove("hidden");
+  const scopeLabel = pending.scope === "selected" ? "selected" : "visible";
+  const mode = els.bulkDeleteMode?.value || "database_only";
+  els.bulkDeleteConfirmButton.textContent =
+    mode === "project_files" ? "Delete catalog entries and files" : "Delete catalog entries only";
+
+  if (!pending.preview) {
+    els.bulkDeleteSummary.textContent = `Preparing deletion preview for ${pending.projectIds.length} ${scopeLabel} project(s)...`;
+    return;
+  }
+
+  const preview = pending.preview;
+  const parts = [`${pending.projectIds.length} ${scopeLabel} project(s)`];
+  if (mode === "project_files") {
+    parts.push(`project files reclaimable ${humanBytes(preview.reclaimableBytes || 0)}`);
+  } else {
+    parts.push("catalog entries only, files on disk will be kept");
+  }
+  if (preview.errorCount) {
+    parts.push(`${preview.errorCount} preview error(s)`);
+  }
+  els.bulkDeleteSummary.textContent = parts.join(" | ");
+}
+
 function renderProjects() {
   if (!els.projectsTableBody || !els.projectCountLabel) {
     return;
@@ -564,6 +681,7 @@ function renderProjects() {
       tr.classList.add("selected");
     }
     tr.innerHTML = `
+      <td><input class="project-select-checkbox" type="checkbox" ${isProjectSelected(project.id) ? "checked" : ""} /></td>
       <td>${project.project_name}</td>
       <td>${project.owner ? userOptionLabel(project.owner) : ""}</td>
       <td>${project.visibility}</td>
@@ -572,9 +690,16 @@ function renderProjects() {
       <td>${project.h5_count}</td>
       <td>${humanBytes(project.total_bytes)}</td>
     `;
+    tr.querySelector(".project-select-checkbox")?.addEventListener("click", (event) => {
+      event.stopPropagation();
+    });
+    tr.querySelector(".project-select-checkbox")?.addEventListener("change", (event) => {
+      toggleProjectSelection(project.id, Boolean(event.target.checked));
+    });
     tr.addEventListener("click", () => selectProject(project.id));
     els.projectsTableBody.appendChild(tr);
   }
+  renderProjectSelectionControls();
 }
 
 function pipelineRows() {
@@ -1843,6 +1968,131 @@ async function addSelectedProjectToGroup() {
   setStatus(`Added to ${selected.display_name}.`);
 }
 
+async function refreshBulkDeletePreview() {
+  if (!state.pendingBulkDelete?.projectIds?.length || !els.bulkDeleteMode) {
+    return;
+  }
+  const deleteFiles = els.bulkDeleteMode.value === "project_files";
+  const currentToken = state.bulkDeletePreviewToken + 1;
+  state.bulkDeletePreviewToken = currentToken;
+
+  if (!deleteFiles) {
+    state.pendingBulkDelete.preview = {
+      reclaimableBytes: 0,
+      errorCount: 0,
+    };
+    renderBulkDeletePanel();
+    return;
+  }
+
+  state.pendingBulkDelete.preview = null;
+  renderBulkDeletePanel();
+
+  const previews = await Promise.allSettled(
+    state.pendingBulkDelete.projectIds.map((projectId) =>
+      apiPost(`/projects/${projectId}/deletion-preview`, {
+        delete_project_files: true,
+        delete_linked_raw_data: false,
+        confirm: false,
+      })
+    )
+  );
+
+  if (state.bulkDeletePreviewToken !== currentToken || !state.pendingBulkDelete) {
+    return;
+  }
+
+  let reclaimableBytes = 0;
+  let errorCount = 0;
+  for (const result of previews) {
+    if (result.status === "fulfilled") {
+      reclaimableBytes += Number(result.value.reclaimable_bytes || 0);
+    } else {
+      errorCount += 1;
+    }
+  }
+  state.pendingBulkDelete.preview = { reclaimableBytes, errorCount };
+  renderBulkDeletePanel();
+}
+
+async function openBulkDeletePanel(scope) {
+  const projectIds = scope === "selected" ? selectedProjectIds() : visibleProjectIds();
+  if (!projectIds.length) {
+    throw new Error(scope === "selected" ? "Select at least one project first." : "No visible projects to delete.");
+  }
+  state.pendingBulkDelete = {
+    scope,
+    projectIds,
+    preview: null,
+  };
+  if (els.bulkDeleteMode) {
+    els.bulkDeleteMode.value = "database_only";
+  }
+  if (els.bulkDeleteConfirmText) {
+    els.bulkDeleteConfirmText.value = "";
+  }
+  renderBulkDeletePanel();
+  await refreshBulkDeletePreview();
+}
+
+function closeBulkDeletePanel() {
+  state.pendingBulkDelete = null;
+  state.bulkDeletePreviewToken += 1;
+  if (els.bulkDeleteConfirmText) {
+    els.bulkDeleteConfirmText.value = "";
+  }
+  renderBulkDeletePanel();
+}
+
+async function executeBulkDelete() {
+  if (!state.pendingBulkDelete?.projectIds?.length) {
+    return;
+  }
+  const confirmationText = els.bulkDeleteConfirmText?.value.trim() || "";
+  if (confirmationText !== "DELETE") {
+    throw new Error("Type DELETE to confirm the bulk deletion.");
+  }
+
+  const deleteFiles = els.bulkDeleteMode?.value === "project_files";
+  const projectIds = [...state.pendingBulkDelete.projectIds];
+  const projectNames = projectIds
+    .map((projectId) => state.projects.find((project) => `${project.id}` === `${projectId}`)?.project_name || `${projectId}`);
+  const resultSummary = {
+    deleted: 0,
+    failed: [],
+  };
+
+  for (let index = 0; index < projectIds.length; index += 1) {
+    const projectId = projectIds[index];
+    const projectName = projectNames[index];
+    setStatus(`Deleting ${index + 1}/${projectIds.length}: ${projectName}`);
+    try {
+      await apiDelete(
+        `/projects/${projectId}?delete_project_files=${deleteFiles ? "true" : "false"}&delete_linked_raw_data=false&confirm=true`
+      );
+      resultSummary.deleted += 1;
+    } catch (error) {
+      resultSummary.failed.push(`${projectName}: ${String(error)}`);
+    }
+  }
+
+  state.selectedProjectIds = state.selectedProjectIds.filter((projectId) => !projectIds.includes(`${projectId}`));
+  if (state.selectedProject && projectIds.includes(`${state.selectedProject.id}`)) {
+    state.selectedProject = null;
+    state.selectedProjectDetail = null;
+  }
+  closeBulkDeletePanel();
+  await refreshDashboard();
+
+  const suffix = resultSummary.failed.length
+    ? ` Failed: ${resultSummary.failed.length}.`
+    : "";
+  setStatus(`Bulk delete finished. Deleted ${resultSummary.deleted}/${projectIds.length}.${suffix}`);
+  if (resultSummary.failed.length) {
+    window.alert(`Bulk delete completed with failures:\n${resultSummary.failed.join("\n")}`);
+  }
+}
+
 async function previewDelete() {
   if (!state.selectedProject) {
     return;
@@ -2276,6 +2526,17 @@ if (els.ownerFilter) els.ownerFilter.addEventListener("change", () => refreshPro
 if (els.storageRootFilter) els.storageRootFilter.addEventListener("change", () => refreshProjects().catch((error) => setStatus(String(error))));
 if (els.projectLimit) els.projectLimit.addEventListener("change", () => refreshProjects().catch((error) => setStatus(String(error))));
 if (els.ownedOnly) els.ownedOnly.addEventListener("change", () => refreshProjects().catch((error) => setStatus(String(error))));
+if (els.projectSelectAll) els.projectSelectAll.addEventListener("change", () => setSelectedProjectIds(els.projectSelectAll.checked ? visibleProjectIds() : []));
+if (els.selectVisibleButton) els.selectVisibleButton.addEventListener("click", () => setSelectedProjectIds(visibleProjectIds()));
+if (els.clearSelectionButton) els.clearSelectionButton.addEventListener("click", () => setSelectedProjectIds([]));
+if (els.bulkDeleteSelectedButton) els.bulkDeleteSelectedButton.addEventListener("click", () => openBulkDeletePanel("selected").catch((error) => setStatus(String(error))));
+if (els.bulkDeleteVisibleButton) els.bulkDeleteVisibleButton.addEventListener("click", () => openBulkDeletePanel("visible").catch((error) => setStatus(String(error))));
+if (els.bulkDeleteMode) els.bulkDeleteMode.addEventListener("change", () => refreshBulkDeletePreview().catch((error) => setStatus(String(error))));
+if (els.bulkDeleteCancelButton) els.bulkDeleteCancelButton.addEventListener("click", () => closeBulkDeletePanel());
+if (els.bulkDeleteConfirmButton) els.bulkDeleteConfirmButton.addEventListener("click", () => executeBulkDelete().catch((error) => {
+  setStatus(String(error));
+  window.alert(String(error));
+}));
 if (els.rawSearch) els.rawSearch.addEventListener("change", () => refreshRawDatasets().catch((error) => setStatus(String(error))));
 if (els.rawOwnerFilter) els.rawOwnerFilter.addEventListener("change", () => refreshRawDatasets().catch((error) => setStatus(String(error))));
 if (els.rawTierFilter) els.rawTierFilter.addEventListener("change", () => refreshRawDatasets().catch((error) => setStatus(String(error))));

@@ -107,7 +107,47 @@
           <span>Only my projects</span>
         </label>
         <button id="refresh-button">Refresh</button>
+        <button id="select-visible-button">Select visible</button>
+        <button id="clear-selection-button">Clear selection</button>
+        <button id="bulk-delete-selected-button" class="danger">Delete selected</button>
+        <button id="bulk-delete-visible-button" class="danger">Delete visible</button>
         <button id="new-group-button">New group</button>
+      </section>
+
+      <section class="panel bulk-actions-panel">
+        <div class="panel-header">
+          <div>
+            <h2>Bulk Selection</h2>
+            <p id="project-selection-summary" class="muted">0 selected / 0 visible</p>
+          </div>
+        </div>
+      </section>
+
+      <section id="bulk-delete-panel" class="panel danger-panel hidden">
+        <div class="panel-header">
+          <div>
+            <h2>Bulk Delete Projects</h2>
+            <p id="bulk-delete-summary" class="danger-copy">No projects queued for deletion.</p>
+          </div>
+          <button id="bulk-delete-cancel-button">Cancel</button>
+        </div>
+        <div class="toolbar">
+          <label class="field compact">
+            <span>Delete mode</span>
+            <select id="bulk-delete-mode">
+              <option value="database_only">Delete catalog entries only</option>
+              <option value="project_files">Delete catalog entries and project files on disk</option>
+            </select>
+          </label>
+          <label class="field compact">
+            <span>Type DELETE to confirm</span>
+            <input id="bulk-delete-confirm-text" type="text" placeholder="DELETE" />
+          </label>
+          <button id="bulk-delete-confirm-button" class="danger">Delete catalog entries only</button>
+        </div>
+        <p class="danger-copy">
+          Warning: deleting project files removes the project `.mat` file and the matching project folder on disk. This action is intended for controlled cleanup and is not reversible from the UI.
+        </p>
       </section>
 
       <section class="layout-grid">
@@ -123,6 +163,7 @@
             <table id="projects-table">
               <thead>
                 <tr>
+                  <th><input id="project-select-all" type="checkbox" title="Select all visible projects" /></th>
                   <th>Name</th>
                   <th>Project owner</th>
                   <th>Visibility</th>
