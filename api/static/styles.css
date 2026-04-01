@@ -35,7 +35,7 @@ textarea {
 }
 
 .page-shell {
-  width: min(1480px, calc(100vw - 36px));
+  width: min(1760px, calc(100vw - 18px));
   margin: 0 auto;
   padding: 28px 0 36px;
 }
@@ -170,7 +170,7 @@ h3 {
 
 .layout-grid {
   display: grid;
-  grid-template-columns: minmax(0, 1.8fr) minmax(420px, 1.1fr);
+  grid-template-columns: minmax(0, 2.45fr) minmax(320px, 0.78fr);
   gap: 14px;
   margin-top: 14px;
 }
@@ -240,6 +240,16 @@ td {
 #projects-table td:first-child {
   width: 40px;
   padding-right: 4px;
+}
+
+#projects-table th:nth-child(2),
+#projects-table td:nth-child(2) {
+  min-width: 420px;
+}
+
+#projects-table th:nth-child(3),
+#projects-table td:nth-child(3) {
+  min-width: 180px;
 }
 
 #projects-table input[type="checkbox"] {
