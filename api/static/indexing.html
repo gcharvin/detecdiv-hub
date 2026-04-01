@@ -87,6 +87,10 @@
             <input id="index-storage-root-name" type="text" placeholder="server_projects" />
           </label>
           <label class="field">
+            <span>Owner user</span>
+            <select id="index-owner-user-key"></select>
+          </label>
+          <label class="field">
             <span>Visibility</span>
             <select id="index-visibility">
               <option value="private">private</option>
@@ -100,6 +104,35 @@
           </label>
           <button id="index-button" class="primary">Queue indexing</button>
         </div>
+        <section class="subpanel">
+          <div class="subpanel-header">
+            <div>
+              <h3>Browse Server Folder</h3>
+              <p class="muted">Pick a folder under a known storage root and copy it into the source path field.</p>
+            </div>
+          </div>
+          <div class="index-form">
+            <label class="field compact">
+              <span>Storage root</span>
+              <select id="index-browse-root"></select>
+            </label>
+            <button id="index-browse-open-button">Open</button>
+            <button id="index-browse-use-button">Use this folder</button>
+          </div>
+          <div id="index-browse-current" class="browser-current muted">No storage root selected.</div>
+          <div class="table-wrap browser-table-wrap">
+            <table id="index-browse-table">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Relative Path</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </section>
       </section>
 
       <section class="panel">

@@ -269,6 +269,19 @@ tbody tr.selected {
   border-top: 1px solid var(--line);
 }
 
+.browser-current {
+  margin-top: 12px;
+}
+
+.browser-table-wrap {
+  margin-top: 12px;
+}
+
+#index-browse-table td:last-child,
+#index-browse-table th:last-child {
+  width: 120px;
+}
+
 .stack-list {
   display: flex;
   flex-direction: column;

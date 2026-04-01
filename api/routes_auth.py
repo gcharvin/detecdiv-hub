@@ -18,7 +18,7 @@ from api.services.auth import (
     revoke_user_session,
     verify_password,
 )
-from api.services.users import get_current_user
+from api.services.users import get_current_identity, get_current_user
 
 
 router = APIRouter(prefix="/auth", tags=["auth"])
@@ -76,11 +76,12 @@ def logout(
 
 @router.get("/session", response_model=AuthSessionResponse)
 def get_session(
-    current_user: User = Depends(get_current_user),
+    current_identity: tuple[User, str] = Depends(get_current_identity),
 ) -> AuthSessionResponse:
+    current_user, auth_mode = current_identity
     return AuthSessionResponse(
         authenticated=True,
-        auth_mode="session_or_legacy",
+        auth_mode=auth_mode,
         user=UserSummary.model_validate(current_user),
         expires_at=None,
     )

@@ -31,13 +31,13 @@ def get_or_create_user(
     return user
 
 
-def get_current_user(
+def resolve_current_identity(
     request: Request,
     user_key: str | None = Query(default=None),
     x_detecdiv_user: str | None = Header(default=None),
     authorization: str | None = Header(default=None),
     db: Session = Depends(get_db),
-) -> User:
+) -> tuple[User, str]:
     settings = get_settings()
     bearer_token = None
     if authorization and authorization.lower().startswith("bearer "):
@@ -48,11 +48,20 @@ def get_current_user(
         cookie_token = request.cookies.get(settings.session_cookie_name)
     session_user = get_user_by_session_token(db, bearer_token or cookie_token)
     if session_user is not None:
-        return session_user
+        return session_user, "session"
 
     effective_user_key = None
+    identity_mode = "none"
     if settings.allow_legacy_user_key_auth:
-        effective_user_key = user_key or x_detecdiv_user or settings.default_user_key
+        if user_key:
+            effective_user_key = user_key
+            identity_mode = "user_key"
+        elif x_detecdiv_user:
+            effective_user_key = x_detecdiv_user
+            identity_mode = "header"
+        elif settings.default_user_key:
+            effective_user_key = settings.default_user_key
+            identity_mode = "default_user_key"
     if not effective_user_key:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Missing user identity")
 
@@ -64,6 +73,39 @@ def get_current_user(
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Unknown user")
         user = get_or_create_user(db, user_key=effective_user_key, display_name=effective_user_key)
         db.flush()
+    return user, identity_mode
+
+
+def get_current_identity(
+    request: Request,
+    user_key: str | None = Query(default=None),
+    x_detecdiv_user: str | None = Header(default=None),
+    authorization: str | None = Header(default=None),
+    db: Session = Depends(get_db),
+) -> tuple[User, str]:
+    return resolve_current_identity(
+        request=request,
+        user_key=user_key,
+        x_detecdiv_user=x_detecdiv_user,
+        authorization=authorization,
+        db=db,
+    )
+
+
+def get_current_user(
+    request: Request,
+    user_key: str | None = Query(default=None),
+    x_detecdiv_user: str | None = Header(default=None),
+    authorization: str | None = Header(default=None),
+    db: Session = Depends(get_db),
+) -> User:
+    user, _identity_mode = resolve_current_identity(
+        request=request,
+        user_key=user_key,
+        x_detecdiv_user=x_detecdiv_user,
+        authorization=authorization,
+        db=db,
+    )
     return user
 
 

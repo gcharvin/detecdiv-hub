@@ -6,6 +6,7 @@ const state = {
   projects: [],
   groups: [],
   storageRoots: [],
+  indexBrowse: null,
   pipelines: [],
   observedPipelines: [],
   sessions: [],
@@ -62,8 +63,14 @@ const els = {
   previewDeleteButton: document.querySelector("#preview-delete-button"),
   indexSourcePath: document.querySelector("#index-source-path"),
   indexStorageRootName: document.querySelector("#index-storage-root-name"),
+  indexOwnerUserKey: document.querySelector("#index-owner-user-key"),
   indexVisibility: document.querySelector("#index-visibility"),
   indexClearExisting: document.querySelector("#index-clear-existing"),
+  indexBrowseRoot: document.querySelector("#index-browse-root"),
+  indexBrowseOpenButton: document.querySelector("#index-browse-open-button"),
+  indexBrowseUseButton: document.querySelector("#index-browse-use-button"),
+  indexBrowseCurrent: document.querySelector("#index-browse-current"),
+  indexBrowseTableBody: document.querySelector("#index-browse-table tbody"),
   indexButton: document.querySelector("#index-button"),
   indexJobsRefreshButton: document.querySelector("#index-jobs-refresh-button"),
   activeIndexJob: document.querySelector("#active-index-job"),
@@ -133,6 +140,8 @@ const els = {
   pipelinesTableBody: document.querySelector("#pipelines-table tbody"),
   usersTableBody: document.querySelector("#users-table tbody"),
   newUserButton: document.querySelector("#new-user-button"),
+  bulkImportUsersText: document.querySelector("#bulk-import-users-text"),
+  bulkImportUsersButton: document.querySelector("#bulk-import-users-button"),
   sessionsTableBody: document.querySelector("#sessions-table tbody"),
   refreshSessionsButton: document.querySelector("#refresh-sessions-button"),
   statusLine: document.querySelector("#status-line"),
@@ -168,6 +177,7 @@ function clearDashboardState() {
   state.projects = [];
   state.groups = [];
   state.storageRoots = [];
+  state.indexBrowse = null;
   state.pipelines = [];
   state.observedPipelines = [];
   state.sessions = [];
@@ -194,8 +204,11 @@ function clearDashboardState() {
 
   renderGroupFilter();
   renderStorageRootFilter();
+  renderIndexBrowser();
   renderProjects();
   renderPipelines();
+  renderOwnerFilters();
+  renderIndexOwnerOptions();
   renderIndexingJobs();
   renderRawDatasets();
   renderRawDatasetDetail();
@@ -325,17 +338,30 @@ function updateSessionUi() {
   }
   if (els.sessionLabel) {
     if (!authenticated) {
-      els.sessionLabel.textContent = "Not logged in.";
-    } else if (state.authMode === "legacy") {
-      els.sessionLabel.textContent = `Legacy identity: ${state.currentUser.display_name} (${state.currentUser.user_key})`;
-    } else {
+      els.sessionLabel.textContent = state.userKey
+        ? `User key fallback: ${state.userKey} (no session)`
+        : "Not logged in.";
+    } else if (state.authMode === "session") {
       els.sessionLabel.textContent = `Session: ${state.currentUser.display_name} (${state.currentUser.user_key})`;
+    } else if (state.authMode === "user_key") {
+      els.sessionLabel.textContent = `User key identity: ${state.currentUser.display_name} (${state.currentUser.user_key})`;
+    } else if (state.authMode === "default_user_key") {
+      els.sessionLabel.textContent = `Default user identity: ${state.currentUser.display_name} (${state.currentUser.user_key})`;
+    } else if (state.authMode === "header") {
+      els.sessionLabel.textContent = `Header identity: ${state.currentUser.display_name} (${state.currentUser.user_key})`;
+    } else {
+      els.sessionLabel.textContent = `Identity: ${state.currentUser.display_name} (${state.currentUser.user_key})`;
     }
   }
   if (els.userLabel) {
-    els.userLabel.textContent = authenticated
-      ? `User: ${state.currentUser.display_name} (${state.currentUser.user_key})`
-      : "User: not connected";
+    if (authenticated) {
+      const modeLabel = state.authMode === "session" ? "session" : (state.authMode || "identity");
+      els.userLabel.textContent = `User: ${state.currentUser.display_name} (${state.currentUser.user_key}) via ${modeLabel}`;
+    } else {
+      els.userLabel.textContent = state.userKey
+        ? `User: ${state.userKey} via user_key fallback`
+        : "User: not connected";
+    }
   }
   if (els.logoutButton) {
     els.logoutButton.disabled = !authenticated;
@@ -380,6 +406,109 @@ function renderStorageRootFilter() {
     els.storageRootFilter.appendChild(option);
   }
   els.storageRootFilter.value = state.storageRoots.some((root) => root.name === currentValue) ? currentValue : "";
+}
+
+function browseableStorageRoots() {
+  return state.storageRoots.filter((root) => root.host_scope === "server");
+}
+
+function selectedBrowseRoot() {
+  if (!els.indexBrowseRoot) {
+    return null;
+  }
+  const rootId = Number(els.indexBrowseRoot.value || 0);
+  if (!rootId) {
+    return null;
+  }
+  return browseableStorageRoots().find((root) => root.id === rootId) || null;
+}
+
+function renderIndexBrowser() {
+  if (!els.indexBrowseRoot || !els.indexBrowseCurrent || !els.indexBrowseTableBody) {
+    return;
+  }
+
+  const roots = browseableStorageRoots();
+  const currentValue = Number(els.indexBrowseRoot.value || 0);
+  els.indexBrowseRoot.innerHTML = "";
+
+  if (!roots.length) {
+    const option = document.createElement("option");
+    option.value = "";
+    option.textContent = "No server storage roots";
+    els.indexBrowseRoot.appendChild(option);
+    els.indexBrowseCurrent.textContent = "No browseable server storage roots are registered.";
+    els.indexBrowseTableBody.innerHTML = "";
+    return;
+  }
+
+  for (const root of roots) {
+    const option = document.createElement("option");
+    option.value = String(root.id);
+    option.textContent = `${root.name} (${root.path_prefix})`;
+    els.indexBrowseRoot.appendChild(option);
+  }
+
+  const hasCurrent = roots.some((root) => root.id === currentValue);
+  els.indexBrowseRoot.value = String(hasCurrent ? currentValue : roots[0].id);
+
+  if (!state.indexBrowse || state.indexBrowse.storage_root?.id !== Number(els.indexBrowseRoot.value)) {
+    const root = selectedBrowseRoot();
+    state.indexBrowse = root
+      ? {
+          storage_root: root,
+          current_relative_path: "",
+          current_absolute_path: root.path_prefix,
+          parent_relative_path: null,
+          directories: [],
+        }
+      : null;
+  }
+
+  const browse = state.indexBrowse;
+  if (!browse) {
+    els.indexBrowseCurrent.textContent = "No storage root selected.";
+    els.indexBrowseTableBody.innerHTML = "";
+    return;
+  }
+
+  const currentLabel = browse.current_relative_path
+    ? `${browse.storage_root.name}: ${browse.current_relative_path}`
+    : `${browse.storage_root.name}: /`;
+  els.indexBrowseCurrent.textContent = `${currentLabel} -> ${browse.current_absolute_path}`;
+
+  els.indexBrowseTableBody.innerHTML = "";
+  if (browse.parent_relative_path !== null) {
+    const upRow = document.createElement("tr");
+    upRow.innerHTML = `
+      <td>..</td>
+      <td>${browse.parent_relative_path || "/"}</td>
+      <td><button type="button">Open</button></td>
+    `;
+    upRow.querySelector("button")?.addEventListener("click", () => {
+      openIndexBrowserPath(browse.parent_relative_path).catch((error) => setStatus(String(error)));
+    });
+    els.indexBrowseTableBody.appendChild(upRow);
+  }
+
+  for (const directory of browse.directories || []) {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${directory.name}</td>
+      <td>${directory.relative_path || "/"}</td>
+      <td><button type="button">Open</button></td>
+    `;
+    tr.querySelector("button")?.addEventListener("click", () => {
+      openIndexBrowserPath(directory.relative_path).catch((error) => setStatus(String(error)));
+    });
+    els.indexBrowseTableBody.appendChild(tr);
+  }
+
+  if (!browse.directories?.length) {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `<td colspan="3" class="muted">No child directories.</td>`;
+    els.indexBrowseTableBody.appendChild(tr);
+  }
 }
 
 function renderProjects() {
@@ -1043,6 +1172,67 @@ function renderUsers() {
   }
 }
 
+function availableOwnerUsers() {
+  if (state.users.length) {
+    return state.users;
+  }
+  return state.currentUser ? [state.currentUser] : [];
+}
+
+function renderOwnerFilters() {
+  const users = availableOwnerUsers();
+
+  if (els.ownerFilter) {
+    const currentValue = els.ownerFilter.value || "";
+    els.ownerFilter.innerHTML = `<option value="">All owners</option>`;
+    for (const user of users) {
+      const option = document.createElement("option");
+      option.value = user.user_key;
+      option.textContent = `${user.display_name} (${user.user_key})`;
+      els.ownerFilter.appendChild(option);
+    }
+    els.ownerFilter.value = users.some((user) => user.user_key === currentValue) ? currentValue : "";
+  }
+
+  if (els.rawOwnerFilter) {
+    const currentValue = els.rawOwnerFilter.value || "";
+    els.rawOwnerFilter.innerHTML = `<option value="">All owners</option>`;
+    for (const user of users) {
+      const option = document.createElement("option");
+      option.value = user.user_key;
+      option.textContent = `${user.display_name} (${user.user_key})`;
+      els.rawOwnerFilter.appendChild(option);
+    }
+    els.rawOwnerFilter.value = users.some((user) => user.user_key === currentValue) ? currentValue : "";
+  }
+}
+
+function renderIndexOwnerOptions() {
+  if (!els.indexOwnerUserKey) {
+    return;
+  }
+  const users = availableOwnerUsers();
+  const currentValue = els.indexOwnerUserKey.value || state.currentUser?.user_key || state.userKey || "";
+  els.indexOwnerUserKey.innerHTML = "";
+  for (const user of users) {
+    const option = document.createElement("option");
+    option.value = user.user_key;
+    option.textContent = `${user.display_name} (${user.user_key})`;
+    els.indexOwnerUserKey.appendChild(option);
+  }
+  if (!users.length) {
+    const option = document.createElement("option");
+    option.value = "";
+    option.textContent = "No users available";
+    els.indexOwnerUserKey.appendChild(option);
+  }
+  if (users.some((user) => user.user_key === currentValue)) {
+    els.indexOwnerUserKey.value = currentValue;
+  } else if (users.length) {
+    els.indexOwnerUserKey.value = users[0].user_key;
+  }
+}
+
 function renderSessions() {
   if (!els.sessionsTableBody) {
     return;
@@ -1130,19 +1320,20 @@ async function restoreSession() {
   }
 
   if (state.userKey) {
-    try {
-      const session = await apiGet("/auth/session");
-      if (session.authenticated) {
-        state.currentUser = session.user;
-        state.authMode = "legacy";
-        updateSessionUi();
-        await refreshDashboard();
-        setStatus(`Connected in legacy mode as ${session.user.user_key}.`);
-        return;
-      }
-    } catch {
-      // Ignore legacy fallback errors and show login panel.
+  try {
+    const session = await apiGet("/auth/session");
+    if (session.authenticated) {
+      state.currentUser = session.user;
+      state.authMode = session.auth_mode || (state.sessionToken ? "session" : "user_key");
+      state.userKey = session.user?.user_key || state.userKey;
+      updateSessionUi();
+      await refreshDashboard();
+      setStatus(`Connected via ${state.authMode} as ${session.user.user_key}.`);
+      return;
     }
+  } catch {
+    // Ignore legacy fallback errors and show login panel.
+  }
   }
 
   state.currentUser = null;
@@ -1188,6 +1379,17 @@ async function refreshDashboard() {
   setSummary(summary);
   renderGroupFilter();
   renderStorageRootFilter();
+  renderOwnerFilters();
+  renderIndexOwnerOptions();
+  renderIndexBrowser();
+
+  if (pageFlags.hasIndexForm && browseableStorageRoots().length && !state.indexBrowse?.directories?.length) {
+    try {
+      await openIndexBrowserPath("");
+    } catch (error) {
+      setStatus(String(error));
+    }
+  }
 
   const refreshTasks = [];
   if (pageFlags.hasProjectsView) {
@@ -1205,7 +1407,7 @@ async function refreshDashboard() {
   if (pageFlags.hasPipelinesView) {
     refreshTasks.push(refreshPipelines());
   }
-  if (pageFlags.hasUsersView) {
+  if (pageFlags.hasUsersView || pageFlags.hasIndexForm) {
     refreshTasks.push(refreshUsers());
   }
   if (pageFlags.hasSessionsView) {
@@ -1474,10 +1676,17 @@ async function refreshPipelines() {
 
 async function refreshUsers() {
   if (!els.usersTableBody) {
+    if (els.indexOwnerUserKey) {
+      state.users = await apiGet("/users");
+      renderOwnerFilters();
+      renderIndexOwnerOptions();
+    }
     return;
   }
   state.users = await apiGet("/users");
   renderUsers();
+  renderOwnerFilters();
+  renderIndexOwnerOptions();
 }
 
 async function refreshSessions() {
@@ -1631,6 +1840,26 @@ async function previewDelete() {
   setStatus("Project deleted.");
 }
 
+async function openIndexBrowserPath(relativePath = "") {
+  const root = selectedBrowseRoot();
+  if (!root) {
+    throw new Error("Select a server storage root first.");
+  }
+  const query = relativePath ? `?relative_path=${encodeURIComponent(relativePath)}` : "";
+  state.indexBrowse = await apiGet(`/storage-roots/${root.id}/browse${query}`);
+  renderIndexBrowser();
+  setStatus(`Opened ${state.indexBrowse.current_absolute_path}.`);
+}
+
+function useSelectedIndexFolder() {
+  if (!state.indexBrowse || !els.indexSourcePath || !els.indexStorageRootName) {
+    return;
+  }
+  els.indexSourcePath.value = state.indexBrowse.current_absolute_path || "";
+  els.indexStorageRootName.value = state.indexBrowse.storage_root?.name || "";
+  setStatus(`Selected ${state.indexBrowse.current_absolute_path} for indexing.`);
+}
+
 async function runIndexing() {
   if (!els.indexSourcePath) {
     return;
@@ -1645,12 +1874,62 @@ async function runIndexing() {
     storage_root_name: els.indexStorageRootName?.value.trim() || null,
     host_scope: "server",
     root_type: "project_root",
+    owner_user_key: els.indexOwnerUserKey?.value || null,
     visibility: els.indexVisibility?.value || "private",
     clear_existing_for_root: Boolean(els.indexClearExisting?.checked),
     metadata_json: {},
   });
   await refreshIndexingJobs();
   setStatus(`Queued indexing job ${response.job.id} for ${response.job.source_path}.`);
+}
+
+function parseBulkUserLine(line) {
+  const normalized = line.trim();
+  if (!normalized || normalized.startsWith("#")) {
+    return null;
+  }
+  let parts = [];
+  for (const separator of ["\t", ";", ",", "|"]) {
+    if (normalized.includes(separator)) {
+      parts = normalized.split(separator).map((value) => value.trim());
+      break;
+    }
+  }
+  if (!parts.length) {
+    parts = [normalized];
+  }
+  const [userKey, displayName, email, role] = parts;
+  if (!userKey) {
+    return null;
+  }
+  return {
+    user_key: userKey,
+    display_name: displayName || userKey,
+    email: email || null,
+    role: role || "user",
+    is_active: true,
+    metadata_json: {},
+  };
+}
+
+async function bulkImportUsers() {
+  if (!els.bulkImportUsersText) {
+    return;
+  }
+  const rawText = els.bulkImportUsersText.value || "";
+  const users = rawText
+    .split(/\r?\n/)
+    .map((line) => parseBulkUserLine(line))
+    .filter((item) => Boolean(item));
+  if (!users.length) {
+    throw new Error("Paste at least one user line.");
+  }
+  const response = await apiPost("/users/bulk", { users });
+  await refreshUsers();
+  if (els.bulkImportUsersText) {
+    els.bulkImportUsersText.value = "";
+  }
+  setStatus(`Imported users: ${response.created_count} created, ${response.updated_count} updated.`);
 }
 
 async function previewRawArchive() {
@@ -1889,7 +2168,7 @@ async function revokeSession(sessionId) {
 }
 
 async function pollDashboard() {
-  if (!state.currentUser) {
+  if (!state.currentUser && !state.userKey) {
     return;
   }
   try {
@@ -1979,6 +2258,9 @@ if (els.shareButton) els.shareButton.addEventListener("click", () => shareProjec
 if (els.editProjectButton) els.editProjectButton.addEventListener("click", () => editProject().catch((error) => setStatus(String(error))));
 if (els.addToGroupButton) els.addToGroupButton.addEventListener("click", () => addSelectedProjectToGroup().catch((error) => setStatus(String(error))));
 if (els.previewDeleteButton) els.previewDeleteButton.addEventListener("click", () => previewDelete().catch((error) => setStatus(String(error))));
+if (els.indexBrowseRoot) els.indexBrowseRoot.addEventListener("change", () => openIndexBrowserPath("").catch((error) => setStatus(String(error))));
+if (els.indexBrowseOpenButton) els.indexBrowseOpenButton.addEventListener("click", () => openIndexBrowserPath(state.indexBrowse?.current_relative_path || "").catch((error) => setStatus(String(error))));
+if (els.indexBrowseUseButton) els.indexBrowseUseButton.addEventListener("click", () => useSelectedIndexFolder());
 if (els.indexButton) els.indexButton.addEventListener("click", () => runIndexing().catch((error) => setStatus(String(error))));
 if (els.indexJobsRefreshButton) els.indexJobsRefreshButton.addEventListener("click", () => refreshIndexingJobs().catch((error) => setStatus(String(error))));
 if (els.migrationCreateButton) els.migrationCreateButton.addEventListener("click", () => createMigrationPlan().catch((error) => setStatus(String(error))));
@@ -2000,6 +2282,7 @@ if (els.pipelineSearch) els.pipelineSearch.addEventListener("change", () => refr
 if (els.pipelineRuntimeFilter) els.pipelineRuntimeFilter.addEventListener("change", () => refreshPipelines().catch((error) => setStatus(String(error))));
 if (els.pipelineSourceFilter) els.pipelineSourceFilter.addEventListener("change", () => renderPipelines());
 if (els.newUserButton) els.newUserButton.addEventListener("click", () => createUser().catch((error) => setStatus(String(error))));
+if (els.bulkImportUsersButton) els.bulkImportUsersButton.addEventListener("click", () => bulkImportUsers().catch((error) => setStatus(String(error))));
 if (els.refreshSessionsButton) els.refreshSessionsButton.addEventListener("click", () => refreshSessions().catch((error) => setStatus(String(error))));
 
 ensureDashboardPolling();

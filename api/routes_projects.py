@@ -1,3 +1,4 @@
+from pathlib import Path
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, status
@@ -31,7 +32,11 @@ from api.schemas import (
     ProjectNoteSummary,
     ProjectSummary,
     ProjectUpdate,
+    StorageRootBrowseEntry,
+    StorageRootBrowseResponse,
     StorageRootSummary,
+    UserBulkUpsertRequest,
+    UserBulkUpsertResponse,
     UserSummary,
     UserUpdate,
 )
@@ -471,6 +476,67 @@ def create_user(
     return user
 
 
+@users_router.post("/bulk", response_model=UserBulkUpsertResponse)
+def bulk_upsert_users(
+    payload: UserBulkUpsertRequest,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> UserBulkUpsertResponse:
+    if current_user.role not in {"admin", "service"}:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="User admin required")
+    if not payload.users:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="No users provided")
+
+    created_count = 0
+    updated_count = 0
+    touched_users: list[User] = []
+    seen_user_keys: set[str] = set()
+
+    for item in payload.users:
+        user_key = item.user_key.strip()
+        if not user_key:
+            continue
+        if user_key in seen_user_keys:
+            continue
+        seen_user_keys.add(user_key)
+
+        user = db.scalars(select(User).where(User.user_key == user_key)).first()
+        if user is None:
+            user = User(
+                user_key=user_key,
+                display_name=(item.display_name or user_key).strip(),
+                email=item.email,
+                role=item.role,
+                is_active=item.is_active,
+                metadata_json=item.metadata_json,
+            )
+            db.add(user)
+            db.flush()
+            created_count += 1
+        else:
+            user.display_name = (item.display_name or user.display_name or user_key).strip()
+            user.email = item.email
+            user.role = item.role
+            user.is_active = item.is_active
+            merged_metadata = dict(user.metadata_json or {})
+            merged_metadata.update(item.metadata_json or {})
+            user.metadata_json = merged_metadata
+            updated_count += 1
+
+        if item.password:
+            set_user_password(db, user=user, password=item.password)
+        touched_users.append(user)
+
+    db.commit()
+    for user in touched_users:
+        db.refresh(user)
+    return UserBulkUpsertResponse(
+        created_count=created_count,
+        updated_count=updated_count,
+        users=touched_users,
+    )
+
+
 @users_router.patch("/{user_id}", response_model=UserSummary)
 def update_user(
     user_id: UUID,
@@ -512,6 +578,70 @@ def list_storage_roots(
     _ = current_user
     stmt = select(StorageRoot).order_by(StorageRoot.name.asc())
     return list(db.scalars(stmt))
+
+
+@storage_roots_router.get("/{storage_root_id}/browse", response_model=StorageRootBrowseResponse)
+def browse_storage_root(
+    storage_root_id: int,
+    relative_path: str = "",
+    limit: int = 200,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> StorageRootBrowseResponse:
+    _ = current_user
+    storage_root = db.get(StorageRoot, storage_root_id)
+    if storage_root is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Storage root not found")
+
+    root_path = Path(storage_root.path_prefix).expanduser().resolve()
+    if not root_path.exists() or not root_path.is_dir():
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Storage root path is not accessible on this host: {root_path}",
+        )
+
+    relative = relative_path.strip().replace("\\", "/").strip("/")
+    candidate_path = (root_path / relative).resolve() if relative else root_path
+    try:
+        candidate_path.relative_to(root_path)
+    except ValueError as exc:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Requested path escapes storage root") from exc
+
+    if not candidate_path.exists() or not candidate_path.is_dir():
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Directory not found under storage root")
+
+    try:
+        child_dirs = sorted((entry for entry in candidate_path.iterdir() if entry.is_dir()), key=lambda entry: entry.name.lower())
+    except OSError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Failed to read directory contents: {exc}",
+        ) from exc
+
+    directories = [
+        StorageRootBrowseEntry(
+            name=entry.name,
+            relative_path="" if entry == root_path else str(entry.relative_to(root_path)).replace("\\", "/"),
+            absolute_path=str(entry),
+        )
+        for entry in child_dirs[: min(max(limit, 1), 500)]
+    ]
+
+    current_relative = "" if candidate_path == root_path else str(candidate_path.relative_to(root_path)).replace("\\", "/")
+    parent_relative: str | None
+    if candidate_path == root_path:
+        parent_relative = None
+    else:
+        parent = candidate_path.parent
+        parent_relative = "" if parent == root_path else str(parent.relative_to(root_path)).replace("\\", "/")
+
+    return StorageRootBrowseResponse(
+        storage_root=storage_root,
+        current_relative_path=current_relative,
+        current_absolute_path=str(candidate_path),
+        parent_relative_path=parent_relative,
+        directories=directories,
+    )
 
 
 def project_summary_view(project: Project) -> ProjectSummary:

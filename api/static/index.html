@@ -77,7 +77,9 @@
         </label>
         <label class="field compact">
           <span>Owner</span>
-          <input id="owner-filter" type="text" placeholder="owner user key" />
+          <select id="owner-filter">
+            <option value="">All owners</option>
+          </select>
         </label>
         <label class="field">
           <span>Storage root</span>
@@ -241,6 +243,19 @@
           </div>
           <button id="new-user-button">New user</button>
         </div>
+        <section class="subpanel">
+          <div class="subpanel-header">
+            <div>
+              <h3>Bulk Import</h3>
+              <p class="muted">Paste one user per line: `user_key;display_name;email;role`.</p>
+            </div>
+            <button id="bulk-import-users-button">Import users</button>
+          </div>
+          <label class="field">
+            <span>User list</span>
+            <textarea id="bulk-import-users-text" rows="6" placeholder="florian;Florian;florian@example.org;user"></textarea>
+          </label>
+        </section>
         <div class="table-wrap jobs-table-wrap">
           <table id="users-table">
             <thead>

@@ -33,6 +33,26 @@ class UserCreate(HubBaseModel):
     metadata_json: dict[str, Any] = Field(default_factory=dict)
 
 
+class UserBulkUpsertItem(HubBaseModel):
+    user_key: str
+    display_name: str | None = None
+    email: str | None = None
+    role: str = "user"
+    is_active: bool = True
+    password: str | None = None
+    metadata_json: dict[str, Any] = Field(default_factory=dict)
+
+
+class UserBulkUpsertRequest(HubBaseModel):
+    users: list[UserBulkUpsertItem] = Field(default_factory=list)
+
+
+class UserBulkUpsertResponse(HubBaseModel):
+    created_count: int
+    updated_count: int
+    users: list[UserSummary] = Field(default_factory=list)
+
+
 class UserUpdate(HubBaseModel):
     display_name: str | None = None
     email: str | None = None
@@ -77,6 +97,20 @@ class StorageRootSummary(HubBaseModel):
     root_type: str
     host_scope: str
     path_prefix: str
+
+
+class StorageRootBrowseEntry(HubBaseModel):
+    name: str
+    relative_path: str
+    absolute_path: str
+
+
+class StorageRootBrowseResponse(HubBaseModel):
+    storage_root: StorageRootSummary
+    current_relative_path: str
+    current_absolute_path: str
+    parent_relative_path: str | None = None
+    directories: list[StorageRootBrowseEntry] = Field(default_factory=list)
 
 
 class RawDatasetSummary(HubBaseModel):
