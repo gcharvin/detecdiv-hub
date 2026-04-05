@@ -282,7 +282,10 @@
             <h2>Pipeline Runs</h2>
             <p class="muted">Create and queue non-interactive pipeline runs on local or server execution targets.</p>
           </div>
-          <button id="submit-pipeline-run-button" class="primary">Submit run</button>
+          <div class="action-stack">
+            <button id="refresh-pipeline-runs-button">Refresh runs</button>
+            <button id="submit-pipeline-run-button" class="primary">Submit run</button>
+          </div>
         </div>
         <div class="toolbar">
           <label class="field compact">
@@ -396,6 +399,7 @@
             <tbody></tbody>
           </table>
         </div>
+        <pre id="pipeline-run-detail" class="stack-item-meta">Select a run to inspect its payload and result.</pre>
       </section>
 
       <section class="panel">
@@ -425,6 +429,7 @@
             <tbody></tbody>
           </table>
         </div>
+        <pre id="execution-target-detail" class="stack-item-meta">Select a target to inspect its metadata.</pre>
       </section>
 
       <section class="panel">

@@ -26,6 +26,8 @@ const state = {
   selectedProjectDetail: null,
   selectedProjectIds: [],
   selectedPipeline: null,
+  selectedPipelineRun: null,
+  selectedExecutionTarget: null,
   pendingBulkDelete: null,
   bulkDeletePreviewToken: 0,
   notes: [],
@@ -172,11 +174,14 @@ const els = {
   pipelineRunDescription: document.querySelector("#pipeline-run-description"),
   pipelineRunNodeParams: document.querySelector("#pipeline-run-node-params"),
   pipelineRunSelectionSummary: document.querySelector("#pipeline-run-selection-summary"),
+  refreshPipelineRunsButton: document.querySelector("#refresh-pipeline-runs-button"),
   submitPipelineRunButton: document.querySelector("#submit-pipeline-run-button"),
   pipelineRunsTableBody: document.querySelector("#pipeline-runs-table tbody"),
+  pipelineRunDetail: document.querySelector("#pipeline-run-detail"),
   refreshExecutionTargetsButton: document.querySelector("#refresh-execution-targets-button"),
   newExecutionTargetButton: document.querySelector("#new-execution-target-button"),
   executionTargetsTableBody: document.querySelector("#execution-targets-table tbody"),
+  executionTargetDetail: document.querySelector("#execution-target-detail"),
   usersTableBody: document.querySelector("#users-table tbody"),
   newUserButton: document.querySelector("#new-user-button"),
   bulkImportUsersText: document.querySelector("#bulk-import-users-text"),
@@ -238,6 +243,8 @@ function clearDashboardState() {
   state.selectedProjectDetail = null;
   state.selectedProjectIds = [];
   state.selectedPipeline = null;
+  state.selectedPipelineRun = null;
+  state.selectedExecutionTarget = null;
   state.pendingBulkDelete = null;
   state.bulkDeletePreviewToken = 0;
   state.notes = [];
@@ -864,6 +871,9 @@ function renderPipelineRuns() {
   els.pipelineRunsTableBody.innerHTML = "";
   for (const run of state.pipelineRuns) {
     const tr = document.createElement("tr");
+    if (state.selectedPipelineRun && String(state.selectedPipelineRun.id) === String(run.id)) {
+      tr.classList.add("selected");
+    }
     const rr = run.params_json?.run_request || {};
     const project = state.projects.find((item) => String(item.id) === String(run.project_id));
     const pipeline = [...state.pipelines, ...state.observedPipelines].find((item) => String(item.id || item.identity) === String(run.pipeline_id || ""));
@@ -877,7 +887,26 @@ function renderPipelineRuns() {
       <td>${formatTimestamp(run.updated_at || run.created_at)}</td>
     `;
     tr.title = run.error_text || JSON.stringify(run.result_json || {});
+    tr.addEventListener("click", () => {
+      state.selectedPipelineRun = run;
+      renderPipelineRuns();
+    });
     els.pipelineRunsTableBody.appendChild(tr);
+  }
+  if (els.pipelineRunDetail) {
+    if (!state.selectedPipelineRun) {
+      els.pipelineRunDetail.textContent = "Select a run to inspect its payload and result.";
+    } else {
+      els.pipelineRunDetail.textContent = JSON.stringify({
+        id: state.selectedPipelineRun.id,
+        status: state.selectedPipelineRun.status,
+        requested_mode: state.selectedPipelineRun.requested_mode,
+        resolved_mode: state.selectedPipelineRun.resolved_mode,
+        error_text: state.selectedPipelineRun.error_text,
+        params_json: state.selectedPipelineRun.params_json || {},
+        result_json: state.selectedPipelineRun.result_json || {},
+      }, null, 2);
+    }
   }
 }
 
@@ -888,6 +917,9 @@ function renderExecutionTargets() {
   els.executionTargetsTableBody.innerHTML = "";
   for (const target of state.executionTargets) {
     const tr = document.createElement("tr");
+    if (state.selectedExecutionTarget && String(state.selectedExecutionTarget.id) === String(target.id)) {
+      tr.classList.add("selected");
+    }
     tr.innerHTML = `
       <td>${target.display_name}</td>
       <td>${target.target_kind}</td>
@@ -897,8 +929,19 @@ function renderExecutionTargets() {
       <td>${target.supports_gpu ? "yes" : "no"}</td>
       <td>${target.status}</td>
     `;
-    tr.addEventListener("click", () => editExecutionTarget(target));
+    tr.addEventListener("click", () => {
+      state.selectedExecutionTarget = target;
+      renderExecutionTargets();
+    });
+    tr.addEventListener("dblclick", () => editExecutionTarget(target));
     els.executionTargetsTableBody.appendChild(tr);
+  }
+  if (els.executionTargetDetail) {
+    if (!state.selectedExecutionTarget) {
+      els.executionTargetDetail.textContent = "Select a target to inspect its metadata.";
+    } else {
+      els.executionTargetDetail.textContent = JSON.stringify(state.selectedExecutionTarget, null, 2);
+    }
   }
   renderPipelineRunBuilder();
 }
@@ -1052,8 +1095,8 @@ async function submitPipelineRun() {
 
   const created = await apiPost("/pipeline-runs", payload);
   setStatus(`Queued pipeline run ${created.id} for ${project.project_name}.`);
-  state.pipelineRuns.unshift(created);
-  renderPipelineRuns();
+  state.selectedPipelineRun = created;
+  await refreshPipelineRuns();
 }
 
 function promptBooleanField(label, currentValue) {
@@ -1108,6 +1151,7 @@ async function createExecutionTarget() {
     status: statusValue,
     metadata_json: metadata,
   });
+  state.selectedExecutionTarget = null;
   await refreshExecutionTargets();
   setStatus(`Created execution target ${displayName}.`);
 }
@@ -1154,6 +1198,7 @@ async function editExecutionTarget(target) {
     status: statusValue,
     metadata_json: metadata,
   });
+  state.selectedExecutionTarget = null;
   await refreshExecutionTargets();
   setStatus(`Updated execution target ${displayName}.`);
 }
@@ -3000,6 +3045,7 @@ if (els.pipelineRunProjectSelect) els.pipelineRunProjectSelect.addEventListener(
 if (els.pipelineRunPipelineSelect) els.pipelineRunPipelineSelect.addEventListener("change", () => renderPipelineRunBuilder());
 if (els.pipelineRunTargetSelect) els.pipelineRunTargetSelect.addEventListener("change", () => renderPipelineRunBuilder());
 if (els.pipelineRunPythonModeSelect) els.pipelineRunPythonModeSelect.addEventListener("change", () => renderPipelineRunBuilder());
+if (els.refreshPipelineRunsButton) els.refreshPipelineRunsButton.addEventListener("click", () => refreshPipelineRuns().catch((error) => setStatus(String(error))));
 if (els.submitPipelineRunButton) els.submitPipelineRunButton.addEventListener("click", () => submitPipelineRun().catch((error) => {
   setStatus(String(error));
   window.alert(String(error));
