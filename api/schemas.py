@@ -624,6 +624,20 @@ class PipelineRunSummary(JobSummary):
     pass
 
 
+class PipelineRunUpdateRequest(HubBaseModel):
+    project_id: UUID | None = None
+    pipeline_id: UUID | None = None
+    execution_target_id: UUID | None = None
+    requested_mode: str | None = None
+    priority: int | None = None
+    requested_by: str | None = None
+    requested_from_host: str | None = None
+    project_ref: dict[str, Any] | None = None
+    pipeline_ref: dict[str, Any] | None = None
+    run_request: dict[str, Any] | None = None
+    execution: dict[str, Any] | None = None
+
+
 class ExecutionTargetSummary(HubBaseModel):
     id: UUID
     target_key: str | None = None

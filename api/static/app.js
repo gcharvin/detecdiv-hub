@@ -174,12 +174,25 @@ const els = {
   pipelineRunDescription: document.querySelector("#pipeline-run-description"),
   pipelineRunNodeParams: document.querySelector("#pipeline-run-node-params"),
   pipelineRunSelectionSummary: document.querySelector("#pipeline-run-selection-summary"),
+  pipelineRunEditorMode: document.querySelector("#pipeline-run-editor-mode"),
   refreshPipelineRunsButton: document.querySelector("#refresh-pipeline-runs-button"),
+  newPipelineRunButton: document.querySelector("#new-pipeline-run-button"),
   submitPipelineRunButton: document.querySelector("#submit-pipeline-run-button"),
   pipelineRunsTableBody: document.querySelector("#pipeline-runs-table tbody"),
   pipelineRunDetail: document.querySelector("#pipeline-run-detail"),
   refreshExecutionTargetsButton: document.querySelector("#refresh-execution-targets-button"),
   newExecutionTargetButton: document.querySelector("#new-execution-target-button"),
+  saveExecutionTargetButton: document.querySelector("#save-execution-target-button"),
+  executionTargetEditorMode: document.querySelector("#execution-target-editor-mode"),
+  executionTargetName: document.querySelector("#execution-target-name"),
+  executionTargetKey: document.querySelector("#execution-target-key"),
+  executionTargetKind: document.querySelector("#execution-target-kind"),
+  executionTargetHost: document.querySelector("#execution-target-host"),
+  executionTargetStatus: document.querySelector("#execution-target-status"),
+  executionTargetSupportsMatlab: document.querySelector("#execution-target-supports-matlab"),
+  executionTargetSupportsPython: document.querySelector("#execution-target-supports-python"),
+  executionTargetSupportsGpu: document.querySelector("#execution-target-supports-gpu"),
+  executionTargetMetadataJson: document.querySelector("#execution-target-metadata-json"),
   executionTargetsTableBody: document.querySelector("#execution-targets-table tbody"),
   executionTargetDetail: document.querySelector("#execution-target-detail"),
   usersTableBody: document.querySelector("#users-table tbody"),
@@ -862,6 +875,84 @@ function renderPipelineRunBuilder() {
   if (els.pipelineRunSelectionSummary) {
     els.pipelineRunSelectionSummary.textContent = `Project: ${projectLabel} | Pipeline: ${pipelineLabel} | Target: ${targetLabel}`;
   }
+  if (els.pipelineRunEditorMode && els.submitPipelineRunButton) {
+    if (state.selectedPipelineRun) {
+      els.pipelineRunEditorMode.textContent = `Edit mode: ${state.selectedPipelineRun.id}`;
+      els.submitPipelineRunButton.textContent = "Save run";
+    } else {
+      els.pipelineRunEditorMode.textContent = "Create mode.";
+      els.submitPipelineRunButton.textContent = "Submit run";
+    }
+  }
+}
+
+function resetPipelineRunForm() {
+  state.selectedPipelineRun = null;
+  if (els.pipelineRunProjectSelect) els.pipelineRunProjectSelect.value = "";
+  if (els.pipelineRunPipelineSelect) els.pipelineRunPipelineSelect.value = "";
+  if (els.pipelineRunTargetSelect) els.pipelineRunTargetSelect.value = "";
+  if (els.pipelineRunModeSelect) els.pipelineRunModeSelect.value = "auto";
+  if (els.pipelineRunGpuSelect) els.pipelineRunGpuSelect.value = "module_default";
+  if (els.pipelineRunPythonModeSelect) els.pipelineRunPythonModeSelect.value = "default";
+  if (els.pipelineRunPythonEnv) els.pipelineRunPythonEnv.value = "detecdiv_python";
+  if (els.pipelineRunId) els.pipelineRunId.value = "";
+  if (els.pipelineRunPolicySelect) els.pipelineRunPolicySelect.value = "resume";
+  if (els.pipelineRunExistingSelect) els.pipelineRunExistingSelect.value = "replace";
+  if (els.pipelineRunCacheSelect) els.pipelineRunCacheSelect.value = "auto";
+  if (els.pipelineRunPriority) els.pipelineRunPriority.value = 100;
+  if (els.pipelineRunSelectedNodes) els.pipelineRunSelectedNodes.value = "";
+  if (els.pipelineRunDescription) els.pipelineRunDescription.value = "";
+  if (els.pipelineRunNodeParams) els.pipelineRunNodeParams.value = "[]";
+  renderPipelineRuns();
+  renderPipelineRunBuilder();
+}
+
+function loadPipelineRunIntoForm(run) {
+  if (!run) {
+    return;
+  }
+  state.selectedPipelineRun = run;
+  const params = run.params_json || {};
+  const rr = params.run_request || {};
+  const exec = params.execution || {};
+  const projectRef = params.project_ref || {};
+  const pipelineRef = params.pipeline_ref || {};
+
+  if (els.pipelineRunProjectSelect) {
+    els.pipelineRunProjectSelect.value = String(run.project_id || projectRef.project_id || "");
+  }
+
+  let selectedPipelineValue = "";
+  const candidatePipeline = pipelineRows().find((item) => {
+    if (run.pipeline_id && String(item.id) === String(run.pipeline_id)) return true;
+    if (pipelineRef.pipeline_key && item.pipeline_key === pipelineRef.pipeline_key) return true;
+    const pathHint = pipelineRef.pipeline_json_path || pipelineRef.export_manifest_uri || pipelineRef.pipeline_bundle_uri;
+    return Boolean(pathHint) && pipelineRefFromSelection(item).pipeline_json_path === pathHint;
+  });
+  if (candidatePipeline) {
+    state.selectedPipeline = candidatePipeline;
+    selectedPipelineValue = pipelineOptionValue(candidatePipeline);
+  }
+  if (els.pipelineRunPipelineSelect) {
+    els.pipelineRunPipelineSelect.value = selectedPipelineValue;
+  }
+  if (els.pipelineRunTargetSelect) {
+    els.pipelineRunTargetSelect.value = String(run.execution_target_id || exec.execution_target_id || "");
+  }
+  if (els.pipelineRunModeSelect) els.pipelineRunModeSelect.value = String(run.requested_mode || exec.requested_mode || "auto");
+  if (els.pipelineRunGpuSelect) els.pipelineRunGpuSelect.value = String(rr.gpu?.mode || "module_default");
+  if (els.pipelineRunPythonModeSelect) els.pipelineRunPythonModeSelect.value = String(rr.python?.mode || "default");
+  if (els.pipelineRunPythonEnv) els.pipelineRunPythonEnv.value = String(rr.python?.env_name || "detecdiv_python");
+  if (els.pipelineRunId) els.pipelineRunId.value = String(rr.run_id || "");
+  if (els.pipelineRunPolicySelect) els.pipelineRunPolicySelect.value = String(rr.run_policy || "resume");
+  if (els.pipelineRunExistingSelect) els.pipelineRunExistingSelect.value = String(rr.existing_data_policy || "replace");
+  if (els.pipelineRunCacheSelect) els.pipelineRunCacheSelect.value = String(rr.roi_cache_policy || "auto");
+  if (els.pipelineRunPriority) els.pipelineRunPriority.value = Number(run.priority || 100);
+  if (els.pipelineRunSelectedNodes) els.pipelineRunSelectedNodes.value = (rr.selected_nodes || []).join(", ");
+  if (els.pipelineRunDescription) els.pipelineRunDescription.value = String(rr.description || "");
+  if (els.pipelineRunNodeParams) els.pipelineRunNodeParams.value = JSON.stringify(rr.node_params || [], null, 2);
+  renderPipelineRuns();
+  renderPipelineRunBuilder();
 }
 
 function renderPipelineRuns() {
@@ -891,6 +982,7 @@ function renderPipelineRuns() {
       state.selectedPipelineRun = run;
       renderPipelineRuns();
     });
+    tr.addEventListener("dblclick", () => loadPipelineRunIntoForm(run));
     els.pipelineRunsTableBody.appendChild(tr);
   }
   if (els.pipelineRunDetail) {
@@ -920,6 +1012,10 @@ function renderExecutionTargets() {
     if (state.selectedExecutionTarget && String(state.selectedExecutionTarget.id) === String(target.id)) {
       tr.classList.add("selected");
     }
+    const workerHealth = target.metadata_json?.worker_health || {};
+    const healthLabel = workerHealth.current_job_id
+      ? `busy (${workerHealth.last_job_status || "running"})`
+      : (workerHealth.health || target.status || "unknown");
     tr.innerHTML = `
       <td>${target.display_name}</td>
       <td>${target.target_kind}</td>
@@ -928,13 +1024,24 @@ function renderExecutionTargets() {
       <td>${target.supports_python ? "yes" : "no"}</td>
       <td>${target.supports_gpu ? "yes" : "no"}</td>
       <td>${target.status}</td>
+      <td>${healthLabel}</td>
+      <td>${formatTimestamp(workerHealth.last_seen_at || workerHealth.claimed_at || null)}</td>
     `;
     tr.addEventListener("click", () => {
       state.selectedExecutionTarget = target;
       renderExecutionTargets();
     });
-    tr.addEventListener("dblclick", () => editExecutionTarget(target));
+    tr.addEventListener("dblclick", () => loadExecutionTargetIntoForm(target));
     els.executionTargetsTableBody.appendChild(tr);
+  }
+  if (els.executionTargetEditorMode && els.saveExecutionTargetButton) {
+    if (state.selectedExecutionTarget) {
+      els.executionTargetEditorMode.textContent = `Edit mode: ${state.selectedExecutionTarget.display_name}`;
+      els.saveExecutionTargetButton.textContent = "Save target";
+    } else {
+      els.executionTargetEditorMode.textContent = "Create mode.";
+      els.saveExecutionTargetButton.textContent = "Create target";
+    }
   }
   if (els.executionTargetDetail) {
     if (!state.selectedExecutionTarget) {
@@ -1024,23 +1131,7 @@ function projectRefFromSelection(project) {
   };
 }
 
-async function refreshPipelineRuns() {
-  if (!els.pipelineRunsTableBody) {
-    return;
-  }
-  state.pipelineRuns = await apiGet("/pipeline-runs");
-  renderPipelineRuns();
-}
-
-async function refreshExecutionTargets() {
-  if (!els.executionTargetsTableBody && !els.pipelineRunTargetSelect) {
-    return;
-  }
-  state.executionTargets = await apiGet("/execution-targets");
-  renderExecutionTargets();
-}
-
-async function submitPipelineRun() {
+function buildPipelineRunPayload() {
   const project = resolvePipelineRunProject();
   if (!project) {
     throw new Error("Select a project before submitting a pipeline run.");
@@ -1060,7 +1151,7 @@ async function submitPipelineRun() {
     throw new Error("Node overrides JSON must decode to an array.");
   }
 
-  const payload = {
+  return {
     project_id: project.id,
     pipeline_id: pipeline.id || null,
     execution_target_id: resolvePipelineRunTarget()?.id || null,
@@ -1092,10 +1183,44 @@ async function submitPipelineRun() {
       allow_gui: false,
     },
   };
+}
 
-  const created = await apiPost("/pipeline-runs", payload);
-  setStatus(`Queued pipeline run ${created.id} for ${project.project_name}.`);
-  state.selectedPipelineRun = created;
+async function refreshPipelineRuns() {
+  if (!els.pipelineRunsTableBody) {
+    return;
+  }
+  const selectedId = state.selectedPipelineRun?.id || null;
+  state.pipelineRuns = await apiGet("/pipeline-runs");
+  state.selectedPipelineRun = selectedId
+    ? state.pipelineRuns.find((item) => String(item.id) === String(selectedId)) || null
+    : null;
+  renderPipelineRuns();
+}
+
+async function refreshExecutionTargets() {
+  if (!els.executionTargetsTableBody && !els.pipelineRunTargetSelect) {
+    return;
+  }
+  const selectedId = state.selectedExecutionTarget?.id || null;
+  state.executionTargets = await apiGet("/execution-targets");
+  state.selectedExecutionTarget = selectedId
+    ? state.executionTargets.find((item) => String(item.id) === String(selectedId)) || null
+    : null;
+  renderExecutionTargets();
+}
+
+async function submitPipelineRun() {
+  const payload = buildPipelineRunPayload();
+  const project = resolvePipelineRunProject();
+  let saved;
+  if (state.selectedPipelineRun) {
+    saved = await apiPatch(`/pipeline-runs/${state.selectedPipelineRun.id}`, payload);
+    setStatus(`Updated pipeline run ${saved.id} for ${project.project_name}.`);
+  } else {
+    saved = await apiPost("/pipeline-runs", payload);
+    setStatus(`Queued pipeline run ${saved.id} for ${project.project_name}.`);
+  }
+  state.selectedPipelineRun = saved;
   await refreshPipelineRuns();
 }
 
@@ -1110,97 +1235,77 @@ function promptBooleanField(label, currentValue) {
   throw new Error(`${label} must be yes or no.`);
 }
 
-async function createExecutionTarget() {
-  const displayName = window.prompt("Execution target display name");
-  if (!displayName) {
-    return;
-  }
-  const targetKey = window.prompt("Target key", displayName.toLowerCase().replace(/[^a-z0-9]+/g, "_"));
-  if (targetKey === null) {
-    return;
-  }
-  const targetKind = window.prompt("Target kind", "server_gpu");
-  if (!targetKind) {
-    return;
-  }
-  const hostName = window.prompt("Host name", "") || null;
-  const supportsMatlab = promptBooleanField("Supports MATLAB", true);
-  if (supportsMatlab === null) return;
-  const supportsPython = promptBooleanField("Supports Python", true);
-  if (supportsPython === null) return;
-  const supportsGpu = promptBooleanField("Supports GPU", /gpu/i.test(targetKind));
-  if (supportsGpu === null) return;
-  const statusValue = window.prompt("Status", "active");
-  if (!statusValue) {
-    return;
-  }
-  const metadataText = window.prompt("Metadata JSON", "{}");
-  if (metadataText === null) {
-    return;
-  }
-  const metadata = parseOptionalJsonField(metadataText, "Metadata JSON", {});
-
-  await apiPost("/execution-targets", {
-    target_key: targetKey || null,
-    display_name: displayName,
-    target_kind: targetKind,
-    host_name: hostName,
-    supports_matlab: supportsMatlab,
-    supports_python: supportsPython,
-    supports_gpu: supportsGpu,
-    status: statusValue,
-    metadata_json: metadata,
-  });
+function resetExecutionTargetForm() {
   state.selectedExecutionTarget = null;
-  await refreshExecutionTargets();
-  setStatus(`Created execution target ${displayName}.`);
+  if (els.executionTargetName) els.executionTargetName.value = "";
+  if (els.executionTargetKey) els.executionTargetKey.value = "";
+  if (els.executionTargetKind) els.executionTargetKind.value = "server_gpu";
+  if (els.executionTargetHost) els.executionTargetHost.value = "";
+  if (els.executionTargetStatus) els.executionTargetStatus.value = "online";
+  if (els.executionTargetSupportsMatlab) els.executionTargetSupportsMatlab.value = "true";
+  if (els.executionTargetSupportsPython) els.executionTargetSupportsPython.value = "true";
+  if (els.executionTargetSupportsGpu) els.executionTargetSupportsGpu.value = "false";
+  if (els.executionTargetMetadataJson) els.executionTargetMetadataJson.value = "{}";
+  renderExecutionTargets();
 }
 
-async function editExecutionTarget(target) {
+function loadExecutionTargetIntoForm(target) {
   if (!target) {
     return;
   }
-  const displayName = window.prompt("Execution target display name", target.display_name || "");
-  if (displayName === null) {
-    return;
-  }
-  const targetKind = window.prompt("Target kind", target.target_kind || "");
-  if (targetKind === null) {
-    return;
-  }
-  const hostName = window.prompt("Host name", target.host_name || "");
-  if (hostName === null) {
-    return;
-  }
-  const supportsMatlab = promptBooleanField("Supports MATLAB", Boolean(target.supports_matlab));
-  if (supportsMatlab === null) return;
-  const supportsPython = promptBooleanField("Supports Python", Boolean(target.supports_python));
-  if (supportsPython === null) return;
-  const supportsGpu = promptBooleanField("Supports GPU", Boolean(target.supports_gpu));
-  if (supportsGpu === null) return;
-  const statusValue = window.prompt("Status", target.status || "active");
-  if (statusValue === null) {
-    return;
-  }
-  const metadataText = window.prompt("Metadata JSON patch", JSON.stringify(target.metadata_json || {}));
-  if (metadataText === null) {
-    return;
-  }
-  const metadata = parseOptionalJsonField(metadataText, "Metadata JSON patch", {});
+  state.selectedExecutionTarget = target;
+  if (els.executionTargetName) els.executionTargetName.value = target.display_name || "";
+  if (els.executionTargetKey) els.executionTargetKey.value = target.target_key || "";
+  if (els.executionTargetKind) els.executionTargetKind.value = target.target_kind || "";
+  if (els.executionTargetHost) els.executionTargetHost.value = target.host_name || "";
+  if (els.executionTargetStatus) els.executionTargetStatus.value = target.status || "online";
+  if (els.executionTargetSupportsMatlab) els.executionTargetSupportsMatlab.value = target.supports_matlab ? "true" : "false";
+  if (els.executionTargetSupportsPython) els.executionTargetSupportsPython.value = target.supports_python ? "true" : "false";
+  if (els.executionTargetSupportsGpu) els.executionTargetSupportsGpu.value = target.supports_gpu ? "true" : "false";
+  if (els.executionTargetMetadataJson) els.executionTargetMetadataJson.value = JSON.stringify(target.metadata_json || {}, null, 2);
+  renderExecutionTargets();
+}
 
-  await apiPatch(`/execution-targets/${target.id}`, {
+function buildExecutionTargetPayload() {
+  const displayName = String(els.executionTargetName?.value || "").trim();
+  const targetKey = String(els.executionTargetKey?.value || "").trim();
+  const targetKind = String(els.executionTargetKind?.value || "").trim();
+  const hostName = String(els.executionTargetHost?.value || "").trim();
+  const statusValue = String(els.executionTargetStatus?.value || "").trim();
+  if (!displayName) {
+    throw new Error("Execution target name is required.");
+  }
+  if (!targetKind) {
+    throw new Error("Execution target kind is required.");
+  }
+  if (!statusValue) {
+    throw new Error("Execution target status is required.");
+  }
+  return {
+    target_key: targetKey || null,
     display_name: displayName,
     target_kind: targetKind,
     host_name: hostName || null,
-    supports_matlab: supportsMatlab,
-    supports_python: supportsPython,
-    supports_gpu: supportsGpu,
+    supports_matlab: String(els.executionTargetSupportsMatlab?.value || "false") === "true",
+    supports_python: String(els.executionTargetSupportsPython?.value || "true") === "true",
+    supports_gpu: String(els.executionTargetSupportsGpu?.value || "false") === "true",
     status: statusValue,
-    metadata_json: metadata,
-  });
-  state.selectedExecutionTarget = null;
+    metadata_json: parseOptionalJsonField(els.executionTargetMetadataJson?.value, "Metadata JSON", {}),
+  };
+}
+
+async function saveExecutionTarget() {
+  const payload = buildExecutionTargetPayload();
+  let saved;
+  if (state.selectedExecutionTarget) {
+    saved = await apiPatch(`/execution-targets/${state.selectedExecutionTarget.id}`, payload);
+    setStatus(`Updated execution target ${saved.display_name}.`);
+  } else {
+    saved = await apiPost("/execution-targets", payload);
+    setStatus(`Created execution target ${saved.display_name}.`);
+  }
+  state.selectedExecutionTarget = saved;
   await refreshExecutionTargets();
-  setStatus(`Updated execution target ${displayName}.`);
 }
 
 function renderIndexingJobs() {
@@ -2285,6 +2390,7 @@ async function refreshPipelines() {
   if (!els.pipelinesTableBody) {
     return;
   }
+  const selectedId = pipelineIdentity(state.selectedPipeline);
   const params = new URLSearchParams();
   if (els.pipelineSearch?.value.trim()) params.set("search", els.pipelineSearch.value.trim());
   if (els.pipelineRuntimeFilter?.value) params.set("runtime_kind", els.pipelineRuntimeFilter.value);
@@ -2294,6 +2400,7 @@ async function refreshPipelines() {
   ]);
   state.pipelines = registry.map((item) => ({ ...item, source: "registry", project_count: item.project_count || 0 }));
   state.observedPipelines = observed;
+  state.selectedPipeline = pipelineRows().find((item) => pipelineIdentity(item) === selectedId) || null;
   renderPipelines();
 }
 
@@ -3046,12 +3153,14 @@ if (els.pipelineRunPipelineSelect) els.pipelineRunPipelineSelect.addEventListene
 if (els.pipelineRunTargetSelect) els.pipelineRunTargetSelect.addEventListener("change", () => renderPipelineRunBuilder());
 if (els.pipelineRunPythonModeSelect) els.pipelineRunPythonModeSelect.addEventListener("change", () => renderPipelineRunBuilder());
 if (els.refreshPipelineRunsButton) els.refreshPipelineRunsButton.addEventListener("click", () => refreshPipelineRuns().catch((error) => setStatus(String(error))));
+if (els.newPipelineRunButton) els.newPipelineRunButton.addEventListener("click", () => resetPipelineRunForm());
 if (els.submitPipelineRunButton) els.submitPipelineRunButton.addEventListener("click", () => submitPipelineRun().catch((error) => {
   setStatus(String(error));
   window.alert(String(error));
 }));
 if (els.refreshExecutionTargetsButton) els.refreshExecutionTargetsButton.addEventListener("click", () => refreshExecutionTargets().catch((error) => setStatus(String(error))));
-if (els.newExecutionTargetButton) els.newExecutionTargetButton.addEventListener("click", () => createExecutionTarget().catch((error) => {
+if (els.newExecutionTargetButton) els.newExecutionTargetButton.addEventListener("click", () => resetExecutionTargetForm());
+if (els.saveExecutionTargetButton) els.saveExecutionTargetButton.addEventListener("click", () => saveExecutionTarget().catch((error) => {
   setStatus(String(error));
   window.alert(String(error));
 }));

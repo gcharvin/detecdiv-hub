@@ -284,9 +284,11 @@
           </div>
           <div class="action-stack">
             <button id="refresh-pipeline-runs-button">Refresh runs</button>
+            <button id="new-pipeline-run-button">New draft</button>
             <button id="submit-pipeline-run-button" class="primary">Submit run</button>
           </div>
         </div>
+        <p id="pipeline-run-editor-mode" class="muted">Create mode.</p>
         <div class="toolbar">
           <label class="field compact">
             <span>Project</span>
@@ -399,6 +401,7 @@
             <tbody></tbody>
           </table>
         </div>
+        <p class="muted">Single click inspects a run. Double click loads it into the editor.</p>
         <pre id="pipeline-run-detail" class="stack-item-meta">Select a run to inspect its payload and result.</pre>
       </section>
 
@@ -411,7 +414,58 @@
           <div class="action-stack">
             <button id="refresh-execution-targets-button">Refresh targets</button>
             <button id="new-execution-target-button">New target</button>
+            <button id="save-execution-target-button" class="primary">Save target</button>
           </div>
+        </div>
+        <p id="execution-target-editor-mode" class="muted">Create mode.</p>
+        <div class="toolbar">
+          <label class="field compact">
+            <span>Name</span>
+            <input id="execution-target-name" type="text" placeholder="Central GPU Server" />
+          </label>
+          <label class="field compact">
+            <span>Key</span>
+            <input id="execution-target-key" type="text" placeholder="server_gpu" />
+          </label>
+          <label class="field compact">
+            <span>Kind</span>
+            <input id="execution-target-kind" type="text" placeholder="server_gpu" />
+          </label>
+          <label class="field compact">
+            <span>Host</span>
+            <input id="execution-target-host" type="text" placeholder="detecdiv-server" />
+          </label>
+          <label class="field compact">
+            <span>Status</span>
+            <input id="execution-target-status" type="text" placeholder="online" />
+          </label>
+        </div>
+        <div class="toolbar">
+          <label class="field compact">
+            <span>MATLAB</span>
+            <select id="execution-target-supports-matlab">
+              <option value="true">yes</option>
+              <option value="false">no</option>
+            </select>
+          </label>
+          <label class="field compact">
+            <span>Python</span>
+            <select id="execution-target-supports-python">
+              <option value="true">yes</option>
+              <option value="false">no</option>
+            </select>
+          </label>
+          <label class="field compact">
+            <span>GPU</span>
+            <select id="execution-target-supports-gpu">
+              <option value="false">no</option>
+              <option value="true">yes</option>
+            </select>
+          </label>
+          <label class="field">
+            <span>Metadata JSON</span>
+            <textarea id="execution-target-metadata-json" rows="4" placeholder='{"queue":"gpu","worker_notes":"server-side target"}'></textarea>
+          </label>
         </div>
         <div class="table-wrap jobs-table-wrap">
           <table id="execution-targets-table">
@@ -424,11 +478,14 @@
                 <th>Python</th>
                 <th>GPU</th>
                 <th>Status</th>
+                <th>Health</th>
+                <th>Last Seen</th>
               </tr>
             </thead>
             <tbody></tbody>
           </table>
         </div>
+        <p class="muted">Single click inspects a target. Double click loads it into the editor.</p>
         <pre id="execution-target-detail" class="stack-item-meta">Select a target to inspect its metadata.</pre>
       </section>
 
