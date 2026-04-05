@@ -606,6 +606,60 @@ class JobSummary(HubBaseModel):
     updated_at: datetime | None = None
 
 
+class PipelineRunCreateRequest(HubBaseModel):
+    project_id: UUID
+    pipeline_id: UUID | None = None
+    execution_target_id: UUID | None = None
+    requested_mode: str = "auto"
+    priority: int = 100
+    requested_by: str | None = None
+    requested_from_host: str | None = None
+    project_ref: dict[str, Any] = Field(default_factory=dict)
+    pipeline_ref: dict[str, Any] = Field(default_factory=dict)
+    run_request: dict[str, Any] = Field(default_factory=dict)
+    execution: dict[str, Any] = Field(default_factory=dict)
+
+
+class PipelineRunSummary(JobSummary):
+    pass
+
+
+class ExecutionTargetSummary(HubBaseModel):
+    id: UUID
+    target_key: str | None = None
+    display_name: str
+    target_kind: str
+    host_name: str | None = None
+    supports_gpu: bool
+    supports_matlab: bool
+    supports_python: bool
+    status: str
+    metadata_json: dict[str, Any] = Field(default_factory=dict)
+
+
+class ExecutionTargetCreate(HubBaseModel):
+    target_key: str | None = None
+    display_name: str
+    target_kind: str
+    host_name: str | None = None
+    supports_gpu: bool = False
+    supports_matlab: bool = False
+    supports_python: bool = True
+    status: str = "online"
+    metadata_json: dict[str, Any] = Field(default_factory=dict)
+
+
+class ExecutionTargetUpdate(HubBaseModel):
+    display_name: str | None = None
+    target_kind: str | None = None
+    host_name: str | None = None
+    supports_gpu: bool | None = None
+    supports_matlab: bool | None = None
+    supports_python: bool | None = None
+    status: str | None = None
+    metadata_json: dict[str, Any] | None = None
+
+
 class PipelineSummary(HubBaseModel):
     id: UUID
     pipeline_key: str | None = None

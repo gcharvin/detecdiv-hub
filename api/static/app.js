@@ -9,6 +9,8 @@ const state = {
   indexBrowse: null,
   pipelines: [],
   observedPipelines: [],
+  executionTargets: [],
+  pipelineRuns: [],
   sessions: [],
   users: [],
   indexingJobs: [],
@@ -23,6 +25,7 @@ const state = {
   selectedProject: null,
   selectedProjectDetail: null,
   selectedProjectIds: [],
+  selectedPipeline: null,
   pendingBulkDelete: null,
   bulkDeletePreviewToken: 0,
   notes: [],
@@ -153,6 +156,27 @@ const els = {
   importObservedPipelinesButton: document.querySelector("#import-observed-pipelines-button"),
   newPipelineButton: document.querySelector("#new-pipeline-button"),
   pipelinesTableBody: document.querySelector("#pipelines-table tbody"),
+  pipelineRunProjectSelect: document.querySelector("#pipeline-run-project-select"),
+  pipelineRunPipelineSelect: document.querySelector("#pipeline-run-pipeline-select"),
+  pipelineRunTargetSelect: document.querySelector("#pipeline-run-target-select"),
+  pipelineRunModeSelect: document.querySelector("#pipeline-run-mode-select"),
+  pipelineRunGpuSelect: document.querySelector("#pipeline-run-gpu-select"),
+  pipelineRunPythonModeSelect: document.querySelector("#pipeline-run-python-mode-select"),
+  pipelineRunPythonEnv: document.querySelector("#pipeline-run-python-env"),
+  pipelineRunId: document.querySelector("#pipeline-run-id"),
+  pipelineRunPolicySelect: document.querySelector("#pipeline-run-policy-select"),
+  pipelineRunExistingSelect: document.querySelector("#pipeline-run-existing-select"),
+  pipelineRunCacheSelect: document.querySelector("#pipeline-run-cache-select"),
+  pipelineRunPriority: document.querySelector("#pipeline-run-priority"),
+  pipelineRunSelectedNodes: document.querySelector("#pipeline-run-selected-nodes"),
+  pipelineRunDescription: document.querySelector("#pipeline-run-description"),
+  pipelineRunNodeParams: document.querySelector("#pipeline-run-node-params"),
+  pipelineRunSelectionSummary: document.querySelector("#pipeline-run-selection-summary"),
+  submitPipelineRunButton: document.querySelector("#submit-pipeline-run-button"),
+  pipelineRunsTableBody: document.querySelector("#pipeline-runs-table tbody"),
+  refreshExecutionTargetsButton: document.querySelector("#refresh-execution-targets-button"),
+  newExecutionTargetButton: document.querySelector("#new-execution-target-button"),
+  executionTargetsTableBody: document.querySelector("#execution-targets-table tbody"),
   usersTableBody: document.querySelector("#users-table tbody"),
   newUserButton: document.querySelector("#new-user-button"),
   bulkImportUsersText: document.querySelector("#bulk-import-users-text"),
@@ -171,6 +195,8 @@ const pageFlags = {
   hasStorageRootFilter: Boolean(els.storageRootFilter),
   hasProjectDetail: Boolean(els.detailContent),
   hasPipelinesView: Boolean(els.pipelinesTableBody),
+  hasPipelineRunsView: Boolean(els.pipelineRunsTableBody),
+  hasExecutionTargetsView: Boolean(els.executionTargetsTableBody),
   hasUsersView: Boolean(els.usersTableBody),
   hasSessionsView: Boolean(els.sessionsTableBody),
   hasIndexingView: Boolean(els.indexJobsTableBody || els.activeIndexJob),
@@ -195,6 +221,8 @@ function clearDashboardState() {
   state.indexBrowse = null;
   state.pipelines = [];
   state.observedPipelines = [];
+  state.executionTargets = [];
+  state.pipelineRuns = [];
   state.sessions = [];
   state.users = [];
   state.indexingJobs = [];
@@ -209,6 +237,7 @@ function clearDashboardState() {
   state.selectedProject = null;
   state.selectedProjectDetail = null;
   state.selectedProjectIds = [];
+  state.selectedPipeline = null;
   state.pendingBulkDelete = null;
   state.bulkDeletePreviewToken = 0;
   state.notes = [];
@@ -227,6 +256,9 @@ function clearDashboardState() {
   renderProjectSelectionControls();
   renderBulkDeletePanel();
   renderPipelines();
+  renderPipelineRunBuilder();
+  renderPipelineRuns();
+  renderExecutionTargets();
   renderOwnerFilters();
   renderIndexOwnerOptions();
   renderIndexingJobs();
@@ -720,6 +752,9 @@ function renderPipelines() {
   els.pipelinesTableBody.innerHTML = "";
   for (const pipeline of pipelineRows()) {
     const tr = document.createElement("tr");
+    if (state.selectedPipeline && pipelineIdentity(pipeline) === pipelineIdentity(state.selectedPipeline)) {
+      tr.classList.add("selected");
+    }
     const source = pipeline.source || "registry";
     const version = pipeline.version || "observed";
     const updated = pipeline.updated_at || pipeline.latest_run_at || pipeline.created_at;
@@ -734,11 +769,393 @@ function renderPipelines() {
       <td>${formatTimestamp(updated)}</td>
     `;
     tr.title = JSON.stringify(pipeline.metadata_json || {});
+    tr.addEventListener("click", () => selectPipelineRow(pipeline));
     if (source === "registry") {
-      tr.addEventListener("click", () => editPipeline(pipeline));
+      tr.addEventListener("dblclick", () => editPipeline(pipeline));
     }
     els.pipelinesTableBody.appendChild(tr);
   }
+  renderPipelineRunBuilder();
+}
+
+function selectPipelineRow(pipeline) {
+  state.selectedPipeline = pipeline;
+  renderPipelines();
+}
+
+function pipelineIdentity(pipeline) {
+  if (!pipeline) {
+    return "";
+  }
+  return String(
+    pipeline.id
+    || pipeline.identity
+    || pipeline.pipeline_key
+    || pipeline.metadata_json?.pipeline_path
+    || pipeline.display_name
+  );
+}
+
+function pipelineOptionValue(pipeline) {
+  return pipelineIdentity(pipeline);
+}
+
+function renderPipelineRunBuilder() {
+  if (!els.pipelineRunProjectSelect || !els.pipelineRunPipelineSelect || !els.pipelineRunTargetSelect) {
+    return;
+  }
+
+  const selectedProjectId = String(els.pipelineRunProjectSelect.value || state.selectedProject?.id || "");
+  const selectedPipelineId = String(els.pipelineRunPipelineSelect.value || pipelineOptionValue(state.selectedPipeline) || "");
+  const selectedTargetId = String(els.pipelineRunTargetSelect.value || "");
+
+  els.pipelineRunProjectSelect.innerHTML = `<option value="">Use selected project</option>`;
+  for (const project of state.projects) {
+    const option = document.createElement("option");
+    option.value = String(project.id);
+    option.textContent = project.project_name;
+    if (String(project.id) === selectedProjectId) option.selected = true;
+    els.pipelineRunProjectSelect.appendChild(option);
+  }
+
+  els.pipelineRunPipelineSelect.innerHTML = `<option value="">Use selected pipeline</option>`;
+  for (const pipeline of pipelineRows()) {
+    const option = document.createElement("option");
+    option.value = pipelineOptionValue(pipeline);
+    option.textContent = `${pipeline.display_name} [${pipeline.source || "registry"}]`;
+    if (pipelineOptionValue(pipeline) === selectedPipelineId) option.selected = true;
+    els.pipelineRunPipelineSelect.appendChild(option);
+  }
+
+  els.pipelineRunTargetSelect.innerHTML = `<option value="">Auto-select target</option>`;
+  for (const target of state.executionTargets) {
+    const option = document.createElement("option");
+    option.value = String(target.id);
+    option.textContent = `${target.display_name} (${target.target_kind}${target.supports_gpu ? ", GPU" : ""})`;
+    if (String(target.id) === selectedTargetId) option.selected = true;
+    els.pipelineRunTargetSelect.appendChild(option);
+  }
+
+  const project = resolvePipelineRunProject();
+  const pipeline = resolvePipelineRunPipeline();
+  const target = resolvePipelineRunTarget();
+  if (els.pipelineRunPythonEnv) {
+    const isCustom = String(els.pipelineRunPythonModeSelect?.value || "default") === "custom";
+    els.pipelineRunPythonEnv.disabled = !isCustom;
+  }
+  if (!project && !pipeline) {
+    if (els.pipelineRunSelectionSummary) {
+      els.pipelineRunSelectionSummary.textContent = "No project or pipeline selected yet.";
+    }
+    return;
+  }
+  const projectLabel = project ? project.project_name : "no project";
+  const pipelineLabel = pipeline ? pipeline.display_name : "no pipeline";
+  const targetLabel = target ? target.display_name : "auto target";
+  if (els.pipelineRunSelectionSummary) {
+    els.pipelineRunSelectionSummary.textContent = `Project: ${projectLabel} | Pipeline: ${pipelineLabel} | Target: ${targetLabel}`;
+  }
+}
+
+function renderPipelineRuns() {
+  if (!els.pipelineRunsTableBody) {
+    return;
+  }
+  els.pipelineRunsTableBody.innerHTML = "";
+  for (const run of state.pipelineRuns) {
+    const tr = document.createElement("tr");
+    const rr = run.params_json?.run_request || {};
+    const project = state.projects.find((item) => String(item.id) === String(run.project_id));
+    const pipeline = [...state.pipelines, ...state.observedPipelines].find((item) => String(item.id || item.identity) === String(run.pipeline_id || ""));
+    const target = state.executionTargets.find((item) => String(item.id) === String(run.execution_target_id));
+    tr.innerHTML = `
+      <td>${run.status}</td>
+      <td>${project?.project_name || run.project_id || ""}</td>
+      <td>${pipeline?.display_name || run.params_json?.pipeline_ref?.pipeline_key || run.pipeline_id || ""}</td>
+      <td>${target?.display_name || run.execution_target_id || "auto"}</td>
+      <td>${rr.run_id || ""}</td>
+      <td>${formatTimestamp(run.updated_at || run.created_at)}</td>
+    `;
+    tr.title = run.error_text || JSON.stringify(run.result_json || {});
+    els.pipelineRunsTableBody.appendChild(tr);
+  }
+}
+
+function renderExecutionTargets() {
+  if (!els.executionTargetsTableBody) {
+    return;
+  }
+  els.executionTargetsTableBody.innerHTML = "";
+  for (const target of state.executionTargets) {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${target.display_name}</td>
+      <td>${target.target_kind}</td>
+      <td>${target.host_name || ""}</td>
+      <td>${target.supports_matlab ? "yes" : "no"}</td>
+      <td>${target.supports_python ? "yes" : "no"}</td>
+      <td>${target.supports_gpu ? "yes" : "no"}</td>
+      <td>${target.status}</td>
+    `;
+    tr.addEventListener("click", () => editExecutionTarget(target));
+    els.executionTargetsTableBody.appendChild(tr);
+  }
+  renderPipelineRunBuilder();
+}
+
+function resolvePipelineRunProject() {
+  const projectId = String(els.pipelineRunProjectSelect?.value || state.selectedProject?.id || "");
+  return state.projects.find((item) => String(item.id) === projectId) || state.selectedProject || null;
+}
+
+function resolvePipelineRunPipeline() {
+  const chosen = String(els.pipelineRunPipelineSelect?.value || pipelineOptionValue(state.selectedPipeline) || "");
+  const rows = pipelineRows();
+  return rows.find((item) => pipelineOptionValue(item) === chosen) || state.selectedPipeline || null;
+}
+
+function resolvePipelineRunTarget() {
+  const targetId = String(els.pipelineRunTargetSelect?.value || "");
+  return state.executionTargets.find((item) => String(item.id) === targetId) || null;
+}
+
+function parsePipelineRunSelectedNodes(value) {
+  return String(value || "")
+    .split(/[\n,;]+/)
+    .map((item) => item.trim())
+    .filter(Boolean);
+}
+
+function parseOptionalJsonField(rawValue, label, fallbackValue) {
+  const text = String(rawValue || "").trim();
+  if (!text) {
+    return fallbackValue;
+  }
+  try {
+    return JSON.parse(text);
+  } catch (error) {
+    throw new Error(`${label} must be valid JSON. ${error.message}`);
+  }
+}
+
+function pipelineRefFromSelection(pipeline) {
+  const ref = {};
+  if (!pipeline) {
+    return ref;
+  }
+  if (pipeline.pipeline_key) {
+    ref.pipeline_key = pipeline.pipeline_key;
+  }
+  const metadata = pipeline.metadata_json || {};
+  const observed = metadata.observed || {};
+  const pathHints = [
+    metadata.pipeline_json_path,
+    metadata.pipeline_bundle_uri,
+    metadata.export_manifest_uri,
+    metadata.pipeline_path,
+    observed.pipeline_json_path,
+    observed.pipeline_bundle_uri,
+    observed.export_manifest_uri,
+    observed.pipeline_path,
+  ].filter(Boolean);
+  const pipelinePath = pathHints[0] || "";
+  if (pipelinePath) {
+    if (String(pipelinePath).toLowerCase().endsWith("export_manifest.json")) {
+      ref.export_manifest_uri = pipelinePath;
+    } else {
+      ref.pipeline_json_path = pipelinePath;
+    }
+  }
+  return ref;
+}
+
+function projectRefFromSelection(project) {
+  if (!project) {
+    return {};
+  }
+  const metadata = project.metadata_json || {};
+  return {
+    project_id: project.id,
+    project_key: project.project_key || null,
+    project_mat_path: metadata.project_mat_abs || null,
+  };
+}
+
+async function refreshPipelineRuns() {
+  if (!els.pipelineRunsTableBody) {
+    return;
+  }
+  state.pipelineRuns = await apiGet("/pipeline-runs");
+  renderPipelineRuns();
+}
+
+async function refreshExecutionTargets() {
+  if (!els.executionTargetsTableBody && !els.pipelineRunTargetSelect) {
+    return;
+  }
+  state.executionTargets = await apiGet("/execution-targets");
+  renderExecutionTargets();
+}
+
+async function submitPipelineRun() {
+  const project = resolvePipelineRunProject();
+  if (!project) {
+    throw new Error("Select a project before submitting a pipeline run.");
+  }
+  const pipeline = resolvePipelineRunPipeline();
+  if (!pipeline) {
+    throw new Error("Select a pipeline before submitting a pipeline run.");
+  }
+
+  const requestedMode = String(els.pipelineRunModeSelect?.value || "auto");
+  const gpuMode = String(els.pipelineRunGpuSelect?.value || "module_default");
+  const pythonMode = String(els.pipelineRunPythonModeSelect?.value || "default");
+  const pythonEnvName = String(els.pipelineRunPythonEnv?.value || "").trim();
+  const priorityValue = Number(els.pipelineRunPriority?.value || 100);
+  const nodeParams = parseOptionalJsonField(els.pipelineRunNodeParams?.value, "Node overrides JSON", []);
+  if (!Array.isArray(nodeParams)) {
+    throw new Error("Node overrides JSON must decode to an array.");
+  }
+
+  const payload = {
+    project_id: project.id,
+    pipeline_id: pipeline.id || null,
+    execution_target_id: resolvePipelineRunTarget()?.id || null,
+    requested_mode: requestedMode,
+    priority: Number.isFinite(priorityValue) ? Math.max(0, Math.floor(priorityValue)) : 100,
+    requested_by: state.currentUser?.user_key || state.userKey || null,
+    requested_from_host: window.location.hostname || "web-ui",
+    project_ref: projectRefFromSelection(project),
+    pipeline_ref: pipelineRefFromSelection(pipeline),
+    run_request: {
+      run_id: String(els.pipelineRunId?.value || "").trim() || null,
+      description: String(els.pipelineRunDescription?.value || "").trim() || null,
+      selected_nodes: parsePipelineRunSelectedNodes(els.pipelineRunSelectedNodes?.value),
+      node_params: nodeParams,
+      run_policy: String(els.pipelineRunPolicySelect?.value || "resume"),
+      existing_data_policy: String(els.pipelineRunExistingSelect?.value || "replace"),
+      roi_cache_policy: String(els.pipelineRunCacheSelect?.value || "auto"),
+      python: {
+        mode: pythonMode,
+        env_name: pythonMode === "custom" ? (pythonEnvName || "detecdiv_python") : null,
+      },
+      gpu: {
+        mode: gpuMode,
+      },
+    },
+    execution: {
+      requested_mode: requestedMode,
+      execution_target_id: resolvePipelineRunTarget()?.id || null,
+      allow_gui: false,
+    },
+  };
+
+  const created = await apiPost("/pipeline-runs", payload);
+  setStatus(`Queued pipeline run ${created.id} for ${project.project_name}.`);
+  state.pipelineRuns.unshift(created);
+  renderPipelineRuns();
+}
+
+function promptBooleanField(label, currentValue) {
+  const answer = window.prompt(`${label} (yes/no)`, currentValue ? "yes" : "no");
+  if (answer === null) {
+    return null;
+  }
+  const normalized = answer.trim().toLowerCase();
+  if (["yes", "y", "true", "1"].includes(normalized)) return true;
+  if (["no", "n", "false", "0"].includes(normalized)) return false;
+  throw new Error(`${label} must be yes or no.`);
+}
+
+async function createExecutionTarget() {
+  const displayName = window.prompt("Execution target display name");
+  if (!displayName) {
+    return;
+  }
+  const targetKey = window.prompt("Target key", displayName.toLowerCase().replace(/[^a-z0-9]+/g, "_"));
+  if (targetKey === null) {
+    return;
+  }
+  const targetKind = window.prompt("Target kind", "server_gpu");
+  if (!targetKind) {
+    return;
+  }
+  const hostName = window.prompt("Host name", "") || null;
+  const supportsMatlab = promptBooleanField("Supports MATLAB", true);
+  if (supportsMatlab === null) return;
+  const supportsPython = promptBooleanField("Supports Python", true);
+  if (supportsPython === null) return;
+  const supportsGpu = promptBooleanField("Supports GPU", /gpu/i.test(targetKind));
+  if (supportsGpu === null) return;
+  const statusValue = window.prompt("Status", "active");
+  if (!statusValue) {
+    return;
+  }
+  const metadataText = window.prompt("Metadata JSON", "{}");
+  if (metadataText === null) {
+    return;
+  }
+  const metadata = parseOptionalJsonField(metadataText, "Metadata JSON", {});
+
+  await apiPost("/execution-targets", {
+    target_key: targetKey || null,
+    display_name: displayName,
+    target_kind: targetKind,
+    host_name: hostName,
+    supports_matlab: supportsMatlab,
+    supports_python: supportsPython,
+    supports_gpu: supportsGpu,
+    status: statusValue,
+    metadata_json: metadata,
+  });
+  await refreshExecutionTargets();
+  setStatus(`Created execution target ${displayName}.`);
+}
+
+async function editExecutionTarget(target) {
+  if (!target) {
+    return;
+  }
+  const displayName = window.prompt("Execution target display name", target.display_name || "");
+  if (displayName === null) {
+    return;
+  }
+  const targetKind = window.prompt("Target kind", target.target_kind || "");
+  if (targetKind === null) {
+    return;
+  }
+  const hostName = window.prompt("Host name", target.host_name || "");
+  if (hostName === null) {
+    return;
+  }
+  const supportsMatlab = promptBooleanField("Supports MATLAB", Boolean(target.supports_matlab));
+  if (supportsMatlab === null) return;
+  const supportsPython = promptBooleanField("Supports Python", Boolean(target.supports_python));
+  if (supportsPython === null) return;
+  const supportsGpu = promptBooleanField("Supports GPU", Boolean(target.supports_gpu));
+  if (supportsGpu === null) return;
+  const statusValue = window.prompt("Status", target.status || "active");
+  if (statusValue === null) {
+    return;
+  }
+  const metadataText = window.prompt("Metadata JSON patch", JSON.stringify(target.metadata_json || {}));
+  if (metadataText === null) {
+    return;
+  }
+  const metadata = parseOptionalJsonField(metadataText, "Metadata JSON patch", {});
+
+  await apiPatch(`/execution-targets/${target.id}`, {
+    display_name: displayName,
+    target_kind: targetKind,
+    host_name: hostName || null,
+    supports_matlab: supportsMatlab,
+    supports_python: supportsPython,
+    supports_gpu: supportsGpu,
+    status: statusValue,
+    metadata_json: metadata,
+  });
+  await refreshExecutionTargets();
+  setStatus(`Updated execution target ${displayName}.`);
 }
 
 function renderIndexingJobs() {
@@ -1562,6 +1979,12 @@ async function refreshDashboard() {
   if (pageFlags.hasPipelinesView) {
     refreshTasks.push(refreshPipelines());
   }
+  if (pageFlags.hasExecutionTargetsView || els.pipelineRunTargetSelect) {
+    refreshTasks.push(refreshExecutionTargets());
+  }
+  if (pageFlags.hasPipelineRunsView) {
+    refreshTasks.push(refreshPipelineRuns());
+  }
   if (pageFlags.hasUsersView || pageFlags.hasIndexForm) {
     refreshTasks.push(refreshUsers());
   }
@@ -1867,6 +2290,7 @@ async function selectProject(projectId) {
   state.acl = acl;
   renderProjects();
   renderDetail();
+  renderPipelineRunBuilder();
 }
 
 async function createGroup() {
@@ -2572,6 +2996,19 @@ if (els.newPipelineButton) els.newPipelineButton.addEventListener("click", () =>
 if (els.pipelineSearch) els.pipelineSearch.addEventListener("change", () => refreshPipelines().catch((error) => setStatus(String(error))));
 if (els.pipelineRuntimeFilter) els.pipelineRuntimeFilter.addEventListener("change", () => refreshPipelines().catch((error) => setStatus(String(error))));
 if (els.pipelineSourceFilter) els.pipelineSourceFilter.addEventListener("change", () => renderPipelines());
+if (els.pipelineRunProjectSelect) els.pipelineRunProjectSelect.addEventListener("change", () => renderPipelineRunBuilder());
+if (els.pipelineRunPipelineSelect) els.pipelineRunPipelineSelect.addEventListener("change", () => renderPipelineRunBuilder());
+if (els.pipelineRunTargetSelect) els.pipelineRunTargetSelect.addEventListener("change", () => renderPipelineRunBuilder());
+if (els.pipelineRunPythonModeSelect) els.pipelineRunPythonModeSelect.addEventListener("change", () => renderPipelineRunBuilder());
+if (els.submitPipelineRunButton) els.submitPipelineRunButton.addEventListener("click", () => submitPipelineRun().catch((error) => {
+  setStatus(String(error));
+  window.alert(String(error));
+}));
+if (els.refreshExecutionTargetsButton) els.refreshExecutionTargetsButton.addEventListener("click", () => refreshExecutionTargets().catch((error) => setStatus(String(error))));
+if (els.newExecutionTargetButton) els.newExecutionTargetButton.addEventListener("click", () => createExecutionTarget().catch((error) => {
+  setStatus(String(error));
+  window.alert(String(error));
+}));
 if (els.newUserButton) els.newUserButton.addEventListener("click", () => createUser().catch((error) => setStatus(String(error))));
 if (els.bulkImportUsersButton) els.bulkImportUsersButton.addEventListener("click", () => bulkImportUsers().catch((error) => {
   setStatus(String(error));

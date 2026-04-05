@@ -13,6 +13,7 @@ from api.db import SessionLocal
 from api.models import Job
 from worker.archive_policy_scheduler import run_archive_policy_if_due
 from worker.micromanager_ingest_scheduler import run_micromanager_ingest_if_due
+from worker.pipeline_run_executor import execute_pipeline_run_job
 from worker.storage_lifecycle import execute_storage_lifecycle_job, finalize_storage_lifecycle_failure
 
 
@@ -80,6 +81,12 @@ def mark_job_failed(job_id, error_text: str) -> None:
 def execute_job(job: Job) -> dict:
     job_kind = (job.params_json or {}).get("job_kind")
     LOGGER.info("Executing job %s on host %s", job.id, socket.gethostname())
+    if job_kind == "pipeline_run":
+        with session_scope() as session:
+            job_record = session.get(Job, job.id)
+            if job_record is None:
+                raise ValueError(f"Job {job.id} disappeared before execution")
+            return execute_pipeline_run_job(session, job=job_record)
     if job_kind in {"archive_raw_dataset", "restore_raw_dataset"}:
         with session_scope() as session:
             job_record = session.get(Job, job.id)
