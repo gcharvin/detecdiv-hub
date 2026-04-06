@@ -598,7 +598,7 @@ function renderIndexBrowser() {
     upRow.innerHTML = `
       <td>..</td>
       <td>${browse.parent_relative_path || "/"}</td>
-      <td><button type="button">Open</button></td>
+      <td><button type="button">Up</button></td>
     `;
     upRow.querySelector("button")?.addEventListener("click", () => {
       openIndexBrowserPath(browse.parent_relative_path).catch((error) => setStatus(String(error)));
@@ -611,7 +611,7 @@ function renderIndexBrowser() {
     tr.innerHTML = `
       <td>${directory.name}</td>
       <td>${directory.relative_path || "/"}</td>
-      <td><button type="button">Open</button></td>
+      <td><button type="button">Enter</button></td>
     `;
     tr.querySelector("button")?.addEventListener("click", () => {
       openIndexBrowserPath(directory.relative_path).catch((error) => setStatus(String(error)));
