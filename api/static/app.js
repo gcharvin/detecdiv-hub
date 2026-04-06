@@ -28,6 +28,7 @@ const state = {
   selectedPipeline: null,
   selectedPipelineRun: null,
   selectedExecutionTarget: null,
+  editingExecutionTarget: null,
   pendingBulkDelete: null,
   bulkDeletePreviewToken: 0,
   notes: [],
@@ -182,6 +183,7 @@ const els = {
   pipelineRunDetail: document.querySelector("#pipeline-run-detail"),
   refreshExecutionTargetsButton: document.querySelector("#refresh-execution-targets-button"),
   newExecutionTargetButton: document.querySelector("#new-execution-target-button"),
+  cancelExecutionTargetEditButton: document.querySelector("#cancel-execution-target-edit-button"),
   saveExecutionTargetButton: document.querySelector("#save-execution-target-button"),
   executionTargetEditorMode: document.querySelector("#execution-target-editor-mode"),
   executionTargetName: document.querySelector("#execution-target-name"),
@@ -1035,13 +1037,16 @@ function renderExecutionTargets() {
     els.executionTargetsTableBody.appendChild(tr);
   }
   if (els.executionTargetEditorMode && els.saveExecutionTargetButton) {
-    if (state.selectedExecutionTarget) {
-      els.executionTargetEditorMode.textContent = `Edit mode: ${state.selectedExecutionTarget.display_name}`;
+    if (state.editingExecutionTarget) {
+      els.executionTargetEditorMode.textContent = `Edit mode: ${state.editingExecutionTarget.display_name}`;
       els.saveExecutionTargetButton.textContent = "Save target";
     } else {
       els.executionTargetEditorMode.textContent = "Create mode.";
       els.saveExecutionTargetButton.textContent = "Create target";
     }
+  }
+  if (els.cancelExecutionTargetEditButton) {
+    els.cancelExecutionTargetEditButton.disabled = !state.editingExecutionTarget;
   }
   if (els.executionTargetDetail) {
     if (!state.selectedExecutionTarget) {
@@ -1202,9 +1207,13 @@ async function refreshExecutionTargets() {
     return;
   }
   const selectedId = state.selectedExecutionTarget?.id || null;
+  const editingId = state.editingExecutionTarget?.id || null;
   state.executionTargets = await apiGet("/execution-targets");
   state.selectedExecutionTarget = selectedId
     ? state.executionTargets.find((item) => String(item.id) === String(selectedId)) || null
+    : null;
+  state.editingExecutionTarget = editingId
+    ? state.executionTargets.find((item) => String(item.id) === String(editingId)) || null
     : null;
   renderExecutionTargets();
 }
@@ -1236,7 +1245,7 @@ function promptBooleanField(label, currentValue) {
 }
 
 function resetExecutionTargetForm() {
-  state.selectedExecutionTarget = null;
+  state.editingExecutionTarget = null;
   if (els.executionTargetName) els.executionTargetName.value = "";
   if (els.executionTargetKey) els.executionTargetKey.value = "";
   if (els.executionTargetKind) els.executionTargetKind.value = "server_gpu";
@@ -1249,11 +1258,21 @@ function resetExecutionTargetForm() {
   renderExecutionTargets();
 }
 
-function loadExecutionTargetIntoForm(target) {
+function cancelExecutionTargetEdit() {
+  state.editingExecutionTarget = null;
+  if (state.selectedExecutionTarget) {
+    fillExecutionTargetForm(state.selectedExecutionTarget);
+  } else {
+    resetExecutionTargetForm();
+    return;
+  }
+  renderExecutionTargets();
+}
+
+function fillExecutionTargetForm(target) {
   if (!target) {
     return;
   }
-  state.selectedExecutionTarget = target;
   if (els.executionTargetName) els.executionTargetName.value = target.display_name || "";
   if (els.executionTargetKey) els.executionTargetKey.value = target.target_key || "";
   if (els.executionTargetKind) els.executionTargetKind.value = target.target_kind || "";
@@ -1263,6 +1282,15 @@ function loadExecutionTargetIntoForm(target) {
   if (els.executionTargetSupportsPython) els.executionTargetSupportsPython.value = target.supports_python ? "true" : "false";
   if (els.executionTargetSupportsGpu) els.executionTargetSupportsGpu.value = target.supports_gpu ? "true" : "false";
   if (els.executionTargetMetadataJson) els.executionTargetMetadataJson.value = JSON.stringify(target.metadata_json || {}, null, 2);
+}
+
+function loadExecutionTargetIntoForm(target) {
+  if (!target) {
+    return;
+  }
+  state.selectedExecutionTarget = target;
+  state.editingExecutionTarget = target;
+  fillExecutionTargetForm(target);
   renderExecutionTargets();
 }
 
@@ -1297,14 +1325,15 @@ function buildExecutionTargetPayload() {
 async function saveExecutionTarget() {
   const payload = buildExecutionTargetPayload();
   let saved;
-  if (state.selectedExecutionTarget) {
-    saved = await apiPatch(`/execution-targets/${state.selectedExecutionTarget.id}`, payload);
+  if (state.editingExecutionTarget) {
+    saved = await apiPatch(`/execution-targets/${state.editingExecutionTarget.id}`, payload);
     setStatus(`Updated execution target ${saved.display_name}.`);
   } else {
     saved = await apiPost("/execution-targets", payload);
     setStatus(`Created execution target ${saved.display_name}.`);
   }
   state.selectedExecutionTarget = saved;
+  state.editingExecutionTarget = saved;
   await refreshExecutionTargets();
 }
 
@@ -3160,6 +3189,7 @@ if (els.submitPipelineRunButton) els.submitPipelineRunButton.addEventListener("c
 }));
 if (els.refreshExecutionTargetsButton) els.refreshExecutionTargetsButton.addEventListener("click", () => refreshExecutionTargets().catch((error) => setStatus(String(error))));
 if (els.newExecutionTargetButton) els.newExecutionTargetButton.addEventListener("click", () => resetExecutionTargetForm());
+if (els.cancelExecutionTargetEditButton) els.cancelExecutionTargetEditButton.addEventListener("click", () => cancelExecutionTargetEdit());
 if (els.saveExecutionTargetButton) els.saveExecutionTargetButton.addEventListener("click", () => saveExecutionTarget().catch((error) => {
   setStatus(String(error));
   window.alert(String(error));
