@@ -28,6 +28,7 @@ from api.schemas import (
     ProjectGroupCreate,
     ProjectGroupDetail,
     ProjectGroupSummary,
+    ProjectLocationSummary,
     ProjectNoteCreate,
     ProjectNoteSummary,
     ProjectSummary,
@@ -41,6 +42,7 @@ from api.schemas import (
     UserUpdate,
 )
 from api.services.auth import set_user_password
+from api.services.path_resolution import compose_storage_path
 from api.services.project_deletion import build_deletion_preview, execute_project_deletion, record_deletion_preview
 from api.services.users import ensure_project_readable, get_current_user, get_or_create_user, project_access_filter, user_can_edit_project
 
@@ -109,7 +111,7 @@ def get_project(
     project_id: UUID,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
-) -> Project:
+) -> ProjectDetail:
     stmt = (
         select(Project)
         .options(
@@ -120,7 +122,7 @@ def get_project(
         .where(Project.id == project_id, Project.status != "deleted")
     )
     project = db.scalars(stmt).unique().first()
-    return ensure_project_readable(project, current_user)
+    return project_detail_view(ensure_project_readable(project, current_user))
 
 
 @router.patch("/{project_id}", response_model=ProjectDetail)
@@ -129,7 +131,7 @@ def update_project(
     payload: ProjectUpdate,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
-) -> Project:
+) -> ProjectDetail:
     stmt = (
         select(Project)
         .options(
@@ -692,3 +694,39 @@ def summarize_metadata(metadata_json: dict | None) -> dict:
             trimmed_inventory.pop(key, None)
     metadata["inventory"] = trimmed_inventory
     return metadata
+
+
+def project_detail_view(project: Project) -> ProjectDetail:
+    detail = ProjectDetail.model_validate(project_summary_view(project).model_dump())
+    detail.locations = [project_location_summary_view(location) for location in project.locations or []]
+    return detail
+
+
+def project_location_summary_view(location: ProjectLocation) -> ProjectLocationSummary:
+    project_mat_path = ""
+    project_dir_path = ""
+    if location.storage_root is not None:
+        project_mat_path = compose_storage_path(
+            location.storage_root.path_prefix,
+            location.relative_path,
+            location.project_file_name,
+        )
+        if location.project_file_name:
+            project_dir_path = compose_storage_path(
+                location.storage_root.path_prefix,
+                location.relative_path,
+                Path(location.project_file_name).stem,
+            )
+
+    return ProjectLocationSummary.model_validate(
+        {
+            "id": location.id,
+            "relative_path": location.relative_path,
+            "project_file_name": location.project_file_name,
+            "project_mat_path": project_mat_path or None,
+            "project_dir_path": project_dir_path or None,
+            "access_mode": location.access_mode,
+            "is_preferred": location.is_preferred,
+            "storage_root": location.storage_root,
+        }
+    )

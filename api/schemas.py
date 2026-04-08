@@ -138,6 +138,8 @@ class ProjectLocationSummary(HubBaseModel):
     id: int
     relative_path: str
     project_file_name: str | None = None
+    project_mat_path: str | None = None
+    project_dir_path: str | None = None
     access_mode: str
     is_preferred: bool
     storage_root: StorageRootSummary

@@ -17,6 +17,7 @@ from api.models import (
     RawDatasetLocation,
     User,
 )
+from api.services.path_resolution import compose_storage_path
 
 
 @dataclass
@@ -179,11 +180,11 @@ def resolve_project_location_paths(location: ProjectLocation) -> tuple[str, str]
     root = location.storage_root.path_prefix
     rel = location.relative_path or ""
     file_name = location.project_file_name or ""
-    file_path = str(Path(root) / rel / file_name) if file_name else ""
+    file_path = compose_storage_path(root, rel, file_name) if file_name else ""
     project_dir = ""
     if file_name:
         stem = Path(file_name).stem
-        project_dir = str(Path(root) / rel / stem)
+        project_dir = compose_storage_path(root, rel, stem)
     return file_path, project_dir
 
 

@@ -95,7 +95,7 @@ Save the config. The browser will then:
 
 - list projects from the hub
 - filter based on your user rights
-- remap server paths to the local Samba mount
+- remap server paths to the local Samba mount per returned project location
 - load local `shallow` projects through `shallowLoad`
 - keep `Local SQLite` available for a purely local catalog when needed
 
@@ -128,6 +128,20 @@ projects = detecdiv_hub_list_projects();
 projectDetail = detecdiv_hub_get_project(projects(1).id);
 [projectMatPath, resolutionInfo] = detecdiv_hub_resolve_project_location(projectDetail);
 ```
+
+The resolver should prefer `projectDetail.locations`. Each location carries:
+
+- `storage_root.path_prefix`, for example `/data`
+- `relative_path`, for example `team_a/project_001`
+- `project_file_name`, for example `project_001.mat`
+- `project_mat_path`, the server-style composed path
+
+For local loading, replace the matching location root prefix with the local
+mount configured for that same root. For example, `/data` mapped to `X:\` should
+resolve `/data/team_a/project_001/project_001.mat` to
+`X:\team_a\project_001\project_001.mat`. Do not load directly from
+`metadata_json.project_mat_abs`; that field is an indexing/debug hint and may be
+a Linux server path.
 
 And if the mount is correct:
 
