@@ -352,6 +352,37 @@ tbody tr.selected {
   word-break: break-word;
 }
 
+.run-detail {
+  display: grid;
+  gap: 8px;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  white-space: normal;
+}
+
+.run-detail-row {
+  display: grid;
+  grid-template-columns: 140px 1fr;
+  gap: 8px 12px;
+}
+
+.run-detail-label {
+  color: var(--muted);
+}
+
+.run-detail-value {
+  color: var(--text);
+  word-break: break-word;
+}
+
+.run-progress-lines {
+  margin: 4px 0 0;
+  max-height: 140px;
+  overflow: auto;
+  white-space: pre-wrap;
+}
+
 .subpanel {
   margin-top: 18px;
   padding-top: 16px;

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import re
 import tempfile
 from pathlib import Path
 from typing import Any
@@ -44,10 +45,16 @@ def execute_pipeline_run_job(session: Session, *, job: Job) -> dict[str, Any]:
         completed = run_matlab_command(
             command,
             heartbeat_callback=lambda: update_job_heartbeat(session, job=job),
+            progress_callback=lambda: update_pipeline_run_progress(
+                session,
+                job=job,
+                stdout_path=stdout_path,
+                stderr_path=stderr_path,
+            ),
             heartbeat_interval_sec=10.0,
+            stdout_path=stdout_path,
+            stderr_path=stderr_path,
         )
-        stdout_path.write_text(completed.stdout or "", encoding="utf-8")
-        stderr_path.write_text(completed.stderr or "", encoding="utf-8")
 
         result_json: dict[str, Any] = {}
         if result_path.is_file():
@@ -152,6 +159,76 @@ def update_job_heartbeat(session: Session, *, job: Job) -> None:
     job_record.heartbeat_at = now
     job_record.updated_at = now
     session.commit()
+
+
+def update_pipeline_run_progress(
+    session: Session,
+    *,
+    job: Job,
+    stdout_path: Path,
+    stderr_path: Path,
+) -> None:
+    now = datetime.now(timezone.utc)
+    job_record = session.get(Job, job.id)
+    if job_record is None:
+        return
+    progress = build_pipeline_run_progress(stdout_path=stdout_path, stderr_path=stderr_path)
+    result_json = dict(job_record.result_json or {})
+    result_json["progress"] = progress
+    job_record.result_json = result_json
+    job_record.heartbeat_at = now
+    job_record.updated_at = now
+    session.commit()
+
+
+def build_pipeline_run_progress(*, stdout_path: Path, stderr_path: Path) -> dict[str, Any]:
+    stdout_lines = tail_log_lines(stdout_path, max_lines=30)
+    stderr_lines = tail_log_lines(stderr_path, max_lines=15)
+    recent_lines = [*stdout_lines, *stderr_lines]
+    current_step = infer_current_step(recent_lines)
+    return {
+        "phase": "matlab_running",
+        "current_step": current_step,
+        "last_message": recent_lines[-1] if recent_lines else "MATLAB running",
+        "recent_stdout": stdout_lines[-10:],
+        "recent_stderr": stderr_lines[-10:],
+        "updated_at": datetime.now(timezone.utc).isoformat(),
+    }
+
+
+def tail_log_lines(path: Path, *, max_lines: int) -> list[str]:
+    if not path.is_file():
+        return []
+    try:
+        text = path.read_text(encoding="utf-8", errors="replace")
+    except OSError:
+        return []
+    lines = [clean_matlab_log_line(line) for line in text.splitlines()]
+    lines = [line for line in lines if line]
+    return lines[-max_lines:]
+
+
+def clean_matlab_log_line(line: str) -> str:
+    text = re.sub(r"\x1b\[[0-9;]*[A-Za-z]", "", line)
+    text = re.sub(r"[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]", "", text)
+    return text.strip()
+
+
+def infer_current_step(lines: list[str]) -> str:
+    patterns = (
+        r"Executing node\s+(.+)",
+        r"Running node\s+(.+)",
+        r"Node\s+([A-Za-z0-9_.:-]+)",
+        r"Pipeline run saved:\s+(.+)",
+        r"Saving shallow project",
+        r"Raw path relink candidate\s+(.+)",
+    )
+    for line in reversed(lines):
+        for pattern in patterns:
+            match = re.search(pattern, line, flags=re.IGNORECASE)
+            if match:
+                return match.group(1).strip() if match.groups() else line
+    return lines[-1] if lines else "MATLAB running"
 
 
 def project_location_priority(location: ProjectLocation) -> tuple[int, int, str]:

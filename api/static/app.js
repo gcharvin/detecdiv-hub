@@ -1123,21 +1123,85 @@ function renderPipelineRuns() {
   }
   if (els.pipelineRunDetail) {
     if (!state.selectedPipelineRun) {
-      els.pipelineRunDetail.textContent = "Select a run to inspect its payload and result.";
+      els.pipelineRunDetail.textContent = "Select a run to inspect its status.";
     } else {
-      els.pipelineRunDetail.textContent = JSON.stringify({
-        id: state.selectedPipelineRun.id,
-        status: state.selectedPipelineRun.status,
-        requested_mode: state.selectedPipelineRun.requested_mode,
-        resolved_mode: state.selectedPipelineRun.resolved_mode,
-        heartbeat_at: state.selectedPipelineRun.heartbeat_at,
-        updated_at: state.selectedPipelineRun.updated_at,
-        error_text: state.selectedPipelineRun.error_text,
-        params_json: state.selectedPipelineRun.params_json || {},
-        result_json: state.selectedPipelineRun.result_json || {},
-      }, null, 2);
+      renderPipelineRunDetail(state.selectedPipelineRun);
     }
   }
+}
+
+function renderPipelineRunDetail(run) {
+  if (!els.pipelineRunDetail) {
+    return;
+  }
+  const progress = run.result_json?.progress || {};
+  const rows = [
+    ["Run", run.id],
+    ["Status", run.status],
+    ["Progress", progress.current_step || progress.phase || run.status],
+    ["Heartbeat", formatTimestamp(run.heartbeat_at)],
+    ["Updated", formatTimestamp(run.updated_at)],
+    ["Started", formatTimestamp(run.started_at)],
+    ["Finished", formatTimestamp(run.finished_at)],
+  ];
+  if (run.error_text) {
+    rows.push(["Error", shortText(run.error_text, 700)]);
+  }
+  const recentLines = [
+    ...(progress.recent_stdout || []),
+    ...(progress.recent_stderr || []),
+  ].slice(-12);
+  els.pipelineRunDetail.innerHTML = `
+    ${rows.map(([label, value]) => `
+      <div class="run-detail-row">
+        <span class="run-detail-label">${escapeHtml(label)}</span>
+        <span class="run-detail-value">${escapeHtml(value || "")}</span>
+      </div>
+    `).join("")}
+    <div class="toolbar">
+      <button type="button" id="open-pipeline-run-json-button">Open JSON</button>
+    </div>
+    ${recentLines.length ? `
+      <div>
+        <div class="run-detail-label">Recent MATLAB output</div>
+        <pre class="run-progress-lines">${escapeHtml(recentLines.join("\n"))}</pre>
+      </div>
+    ` : ""}
+  `;
+  els.pipelineRunDetail.querySelector("#open-pipeline-run-json-button")?.addEventListener("click", () => {
+    openJsonInNewTab({
+      id: run.id,
+      status: run.status,
+      requested_mode: run.requested_mode,
+      resolved_mode: run.resolved_mode,
+      heartbeat_at: run.heartbeat_at,
+      updated_at: run.updated_at,
+      error_text: run.error_text,
+      params_json: run.params_json || {},
+      result_json: run.result_json || {},
+    }, `pipeline-run-${run.id}.json`);
+  });
+}
+
+function shortText(value, maxLength = 300) {
+  const text = String(value || "");
+  if (text.length <= maxLength) {
+    return text;
+  }
+  return `${text.slice(0, maxLength)}...`;
+}
+
+function openJsonInNewTab(value, filename) {
+  const blob = new Blob([JSON.stringify(value, null, 2)], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const opened = window.open(url, "_blank", "noopener");
+  if (!opened) {
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = filename || "payload.json";
+    link.click();
+  }
+  window.setTimeout(() => URL.revokeObjectURL(url), 60_000);
 }
 
 function renderExecutionTargets() {
