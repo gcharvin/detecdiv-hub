@@ -10,7 +10,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session, joinedload
 
 from api.config import get_settings
-from api.models import Artifact, Job, Pipeline, Project, ProjectLocation, ProjectRawLink, RawDataset, RawDatasetLocation
+from api.models import Artifact, Job, Pipeline, Project, ProjectLocation
 from api.services.project_deletion import resolve_project_location_paths
 from worker.executors.matlab_executor import build_matlab_batch_command, run_matlab_command
 
@@ -102,15 +102,6 @@ def normalize_pipeline_run_payload(session: Session, *, job: Job) -> dict[str, A
         project_ref["project_id"] = str(job.project_id)
     if not project_ref.get("project_mat_path") and job.project_id:
         project_ref["project_mat_path"] = resolve_project_mat_path(session, project_id=job.project_id)
-    if job.project_id:
-        raw_root_candidates = resolve_raw_root_candidates(
-            session,
-            project_id=job.project_id,
-            project_mat_path=str(project_ref.get("project_mat_path") or ""),
-        )
-        if raw_root_candidates:
-            existing = ensure_list(project_ref.get("raw_root_candidates"))
-            project_ref["raw_root_candidates"] = unique_strings([*existing, *raw_root_candidates])
     payload["project_ref"] = project_ref
 
     pipeline_ref = dict(payload.get("pipeline_ref") or {})
@@ -151,95 +142,6 @@ def resolve_project_mat_path(session: Session, *, project_id) -> str:
         if file_path:
             return file_path
     raise ValueError(f"Project {project.project_name} has no resolvable MAT location.")
-
-
-def resolve_raw_root_candidates(session: Session, *, project_id, project_mat_path: str = "") -> list[str]:
-    candidates: list[str] = []
-
-    project = session.scalars(
-        select(Project)
-        .options(joinedload(Project.locations).joinedload(ProjectLocation.storage_root))
-        .where(Project.id == project_id)
-    ).first()
-    if project is not None:
-        for location in sorted(project.locations or [], key=project_location_priority):
-            root = location.storage_root
-            if root is None or root.host_scope != "server":
-                continue
-            candidates.extend(infer_raw_roots_from_project_root(root.path_prefix))
-
-    linked_raw_datasets = session.scalars(
-        select(RawDataset)
-        .join(ProjectRawLink, ProjectRawLink.raw_dataset_id == RawDataset.id)
-        .options(joinedload(RawDataset.locations).joinedload(RawDatasetLocation.storage_root))
-        .where(ProjectRawLink.project_id == project_id)
-    ).unique()
-    for raw_dataset in linked_raw_datasets:
-        preferred_locations = sorted(
-            raw_dataset.locations or [],
-            key=lambda loc: (
-                0 if loc.is_preferred else 1,
-                0 if getattr(loc.storage_root, "host_scope", "") == "server" else 1,
-                str(loc.relative_path or ""),
-            ),
-        )
-        for location in preferred_locations:
-            root = location.storage_root
-            if root is None or root.host_scope != "server":
-                continue
-            path = Path(root.path_prefix) / (location.relative_path or "")
-            candidates.append(str(path))
-
-    if project_mat_path:
-        candidates.extend(infer_raw_roots_from_project_path(project_mat_path))
-
-    return [path for path in unique_strings(candidates) if Path(path).is_dir()]
-
-
-def infer_raw_roots_from_project_root(project_root: str) -> list[str]:
-    root = Path(str(project_root or "").strip())
-    if not str(root):
-        return []
-    return [
-        str(root / "raw"),
-        str(root / "Raw"),
-        str(root / "RAWDATA"),
-        str(root / "raw_data"),
-    ]
-
-
-def infer_raw_roots_from_project_path(project_mat_path: str) -> list[str]:
-    path = Path(str(project_mat_path or "").strip())
-    candidates: list[str] = []
-    for parent in path.parents:
-        if parent.name.lower() in {"projects", "analysis", "analyses"}:
-            continue
-        candidates.extend(infer_raw_roots_from_project_root(str(parent)))
-        if parent.parent == parent:
-            break
-    return candidates
-
-
-def ensure_list(value: Any) -> list[Any]:
-    if value is None or value == "":
-        return []
-    if isinstance(value, list):
-        return value
-    if isinstance(value, tuple):
-        return list(value)
-    return [value]
-
-
-def unique_strings(values: list[Any]) -> list[str]:
-    seen: set[str] = set()
-    out: list[str] = []
-    for value in values:
-        text = str(value or "").strip()
-        if not text or text in seen:
-            continue
-        seen.add(text)
-        out.append(text)
-    return out
 
 
 def update_job_heartbeat(session: Session, *, job: Job) -> None:
