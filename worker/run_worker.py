@@ -6,7 +6,7 @@ import time
 from contextlib import contextmanager
 from datetime import datetime, timezone
 
-from sqlalchemy import select
+from sqlalchemy import func, select
 
 from api.config import get_settings
 from api.db import SessionLocal
@@ -38,6 +38,25 @@ def claim_next_job() -> Job | None:
     settings = get_settings()
     with session_scope() as session:
         target = resolve_worker_target(session, settings.worker_target_key)
+        if target is not None:
+            target = session.scalars(select(ExecutionTarget).where(ExecutionTarget.id == target.id).with_for_update()).one()
+            max_concurrent_jobs = read_positive_int((target.metadata_json or {}).get("max_concurrent_jobs"))
+            if max_concurrent_jobs is not None:
+                running_jobs = session.scalar(
+                    select(func.count(Job.id)).where(
+                        Job.execution_target_id == target.id,
+                        Job.status.in_(("running", "cancelling")),
+                    )
+                )
+                if int(running_jobs or 0) >= max_concurrent_jobs:
+                    update_worker_target_state(
+                        session,
+                        target=target,
+                        health="busy",
+                        current_job=None,
+                        last_job_status="capacity_full",
+                    )
+                    return None
         stmt = (
             select(Job)
             .where(Job.status == "queued")
@@ -230,6 +249,18 @@ def resolve_worker_target(session, configured_target_key: str | None) -> Executi
     if not target_key:
         return None
     return session.scalars(select(ExecutionTarget).where(ExecutionTarget.target_key == target_key)).first()
+
+
+def read_positive_int(value) -> int | None:
+    if value is None or value == "":
+        return None
+    try:
+        parsed = int(value)
+    except (TypeError, ValueError):
+        return None
+    if parsed < 1:
+        return None
+    return parsed
 
 
 def resolve_target_for_job(session, *, job: Job, configured_target_key: str | None) -> ExecutionTarget | None:

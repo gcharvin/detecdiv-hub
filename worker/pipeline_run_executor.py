@@ -45,7 +45,8 @@ def execute_pipeline_run_job(session: Session, *, job: Job) -> dict[str, Any]:
 
         payload_path.write_text(json.dumps(payload, indent=2), encoding="utf-8")
 
-        entrypoint = f"detecdiv_run_pipeline_job('{matlab_escape(str(payload_path))}')"
+        matlab_max_threads = resolve_matlab_max_threads(session, job=job)
+        entrypoint = build_pipeline_matlab_entrypoint(payload_path, matlab_max_threads=matlab_max_threads)
         command = build_matlab_batch_command(repo_root, entrypoint, matlab_command=matlab_command)
         completed = run_matlab_command(
             command,
@@ -99,6 +100,7 @@ def execute_pipeline_run_job(session: Session, *, job: Job) -> dict[str, Any]:
                 "engine": "matlab",
                 "command": matlab_command,
                 "repo_root": repo_root,
+                "matlab_max_threads": matlab_max_threads,
                 "returncode": completed.returncode,
                 "stdout_log": str(stdout_path),
                 "stderr_log": str(stderr_path),
@@ -172,6 +174,39 @@ def ensure_cancel_token_path(session: Session, *, job: Job, payload: dict[str, A
         session.commit()
 
     return str(token_path)
+
+
+def build_pipeline_matlab_entrypoint(payload_path: Path, *, matlab_max_threads: int | None) -> str:
+    run_command = f"detecdiv_run_pipeline_job('{matlab_escape(str(payload_path))}')"
+    if matlab_max_threads is None:
+        return run_command
+    return f"maxNumCompThreads({matlab_max_threads}); {run_command}"
+
+
+def resolve_matlab_max_threads(session: Session, *, job: Job) -> int | None:
+    execution = dict((job.params_json or {}).get("execution") or {})
+    from_payload = read_positive_int(execution.get("matlab_max_threads"))
+    if from_payload is not None:
+        return from_payload
+
+    if not job.execution_target_id:
+        return None
+    target = session.get(ExecutionTarget, job.execution_target_id)
+    if target is None:
+        return None
+    return read_positive_int((target.metadata_json or {}).get("matlab_max_threads"))
+
+
+def read_positive_int(value) -> int | None:
+    if value is None or value == "":
+        return None
+    try:
+        parsed = int(value)
+    except (TypeError, ValueError):
+        return None
+    if parsed < 1:
+        return None
+    return parsed
 
 
 def resolve_project_mat_path(session: Session, *, project_id) -> str:

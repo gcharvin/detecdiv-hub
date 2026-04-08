@@ -117,6 +117,14 @@
                 <option value="true">yes</option>
               </select>
             </label>
+            <label class="field compact">
+              <span>Max concurrent jobs</span>
+              <input id="execution-target-max-concurrent-jobs" type="number" min="1" step="1" placeholder="1" />
+            </label>
+            <label class="field compact">
+              <span>MATLAB max threads</span>
+              <input id="execution-target-matlab-max-threads" type="number" min="1" step="1" placeholder="18" />
+            </label>
             <label class="field">
               <span>Metadata JSON</span>
               <textarea id="execution-target-metadata-json" rows="4" placeholder='{"queue":"gpu","worker_notes":"server-side target"}'></textarea>
@@ -132,6 +140,8 @@
                   <th>MATLAB</th>
                   <th>Python</th>
                   <th>GPU</th>
+                  <th>Concurrency</th>
+                  <th>MATLAB Threads</th>
                   <th>Status</th>
                   <th>Health</th>
                   <th>Last Seen</th>

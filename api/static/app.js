@@ -200,6 +200,8 @@ const els = {
   executionTargetSupportsMatlab: document.querySelector("#execution-target-supports-matlab"),
   executionTargetSupportsPython: document.querySelector("#execution-target-supports-python"),
   executionTargetSupportsGpu: document.querySelector("#execution-target-supports-gpu"),
+  executionTargetMaxConcurrentJobs: document.querySelector("#execution-target-max-concurrent-jobs"),
+  executionTargetMatlabMaxThreads: document.querySelector("#execution-target-matlab-max-threads"),
   executionTargetMetadataJson: document.querySelector("#execution-target-metadata-json"),
   executionTargetsTableBody: document.querySelector("#execution-targets-table tbody"),
   executionTargetDetail: document.querySelector("#execution-target-detail"),
@@ -1237,6 +1239,8 @@ function renderExecutionTargets() {
       tr.classList.add("selected");
     }
     const workerHealth = target.metadata_json?.worker_health || {};
+    const maxConcurrentJobs = target.metadata_json?.max_concurrent_jobs || "";
+    const matlabMaxThreads = target.metadata_json?.matlab_max_threads || "";
     const healthLabel = workerHealth.current_job_id
       ? `busy (${workerHealth.last_job_status || "running"})`
       : (workerHealth.health || target.status || "unknown");
@@ -1247,6 +1251,8 @@ function renderExecutionTargets() {
       <td>${target.supports_matlab ? "yes" : "no"}</td>
       <td>${target.supports_python ? "yes" : "no"}</td>
       <td>${target.supports_gpu ? "yes" : "no"}</td>
+      <td>${maxConcurrentJobs || ""}</td>
+      <td>${matlabMaxThreads || ""}</td>
       <td>${target.status}</td>
       <td>${healthLabel}</td>
       <td>${formatTimestamp(workerHealth.last_seen_at || workerHealth.claimed_at || null)}</td>
@@ -1496,6 +1502,8 @@ function resetExecutionTargetForm() {
   if (els.executionTargetSupportsMatlab) els.executionTargetSupportsMatlab.value = "true";
   if (els.executionTargetSupportsPython) els.executionTargetSupportsPython.value = "true";
   if (els.executionTargetSupportsGpu) els.executionTargetSupportsGpu.value = "false";
+  if (els.executionTargetMaxConcurrentJobs) els.executionTargetMaxConcurrentJobs.value = "1";
+  if (els.executionTargetMatlabMaxThreads) els.executionTargetMatlabMaxThreads.value = "";
   if (els.executionTargetMetadataJson) els.executionTargetMetadataJson.value = "{}";
   renderExecutionTargets();
 }
@@ -1523,6 +1531,12 @@ function fillExecutionTargetForm(target) {
   if (els.executionTargetSupportsMatlab) els.executionTargetSupportsMatlab.value = target.supports_matlab ? "true" : "false";
   if (els.executionTargetSupportsPython) els.executionTargetSupportsPython.value = target.supports_python ? "true" : "false";
   if (els.executionTargetSupportsGpu) els.executionTargetSupportsGpu.value = target.supports_gpu ? "true" : "false";
+  if (els.executionTargetMaxConcurrentJobs) {
+    els.executionTargetMaxConcurrentJobs.value = target.metadata_json?.max_concurrent_jobs || "";
+  }
+  if (els.executionTargetMatlabMaxThreads) {
+    els.executionTargetMatlabMaxThreads.value = target.metadata_json?.matlab_max_threads || "";
+  }
   if (els.executionTargetMetadataJson) els.executionTargetMetadataJson.value = JSON.stringify(target.metadata_json || {}, null, 2);
 }
 
@@ -1551,6 +1565,25 @@ function buildExecutionTargetPayload() {
   if (!statusValue) {
     throw new Error("Execution target status is required.");
   }
+  const metadata = parseOptionalJsonField(els.executionTargetMetadataJson?.value, "Metadata JSON", {});
+  const maxConcurrentJobs = parsePositiveIntegerField(
+    els.executionTargetMaxConcurrentJobs?.value,
+    "Max concurrent jobs",
+  );
+  const matlabMaxThreads = parsePositiveIntegerField(
+    els.executionTargetMatlabMaxThreads?.value,
+    "MATLAB max threads",
+  );
+  if (maxConcurrentJobs === null) {
+    metadata.max_concurrent_jobs = null;
+  } else {
+    metadata.max_concurrent_jobs = maxConcurrentJobs;
+  }
+  if (matlabMaxThreads === null) {
+    metadata.matlab_max_threads = null;
+  } else {
+    metadata.matlab_max_threads = matlabMaxThreads;
+  }
   return {
     target_key: targetKey || null,
     display_name: displayName,
@@ -1560,8 +1593,20 @@ function buildExecutionTargetPayload() {
     supports_python: String(els.executionTargetSupportsPython?.value || "true") === "true",
     supports_gpu: String(els.executionTargetSupportsGpu?.value || "false") === "true",
     status: statusValue,
-    metadata_json: parseOptionalJsonField(els.executionTargetMetadataJson?.value, "Metadata JSON", {}),
+    metadata_json: metadata,
   };
+}
+
+function parsePositiveIntegerField(rawValue, label) {
+  const value = String(rawValue || "").trim();
+  if (!value) {
+    return null;
+  }
+  const parsed = Number(value);
+  if (!Number.isInteger(parsed) || parsed < 1) {
+    throw new Error(`${label} must be a positive integer.`);
+  }
+  return parsed;
 }
 
 async function saveExecutionTarget() {
