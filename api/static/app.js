@@ -44,6 +44,10 @@ const els = {
   sessionLabel: document.querySelector("#session-label"),
   connectButton: document.querySelector("#connect-button"),
   logoutButton: document.querySelector("#logout-button"),
+  adminNavLinks: document.querySelectorAll(".admin-nav-link"),
+  adminContent: document.querySelector("#admin-content"),
+  adminDeniedPanel: document.querySelector("#admin-denied-panel"),
+  projectPageTitle: document.querySelector("#project-page-title"),
   projectSearch: document.querySelector("#project-search"),
   ownerFilter: document.querySelector("#owner-filter"),
   storageRootFilter: document.querySelector("#storage-root-filter"),
@@ -74,6 +78,7 @@ const els = {
   addNoteButton: document.querySelector("#add-note-button"),
   shareButton: document.querySelector("#share-button"),
   editProjectButton: document.querySelector("#edit-project-button"),
+  updateProjectButton: document.querySelector("#update-project-button"),
   addToGroupButton: document.querySelector("#add-to-group-button"),
   previewDeleteButton: document.querySelector("#preview-delete-button"),
   bulkDeletePanel: document.querySelector("#bulk-delete-panel"),
@@ -208,17 +213,20 @@ const els = {
 
 let dashboardPollHandle = null;
 let lastPollSucceededAt = null;
+const pageKind = document.body?.dataset?.page || "";
 
 const pageFlags = {
+  hasAdminView: pageKind === "admin",
+  hasProjectPage: pageKind === "project",
   hasProjectsView: Boolean(els.projectsTableBody),
   hasProjectGroups: Boolean(els.groupFilter),
   hasStorageRootFilter: Boolean(els.storageRootFilter),
   hasProjectDetail: Boolean(els.detailContent),
   hasPipelinesView: Boolean(els.pipelinesTableBody),
-  hasPipelineRunsView: Boolean(els.pipelineRunsTableBody),
-  hasExecutionTargetsView: Boolean(els.executionTargetsTableBody),
-  hasUsersView: Boolean(els.usersTableBody),
-  hasSessionsView: Boolean(els.sessionsTableBody),
+  hasPipelineRunsView: pageKind === "project" && Boolean(els.pipelineRunsTableBody),
+  hasExecutionTargetsView: pageKind === "admin" && Boolean(els.executionTargetsTableBody),
+  hasUsersView: pageKind === "admin" && Boolean(els.usersTableBody),
+  hasSessionsView: pageKind === "admin" && Boolean(els.sessionsTableBody),
   hasIndexingView: Boolean(els.indexJobsTableBody || els.activeIndexJob),
   hasRawDatasetsView: Boolean(els.rawDatasetsTableBody),
   hasAutomaticArchivePolicy: Boolean(els.automaticArchivePolicyPanel),
@@ -439,6 +447,18 @@ function updateSessionUi() {
   }
   if (els.logoutButton) {
     els.logoutButton.disabled = !authenticated;
+  }
+  for (const link of els.adminNavLinks || []) {
+    link.classList.toggle("hidden", !isAdmin());
+  }
+  if (pageFlags.hasAdminView) {
+    const allowed = isAdmin();
+    if (els.adminContent) {
+      els.adminContent.classList.toggle("hidden", !allowed);
+    }
+    if (els.adminDeniedPanel) {
+      els.adminDeniedPanel.classList.toggle("hidden", allowed || !authenticated);
+    }
   }
 }
 
@@ -888,6 +908,22 @@ function renderPipelineRunBuilder() {
   }
 }
 
+function getProjectPageId() {
+  const params = new URLSearchParams(window.location.search);
+  return params.get("id") || "";
+}
+
+function openSelectedProjectPage() {
+  if (!state.selectedProject && !state.selectedProjectDetail) {
+    return;
+  }
+  const projectId = state.selectedProjectDetail?.id || state.selectedProject?.id;
+  if (!projectId) {
+    return;
+  }
+  window.location.href = `/web/project.html?id=${encodeURIComponent(projectId)}`;
+}
+
 function resetPipelineRunForm() {
   state.selectedPipelineRun = null;
   if (els.pipelineRunProjectSelect) els.pipelineRunProjectSelect.value = "";
@@ -1195,7 +1231,9 @@ async function refreshPipelineRuns() {
     return;
   }
   const selectedId = state.selectedPipelineRun?.id || null;
-  state.pipelineRuns = await apiGet("/pipeline-runs");
+  const projectId = pageFlags.hasProjectPage ? getProjectPageId() : "";
+  const path = projectId ? `/pipeline-runs?project_id=${encodeURIComponent(projectId)}` : "/pipeline-runs";
+  state.pipelineRuns = await apiGet(path);
   state.selectedPipelineRun = selectedId
     ? state.pipelineRuns.find((item) => String(item.id) === String(selectedId)) || null
     : null;
@@ -2133,6 +2171,9 @@ async function refreshDashboard() {
   renderStorageRootFilter();
   renderUserSelectors();
   renderIndexBrowser();
+  if (pageFlags.hasProjectPage) {
+    await refreshProjectPage();
+  }
 
   if (pageFlags.hasIndexForm && browseableStorageRoots().length && !state.indexBrowse?.directories?.length) {
     try {
@@ -2158,16 +2199,16 @@ async function refreshDashboard() {
   if (pageFlags.hasPipelinesView) {
     refreshTasks.push(refreshPipelines());
   }
-  if (pageFlags.hasExecutionTargetsView || els.pipelineRunTargetSelect) {
+  if ((pageFlags.hasExecutionTargetsView && isAdmin()) || els.pipelineRunTargetSelect) {
     refreshTasks.push(refreshExecutionTargets());
   }
   if (pageFlags.hasPipelineRunsView) {
     refreshTasks.push(refreshPipelineRuns());
   }
-  if (pageFlags.hasUsersView || pageFlags.hasIndexForm) {
+  if ((pageFlags.hasUsersView && isAdmin()) || els.indexOwnerUserKey) {
     refreshTasks.push(refreshUsers());
   }
-  if (pageFlags.hasSessionsView) {
+  if (pageFlags.hasSessionsView && isAdmin()) {
     refreshTasks.push(refreshSessions());
   }
   if (pageFlags.hasIndexingView) {
@@ -2431,6 +2472,38 @@ async function refreshPipelines() {
   state.observedPipelines = observed;
   state.selectedPipeline = pipelineRows().find((item) => pipelineIdentity(item) === selectedId) || null;
   renderPipelines();
+}
+
+async function refreshProjectPage() {
+  if (!pageFlags.hasProjectPage) {
+    return;
+  }
+  const projectId = getProjectPageId();
+  if (!projectId) {
+    state.selectedProject = null;
+    state.selectedProjectDetail = null;
+    if (els.detailSubtitle) {
+      els.detailSubtitle.textContent = "Missing project id";
+    }
+    renderDetail();
+    return;
+  }
+
+  const [detail, notes, acl] = await Promise.all([
+    apiGet(`/projects/${projectId}`),
+    apiGet(`/projects/${projectId}/notes`),
+    apiGet(`/projects/${projectId}/acl`),
+  ]);
+  state.selectedProject = detail;
+  state.selectedProjectDetail = detail;
+  state.projects = [detail];
+  state.notes = notes;
+  state.acl = acl;
+  if (els.projectPageTitle) {
+    els.projectPageTitle.textContent = detail.project_name;
+  }
+  renderDetail();
+  renderPipelineRunBuilder();
 }
 
 async function refreshUsers() {
@@ -3151,7 +3224,14 @@ if (els.rawOwnedOnly) els.rawOwnedOnly.addEventListener("change", () => refreshR
 if (els.newGroupButton) els.newGroupButton.addEventListener("click", () => createGroup().catch((error) => setStatus(String(error))));
 if (els.addNoteButton) els.addNoteButton.addEventListener("click", () => addNote().catch((error) => setStatus(String(error))));
 if (els.shareButton) els.shareButton.addEventListener("click", () => shareProject().catch((error) => setStatus(String(error))));
-if (els.editProjectButton) els.editProjectButton.addEventListener("click", () => editProject().catch((error) => setStatus(String(error))));
+if (els.editProjectButton) els.editProjectButton.addEventListener("click", () => {
+  if (pageFlags.hasProjectPage) {
+    editProject().catch((error) => setStatus(String(error)));
+  } else {
+    openSelectedProjectPage();
+  }
+});
+if (els.updateProjectButton) els.updateProjectButton.addEventListener("click", () => editProject().catch((error) => setStatus(String(error))));
 if (els.addToGroupButton) els.addToGroupButton.addEventListener("click", () => addSelectedProjectToGroup().catch((error) => setStatus(String(error))));
 if (els.previewDeleteButton) els.previewDeleteButton.addEventListener("click", () => previewDelete().catch((error) => setStatus(String(error))));
 if (els.indexBrowseRoot) els.indexBrowseRoot.addEventListener("change", () => openIndexBrowserPath("").catch((error) => setStatus(String(error))));

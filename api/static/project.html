@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Detecdiv server - Project</title>
+    <link rel="stylesheet" href="/web/styles.css?v=20260408-project-admin" />
+  </head>
+  <body data-page="project">
+    <div class="page-shell">
+      <section id="login-panel" class="panel login-panel hidden">
+        <div class="panel-header">
+          <div>
+            <h2>Login</h2>
+            <p class="muted">Open a hub session with a user key and password.</p>
+          </div>
+        </div>
+        <div class="toolbar">
+          <label class="field compact">
+            <span>User key</span>
+            <input id="login-user-key" type="text" placeholder="admin" />
+          </label>
+          <label class="field compact">
+            <span>Password</span>
+            <input id="login-password" type="password" placeholder="password" />
+          </label>
+          <button id="login-button" class="primary">Login</button>
+        </div>
+      </section>
+
+      <header class="hero">
+        <div>
+          <div class="eyebrow">DetecDiv Hub</div>
+          <h1 id="project-page-title">Project</h1>
+          <p class="hero-copy">Review project metadata, notes, access, and pipeline runs.</p>
+        </div>
+        <div class="hero-actions">
+          <nav class="hero-nav">
+            <a class="nav-link" href="/web/">Catalog</a>
+            <a class="nav-link" href="/web/raw-datasets.html">Raw Datasets</a>
+            <a class="nav-link" href="/web/indexing.html">Indexing</a>
+            <a class="nav-link admin-nav-link hidden" href="/web/admin.html">Admin</a>
+          </nav>
+          <div class="session-box">
+            <div id="session-label" class="muted">Not logged in.</div>
+            <button id="connect-button" class="primary">Refresh</button>
+            <button id="logout-button">Logout</button>
+          </div>
+        </div>
+      </header>
+
+      <section class="layout-grid project-page-grid">
+        <main class="panel detail-panel" id="project-page-panel">
+          <div class="panel-header">
+            <div>
+              <h2>Project Details</h2>
+              <p id="detail-subtitle" class="muted">Loading project</p>
+            </div>
+            <div class="action-stack">
+              <button id="update-project-button">Update project</button>
+              <button id="add-to-group-button">Add to group</button>
+              <button id="preview-delete-button" class="danger">Preview delete</button>
+            </div>
+          </div>
+
+          <div id="detail-empty" class="empty-state">Project not loaded.</div>
+
+          <div id="detail-content" class="detail-content hidden">
+            <dl class="detail-list" id="detail-list"></dl>
+
+            <section class="subpanel">
+              <div class="subpanel-header">
+                <h3>Notes</h3>
+                <button id="add-note-button">Add note</button>
+              </div>
+              <div id="notes-list" class="stack-list"></div>
+            </section>
+
+            <section class="subpanel">
+              <div class="subpanel-header">
+                <h3>Access</h3>
+                <button id="share-button">Share</button>
+              </div>
+              <div id="acl-list" class="stack-list"></div>
+            </section>
+          </div>
+        </main>
+
+        <aside class="panel">
+          <div class="panel-header">
+            <div>
+              <h2>Pipelines</h2>
+              <p class="muted">Choose a pipeline for the next run.</p>
+            </div>
+            <button id="refresh-pipelines-button">Refresh pipelines</button>
+          </div>
+          <div class="toolbar pipelines-toolbar">
+            <label class="field compact">
+              <span>Search</span>
+              <input id="pipeline-search" type="text" placeholder="pipeline, version..." />
+            </label>
+            <label class="field compact">
+              <span>Runtime</span>
+              <select id="pipeline-runtime-filter">
+                <option value="">All runtimes</option>
+                <option value="matlab">matlab</option>
+                <option value="python">python</option>
+                <option value="hybrid">hybrid</option>
+              </select>
+            </label>
+            <label class="field compact">
+              <span>Source</span>
+              <select id="pipeline-source-filter">
+                <option value="">Registry + observed</option>
+                <option value="registry">Registry only</option>
+                <option value="observed">Observed only</option>
+              </select>
+            </label>
+          </div>
+          <div class="table-wrap project-pipelines-wrap">
+            <table id="pipelines-table">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Source</th>
+                  <th>Key</th>
+                  <th>Version</th>
+                  <th>Runtime</th>
+                  <th>Projects</th>
+                  <th>Updated</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </aside>
+      </section>
+
+      <section class="panel">
+        <div class="panel-header">
+          <div>
+            <h2>Pipeline Runs</h2>
+            <p class="muted">Create and queue non-interactive runs for this project.</p>
+          </div>
+          <div class="action-stack">
+            <button id="refresh-pipeline-runs-button">Refresh runs</button>
+            <button id="new-pipeline-run-button">New draft</button>
+            <button id="submit-pipeline-run-button" class="primary">Submit run</button>
+          </div>
+        </div>
+        <p id="pipeline-run-editor-mode" class="muted">Create mode.</p>
+        <div class="toolbar hidden">
+          <label class="field compact">
+            <span>Project</span>
+            <select id="pipeline-run-project-select">
+              <option value="">Use selected project</option>
+            </select>
+          </label>
+        </div>
+        <div class="toolbar">
+          <label class="field compact">
+            <span>Pipeline</span>
+            <select id="pipeline-run-pipeline-select">
+              <option value="">Use selected pipeline</option>
+            </select>
+          </label>
+          <label class="field compact">
+            <span>Execution target</span>
+            <select id="pipeline-run-target-select">
+              <option value="">Auto-select target</option>
+            </select>
+          </label>
+          <label class="field compact">
+            <span>Requested mode</span>
+            <select id="pipeline-run-mode-select">
+              <option value="auto">auto</option>
+              <option value="server">server</option>
+              <option value="local">local</option>
+            </select>
+          </label>
+          <label class="field compact">
+            <span>GPU</span>
+            <select id="pipeline-run-gpu-select">
+              <option value="module_default">module default</option>
+              <option value="force_gpu">force GPU</option>
+              <option value="force_cpu">force CPU</option>
+            </select>
+          </label>
+          <label class="field compact">
+            <span>Python</span>
+            <select id="pipeline-run-python-mode-select">
+              <option value="default">default</option>
+              <option value="custom">custom</option>
+            </select>
+          </label>
+          <label class="field compact">
+            <span>Custom env</span>
+            <input id="pipeline-run-python-env" type="text" placeholder="detecdiv_python" />
+          </label>
+        </div>
+        <div class="toolbar">
+          <label class="field compact">
+            <span>Run ID</span>
+            <input id="pipeline-run-id" type="text" placeholder="pipeline_run_1" />
+          </label>
+          <label class="field compact">
+            <span>Run policy</span>
+            <select id="pipeline-run-policy-select">
+              <option value="resume">resume</option>
+              <option value="restart">restart</option>
+            </select>
+          </label>
+          <label class="field compact">
+            <span>Existing data</span>
+            <select id="pipeline-run-existing-select">
+              <option value="replace">replace</option>
+              <option value="append">append</option>
+              <option value="skip">skip</option>
+              <option value="error">error</option>
+              <option value="upsert">upsert</option>
+            </select>
+          </label>
+          <label class="field compact">
+            <span>ROI cache</span>
+            <select id="pipeline-run-cache-select">
+              <option value="auto">auto</option>
+              <option value="memory">memory</option>
+              <option value="disk">disk</option>
+            </select>
+          </label>
+          <label class="field compact">
+            <span>Priority</span>
+            <input id="pipeline-run-priority" type="number" value="100" min="0" step="1" />
+          </label>
+          <label class="field">
+            <span>Selected nodes</span>
+            <input id="pipeline-run-selected-nodes" type="text" placeholder="classifier_5, roitracked_1" />
+          </label>
+        </div>
+        <div class="toolbar">
+          <label class="field">
+            <span>Description</span>
+            <input id="pipeline-run-description" type="text" placeholder="Optional run description" />
+          </label>
+          <label class="field">
+            <span>Node overrides JSON</span>
+            <textarea id="pipeline-run-node-params" rows="4" placeholder='[{"id":"classifier_5","params":{"frames":"1:10","channel":"ch2"}}]'></textarea>
+          </label>
+        </div>
+        <p id="pipeline-run-selection-summary" class="muted">No project or pipeline selected yet.</p>
+        <div class="table-wrap jobs-table-wrap">
+          <table id="pipeline-runs-table">
+            <thead>
+              <tr>
+                <th>Status</th>
+                <th>Project</th>
+                <th>Pipeline</th>
+                <th>Target</th>
+                <th>Run ID</th>
+                <th>Updated</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <p class="muted">Single click inspects a run. Double click loads it into the editor.</p>
+        <pre id="pipeline-run-detail" class="stack-item-meta">Select a run to inspect its payload and result.</pre>
+      </section>
+
+      <footer class="footer">
+        <div id="status-line">Ready.</div>
+      </footer>
+    </div>
+
+    <script src="/web/app.js?v=20260408-project-admin" defer></script>
+  </body>
+</html>

@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Detecdiv server - Admin</title>
+    <link rel="stylesheet" href="/web/styles.css?v=20260408-project-admin" />
+  </head>
+  <body data-page="admin">
+    <div class="page-shell">
+      <section id="login-panel" class="panel login-panel hidden">
+        <div class="panel-header">
+          <div>
+            <h2>Login</h2>
+            <p class="muted">Open a hub session with a user key and password.</p>
+          </div>
+        </div>
+        <div class="toolbar">
+          <label class="field compact">
+            <span>User key</span>
+            <input id="login-user-key" type="text" placeholder="admin" />
+          </label>
+          <label class="field compact">
+            <span>Password</span>
+            <input id="login-password" type="password" placeholder="password" />
+          </label>
+          <button id="login-button" class="primary">Login</button>
+        </div>
+      </section>
+
+      <header class="hero">
+        <div>
+          <div class="eyebrow">DetecDiv Hub</div>
+          <h1>Admin</h1>
+          <p class="hero-copy">Manage user accounts, execution targets, and hub sessions.</p>
+        </div>
+        <div class="hero-actions">
+          <nav class="hero-nav">
+            <a class="nav-link" href="/web/">Catalog</a>
+            <a class="nav-link" href="/web/raw-datasets.html">Raw Datasets</a>
+            <a class="nav-link" href="/web/indexing.html">Indexing</a>
+            <a class="nav-link admin-nav-link active hidden" href="/web/admin.html">Admin</a>
+          </nav>
+          <div class="session-box">
+            <div id="session-label" class="muted">Not logged in.</div>
+            <button id="connect-button" class="primary">Refresh</button>
+            <button id="logout-button">Logout</button>
+          </div>
+        </div>
+      </header>
+
+      <section id="admin-denied-panel" class="panel hidden">
+        <div class="panel-header">
+          <div>
+            <h2>Admin role required</h2>
+            <p class="muted">This page is restricted to admin and service accounts.</p>
+          </div>
+        </div>
+      </section>
+
+      <main id="admin-content" class="admin-content hidden">
+        <section class="panel">
+          <div class="panel-header">
+            <div>
+              <h2>Execution Targets</h2>
+              <p class="muted">Manage available local, CPU, and GPU run destinations.</p>
+            </div>
+            <div class="action-stack">
+              <button id="refresh-execution-targets-button">Refresh targets</button>
+              <button id="new-execution-target-button">New target</button>
+              <button id="cancel-execution-target-edit-button">Cancel edit</button>
+              <button id="save-execution-target-button" class="primary">Save target</button>
+            </div>
+          </div>
+          <p id="execution-target-editor-mode" class="muted">Create mode.</p>
+          <div class="toolbar">
+            <label class="field compact">
+              <span>Name</span>
+              <input id="execution-target-name" type="text" placeholder="Central GPU Server" />
+            </label>
+            <label class="field compact">
+              <span>Key</span>
+              <input id="execution-target-key" type="text" placeholder="server_gpu" />
+            </label>
+            <label class="field compact">
+              <span>Kind</span>
+              <input id="execution-target-kind" type="text" placeholder="server_gpu" />
+            </label>
+            <label class="field compact">
+              <span>Host</span>
+              <input id="execution-target-host" type="text" placeholder="detecdiv-server" />
+            </label>
+            <label class="field compact">
+              <span>Status</span>
+              <input id="execution-target-status" type="text" placeholder="online" />
+            </label>
+          </div>
+          <div class="toolbar">
+            <label class="field compact">
+              <span>MATLAB</span>
+              <select id="execution-target-supports-matlab">
+                <option value="true">yes</option>
+                <option value="false">no</option>
+              </select>
+            </label>
+            <label class="field compact">
+              <span>Python</span>
+              <select id="execution-target-supports-python">
+                <option value="true">yes</option>
+                <option value="false">no</option>
+              </select>
+            </label>
+            <label class="field compact">
+              <span>GPU</span>
+              <select id="execution-target-supports-gpu">
+                <option value="false">no</option>
+                <option value="true">yes</option>
+              </select>
+            </label>
+            <label class="field">
+              <span>Metadata JSON</span>
+              <textarea id="execution-target-metadata-json" rows="4" placeholder='{"queue":"gpu","worker_notes":"server-side target"}'></textarea>
+            </label>
+          </div>
+          <div class="table-wrap jobs-table-wrap">
+            <table id="execution-targets-table">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Kind</th>
+                  <th>Host</th>
+                  <th>MATLAB</th>
+                  <th>Python</th>
+                  <th>GPU</th>
+                  <th>Status</th>
+                  <th>Health</th>
+                  <th>Last Seen</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+          <p class="muted">Single click inspects a target. Double click loads it into the editor.</p>
+          <pre id="execution-target-detail" class="stack-item-meta">Select a target to inspect its metadata.</pre>
+        </section>
+
+        <section class="panel">
+          <div class="panel-header">
+            <div>
+              <h2>User Accounts</h2>
+              <p class="muted">Administer hub user accounts and passwords.</p>
+            </div>
+            <button id="new-user-button">New account</button>
+          </div>
+          <section class="subpanel">
+            <div class="subpanel-header">
+              <div>
+                <h3>Bulk Import</h3>
+                <p class="muted">Paste one user account per line: user_key;display_name;email;role.</p>
+              </div>
+              <button id="bulk-import-users-button">Import accounts</button>
+            </div>
+            <label class="field">
+              <span>User account list</span>
+              <textarea id="bulk-import-users-text" rows="6" placeholder="florian;Florian;florian@example.org;user"></textarea>
+            </label>
+          </section>
+          <div class="table-wrap jobs-table-wrap">
+            <table id="users-table">
+              <thead>
+                <tr>
+                  <th>User key</th>
+                  <th>Name</th>
+                  <th>Role</th>
+                  <th>Active</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-header">
+            <div>
+              <h2>Sessions</h2>
+              <p class="muted">Review active sessions and revoke stale ones.</p>
+            </div>
+            <button id="refresh-sessions-button">Refresh sessions</button>
+          </div>
+          <div class="table-wrap jobs-table-wrap">
+            <table id="sessions-table">
+              <thead>
+                <tr>
+                  <th>User</th>
+                  <th>Client</th>
+                  <th>Last seen</th>
+                  <th>Expires</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </section>
+      </main>
+
+      <footer class="footer">
+        <div id="status-line">Ready.</div>
+      </footer>
+    </div>
+
+    <script src="/web/app.js?v=20260408-project-admin" defer></script>
+  </body>
+</html>

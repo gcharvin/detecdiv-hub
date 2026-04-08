@@ -5,8 +5,9 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from api.db import get_db
-from api.models import ExecutionTarget
+from api.models import ExecutionTarget, User
 from api.schemas import ExecutionTargetCreate, ExecutionTargetSummary, ExecutionTargetUpdate
+from api.services.users import get_current_user
 
 
 router = APIRouter(prefix="/execution-targets", tags=["execution-targets"])
@@ -16,7 +17,9 @@ router = APIRouter(prefix="/execution-targets", tags=["execution-targets"])
 def list_execution_targets(
     status_filter: str | None = None,
     db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ) -> list[ExecutionTarget]:
+    _ = current_user
     stmt = select(ExecutionTarget).order_by(ExecutionTarget.display_name.asc())
     if status_filter:
         stmt = stmt.where(ExecutionTarget.status == status_filter)
@@ -27,7 +30,9 @@ def list_execution_targets(
 def create_execution_target(
     payload: ExecutionTargetCreate,
     db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ) -> ExecutionTarget:
+    require_admin(current_user)
     target = ExecutionTarget(
         target_key=payload.target_key,
         display_name=payload.display_name,
@@ -46,7 +51,12 @@ def create_execution_target(
 
 
 @router.get("/{target_id}", response_model=ExecutionTargetSummary)
-def get_execution_target(target_id: UUID, db: Session = Depends(get_db)) -> ExecutionTarget:
+def get_execution_target(
+    target_id: UUID,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> ExecutionTarget:
+    _ = current_user
     target = db.get(ExecutionTarget, target_id)
     if target is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Execution target not found")
@@ -58,7 +68,9 @@ def update_execution_target(
     target_id: UUID,
     payload: ExecutionTargetUpdate,
     db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ) -> ExecutionTarget:
+    require_admin(current_user)
     target = db.get(ExecutionTarget, target_id)
     if target is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Execution target not found")
@@ -85,3 +97,8 @@ def update_execution_target(
     db.commit()
     db.refresh(target)
     return target
+
+
+def require_admin(user: User) -> None:
+    if user.role not in {"admin", "service"}:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Execution target admin required")

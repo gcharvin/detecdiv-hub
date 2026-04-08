@@ -201,6 +201,21 @@ h3 {
   grid-template-columns: minmax(0, 1.25fr) minmax(520px, 1.4fr);
 }
 
+.project-page-grid {
+  grid-template-columns: minmax(0, 1.45fr) minmax(420px, 0.8fr);
+}
+
+.project-pipelines-wrap {
+  max-height: 420px;
+}
+
+.admin-content {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-top: 14px;
+}
+
 .migration-items-wrap {
   max-height: 480px;
 }

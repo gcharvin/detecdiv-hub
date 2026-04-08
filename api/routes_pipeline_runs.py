@@ -5,8 +5,9 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from api.db import get_db
-from api.models import Job
+from api.models import Job, Project, User
 from api.schemas import PipelineRunCreateRequest, PipelineRunSummary, PipelineRunUpdateRequest
+from api.services.users import ensure_project_readable, get_current_user, project_access_filter, user_can_edit_project
 
 
 router = APIRouter(prefix="/pipeline-runs", tags=["pipeline-runs"])
@@ -16,6 +17,7 @@ router = APIRouter(prefix="/pipeline-runs", tags=["pipeline-runs"])
 def list_pipeline_runs(
     project_id: UUID | None = None,
     db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ) -> list[Job]:
     stmt = (
         select(Job)
@@ -23,12 +25,23 @@ def list_pipeline_runs(
         .order_by(Job.created_at.desc())
     )
     if project_id is not None:
+        ensure_project_readable(db.get(Project, project_id), current_user)
         stmt = stmt.where(Job.project_id == project_id)
+    elif current_user.role not in {"admin", "service"}:
+        readable_project_ids = select(Project.id).where(Project.status != "deleted").where(project_access_filter(current_user))
+        stmt = stmt.where(Job.project_id.in_(readable_project_ids))
     return list(db.scalars(stmt))
 
 
 @router.post("", response_model=PipelineRunSummary, status_code=status.HTTP_201_CREATED)
-def create_pipeline_run(payload: PipelineRunCreateRequest, db: Session = Depends(get_db)) -> Job:
+def create_pipeline_run(
+    payload: PipelineRunCreateRequest,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> Job:
+    project = ensure_project_readable(db.get(Project, payload.project_id), current_user)
+    if not user_can_edit_project(project, current_user):
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Project edit access required")
     params_json = {
         "job_kind": "pipeline_run",
         "project_ref": payload.project_ref,
@@ -54,9 +67,17 @@ def create_pipeline_run(payload: PipelineRunCreateRequest, db: Session = Depends
 
 
 @router.get("/{job_id}", response_model=PipelineRunSummary)
-def get_pipeline_run(job_id: UUID, db: Session = Depends(get_db)) -> Job:
+def get_pipeline_run(
+    job_id: UUID,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> Job:
     job = db.get(Job, job_id)
     if job is None or (job.params_json or {}).get("job_kind") != "pipeline_run":
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Pipeline run not found")
+    if job.project_id is not None:
+        ensure_project_readable(db.get(Project, job.project_id), current_user)
+    elif current_user.role not in {"admin", "service"}:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Pipeline run not found")
     return job
 
@@ -66,12 +87,20 @@ def update_pipeline_run(
     job_id: UUID,
     payload: PipelineRunUpdateRequest,
     db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
 ) -> Job:
     job = db.get(Job, job_id)
     if job is None or (job.params_json or {}).get("job_kind") != "pipeline_run":
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Pipeline run not found")
     if job.status == "running":
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Running pipeline runs cannot be edited")
+    current_project_id = payload.project_id or job.project_id
+    if current_project_id is not None:
+        project = ensure_project_readable(db.get(Project, current_project_id), current_user)
+        if not user_can_edit_project(project, current_user):
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Project edit access required")
+    elif current_user.role not in {"admin", "service"}:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Pipeline run not found")
 
     if payload.project_id is not None:
         job.project_id = payload.project_id
