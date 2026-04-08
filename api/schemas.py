@@ -780,6 +780,8 @@ class IndexResponse(HubBaseModel):
     failed_projects: int = 0
     deleted_projects: int = 0
     total_projects: int = 0
+    indexed_pipelines: int = 0
+    failed_pipelines: int = 0
     stale_cleanup_skipped: bool = False
     message: str
 

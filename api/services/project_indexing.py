@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import hashlib
+import json
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
@@ -10,7 +11,7 @@ import time
 from sqlalchemy import delete, select
 from sqlalchemy.orm import Session
 
-from api.models import Project, ProjectLocation, StorageRoot, User
+from api.models import Pipeline, Project, ProjectLocation, StorageRoot, User
 from api.services.project_inventory import inspect_project_directory
 from api.services.storage_metrics import safe_dir_size, safe_file_size
 from api.services.users import get_or_create_user
@@ -28,6 +29,8 @@ class ProjectIndexResult:
     failed_projects: int
     deleted_projects: int
     stale_cleanup_skipped: bool
+    indexed_pipelines: int = 0
+    failed_pipelines: int = 0
 
 
 def index_project_root(
@@ -70,6 +73,7 @@ def index_project_root(
     scanned_projects = 0
     failed_projects = 0
     total_projects = 0
+    project_dirs: list[Path] = []
     if progress_callback is not None:
         progress_callback(
             status="running",
@@ -96,6 +100,7 @@ def index_project_root(
                 project_dir=project_dir,
             )
             seen_project_ids.add(project.id)
+            project_dirs.append(project_dir)
             indexed_projects += 1
             if progress_callback is not None:
                 progress_callback(
@@ -131,6 +136,48 @@ def index_project_root(
                 )
             if not continue_on_error:
                 raise
+
+    indexed_pipelines = 0
+    failed_pipelines = 0
+    for pipeline_candidate in iter_independent_pipeline_candidates(root, project_dirs=project_dirs):
+        try:
+            upsert_pipeline_from_candidate(session, pipeline_candidate)
+            indexed_pipelines += 1
+            if commit_each:
+                session.commit()
+        except Exception as exc:
+            session.rollback()
+            failed_pipelines += 1
+            if progress_callback is not None:
+                progress_callback(
+                    status="running",
+                    phase="indexing_pipelines",
+                    total_projects=total_projects,
+                    scanned_projects=scanned_projects,
+                    indexed_projects=indexed_projects,
+                    failed_projects=failed_projects,
+                    deleted_projects=0,
+                    mat_files_seen=total_projects,
+                    current_project_path=str(pipeline_candidate.pipeline_json_path),
+                    message=f"Failed to index pipeline {pipeline_candidate.pipeline_json_path.name}: {exc}",
+                    error_text=str(exc),
+                )
+            if not continue_on_error:
+                raise
+
+    if progress_callback is not None and indexed_pipelines:
+        progress_callback(
+            status="running",
+            phase="indexing_pipelines",
+            total_projects=total_projects,
+            scanned_projects=scanned_projects,
+            indexed_projects=indexed_projects,
+            failed_projects=failed_projects,
+            deleted_projects=0,
+            mat_files_seen=total_projects,
+            current_project_path=None,
+            message=f"Indexed {indexed_pipelines} independent pipeline(s).",
+        )
 
     deleted_projects = 0
     stale_cleanup_skipped = False
@@ -205,7 +252,177 @@ def index_project_root(
         failed_projects=failed_projects,
         deleted_projects=deleted_projects,
         stale_cleanup_skipped=stale_cleanup_skipped,
+        indexed_pipelines=indexed_pipelines,
+        failed_pipelines=failed_pipelines,
     )
+
+
+@dataclass
+class PipelineIndexCandidate:
+    pipeline_json_path: Path
+    source_path: Path
+    source_kind: str
+    manifest_path: Path | None = None
+    bundle_path: Path | None = None
+
+
+def iter_independent_pipeline_candidates(root_path: Path, *, project_dirs: list[Path]):
+    seen_pipeline_json_paths: set[Path] = set()
+    excluded_run_parts = {"runs"}
+
+    for manifest_path in sorted(root_path.rglob("export_manifest.json")):
+        candidate = pipeline_candidate_from_manifest(manifest_path)
+        if candidate is None:
+            continue
+        if is_relative_to_any(candidate.pipeline_json_path, project_dirs):
+            continue
+        if has_path_part(candidate.pipeline_json_path, excluded_run_parts):
+            continue
+        seen_pipeline_json_paths.add(candidate.pipeline_json_path)
+        yield candidate
+
+    for pipeline_json_path in sorted(root_path.rglob("pipeline.json")):
+        pipeline_json_path = pipeline_json_path.resolve()
+        if pipeline_json_path in seen_pipeline_json_paths:
+            continue
+        if is_relative_to_any(pipeline_json_path, project_dirs):
+            continue
+        if has_path_part(pipeline_json_path, excluded_run_parts):
+            continue
+        if not looks_like_pipeline_json(pipeline_json_path):
+            continue
+        yield PipelineIndexCandidate(
+            pipeline_json_path=pipeline_json_path,
+            source_path=pipeline_json_path.parent,
+            source_kind="pipeline_json",
+        )
+
+
+def pipeline_candidate_from_manifest(manifest_path: Path) -> PipelineIndexCandidate | None:
+    try:
+        payload = json.loads(manifest_path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return None
+    if not isinstance(payload, dict):
+        return None
+    pipeline_meta = payload.get("pipeline")
+    if not isinstance(pipeline_meta, dict):
+        return None
+    bundle_pipeline_path = pipeline_meta.get("bundlePipelinePath")
+    if not bundle_pipeline_path:
+        return None
+    pipeline_json_path = resolve_manifest_child_path(manifest_path.parent, str(bundle_pipeline_path))
+    if not pipeline_json_path.is_file() or not looks_like_pipeline_json(pipeline_json_path):
+        return None
+    return PipelineIndexCandidate(
+        pipeline_json_path=pipeline_json_path.resolve(),
+        source_path=manifest_path.parent.resolve(),
+        source_kind="export_bundle",
+        manifest_path=manifest_path.resolve(),
+        bundle_path=manifest_path.parent.resolve(),
+    )
+
+
+def looks_like_pipeline_json(path: Path) -> bool:
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return False
+    if not isinstance(payload, dict):
+        return False
+    if "nodes" not in payload:
+        return False
+    return any(key in payload for key in ("name", "id", "version", "edges", "runProfiles"))
+
+
+def resolve_manifest_child_path(base_path: Path, child_path: str) -> Path:
+    candidate = Path(child_path)
+    if candidate.is_absolute():
+        return candidate
+    return base_path / candidate
+
+
+def has_path_part(path: Path, parts: set[str]) -> bool:
+    lowered = {part.lower() for part in path.parts}
+    return bool(lowered.intersection(parts))
+
+
+def is_relative_to_any(path: Path, parents: list[Path]) -> bool:
+    for parent in parents:
+        try:
+            path.relative_to(parent)
+            return True
+        except ValueError:
+            continue
+    return False
+
+
+def upsert_pipeline_from_candidate(session: Session, candidate: PipelineIndexCandidate) -> Pipeline:
+    payload = json.loads(candidate.pipeline_json_path.read_text(encoding="utf-8"))
+    display_name = pipeline_display_name(payload, candidate.pipeline_json_path)
+    pipeline_key = pipeline_key_from_payload(payload)
+    if not pipeline_key:
+        relative_label = str(candidate.pipeline_json_path.parent.name or display_name)
+        pipeline_key = build_pipeline_key(str(candidate.pipeline_json_path), relative_label, display_name)
+    version = local_text(payload.get("version")) or "1.0"
+
+    pipeline = session.scalars(select(Pipeline).where(Pipeline.pipeline_key == pipeline_key)).first()
+    metadata = pipeline_metadata_from_candidate(candidate, payload)
+    if pipeline is None:
+        pipeline = Pipeline(
+            pipeline_key=pipeline_key,
+            display_name=display_name,
+            version=version,
+            runtime_kind="matlab",
+            metadata_json=metadata,
+        )
+        session.add(pipeline)
+    else:
+        merged_metadata = dict(pipeline.metadata_json or {})
+        merged_metadata.update(metadata)
+        pipeline.display_name = display_name
+        pipeline.version = version
+        pipeline.runtime_kind = pipeline.runtime_kind or "matlab"
+        pipeline.metadata_json = merged_metadata
+    session.flush()
+    return pipeline
+
+
+def pipeline_display_name(payload: dict, pipeline_json_path: Path) -> str:
+    return local_text(payload.get("name")) or local_text(payload.get("strid")) or pipeline_json_path.parent.name
+
+
+def pipeline_key_from_payload(payload: dict) -> str | None:
+    for key in ("name", "strid", "pipeline_key", "pipelineKey"):
+        value = local_text(payload.get(key))
+        if value:
+            return value
+    value = payload.get("id")
+    if isinstance(value, str) and value.strip():
+        return value.strip()
+    return None
+
+
+def pipeline_metadata_from_candidate(candidate: PipelineIndexCandidate, payload: dict) -> dict:
+    metadata = {
+        "source": "hub_indexer",
+        "pipeline_source": candidate.source_kind,
+        "pipeline_json_path": str(candidate.pipeline_json_path),
+        "node_count": len(payload.get("nodes") or []),
+        "description": local_text(payload.get("description")),
+        "detecdiv_pipeline_id": payload.get("id"),
+    }
+    if candidate.manifest_path is not None:
+        metadata["export_manifest_uri"] = str(candidate.manifest_path)
+    if candidate.bundle_path is not None:
+        metadata["pipeline_bundle_uri"] = str(candidate.bundle_path)
+    return metadata
+
+
+def local_text(value) -> str | None:
+    if value in (None, ""):
+        return None
+    return str(value)
 
 
 def iter_project_candidates(root_path: Path, progress_callback: Callable[..., None] | None = None):
@@ -441,6 +658,13 @@ def build_project_key(project_mat_abs: str, relative_parent: str, project_name: 
     label = str(Path(relative_parent) / project_name) if relative_parent else project_name
     slug = slugify(label)
     suffix = hashlib.sha1(project_mat_abs.encode("utf-8")).hexdigest()[:10]
+    return f"{slug}_{suffix}"
+
+
+def build_pipeline_key(pipeline_json_abs: str, relative_parent: str, pipeline_name: str) -> str:
+    label = str(Path(relative_parent) / pipeline_name) if relative_parent else pipeline_name
+    slug = slugify(label)
+    suffix = hashlib.sha1(pipeline_json_abs.encode("utf-8")).hexdigest()[:10]
     return f"{slug}_{suffix}"
 
 

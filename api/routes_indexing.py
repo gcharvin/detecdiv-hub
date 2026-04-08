@@ -118,6 +118,8 @@ def request_index(
         indexed_projects=result.indexed_projects,
         failed_projects=result.failed_projects,
         deleted_projects=result.deleted_projects,
+        indexed_pipelines=result.indexed_pipelines,
+        failed_pipelines=result.failed_pipelines,
         stale_cleanup_skipped=result.stale_cleanup_skipped,
         message="Project root indexed successfully.",
     )

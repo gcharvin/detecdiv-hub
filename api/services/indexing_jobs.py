@@ -134,7 +134,7 @@ def finalize_indexing_job_success(session: Session, job: IndexingJob, result: Pr
     job.heartbeat_at = job.finished_at
     job.message = (
         f"Indexed {result.indexed_projects}/{result.total_projects} projects"
-        f" from {result.root_path}."
+        f" and {result.indexed_pipelines} independent pipelines from {result.root_path}."
     )
     job.result_json = {
         "root_path": result.root_path,
@@ -147,6 +147,8 @@ def finalize_indexing_job_success(session: Session, job: IndexingJob, result: Pr
         "failed_projects": result.failed_projects,
         "deleted_projects": result.deleted_projects,
         "stale_cleanup_skipped": result.stale_cleanup_skipped,
+        "indexed_pipelines": result.indexed_pipelines,
+        "failed_pipelines": result.failed_pipelines,
     }
     session.flush()
 
