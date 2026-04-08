@@ -397,6 +397,19 @@ function formatTimestamp(value) {
   return date.toLocaleString();
 }
 
+function summarizeList(values, limit = 5) {
+  const items = (Array.isArray(values) ? values : [])
+    .map((value) => String(value || "").trim())
+    .filter(Boolean);
+  if (!items.length) {
+    return "none";
+  }
+  if (items.length <= limit) {
+    return items.join(", ");
+  }
+  return `${items.slice(0, limit).join(", ")} + ${items.length - limit} more`;
+}
+
 function progressPercent(job) {
   const total = Number(job.total_projects || 0);
   const scanned = Number(job.scanned_projects || 0);
@@ -2098,7 +2111,7 @@ function renderDetail() {
     ["Groups", groups.length ? groups.join(", ") : "none"],
     ["Project MAT", project.metadata_json?.project_mat_abs || ""],
     ["Project dir", project.metadata_json?.project_dir_abs || ""],
-    ["Top-level", (inventory.top_level_entries || []).join(", ")],
+    ["Top-level", summarizeList(inventory.top_level_entries, 5)],
   ];
 
   els.detailList.innerHTML = "";

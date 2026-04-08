@@ -274,6 +274,10 @@ table {
   border-collapse: collapse;
 }
 
+#projects-table {
+  table-layout: fixed;
+}
+
 thead {
   position: sticky;
   top: 0;
@@ -297,12 +301,40 @@ td {
 
 #projects-table th:nth-child(2),
 #projects-table td:nth-child(2) {
-  min-width: 420px;
+  width: 34%;
+  max-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 #projects-table th:nth-child(3),
 #projects-table td:nth-child(3) {
-  min-width: 180px;
+  width: 180px;
+  max-width: 180px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+#projects-table th:nth-child(4),
+#projects-table td:nth-child(4) {
+  width: 86px;
+}
+
+#projects-table th:nth-child(5),
+#projects-table td:nth-child(5),
+#projects-table th:nth-child(6),
+#projects-table td:nth-child(6),
+#projects-table th:nth-child(7),
+#projects-table td:nth-child(7) {
+  width: 62px;
+}
+
+#projects-table th:nth-child(8),
+#projects-table td:nth-child(8) {
+  width: 110px;
+  white-space: nowrap;
 }
 
 #projects-table input[type="checkbox"] {
