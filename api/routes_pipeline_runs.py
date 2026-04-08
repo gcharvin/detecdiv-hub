@@ -1,4 +1,5 @@
 from uuid import UUID
+from datetime import datetime, timezone
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import select
@@ -8,6 +9,7 @@ from api.db import get_db
 from api.models import Job, Project, User
 from api.schemas import PipelineRunCreateRequest, PipelineRunSummary, PipelineRunUpdateRequest
 from api.services.users import ensure_project_readable, get_current_user, project_access_filter, user_can_edit_project
+from worker.pipeline_run_executor import write_cancel_token
 
 
 router = APIRouter(prefix="/pipeline-runs", tags=["pipeline-runs"])
@@ -79,6 +81,49 @@ def get_pipeline_run(
         ensure_project_readable(db.get(Project, job.project_id), current_user)
     elif current_user.role not in {"admin", "service"}:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Pipeline run not found")
+    return job
+
+
+@router.post("/{job_id}/cancel", response_model=PipelineRunSummary)
+def cancel_pipeline_run(
+    job_id: UUID,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> Job:
+    job = db.get(Job, job_id)
+    if job is None or (job.params_json or {}).get("job_kind") != "pipeline_run":
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Pipeline run not found")
+    if job.project_id is not None:
+        project = ensure_project_readable(db.get(Project, job.project_id), current_user)
+        if not user_can_edit_project(project, current_user):
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Project edit access required")
+    elif current_user.role not in {"admin", "service"}:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Pipeline run not found")
+
+    if job.status in {"done", "failed"}:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=f"Cannot cancel a {job.status} pipeline run")
+    if job.status == "cancelled":
+        return job
+
+    now = datetime.now(timezone.utc)
+    result_json = dict(job.result_json or {})
+    result_json["status"] = "cancelling" if job.status == "running" else "cancelled"
+    result_json["message"] = "Cancellation requested by user."
+    result_json["cancel_requested_at"] = now.isoformat()
+    job.result_json = result_json
+
+    if job.status == "queued":
+        job.status = "cancelled"
+        job.finished_at = now
+        job.heartbeat_at = now
+    else:
+        job.status = "cancelling"
+        job.heartbeat_at = now
+        write_cancel_token(job)
+
+    job.updated_at = now
+    db.commit()
+    db.refresh(job)
     return job
 
 

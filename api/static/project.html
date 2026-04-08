@@ -145,6 +145,7 @@
           <div class="action-stack">
             <button id="refresh-pipeline-runs-button">Refresh runs</button>
             <button id="new-pipeline-run-button">New draft</button>
+            <button id="cancel-pipeline-run-button">Cancel run</button>
             <button id="submit-pipeline-run-button" class="primary">Submit run</button>
           </div>
         </div>
@@ -181,8 +182,8 @@
           <label class="field compact">
             <span>GPU</span>
             <select id="pipeline-run-gpu-select">
-              <option value="module_default">module default</option>
               <option value="force_gpu">force GPU</option>
+              <option value="module_default">module default</option>
               <option value="force_cpu">force CPU</option>
             </select>
           </label>
@@ -272,6 +273,6 @@
       </footer>
     </div>
 
-    <script src="/web/app.js?v=20260408-detail-summary" defer></script>
+    <script src="/web/app.js?v=20260408-cancel-gpu" defer></script>
   </body>
 </html>

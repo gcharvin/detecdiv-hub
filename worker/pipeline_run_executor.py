@@ -11,12 +11,16 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session, joinedload
 
 from api.config import get_settings
-from api.models import Artifact, Job, Pipeline, Project, ProjectLocation
+from api.models import Artifact, ExecutionTarget, Job, Pipeline, Project, ProjectLocation
 from api.services.project_deletion import resolve_project_location_paths
 from worker.executors.matlab_executor import build_matlab_batch_command, run_matlab_command
 
 
 PIPELINE_REF_PATH_KEYS = ("export_manifest_uri", "pipeline_bundle_uri", "pipeline_json_path")
+
+
+class PipelineRunCancelled(RuntimeError):
+    pass
 
 
 def execute_pipeline_run_job(session: Session, *, job: Job) -> dict[str, Any]:
@@ -37,6 +41,7 @@ def execute_pipeline_run_job(session: Session, *, job: Job) -> dict[str, Any]:
 
         payload.setdefault("execution", {})
         payload["execution"]["result_json_path"] = str(result_path)
+        payload["execution"]["cancel_token_file"] = ensure_cancel_token_path(session, job=job, payload=payload)
 
         payload_path.write_text(json.dumps(payload, indent=2), encoding="utf-8")
 
@@ -70,6 +75,8 @@ def execute_pipeline_run_job(session: Session, *, job: Job) -> dict[str, Any]:
                 completed.stderr or "",
                 result_json,
             )
+            if is_pipeline_cancelled(session, job=job, result_json=result_json, error_text=error_text):
+                raise PipelineRunCancelled(error_text)
             raise RuntimeError(error_text)
 
         if not result_json:
@@ -128,8 +135,43 @@ def normalize_pipeline_run_payload(session: Session, *, job: Job) -> dict[str, A
     execution.setdefault("save_project", True)
     payload["execution"] = execution
 
-    payload.setdefault("run_request", {})
+    run_request = dict(payload.get("run_request") or {})
+    gpu = dict(run_request.get("gpu") or {})
+    if not gpu.get("mode"):
+        gpu["mode"] = default_gpu_mode_for_job(session, job=job)
+    run_request["gpu"] = gpu
+    payload["run_request"] = run_request
     return payload
+
+
+def default_gpu_mode_for_job(session: Session, *, job: Job) -> str:
+    if job.execution_target_id:
+        target = session.get(ExecutionTarget, job.execution_target_id)
+        if target is not None and bool(target.supports_gpu):
+            return "force_gpu"
+    return "module_default"
+
+
+def ensure_cancel_token_path(session: Session, *, job: Job, payload: dict[str, Any]) -> str:
+    execution = dict(payload.get("execution") or {})
+    existing = str(execution.get("cancel_token_file") or "").strip()
+    if existing:
+        return existing
+
+    token_dir = Path(tempfile.gettempdir()) / "detecdiv-hub" / "cancel-tokens"
+    token_dir.mkdir(parents=True, exist_ok=True)
+    token_path = token_dir / f"{job.id}.cancel"
+
+    job_record = session.get(Job, job.id)
+    if job_record is not None:
+        params_json = dict(job_record.params_json or {})
+        params_execution = dict(params_json.get("execution") or {})
+        params_execution["cancel_token_file"] = str(token_path)
+        params_json["execution"] = params_execution
+        job_record.params_json = params_json
+        session.commit()
+
+    return str(token_path)
 
 
 def resolve_project_mat_path(session: Session, *, project_id) -> str:
@@ -158,6 +200,8 @@ def update_job_heartbeat(session: Session, *, job: Job) -> None:
         return
     job_record.heartbeat_at = now
     job_record.updated_at = now
+    if job_record.status == "cancelling":
+        write_cancel_token(job_record)
     session.commit()
 
 
@@ -178,7 +222,48 @@ def update_pipeline_run_progress(
     job_record.result_json = result_json
     job_record.heartbeat_at = now
     job_record.updated_at = now
+    if job_record.status == "cancelling":
+        write_cancel_token(job_record)
     session.commit()
+
+
+def write_cancel_token(job: Job) -> None:
+    token_path = cancel_token_path_for_job(job)
+    if not token_path:
+        return
+    try:
+        path = Path(token_path)
+        path.parent.mkdir(parents=True, exist_ok=True)
+        if not path.exists():
+            path.write_text(f"cancelled_at={datetime.now(timezone.utc).isoformat()}\njob_id={job.id}\n", encoding="utf-8")
+    except OSError:
+        return
+
+
+def cancel_token_path_for_job(job: Job) -> str:
+    params_json = dict(job.params_json or {})
+    execution = dict(params_json.get("execution") or {})
+    token_path = str(execution.get("cancel_token_file") or "").strip()
+    if token_path:
+        return token_path
+    return str(Path(tempfile.gettempdir()) / "detecdiv-hub" / "cancel-tokens" / f"{job.id}.cancel")
+
+
+def is_pipeline_cancelled(
+    session: Session,
+    *,
+    job: Job,
+    result_json: dict[str, Any],
+    error_text: str,
+) -> bool:
+    job_record = session.get(Job, job.id)
+    if job_record is not None and job_record.status in {"cancelling", "cancelled"}:
+        return True
+    status = str(result_json.get("status") or "").lower()
+    if status in {"cancelled", "canceled"}:
+        return True
+    lowered = error_text.lower()
+    return "runpipeline:cancelled" in lowered or "cancelled by user" in lowered or "canceled by user" in lowered
 
 
 def build_pipeline_run_progress(*, stdout_path: Path, stderr_path: Path) -> dict[str, Any]:

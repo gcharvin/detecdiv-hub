@@ -183,6 +183,7 @@ const els = {
   pipelineRunEditorMode: document.querySelector("#pipeline-run-editor-mode"),
   refreshPipelineRunsButton: document.querySelector("#refresh-pipeline-runs-button"),
   newPipelineRunButton: document.querySelector("#new-pipeline-run-button"),
+  cancelPipelineRunButton: document.querySelector("#cancel-pipeline-run-button"),
   submitPipelineRunButton: document.querySelector("#submit-pipeline-run-button"),
   pipelineRunsTableBody: document.querySelector("#pipeline-runs-table tbody"),
   pipelineRunDetail: document.querySelector("#pipeline-run-detail"),
@@ -1041,7 +1042,7 @@ function resetPipelineRunForm() {
   if (els.pipelineRunPipelineSelect) els.pipelineRunPipelineSelect.value = "";
   if (els.pipelineRunTargetSelect) els.pipelineRunTargetSelect.value = "";
   if (els.pipelineRunModeSelect) els.pipelineRunModeSelect.value = "auto";
-  if (els.pipelineRunGpuSelect) els.pipelineRunGpuSelect.value = "module_default";
+  if (els.pipelineRunGpuSelect) els.pipelineRunGpuSelect.value = "force_gpu";
   if (els.pipelineRunPythonModeSelect) els.pipelineRunPythonModeSelect.value = "default";
   if (els.pipelineRunPythonEnv) els.pipelineRunPythonEnv.value = "detecdiv_python";
   if (els.pipelineRunId) els.pipelineRunId.value = "";
@@ -1089,7 +1090,7 @@ function loadPipelineRunIntoForm(run) {
     els.pipelineRunTargetSelect.value = String(run.execution_target_id || exec.execution_target_id || "");
   }
   if (els.pipelineRunModeSelect) els.pipelineRunModeSelect.value = String(run.requested_mode || exec.requested_mode || "auto");
-  if (els.pipelineRunGpuSelect) els.pipelineRunGpuSelect.value = String(rr.gpu?.mode || "module_default");
+  if (els.pipelineRunGpuSelect) els.pipelineRunGpuSelect.value = String(rr.gpu?.mode || "force_gpu");
   if (els.pipelineRunPythonModeSelect) els.pipelineRunPythonModeSelect.value = String(rr.python?.mode || "default");
   if (els.pipelineRunPythonEnv) els.pipelineRunPythonEnv.value = String(rr.python?.env_name || "detecdiv_python");
   if (els.pipelineRunId) els.pipelineRunId.value = String(rr.run_id || "");
@@ -1148,6 +1149,7 @@ function renderPipelineRunDetail(run) {
     return;
   }
   const progress = run.result_json?.progress || {};
+  const canCancel = ["queued", "running", "cancelling"].includes(String(run.status || "").toLowerCase());
   const rows = [
     ["Run", run.id],
     ["Status", run.status],
@@ -1173,6 +1175,7 @@ function renderPipelineRunDetail(run) {
     `).join("")}
     <div class="toolbar">
       <button type="button" id="open-pipeline-run-json-button">Open JSON</button>
+      ${canCancel ? '<button type="button" id="cancel-selected-pipeline-run-button">Cancel run</button>' : ""}
     </div>
     ${recentLines.length ? `
       <div>
@@ -1193,6 +1196,12 @@ function renderPipelineRunDetail(run) {
       params_json: run.params_json || {},
       result_json: run.result_json || {},
     }, `pipeline-run-${run.id}.json`);
+  });
+  els.pipelineRunDetail.querySelector("#cancel-selected-pipeline-run-button")?.addEventListener("click", () => {
+    cancelSelectedPipelineRun().catch((error) => {
+      setStatus(String(error));
+      window.alert(String(error));
+    });
   });
 }
 
@@ -1360,7 +1369,7 @@ function buildPipelineRunPayload() {
   }
 
   const requestedMode = String(els.pipelineRunModeSelect?.value || "auto");
-  const gpuMode = String(els.pipelineRunGpuSelect?.value || "module_default");
+  const gpuMode = String(els.pipelineRunGpuSelect?.value || "force_gpu");
   const pythonMode = String(els.pipelineRunPythonModeSelect?.value || "default");
   const pythonEnvName = String(els.pipelineRunPythonEnv?.value || "").trim();
   const priorityValue = Number(els.pipelineRunPriority?.value || 100);
@@ -1445,6 +1454,24 @@ async function submitPipelineRun() {
     setStatus(`Queued pipeline run ${saved.id} for ${project.project_name}.`);
   }
   state.selectedPipelineRun = saved;
+  await refreshPipelineRuns();
+}
+
+async function cancelSelectedPipelineRun() {
+  const run = state.selectedPipelineRun;
+  if (!run) {
+    throw new Error("Select a pipeline run to cancel.");
+  }
+  if (!["queued", "running", "cancelling"].includes(String(run.status || "").toLowerCase())) {
+    throw new Error(`Cannot cancel a ${run.status} pipeline run.`);
+  }
+  const confirmed = window.confirm(`Cancel pipeline run ${run.id}?`);
+  if (!confirmed) {
+    return;
+  }
+  const saved = await apiPost(`/pipeline-runs/${run.id}/cancel`, {});
+  state.selectedPipelineRun = saved;
+  setStatus(`Cancellation requested for pipeline run ${saved.id}.`);
   await refreshPipelineRuns();
 }
 
@@ -3524,6 +3551,10 @@ if (els.pipelineRunTargetSelect) els.pipelineRunTargetSelect.addEventListener("c
 if (els.pipelineRunPythonModeSelect) els.pipelineRunPythonModeSelect.addEventListener("change", () => renderPipelineRunBuilder());
 if (els.refreshPipelineRunsButton) els.refreshPipelineRunsButton.addEventListener("click", () => refreshPipelineRuns().catch((error) => setStatus(String(error))));
 if (els.newPipelineRunButton) els.newPipelineRunButton.addEventListener("click", () => resetPipelineRunForm());
+if (els.cancelPipelineRunButton) els.cancelPipelineRunButton.addEventListener("click", () => cancelSelectedPipelineRun().catch((error) => {
+  setStatus(String(error));
+  window.alert(String(error));
+}));
 if (els.submitPipelineRunButton) els.submitPipelineRunButton.addEventListener("click", () => submitPipelineRun().catch((error) => {
   setStatus(String(error));
   window.alert(String(error));

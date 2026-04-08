@@ -13,7 +13,7 @@ from api.db import SessionLocal
 from api.models import ExecutionTarget, Job
 from worker.archive_policy_scheduler import run_archive_policy_if_due
 from worker.micromanager_ingest_scheduler import run_micromanager_ingest_if_due
-from worker.pipeline_run_executor import execute_pipeline_run_job
+from worker.pipeline_run_executor import PipelineRunCancelled, execute_pipeline_run_job
 from worker.storage_lifecycle import execute_storage_lifecycle_job, finalize_storage_lifecycle_failure
 
 
@@ -122,6 +122,32 @@ def mark_job_failed(job_id, error_text: str) -> None:
         )
 
 
+def mark_job_cancelled(job_id, message: str) -> None:
+    settings = get_settings()
+    with session_scope() as session:
+        job = session.get(Job, job_id)
+        if job is None:
+            return
+        job.status = "cancelled"
+        result_json = dict(job.result_json or {})
+        result_json["status"] = "cancelled"
+        result_json["message"] = message or "Pipeline run cancelled by user."
+        job.result_json = result_json
+        job.error_text = message or None
+        job.finished_at = datetime.now(timezone.utc)
+        job.heartbeat_at = job.finished_at
+        job.updated_at = datetime.now(timezone.utc)
+        target = resolve_target_for_job(session, job=job, configured_target_key=settings.worker_target_key)
+        update_worker_target_state(
+            session,
+            target=target,
+            health="online",
+            current_job=None,
+            last_job_status="cancelled",
+            last_job=job,
+        )
+
+
 def execute_job(job: Job) -> dict:
     job_kind = (job.params_json or {}).get("job_kind")
     LOGGER.info("Executing job %s on host %s", job.id, socket.gethostname())
@@ -187,6 +213,9 @@ def run_forever() -> None:
             result_json = execute_job(job)
             mark_job_done(job.id, result_json)
             LOGGER.info("Job %s completed", job.id)
+        except PipelineRunCancelled as exc:
+            mark_job_cancelled(job.id, str(exc))
+            LOGGER.info("Job %s cancelled", job.id)
         except Exception as exc:  # pragma: no cover - defensive for worker loop
             with session_scope() as session:
                 job_record = session.get(Job, job.id)
