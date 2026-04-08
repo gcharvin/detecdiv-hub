@@ -410,6 +410,104 @@ function isAdmin() {
   return state.currentUser && ["admin", "service"].includes(state.currentUser.role);
 }
 
+function fieldValueFromForm(form, name) {
+  const field = form.elements.namedItem(name);
+  if (!field) {
+    return "";
+  }
+  if (field.type === "checkbox") {
+    return Boolean(field.checked);
+  }
+  return String(field.value || "");
+}
+
+function openFormDialog({ title, description = "", fields = [], submitLabel = "Save" }) {
+  return new Promise((resolve) => {
+    const overlay = document.createElement("div");
+    overlay.className = "modal-backdrop";
+    const fieldMarkup = fields.map((field) => {
+      const required = field.required ? "required" : "";
+      const value = field.value == null ? "" : String(field.value);
+      if (field.type === "textarea") {
+        return `
+          <label class="field dialog-field">
+            <span>${escapeHtml(field.label)}</span>
+            <textarea name="${field.name}" rows="${field.rows || 4}" ${required}>${escapeHtml(value)}</textarea>
+          </label>
+        `;
+      }
+      if (field.type === "select") {
+        const options = (field.options || []).map((option) => `
+          <option value="${escapeHtml(option.value)}" ${String(option.value) === value ? "selected" : ""}>${escapeHtml(option.label)}</option>
+        `).join("");
+        return `
+          <label class="field dialog-field">
+            <span>${escapeHtml(field.label)}</span>
+            <select name="${field.name}" ${required}>${options}</select>
+          </label>
+        `;
+      }
+      return `
+        <label class="field dialog-field">
+          <span>${escapeHtml(field.label)}</span>
+          <input name="${field.name}" type="${field.type || "text"}" value="${escapeHtml(value)}" ${required} />
+        </label>
+      `;
+    }).join("");
+    overlay.innerHTML = `
+      <form class="modal-panel">
+        <div class="panel-header">
+          <div>
+            <h2>${escapeHtml(title)}</h2>
+            ${description ? `<p class="muted">${escapeHtml(description)}</p>` : ""}
+          </div>
+        </div>
+        <div class="dialog-field-list">${fieldMarkup}</div>
+        <div class="dialog-actions">
+          <button type="button" data-dialog-cancel>Cancel</button>
+          <button type="submit" class="primary">${escapeHtml(submitLabel)}</button>
+        </div>
+      </form>
+    `;
+    document.body.appendChild(overlay);
+
+    const form = overlay.querySelector("form");
+    const close = (value) => {
+      overlay.remove();
+      resolve(value);
+    };
+    overlay.querySelector("[data-dialog-cancel]")?.addEventListener("click", () => close(null));
+    overlay.addEventListener("click", (event) => {
+      if (event.target === overlay) {
+        close(null);
+      }
+    });
+    overlay.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") {
+        close(null);
+      }
+    });
+    form?.addEventListener("submit", (event) => {
+      event.preventDefault();
+      const values = {};
+      for (const field of fields) {
+        values[field.name] = fieldValueFromForm(form, field.name);
+      }
+      close(values);
+    });
+    overlay.querySelector("input, textarea, select")?.focus();
+  });
+}
+
+function escapeHtml(value) {
+  return String(value ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
 function updateSessionUi() {
   if (els.loginUserKey) {
     els.loginUserKey.value = state.userKey || "";
@@ -2205,7 +2303,7 @@ async function refreshDashboard() {
   if (pageFlags.hasPipelineRunsView) {
     refreshTasks.push(refreshPipelineRuns());
   }
-  if ((pageFlags.hasUsersView && isAdmin()) || els.indexOwnerUserKey) {
+  if ((pageFlags.hasUsersView && isAdmin()) || els.indexOwnerUserKey || els.ownerFilter || els.rawOwnerFilter || pageFlags.hasProjectPage) {
     refreshTasks.push(refreshUsers());
   }
   if (pageFlags.hasSessionsView && isAdmin()) {
@@ -2508,7 +2606,7 @@ async function refreshProjectPage() {
 
 async function refreshUsers() {
   if (!els.usersTableBody) {
-    if (els.indexOwnerUserKey) {
+    if (els.indexOwnerUserKey || els.ownerFilter || els.rawOwnerFilter || pageFlags.hasProjectPage) {
       state.users = await apiGet("/users");
       renderUserSelectors();
     }
@@ -2548,19 +2646,25 @@ async function selectProject(projectId) {
 }
 
 async function createGroup() {
-  const displayName = window.prompt("Group display name");
-  if (!displayName) {
+  const values = await openFormDialog({
+    title: "New group",
+    description: "Create a project collection for filtering and cleanup.",
+    submitLabel: "Create group",
+    fields: [
+      { name: "displayName", label: "Group name", required: true },
+      { name: "groupKey", label: "Group key" },
+      { name: "description", label: "Description", type: "textarea", rows: 3 },
+    ],
+  });
+  if (!values?.displayName?.trim()) {
     return;
   }
-  const groupKeyInput = window.prompt("Group key", displayName.toLowerCase().replace(/[^a-z0-9]+/g, "_"));
-  if (!groupKeyInput) {
-    return;
-  }
-  const description = window.prompt("Description", "") || "";
+  const displayName = values.displayName.trim();
+  const groupKeyInput = values.groupKey.trim() || displayName.toLowerCase().replace(/[^a-z0-9]+/g, "_");
   await apiPost("/project-groups", {
     display_name: displayName,
     group_key: groupKeyInput,
-    description,
+    description: values.description.trim(),
     metadata_json: {},
   });
   await refreshDashboard();
@@ -2570,7 +2674,15 @@ async function addNote() {
   if (!state.selectedProject) {
     return;
   }
-  const noteText = window.prompt("New note");
+  const values = await openFormDialog({
+    title: "New note",
+    description: state.selectedProject.project_name || "",
+    submitLabel: "Add note",
+    fields: [
+      { name: "noteText", label: "Note", type: "textarea", rows: 5, required: true },
+    ],
+  });
+  const noteText = values?.noteText?.trim();
   if (!noteText) {
     return;
   }
@@ -2588,17 +2700,44 @@ async function editProject() {
   }
   const currentOwner = state.selectedProjectDetail.owner?.user_key || "";
   const currentVisibility = state.selectedProjectDetail.visibility || "private";
-  const ownerUserKey = window.prompt("Project owner key", currentOwner);
-  if (ownerUserKey === null) {
-    return;
+  const ownerOptions = availableOwnerUsers().map((user) => ({
+    value: user.user_key,
+    label: userOptionLabel(user),
+  }));
+  if (currentOwner && !ownerOptions.some((option) => option.value === currentOwner)) {
+    ownerOptions.unshift({ value: currentOwner, label: currentOwner });
   }
-  const visibility = window.prompt("Visibility (private/shared/public)", currentVisibility);
-  if (!visibility) {
+  const values = await openFormDialog({
+    title: "Update project",
+    description: state.selectedProjectDetail.project_name || "",
+    submitLabel: "Save project",
+    fields: [
+      {
+        name: "ownerUserKey",
+        label: "Project owner",
+        type: ownerOptions.length ? "select" : "text",
+        value: currentOwner,
+        options: ownerOptions,
+      },
+      {
+        name: "visibility",
+        label: "Visibility",
+        type: "select",
+        value: currentVisibility,
+        options: [
+          { value: "private", label: "private" },
+          { value: "shared", label: "shared" },
+          { value: "public", label: "public" },
+        ],
+      },
+    ],
+  });
+  if (!values) {
     return;
   }
   await apiPatch(`/projects/${state.selectedProjectDetail.id}`, {
-    owner_user_key: ownerUserKey.trim() || null,
-    visibility,
+    owner_user_key: values.ownerUserKey.trim() || null,
+    visibility: values.visibility || currentVisibility,
     metadata_json: {},
   });
   await refreshDashboard();
@@ -2610,14 +2749,41 @@ async function shareProject() {
   if (!state.selectedProject) {
     return;
   }
-  const userKey = window.prompt("Share with user key");
+  const currentUserKey = state.currentUser?.user_key || "";
+  const userOptions = availableOwnerUsers()
+    .filter((user) => user.user_key !== currentUserKey)
+    .map((user) => ({ value: user.user_key, label: userOptionLabel(user) }));
+  const values = await openFormDialog({
+    title: "Share project",
+    description: state.selectedProject.project_name || "",
+    submitLabel: "Share",
+    fields: [
+      {
+        name: "userKey",
+        label: "User",
+        type: userOptions.length ? "select" : "text",
+        options: userOptions,
+        required: true,
+      },
+      {
+        name: "accessLevel",
+        label: "Access level",
+        type: "select",
+        value: "viewer",
+        options: [
+          { value: "viewer", label: "viewer" },
+          { value: "editor", label: "editor" },
+        ],
+      },
+    ],
+  });
+  const userKey = values?.userKey?.trim();
   if (!userKey) {
     return;
   }
-  const accessLevel = window.prompt("Access level (viewer/editor)", "viewer") || "viewer";
   await apiPost(`/projects/${state.selectedProject.id}/acl`, {
     user_key: userKey,
-    access_level: accessLevel,
+    access_level: values.accessLevel || "viewer",
   });
   await selectProject(state.selectedProject.id);
   setStatus(`Shared with ${userKey}.`);
@@ -2631,12 +2797,25 @@ async function addSelectedProjectToGroup() {
     await createGroup();
     return;
   }
-  const labels = state.groups.map((group, index) => `${index + 1}. ${group.display_name}`).join("\n");
-  const answer = window.prompt(`Choose group number:\n${labels}`, "1");
-  if (!answer) {
+  const values = await openFormDialog({
+    title: "Add to group",
+    description: state.selectedProject.project_name || "",
+    submitLabel: "Add to group",
+    fields: [
+      {
+        name: "groupId",
+        label: "Group",
+        type: "select",
+        value: state.groups[0]?.id || "",
+        options: state.groups.map((group) => ({ value: group.id, label: group.display_name })),
+        required: true,
+      },
+    ],
+  });
+  if (!values?.groupId) {
     return;
   }
-  const selected = state.groups[Number(answer) - 1];
+  const selected = state.groups.find((group) => String(group.id) === String(values.groupId));
   if (!selected) {
     throw new Error("Invalid group selection.");
   }
