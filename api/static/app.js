@@ -1111,7 +1111,7 @@ function renderPipelineRuns() {
       <td>${pipeline?.display_name || run.params_json?.pipeline_ref?.pipeline_key || run.pipeline_id || ""}</td>
       <td>${target?.display_name || run.execution_target_id || "auto"}</td>
       <td>${rr.run_id || ""}</td>
-      <td>${formatTimestamp(run.updated_at || run.created_at)}</td>
+      <td>${formatTimestamp(run.heartbeat_at || run.updated_at || run.created_at)}</td>
     `;
     tr.title = run.error_text || JSON.stringify(run.result_json || {});
     tr.addEventListener("click", () => {
@@ -1130,6 +1130,8 @@ function renderPipelineRuns() {
         status: state.selectedPipelineRun.status,
         requested_mode: state.selectedPipelineRun.requested_mode,
         resolved_mode: state.selectedPipelineRun.resolved_mode,
+        heartbeat_at: state.selectedPipelineRun.heartbeat_at,
+        updated_at: state.selectedPipelineRun.updated_at,
         error_text: state.selectedPipelineRun.error_text,
         params_json: state.selectedPipelineRun.params_json || {},
         result_json: state.selectedPipelineRun.result_json || {},
@@ -3324,6 +3326,9 @@ async function pollDashboard() {
     }
     if (pageFlags.hasMigrationView) {
       pollTasks.push(refreshMigrationPlans());
+    }
+    if (pageFlags.hasPipelineRunsView) {
+      pollTasks.push(refreshPipelineRuns());
     }
     const hasActiveJob = state.indexingJobs.some((job) => job.status === "queued" || job.status === "running");
     if (pageFlags.hasProjectsView && hasActiveJob) {

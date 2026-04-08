@@ -604,6 +604,7 @@ class JobSummary(HubBaseModel):
     error_text: str | None = None
     created_at: datetime | None = None
     started_at: datetime | None = None
+    heartbeat_at: datetime | None = None
     finished_at: datetime | None = None
     updated_at: datetime | None = None
 

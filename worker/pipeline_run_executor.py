@@ -4,6 +4,7 @@ import json
 import tempfile
 from pathlib import Path
 from typing import Any
+from datetime import datetime, timezone
 
 from sqlalchemy import select
 from sqlalchemy.orm import Session, joinedload
@@ -12,6 +13,9 @@ from api.config import get_settings
 from api.models import Artifact, Job, Pipeline, Project, ProjectLocation
 from api.services.project_deletion import resolve_project_location_paths
 from worker.executors.matlab_executor import build_matlab_batch_command, run_matlab_command
+
+
+PIPELINE_REF_PATH_KEYS = ("export_manifest_uri", "pipeline_bundle_uri", "pipeline_json_path")
 
 
 def execute_pipeline_run_job(session: Session, *, job: Job) -> dict[str, Any]:
@@ -37,7 +41,11 @@ def execute_pipeline_run_job(session: Session, *, job: Job) -> dict[str, Any]:
 
         entrypoint = f"detecdiv_run_pipeline_job('{matlab_escape(str(payload_path))}')"
         command = build_matlab_batch_command(repo_root, entrypoint, matlab_command=matlab_command)
-        completed = run_matlab_command(command)
+        completed = run_matlab_command(
+            command,
+            heartbeat_callback=lambda: update_job_heartbeat(session, job=job),
+            heartbeat_interval_sec=10.0,
+        )
         stdout_path.write_text(completed.stdout or "", encoding="utf-8")
         stderr_path.write_text(completed.stderr or "", encoding="utf-8")
 
@@ -101,6 +109,7 @@ def normalize_pipeline_run_payload(session: Session, *, job: Job) -> dict[str, A
         pipeline_ref["pipeline_id"] = str(job.pipeline_id)
     if job.pipeline_id:
         fill_pipeline_ref_from_registry(session, pipeline_id=job.pipeline_id, pipeline_ref=pipeline_ref)
+    resolve_pipeline_ref_for_server(session, job=job, project_ref=project_ref, pipeline_ref=pipeline_ref)
     payload["pipeline_ref"] = pipeline_ref
 
     execution = dict(payload.get("execution") or {})
@@ -135,6 +144,16 @@ def resolve_project_mat_path(session: Session, *, project_id) -> str:
     raise ValueError(f"Project {project.project_name} has no resolvable MAT location.")
 
 
+def update_job_heartbeat(session: Session, *, job: Job) -> None:
+    now = datetime.now(timezone.utc)
+    job_record = session.get(Job, job.id)
+    if job_record is None:
+        return
+    job_record.heartbeat_at = now
+    job_record.updated_at = now
+    session.commit()
+
+
 def project_location_priority(location: ProjectLocation) -> tuple[int, int, str]:
     host_scope = getattr(location.storage_root, "host_scope", "") or ""
     return (
@@ -161,6 +180,50 @@ def fill_pipeline_ref_from_registry(session: Session, *, pipeline_id, pipeline_r
     observed_path = observed.get("pipeline_path")
     if not pipeline_ref.get("pipeline_json_path") and observed_path:
         pipeline_ref["pipeline_json_path"] = observed_path
+
+
+def resolve_pipeline_ref_for_server(
+    session: Session,
+    *,
+    job: Job,
+    project_ref: dict[str, Any],
+    pipeline_ref: dict[str, Any],
+) -> None:
+    project_mat_path = str(project_ref.get("project_mat_path") or "").strip()
+    if not project_mat_path and job.project_id:
+        project_mat_path = resolve_project_mat_path(session, project_id=job.project_id)
+    if not project_mat_path:
+        return
+
+    for key in PIPELINE_REF_PATH_KEYS:
+        candidate = str(pipeline_ref.get(key) or "").strip()
+        if not candidate or path_exists(candidate):
+            continue
+
+        resolved = resolve_pipeline_path_under_project_dir(project_mat_path, candidate)
+        if resolved and path_exists(resolved):
+            pipeline_ref[key] = resolved
+            pipeline_ref[f"{key}_original"] = candidate
+            pipeline_ref["resolution_method"] = "project_dir_relative_pipeline_name"
+            return
+
+
+def resolve_pipeline_path_under_project_dir(project_mat_path: str, candidate: str) -> str:
+    project_path = Path(project_mat_path)
+    project_dir = project_path.with_suffix("")
+    pipeline_leaf = path_leaf(candidate)
+    if not pipeline_leaf:
+        return ""
+    return str(project_dir / pipeline_leaf)
+
+
+def path_exists(path_text: str) -> bool:
+    return Path(path_text).exists()
+
+
+def path_leaf(path_text: str) -> str:
+    parts = str(path_text).replace("\\", "/").rstrip("/").split("/")
+    return parts[-1] if parts else ""
 
 
 def build_pipeline_run_error(returncode: int, stdout: str, stderr: str, result_json: dict[str, Any]) -> str:

@@ -276,6 +276,7 @@ CREATE TABLE IF NOT EXISTS jobs (
     error_text TEXT,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     started_at TIMESTAMPTZ,
+    heartbeat_at TIMESTAMPTZ,
     finished_at TIMESTAMPTZ,
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
@@ -417,6 +418,7 @@ ALTER TABLE detecdiv_projects ADD COLUMN IF NOT EXISTS project_dir_bytes BIGINT 
 ALTER TABLE detecdiv_projects ADD COLUMN IF NOT EXISTS estimated_raw_bytes BIGINT NOT NULL DEFAULT 0;
 ALTER TABLE detecdiv_projects ADD COLUMN IF NOT EXISTS total_bytes BIGINT NOT NULL DEFAULT 0;
 ALTER TABLE detecdiv_projects ADD COLUMN IF NOT EXISTS last_size_scan_at TIMESTAMPTZ;
+ALTER TABLE jobs ADD COLUMN IF NOT EXISTS heartbeat_at TIMESTAMPTZ;
 ALTER TABLE indexing_jobs ADD COLUMN IF NOT EXISTS phase TEXT NOT NULL DEFAULT 'queued';
 ALTER TABLE indexing_jobs ADD COLUMN IF NOT EXISTS mat_files_seen INTEGER NOT NULL DEFAULT 0;
 ALTER TABLE indexing_jobs ADD COLUMN IF NOT EXISTS heartbeat_at TIMESTAMPTZ;

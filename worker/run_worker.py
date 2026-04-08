@@ -61,6 +61,7 @@ def claim_next_job() -> Job | None:
         job.status = "running"
         job.resolved_mode = job.requested_mode if job.requested_mode != "auto" else "server"
         job.started_at = datetime.now(timezone.utc)
+        job.heartbeat_at = job.started_at
         job.updated_at = datetime.now(timezone.utc)
         if target is not None and job.execution_target_id is None:
             job.execution_target_id = target.id
@@ -85,6 +86,7 @@ def mark_job_done(job_id, result_json: dict) -> None:
         job.status = "done"
         job.result_json = result_json
         job.finished_at = datetime.now(timezone.utc)
+        job.heartbeat_at = job.finished_at
         job.updated_at = datetime.now(timezone.utc)
         target = resolve_target_for_job(session, job=job, configured_target_key=settings.worker_target_key)
         update_worker_target_state(
@@ -106,6 +108,7 @@ def mark_job_failed(job_id, error_text: str) -> None:
         job.status = "failed"
         job.error_text = error_text
         job.finished_at = datetime.now(timezone.utc)
+        job.heartbeat_at = job.finished_at
         job.updated_at = datetime.now(timezone.utc)
         target = resolve_target_for_job(session, job=job, configured_target_key=settings.worker_target_key)
         update_worker_target_state(
