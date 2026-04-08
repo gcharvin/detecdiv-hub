@@ -216,6 +216,9 @@ def clean_matlab_log_line(line: str) -> str:
 
 def infer_current_step(lines: list[str]) -> str:
     patterns = (
+        r"DETECDIV_PIPELINE_PROGRESS\s+node_start\s+id=([^\s]+)",
+        r"DETECDIV_PIPELINE_PROGRESS\s+node_done\s+id=([^\s]+)",
+        r"DETECDIV_PIPELINE_PROGRESS\s+node_failed\s+id=([^\s]+)",
         r"Executing node\s+(.+)",
         r"Running node\s+(.+)",
         r"Node\s+([A-Za-z0-9_.:-]+)",
