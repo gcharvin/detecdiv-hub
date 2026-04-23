@@ -118,6 +118,7 @@ class RawDatasetSummary(HubBaseModel):
     external_key: str | None = None
     microscope_name: str | None = None
     acquisition_label: str
+    data_format: str = "unknown"
     visibility: str
     status: str
     completeness_status: str
@@ -143,6 +144,29 @@ class ProjectLocationSummary(HubBaseModel):
     access_mode: str
     is_preferred: bool
     storage_root: StorageRootSummary
+
+
+class ArtifactSummary(HubBaseModel):
+    id: UUID
+    job_id: UUID
+    artifact_kind: str
+    uri: str
+    metadata_json: dict[str, Any] = Field(default_factory=dict)
+    created_at: datetime | None = None
+
+
+class RawDatasetPositionSummary(HubBaseModel):
+    id: UUID
+    raw_dataset_id: UUID
+    position_key: str
+    display_name: str
+    position_index: int | None = None
+    status: str
+    preview_status: str
+    preview_artifact: ArtifactSummary | None = None
+    metadata_json: dict[str, Any] = Field(default_factory=dict)
+    created_at: datetime | None = None
+    updated_at: datetime | None = None
 
 
 class ProjectSummary(HubBaseModel):
@@ -177,6 +201,7 @@ class ProjectSummary(HubBaseModel):
 
 class ProjectDetail(ProjectSummary):
     locations: list[ProjectLocationSummary] = Field(default_factory=list)
+    raw_datasets: list[RawDatasetSummary] = Field(default_factory=list)
 
 
 class ProjectUpdate(HubBaseModel):
@@ -311,6 +336,7 @@ class ExperimentProjectDetail(ExperimentProjectSummary):
 class RawDatasetLocationSummary(HubBaseModel):
     id: int
     relative_path: str
+    absolute_path: str | None = None
     access_mode: str
     is_preferred: bool
     storage_root: StorageRootSummary
@@ -320,10 +346,13 @@ class RawDatasetDetail(RawDatasetSummary):
     locations: list[RawDatasetLocationSummary] = Field(default_factory=list)
     experiment_ids: list[UUID] = Field(default_factory=list)
     analysis_project_ids: list[UUID] = Field(default_factory=list)
+    analysis_projects: list[ProjectSummary] = Field(default_factory=list)
+    positions: list[RawDatasetPositionSummary] = Field(default_factory=list)
     lifecycle_events: list[StorageLifecycleEventSummary] = Field(default_factory=list)
 
 
 class RawDatasetUpdate(HubBaseModel):
+    data_format: str | None = None
     owner_user_key: str | None = None
     visibility: str | None = None
     lifecycle_tier: str | None = None
@@ -607,6 +636,94 @@ class JobSummary(HubBaseModel):
     heartbeat_at: datetime | None = None
     finished_at: datetime | None = None
     updated_at: datetime | None = None
+
+
+class RawPreviewVideoQueueRequest(HubBaseModel):
+    position_id: UUID | None = None
+    position_key: str | None = None
+    force: bool = False
+    requested_mode: str = "auto"
+    priority: int = 100
+    params_json: dict[str, Any] = Field(default_factory=dict)
+
+
+class RawPreviewVideoQueueResult(HubBaseModel):
+    raw_dataset_id: UUID
+    position_id: UUID | None = None
+    position_key: str | None = None
+    job: JobSummary
+    message: str
+
+
+class RawPreviewQualityConfig(HubBaseModel):
+    fps: int
+    frame_mode: str
+    max_frames: int
+    max_dimension: int
+    binning_factor: int
+    crf: int
+    preset: str
+    include_existing: bool
+    artifact_root: str | None = None
+    ffmpeg_command: str | None = None
+
+
+class RawPreviewQualityUpdate(HubBaseModel):
+    fps: int | None = None
+    frame_mode: str | None = None
+    max_frames: int | None = None
+    max_dimension: int | None = None
+    binning_factor: int | None = None
+    crf: int | None = None
+    preset: str | None = None
+    include_existing: bool | None = None
+    artifact_root: str | None = None
+    ffmpeg_command: str | None = None
+
+
+class RawPreviewQualitySummary(HubBaseModel):
+    sample_count: int = 0
+    avg_width: float | None = None
+    avg_height: float | None = None
+    avg_fps: float | None = None
+    avg_bitrate_kbps: float | None = None
+
+
+class RawPreviewQualitySample(HubBaseModel):
+    artifact_id: UUID
+    created_at: datetime | None = None
+    raw_dataset_id: UUID | None = None
+    acquisition_label: str | None = None
+    position_key: str | None = None
+    width: int | None = None
+    height: int | None = None
+    fps: int | None = None
+    frame_count: int | None = None
+    duration_seconds: float | None = None
+    file_size_bytes: int | None = None
+    bitrate_kbps: float | None = None
+
+
+class RawPreviewQualityStatus(HubBaseModel):
+    config: RawPreviewQualityConfig
+    summary: RawPreviewQualitySummary
+    recent_samples: list[RawPreviewQualitySample] = Field(default_factory=list)
+
+
+class ProjectRawPreviewQueueRequest(HubBaseModel):
+    force: bool = False
+    requested_mode: str = "auto"
+    priority: int = 100
+    params_json: dict[str, Any] = Field(default_factory=dict)
+
+
+class ProjectRawPreviewQueueResult(HubBaseModel):
+    project_id: UUID
+    queued_count: int = 0
+    skipped_count: int = 0
+    raw_dataset_ids: list[UUID] = Field(default_factory=list)
+    queued_job_ids: list[UUID] = Field(default_factory=list)
+    message: str
 
 
 class PipelineRunCreateRequest(HubBaseModel):

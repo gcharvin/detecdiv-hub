@@ -1,12 +1,14 @@
 from datetime import datetime, timezone
+from pathlib import Path
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi.responses import FileResponse
 from sqlalchemy import or_, select
 from sqlalchemy.orm import Session, joinedload
 
 from api.db import get_db
-from api.models import RawDataset, RawDatasetLocation, StorageLifecycleEvent, User
+from api.models import Artifact, Job, Project, ProjectRawLink, RawDataset, RawDatasetLocation, RawDatasetPosition, StorageLifecycleEvent, User
 from api.schemas import (
     ArchivePolicyAutomaticConfig,
     ArchivePolicyAutomaticRunRequest,
@@ -19,8 +21,17 @@ from api.schemas import (
     RawDatasetArchiveRequest,
     RawDatasetDetail,
     RawDatasetLocationSummary,
+    RawDatasetPositionSummary,
+    RawPreviewVideoQueueRequest,
+    RawPreviewVideoQueueResult,
+    RawPreviewQualityConfig,
+    RawPreviewQualitySample,
+    RawPreviewQualityStatus,
+    RawPreviewQualitySummary,
+    RawPreviewQualityUpdate,
     RawDatasetSummary,
     RawDatasetUpdate,
+    ProjectSummary,
     StorageLifecycleEventSummary,
 )
 from api.services.archive_policy import (
@@ -38,6 +49,8 @@ from api.services.raw_dataset_lifecycle import (
     transition_raw_dataset_to_archive,
     transition_raw_dataset_to_restore,
 )
+from api.services.path_resolution import compose_storage_path
+from api.services.raw_preview_settings import resolve_raw_preview_runtime_config, update_raw_preview_runtime_config
 from api.services.users import (
     ensure_raw_dataset_readable,
     get_current_user,
@@ -48,6 +61,135 @@ from api.services.users import (
 
 
 router = APIRouter(prefix="/raw-datasets", tags=["raw-datasets"])
+
+
+@router.get("/artifacts/{artifact_id}/content")
+def get_raw_preview_artifact_content(
+    artifact_id: UUID,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    artifact = db.scalars(
+        select(Artifact)
+        .options(joinedload(Artifact.job))
+        .where(Artifact.id == artifact_id)
+    ).first()
+    if artifact is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Artifact not found")
+    job = artifact.job
+    if job is None or job.raw_dataset_id is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Artifact is not linked to a raw dataset")
+    raw_dataset = db.get(RawDataset, job.raw_dataset_id)
+    raw_dataset = ensure_raw_dataset_readable(raw_dataset, current_user)
+    artifact_path = Path(str(artifact.uri or "").strip())
+    if not artifact_path.is_file():
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Artifact content is missing on disk")
+    media_type = "video/mp4" if artifact_path.suffix.lower() == ".mp4" else "application/octet-stream"
+    return FileResponse(path=artifact_path, media_type=media_type, filename=artifact_path.name)
+
+
+@router.get("/preview-quality", response_model=RawPreviewQualityStatus)
+def get_raw_preview_quality_status(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> RawPreviewQualityStatus:
+    ensure_archive_policy_admin(current_user)
+    config = resolve_raw_preview_runtime_config(db)
+    rows = db.execute(
+        select(Artifact, Job, RawDataset, RawDatasetPosition)
+        .join(Job, Artifact.job_id == Job.id)
+        .outerjoin(RawDataset, Job.raw_dataset_id == RawDataset.id)
+        .outerjoin(RawDatasetPosition, RawDatasetPosition.preview_artifact_id == Artifact.id)
+        .where(Artifact.artifact_kind == "raw_position_preview_mp4")
+        .order_by(Artifact.created_at.desc())
+        .limit(20)
+    ).all()
+
+    samples: list[RawPreviewQualitySample] = []
+    widths: list[int] = []
+    heights: list[int] = []
+    fps_values: list[int] = []
+    bitrates: list[float] = []
+    for artifact, _job, raw_dataset, position in rows:
+        metadata = dict(artifact.metadata_json or {})
+        width = _as_int(metadata.get("width"))
+        height = _as_int(metadata.get("height"))
+        fps = _as_int(metadata.get("fps"))
+        frame_count = _as_int(metadata.get("frame_count"))
+        duration = _as_float(metadata.get("duration_seconds"))
+        file_size = _as_int(metadata.get("file_size_bytes"))
+        bitrate = _as_float(metadata.get("bitrate_kbps"))
+        if file_size is None:
+            absolute_path = str(metadata.get("absolute_path") or "").strip()
+            if absolute_path:
+                path = Path(absolute_path)
+                if path.exists():
+                    file_size = int(path.stat().st_size)
+        if duration is None and fps and frame_count:
+            duration = float(frame_count) / float(fps) if fps > 0 else None
+        if bitrate is None and duration and duration > 0 and file_size:
+            bitrate = round((float(file_size) * 8.0) / duration / 1000.0, 2)
+        if width is not None:
+            widths.append(width)
+        if height is not None:
+            heights.append(height)
+        if fps is not None:
+            fps_values.append(fps)
+        if bitrate is not None:
+            bitrates.append(bitrate)
+        samples.append(
+            RawPreviewQualitySample(
+                artifact_id=artifact.id,
+                created_at=artifact.created_at,
+                raw_dataset_id=raw_dataset.id if raw_dataset is not None else None,
+                acquisition_label=raw_dataset.acquisition_label if raw_dataset is not None else None,
+                position_key=position.position_key if position is not None else str(metadata.get("position_key") or ""),
+                width=width,
+                height=height,
+                fps=fps,
+                frame_count=frame_count,
+                duration_seconds=duration,
+                file_size_bytes=file_size,
+                bitrate_kbps=bitrate,
+            )
+        )
+    summary = RawPreviewQualitySummary(
+        sample_count=len(samples),
+        avg_width=round(sum(widths) / len(widths), 2) if widths else None,
+        avg_height=round(sum(heights) / len(heights), 2) if heights else None,
+        avg_fps=round(sum(fps_values) / len(fps_values), 2) if fps_values else None,
+        avg_bitrate_kbps=round(sum(bitrates) / len(bitrates), 2) if bitrates else None,
+    )
+    return RawPreviewQualityStatus(
+        config=RawPreviewQualityConfig(
+            fps=config.fps,
+            frame_mode=config.frame_mode,
+            max_frames=config.max_frames,
+            max_dimension=config.max_dimension,
+            binning_factor=config.binning_factor,
+            crf=config.crf,
+            preset=config.preset,
+            include_existing=config.include_existing,
+            artifact_root=config.artifact_root,
+            ffmpeg_command=config.ffmpeg_command,
+        ),
+        summary=summary,
+        recent_samples=samples,
+    )
+
+
+@router.patch("/preview-quality", response_model=RawPreviewQualityStatus)
+def update_raw_preview_quality_status(
+    payload: RawPreviewQualityUpdate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> RawPreviewQualityStatus:
+    ensure_archive_policy_admin(current_user)
+    updates = payload.model_dump(exclude_none=True)
+    if updates:
+        update_raw_preview_runtime_config(db, updates=updates)
+        db.commit()
+    return get_raw_preview_quality_status(db=db, current_user=current_user)
 
 
 def ensure_archive_policy_admin(current_user: User) -> None:
@@ -107,8 +249,9 @@ def get_raw_dataset(
         .options(
             joinedload(RawDataset.owner),
             joinedload(RawDataset.locations).joinedload(RawDatasetLocation.storage_root),
+            joinedload(RawDataset.positions).joinedload(RawDatasetPosition.preview_artifact).joinedload(Artifact.job),
             joinedload(RawDataset.experiment_links),
-            joinedload(RawDataset.project_links),
+            joinedload(RawDataset.project_links).joinedload(ProjectRawLink.project).joinedload(Project.owner),
             joinedload(RawDataset.lifecycle_events).joinedload(StorageLifecycleEvent.requested_by),
         )
         .where(RawDataset.id == raw_dataset_id)
@@ -129,8 +272,9 @@ def update_raw_dataset(
         .options(
             joinedload(RawDataset.owner),
             joinedload(RawDataset.locations).joinedload(RawDatasetLocation.storage_root),
+            joinedload(RawDataset.positions).joinedload(RawDatasetPosition.preview_artifact).joinedload(Artifact.job),
             joinedload(RawDataset.experiment_links),
-            joinedload(RawDataset.project_links),
+            joinedload(RawDataset.project_links).joinedload(ProjectRawLink.project).joinedload(Project.owner),
             joinedload(RawDataset.lifecycle_events).joinedload(StorageLifecycleEvent.requested_by),
         )
         .where(RawDataset.id == raw_dataset_id)
@@ -144,6 +288,8 @@ def update_raw_dataset(
         raw_dataset.owner_user_id = new_owner.id
     if payload.visibility is not None:
         raw_dataset.visibility = payload.visibility
+    if payload.data_format is not None:
+        raw_dataset.data_format = payload.data_format
     if payload.lifecycle_tier is not None:
         raw_dataset.lifecycle_tier = payload.lifecycle_tier
     if payload.archive_status is not None:
@@ -344,8 +490,9 @@ def request_raw_dataset_archive(
         .options(
             joinedload(RawDataset.owner),
             joinedload(RawDataset.locations).joinedload(RawDatasetLocation.storage_root),
+            joinedload(RawDataset.positions).joinedload(RawDatasetPosition.preview_artifact).joinedload(Artifact.job),
             joinedload(RawDataset.experiment_links),
-            joinedload(RawDataset.project_links),
+            joinedload(RawDataset.project_links).joinedload(ProjectRawLink.project).joinedload(Project.owner),
             joinedload(RawDataset.lifecycle_events).joinedload(StorageLifecycleEvent.requested_by),
         )
         .where(RawDataset.id == raw_dataset_id)
@@ -380,8 +527,9 @@ def request_raw_dataset_restore(
         .options(
             joinedload(RawDataset.owner),
             joinedload(RawDataset.locations).joinedload(RawDatasetLocation.storage_root),
+            joinedload(RawDataset.positions).joinedload(RawDatasetPosition.preview_artifact).joinedload(Artifact.job),
             joinedload(RawDataset.experiment_links),
-            joinedload(RawDataset.project_links),
+            joinedload(RawDataset.project_links).joinedload(ProjectRawLink.project).joinedload(Project.owner),
             joinedload(RawDataset.lifecycle_events).joinedload(StorageLifecycleEvent.requested_by),
         )
         .where(RawDataset.id == raw_dataset_id)
@@ -398,6 +546,95 @@ def request_raw_dataset_restore(
     return get_raw_dataset(raw_dataset_id=raw_dataset_id, db=db, current_user=current_user)
 
 
+@router.post("/{raw_dataset_id}/preview-videos/queue", response_model=RawPreviewVideoQueueResult, status_code=status.HTTP_201_CREATED)
+def queue_raw_preview_video(
+    raw_dataset_id: UUID,
+    payload: RawPreviewVideoQueueRequest,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> RawPreviewVideoQueueResult:
+    raw_dataset = db.scalars(
+        select(RawDataset)
+        .options(joinedload(RawDataset.positions))
+        .where(RawDataset.id == raw_dataset_id)
+    ).unique().first()
+    raw_dataset = ensure_raw_dataset_readable(raw_dataset, current_user)
+    if not user_can_edit_raw_dataset(raw_dataset, current_user):
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Raw dataset is not editable")
+
+    selected_position: RawDatasetPosition | None = None
+    if payload.position_id is not None:
+        selected_position = db.scalars(
+            select(RawDatasetPosition).where(
+                RawDatasetPosition.id == payload.position_id,
+                RawDatasetPosition.raw_dataset_id == raw_dataset.id,
+            )
+        ).first()
+        if selected_position is None:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Raw dataset position not found")
+    elif payload.position_key:
+        selected_position = db.scalars(
+            select(RawDatasetPosition).where(
+                RawDatasetPosition.raw_dataset_id == raw_dataset.id,
+                RawDatasetPosition.position_key == payload.position_key,
+            )
+        ).first()
+        if selected_position is None:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Raw dataset position not found")
+
+    params_json = dict(payload.params_json or {})
+    params_json.update(
+        {
+            "job_kind": "raw_preview_video",
+            "force": payload.force,
+            "position_id": str(selected_position.id) if selected_position is not None else None,
+            "position_key": selected_position.position_key if selected_position is not None else payload.position_key,
+            "scope": "position" if selected_position is not None or payload.position_key else "dataset",
+        }
+    )
+    job = Job(
+        raw_dataset_id=raw_dataset.id,
+        requested_mode=payload.requested_mode,
+        priority=payload.priority,
+        requested_by=current_user.user_key,
+        params_json=params_json,
+        status="queued",
+    )
+    db.add(job)
+    if selected_position is not None:
+        selected_position.preview_status = "queued"
+    else:
+        for position in raw_dataset.positions or []:
+            position.preview_status = "queued"
+    db.commit()
+    db.refresh(job)
+    return RawPreviewVideoQueueResult(
+        raw_dataset_id=raw_dataset.id,
+        position_id=selected_position.id if selected_position is not None else None,
+        position_key=selected_position.position_key if selected_position is not None else payload.position_key,
+        job=job,
+        message="Raw preview video job queued.",
+    )
+
+
+def _as_int(value: object) -> int | None:
+    try:
+        if value is None:
+            return None
+        return int(value)
+    except (TypeError, ValueError):
+        return None
+
+
+def _as_float(value: object) -> float | None:
+    try:
+        if value is None:
+            return None
+        return float(value)
+    except (TypeError, ValueError):
+        return None
+
+
 def raw_dataset_summary_view(raw_dataset: RawDataset) -> RawDatasetSummary:
     return RawDatasetSummary.model_validate(
         {
@@ -405,6 +642,7 @@ def raw_dataset_summary_view(raw_dataset: RawDataset) -> RawDatasetSummary:
             "external_key": raw_dataset.external_key,
             "microscope_name": raw_dataset.microscope_name,
             "acquisition_label": raw_dataset.acquisition_label,
+            "data_format": raw_dataset.data_format,
             "visibility": raw_dataset.visibility,
             "status": raw_dataset.status,
             "completeness_status": raw_dataset.completeness_status,
@@ -430,6 +668,9 @@ def raw_dataset_detail_view(raw_dataset: RawDataset) -> RawDatasetDetail:
             {
                 "id": location.id,
                 "relative_path": location.relative_path,
+                "absolute_path": compose_storage_path(location.storage_root.path_prefix, location.relative_path)
+                if location.storage_root is not None
+                else None,
                 "access_mode": location.access_mode,
                 "is_preferred": location.is_preferred,
                 "storage_root": location.storage_root,
@@ -439,6 +680,21 @@ def raw_dataset_detail_view(raw_dataset: RawDataset) -> RawDatasetDetail:
     ]
     detail.experiment_ids = [link.experiment_project_id for link in raw_dataset.experiment_links or []]
     detail.analysis_project_ids = [link.project_id for link in raw_dataset.project_links or []]
+    detail.analysis_projects = [
+        project_summary_view(link.project)
+        for link in sorted(raw_dataset.project_links or [], key=lambda value: value.created_at or raw_dataset.created_at)
+        if link.project is not None
+    ]
+    detail.positions = [
+        raw_dataset_position_summary_view(position)
+        for position in sorted(
+            raw_dataset.positions or [],
+            key=lambda value: (
+                value.position_index if value.position_index is not None else 1_000_000_000,
+                value.position_key,
+            ),
+        )
+    ]
     detail.lifecycle_events = [
         StorageLifecycleEventSummary.model_validate(
             {
@@ -460,6 +716,68 @@ def raw_dataset_detail_view(raw_dataset: RawDataset) -> RawDatasetDetail:
         )
     ]
     return detail
+
+
+def project_summary_view(project: Project) -> ProjectSummary:
+    return ProjectSummary.model_validate(
+        {
+            "id": project.id,
+            "experiment_project_id": project.experiment_project_id,
+            "project_key": project.project_key,
+            "project_name": project.project_name,
+            "status": project.status,
+            "health_status": project.health_status,
+            "visibility": project.visibility,
+            "fov_count": project.fov_count,
+            "roi_count": project.roi_count,
+            "classifier_count": project.classifier_count,
+            "processor_count": project.processor_count,
+            "pipeline_run_count": project.pipeline_run_count,
+            "available_raw_count": project.available_raw_count,
+            "missing_raw_count": project.missing_raw_count,
+            "run_json_count": project.run_json_count,
+            "h5_count": project.h5_count,
+            "h5_bytes": project.h5_bytes,
+            "latest_run_status": project.latest_run_status,
+            "latest_run_at": project.latest_run_at,
+            "project_mat_bytes": project.project_mat_bytes,
+            "project_dir_bytes": project.project_dir_bytes,
+            "estimated_raw_bytes": project.estimated_raw_bytes,
+            "total_bytes": project.total_bytes,
+            "metadata_json": project.metadata_json or {},
+            "owner": project.owner,
+            "created_at": project.created_at,
+            "updated_at": project.updated_at,
+        }
+    )
+
+
+def raw_dataset_position_summary_view(position: RawDatasetPosition) -> RawDatasetPositionSummary:
+    preview_artifact = None
+    if position.preview_artifact is not None:
+        preview_artifact = {
+            "id": position.preview_artifact.id,
+            "job_id": position.preview_artifact.job_id,
+            "artifact_kind": position.preview_artifact.artifact_kind,
+            "uri": f"/raw-datasets/artifacts/{position.preview_artifact.id}/content",
+            "metadata_json": dict(position.preview_artifact.metadata_json or {}),
+            "created_at": position.preview_artifact.created_at,
+        }
+    return RawDatasetPositionSummary.model_validate(
+        {
+            "id": position.id,
+            "raw_dataset_id": position.raw_dataset_id,
+            "position_key": position.position_key,
+            "display_name": position.display_name,
+            "position_index": position.position_index,
+            "status": position.status,
+            "preview_status": position.preview_status,
+            "preview_artifact": preview_artifact,
+            "metadata_json": position.metadata_json or {},
+            "created_at": position.created_at,
+            "updated_at": position.updated_at,
+        }
+    )
 
 
 def archive_policy_run_summary_view(run) -> ArchivePolicyRunSummary:

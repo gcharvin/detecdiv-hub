@@ -52,6 +52,16 @@ class Settings(BaseSettings):
     micromanager_post_ingest_pipeline_key: str = ""
     micromanager_post_ingest_requested_mode: str = "server"
     micromanager_post_ingest_priority: int = 90
+    raw_preview_artifact_root: str = ""
+    raw_preview_ffmpeg_command: str = ""
+    raw_preview_fps: int = 6
+    raw_preview_frame_mode: str = "full"
+    raw_preview_max_frames: int = 0
+    raw_preview_max_dimension: int = 768
+    raw_preview_binning_factor: int = 4
+    raw_preview_crf: int = 24
+    raw_preview_preset: str = "medium"
+    raw_preview_include_existing: bool = False
 
     model_config = SettingsConfigDict(
         env_prefix="DETECDIV_HUB_",

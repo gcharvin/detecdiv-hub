@@ -1,0 +1,2 @@
+ALTER TABLE raw_datasets
+ADD COLUMN IF NOT EXISTS data_format TEXT NOT NULL DEFAULT 'unknown';

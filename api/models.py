@@ -80,6 +80,17 @@ class UserSession(Base):
     user: Mapped[User] = relationship(back_populates="sessions")
 
 
+class SystemSetting(Base):
+    __tablename__ = "system_settings"
+
+    key: Mapped[str] = mapped_column(String, primary_key=True)
+    value_json: Mapped[dict] = mapped_column(JSONB, nullable=False, default=dict)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
+    )
+
+
 class RawDataset(Base):
     __tablename__ = "raw_datasets"
 
@@ -90,6 +101,7 @@ class RawDataset(Base):
     external_key: Mapped[str | None] = mapped_column(String, unique=True)
     microscope_name: Mapped[str | None] = mapped_column(String)
     acquisition_label: Mapped[str] = mapped_column(String, nullable=False)
+    data_format: Mapped[str] = mapped_column(String, nullable=False, default="unknown")
     visibility: Mapped[str] = mapped_column(String, nullable=False, default="private")
     status: Mapped[str] = mapped_column(String, nullable=False, default="discovered")
     completeness_status: Mapped[str] = mapped_column(String, nullable=False, default="unknown")
@@ -111,6 +123,7 @@ class RawDataset(Base):
 
     owner: Mapped[User | None] = relationship(back_populates="owned_raw_datasets")
     locations: Mapped[list["RawDatasetLocation"]] = relationship(back_populates="raw_dataset")
+    positions: Mapped[list["RawDatasetPosition"]] = relationship(back_populates="raw_dataset")
     project_links: Mapped[list["ProjectRawLink"]] = relationship(back_populates="raw_dataset")
     experiment_links: Mapped[list["ExperimentRawLink"]] = relationship(back_populates="raw_dataset")
     lifecycle_events: Mapped[list["StorageLifecycleEvent"]] = relationship(back_populates="raw_dataset")
@@ -136,6 +149,31 @@ class RawDatasetLocation(Base):
 
     raw_dataset: Mapped[RawDataset] = relationship(back_populates="locations")
     storage_root: Mapped[StorageRoot] = relationship(back_populates="raw_dataset_locations")
+
+
+class RawDatasetPosition(Base):
+    __tablename__ = "raw_dataset_positions"
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    raw_dataset_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("raw_datasets.id", ondelete="CASCADE"), nullable=False
+    )
+    position_key: Mapped[str] = mapped_column(String, nullable=False)
+    display_name: Mapped[str] = mapped_column(String, nullable=False)
+    position_index: Mapped[int | None] = mapped_column(Integer)
+    status: Mapped[str] = mapped_column(String, nullable=False, default="indexed")
+    preview_status: Mapped[str] = mapped_column(String, nullable=False, default="missing")
+    preview_artifact_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("artifacts.id", ondelete="SET NULL")
+    )
+    metadata_json: Mapped[dict] = mapped_column(JSONB, nullable=False, default=dict)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
+    )
+
+    raw_dataset: Mapped[RawDataset] = relationship(back_populates="positions")
+    preview_artifact: Mapped["Artifact | None"] = relationship()
 
 
 class ExperimentProject(Base):
@@ -479,6 +517,8 @@ class Job(Base):
     )
 
     project: Mapped[Project | None] = relationship(back_populates="jobs")
+    raw_dataset: Mapped[RawDataset | None] = relationship()
+    artifacts: Mapped[list["Artifact"]] = relationship(back_populates="job")
 
 
 class Artifact(Base):
@@ -492,6 +532,8 @@ class Artifact(Base):
     uri: Mapped[str] = mapped_column(Text, nullable=False)
     metadata_json: Mapped[dict] = mapped_column(JSONB, nullable=False, default=dict)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+    job: Mapped[Job] = relationship(back_populates="artifacts")
 
 
 class StorageMigrationBatch(Base):

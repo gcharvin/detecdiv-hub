@@ -7,13 +7,15 @@ from sqlalchemy.orm import Session, joinedload
 
 from api.db import get_db
 from api.models import (
+    Job,
     Project,
     ProjectAcl,
-    ProjectDeletionEvent,
     ProjectGroup,
     ProjectGroupMember,
     ProjectLocation,
+    ProjectRawLink,
     ProjectNote,
+    RawDataset,
     StorageRoot,
     User,
 )
@@ -32,6 +34,9 @@ from api.schemas import (
     ProjectNoteCreate,
     ProjectNoteSummary,
     ProjectSummary,
+    ProjectRawPreviewQueueRequest,
+    ProjectRawPreviewQueueResult,
+    RawDatasetSummary,
     ProjectUpdate,
     StorageRootBrowseEntry,
     StorageRootBrowseResponse,
@@ -118,6 +123,7 @@ def get_project(
             joinedload(Project.owner),
             joinedload(Project.acl_entries),
             joinedload(Project.locations).joinedload(ProjectLocation.storage_root),
+            joinedload(Project.raw_links).joinedload(ProjectRawLink.raw_dataset).joinedload(RawDataset.owner),
         )
         .where(Project.id == project_id, Project.status != "deleted")
     )
@@ -138,6 +144,7 @@ def update_project(
             joinedload(Project.owner),
             joinedload(Project.acl_entries),
             joinedload(Project.locations).joinedload(ProjectLocation.storage_root),
+            joinedload(Project.raw_links).joinedload(ProjectRawLink.raw_dataset).joinedload(RawDataset.owner),
         )
         .where(Project.id == project_id, Project.status != "deleted")
     )
@@ -158,6 +165,74 @@ def update_project(
 
     db.commit()
     return get_project(project_id=project_id, db=db, current_user=current_user)
+
+
+@router.post("/{project_id}/preview-videos/queue", response_model=ProjectRawPreviewQueueResult, status_code=status.HTTP_201_CREATED)
+def queue_project_raw_preview_videos(
+    project_id: UUID,
+    payload: ProjectRawPreviewQueueRequest,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> ProjectRawPreviewQueueResult:
+    project = db.scalars(
+        select(Project)
+        .options(
+            joinedload(Project.owner),
+            joinedload(Project.acl_entries),
+            joinedload(Project.raw_links).joinedload(ProjectRawLink.raw_dataset).joinedload(RawDataset.positions),
+        )
+        .where(Project.id == project_id, Project.status != "deleted")
+    ).unique().first()
+    project = ensure_project_readable(project, current_user)
+    if not user_can_edit_project(project, current_user):
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Project is not editable")
+
+    queued_job_ids: list[UUID] = []
+    raw_dataset_ids: list[UUID] = []
+    skipped_count = 0
+    for link in project.raw_links or []:
+        raw_dataset = link.raw_dataset
+        if raw_dataset is None:
+            skipped_count += 1
+            continue
+        if not payload.force and not raw_dataset_needs_preview(raw_dataset):
+            skipped_count += 1
+            continue
+
+        params_json = dict(payload.params_json or {})
+        params_json.update(
+            {
+                "job_kind": "raw_preview_video",
+                "force": payload.force,
+                "position_id": None,
+                "position_key": None,
+                "scope": "dataset",
+                "project_id": str(project.id),
+            }
+        )
+        job = Job(
+            project_id=project.id,
+            raw_dataset_id=raw_dataset.id,
+            requested_mode=payload.requested_mode,
+            priority=payload.priority,
+            requested_by=current_user.user_key,
+            params_json=params_json,
+            status="queued",
+        )
+        db.add(job)
+        raw_dataset_ids.append(raw_dataset.id)
+        db.flush()
+        queued_job_ids.append(job.id)
+
+    db.commit()
+    return ProjectRawPreviewQueueResult(
+        project_id=project.id,
+        queued_count=len(queued_job_ids),
+        skipped_count=skipped_count,
+        raw_dataset_ids=raw_dataset_ids,
+        queued_job_ids=queued_job_ids,
+        message=f"Queued {len(queued_job_ids)} raw preview dataset job(s) for project {project.project_name}.",
+    )
 
 
 @router.post("/{project_id}/deletion-preview", response_model=ProjectDeletionPreview)
@@ -680,6 +755,32 @@ def project_summary_view(project: Project) -> ProjectSummary:
     )
 
 
+def raw_dataset_summary_view(raw_dataset: RawDataset) -> RawDatasetSummary:
+    return RawDatasetSummary.model_validate(
+        {
+            "id": raw_dataset.id,
+            "external_key": raw_dataset.external_key,
+            "microscope_name": raw_dataset.microscope_name,
+            "acquisition_label": raw_dataset.acquisition_label,
+            "data_format": raw_dataset.data_format,
+            "visibility": raw_dataset.visibility,
+            "status": raw_dataset.status,
+            "completeness_status": raw_dataset.completeness_status,
+            "lifecycle_tier": raw_dataset.lifecycle_tier,
+            "archive_status": raw_dataset.archive_status,
+            "archive_uri": raw_dataset.archive_uri,
+            "archive_compression": raw_dataset.archive_compression,
+            "reclaimable_bytes": raw_dataset.reclaimable_bytes,
+            "last_accessed_at": raw_dataset.last_accessed_at,
+            "total_bytes": raw_dataset.total_bytes,
+            "metadata_json": raw_dataset.metadata_json or {},
+            "owner": raw_dataset.owner,
+            "created_at": raw_dataset.created_at,
+            "updated_at": raw_dataset.updated_at,
+        }
+    )
+
+
 def summarize_metadata(metadata_json: dict | None) -> dict:
     metadata = dict(metadata_json or {})
     inventory = metadata.get("inventory")
@@ -696,9 +797,21 @@ def summarize_metadata(metadata_json: dict | None) -> dict:
     return metadata
 
 
+def raw_dataset_needs_preview(raw_dataset: RawDataset) -> bool:
+    positions = list(raw_dataset.positions or [])
+    if not positions:
+        return True
+    return any(position.preview_artifact_id is None for position in positions)
+
+
 def project_detail_view(project: Project) -> ProjectDetail:
     detail = ProjectDetail.model_validate(project_summary_view(project).model_dump())
     detail.locations = [project_location_summary_view(location) for location in project.locations or []]
+    detail.raw_datasets = [
+        raw_dataset_summary_view(link.raw_dataset)
+        for link in sorted(project.raw_links or [], key=lambda value: value.created_at or project.created_at)
+        if link.raw_dataset is not None
+    ]
     return detail
 
 

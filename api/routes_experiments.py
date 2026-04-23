@@ -295,6 +295,7 @@ def raw_dataset_summary_view(raw_dataset: RawDataset) -> RawDatasetSummary:
             "external_key": raw_dataset.external_key,
             "microscope_name": raw_dataset.microscope_name,
             "acquisition_label": raw_dataset.acquisition_label,
+            "data_format": raw_dataset.data_format,
             "visibility": raw_dataset.visibility,
             "status": raw_dataset.status,
             "completeness_status": raw_dataset.completeness_status,

@@ -10,7 +10,7 @@ from sqlalchemy import func, select
 
 from api.config import get_settings
 from api.db import SessionLocal
-from api.models import ExecutionTarget, Job
+from api.models import ExecutionTarget, Job, RawDatasetPosition
 from worker.archive_policy_scheduler import run_archive_policy_if_due
 from worker.micromanager_ingest_scheduler import run_micromanager_ingest_if_due
 from worker.pipeline_run_executor import PipelineRunCancelled, execute_pipeline_run_job
@@ -107,6 +107,8 @@ def mark_job_done(job_id, result_json: dict) -> None:
         job.finished_at = datetime.now(timezone.utc)
         job.heartbeat_at = job.finished_at
         job.updated_at = datetime.now(timezone.utc)
+        if (job.params_json or {}).get("job_kind") == "raw_preview_video":
+            update_raw_preview_position_state(session, job=job, status=result_json.get("preview_status", "done"))
         target = resolve_target_for_job(session, job=job, configured_target_key=settings.worker_target_key)
         update_worker_target_state(
             session,
@@ -129,6 +131,8 @@ def mark_job_failed(job_id, error_text: str) -> None:
         job.finished_at = datetime.now(timezone.utc)
         job.heartbeat_at = job.finished_at
         job.updated_at = datetime.now(timezone.utc)
+        if (job.params_json or {}).get("job_kind") == "raw_preview_video":
+            update_raw_preview_position_state(session, job=job, status="failed")
         target = resolve_target_for_job(session, job=job, configured_target_key=settings.worker_target_key)
         update_worker_target_state(
             session,
@@ -182,6 +186,22 @@ def execute_job(job: Job) -> dict:
             if job_record is None:
                 raise ValueError(f"Job {job.id} disappeared before execution")
             return execute_storage_lifecycle_job(session, job=job_record)
+    if job_kind == "raw_preview_video":
+        try:
+            from worker.raw_preview_video import execute_raw_preview_video_job
+        except ImportError as exc:
+            raise RuntimeError(
+                "Raw preview video dependencies are missing. Install numpy, tifffile, and zarr in the worker environment."
+            ) from exc
+        with session_scope() as session:
+            job_record = session.get(Job, job.id)
+            if job_record is None:
+                raise ValueError(f"Job {job.id} disappeared before execution")
+            result_json = execute_raw_preview_video_job(session, job=job_record)
+            result_json["worker_host"] = socket.gethostname()
+            result_json["requested_mode"] = job.requested_mode
+            result_json["resolved_mode"] = job.resolved_mode
+            return result_json
 
     return {
         "worker_host": socket.gethostname(),
@@ -310,6 +330,17 @@ def update_worker_target_state(
         target.status = "online"
     else:
         target.status = "online"
+
+
+def update_raw_preview_position_state(session, *, job: Job, status: str) -> None:
+    position_id = (job.params_json or {}).get("position_id")
+    if not position_id:
+        return
+    position = session.get(RawDatasetPosition, position_id)
+    if position is None:
+        return
+    position.preview_status = status
+    position.updated_at = datetime.now(timezone.utc)
 
 
 if __name__ == "__main__":

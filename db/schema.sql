@@ -23,6 +23,13 @@ CREATE TABLE IF NOT EXISTS user_sessions (
     revoked_at TIMESTAMPTZ
 );
 
+CREATE TABLE IF NOT EXISTS system_settings (
+    key TEXT PRIMARY KEY,
+    value_json JSONB NOT NULL DEFAULT '{}'::jsonb,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
 CREATE TABLE IF NOT EXISTS storage_roots (
     id BIGSERIAL PRIMARY KEY,
     name TEXT NOT NULL UNIQUE,
@@ -39,6 +46,7 @@ CREATE TABLE IF NOT EXISTS raw_datasets (
     external_key TEXT UNIQUE,
     microscope_name TEXT,
     acquisition_label TEXT NOT NULL,
+    data_format TEXT NOT NULL DEFAULT 'unknown',
     visibility TEXT NOT NULL DEFAULT 'private',
     status TEXT NOT NULL DEFAULT 'discovered',
     completeness_status TEXT NOT NULL DEFAULT 'unknown',
@@ -67,6 +75,20 @@ CREATE TABLE IF NOT EXISTS raw_dataset_locations (
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     UNIQUE(raw_dataset_id, storage_root_id, relative_path)
+);
+
+CREATE TABLE IF NOT EXISTS raw_dataset_positions (
+    id UUID PRIMARY KEY,
+    raw_dataset_id UUID NOT NULL REFERENCES raw_datasets(id) ON DELETE CASCADE,
+    position_key TEXT NOT NULL,
+    display_name TEXT NOT NULL,
+    position_index INTEGER,
+    status TEXT NOT NULL DEFAULT 'indexed',
+    preview_status TEXT NOT NULL DEFAULT 'missing',
+    metadata_json JSONB NOT NULL DEFAULT '{}'::jsonb,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    UNIQUE(raw_dataset_id, position_key)
 );
 
 CREATE TABLE IF NOT EXISTS experiment_projects (
@@ -290,6 +312,8 @@ CREATE TABLE IF NOT EXISTS artifacts (
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
+ALTER TABLE raw_dataset_positions ADD COLUMN IF NOT EXISTS preview_artifact_id UUID REFERENCES artifacts(id) ON DELETE SET NULL;
+
 CREATE TABLE IF NOT EXISTS storage_migration_batches (
     id UUID PRIMARY KEY,
     owner_user_id UUID REFERENCES users(id) ON DELETE SET NULL,
@@ -387,6 +411,7 @@ CREATE TABLE IF NOT EXISTS micromanager_ingest_runs (
 );
 
 ALTER TABLE raw_datasets ADD COLUMN IF NOT EXISTS owner_user_id UUID REFERENCES users(id) ON DELETE SET NULL;
+ALTER TABLE raw_datasets ADD COLUMN IF NOT EXISTS data_format TEXT NOT NULL DEFAULT 'unknown';
 ALTER TABLE raw_datasets ADD COLUMN IF NOT EXISTS visibility TEXT NOT NULL DEFAULT 'private';
 ALTER TABLE raw_datasets ADD COLUMN IF NOT EXISTS lifecycle_tier TEXT NOT NULL DEFAULT 'hot';
 ALTER TABLE raw_datasets ADD COLUMN IF NOT EXISTS archive_status TEXT NOT NULL DEFAULT 'none';
@@ -437,6 +462,8 @@ CREATE INDEX IF NOT EXISTS idx_jobs_project_id ON jobs(project_id);
 CREATE INDEX IF NOT EXISTS idx_raw_datasets_status ON raw_datasets(status, completeness_status);
 CREATE INDEX IF NOT EXISTS idx_raw_datasets_owner_user_id ON raw_datasets(owner_user_id);
 CREATE INDEX IF NOT EXISTS idx_raw_datasets_lifecycle_tier ON raw_datasets(lifecycle_tier, archive_status);
+CREATE INDEX IF NOT EXISTS idx_raw_dataset_positions_raw_dataset_id ON raw_dataset_positions(raw_dataset_id, position_index, position_key);
+CREATE INDEX IF NOT EXISTS idx_raw_dataset_positions_preview_status ON raw_dataset_positions(preview_status);
 CREATE INDEX IF NOT EXISTS idx_project_acl_user_id ON project_acl(user_id);
 CREATE INDEX IF NOT EXISTS idx_project_groups_owner_user_id ON project_groups(owner_user_id);
 CREATE INDEX IF NOT EXISTS idx_project_group_members_project_id ON project_group_members(project_id);

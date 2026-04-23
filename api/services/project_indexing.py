@@ -2,6 +2,10 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
+import re
+import subprocess
+import tempfile
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
@@ -11,6 +15,7 @@ import time
 from sqlalchemy import delete, select
 from sqlalchemy.orm import Session
 
+from api.config import get_settings
 from api.models import Pipeline, Project, ProjectLocation, StorageRoot, User
 from api.services.project_inventory import inspect_project_directory
 from api.services.storage_metrics import safe_dir_size, safe_file_size
@@ -547,12 +552,20 @@ def upsert_project_from_paths(
     total_bytes = project_mat_bytes + project_dir_bytes
     size_timestamp = datetime.now(timezone.utc)
     inventory = inspect_project_directory(project_dir)
+    raw_scan = scan_project_raw_sources(
+        session,
+        owner=owner,
+        visibility=visibility,
+        mat_path=mat_path,
+        project_dir=project_dir,
+    )
     metadata = {
         "source": "hub_indexer",
         "project_mat_abs": str(mat_path),
         "project_dir_abs": str(project_dir),
         "project_rel_from_root": str(project_dir.relative_to(root_path)),
         "inventory": inventory.metadata_json(),
+        "raw_relink": raw_scan.metadata_json(),
     }
 
     if project is None:
@@ -562,14 +575,14 @@ def upsert_project_from_paths(
             project_name=mat_path.stem,
             visibility=visibility,
             status="indexed",
-            health_status="ok",
-            fov_count=0,
+            health_status="raw_missing" if raw_scan.extraction_status == "ok" and raw_scan.missing_raw_count > 0 else "ok",
+            fov_count=raw_scan.fov_count if raw_scan.extraction_status == "ok" else 0,
             roi_count=0,
             classifier_count=inventory.classifier_count,
             processor_count=inventory.processor_count,
             pipeline_run_count=inventory.pipeline_run_count,
-            available_raw_count=0,
-            missing_raw_count=0,
+            available_raw_count=raw_scan.available_raw_count if raw_scan.extraction_status == "ok" else 0,
+            missing_raw_count=raw_scan.missing_raw_count if raw_scan.extraction_status == "ok" else 0,
             run_json_count=inventory.run_json_count,
             h5_count=inventory.h5_count,
             h5_bytes=inventory.h5_bytes,
@@ -577,7 +590,7 @@ def upsert_project_from_paths(
             latest_run_at=inventory.latest_run_at,
             project_mat_bytes=project_mat_bytes,
             project_dir_bytes=project_dir_bytes,
-            estimated_raw_bytes=0,
+            estimated_raw_bytes=raw_scan.estimated_raw_bytes if raw_scan.extraction_status == "ok" else 0,
             total_bytes=total_bytes,
             last_size_scan_at=size_timestamp,
             metadata_json=metadata,
@@ -589,20 +602,29 @@ def upsert_project_from_paths(
         existing_roi_count = int(project.roi_count or 0)
         existing_available_raw_count = int(project.available_raw_count or 0)
         existing_missing_raw_count = int(project.missing_raw_count or 0)
+        existing_estimated_raw_bytes = int(project.estimated_raw_bytes or 0)
         merged_metadata = dict(project.metadata_json or {})
         merged_metadata.update(metadata)
         project.owner_user_id = owner.id
         project.project_name = mat_path.stem
         project.visibility = visibility
         project.status = "indexed"
-        project.health_status = "raw_missing" if existing_missing_raw_count > 0 else "ok"
-        project.fov_count = existing_fov_count
+        if raw_scan.extraction_status == "ok":
+            project.health_status = "raw_missing" if raw_scan.missing_raw_count > 0 else "ok"
+            project.fov_count = raw_scan.fov_count or existing_fov_count
+            project.available_raw_count = raw_scan.available_raw_count
+            project.missing_raw_count = raw_scan.missing_raw_count
+            project.estimated_raw_bytes = raw_scan.estimated_raw_bytes
+        else:
+            project.health_status = "raw_missing" if existing_missing_raw_count > 0 else "ok"
+            project.fov_count = existing_fov_count
+            project.available_raw_count = existing_available_raw_count
+            project.missing_raw_count = existing_missing_raw_count
+            project.estimated_raw_bytes = existing_estimated_raw_bytes
         project.roi_count = existing_roi_count
         project.classifier_count = inventory.classifier_count
         project.processor_count = inventory.processor_count
         project.pipeline_run_count = inventory.pipeline_run_count
-        project.available_raw_count = existing_available_raw_count
-        project.missing_raw_count = existing_missing_raw_count
         project.run_json_count = inventory.run_json_count
         project.h5_count = inventory.h5_count
         project.h5_bytes = inventory.h5_bytes
@@ -638,7 +660,852 @@ def upsert_project_from_paths(
         location.is_preferred = True
 
     session.flush()
+    if raw_scan.extraction_status == "ok":
+        synchronize_project_raw_links(session, project=project, linked_raw_dataset_ids=raw_scan.linked_raw_dataset_ids)
     return project
+
+
+@dataclass
+class RawSourceScanResult:
+    fov_count: int
+    available_raw_count: int
+    missing_raw_count: int
+    estimated_raw_bytes: int
+    linked_raw_dataset_ids: list
+    linked_sources: list[dict]
+    missing_sources: list[dict]
+    extraction_status: str
+    extraction_error: str | None = None
+
+    def metadata_json(self) -> dict:
+        return {
+            "fov_count": self.fov_count,
+            "available_raw_count": self.available_raw_count,
+            "missing_raw_count": self.missing_raw_count,
+            "estimated_raw_bytes": self.estimated_raw_bytes,
+            "linked_sources": self.linked_sources,
+            "missing_sources": self.missing_sources,
+            "extraction_status": self.extraction_status,
+            "extraction_error": self.extraction_error,
+        }
+
+
+def scan_project_raw_sources(
+    session: Session,
+    *,
+    owner: User,
+    visibility: str,
+    mat_path: Path,
+    project_dir: Path,
+) -> RawSourceScanResult:
+    extracted = extract_project_raw_srcpaths(mat_path)
+    if extracted["status"] != "ok":
+        return RawSourceScanResult(
+            fov_count=0,
+            available_raw_count=0,
+            missing_raw_count=0,
+            estimated_raw_bytes=0,
+            linked_raw_dataset_ids=[],
+            linked_sources=[],
+            missing_sources=[],
+            extraction_status=extracted["status"],
+            extraction_error=extracted.get("error"),
+        )
+
+    linked_raw_dataset_ids = []
+    linked_sources: list[dict] = []
+    missing_sources: list[dict] = []
+    estimated_raw_bytes = 0
+    seen_dataset_ids: set = set()
+    seen_missing_paths: set[str] = set()
+    for source_path in extracted.get("srcpaths", []):
+        resolved = resolve_raw_dataset_candidate(session, source_path=source_path, project_dir=project_dir)
+        if resolved is None:
+            normalized = normalize_raw_source_path(source_path, project_dir=project_dir)
+            if normalized and normalized not in seen_missing_paths:
+                seen_missing_paths.add(normalized)
+                missing_sources.append({"srcpath": source_path, "normalized_path": normalized})
+            continue
+        raw_dataset = get_or_create_raw_dataset_for_path(
+            session,
+            owner=owner,
+            visibility=visibility,
+            dataset_dir=resolved,
+        )
+        if raw_dataset.id in seen_dataset_ids:
+            continue
+        seen_dataset_ids.add(raw_dataset.id)
+        linked_raw_dataset_ids.append(raw_dataset.id)
+        estimated_raw_bytes += int(raw_dataset.total_bytes or 0)
+        linked_sources.append(
+            {
+                "srcpath": source_path,
+                "dataset_path": str(resolved),
+                "raw_dataset_id": str(raw_dataset.id),
+                "acquisition_label": raw_dataset.acquisition_label,
+            }
+        )
+
+    return RawSourceScanResult(
+        fov_count=int(extracted.get("fov_count") or len(extracted.get("srcpaths", []))),
+        available_raw_count=len(linked_raw_dataset_ids),
+        missing_raw_count=len(missing_sources),
+        estimated_raw_bytes=estimated_raw_bytes,
+        linked_raw_dataset_ids=linked_raw_dataset_ids,
+        linked_sources=linked_sources,
+        missing_sources=missing_sources,
+        extraction_status="ok",
+    )
+
+
+def extract_project_raw_srcpaths(mat_path: Path) -> dict:
+    settings = get_settings()
+    matlab_command = str(settings.matlab_command or "matlab").strip() or "matlab"
+    matlab_repo_root = str(settings.matlab_repo_root or "").strip()
+    with tempfile.TemporaryDirectory(prefix="detecdiv_hub_raw_srcpaths_") as tmpdir:
+        tmp_path = Path(tmpdir)
+        output_path = tmp_path / "result.json"
+        script_path = tmp_path / "extract_srcpaths.m"
+        script_path.write_text(
+            build_extract_srcpaths_matlab_script(
+                mat_path=mat_path,
+                output_path=output_path,
+                matlab_repo_root=(Path(matlab_repo_root) if matlab_repo_root else None),
+            ),
+            encoding="utf-8",
+        )
+        command = [matlab_command, "-batch", f"run('{matlab_escape(script_path)}')"]
+        try:
+            completed = subprocess.run(command, check=False, text=True, capture_output=True)
+        except OSError as exc:
+            return {"status": "matlab_unavailable", "error": str(exc), "srcpaths": [], "fov_count": 0}
+        if completed.returncode != 0:
+            return {
+                "status": "matlab_failed",
+                "error": tail_text(completed.stderr or completed.stdout or ""),
+                "srcpaths": [],
+                "fov_count": 0,
+            }
+        if not output_path.is_file():
+            return {"status": "no_result", "error": "MATLAB extraction produced no result file.", "srcpaths": [], "fov_count": 0}
+        try:
+            payload = json.loads(output_path.read_text(encoding="utf-8"))
+        except json.JSONDecodeError as exc:
+            return {"status": "invalid_result", "error": str(exc), "srcpaths": [], "fov_count": 0}
+        srcpaths = [str(value).strip() for value in list(payload.get("srcpaths") or []) if str(value).strip()]
+        deduped_srcpaths = list(dict.fromkeys(srcpaths))
+        return {
+            "status": "ok" if payload.get("ok") else "matlab_error",
+            "error": str(payload.get("error") or "").strip() or None,
+            "srcpaths": deduped_srcpaths,
+        "fov_count": int(payload.get("fov_count") or len(srcpaths)),
+        }
+
+
+def build_extract_srcpaths_matlab_script(
+    *,
+    mat_path: Path,
+    output_path: Path,
+    matlab_repo_root: Path | None = None,
+) -> str:
+    project_path = matlab_escape(mat_path)
+    result_path = matlab_escape(output_path)
+    repo_root = matlab_escape(matlab_repo_root) if matlab_repo_root else ""
+    addpath_block = ""
+    if repo_root:
+        addpath_block = f"repoRoot = '{repo_root}';\nif isfolder(repoRoot)\n    addpath(genpath(repoRoot));\nend\n"
+    return f"""
+projectPath = '{project_path}';
+outputPath = '{result_path}';
+{addpath_block}result = struct('ok', false, 'srcpaths', {{{{}}}}, 'fov_count', 0, 'error', '');
+try
+    data = load(projectPath, 'shallowObj');
+    if ~isfield(data, 'shallowObj')
+        error('extract_srcpaths:MissingShallowObj', 'No shallowObj variable found in MAT file.');
+    end
+    shallowObj = data.shallowObj;
+    fovs = [];
+    if isobject(shallowObj) && isprop(shallowObj, 'fov')
+        fovs = shallowObj.fov;
+    elseif isstruct(shallowObj) && isfield(shallowObj, 'fov')
+        fovs = shallowObj.fov;
+    end
+    rawPaths = {{}};
+    fovCount = numel(fovs);
+    fieldNames = {{'srcpath', 'tiffSource', 'ndtiffPath'}};
+    for idx = 1:numel(fovs)
+        item = fovs(idx);
+        for fieldIdx = 1:numel(fieldNames)
+            fieldName = fieldNames{{fieldIdx}};
+            hasValue = false;
+            value = [];
+            if isobject(item) && isprop(item, fieldName)
+                value = item.(fieldName);
+                hasValue = true;
+            elseif isstruct(item) && isfield(item, fieldName)
+                value = item.(fieldName);
+                hasValue = true;
+            end
+            if ~hasValue || isempty(value)
+                continue;
+            end
+
+            if iscell(value)
+                for valueIdx = 1:numel(value)
+                    entry = value{{valueIdx}};
+                    if isstring(entry)
+                        for entryIdx = 1:numel(entry)
+                            text = strtrim(char(entry(entryIdx)));
+                            if ~isempty(text)
+                                rawPaths{{end+1}} = text; %#ok<AGROW>
+                            end
+                        end
+                    elseif ischar(entry)
+                        if size(entry, 1) <= 1
+                            text = strtrim(entry);
+                            if ~isempty(text)
+                                rawPaths{{end+1}} = text; %#ok<AGROW>
+                            end
+                        else
+                            for rowIdx = 1:size(entry, 1)
+                                text = strtrim(entry(rowIdx, :));
+                                if ~isempty(text)
+                                    rawPaths{{end+1}} = text; %#ok<AGROW>
+                                end
+                            end
+                        end
+                    end
+                end
+            elseif isstring(value)
+                for valueIdx = 1:numel(value)
+                    text = strtrim(char(value(valueIdx)));
+                    if ~isempty(text)
+                        rawPaths{{end+1}} = text; %#ok<AGROW>
+                    end
+                end
+            elseif ischar(value)
+                if size(value, 1) <= 1
+                    text = strtrim(value);
+                    if ~isempty(text)
+                        rawPaths{{end+1}} = text; %#ok<AGROW>
+                    end
+                else
+                    for rowIdx = 1:size(value, 1)
+                        text = strtrim(value(rowIdx, :));
+                        if ~isempty(text)
+                            rawPaths{{end+1}} = text; %#ok<AGROW>
+                        end
+                    end
+                end
+            end
+        end
+    end
+    rawPaths = rawPaths(~cellfun(@isempty, rawPaths));
+    if isempty(rawPaths)
+        result.srcpaths = {{}};
+    else
+        [~, idx] = unique(rawPaths, 'stable');
+        result.srcpaths = rawPaths(sort(idx));
+    end
+    result.fov_count = fovCount;
+    result.ok = true;
+catch ME
+    result.error = getReport(ME, 'extended', 'hyperlinks', 'off');
+end
+fid = fopen(outputPath, 'w');
+fwrite(fid, jsonencode(result), 'char');
+fclose(fid);
+""".strip()
+
+
+def resolve_raw_dataset_candidate(session: Session, *, source_path: str, project_dir: Path) -> Path | None:
+    candidate_strings = build_rebased_raw_path_candidates(session, source_path=source_path, project_dir=project_dir)
+    for candidate_string in candidate_strings:
+        candidate = infer_raw_dataset_dir(Path(candidate_string))
+        if candidate is not None:
+            return candidate.resolve()
+    return None
+
+
+def normalize_raw_source_path(source_path: str, *, project_dir: Path) -> str:
+    text = str(source_path or "").strip()
+    if not text:
+        return ""
+    candidate = Path(text)
+    try:
+        if candidate.exists():
+            return str(candidate)
+    except OSError:
+        pass
+    if looks_like_client_absolute_path(text):
+        return text
+    try:
+        project_candidate = (project_dir / text).resolve()
+    except OSError:
+        return text
+    try:
+        if project_candidate.exists():
+            return str(project_candidate)
+    except OSError:
+        return text
+    return text
+
+
+def looks_like_client_absolute_path(path_text: str) -> bool:
+    text = str(path_text or "").strip()
+    if not text:
+        return False
+    if text.startswith(("\\\\", "//")):
+        return True
+    return bool(re.match(r"^[A-Za-z]:[\\\\/]", text))
+
+
+def build_rebased_raw_path_candidates(session: Session, *, source_path: str, project_dir: Path) -> list[str]:
+    normalized = normalize_raw_source_path(source_path, project_dir=project_dir)
+    if not normalized:
+        return []
+
+    candidates: list[str] = []
+    seen: set[str] = set()
+
+    def push(path_text: str) -> None:
+        text = str(path_text or "").strip()
+        if not text or text in seen:
+            return
+        seen.add(text)
+        candidates.append(text)
+
+    push(normalized)
+
+    inferred_relative = infer_relative_suffix(normalized)
+    suffixes = suffix_candidates(normalized)
+    root_candidates = raw_root_candidates(session, project_dir=project_dir)
+    source_kind = classify_raw_source_path(normalized)
+
+    for root in root_candidates:
+        root_path = Path(root)
+        if inferred_relative:
+            push(str(root_path / inferred_relative))
+        for suffix in suffixes:
+            push(str(root_path / suffix))
+
+    if source_kind == "file":
+        for candidate in build_rebased_file_candidates(normalized, root_candidates=root_candidates):
+            push(str(candidate))
+    elif source_kind == "position":
+        for candidate in build_rebased_position_candidates(normalized, root_candidates=root_candidates):
+            push(str(candidate))
+    else:
+        for candidate in build_rebased_dataset_candidates(normalized, root_candidates=root_candidates):
+            push(str(candidate))
+
+    return candidates
+
+
+def classify_raw_source_path(path_text: str) -> str:
+    normalized = str(path_text or "").replace("\\", "/").rstrip("/")
+    if not normalized:
+        return "dataset"
+
+    leaf = normalized.split("/")[-1]
+    lowered_leaf = leaf.lower()
+    if lowered_leaf.endswith((".tif", ".tiff")):
+        return "file"
+    if lowered_leaf.endswith(".zarr") or lowered_leaf.endswith(".ome.zarr"):
+        return "dataset"
+    if is_position_like_name(leaf):
+        return "position"
+
+    candidate = Path(path_text)
+    if candidate.exists() and candidate.is_file():
+        return "file"
+    return "dataset"
+
+
+def build_rebased_file_candidates(path_text: str, *, root_candidates: list[Path]) -> list[Path]:
+    target_name, old_leaf = extract_target_and_leaf(path_text)
+    if not target_name:
+        return []
+
+    candidates: list[Path] = []
+    seen: set[str] = set()
+
+    def push(path: Path | None) -> None:
+        if path is None:
+            return
+        key = str(path)
+        if key in seen:
+            return
+        seen.add(key)
+        candidates.append(path)
+
+    for root in root_candidates:
+        push(root / target_name)
+        if old_leaf:
+            push(root / old_leaf / target_name)
+        suffix = suffix_after_raw_data(path_text)
+        if suffix is not None:
+            push(root / suffix)
+
+        if should_scan_under_root(root):
+            found = find_named_file(root, target_name, max_depth=1)
+            push(found)
+            if old_leaf:
+                push(find_named_file(root / old_leaf, target_name, max_depth=1))
+            push(find_named_file(root, target_name, max_depth=4))
+
+    return candidates
+
+
+def build_rebased_position_candidates(path_text: str, *, root_candidates: list[Path]) -> list[Path]:
+    info = position_path_info(path_text)
+    if info is None:
+        return []
+
+    candidates: list[Path] = []
+    seen: set[str] = set()
+
+    def push(path: Path | None) -> None:
+        if path is None:
+            return
+        key = str(path)
+        if key in seen:
+            return
+        seen.add(key)
+        candidates.append(path)
+
+    for root in root_candidates:
+        if normalize_name(root.name) == normalize_name(info["dataset_name"]):
+            push(root / info["position_name"])
+
+        dataset_direct = root / info["dataset_name"]
+        if dataset_direct.is_dir():
+            push(dataset_direct / info["position_name"])
+
+        if should_scan_under_root(root):
+            dataset_found = find_dataset_folder(root, info["dataset_name"], max_depth=6)
+            if dataset_found is not None:
+                push(dataset_found / info["position_name"])
+
+    return candidates
+
+
+def build_rebased_dataset_candidates(path_text: str, *, root_candidates: list[Path]) -> list[Path]:
+    infos = dataset_info_candidates(path_text)
+    if not infos:
+        return []
+
+    candidates: list[Path] = []
+    seen: set[str] = set()
+
+    def push(path: Path | None) -> None:
+        if path is None:
+            return
+        key = str(path)
+        if key in seen:
+            return
+        seen.add(key)
+        candidates.append(path)
+
+    dataset_names = [str(info["dataset_name"]) for info in infos if str(info["dataset_name"])]
+    for root in root_candidates:
+        for info in infos:
+            push(root / str(info["dataset_name"]))
+            parent_leaf = str(info["parent_leaf"] or "")
+            if parent_leaf:
+                push(root / parent_leaf / str(info["dataset_name"]))
+            for suffix in info["suffixes"]:
+                push(root / suffix)
+
+        if should_scan_under_root(root):
+            for dataset_name in dataset_names:
+                push(find_dataset_folder(root, dataset_name, max_depth=4))
+
+    return candidates
+
+
+def raw_root_candidates(session: Session, *, project_dir: Path) -> list[Path]:
+    from api.models import StorageRoot
+
+    candidates: list[Path] = []
+    seen: set[str] = set()
+
+    def push(path_text: str) -> None:
+        text = str(path_text or "").strip()
+        if not text:
+            return
+        try:
+            path = Path(text).resolve()
+        except OSError:
+            return
+        key = str(path)
+        if key in seen or not path.exists():
+            return
+        seen.add(key)
+        candidates.append(path)
+
+    for root in session.scalars(select(StorageRoot)):
+        root_type = str(root.root_type or "").lower()
+        if "raw" in root_type:
+            push(root.path_prefix)
+
+    for inferred in infer_raw_roots_from_project_dir(project_dir):
+        push(str(inferred))
+
+    return candidates
+
+
+def infer_raw_roots_from_project_dir(project_dir: Path) -> list[Path]:
+    candidates: list[Path] = []
+    seen: set[str] = set()
+    for parent in [project_dir.parent, *project_dir.parents]:
+        leaf = parent.name.lower()
+        if leaf in {"projects", "analysis", "analyses", "analyse"}:
+            continue
+        if str(parent).startswith("/data"):
+            key = str(parent)
+            if key not in seen and parent.exists():
+                seen.add(key)
+                candidates.append(parent)
+        for child in ("raw", "Raw", "RAWDATA", "raw_data", "Timelapses", "timelapses", "Acquisitions", "acquisitions"):
+            candidate = parent / child
+            key = str(candidate)
+            if key in seen or not candidate.exists():
+                continue
+            seen.add(key)
+            candidates.append(candidate)
+    return candidates
+
+
+def infer_relative_suffix(path_text: str) -> Path | None:
+    normalized = str(path_text or "").replace("\\", "/")
+    lowered = normalized.lower()
+    drive_match = re.match(r"^[A-Za-z]:/(.+)$", normalized)
+    if drive_match:
+        suffix = drive_match.group(1)
+        if suffix:
+            return Path(*[part for part in suffix.split("/") if part])
+    markers = [
+        "/synologydrive/data/",
+        "//10.20.11.250/data/",
+    ]
+    for marker in markers:
+        index = lowered.find(marker)
+        if index >= 0:
+            suffix = normalized[index + len(marker) :]
+            if suffix:
+                return Path(*[part for part in suffix.split("/") if part])
+
+    if normalized.startswith("//"):
+        parts = [part for part in normalized.split("/") if part]
+        if len(parts) >= 3:
+            return Path(*parts[2:])
+    return None
+
+
+def suffix_candidates(path_text: str) -> list[Path]:
+    parts = split_legacy_path_parts(path_text)
+    suffixes: list[Path] = []
+    for width in range(2, min(8, len(parts)) + 1):
+        suffixes.append(Path(*parts[-width:]))
+    return suffixes
+
+
+def raw_dataset_leaf_name(path_text: str) -> str:
+    candidate = infer_raw_dataset_dir(Path(str(path_text)))
+    if candidate is not None:
+        return candidate.name
+    normalized = str(path_text or "").replace("\\", "/").rstrip("/")
+    if not normalized:
+        return ""
+    return normalized.split("/")[-1]
+
+
+def find_dataset_folder(root: Path, dataset_name: str, *, max_depth: int) -> Path | None:
+    if max_depth <= 0 or not root.is_dir():
+        return None
+    try:
+        children = [entry for entry in root.iterdir() if entry.is_dir()]
+    except OSError:
+        return None
+
+    target = normalize_name(dataset_name)
+    for child in children:
+        if normalize_name(child.name) == target and infer_raw_dataset_dir(child) is not None:
+            return child
+
+    for child in children:
+        found = find_dataset_folder(child, dataset_name, max_depth=max_depth - 1)
+        if found is not None:
+            return found
+    return None
+
+
+def find_named_file(root: Path, file_name: str, *, max_depth: int) -> Path | None:
+    if max_depth <= 0 or not root.is_dir():
+        return None
+    target = normalize_name(file_name)
+    try:
+        children = list(root.iterdir())
+    except OSError:
+        return None
+
+    for child in children:
+        if child.is_file() and normalize_name(child.name) == target:
+            return child
+
+    for child in children:
+        if not child.is_dir():
+            continue
+        found = find_named_file(child, file_name, max_depth=max_depth - 1)
+        if found is not None:
+            return found
+    return None
+
+
+def should_scan_under_root(root: Path) -> bool:
+    try:
+        root = root.resolve()
+    except OSError:
+        return False
+    return root.is_dir() and len(root.parts) >= 4
+
+
+def normalize_name(value: str) -> str:
+    return "".join(str(value or "").strip().lower().split())
+
+
+def split_legacy_path_parts(path_text: str) -> list[str]:
+    normalized = str(path_text or "").replace("\\", "/").strip()
+    if not normalized:
+        return []
+    parts = [part for part in re.split(r"/+", normalized) if part]
+    if parts and re.fullmatch(r"[A-Za-z]:", parts[0]):
+        parts = parts[1:]
+    return parts
+
+
+def extract_target_and_leaf(path_text: str) -> tuple[str, str]:
+    parts = split_legacy_path_parts(path_text)
+    if not parts:
+        return "", ""
+    target = parts[-1]
+    old_leaf = parts[-2] if len(parts) >= 2 else ""
+    return target, old_leaf
+
+
+def suffix_after_raw_data(path_text: str) -> Path | None:
+    normalized = str(path_text or "").replace("\\", "/")
+    lowered = normalized.lower()
+    token = "/raw_data/"
+    index = lowered.rfind(token)
+    if index < 0:
+        return None
+    suffix = normalized[index + len(token) :]
+    parts = [part for part in suffix.split("/") if part]
+    if not parts:
+        return None
+    return Path(*parts)
+
+
+def position_path_info(path_text: str) -> dict | None:
+    parts = split_legacy_path_parts(path_text)
+    if len(parts) < 2:
+        return None
+    position_name = parts[-1]
+    dataset_name = parts[-2]
+    if not is_position_like_name(position_name):
+        return None
+    return {"dataset_name": dataset_name, "position_name": position_name}
+
+
+def dataset_info_candidates(path_text: str) -> list[dict]:
+    parts = split_legacy_path_parts(path_text)
+    if not parts:
+        return []
+
+    dataset_name = parts[-1]
+    parent_leaf = parts[-2] if len(parts) >= 2 else ""
+    infos = [
+        {
+            "parts": parts,
+            "dataset_name": dataset_name,
+            "parent_leaf": parent_leaf,
+            "suffixes": [Path(*parts[-width:]) for width in range(2, min(8, len(parts)) + 1)],
+        }
+    ]
+
+    malformed = re.match(r"^(\d{4}[_-]\d{2}[_-]\d{2})([^/\\\\]+\.ome\.zarr)$", dataset_name, flags=re.IGNORECASE)
+    if malformed:
+        fixed_parts = [*parts[:-1], malformed.group(1), malformed.group(2)]
+        infos.append(
+            {
+                "parts": fixed_parts,
+                "dataset_name": malformed.group(2),
+                "parent_leaf": malformed.group(1),
+                "suffixes": [Path(*fixed_parts[-width:]) for width in range(2, min(8, len(fixed_parts)) + 1)],
+            }
+        )
+    return infos
+
+
+def looks_like_dataset_folder(path: Path) -> bool:
+    if not path.is_dir():
+        return False
+    lowered = path.name.lower()
+    if lowered.endswith(".ome.zarr"):
+        return has_zarr_root_metadata(path)
+    return has_zarr_root_metadata(path) or (path / "NDTiff.index").is_file()
+
+
+def has_zarr_root_metadata(path: Path) -> bool:
+    return (path / "zarr.json").is_file() or ((path / ".zattrs").is_file() and (path / ".zgroup").is_file())
+
+
+def infer_raw_dataset_dir(path: Path) -> Path | None:
+    if not path.exists():
+        return None
+
+    zarr_ancestor = next((ancestor for ancestor in [path, *path.parents] if ancestor.suffix.lower() == ".zarr"), None)
+    if zarr_ancestor is not None and zarr_ancestor.exists():
+        return zarr_ancestor
+
+    for ancestor in [path, *path.parents]:
+        if looks_like_dataset_folder(ancestor):
+            return ancestor
+
+    if path.is_file():
+        if path.suffix.lower() in {".tif", ".tiff"}:
+            parent = path.parent
+            if is_position_like_name(parent.name) and parent.parent.exists():
+                return parent.parent
+            return parent
+        return path.parent
+
+    if is_position_like_name(path.name) and path.parent.exists():
+        try:
+            if next(path.glob("*.tif"), None) is not None or next(path.glob("*.tiff"), None) is not None:
+                return path.parent
+        except OSError:
+            return path.parent
+
+    try:
+        child_dirs = [entry for entry in path.iterdir() if entry.is_dir()]
+    except OSError:
+        child_dirs = []
+    if any(is_position_like_name(entry.name) for entry in child_dirs):
+        return path
+    return path
+
+
+def is_position_like_name(name: str) -> bool:
+    lowered = str(name or "").strip().lower()
+    return lowered.startswith("pos") or lowered.startswith("position") or lowered.startswith("xy")
+
+
+def get_or_create_raw_dataset_for_path(
+    session: Session,
+    *,
+    owner: User,
+    visibility: str,
+    dataset_dir: Path,
+):
+    from api.models import StorageRoot
+    from api.services.raw_dataset_ingest import ingest_raw_dataset_from_directory
+
+    existing = find_existing_raw_dataset_for_path(session, dataset_dir=dataset_dir)
+    if existing is not None:
+        return existing
+
+    root_path = resolve_raw_root_path(session, dataset_dir=dataset_dir)
+    root = session.scalars(select(StorageRoot).where(StorageRoot.path_prefix == str(root_path))).first()
+    root_name = root.name if root is not None else None
+    return ingest_raw_dataset_from_directory(
+        session,
+        owner=owner,
+        visibility=visibility,
+        storage_root_name=root_name,
+        host_scope=(root.host_scope if root is not None else "server"),
+        root_type=(root.root_type if root is not None else "raw_root"),
+        root_path=root_path,
+        dataset_dir=dataset_dir,
+        source_label="project_srcpath_relink",
+        source_metadata={"source_project_scan": True},
+        acquisition_label=dataset_dir.name,
+        status="indexed",
+        completeness_status="complete",
+    )
+
+
+def find_existing_raw_dataset_for_path(session: Session, *, dataset_dir: Path):
+    from api.models import RawDataset, RawDatasetLocation, StorageRoot
+
+    dataset_text = str(dataset_dir.resolve())
+    rows = session.execute(
+        select(RawDataset)
+        .join(RawDatasetLocation, RawDatasetLocation.raw_dataset_id == RawDataset.id)
+        .join(StorageRoot, StorageRoot.id == RawDatasetLocation.storage_root_id)
+    ).all()
+    for (raw_dataset,) in rows:
+        for location in raw_dataset.locations or []:
+            storage_root = getattr(location, "storage_root", None)
+            if storage_root is None:
+                continue
+            candidate = storage_root.path_prefix
+            if location.relative_path:
+                candidate = str(Path(candidate) / location.relative_path)
+            if str(Path(candidate).resolve()) == dataset_text:
+                return raw_dataset
+    return None
+
+
+def resolve_raw_root_path(session: Session, *, dataset_dir: Path) -> Path:
+    from api.models import StorageRoot
+
+    dataset_text = str(dataset_dir.resolve())
+    best_root: StorageRoot | None = None
+    best_length = -1
+    for root in session.scalars(select(StorageRoot)):
+        prefix = str(root.path_prefix or "").strip()
+        if not prefix:
+            continue
+        try:
+            prefix_path = Path(prefix).resolve()
+        except OSError:
+            continue
+        prefix_text = str(prefix_path)
+        if dataset_text == prefix_text or dataset_text.startswith(prefix_text + os.sep):
+            if len(prefix_text) > best_length:
+                best_length = len(prefix_text)
+                best_root = root
+    if best_root is not None:
+        return Path(best_root.path_prefix).resolve()
+    return dataset_dir.parent.resolve()
+
+
+def synchronize_project_raw_links(session: Session, *, project: Project, linked_raw_dataset_ids: list) -> None:
+    from api.models import ProjectRawLink
+
+    desired_ids = {raw_dataset_id for raw_dataset_id in linked_raw_dataset_ids}
+    existing_links = list(session.scalars(select(ProjectRawLink).where(ProjectRawLink.project_id == project.id)))
+    existing_ids = {link.raw_dataset_id for link in existing_links}
+    for link in existing_links:
+        if link.raw_dataset_id not in desired_ids:
+            session.delete(link)
+    for raw_dataset_id in desired_ids - existing_ids:
+        session.add(ProjectRawLink(project_id=project.id, raw_dataset_id=raw_dataset_id, link_type="source"))
+    session.flush()
+
+
+def matlab_escape(path: Path | str) -> str:
+    return str(path).replace("\\", "/").replace("'", "''")
+
+
+def tail_text(text: str, *, max_lines: int = 40) -> str:
+    lines = [line for line in str(text or "").splitlines() if line.strip()]
+    if not lines:
+        return ""
+    return "\n".join(lines[-max_lines:])
 
 
 def project_relative_parent(root_path: Path, mat_path: Path) -> str:
