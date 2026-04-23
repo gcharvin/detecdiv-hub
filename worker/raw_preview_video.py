@@ -5,6 +5,7 @@ import re
 import subprocess
 from collections.abc import Iterable
 from dataclasses import dataclass
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
@@ -126,11 +127,17 @@ def execute_raw_preview_video_job(session: Session, *, job: Job) -> dict[str, An
         if position.preview_artifact_id and not should_force_generation(job):
             if not runtime_config.include_existing:
                 position.preview_status = "ready"
+                position.updated_at = datetime.now(timezone.utc)
+                session.flush()
+                session.commit()
                 skipped.append({"position_id": str(position.id), "position_key": position.position_key, "reason": "existing"})
                 continue
 
         try:
             position.preview_status = "running"
+            position.updated_at = datetime.now(timezone.utc)
+            session.flush()
+            session.commit()
             sequence = read_preview_frames(
                 dataset_path=dataset_path,
                 raw_dataset=raw_dataset,
@@ -166,6 +173,7 @@ def execute_raw_preview_video_job(session: Session, *, job: Job) -> dict[str, An
             )
             position.preview_artifact_id = artifact.id
             position.preview_status = "ready"
+            position.updated_at = datetime.now(timezone.utc)
             generated.append(
                 {
                     "position_id": str(position.id),
@@ -177,6 +185,7 @@ def execute_raw_preview_video_job(session: Session, *, job: Job) -> dict[str, An
             )
         except Exception as exc:
             position.preview_status = "failed"
+            position.updated_at = datetime.now(timezone.utc)
             failed.append(
                 {
                     "position_id": str(position.id),
@@ -185,6 +194,7 @@ def execute_raw_preview_video_job(session: Session, *, job: Job) -> dict[str, An
                 }
             )
         session.flush()
+        session.commit()
 
     preview_status = "ready"
     if failed and generated:

@@ -18,6 +18,9 @@ const state = {
   selectedRawDataset: null,
   selectedRawDatasetDetail: null,
   selectedRawPositionId: null,
+  selectedRawDatasetIds: [],
+  pendingRawBulkDelete: null,
+  rawBulkDeletePreviewToken: 0,
   rawPreviewQualityStatus: null,
   archivePolicyPreview: null,
   automaticArchivePolicyStatus: null,
@@ -62,6 +65,7 @@ const els = {
   projectSelectionSummary: document.querySelector("#project-selection-summary"),
   selectVisibleButton: document.querySelector("#select-visible-button"),
   clearSelectionButton: document.querySelector("#clear-selection-button"),
+  bulkQueuePreviewsSelectedButton: document.querySelector("#bulk-queue-previews-selected-button"),
   bulkDeleteSelectedButton: document.querySelector("#bulk-delete-selected-button"),
   bulkDeleteVisibleButton: document.querySelector("#bulk-delete-visible-button"),
   projectsTableBody: document.querySelector("#projects-table tbody"),
@@ -111,6 +115,20 @@ const els = {
   rawArchiveStatusFilter: document.querySelector("#raw-archive-status-filter"),
   rawLimit: document.querySelector("#raw-limit"),
   rawOwnedOnly: document.querySelector("#raw-owned-only"),
+  rawSelectAll: document.querySelector("#raw-select-all"),
+  rawSelectionSummary: document.querySelector("#raw-selection-summary"),
+  rawSelectVisibleButton: document.querySelector("#raw-select-visible-button"),
+  rawClearSelectionButton: document.querySelector("#raw-clear-selection-button"),
+  rawBulkDeleteSelectedButton: document.querySelector("#raw-bulk-delete-selected-button"),
+  rawBulkDeleteVisibleButton: document.querySelector("#raw-bulk-delete-visible-button"),
+  rawBulkDeletePanel: document.querySelector("#raw-bulk-delete-panel"),
+  rawBulkDeleteSummary: document.querySelector("#raw-bulk-delete-summary"),
+  rawBulkDeleteMode: document.querySelector("#raw-bulk-delete-mode"),
+  rawBulkDeleteLinkedProjects: document.querySelector("#raw-bulk-delete-linked-projects"),
+  rawBulkDeleteLinkedProjectFiles: document.querySelector("#raw-bulk-delete-linked-project-files"),
+  rawBulkDeleteConfirmText: document.querySelector("#raw-bulk-delete-confirm-text"),
+  rawBulkDeleteCancelButton: document.querySelector("#raw-bulk-delete-cancel-button"),
+  rawBulkDeleteConfirmButton: document.querySelector("#raw-bulk-delete-confirm-button"),
   rawDatasetsTableBody: document.querySelector("#raw-datasets-table tbody"),
   rawCountLabel: document.querySelector("#raw-count-label"),
   rawDetailEmpty: document.querySelector("#raw-detail-empty"),
@@ -122,6 +140,7 @@ const els = {
   rawPositionsTableBody: document.querySelector("#raw-positions-table tbody"),
   rawQueuePreviewButton: document.querySelector("#raw-queue-preview-button"),
   rawRegeneratePreviewButton: document.querySelector("#raw-regenerate-preview-button"),
+  rawPreviewProgress: document.querySelector("#raw-preview-progress"),
   rawOpenDatasetPageButton: document.querySelector("#raw-open-dataset-page-button"),
   rawOpenProjectPageButton: document.querySelector("#raw-open-project-page-button"),
   rawPositionViewerEmpty: document.querySelector("#raw-position-viewer-empty"),
@@ -294,6 +313,9 @@ function clearDashboardState() {
   state.selectedRawDataset = null;
   state.selectedRawDatasetDetail = null;
   state.selectedRawPositionId = null;
+  state.selectedRawDatasetIds = [];
+  state.pendingRawBulkDelete = null;
+  state.rawBulkDeletePreviewToken = 0;
   state.rawPreviewQualityStatus = null;
   state.archivePolicyPreview = null;
   state.automaticArchivePolicyStatus = null;
@@ -448,6 +470,78 @@ function summarizeList(values, limit = 5) {
     return items.join(", ");
   }
   return `${items.slice(0, limit).join(", ")} + ${items.length - limit} more`;
+}
+
+function extractRawAcquisitionFacts(raw) {
+  const metadata = raw?.metadata_json && typeof raw.metadata_json === "object" ? raw.metadata_json : {};
+  const dimensions = metadata.dimensions && typeof metadata.dimensions === "object" ? metadata.dimensions : {};
+  const positionsIndexed = Array.isArray(raw?.positions) ? raw.positions.length : 0;
+
+  const channelNamesRaw = Array.isArray(dimensions.channel_names) ? dimensions.channel_names : [];
+  const channelNames = channelNamesRaw
+    .map((value) => String(value || "").trim())
+    .filter(Boolean);
+  const channelsLabel = channelNames.length
+    ? summarizeList(channelNames, 6)
+    : (Number(dimensions.channel_count || 0) > 0 ? `${Number(dimensions.channel_count)} channel(s)` : "unknown");
+
+  const metadataPositionCount = Number(dimensions.position_count || 0);
+  const positionsLabel = metadataPositionCount > 0 ? `${metadataPositionCount}` : "unknown";
+
+  const exposureValues = collectExposureMsValues(metadata);
+  const exposureLabel = exposureValues.length
+    ? exposureValues.map((value) => Number(value.toFixed(3))).join(", ")
+    : "unknown";
+
+  return {
+    positionsIndexed,
+    positionsLabel,
+    channelsLabel,
+    exposureLabel,
+  };
+}
+
+function collectExposureMsValues(metadata) {
+  const values = [];
+  const seen = new Set();
+  const stack = [{ value: metadata, depth: 0 }];
+  let visited = 0;
+
+  while (stack.length && visited < 5000) {
+    const node = stack.pop();
+    visited += 1;
+    if (!node || node.depth > 7) {
+      continue;
+    }
+    const current = node.value;
+    if (Array.isArray(current)) {
+      for (const item of current) {
+        stack.push({ value: item, depth: node.depth + 1 });
+      }
+      continue;
+    }
+    if (!current || typeof current !== "object") {
+      continue;
+    }
+    for (const [key, rawValue] of Object.entries(current)) {
+      const normalizedKey = String(key || "").toLowerCase();
+      if (normalizedKey.includes("exposure")) {
+        const parsed = Number(rawValue);
+        if (Number.isFinite(parsed) && parsed >= 0) {
+          const token = parsed.toFixed(6);
+          if (!seen.has(token)) {
+            seen.add(token);
+            values.push(parsed);
+          }
+        }
+      }
+      if (rawValue && typeof rawValue === "object") {
+        stack.push({ value: rawValue, depth: node.depth + 1 });
+      }
+    }
+  }
+  values.sort((a, b) => a - b);
+  return values.slice(0, 12);
 }
 
 function parseBinningFactor(rawValue, fallback = 4) {
@@ -893,6 +987,9 @@ function renderProjectSelectionControls() {
   }
   if (els.bulkDeleteVisibleButton) {
     els.bulkDeleteVisibleButton.disabled = visibleCount === 0;
+  }
+  if (els.bulkQueuePreviewsSelectedButton) {
+    els.bulkQueuePreviewsSelectedButton.disabled = selectedCount === 0;
   }
 }
 
@@ -1757,6 +1854,110 @@ function renderIndexingJobs() {
   }
 }
 
+function visibleRawDatasetIds() {
+  return state.rawDatasets.map((raw) => `${raw.id}`);
+}
+
+function selectedRawDatasetIds() {
+  const visibleIds = new Set(visibleRawDatasetIds());
+  return state.selectedRawDatasetIds.filter((rawDatasetId) => visibleIds.has(`${rawDatasetId}`));
+}
+
+function isRawDatasetSelected(rawDatasetId) {
+  return state.selectedRawDatasetIds.includes(`${rawDatasetId}`);
+}
+
+function setSelectedRawDatasetIds(rawDatasetIds) {
+  state.selectedRawDatasetIds = [...new Set((rawDatasetIds || []).map((rawDatasetId) => `${rawDatasetId}`))];
+  if (state.pendingRawBulkDelete?.scope === "selected") {
+    closeRawBulkDeletePanel();
+  }
+  renderRawDatasets();
+  renderRawSelectionControls();
+}
+
+function toggleRawDatasetSelection(rawDatasetId, isSelected) {
+  const normalizedId = `${rawDatasetId}`;
+  const selected = new Set(state.selectedRawDatasetIds);
+  if (isSelected) {
+    selected.add(normalizedId);
+  } else {
+    selected.delete(normalizedId);
+  }
+  setSelectedRawDatasetIds([...selected]);
+}
+
+function renderRawSelectionControls() {
+  const visibleIds = visibleRawDatasetIds();
+  const selectedIds = selectedRawDatasetIds();
+  const visibleCount = visibleIds.length;
+  const selectedCount = selectedIds.length;
+
+  if (els.rawSelectAll) {
+    const allVisibleSelected = visibleCount > 0 && selectedCount === visibleCount;
+    const someVisibleSelected = selectedCount > 0 && selectedCount < visibleCount;
+    els.rawSelectAll.checked = allVisibleSelected;
+    els.rawSelectAll.indeterminate = someVisibleSelected;
+    els.rawSelectAll.disabled = visibleCount === 0;
+  }
+  if (els.rawSelectionSummary) {
+    els.rawSelectionSummary.textContent = `${selectedCount} selected / ${visibleCount} visible`;
+  }
+  if (els.rawClearSelectionButton) {
+    els.rawClearSelectionButton.disabled = selectedCount === 0;
+  }
+  if (els.rawSelectVisibleButton) {
+    els.rawSelectVisibleButton.disabled = visibleCount === 0;
+  }
+  if (els.rawBulkDeleteSelectedButton) {
+    els.rawBulkDeleteSelectedButton.disabled = selectedCount === 0;
+  }
+  if (els.rawBulkDeleteVisibleButton) {
+    els.rawBulkDeleteVisibleButton.disabled = visibleCount === 0;
+  }
+}
+
+function renderRawBulkDeletePanel() {
+  if (!els.rawBulkDeletePanel || !els.rawBulkDeleteSummary || !els.rawBulkDeleteConfirmButton) {
+    return;
+  }
+  const pending = state.pendingRawBulkDelete;
+  if (!pending || !pending.rawDatasetIds?.length) {
+    els.rawBulkDeletePanel.classList.add("hidden");
+    return;
+  }
+
+  els.rawBulkDeletePanel.classList.remove("hidden");
+  const scopeLabel = pending.scope === "selected" ? "selected" : "visible";
+  const mode = els.rawBulkDeleteMode?.value || "database_only";
+  const deleteLinkedProjects = Boolean(els.rawBulkDeleteLinkedProjects?.checked);
+  els.rawBulkDeleteConfirmButton.textContent =
+    mode === "source_files" ? "Delete catalog entries and source files" : "Delete catalog entries only";
+
+  if (!pending.preview) {
+    els.rawBulkDeleteSummary.textContent = `Preparing deletion preview for ${pending.rawDatasetIds.length} ${scopeLabel} raw dataset(s)...`;
+    return;
+  }
+
+  const preview = pending.preview;
+  const parts = [`${pending.rawDatasetIds.length} ${scopeLabel} raw dataset(s)`];
+  if (mode === "source_files") {
+    parts.push(`raw source reclaimable ${humanBytes(preview.reclaimableBytes || 0)}`);
+  } else {
+    parts.push("catalog entries only, source files on disk will be kept");
+  }
+  if (deleteLinkedProjects) {
+    parts.push(`linked projects reclaimable ${humanBytes(preview.linkedProjectBytes || 0)}`);
+    if (preview.skippedLinkedProjects) {
+      parts.push(`${preview.skippedLinkedProjects} linked project(s) skipped`);
+    }
+  }
+  if (preview.errorCount) {
+    parts.push(`${preview.errorCount} preview error(s)`);
+  }
+  els.rawBulkDeleteSummary.textContent = parts.join(" | ");
+}
+
 function renderRawDatasets() {
   if (!els.rawDatasetsTableBody || !els.rawCountLabel) {
     return;
@@ -1769,6 +1970,7 @@ function renderRawDatasets() {
       tr.classList.add("selected");
     }
     tr.innerHTML = `
+      <td><input class="raw-select-checkbox" type="checkbox" ${isRawDatasetSelected(raw.id) ? "checked" : ""} /></td>
       <td>${raw.acquisition_label}</td>
       <td>${raw.data_format || "unknown"}</td>
       <td>${raw.owner ? userOptionLabel(raw.owner) : ""}</td>
@@ -1777,9 +1979,16 @@ function renderRawDatasets() {
       <td>${raw.status}</td>
       <td>${humanBytes(raw.total_bytes)}</td>
     `;
+    tr.querySelector(".raw-select-checkbox")?.addEventListener("click", (event) => {
+      event.stopPropagation();
+    });
+    tr.querySelector(".raw-select-checkbox")?.addEventListener("change", (event) => {
+      toggleRawDatasetSelection(raw.id, Boolean(event.target.checked));
+    });
     tr.addEventListener("click", () => selectRawDataset(raw.id));
     els.rawDatasetsTableBody.appendChild(tr);
   }
+  renderRawSelectionControls();
 }
 
 function renderRawDatasetDetail() {
@@ -1805,12 +2014,17 @@ function renderRawDatasetDetail() {
   }
 
   const raw = state.selectedRawDatasetDetail;
+  const acquisitionFacts = extractRawAcquisitionFacts(raw);
   const owner = raw.owner ? `${raw.owner.display_name} (${raw.owner.user_key})` : "unknown";
   const linkedProjects = raw.analysis_projects || [];
   const fields = isDedicatedRawPage
     ? [
       ["Acquisition", raw.acquisition_label],
       ["Data type", raw.data_format || "unknown"],
+      ["Channels", acquisitionFacts.channelsLabel],
+      ["Exposure time (ms)", acquisitionFacts.exposureLabel],
+      ["Positions (metadata)", acquisitionFacts.positionsLabel],
+      ["Positions (indexed)", `${acquisitionFacts.positionsIndexed}`],
       ["Project owner", owner],
       ["Visibility", raw.visibility],
       ["Status", raw.status],
@@ -1930,6 +2144,7 @@ function renderRawPositions(positions) {
     return;
   }
   els.rawPositionsTableBody.innerHTML = "";
+  renderRawPreviewProgress(positions);
   if (els.rawQueuePreviewButton) {
     els.rawQueuePreviewButton.disabled = !state.selectedRawDatasetDetail;
   }
@@ -1976,6 +2191,37 @@ function renderRawPositions(positions) {
       queueRawPreviewVideo(button.dataset.positionId || "").catch((error) => setStatus(String(error)));
     });
   });
+}
+
+function renderRawPreviewProgress(positions) {
+  if (!els.rawPreviewProgress) {
+    return;
+  }
+  const counters = {
+    queued: 0,
+    running: 0,
+    ready: 0,
+    failed: 0,
+    missing: 0,
+    other: 0,
+  };
+  for (const position of positions || []) {
+    const status = String(position.preview_status || "").toLowerCase();
+    if (status in counters) {
+      counters[status] += 1;
+    } else {
+      counters.other += 1;
+    }
+  }
+  const total = (positions || []).length;
+  if (!total) {
+    els.rawPreviewProgress.textContent = "No positions indexed yet.";
+    return;
+  }
+  const active = counters.queued + counters.running;
+  const text = `Progress: ${counters.ready}/${total} ready | ${counters.running} running | ${counters.queued} queued | ${counters.failed} failed${counters.other ? ` | ${counters.other} other` : ""}`;
+  els.rawPreviewProgress.textContent = text;
+  els.rawPreviewProgress.classList.toggle("status-running", active > 0);
 }
 
 function syncSelectedRawPosition(positions) {
@@ -2887,7 +3133,13 @@ async function refreshRawDatasets() {
   if (els.rawLimit?.value) params.set("limit", els.rawLimit.value);
 
   state.rawDatasets = await apiGet(`/raw-datasets${params.toString() ? `?${params.toString()}` : ""}`);
+  const visibleIds = new Set(state.rawDatasets.map((raw) => `${raw.id}`));
+  state.selectedRawDatasetIds = state.selectedRawDatasetIds.filter((rawDatasetId) => visibleIds.has(`${rawDatasetId}`));
+  if (state.pendingRawBulkDelete?.scope === "selected" && !selectedRawDatasetIds().length) {
+    closeRawBulkDeletePanel();
+  }
   renderRawDatasets();
+  renderRawBulkDeletePanel();
   const requestedRawDatasetId = getRawDatasetPageId();
   if (requestedRawDatasetId && (!state.selectedRawDataset || `${state.selectedRawDataset.id}` === requestedRawDatasetId)) {
     await selectRawDataset(requestedRawDatasetId);
@@ -3558,6 +3810,177 @@ async function executeBulkDelete() {
   }
 }
 
+async function queueRawPreviewVideosForSelectedProjects() {
+  const projectIds = selectedProjectIds();
+  if (!projectIds.length) {
+    throw new Error("Select at least one project first.");
+  }
+  const result = await apiPost("/projects/preview-videos/queue-bulk", {
+    project_ids: projectIds,
+    force: false,
+    requested_mode: "auto",
+    priority: 100,
+    params_json: {},
+  });
+  setStatus(result.message || `Queued ${result.queued_count} preview job(s).`);
+  if (pageFlags.hasRawDatasetsView || pageFlags.hasRawDatasetPage) {
+    await refreshRawDatasets();
+  }
+}
+
+async function refreshRawBulkDeletePreview() {
+  if (!state.pendingRawBulkDelete?.rawDatasetIds?.length) {
+    return;
+  }
+  const deleteSourceFiles = els.rawBulkDeleteMode?.value === "source_files";
+  const deleteLinkedProjects = Boolean(els.rawBulkDeleteLinkedProjects?.checked);
+  const deleteLinkedProjectFiles = Boolean(els.rawBulkDeleteLinkedProjectFiles?.checked);
+  const currentToken = state.rawBulkDeletePreviewToken + 1;
+  state.rawBulkDeletePreviewToken = currentToken;
+
+  if (!deleteSourceFiles && !deleteLinkedProjects) {
+    state.pendingRawBulkDelete.preview = {
+      reclaimableBytes: 0,
+      linkedProjectBytes: 0,
+      skippedLinkedProjects: 0,
+      errorCount: 0,
+    };
+    renderRawBulkDeletePanel();
+    return;
+  }
+
+  state.pendingRawBulkDelete.preview = null;
+  renderRawBulkDeletePanel();
+
+  const previews = await Promise.allSettled(
+    state.pendingRawBulkDelete.rawDatasetIds.map((rawDatasetId) =>
+      apiPost(`/raw-datasets/${rawDatasetId}/deletion-preview`, {
+        delete_source_files: deleteSourceFiles,
+        delete_linked_projects: deleteLinkedProjects,
+        delete_linked_project_files: deleteLinkedProjectFiles,
+        confirm: false,
+      })
+    )
+  );
+
+  if (state.rawBulkDeletePreviewToken !== currentToken || !state.pendingRawBulkDelete) {
+    return;
+  }
+
+  let reclaimableBytes = 0;
+  let linkedProjectBytes = 0;
+  let skippedLinkedProjects = 0;
+  let errorCount = 0;
+  for (const result of previews) {
+    if (result.status === "fulfilled") {
+      reclaimableBytes += Number(result.value.reclaimable_bytes || 0);
+      const linkedProjects = result.value.preview_json?.linked_projects || [];
+      for (const linked of linkedProjects) {
+        linkedProjectBytes += Number(linked.total_bytes || 0);
+      }
+      skippedLinkedProjects += Number((result.value.preview_json?.skipped_linked_projects || []).length || 0);
+    } else {
+      errorCount += 1;
+    }
+  }
+  state.pendingRawBulkDelete.preview = {
+    reclaimableBytes,
+    linkedProjectBytes,
+    skippedLinkedProjects,
+    errorCount,
+  };
+  renderRawBulkDeletePanel();
+}
+
+async function openRawBulkDeletePanel(scope) {
+  const rawDatasetIds = scope === "selected" ? selectedRawDatasetIds() : visibleRawDatasetIds();
+  if (!rawDatasetIds.length) {
+    throw new Error(scope === "selected" ? "Select at least one raw dataset first." : "No visible raw datasets to delete.");
+  }
+  state.pendingRawBulkDelete = {
+    scope,
+    rawDatasetIds,
+    preview: null,
+  };
+  if (els.rawBulkDeleteMode) {
+    els.rawBulkDeleteMode.value = "database_only";
+  }
+  if (els.rawBulkDeleteLinkedProjects) {
+    els.rawBulkDeleteLinkedProjects.checked = false;
+  }
+  if (els.rawBulkDeleteLinkedProjectFiles) {
+    els.rawBulkDeleteLinkedProjectFiles.checked = false;
+  }
+  if (els.rawBulkDeleteConfirmText) {
+    els.rawBulkDeleteConfirmText.value = "";
+  }
+  renderRawBulkDeletePanel();
+  await refreshRawBulkDeletePreview();
+}
+
+function closeRawBulkDeletePanel() {
+  state.pendingRawBulkDelete = null;
+  state.rawBulkDeletePreviewToken += 1;
+  if (els.rawBulkDeleteConfirmText) {
+    els.rawBulkDeleteConfirmText.value = "";
+  }
+  renderRawBulkDeletePanel();
+}
+
+async function executeRawBulkDelete() {
+  if (!state.pendingRawBulkDelete?.rawDatasetIds?.length) {
+    return;
+  }
+  const confirmationText = els.rawBulkDeleteConfirmText?.value.trim() || "";
+  if (confirmationText !== "DELETE") {
+    throw new Error("Type DELETE to confirm the bulk deletion.");
+  }
+
+  const deleteSourceFiles = els.rawBulkDeleteMode?.value === "source_files";
+  const deleteLinkedProjects = Boolean(els.rawBulkDeleteLinkedProjects?.checked);
+  const deleteLinkedProjectFiles = Boolean(els.rawBulkDeleteLinkedProjectFiles?.checked);
+  const rawDatasetIds = [...state.pendingRawBulkDelete.rawDatasetIds];
+  const rawDatasetLabels = rawDatasetIds.map(
+    (rawDatasetId) =>
+      state.rawDatasets.find((raw) => `${raw.id}` === `${rawDatasetId}`)?.acquisition_label || `${rawDatasetId}`
+  );
+  const resultSummary = {
+    deleted: 0,
+    failed: [],
+  };
+
+  for (let index = 0; index < rawDatasetIds.length; index += 1) {
+    const rawDatasetId = rawDatasetIds[index];
+    const label = rawDatasetLabels[index];
+    setStatus(`Deleting ${index + 1}/${rawDatasetIds.length}: ${label}`);
+    try {
+      await apiDelete(
+        `/raw-datasets/${rawDatasetId}?delete_source_files=${deleteSourceFiles ? "true" : "false"}&delete_linked_projects=${deleteLinkedProjects ? "true" : "false"}&delete_linked_project_files=${deleteLinkedProjectFiles ? "true" : "false"}&confirm=true`
+      );
+      resultSummary.deleted += 1;
+    } catch (error) {
+      resultSummary.failed.push(`${label}: ${String(error)}`);
+    }
+  }
+
+  state.selectedRawDatasetIds = state.selectedRawDatasetIds.filter((rawDatasetId) => !rawDatasetIds.includes(`${rawDatasetId}`));
+  if (state.selectedRawDataset && rawDatasetIds.includes(`${state.selectedRawDataset.id}`)) {
+    state.selectedRawDataset = null;
+    state.selectedRawDatasetDetail = null;
+    state.selectedRawPositionId = null;
+  }
+  closeRawBulkDeletePanel();
+  await refreshRawDatasets();
+
+  const suffix = resultSummary.failed.length
+    ? ` Failed: ${resultSummary.failed.length}.`
+    : "";
+  setStatus(`Raw bulk delete finished. Deleted ${resultSummary.deleted}/${rawDatasetIds.length}.${suffix}`);
+  if (resultSummary.failed.length) {
+    window.alert(`Raw bulk delete completed with failures:\n${resultSummary.failed.join("\n")}`);
+  }
+}
+
 async function previewDelete() {
   if (!state.selectedProject) {
     return;
@@ -3962,7 +4385,7 @@ async function pollDashboard() {
     if (pageFlags.hasIndexingView) {
       pollTasks.push(refreshIndexingJobs());
     }
-    if (pageFlags.hasRawDatasetsView) {
+    if (pageFlags.hasRawDatasetsView || pageFlags.hasRawDatasetPage) {
       pollTasks.push(refreshRawDatasets());
     }
     if (pageFlags.hasAutomaticArchivePolicy && isAdmin()) {
@@ -4046,6 +4469,7 @@ if (els.ownedOnly) els.ownedOnly.addEventListener("change", () => refreshProject
 if (els.projectSelectAll) els.projectSelectAll.addEventListener("change", () => setSelectedProjectIds(els.projectSelectAll.checked ? visibleProjectIds() : []));
 if (els.selectVisibleButton) els.selectVisibleButton.addEventListener("click", () => setSelectedProjectIds(visibleProjectIds()));
 if (els.clearSelectionButton) els.clearSelectionButton.addEventListener("click", () => setSelectedProjectIds([]));
+if (els.bulkQueuePreviewsSelectedButton) els.bulkQueuePreviewsSelectedButton.addEventListener("click", () => queueRawPreviewVideosForSelectedProjects().catch((error) => setStatus(String(error))));
 if (els.bulkDeleteSelectedButton) els.bulkDeleteSelectedButton.addEventListener("click", () => openBulkDeletePanel("selected").catch((error) => setStatus(String(error))));
 if (els.bulkDeleteVisibleButton) els.bulkDeleteVisibleButton.addEventListener("click", () => openBulkDeletePanel("visible").catch((error) => setStatus(String(error))));
 if (els.bulkDeleteMode) els.bulkDeleteMode.addEventListener("change", () => refreshBulkDeletePreview().catch((error) => setStatus(String(error))));
@@ -4060,6 +4484,19 @@ if (els.rawTierFilter) els.rawTierFilter.addEventListener("change", () => refres
 if (els.rawArchiveStatusFilter) els.rawArchiveStatusFilter.addEventListener("change", () => refreshRawDatasets().catch((error) => setStatus(String(error))));
 if (els.rawLimit) els.rawLimit.addEventListener("change", () => refreshRawDatasets().catch((error) => setStatus(String(error))));
 if (els.rawOwnedOnly) els.rawOwnedOnly.addEventListener("change", () => refreshRawDatasets().catch((error) => setStatus(String(error))));
+if (els.rawSelectAll) els.rawSelectAll.addEventListener("change", () => setSelectedRawDatasetIds(els.rawSelectAll.checked ? visibleRawDatasetIds() : []));
+if (els.rawSelectVisibleButton) els.rawSelectVisibleButton.addEventListener("click", () => setSelectedRawDatasetIds(visibleRawDatasetIds()));
+if (els.rawClearSelectionButton) els.rawClearSelectionButton.addEventListener("click", () => setSelectedRawDatasetIds([]));
+if (els.rawBulkDeleteSelectedButton) els.rawBulkDeleteSelectedButton.addEventListener("click", () => openRawBulkDeletePanel("selected").catch((error) => setStatus(String(error))));
+if (els.rawBulkDeleteVisibleButton) els.rawBulkDeleteVisibleButton.addEventListener("click", () => openRawBulkDeletePanel("visible").catch((error) => setStatus(String(error))));
+if (els.rawBulkDeleteMode) els.rawBulkDeleteMode.addEventListener("change", () => refreshRawBulkDeletePreview().catch((error) => setStatus(String(error))));
+if (els.rawBulkDeleteLinkedProjects) els.rawBulkDeleteLinkedProjects.addEventListener("change", () => refreshRawBulkDeletePreview().catch((error) => setStatus(String(error))));
+if (els.rawBulkDeleteLinkedProjectFiles) els.rawBulkDeleteLinkedProjectFiles.addEventListener("change", () => refreshRawBulkDeletePreview().catch((error) => setStatus(String(error))));
+if (els.rawBulkDeleteCancelButton) els.rawBulkDeleteCancelButton.addEventListener("click", () => closeRawBulkDeletePanel());
+if (els.rawBulkDeleteConfirmButton) els.rawBulkDeleteConfirmButton.addEventListener("click", () => executeRawBulkDelete().catch((error) => {
+  setStatus(String(error));
+  window.alert(String(error));
+}));
 if (els.newGroupButton) els.newGroupButton.addEventListener("click", () => createGroup().catch((error) => setStatus(String(error))));
 if (els.addNoteButton) els.addNoteButton.addEventListener("click", () => addNote().catch((error) => setStatus(String(error))));
 if (els.shareButton) els.shareButton.addEventListener("click", () => shareProject().catch((error) => setStatus(String(error))));

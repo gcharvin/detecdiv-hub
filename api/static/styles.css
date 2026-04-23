@@ -464,6 +464,10 @@ tbody tr.selected {
   margin-bottom: 6px;
 }
 
+#raw-preview-progress.status-running {
+  color: #7be0a0;
+}
+
 .stack-actions {
   display: flex;
   flex-wrap: wrap;

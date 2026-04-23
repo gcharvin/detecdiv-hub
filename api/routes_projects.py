@@ -36,6 +36,8 @@ from api.schemas import (
     ProjectSummary,
     ProjectRawPreviewQueueRequest,
     ProjectRawPreviewQueueResult,
+    ProjectRawPreviewBulkQueueRequest,
+    ProjectRawPreviewBulkQueueResult,
     RawDatasetSummary,
     ProjectUpdate,
     StorageRootBrowseEntry,
@@ -195,34 +197,21 @@ def queue_project_raw_preview_videos(
         if raw_dataset is None:
             skipped_count += 1
             continue
-        if not payload.force and not raw_dataset_needs_preview(raw_dataset):
-            skipped_count += 1
-            continue
-
-        params_json = dict(payload.params_json or {})
-        params_json.update(
-            {
-                "job_kind": "raw_preview_video",
-                "force": payload.force,
-                "position_id": None,
-                "position_key": None,
-                "scope": "dataset",
-                "project_id": str(project.id),
-            }
-        )
-        job = Job(
+        queued = enqueue_raw_preview_job_for_dataset(
+            db,
+            current_user_key=current_user.user_key,
             project_id=project.id,
-            raw_dataset_id=raw_dataset.id,
+            raw_dataset=raw_dataset,
+            force=payload.force,
             requested_mode=payload.requested_mode,
             priority=payload.priority,
-            requested_by=current_user.user_key,
-            params_json=params_json,
-            status="queued",
+            params_json=payload.params_json or {},
         )
-        db.add(job)
+        if queued is None:
+            skipped_count += 1
+            continue
         raw_dataset_ids.append(raw_dataset.id)
-        db.flush()
-        queued_job_ids.append(job.id)
+        queued_job_ids.append(queued)
 
     db.commit()
     return ProjectRawPreviewQueueResult(
@@ -232,6 +221,85 @@ def queue_project_raw_preview_videos(
         raw_dataset_ids=raw_dataset_ids,
         queued_job_ids=queued_job_ids,
         message=f"Queued {len(queued_job_ids)} raw preview dataset job(s) for project {project.project_name}.",
+    )
+
+
+@router.post("/preview-videos/queue-bulk", response_model=ProjectRawPreviewBulkQueueResult, status_code=status.HTTP_201_CREATED)
+def queue_bulk_project_raw_preview_videos(
+    payload: ProjectRawPreviewBulkQueueRequest,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> ProjectRawPreviewBulkQueueResult:
+    if not payload.project_ids:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="project_ids is required")
+
+    unique_project_ids = list(dict.fromkeys(payload.project_ids))
+    queued_job_ids: list[UUID] = []
+    raw_dataset_ids: list[UUID] = []
+    skipped_project_ids: list[UUID] = []
+    seen_raw_datasets: set[UUID] = set()
+    skipped_count = 0
+
+    for project_id in unique_project_ids:
+        project = db.scalars(
+            select(Project)
+            .options(
+                joinedload(Project.owner),
+                joinedload(Project.acl_entries),
+                joinedload(Project.raw_links).joinedload(ProjectRawLink.raw_dataset).joinedload(RawDataset.positions),
+            )
+            .where(Project.id == project_id, Project.status != "deleted")
+        ).unique().first()
+        if project is None:
+            skipped_project_ids.append(project_id)
+            skipped_count += 1
+            continue
+        try:
+            project = ensure_project_readable(project, current_user)
+        except HTTPException:
+            skipped_project_ids.append(project_id)
+            skipped_count += 1
+            continue
+        if not user_can_edit_project(project, current_user):
+            skipped_project_ids.append(project_id)
+            skipped_count += 1
+            continue
+
+        for link in project.raw_links or []:
+            raw_dataset = link.raw_dataset
+            if raw_dataset is None:
+                skipped_count += 1
+                continue
+            if raw_dataset.id in seen_raw_datasets:
+                skipped_count += 1
+                continue
+            seen_raw_datasets.add(raw_dataset.id)
+
+            queued = enqueue_raw_preview_job_for_dataset(
+                db,
+                current_user_key=current_user.user_key,
+                project_id=project.id,
+                raw_dataset=raw_dataset,
+                force=payload.force,
+                requested_mode=payload.requested_mode,
+                priority=payload.priority,
+                params_json=payload.params_json or {},
+            )
+            if queued is None:
+                skipped_count += 1
+                continue
+            raw_dataset_ids.append(raw_dataset.id)
+            queued_job_ids.append(queued)
+
+    db.commit()
+    return ProjectRawPreviewBulkQueueResult(
+        project_count=len(unique_project_ids),
+        queued_count=len(queued_job_ids),
+        skipped_count=skipped_count,
+        raw_dataset_ids=raw_dataset_ids,
+        queued_job_ids=queued_job_ids,
+        skipped_project_ids=skipped_project_ids,
+        message=f"Queued {len(queued_job_ids)} raw preview dataset job(s) from {len(unique_project_ids)} project(s).",
     )
 
 
@@ -802,6 +870,45 @@ def raw_dataset_needs_preview(raw_dataset: RawDataset) -> bool:
     if not positions:
         return True
     return any(position.preview_artifact_id is None for position in positions)
+
+
+def enqueue_raw_preview_job_for_dataset(
+    db: Session,
+    *,
+    current_user_key: str,
+    project_id: UUID,
+    raw_dataset: RawDataset,
+    force: bool,
+    requested_mode: str,
+    priority: int,
+    params_json: dict,
+) -> UUID | None:
+    if not force and not raw_dataset_needs_preview(raw_dataset):
+        return None
+
+    job_params = dict(params_json or {})
+    job_params.update(
+        {
+            "job_kind": "raw_preview_video",
+            "force": force,
+            "position_id": None,
+            "position_key": None,
+            "scope": "dataset",
+            "project_id": str(project_id),
+        }
+    )
+    job = Job(
+        project_id=project_id,
+        raw_dataset_id=raw_dataset.id,
+        requested_mode=requested_mode,
+        priority=priority,
+        requested_by=current_user_key,
+        params_json=job_params,
+        status="queued",
+    )
+    db.add(job)
+    db.flush()
+    return job.id
 
 
 def project_detail_view(project: Project) -> ProjectDetail:

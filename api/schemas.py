@@ -726,6 +726,48 @@ class ProjectRawPreviewQueueResult(HubBaseModel):
     message: str
 
 
+class ProjectRawPreviewBulkQueueRequest(HubBaseModel):
+    project_ids: list[UUID] = Field(default_factory=list)
+    force: bool = False
+    requested_mode: str = "auto"
+    priority: int = 100
+    params_json: dict[str, Any] = Field(default_factory=dict)
+
+
+class ProjectRawPreviewBulkQueueResult(HubBaseModel):
+    project_count: int = 0
+    queued_count: int = 0
+    skipped_count: int = 0
+    raw_dataset_ids: list[UUID] = Field(default_factory=list)
+    queued_job_ids: list[UUID] = Field(default_factory=list)
+    skipped_project_ids: list[UUID] = Field(default_factory=list)
+    message: str
+
+
+class RawDatasetDeletionRequest(HubBaseModel):
+    delete_source_files: bool = False
+    delete_linked_projects: bool = False
+    delete_linked_project_files: bool = False
+    confirm: bool = False
+
+
+class RawDatasetDeletionPreview(HubBaseModel):
+    raw_dataset_id: UUID
+    acquisition_label: str
+    delete_source_files: bool
+    delete_linked_projects: bool
+    delete_linked_project_files: bool
+    reclaimable_bytes: int = 0
+    preview_json: dict[str, Any] = Field(default_factory=dict)
+
+
+class RawDatasetDeletionResult(HubBaseModel):
+    raw_dataset_id: UUID
+    status: str
+    reclaimable_bytes: int = 0
+    result_json: dict[str, Any] = Field(default_factory=dict)
+
+
 class PipelineRunCreateRequest(HubBaseModel):
     project_id: UUID
     pipeline_id: UUID | None = None

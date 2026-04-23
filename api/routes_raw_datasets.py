@@ -22,6 +22,9 @@ from api.schemas import (
     RawDatasetDetail,
     RawDatasetLocationSummary,
     RawDatasetPositionSummary,
+    RawDatasetDeletionPreview,
+    RawDatasetDeletionRequest,
+    RawDatasetDeletionResult,
     RawPreviewVideoQueueRequest,
     RawPreviewVideoQueueResult,
     RawPreviewQualityConfig,
@@ -34,6 +37,7 @@ from api.schemas import (
     ProjectSummary,
     StorageLifecycleEventSummary,
 )
+from api.services.raw_dataset_deletion import build_raw_dataset_deletion_preview, execute_raw_dataset_deletion
 from api.services.archive_policy import (
     automatic_archive_policy_config,
     build_archive_policy_preview,
@@ -305,6 +309,86 @@ def update_raw_dataset(
 
     db.commit()
     return get_raw_dataset(raw_dataset_id=raw_dataset_id, db=db, current_user=current_user)
+
+
+@router.post("/{raw_dataset_id}/deletion-preview", response_model=RawDatasetDeletionPreview)
+def preview_raw_dataset_deletion(
+    raw_dataset_id: UUID,
+    payload: RawDatasetDeletionRequest,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> RawDatasetDeletionPreview:
+    raw_dataset = db.scalars(
+        select(RawDataset)
+        .options(
+            joinedload(RawDataset.locations).joinedload(RawDatasetLocation.storage_root),
+            joinedload(RawDataset.project_links).joinedload(ProjectRawLink.project),
+        )
+        .where(RawDataset.id == raw_dataset_id)
+    ).unique().first()
+    raw_dataset = ensure_raw_dataset_readable(raw_dataset, current_user)
+    if not user_can_edit_raw_dataset(raw_dataset, current_user):
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Raw dataset is not deletable")
+
+    preview = build_raw_dataset_deletion_preview(
+        db,
+        raw_dataset=raw_dataset,
+        delete_source_files=payload.delete_source_files,
+        delete_linked_projects=payload.delete_linked_projects,
+        delete_linked_project_files=payload.delete_linked_project_files,
+    )
+    return RawDatasetDeletionPreview(
+        raw_dataset_id=raw_dataset.id,
+        acquisition_label=raw_dataset.acquisition_label,
+        delete_source_files=payload.delete_source_files,
+        delete_linked_projects=payload.delete_linked_projects,
+        delete_linked_project_files=payload.delete_linked_project_files,
+        reclaimable_bytes=preview.reclaimable_bytes,
+        preview_json=preview.preview_json,
+    )
+
+
+@router.delete("/{raw_dataset_id}", response_model=RawDatasetDeletionResult)
+def delete_raw_dataset(
+    raw_dataset_id: UUID,
+    delete_source_files: bool = False,
+    delete_linked_projects: bool = False,
+    delete_linked_project_files: bool = False,
+    confirm: bool = False,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> RawDatasetDeletionResult:
+    if not confirm:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Deletion requires confirm=true")
+
+    raw_dataset = db.scalars(
+        select(RawDataset)
+        .options(
+            joinedload(RawDataset.owner),
+            joinedload(RawDataset.locations).joinedload(RawDatasetLocation.storage_root),
+            joinedload(RawDataset.project_links).joinedload(ProjectRawLink.project),
+        )
+        .where(RawDataset.id == raw_dataset_id)
+    ).unique().first()
+    raw_dataset = ensure_raw_dataset_readable(raw_dataset, current_user)
+    if not user_can_edit_raw_dataset(raw_dataset, current_user):
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Raw dataset is not deletable")
+
+    preview = build_raw_dataset_deletion_preview(
+        db,
+        raw_dataset=raw_dataset,
+        delete_source_files=delete_source_files,
+        delete_linked_projects=delete_linked_projects,
+        delete_linked_project_files=delete_linked_project_files,
+    )
+    result = execute_raw_dataset_deletion(db, preview=preview, requested_by_user=current_user)
+    db.commit()
+    return RawDatasetDeletionResult(
+        raw_dataset_id=raw_dataset_id,
+        status=result["status"],
+        reclaimable_bytes=result["reclaimable_bytes"],
+        result_json=result["result_json"],
+    )
 
 
 @router.post("/{raw_dataset_id}/archive-preview", response_model=RawDatasetArchivePreview)

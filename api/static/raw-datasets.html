@@ -52,25 +52,6 @@
         </div>
       </header>
 
-      <section class="summary-grid" id="summary-grid">
-        <article class="summary-card">
-          <div class="summary-label">Projects</div>
-          <div id="summary-total-projects" class="summary-value">0</div>
-        </article>
-        <article class="summary-card">
-          <div class="summary-label">My Projects</div>
-          <div id="summary-owned-projects" class="summary-value">0</div>
-        </article>
-        <article class="summary-card">
-          <div class="summary-label">Total Storage</div>
-          <div id="summary-total-bytes" class="summary-value">0 B</div>
-        </article>
-        <article class="summary-card">
-          <div class="summary-label">Groups</div>
-          <div id="summary-group-count" class="summary-value">0</div>
-        </article>
-      </section>
-
       <section class="toolbar">
         <label class="field compact">
           <span>Search</span>
@@ -118,6 +99,54 @@
           <span>Only my datasets</span>
         </label>
         <button id="refresh-button">Refresh</button>
+        <button id="raw-select-visible-button">Select visible</button>
+        <button id="raw-clear-selection-button">Clear selection</button>
+        <button id="raw-bulk-delete-selected-button" class="danger">Delete selected</button>
+        <button id="raw-bulk-delete-visible-button" class="danger">Delete visible</button>
+      </section>
+
+      <section class="panel bulk-actions-panel">
+        <div class="panel-header">
+          <div>
+            <h2>Raw Bulk Selection</h2>
+            <p id="raw-selection-summary" class="muted">0 selected / 0 visible</p>
+          </div>
+        </div>
+      </section>
+
+      <section id="raw-bulk-delete-panel" class="panel danger-panel hidden">
+        <div class="panel-header">
+          <div>
+            <h2>Bulk Delete Raw Datasets</h2>
+            <p id="raw-bulk-delete-summary" class="danger-copy">No raw datasets queued for deletion.</p>
+          </div>
+          <button id="raw-bulk-delete-cancel-button">Cancel</button>
+        </div>
+        <div class="toolbar">
+          <label class="field compact">
+            <span>Delete mode</span>
+            <select id="raw-bulk-delete-mode">
+              <option value="database_only">Delete catalog entries only</option>
+              <option value="source_files">Delete catalog entries and raw source files on disk</option>
+            </select>
+          </label>
+          <label class="toggle">
+            <input id="raw-bulk-delete-linked-projects" type="checkbox" />
+            <span>Delete linked projects too (when exclusive)</span>
+          </label>
+          <label class="toggle">
+            <input id="raw-bulk-delete-linked-project-files" type="checkbox" />
+            <span>Also delete linked project files</span>
+          </label>
+          <label class="field compact">
+            <span>Type DELETE to confirm</span>
+            <input id="raw-bulk-delete-confirm-text" type="text" placeholder="DELETE" />
+          </label>
+          <button id="raw-bulk-delete-confirm-button" class="danger">Delete catalog entries only</button>
+        </div>
+        <p class="danger-copy">
+          Warning: deleting raw source files removes indexed acquisition folders. Linked projects are only auto-deleted when they are exclusive to the selected raw datasets.
+        </p>
       </section>
 
       <section class="layout-grid">
@@ -133,6 +162,7 @@
             <table id="raw-datasets-table">
               <thead>
                 <tr>
+                  <th><input id="raw-select-all" type="checkbox" title="Select all visible raw datasets" /></th>
                   <th>Acquisition</th>
                   <th>Type</th>
                   <th>Project owner</th>
@@ -182,6 +212,6 @@
       </footer>
     </div>
 
-    <script src="/web/app.js?v=20260423-raw-quality2" defer></script>
+    <script src="/web/app.js?v=20260423-raw-quality5" defer></script>
   </body>
 </html>
