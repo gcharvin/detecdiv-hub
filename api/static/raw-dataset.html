@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Detecdiv server - Raw dataset</title>
+    <link rel="stylesheet" href="/web/styles.css?v=20260423-raw-quality2" />
+  </head>
+  <body data-page="raw-dataset">
+    <div class="page-shell">
+      <section id="login-panel" class="panel login-panel hidden">
+        <div class="panel-header">
+          <div>
+            <h2>Login</h2>
+            <p class="muted">Open a hub session with a user key and password.</p>
+          </div>
+        </div>
+        <div class="toolbar">
+          <label class="field compact">
+            <span>User key</span>
+            <input id="login-user-key" type="text" placeholder="admin" />
+          </label>
+          <label class="field compact">
+            <span>Password</span>
+            <input id="login-password" type="password" placeholder="password" />
+          </label>
+          <button id="login-button" class="primary">Login</button>
+        </div>
+      </section>
+
+      <header class="hero">
+        <div>
+          <div class="eyebrow">DetecDiv Hub</div>
+          <h1 id="raw-dataset-page-title">Raw dataset</h1>
+          <p class="hero-copy">Inspect acquisition metadata, linked projects, positions, and preview movies.</p>
+        </div>
+        <div class="hero-actions">
+          <nav class="hero-nav">
+            <a class="nav-link" href="/web/">Catalog</a>
+            <a class="nav-link active" href="/web/raw-datasets.html">Raw Datasets</a>
+            <a class="nav-link" href="/web/raw-ops.html">Raw Ops</a>
+            <a class="nav-link" href="/web/indexing.html">Indexing</a>
+            <a class="nav-link admin-nav-link hidden" href="/web/admin.html">Admin</a>
+          </nav>
+          <div class="session-box">
+            <div id="session-label" class="muted">Not logged in.</div>
+            <button id="connect-button" class="primary">Refresh</button>
+            <button id="logout-button">Logout</button>
+          </div>
+        </div>
+      </header>
+
+      <section class="panel detail-panel">
+        <div class="panel-header">
+          <div>
+            <h2>Raw Dataset Details</h2>
+            <p id="raw-detail-subtitle" class="muted">Loading raw dataset</p>
+          </div>
+          <div class="action-stack">
+            <a class="button-link" href="/web/raw-datasets.html">Back to datasets</a>
+            <button id="raw-preview-archive-button">Preview archive</button>
+            <button id="raw-archive-button">Request archive</button>
+            <button id="raw-restore-button">Request restore</button>
+          </div>
+        </div>
+
+        <div id="raw-detail-empty" class="empty-state">
+          Raw dataset not loaded.
+        </div>
+
+        <div id="raw-detail-content" class="detail-content hidden">
+          <dl class="detail-list" id="raw-detail-list"></dl>
+
+          <section class="subpanel">
+            <div class="subpanel-header">
+              <h3>Locations</h3>
+            </div>
+            <div id="raw-locations-list" class="stack-list"></div>
+          </section>
+
+          <section class="subpanel">
+            <div class="subpanel-header">
+              <h3>Analysis Projects</h3>
+            </div>
+            <div id="raw-analysis-projects-list" class="stack-list"></div>
+          </section>
+
+          <section class="subpanel">
+            <div class="subpanel-header">
+              <h3>Positions</h3>
+              <div class="action-stack">
+                <button id="raw-queue-preview-button">Queue dataset previews</button>
+                <button id="raw-regenerate-preview-button">Regenerate previews</button>
+              </div>
+            </div>
+            <div class="table-wrap">
+              <table id="raw-positions-table">
+                <thead>
+                  <tr>
+                    <th>Position</th>
+                    <th>Status</th>
+                    <th>Preview</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </section>
+
+          <section class="subpanel">
+            <div class="subpanel-header">
+              <h3>Preview Viewer</h3>
+            </div>
+            <div id="raw-position-viewer-empty" class="empty-state">
+              Click a position to load its preview movie.
+            </div>
+            <div id="raw-position-viewer" class="raw-preview-viewer hidden">
+              <div id="raw-position-viewer-meta" class="stack-item-meta"></div>
+              <video id="raw-position-viewer-video" controls preload="none"></video>
+              <div class="action-stack">
+                <a id="raw-position-viewer-open-link" class="button-link hidden" href="#" target="_blank" rel="noreferrer" download>Download MP4</a>
+              </div>
+            </div>
+          </section>
+
+          <section class="subpanel">
+            <div class="subpanel-header">
+              <h3>Lifecycle Events</h3>
+            </div>
+            <div id="raw-lifecycle-events" class="stack-list"></div>
+          </section>
+        </div>
+      </section>
+
+      <footer class="footer">
+        <div id="status-line">Ready.</div>
+      </footer>
+    </div>
+
+    <script src="/web/app.js?v=20260423-raw-quality2" defer></script>
+  </body>
+</html>

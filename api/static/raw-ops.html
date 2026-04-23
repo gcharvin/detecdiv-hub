@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Detecdiv server - Raw ops</title>
+    <link rel="stylesheet" href="/web/styles.css?v=20260423-raw-quality2" />
+  </head>
+  <body data-page="raw-ops">
+    <div class="page-shell">
+      <section id="login-panel" class="panel login-panel hidden">
+        <div class="panel-header">
+          <div>
+            <h2>Login</h2>
+            <p class="muted">Open a hub session with a user key and password.</p>
+          </div>
+        </div>
+        <div class="toolbar">
+          <label class="field compact">
+            <span>User key</span>
+            <input id="login-user-key" type="text" placeholder="admin" />
+          </label>
+          <label class="field compact">
+            <span>Password</span>
+            <input id="login-password" type="password" placeholder="password" />
+          </label>
+          <button id="login-button" class="primary">Login</button>
+        </div>
+      </section>
+
+      <header class="hero">
+        <div>
+          <div class="eyebrow">DetecDiv Hub</div>
+          <h1>Detecdiv server - Raw ops</h1>
+          <p class="hero-copy">
+            Run ingestion, preview archive candidates, and inspect automatic background policies without mixing them into the raw catalog.
+          </p>
+        </div>
+        <div class="hero-actions">
+          <nav class="hero-nav">
+            <a class="nav-link" href="/web/">Catalog</a>
+            <a class="nav-link" href="/web/raw-datasets.html">Raw Datasets</a>
+            <a class="nav-link active" href="/web/raw-ops.html">Raw Ops</a>
+            <a class="nav-link" href="/web/indexing.html">Indexing</a>
+            <a class="nav-link admin-nav-link hidden" href="/web/admin.html">Admin</a>
+          </nav>
+          <div class="session-box">
+            <div id="session-label" class="muted">Not logged in.</div>
+            <button id="connect-button" class="primary">Refresh</button>
+            <button id="logout-button">Logout</button>
+          </div>
+        </div>
+      </header>
+
+      <section class="summary-grid" id="summary-grid">
+        <article class="summary-card">
+          <div class="summary-label">Projects</div>
+          <div id="summary-total-projects" class="summary-value">0</div>
+        </article>
+        <article class="summary-card">
+          <div class="summary-label">My Projects</div>
+          <div id="summary-owned-projects" class="summary-value">0</div>
+        </article>
+        <article class="summary-card">
+          <div class="summary-label">Total Storage</div>
+          <div id="summary-total-bytes" class="summary-value">0 B</div>
+        </article>
+        <article class="summary-card">
+          <div class="summary-label">Groups</div>
+          <div id="summary-group-count" class="summary-value">0</div>
+        </article>
+      </section>
+
+      <section class="toolbar">
+        <label class="field compact">
+          <span>Search</span>
+          <input id="raw-search" type="text" placeholder="dataset, key, microscope..." />
+        </label>
+        <label class="field compact">
+          <span>Project owner</span>
+          <select id="raw-owner-filter">
+            <option value="">All project owners</option>
+          </select>
+        </label>
+        <label class="field compact">
+          <span>Tier</span>
+          <select id="raw-tier-filter">
+            <option value="">All tiers</option>
+            <option value="hot">hot</option>
+            <option value="warm">warm</option>
+            <option value="cold">cold</option>
+          </select>
+        </label>
+        <label class="field compact">
+          <span>Archive</span>
+          <select id="raw-archive-status-filter">
+            <option value="">All states</option>
+            <option value="none">none</option>
+            <option value="archive_queued">archive_queued</option>
+            <option value="archived">archived</option>
+            <option value="restored">restored</option>
+            <option value="restore_queued">restore_queued</option>
+            <option value="archive_failed">archive_failed</option>
+            <option value="restore_failed">restore_failed</option>
+          </select>
+        </label>
+        <button id="refresh-button">Refresh</button>
+      </section>
+
+      <section id="automatic-archive-policy-panel" class="panel hidden">
+        <div class="panel-header">
+          <div>
+            <h2>Automatic Archive Policy</h2>
+            <p class="muted">
+              Active background rule, latest execution, and manual runs for validation or immediate action.
+            </p>
+          </div>
+        </div>
+        <div class="toolbar">
+          <label class="toggle">
+            <input id="automatic-archive-policy-report-only" type="checkbox" checked />
+            <span>Report only</span>
+          </label>
+          <button id="automatic-archive-policy-refresh-button">Refresh automatic policy</button>
+          <button id="automatic-archive-policy-run-button" class="primary">Run now</button>
+        </div>
+        <div id="automatic-archive-policy-summary" class="muted">Automatic archive policy is unavailable.</div>
+        <dl id="automatic-archive-policy-config" class="detail-list"></dl>
+        <div class="table-wrap">
+          <table id="automatic-archive-policy-runs-table">
+            <thead>
+              <tr>
+                <th>When</th>
+                <th>Mode</th>
+                <th>Status</th>
+                <th>Report only</th>
+                <th>Candidates</th>
+                <th>Queued</th>
+                <th>Reclaimable</th>
+                <th>By</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="micromanager-ingest-panel" class="panel hidden">
+        <div class="panel-header">
+          <div>
+            <h2>Micro-Manager Ingestion</h2>
+            <p class="muted">
+              Detect stable acquisitions in the landing zone and ingest them into experiments and raw datasets.
+            </p>
+          </div>
+        </div>
+        <div class="toolbar">
+          <label class="toggle">
+            <input id="micromanager-ingest-report-only" type="checkbox" checked />
+            <span>Report only</span>
+          </label>
+          <button id="micromanager-ingest-refresh-button">Refresh ingestion status</button>
+          <button id="micromanager-ingest-run-button" class="primary">Run now</button>
+        </div>
+        <div id="micromanager-ingest-summary" class="muted">Micro-Manager ingestion is unavailable.</div>
+        <dl id="micromanager-ingest-config" class="detail-list"></dl>
+        <div class="table-wrap">
+          <table id="micromanager-ingest-runs-table">
+            <thead>
+              <tr>
+                <th>When</th>
+                <th>Mode</th>
+                <th>Status</th>
+                <th>Report only</th>
+                <th>Candidates</th>
+                <th>Ingested</th>
+                <th>Experiments</th>
+                <th>By</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-header">
+          <div>
+            <h2>Ad Hoc Archive Policy</h2>
+            <p class="muted">
+              Preview cold-storage candidates by age and size, then queue archive jobs in batch.
+            </p>
+          </div>
+        </div>
+        <div class="toolbar">
+          <label class="field compact">
+            <span>Older Than (days)</span>
+            <input id="archive-policy-older-days" type="number" min="0" value="30" />
+          </label>
+          <label class="field compact">
+            <span>Min Size (GB)</span>
+            <input id="archive-policy-min-gb" type="number" min="0" step="0.1" value="5" />
+          </label>
+          <label class="field compact">
+            <span>Candidate Limit</span>
+            <input id="archive-policy-limit" type="number" min="1" max="500" value="25" />
+          </label>
+          <label class="field compact">
+            <span>Archive URI</span>
+            <input id="archive-policy-uri" type="text" placeholder="optional archive root" />
+          </label>
+          <label class="field compact">
+            <span>Compression</span>
+            <select id="archive-policy-compression">
+              <option value="">Default</option>
+              <option value="zip" selected>zip</option>
+              <option value="tar.gz">tar.gz</option>
+            </select>
+          </label>
+          <label class="toggle">
+            <input id="archive-policy-delete-source" type="checkbox" />
+            <span>Delete hot source after archive</span>
+          </label>
+          <button id="archive-policy-preview-button">Preview policy</button>
+          <button id="archive-policy-queue-button" class="primary">Queue archive batch</button>
+        </div>
+        <div id="archive-policy-summary" class="muted">No policy preview yet.</div>
+        <div class="table-wrap">
+          <table id="archive-policy-table">
+            <thead>
+              <tr>
+                <th>Acquisition</th>
+                <th>Project owner</th>
+                <th>Tier</th>
+                <th>Last activity</th>
+                <th>Size</th>
+                <th>Reclaimable</th>
+                <th>Archive target</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </section>
+
+      <footer class="footer">
+        <div id="status-line">Ready.</div>
+      </footer>
+    </div>
+
+    <script src="/web/app.js?v=20260423-raw-quality2" defer></script>
+  </body>
+</html>

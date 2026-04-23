@@ -27,6 +27,14 @@ body {
   color: var(--ink);
 }
 
+a {
+  color: #9fd8ff;
+}
+
+a:hover {
+  color: #c7ecff;
+}
+
 button,
 input,
 select,
@@ -351,6 +359,10 @@ tbody tr.selected {
   background: rgba(255, 255, 255, 0.06);
 }
 
+#raw-positions-table tbody tr.selected {
+  background: rgba(159, 216, 255, 0.12);
+}
+
 .detail-panel {
   overflow: visible;
 }
@@ -450,6 +462,42 @@ tbody tr.selected {
 .stack-item-meta {
   font-size: 0.82rem;
   margin-bottom: 6px;
+}
+
+.stack-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.button-link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 38px;
+  padding: 8px 12px;
+  border: 1px solid var(--line);
+  background: #2c3138;
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.button-link:hover {
+  color: var(--ink);
+  background: #353b44;
+}
+
+.raw-preview-viewer {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.raw-preview-viewer video {
+  width: 100%;
+  max-height: 360px;
+  border: 1px solid var(--line);
+  background: #111317;
 }
 
 .action-stack {

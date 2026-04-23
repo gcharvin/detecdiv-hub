@@ -17,6 +17,8 @@ const state = {
   rawDatasets: [],
   selectedRawDataset: null,
   selectedRawDatasetDetail: null,
+  selectedRawPositionId: null,
+  rawPreviewQualityStatus: null,
   archivePolicyPreview: null,
   automaticArchivePolicyStatus: null,
   micromanagerIngestStatus: null,
@@ -75,6 +77,8 @@ const els = {
   detailList: document.querySelector("#detail-list"),
   notesList: document.querySelector("#notes-list"),
   aclList: document.querySelector("#acl-list"),
+  projectRawDatasetsList: document.querySelector("#project-raw-datasets-list"),
+  projectQueueRawPreviewsButton: document.querySelector("#project-queue-raw-previews-button"),
   addNoteButton: document.querySelector("#add-note-button"),
   shareButton: document.querySelector("#share-button"),
   editProjectButton: document.querySelector("#edit-project-button"),
@@ -113,10 +117,38 @@ const els = {
   rawDetailContent: document.querySelector("#raw-detail-content"),
   rawDetailSubtitle: document.querySelector("#raw-detail-subtitle"),
   rawDetailList: document.querySelector("#raw-detail-list"),
+  rawLocationsList: document.querySelector("#raw-locations-list"),
+  rawAnalysisProjectsList: document.querySelector("#raw-analysis-projects-list"),
+  rawPositionsTableBody: document.querySelector("#raw-positions-table tbody"),
+  rawQueuePreviewButton: document.querySelector("#raw-queue-preview-button"),
+  rawRegeneratePreviewButton: document.querySelector("#raw-regenerate-preview-button"),
+  rawOpenDatasetPageButton: document.querySelector("#raw-open-dataset-page-button"),
+  rawOpenProjectPageButton: document.querySelector("#raw-open-project-page-button"),
+  rawPositionViewerEmpty: document.querySelector("#raw-position-viewer-empty"),
+  rawPositionViewer: document.querySelector("#raw-position-viewer"),
+  rawPositionViewerMeta: document.querySelector("#raw-position-viewer-meta"),
+  rawPositionViewerVideo: document.querySelector("#raw-position-viewer-video"),
+  rawPositionViewerOpenLink: document.querySelector("#raw-position-viewer-open-link"),
   rawLifecycleEvents: document.querySelector("#raw-lifecycle-events"),
   rawPreviewArchiveButton: document.querySelector("#raw-preview-archive-button"),
   rawArchiveButton: document.querySelector("#raw-archive-button"),
   rawRestoreButton: document.querySelector("#raw-restore-button"),
+  rawDatasetPageTitle: document.querySelector("#raw-dataset-page-title"),
+  rawPreviewQualityRefreshButton: document.querySelector("#raw-preview-quality-refresh-button"),
+  rawPreviewQualitySaveButton: document.querySelector("#raw-preview-quality-save-button"),
+  rawPreviewQualityMaxDimension: document.querySelector("#raw-preview-quality-max-dimension"),
+  rawPreviewQualityFps: document.querySelector("#raw-preview-quality-fps"),
+  rawPreviewQualityFrameMode: document.querySelector("#raw-preview-quality-frame-mode"),
+  rawPreviewQualityMaxFrames: document.querySelector("#raw-preview-quality-max-frames"),
+  rawPreviewQualityBinningFactor: document.querySelector("#raw-preview-quality-binning-factor"),
+  rawPreviewQualityCrf: document.querySelector("#raw-preview-quality-crf"),
+  rawPreviewQualityPreset: document.querySelector("#raw-preview-quality-preset"),
+  rawPreviewQualityIncludeExisting: document.querySelector("#raw-preview-quality-include-existing"),
+  rawPreviewQualityArtifactRoot: document.querySelector("#raw-preview-quality-artifact-root"),
+  rawPreviewQualityFfmpegCommand: document.querySelector("#raw-preview-quality-ffmpeg-command"),
+  rawPreviewQualityConfig: document.querySelector("#raw-preview-quality-config"),
+  rawPreviewQualitySummary: document.querySelector("#raw-preview-quality-summary"),
+  rawPreviewQualityTableBody: document.querySelector("#raw-preview-quality-table tbody"),
   automaticArchivePolicyPanel: document.querySelector("#automatic-archive-policy-panel"),
   automaticArchivePolicyReportOnly: document.querySelector("#automatic-archive-policy-report-only"),
   automaticArchivePolicyRefreshButton: document.querySelector("#automatic-archive-policy-refresh-button"),
@@ -232,9 +264,10 @@ const pageFlags = {
   hasSessionsView: pageKind === "admin" && Boolean(els.sessionsTableBody),
   hasIndexingView: Boolean(els.indexJobsTableBody || els.activeIndexJob),
   hasRawDatasetsView: Boolean(els.rawDatasetsTableBody),
+  hasRawDatasetPage: pageKind === "raw-dataset",
   hasAutomaticArchivePolicy: Boolean(els.automaticArchivePolicyPanel),
   hasMicroManagerIngest: Boolean(els.micromanagerIngestPanel),
-  hasRawDatasetDetail: Boolean(els.rawDetailContent),
+  hasRawDatasetDetail: Boolean(els.rawDetailContent || els.rawDetailList),
   hasIndexForm: Boolean(els.indexSourcePath),
   hasMigrationView: Boolean(els.migrationPlansTableBody || els.migrationDetailContent),
 };
@@ -260,6 +293,8 @@ function clearDashboardState() {
   state.rawDatasets = [];
   state.selectedRawDataset = null;
   state.selectedRawDatasetDetail = null;
+  state.selectedRawPositionId = null;
+  state.rawPreviewQualityStatus = null;
   state.archivePolicyPreview = null;
   state.automaticArchivePolicyStatus = null;
   state.micromanagerIngestStatus = null;
@@ -297,6 +332,7 @@ function clearDashboardState() {
   renderIndexingJobs();
   renderRawDatasets();
   renderRawDatasetDetail();
+  renderRawPreviewQualityStatus();
   renderAutomaticArchivePolicyStatus();
   renderMicroManagerIngestStatus();
   renderArchivePolicyPreview();
@@ -305,6 +341,7 @@ function clearDashboardState() {
   renderUsers();
   renderSessions();
   renderDetail();
+  renderProjectRawDatasets();
 }
 
 function authHeaders(extra = {}) {
@@ -411,6 +448,42 @@ function summarizeList(values, limit = 5) {
     return items.join(", ");
   }
   return `${items.slice(0, limit).join(", ")} + ${items.length - limit} more`;
+}
+
+function parseBinningFactor(rawValue, fallback = 4) {
+  const text = String(rawValue || "").trim().toLowerCase();
+  if (!text) {
+    return fallback;
+  }
+  const squareMatch = text.match(/^(\d+)\s*x\s*(\d+)$/);
+  if (squareMatch) {
+    const first = Number(squareMatch[1]);
+    const second = Number(squareMatch[2]);
+    if (Number.isFinite(first) && Number.isFinite(second) && first === second && first >= 1) {
+      return first;
+    }
+    throw new Error("Binning factor must be square, for example 2x2 or 4x4.");
+  }
+  const scalar = Number(text);
+  if (Number.isFinite(scalar) && scalar >= 1) {
+    return Math.floor(scalar);
+  }
+  throw new Error("Invalid binning factor. Use 1, 2, 4, or a square form like 4x4.");
+}
+
+function updateRawPreviewFrameModeUi() {
+  const mode = String(els.rawPreviewQualityFrameMode?.value || "full");
+  if (!els.rawPreviewQualityMaxFrames) {
+    return;
+  }
+  if (mode === "full") {
+    els.rawPreviewQualityMaxFrames.value = "";
+    els.rawPreviewQualityMaxFrames.placeholder = "full (all frames)";
+    els.rawPreviewQualityMaxFrames.disabled = true;
+    return;
+  }
+  els.rawPreviewQualityMaxFrames.disabled = false;
+  els.rawPreviewQualityMaxFrames.placeholder = "96";
 }
 
 function progressPercent(job) {
@@ -1036,6 +1109,18 @@ function openSelectedProjectPage() {
     return;
   }
   window.location.href = `/web/project.html?id=${encodeURIComponent(projectId)}`;
+}
+
+function getRawDatasetPageId() {
+  const params = new URLSearchParams(window.location.search);
+  return params.get("id") || "";
+}
+
+function openRawDatasetPage(rawDatasetId) {
+  if (!rawDatasetId) {
+    return;
+  }
+  window.location.href = `/web/raw-dataset.html?id=${encodeURIComponent(rawDatasetId)}`;
 }
 
 function resetPipelineRunForm() {
@@ -1685,6 +1770,7 @@ function renderRawDatasets() {
     }
     tr.innerHTML = `
       <td>${raw.acquisition_label}</td>
+      <td>${raw.data_format || "unknown"}</td>
       <td>${raw.owner ? userOptionLabel(raw.owner) : ""}</td>
       <td>${raw.lifecycle_tier}</td>
       <td>${raw.archive_status}</td>
@@ -1700,6 +1786,7 @@ function renderRawDatasetDetail() {
   if (!els.rawDetailEmpty || !els.rawDetailContent || !els.rawDetailSubtitle) {
     return;
   }
+  const isDedicatedRawPage = pageFlags.hasRawDatasetPage;
   if (!state.selectedRawDatasetDetail) {
     els.rawDetailEmpty.classList.remove("hidden");
     els.rawDetailContent.classList.add("hidden");
@@ -1710,27 +1797,44 @@ function renderRawDatasetDetail() {
     if (els.rawLifecycleEvents) {
       els.rawLifecycleEvents.innerHTML = "";
     }
+    renderRawLocations([]);
+    renderRawAnalysisProjects([]);
+    renderRawPositions([]);
+    renderRawPositionViewer([]);
     return;
   }
 
   const raw = state.selectedRawDatasetDetail;
   const owner = raw.owner ? `${raw.owner.display_name} (${raw.owner.user_key})` : "unknown";
-  const fields = [
-    ["Acquisition", raw.acquisition_label],
-    ["Project owner", owner],
-    ["Visibility", raw.visibility],
-    ["Status", raw.status],
-    ["Completeness", raw.completeness_status],
-    ["Tier", raw.lifecycle_tier],
-    ["Archive status", raw.archive_status],
-    ["Archive URI", raw.archive_uri || ""],
-    ["Compression", raw.archive_compression || ""],
-    ["Reclaimable", humanBytes(raw.reclaimable_bytes)],
-    ["Total size", humanBytes(raw.total_bytes)],
-    ["Experiments", (raw.experiment_ids || []).join(", ") || "none"],
-    ["Analysis projects", (raw.analysis_project_ids || []).join(", ") || "none"],
-    ["Last accessed", formatTimestamp(raw.last_accessed_at)],
-  ];
+  const linkedProjects = raw.analysis_projects || [];
+  const fields = isDedicatedRawPage
+    ? [
+      ["Acquisition", raw.acquisition_label],
+      ["Data type", raw.data_format || "unknown"],
+      ["Project owner", owner],
+      ["Visibility", raw.visibility],
+      ["Status", raw.status],
+      ["Completeness", raw.completeness_status],
+      ["Tier", raw.lifecycle_tier],
+      ["Archive status", raw.archive_status],
+      ["Archive URI", raw.archive_uri || ""],
+      ["Compression", raw.archive_compression || ""],
+      ["Reclaimable", humanBytes(raw.reclaimable_bytes)],
+      ["Total size", humanBytes(raw.total_bytes)],
+      ["Experiments", (raw.experiment_ids || []).join(", ") || "none"],
+      ["Analysis projects", (raw.analysis_project_ids || []).join(", ") || "none"],
+      ["Last accessed", formatTimestamp(raw.last_accessed_at)],
+    ]
+    : [
+      ["Acquisition", raw.acquisition_label],
+      ["Data type", raw.data_format || "unknown"],
+      ["Project owner", owner],
+      ["Status", `${raw.status} | ${raw.completeness_status}`],
+      ["Storage", humanBytes(raw.total_bytes)],
+      ["Projects", `${linkedProjects.length}`],
+      ["Positions", `${(raw.positions || []).length}`],
+      ["Last accessed", formatTimestamp(raw.last_accessed_at)],
+    ];
 
   els.rawDetailList.innerHTML = "";
   for (const [label, value] of fields) {
@@ -1741,13 +1845,262 @@ function renderRawDatasetDetail() {
     els.rawDetailList.append(dt, dd);
   }
 
-  renderRawLifecycleEvents(raw.lifecycle_events || []);
+  if (els.rawOpenDatasetPageButton) {
+    els.rawOpenDatasetPageButton.disabled = false;
+    els.rawOpenDatasetPageButton.onclick = () => openRawDatasetPage(raw.id);
+  }
+  if (els.rawOpenProjectPageButton) {
+    const firstProjectId = linkedProjects[0]?.id || "";
+    els.rawOpenProjectPageButton.disabled = !firstProjectId;
+    els.rawOpenProjectPageButton.onclick = firstProjectId
+      ? () => {
+          window.location.href = `/web/project.html?id=${encodeURIComponent(firstProjectId)}`;
+        }
+      : null;
+  }
+
+  renderRawLocations(isDedicatedRawPage ? (raw.locations || []) : []);
+  renderRawAnalysisProjects(isDedicatedRawPage ? linkedProjects : []);
+  renderRawPositions(isDedicatedRawPage ? (raw.positions || []) : []);
+  renderRawPositionViewer(isDedicatedRawPage ? (raw.positions || []) : []);
+  renderRawLifecycleEvents(isDedicatedRawPage ? (raw.lifecycle_events || []) : []);
   if (els.rawPreviewArchiveButton) els.rawPreviewArchiveButton.disabled = false;
   if (els.rawArchiveButton) els.rawArchiveButton.disabled = false;
   if (els.rawRestoreButton) els.rawRestoreButton.disabled = false;
   els.rawDetailSubtitle.textContent = raw.acquisition_label;
+  if (els.rawDatasetPageTitle) {
+    els.rawDatasetPageTitle.textContent = raw.acquisition_label;
+  }
   els.rawDetailEmpty.classList.add("hidden");
   els.rawDetailContent.classList.remove("hidden");
+}
+
+function renderRawLocations(locations) {
+  if (!els.rawLocationsList) {
+    return;
+  }
+  els.rawLocationsList.innerHTML = "";
+  if (!locations.length) {
+    els.rawLocationsList.innerHTML = `<div class="stack-item">No storage location indexed.</div>`;
+    return;
+  }
+  for (const location of locations) {
+    const div = document.createElement("div");
+    div.className = "stack-item";
+    div.innerHTML = `
+      <div class="stack-item-meta">${location.storage_root?.name || "unknown root"} | ${location.access_mode}${location.is_preferred ? " | preferred" : ""}</div>
+      <div>${location.absolute_path || location.relative_path}</div>
+    `;
+    els.rawLocationsList.appendChild(div);
+  }
+}
+
+function renderRawAnalysisProjects(projects) {
+  if (!els.rawAnalysisProjectsList) {
+    return;
+  }
+  els.rawAnalysisProjectsList.innerHTML = "";
+  if (!projects.length) {
+    els.rawAnalysisProjectsList.innerHTML = `<div class="stack-item">No linked analysis project.</div>`;
+    return;
+  }
+  for (const project of projects) {
+    const div = document.createElement("div");
+    div.className = "stack-item";
+    div.innerHTML = `
+      <div class="stack-item-meta">${project.health_status || ""} | ${project.owner ? userOptionLabel(project.owner) : "unknown owner"}</div>
+      <div>${project.project_name}</div>
+      <div class="stack-item-meta">${project.fov_count || 0} FOV | ${humanBytes(project.total_bytes)}</div>
+      <div class="stack-actions">
+        <button class="open-project-link" data-project-id="${project.id}">Open project</button>
+      </div>
+    `;
+    els.rawAnalysisProjectsList.appendChild(div);
+  }
+  els.rawAnalysisProjectsList.querySelectorAll(".open-project-link").forEach((button) => {
+    button.addEventListener("click", (event) => {
+      event.stopPropagation();
+      window.location.href = `/web/project.html?id=${encodeURIComponent(button.dataset.projectId || "")}`;
+    });
+  });
+}
+
+function renderRawPositions(positions) {
+  if (!els.rawPositionsTableBody) {
+    return;
+  }
+  els.rawPositionsTableBody.innerHTML = "";
+  if (els.rawQueuePreviewButton) {
+    els.rawQueuePreviewButton.disabled = !state.selectedRawDatasetDetail;
+  }
+  if (!positions.length) {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `<td colspan="4">No positions indexed yet.</td>`;
+    els.rawPositionsTableBody.appendChild(tr);
+    return;
+  }
+  syncSelectedRawPosition(positions);
+  for (const position of positions) {
+    const artifact = position.preview_artifact;
+    const tr = document.createElement("tr");
+    if (state.selectedRawPositionId === position.id) {
+      tr.classList.add("selected");
+    }
+    const actionCell = artifact?.uri
+      ? `<button data-position-id="${position.id}" class="select-position-preview">View</button>`
+      : `<button data-position-id="${position.id}" class="queue-position-preview">Queue</button>`;
+    tr.innerHTML = `
+      <td>${position.display_name || position.position_key}</td>
+      <td>${position.status}</td>
+      <td>${position.preview_status}</td>
+      <td>${actionCell}</td>
+    `;
+    tr.addEventListener("click", () => {
+      state.selectedRawPositionId = position.id;
+      renderRawPositions(positions);
+      renderRawPositionViewer(positions);
+    });
+    els.rawPositionsTableBody.appendChild(tr);
+  }
+  els.rawPositionsTableBody.querySelectorAll(".select-position-preview").forEach((button) => {
+    button.addEventListener("click", (event) => {
+      event.stopPropagation();
+      state.selectedRawPositionId = button.dataset.positionId || null;
+      renderRawPositions(positions);
+      renderRawPositionViewer(positions);
+    });
+  });
+  els.rawPositionsTableBody.querySelectorAll(".queue-position-preview").forEach((button) => {
+    button.addEventListener("click", (event) => {
+      event.stopPropagation();
+      queueRawPreviewVideo(button.dataset.positionId || "").catch((error) => setStatus(String(error)));
+    });
+  });
+}
+
+function syncSelectedRawPosition(positions) {
+  if (!positions.length) {
+    state.selectedRawPositionId = null;
+    return;
+  }
+  const current = positions.find((position) => position.id === state.selectedRawPositionId);
+  if (current) {
+    return;
+  }
+  state.selectedRawPositionId = null;
+}
+
+function renderRawPositionViewer(positions) {
+  if (!els.rawPositionViewerEmpty || !els.rawPositionViewer || !els.rawPositionViewerVideo) {
+    return;
+  }
+  const selected = positions.find((position) => position.id === state.selectedRawPositionId);
+  const artifactUrl = selected?.preview_artifact?.uri ? withIdentity(selected.preview_artifact.uri) : "";
+
+  if (!selected) {
+    els.rawPositionViewerEmpty.classList.remove("hidden");
+    els.rawPositionViewer.classList.add("hidden");
+    if (els.rawPositionViewerVideo) {
+      els.rawPositionViewerVideo.removeAttribute("src");
+      els.rawPositionViewerVideo.load();
+    }
+    return;
+  }
+
+  if (els.rawPositionViewerMeta) {
+    els.rawPositionViewerMeta.textContent = `${selected.display_name || selected.position_key} | ${selected.preview_status}`;
+  }
+  if (artifactUrl) {
+    els.rawPositionViewerVideo.src = artifactUrl;
+    void els.rawPositionViewerVideo.play().catch(() => {});
+    if (els.rawPositionViewerOpenLink) {
+      els.rawPositionViewerOpenLink.href = artifactUrl;
+      const fileName = `${(selected.position_key || "position").replace(/[^a-zA-Z0-9_-]+/g, "_")}.mp4`;
+      els.rawPositionViewerOpenLink.setAttribute("download", fileName);
+      els.rawPositionViewerOpenLink.classList.remove("hidden");
+    }
+  } else {
+    els.rawPositionViewerVideo.removeAttribute("src");
+    els.rawPositionViewerVideo.load();
+    if (els.rawPositionViewerOpenLink) {
+      els.rawPositionViewerOpenLink.classList.add("hidden");
+    }
+  }
+
+  els.rawPositionViewerEmpty.classList.toggle("hidden", Boolean(artifactUrl));
+  els.rawPositionViewer.classList.toggle("hidden", !artifactUrl);
+}
+
+function renderRawPreviewQualityStatus() {
+  if (!els.rawPreviewQualityConfig || !els.rawPreviewQualitySummary || !els.rawPreviewQualityTableBody) {
+    return;
+  }
+  const status = state.rawPreviewQualityStatus;
+  els.rawPreviewQualityConfig.innerHTML = "";
+  els.rawPreviewQualityTableBody.innerHTML = "";
+  if (!status) {
+    els.rawPreviewQualitySummary.textContent = "No quality metrics loaded yet.";
+    return;
+  }
+
+  const config = status.config || {};
+  if (els.rawPreviewQualityMaxDimension) els.rawPreviewQualityMaxDimension.value = config.max_dimension ?? "";
+  if (els.rawPreviewQualityFps) els.rawPreviewQualityFps.value = config.fps ?? "";
+  if (els.rawPreviewQualityFrameMode) els.rawPreviewQualityFrameMode.value = config.frame_mode || "full";
+  if (els.rawPreviewQualityMaxFrames) els.rawPreviewQualityMaxFrames.value = config.max_frames ?? "";
+  if (els.rawPreviewQualityBinningFactor) {
+    const binningFactor = Number(config.binning_factor || 4);
+    els.rawPreviewQualityBinningFactor.value = `${binningFactor}x${binningFactor}`;
+  }
+  if (els.rawPreviewQualityCrf) els.rawPreviewQualityCrf.value = config.crf ?? "";
+  if (els.rawPreviewQualityPreset) els.rawPreviewQualityPreset.value = config.preset || "";
+  if (els.rawPreviewQualityIncludeExisting) els.rawPreviewQualityIncludeExisting.checked = Boolean(config.include_existing);
+  if (els.rawPreviewQualityArtifactRoot) els.rawPreviewQualityArtifactRoot.value = config.artifact_root || "";
+  if (els.rawPreviewQualityFfmpegCommand) els.rawPreviewQualityFfmpegCommand.value = config.ffmpeg_command || "";
+  updateRawPreviewFrameModeUi();
+  const configRows = [
+    ["Resolution cap", `${config.max_dimension || 0}px`],
+    ["Frames per second", `${config.fps || 0}`],
+    ["Frame mode", config.frame_mode || "full"],
+    ["Max frames", `${config.max_frames || 0}`],
+    ["Binning factor", `${config.binning_factor || 1}x${config.binning_factor || 1}`],
+    ["CRF", `${config.crf || 0}`],
+    ["Preset", config.preset || ""],
+    ["Include existing", config.include_existing ? "yes" : "no"],
+    ["Artifact root", config.artifact_root || "dataset-local .detecdiv-previews"],
+    ["FFmpeg command", config.ffmpeg_command || "auto-detected"],
+  ];
+  for (const [label, value] of configRows) {
+    const dt = document.createElement("dt");
+    dt.textContent = label;
+    const dd = document.createElement("dd");
+    dd.textContent = value;
+    els.rawPreviewQualityConfig.append(dt, dd);
+  }
+
+  const summary = status.summary || {};
+  els.rawPreviewQualitySummary.textContent = [
+    `${summary.sample_count || 0} sample(s)`,
+    summary.avg_width && summary.avg_height ? `avg ${Math.round(summary.avg_width)}x${Math.round(summary.avg_height)}` : "avg resolution n/a",
+    summary.avg_fps ? `avg ${Number(summary.avg_fps).toFixed(2)} fps` : "avg fps n/a",
+    summary.avg_bitrate_kbps ? `avg ${Number(summary.avg_bitrate_kbps).toFixed(2)} kbps` : "avg bit rate n/a",
+  ].join(" | ");
+
+  for (const sample of status.recent_samples || []) {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${sample.acquisition_label || ""}</td>
+      <td>${sample.position_key || ""}</td>
+      <td>${sample.width && sample.height ? `${sample.width}x${sample.height}` : ""}</td>
+      <td>${sample.fps ?? ""}</td>
+      <td>${sample.frame_count ?? ""}</td>
+      <td>${sample.duration_seconds != null ? `${Number(sample.duration_seconds).toFixed(2)} s` : ""}</td>
+      <td>${sample.file_size_bytes != null ? humanBytes(sample.file_size_bytes) : ""}</td>
+      <td>${sample.bitrate_kbps != null ? `${Number(sample.bitrate_kbps).toFixed(2)} kbps` : ""}</td>
+      <td>${formatTimestamp(sample.created_at)}</td>
+    `;
+    els.rawPreviewQualityTableBody.appendChild(tr);
+  }
 }
 
 function renderAutomaticArchivePolicyStatus() {
@@ -2155,6 +2508,7 @@ function renderDetail() {
     els.detailEmpty.classList.remove("hidden");
     els.detailContent.classList.add("hidden");
     els.detailSubtitle.textContent = "Select a project";
+    renderProjectRawDatasets();
     return;
   }
 
@@ -2197,9 +2551,35 @@ function renderDetail() {
 
   renderNotes();
   renderAcl();
+  renderProjectRawDatasets();
   els.detailSubtitle.textContent = project.project_name;
   els.detailEmpty.classList.add("hidden");
   els.detailContent.classList.remove("hidden");
+}
+
+function renderProjectRawDatasets() {
+  if (!els.projectRawDatasetsList) {
+    return;
+  }
+  const datasets = state.selectedProjectDetail?.raw_datasets || [];
+  if (els.projectQueueRawPreviewsButton) {
+    els.projectQueueRawPreviewsButton.disabled = !state.selectedProjectDetail || !datasets.length;
+  }
+  els.projectRawDatasetsList.innerHTML = "";
+  if (!datasets.length) {
+    els.projectRawDatasetsList.innerHTML = `<div class="stack-item">No linked raw dataset indexed.</div>`;
+    return;
+  }
+  for (const raw of datasets) {
+    const div = document.createElement("div");
+    div.className = "stack-item";
+    div.innerHTML = `
+      <div class="stack-item-meta">${raw.data_format || "unknown"} | ${raw.lifecycle_tier} | ${raw.archive_status} | ${raw.completeness_status}</div>
+      <a href="/web/raw-dataset.html?id=${encodeURIComponent(raw.id)}">${raw.acquisition_label}</a>
+      <div class="stack-item-meta">${raw.microscope_name || ""} ${humanBytes(raw.total_bytes)}</div>
+    `;
+    els.projectRawDatasetsList.appendChild(div);
+  }
 }
 
 function renderUsers() {
@@ -2423,6 +2803,12 @@ async function refreshDashboard() {
   if (pageFlags.hasProjectPage) {
     await refreshProjectPage();
   }
+  if (pageFlags.hasRawDatasetPage) {
+    const rawDatasetId = getRawDatasetPageId();
+    if (rawDatasetId) {
+      await selectRawDataset(rawDatasetId);
+    }
+  }
 
   if (pageFlags.hasIndexForm && browseableStorageRoots().length && !state.indexBrowse?.directories?.length) {
     try {
@@ -2466,6 +2852,9 @@ async function refreshDashboard() {
   if (pageFlags.hasMigrationView) {
     refreshTasks.push(refreshMigrationPlans());
   }
+  if (pageFlags.hasAdminView) {
+    refreshTasks.push(refreshRawPreviewQualityStatus());
+  }
   await Promise.all(refreshTasks);
 
   setStatus(`Connected as ${summary.user.user_key}.`);
@@ -2481,6 +2870,12 @@ async function refreshIndexingJobs() {
 
 async function refreshRawDatasets() {
   if (!els.rawDatasetsTableBody) {
+    if (pageFlags.hasRawDatasetPage) {
+      const rawDatasetId = getRawDatasetPageId();
+      if (rawDatasetId) {
+        await selectRawDataset(rawDatasetId);
+      }
+    }
     return;
   }
   const params = new URLSearchParams();
@@ -2493,7 +2888,10 @@ async function refreshRawDatasets() {
 
   state.rawDatasets = await apiGet(`/raw-datasets${params.toString() ? `?${params.toString()}` : ""}`);
   renderRawDatasets();
-  if (state.selectedRawDataset) {
+  const requestedRawDatasetId = getRawDatasetPageId();
+  if (requestedRawDatasetId && (!state.selectedRawDataset || `${state.selectedRawDataset.id}` === requestedRawDatasetId)) {
+    await selectRawDataset(requestedRawDatasetId);
+  } else if (state.selectedRawDataset) {
     const stillExists = state.rawDatasets.find((raw) => raw.id === state.selectedRawDataset.id);
     if (stillExists) {
       await selectRawDataset(stillExists.id);
@@ -2659,6 +3057,65 @@ async function refreshMigrationPlans() {
   }
 }
 
+async function refreshRawPreviewQualityStatus() {
+  if (!els.rawPreviewQualityConfig) {
+    return;
+  }
+  if (!isAdmin()) {
+    state.rawPreviewQualityStatus = null;
+    renderRawPreviewQualityStatus();
+    return;
+  }
+  state.rawPreviewQualityStatus = await apiGet("/raw-datasets/preview-quality");
+  renderRawPreviewQualityStatus();
+}
+
+async function saveRawPreviewQualitySettings() {
+  if (!isAdmin()) {
+    throw new Error("Admin role required.");
+  }
+  const payload = {
+    max_dimension: Number(els.rawPreviewQualityMaxDimension?.value || 0),
+    fps: Number(els.rawPreviewQualityFps?.value || 0),
+    frame_mode: String(els.rawPreviewQualityFrameMode?.value || "full"),
+    max_frames: Number(els.rawPreviewQualityMaxFrames?.value || 0),
+    binning_factor: parseBinningFactor(els.rawPreviewQualityBinningFactor?.value, 4),
+    crf: Number(els.rawPreviewQualityCrf?.value || 0),
+    preset: String(els.rawPreviewQualityPreset?.value || "").trim() || null,
+    include_existing: Boolean(els.rawPreviewQualityIncludeExisting?.checked),
+    artifact_root: String(els.rawPreviewQualityArtifactRoot?.value || "").trim() || null,
+    ffmpeg_command: String(els.rawPreviewQualityFfmpegCommand?.value || "").trim() || null,
+  };
+  if (!Number.isFinite(payload.max_dimension) || payload.max_dimension < 64) {
+    throw new Error("Resolution cap must be >= 64.");
+  }
+  if (!Number.isFinite(payload.fps) || payload.fps < 1) {
+    throw new Error("FPS must be >= 1.");
+  }
+  if (!["full", "limit"].includes(payload.frame_mode)) {
+    throw new Error("Frame mode must be full or limit.");
+  }
+  if (payload.frame_mode === "limit") {
+    if (!Number.isFinite(payload.max_frames) || payload.max_frames < 1) {
+      throw new Error("Max frames must be >= 1 in limit mode.");
+    }
+  } else {
+    payload.max_frames = 0;
+  }
+  if (!Number.isFinite(payload.binning_factor) || payload.binning_factor < 1) {
+    throw new Error("Binning factor must be >= 1.");
+  }
+  if (!Number.isFinite(payload.crf) || payload.crf < 16 || payload.crf > 40) {
+    throw new Error("CRF must be between 16 and 40.");
+  }
+  if (!payload.preset) {
+    payload.preset = "medium";
+  }
+  state.rawPreviewQualityStatus = await apiPatch("/raw-datasets/preview-quality", payload);
+  renderRawPreviewQualityStatus();
+  setStatus("Raw preview quality settings updated.");
+}
+
 async function refreshProjects() {
   if (!els.projectCountLabel) {
     return;
@@ -2696,11 +3153,11 @@ async function selectMigrationPlan(planId) {
 
 async function selectRawDataset(rawDatasetId) {
   const raw = state.rawDatasets.find((item) => item.id === rawDatasetId);
-  if (!raw) {
-    return;
-  }
-  state.selectedRawDataset = raw;
   state.selectedRawDatasetDetail = await apiGet(`/raw-datasets/${rawDatasetId}`);
+  state.selectedRawDataset = raw || state.selectedRawDatasetDetail;
+  if ((rawDatasetId === getRawDatasetPageId() || pageFlags.hasRawDatasetPage) && els.rawDetailSubtitle) {
+    document.title = `Detecdiv server - ${state.selectedRawDatasetDetail.acquisition_label}`;
+  }
   renderRawDatasets();
   renderRawDatasetDetail();
 }
@@ -3231,6 +3688,47 @@ async function previewRawArchive() {
   setStatus(`Archive preview ready for ${preview.acquisition_label}.`);
 }
 
+async function queueRawPreviewVideo(positionId = "", force = false) {
+  if (!state.selectedRawDatasetDetail) {
+    return;
+  }
+  const payload = {
+    position_id: positionId || null,
+    force,
+    requested_mode: "auto",
+    priority: 100,
+    params_json: {},
+  };
+  const result = await apiPost(`/raw-datasets/${state.selectedRawDatasetDetail.id}/preview-videos/queue`, payload);
+  await selectRawDataset(state.selectedRawDatasetDetail.id);
+  setStatus(result.message || "Raw preview video job queued.");
+}
+
+async function regenerateRawPreviewVideos() {
+  if (!state.selectedRawDatasetDetail) {
+    return;
+  }
+  const ok = window.confirm("Regenerate all preview movies for this dataset?");
+  if (!ok) {
+    return;
+  }
+  await queueRawPreviewVideo("", true);
+}
+
+async function queueProjectRawPreviewVideos() {
+  if (!state.selectedProjectDetail) {
+    return;
+  }
+  const result = await apiPost(`/projects/${state.selectedProjectDetail.id}/preview-videos/queue`, {
+    force: false,
+    requested_mode: "auto",
+    priority: 100,
+    params_json: {},
+  });
+  await selectProject(state.selectedProjectDetail.id);
+  setStatus(result.message || "Project raw preview jobs queued.");
+}
+
 async function requestRawArchive() {
   if (!state.selectedRawDataset) {
     return;
@@ -3511,10 +4009,18 @@ async function forceRefreshCurrentPage() {
     await restoreSession();
     return;
   }
-  if (pageFlags.hasProjectsView || pageFlags.hasIndexingView || pageFlags.hasPipelinesView || pageFlags.hasUsersView || pageFlags.hasSessionsView) {
+  if (
+    pageFlags.hasProjectsView ||
+    pageFlags.hasRawDatasetsView ||
+    pageFlags.hasAutomaticArchivePolicy ||
+    pageFlags.hasMicroManagerIngest ||
+    pageFlags.hasIndexingView ||
+    pageFlags.hasPipelinesView ||
+    pageFlags.hasUsersView ||
+    pageFlags.hasSessionsView ||
+    pageFlags.hasProjectPage
+  ) {
     await refreshDashboard();
-  } else if (pageFlags.hasIndexingView) {
-    await refreshIndexingJobs();
   }
 }
 
@@ -3566,6 +4072,7 @@ if (els.editProjectButton) els.editProjectButton.addEventListener("click", () =>
 });
 if (els.updateProjectButton) els.updateProjectButton.addEventListener("click", () => editProject().catch((error) => setStatus(String(error))));
 if (els.addToGroupButton) els.addToGroupButton.addEventListener("click", () => addSelectedProjectToGroup().catch((error) => setStatus(String(error))));
+if (els.projectQueueRawPreviewsButton) els.projectQueueRawPreviewsButton.addEventListener("click", () => queueProjectRawPreviewVideos().catch((error) => setStatus(String(error))));
 if (els.previewDeleteButton) els.previewDeleteButton.addEventListener("click", () => previewDelete().catch((error) => setStatus(String(error))));
 if (els.indexBrowseRoot) els.indexBrowseRoot.addEventListener("change", () => openIndexBrowserPath("").catch((error) => setStatus(String(error))));
 if (els.indexBrowseOpenButton) els.indexBrowseOpenButton.addEventListener("click", () => openIndexBrowserPath(state.indexBrowse?.current_relative_path || "").catch((error) => setStatus(String(error))));
@@ -3576,6 +4083,11 @@ if (els.migrationCreateButton) els.migrationCreateButton.addEventListener("click
 if (els.migrationRefreshButton) els.migrationRefreshButton.addEventListener("click", () => refreshMigrationPlans().catch((error) => setStatus(String(error))));
 if (els.migrationExecutePilotButton) els.migrationExecutePilotButton.addEventListener("click", () => executePilotBatch().catch((error) => setStatus(String(error))));
 if (els.rawPreviewArchiveButton) els.rawPreviewArchiveButton.addEventListener("click", () => previewRawArchive().catch((error) => setStatus(String(error))));
+if (els.rawQueuePreviewButton) els.rawQueuePreviewButton.addEventListener("click", () => queueRawPreviewVideo("").catch((error) => setStatus(String(error))));
+if (els.rawRegeneratePreviewButton) els.rawRegeneratePreviewButton.addEventListener("click", () => regenerateRawPreviewVideos().catch((error) => setStatus(String(error))));
+if (els.rawPreviewQualityRefreshButton) els.rawPreviewQualityRefreshButton.addEventListener("click", () => refreshRawPreviewQualityStatus().catch((error) => setStatus(String(error))));
+if (els.rawPreviewQualitySaveButton) els.rawPreviewQualitySaveButton.addEventListener("click", () => saveRawPreviewQualitySettings().catch((error) => setStatus(String(error))));
+if (els.rawPreviewQualityFrameMode) els.rawPreviewQualityFrameMode.addEventListener("change", updateRawPreviewFrameModeUi);
 if (els.rawArchiveButton) els.rawArchiveButton.addEventListener("click", () => requestRawArchive().catch((error) => setStatus(String(error))));
 if (els.rawRestoreButton) els.rawRestoreButton.addEventListener("click", () => requestRawRestore().catch((error) => setStatus(String(error))));
 if (els.automaticArchivePolicyRefreshButton) els.automaticArchivePolicyRefreshButton.addEventListener("click", () => refreshAutomaticArchivePolicyStatus().catch((error) => setStatus(String(error))));
