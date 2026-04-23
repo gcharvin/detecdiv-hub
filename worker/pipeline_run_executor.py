@@ -14,6 +14,10 @@ from api.config import get_settings
 from api.models import Artifact, ExecutionTarget, Job, Pipeline, Project, ProjectLocation
 from api.services.project_deletion import resolve_project_location_paths
 from worker.executors.matlab_executor import build_matlab_batch_command, run_matlab_command
+from worker.pipeline_dependency_preflight import (
+    build_preflight_error_text,
+    evaluate_pipeline_dependency_preflight,
+)
 from worker.pipeline_prepared_run import merge_prepared_pipeline_run, persist_prepared_pipeline_run
 
 
@@ -21,6 +25,10 @@ PIPELINE_REF_PATH_KEYS = ("export_manifest_uri", "pipeline_bundle_uri", "pipelin
 
 
 class PipelineRunCancelled(RuntimeError):
+    pass
+
+
+class PipelinePreflightFailed(RuntimeError):
     pass
 
 
@@ -34,6 +42,11 @@ def execute_pipeline_run_job(session: Session, *, job: Job) -> dict[str, Any]:
 
     payload = normalize_pipeline_run_payload(session, job=job)
     persist_prepared_pipeline_run(session, job=job, payload=payload)
+    preflight = evaluate_pipeline_dependency_preflight(payload)
+    persist_pipeline_preflight(session, job=job, preflight=preflight)
+    if preflight.get("status") == "failed":
+        raise PipelinePreflightFailed(build_preflight_error_text(preflight))
+
     with tempfile.TemporaryDirectory(prefix="detecdiv_pipeline_job_") as tmpdir:
         tmp_path = Path(tmpdir)
         payload_path = tmp_path / "pipeline_run_job.json"
@@ -88,6 +101,7 @@ def execute_pipeline_run_job(session: Session, *, job: Job) -> dict[str, Any]:
                 "message": "MATLAB batch returned success without a result JSON payload.",
             }
         result_json = merge_prepared_pipeline_run(payload=payload, result_json=result_json)
+        result_json["preflight"] = preflight
 
         attach_pipeline_run_artifacts(
             session,
@@ -109,6 +123,16 @@ def execute_pipeline_run_job(session: Session, *, job: Job) -> dict[str, Any]:
                 "stderr_log": str(stderr_path),
             },
         }
+
+
+def persist_pipeline_preflight(session: Session, *, job: Job, preflight: dict[str, Any]) -> None:
+    job_record = session.get(Job, job.id)
+    if job_record is None:
+        return
+    result_json = dict(job_record.result_json or {})
+    result_json["preflight"] = preflight
+    job_record.result_json = result_json
+    session.commit()
 
 
 def normalize_pipeline_run_payload(session: Session, *, job: Job) -> dict[str, Any]:
