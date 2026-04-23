@@ -15,6 +15,10 @@ dependencies = [
     "psycopg[binary]>=3.2",
     "pydantic>=2.8",
     "pydantic-settings>=2.4",
+    "numpy>=2.1",
+    "tifffile>=2024.8.30",
+    "zarr>=2.18",
+    "imageio-ffmpeg>=0.6",
 ]
 
 [project.optional-dependencies]

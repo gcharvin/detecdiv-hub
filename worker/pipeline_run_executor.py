@@ -212,6 +212,36 @@ def read_positive_int(value) -> int | None:
     return parsed
 
 
+def default_gpu_mode_for_job(session: Session, *, job: Job) -> str:
+    if job.execution_target_id:
+        target = session.get(ExecutionTarget, job.execution_target_id)
+        if target is not None and bool(target.supports_gpu):
+            return "force_gpu"
+    return "module_default"
+
+
+def ensure_cancel_token_path(session: Session, *, job: Job, payload: dict[str, Any]) -> str:
+    execution = dict(payload.get("execution") or {})
+    existing = str(execution.get("cancel_token_file") or "").strip()
+    if existing:
+        return existing
+
+    token_dir = Path(tempfile.gettempdir()) / "detecdiv-hub" / "cancel-tokens"
+    token_dir.mkdir(parents=True, exist_ok=True)
+    token_path = token_dir / f"{job.id}.cancel"
+
+    job_record = session.get(Job, job.id)
+    if job_record is not None:
+        params_json = dict(job_record.params_json or {})
+        params_execution = dict(params_json.get("execution") or {})
+        params_execution["cancel_token_file"] = str(token_path)
+        params_json["execution"] = params_execution
+        job_record.params_json = params_json
+        session.commit()
+
+    return str(token_path)
+
+
 def resolve_project_mat_path(session: Session, *, project_id) -> str:
     project = session.scalars(
         select(Project)
