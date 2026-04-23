@@ -14,6 +14,7 @@ from api.config import get_settings
 from api.models import Artifact, ExecutionTarget, Job, Pipeline, Project, ProjectLocation
 from api.services.project_deletion import resolve_project_location_paths
 from worker.executors.matlab_executor import build_matlab_batch_command, run_matlab_command
+from worker.pipeline_prepared_run import merge_prepared_pipeline_run, persist_prepared_pipeline_run
 
 
 PIPELINE_REF_PATH_KEYS = ("export_manifest_uri", "pipeline_bundle_uri", "pipeline_json_path")
@@ -32,6 +33,7 @@ def execute_pipeline_run_job(session: Session, *, job: Job) -> dict[str, Any]:
     matlab_command = str(settings.matlab_command or "matlab").strip() or "matlab"
 
     payload = normalize_pipeline_run_payload(session, job=job)
+    persist_prepared_pipeline_run(session, job=job, payload=payload)
     with tempfile.TemporaryDirectory(prefix="detecdiv_pipeline_job_") as tmpdir:
         tmp_path = Path(tmpdir)
         payload_path = tmp_path / "pipeline_run_job.json"
@@ -85,6 +87,7 @@ def execute_pipeline_run_job(session: Session, *, job: Job) -> dict[str, Any]:
                 "status": "done",
                 "message": "MATLAB batch returned success without a result JSON payload.",
             }
+        result_json = merge_prepared_pipeline_run(payload=payload, result_json=result_json)
 
         attach_pipeline_run_artifacts(
             session,
