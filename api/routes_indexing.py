@@ -15,8 +15,8 @@ from api.schemas import (
 )
 from api.services.indexing_jobs import (
     create_indexing_job,
+    enqueue_indexing_worker_job,
     get_indexing_job_for_user,
-    launch_indexing_job,
     list_indexing_jobs_for_user,
 )
 from api.services.project_indexing import index_project_root
@@ -39,16 +39,16 @@ def create_job(
         )
 
     job = create_indexing_job(db, payload=payload, current_user=current_user)
+    enqueue_indexing_worker_job(db, indexing_job=job, current_user=current_user)
     db.commit()
     job = get_indexing_job_for_user(db, job_id=job.id, current_user=current_user)
     if job is None:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Failed to reload job.")
-    launch_indexing_job(job.id)
     return IndexJobLaunchResponse(
         status="queued",
-        launch_mode="async",
+        launch_mode="worker",
         job=IndexJobSummary.model_validate(job),
-        message="Indexing job accepted.",
+        message="Indexing job accepted and queued for worker execution.",
     )
 
 

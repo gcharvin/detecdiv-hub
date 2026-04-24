@@ -12,6 +12,7 @@ from sqlalchemy import func, select
 from api.config import get_settings
 from api.db import SessionLocal
 from api.models import ExecutionTarget, Job, RawDatasetPosition
+from api.services.indexing_jobs import execute_indexing_job
 from worker.archive_policy_scheduler import run_archive_policy_if_due
 from worker.micromanager_ingest_scheduler import run_micromanager_ingest_if_due
 from worker.pipeline_run_executor import PipelineRunCancelled, execute_pipeline_run_job
@@ -319,6 +320,16 @@ def execute_job(job: Job) -> dict:
             result_json = execute_pipeline_run_job(session, job=job_record)
             result_json["worker_instance"] = get_worker_instance_id()
             return result_json
+    if job_kind == "project_indexing":
+        indexing_job_id = (job.params_json or {}).get("indexing_job_id")
+        if not indexing_job_id:
+            raise ValueError(f"Indexing worker job {job.id} is missing indexing_job_id")
+        result_json = execute_indexing_job(indexing_job_id)
+        result_json["worker_host"] = socket.gethostname()
+        result_json["worker_instance"] = get_worker_instance_id()
+        result_json["requested_mode"] = job.requested_mode
+        result_json["resolved_mode"] = job.resolved_mode
+        return result_json
     if job_kind in {"archive_raw_dataset", "restore_raw_dataset"}:
         with session_scope() as session:
             job_record = session.get(Job, job.id)

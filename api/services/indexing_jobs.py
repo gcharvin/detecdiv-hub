@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timedelta, timezone
 from typing import Any
 from uuid import UUID
@@ -10,13 +9,10 @@ from sqlalchemy.orm import Session, joinedload
 
 from api.db import SessionLocal
 from api.config import get_settings
-from api.models import IndexingJob, User
+from api.models import IndexingJob, Job, User
 from api.schemas import IndexRequest
 from api.services.project_indexing import ProjectIndexResult, index_project_root
 from api.services.users import get_or_create_user
-
-
-INDEXING_EXECUTOR = ThreadPoolExecutor(max_workers=2, thread_name_prefix="detecdiv-indexing")
 
 
 def create_indexing_job(
@@ -48,15 +44,40 @@ def create_indexing_job(
     return job
 
 
-def launch_indexing_job(job_id: UUID) -> None:
-    INDEXING_EXECUTOR.submit(run_indexing_job, job_id)
+def enqueue_indexing_worker_job(
+    session: Session,
+    *,
+    indexing_job: IndexingJob,
+    current_user: User,
+) -> Job:
+    worker_job = Job(
+        requested_mode="server",
+        priority=100,
+        requested_by=current_user.user_key,
+        requested_from_host="api-indexing",
+        params_json={
+            "job_kind": "project_indexing",
+            "indexing_job_id": str(indexing_job.id),
+        },
+        status="queued",
+    )
+    session.add(worker_job)
+    session.flush()
+    metadata = dict(indexing_job.metadata_json or {})
+    metadata["worker_job_id"] = str(worker_job.id)
+    indexing_job.metadata_json = metadata
+    indexing_job.message = "Queued for worker execution."
+    indexing_job.phase = "queued"
+    indexing_job.status = "queued"
+    session.flush()
+    return worker_job
 
 
-def run_indexing_job(job_id: UUID) -> None:
+def execute_indexing_job(indexing_job_id: UUID) -> dict[str, Any]:
     with SessionLocal() as session:
-        job = session.get(IndexingJob, job_id)
+        job = session.get(IndexingJob, indexing_job_id)
         if job is None:
-            return
+            raise ValueError(f"Indexing job {indexing_job_id} not found")
         job.status = "running"
         job.phase = "discovering"
         job.started_at = datetime.now(timezone.utc)
@@ -66,29 +87,32 @@ def run_indexing_job(job_id: UUID) -> None:
 
     try:
         with SessionLocal() as session:
-            job = session.get(IndexingJob, job_id)
+            job = session.get(IndexingJob, indexing_job_id)
             if job is None:
-                return
+                raise ValueError(f"Indexing job {indexing_job_id} disappeared before execution")
             owner = job.owner
             owner_user_key = owner.user_key if owner is not None else "localdev"
 
             def on_progress(**kwargs: Any) -> None:
+                job_record = session.get(IndexingJob, indexing_job_id)
+                if job_record is None:
+                    return
                 now = datetime.now(timezone.utc)
-                job.total_projects = int(kwargs.get("total_projects", job.total_projects or 0))
-                job.scanned_projects = int(kwargs.get("scanned_projects", job.scanned_projects or 0))
-                job.indexed_projects = int(kwargs.get("indexed_projects", job.indexed_projects or 0))
-                job.failed_projects = int(kwargs.get("failed_projects", job.failed_projects or 0))
-                job.deleted_projects = int(kwargs.get("deleted_projects", job.deleted_projects or 0))
-                job.mat_files_seen = int(kwargs.get("mat_files_seen", job.mat_files_seen or 0))
+                job_record.total_projects = int(kwargs.get("total_projects", job_record.total_projects or 0))
+                job_record.scanned_projects = int(kwargs.get("scanned_projects", job_record.scanned_projects or 0))
+                job_record.indexed_projects = int(kwargs.get("indexed_projects", job_record.indexed_projects or 0))
+                job_record.failed_projects = int(kwargs.get("failed_projects", job_record.failed_projects or 0))
+                job_record.deleted_projects = int(kwargs.get("deleted_projects", job_record.deleted_projects or 0))
+                job_record.mat_files_seen = int(kwargs.get("mat_files_seen", job_record.mat_files_seen or 0))
                 if kwargs.get("phase"):
-                    job.phase = str(kwargs["phase"])
-                job.current_project_path = kwargs.get("current_project_path")
+                    job_record.phase = str(kwargs["phase"])
+                job_record.current_project_path = kwargs.get("current_project_path")
                 if kwargs.get("message"):
-                    job.message = str(kwargs["message"])
+                    job_record.message = str(kwargs["message"])
                 if kwargs.get("error_text"):
-                    job.error_text = str(kwargs["error_text"])
-                job.heartbeat_at = now
-                job.updated_at = now
+                    job_record.error_text = str(kwargs["error_text"])
+                job_record.heartbeat_at = now
+                job_record.updated_at = now
                 session.flush()
                 session.commit()
 
@@ -107,18 +131,27 @@ def run_indexing_job(job_id: UUID) -> None:
             )
             finalize_indexing_job_success(session, job, result)
             session.commit()
+            return {
+                "job_kind": "project_indexing",
+                "indexing_job_id": str(job.id),
+                "status": job.status,
+                "phase": job.phase,
+                "result": dict(job.result_json or {}),
+            }
     except Exception as exc:  # pragma: no cover - defensive for background worker
         with SessionLocal() as session:
-            job = session.get(IndexingJob, job_id)
+            job = session.get(IndexingJob, indexing_job_id)
             if job is None:
-                return
+                raise
             job.status = "failed"
             job.phase = "failed"
             job.finished_at = datetime.now(timezone.utc)
             job.heartbeat_at = job.finished_at
+            job.updated_at = job.finished_at
             job.error_text = str(exc)
             job.message = "Indexing failed."
             session.commit()
+        raise
 
 
 def finalize_indexing_job_success(session: Session, job: IndexingJob, result: ProjectIndexResult) -> None:
