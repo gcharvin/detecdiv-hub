@@ -1,4 +1,6 @@
+import json
 from datetime import datetime
+from pathlib import Path
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, status
@@ -44,12 +46,13 @@ def create_pipeline(
     if current_user.role not in {"admin", "service"}:
         # For now, allow normal users too. This guard documents the future tightening point.
         pass
+    normalized_metadata = normalize_pipeline_metadata(payload.metadata_json)
     pipeline = Pipeline(
         pipeline_key=payload.pipeline_key,
         display_name=payload.display_name,
         version=payload.version,
         runtime_kind=payload.runtime_kind,
-        metadata_json=payload.metadata_json,
+        metadata_json=normalized_metadata,
     )
     db.add(pipeline)
     db.commit()
@@ -227,7 +230,7 @@ def update_pipeline(
     if payload.metadata_json is not None:
         merged_metadata = dict(pipeline.metadata_json or {})
         merged_metadata.update(payload.metadata_json)
-        pipeline.metadata_json = merged_metadata
+        pipeline.metadata_json = normalize_pipeline_metadata(merged_metadata)
 
     db.commit()
     db.refresh(pipeline)
@@ -287,3 +290,31 @@ def local_parse_datetime(value) -> datetime | None:
         except ValueError:
             continue
     return None
+
+
+def normalize_pipeline_metadata(metadata_json: dict | None) -> dict:
+    metadata = dict(metadata_json or {})
+
+    # Keep path separators stable for Linux workers even if manifests were exported on Windows.
+    for key in ("pipeline_json_path", "pipeline_bundle_uri", "export_manifest_uri", "pipeline_path"):
+        value = local_text(metadata.get(key))
+        if value:
+            metadata[key] = value.replace("\\", "/")
+
+    export_manifest_uri = local_text(metadata.get("export_manifest_uri"))
+    pipeline_json_path = local_text(metadata.get("pipeline_json_path"))
+    if export_manifest_uri and not pipeline_json_path:
+        manifest_path = Path(export_manifest_uri)
+        if manifest_path.is_file():
+            try:
+                payload = json.loads(manifest_path.read_text(encoding="utf-8"))
+            except (OSError, json.JSONDecodeError):
+                payload = {}
+            bundle_rel = local_text((payload.get("pipeline") or {}).get("bundlePipelinePath"))
+            if bundle_rel:
+                bundle_parts = [part for part in bundle_rel.replace("\\", "/").split("/") if part and part != "."]
+                candidate = manifest_path.parent.joinpath(*bundle_parts)
+                if candidate.is_file():
+                    metadata["pipeline_json_path"] = str(candidate)
+
+    return metadata
