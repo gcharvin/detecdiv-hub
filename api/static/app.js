@@ -1084,6 +1084,7 @@ function renderPipelines() {
     const source = pipeline.source || "registry";
     const version = pipeline.version || "observed";
     const updated = pipeline.updated_at || pipeline.latest_run_at || pipeline.created_at;
+    const canDelete = source === "registry" && Boolean(pipeline.id);
     const projectCount = pipeline.project_count || 0;
     tr.innerHTML = `
       <td>${pipeline.display_name}</td>
@@ -1093,7 +1094,24 @@ function renderPipelines() {
       <td>${pipeline.runtime_kind}</td>
       <td>${projectCount}</td>
       <td>${formatTimestamp(updated)}</td>
+      <td></td>
     `;
+    const actionCell = tr.querySelector("td:last-child");
+    if (actionCell) {
+      if (canDelete) {
+        const deleteButton = document.createElement("button");
+        deleteButton.type = "button";
+        deleteButton.className = "danger";
+        deleteButton.textContent = "Delete";
+        deleteButton.addEventListener("click", (event) => {
+          event.stopPropagation();
+          deletePipeline(pipeline).catch((error) => setStatus(String(error)));
+        });
+        actionCell.appendChild(deleteButton);
+      } else if (source === "project_observed") {
+        actionCell.textContent = "Embedded in project";
+      }
+    }
     tr.title = JSON.stringify(pipeline.metadata_json || {});
     tr.addEventListener("click", () => selectPipelineRow(pipeline));
     if (source === "registry") {
@@ -4314,6 +4332,21 @@ async function editPipeline(pipeline) {
   });
   await refreshPipelines();
   setStatus(`Updated pipeline ${displayName}.`);
+}
+
+async function deletePipeline(pipeline) {
+  if (!pipeline?.id) {
+    throw new Error("Only registry pipelines can be deleted from the database.");
+  }
+  const confirmed = window.confirm(
+    `Delete pipeline "${pipeline.display_name}" (${pipeline.version || "unknown"}) from the registry database?`
+  );
+  if (!confirmed) {
+    return;
+  }
+  await apiDelete(`/pipelines/${pipeline.id}`);
+  await refreshPipelines();
+  setStatus(`Deleted pipeline ${pipeline.display_name} from registry.`);
 }
 
 async function importObservedPipelines() {

@@ -234,6 +234,23 @@ def update_pipeline(
     return pipeline
 
 
+@router.delete("/{pipeline_id}")
+def delete_pipeline(
+    pipeline_id: UUID,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> dict:
+    if current_user.role not in {"admin", "service"}:
+        # Same future tightening point as create/update.
+        pass
+    pipeline = db.get(Pipeline, pipeline_id)
+    if pipeline is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Pipeline not found")
+    db.delete(pipeline)
+    db.commit()
+    return {"status": "deleted", "pipeline_id": str(pipeline_id)}
+
+
 def local_text(value) -> str | None:
     if value in (None, ""):
         return None
