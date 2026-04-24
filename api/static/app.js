@@ -10,6 +10,7 @@ const state = {
   pipelines: [],
   observedPipelines: [],
   executionTargets: [],
+  jobs: [],
   pipelineRuns: [],
   sessions: [],
   users: [],
@@ -276,6 +277,9 @@ const els = {
   executionTargetWorkerInstances: document.querySelector("#execution-target-worker-instances"),
   executionTargetMetadataJson: document.querySelector("#execution-target-metadata-json"),
   executionTargetsTableBody: document.querySelector("#execution-targets-table tbody"),
+  executionTargetWorkerSummary: document.querySelector("#execution-target-worker-summary"),
+  executionTargetWorkersTableBody: document.querySelector("#execution-target-workers-table tbody"),
+  executionTargetJobMixTableBody: document.querySelector("#execution-target-job-mix-table tbody"),
   executionTargetDetail: document.querySelector("#execution-target-detail"),
   usersTableBody: document.querySelector("#users-table tbody"),
   newUserButton: document.querySelector("#new-user-button"),
@@ -343,6 +347,7 @@ function clearDashboardState() {
   state.pipelines = [];
   state.observedPipelines = [];
   state.executionTargets = [];
+  state.jobs = [];
   state.pipelineRuns = [];
   state.sessions = [];
   state.users = [];
@@ -1645,12 +1650,119 @@ function renderExecutionTargets() {
   }
   if (els.executionTargetDetail) {
     if (!state.selectedExecutionTarget) {
+      if (els.executionTargetWorkerSummary) {
+        els.executionTargetWorkerSummary.textContent = "Select a target to inspect worker activity.";
+      }
+      if (els.executionTargetWorkersTableBody) {
+        els.executionTargetWorkersTableBody.innerHTML = "";
+      }
+      if (els.executionTargetJobMixTableBody) {
+        els.executionTargetJobMixTableBody.innerHTML = "";
+      }
       els.executionTargetDetail.textContent = "Select a target to inspect its metadata.";
     } else {
+      renderExecutionTargetWorkerPanels(state.selectedExecutionTarget);
       els.executionTargetDetail.textContent = JSON.stringify(state.selectedExecutionTarget, null, 2);
     }
   }
   renderPipelineRunBuilder();
+}
+
+function jobKindLabel(job) {
+  return job?.params_json?.job_kind || "generic";
+}
+
+function executionTargetJobs(target) {
+  if (!target) {
+    return [];
+  }
+  return state.jobs.filter((job) => String(job.execution_target_id || "") === String(target.id));
+}
+
+function executionTargetWorkerEntries(target) {
+  const workerHealths = target?.metadata_json?.worker_healths || {};
+  return Object.entries(workerHealths)
+    .map(([workerId, workerHealth]) => ({ workerId, workerHealth: workerHealth || {} }))
+    .sort((a, b) => String(a.workerId).localeCompare(String(b.workerId)));
+}
+
+function renderExecutionTargetWorkerPanels(target) {
+  const targetJobs = executionTargetJobs(target);
+  const workerEntries = executionTargetWorkerEntries(target);
+  const activeWorkerEntries = workerEntries.filter((entry) => {
+    const lastSeen = entry.workerHealth.last_seen_at ? Date.parse(entry.workerHealth.last_seen_at) : NaN;
+    if (Number.isNaN(lastSeen)) {
+      return true;
+    }
+    return (Date.now() - lastSeen) <= 60000;
+  });
+  const runningJobs = targetJobs.filter((job) => job.status === "running");
+  const queuedJobs = targetJobs.filter((job) => job.status === "queued");
+  const cancellingJobs = targetJobs.filter((job) => job.status === "cancelling");
+
+  if (els.executionTargetWorkerSummary) {
+    els.executionTargetWorkerSummary.textContent =
+      `${runningJobs.length} running, ${queuedJobs.length} queued, ${cancellingJobs.length} cancelling on ${target.display_name}. `
+      + `${activeWorkerEntries.length}/${workerEntries.length || 0} worker records seen in the last minute.`;
+  }
+
+  if (els.executionTargetWorkersTableBody) {
+    els.executionTargetWorkersTableBody.innerHTML = "";
+    for (const { workerId, workerHealth } of workerEntries) {
+      const tr = document.createElement("tr");
+      const currentJobId = String(workerHealth.current_job_id || "");
+      const currentJob = currentJobId
+        ? targetJobs.find((job) => String(job.id) === currentJobId) || null
+        : null;
+      tr.innerHTML = `
+        <td>${workerId}</td>
+        <td>${workerHealth.health || "unknown"}</td>
+        <td>${currentJobId || ""}</td>
+        <td>${currentJob ? jobKindLabel(currentJob) : ""}</td>
+        <td>${currentJob?.status || ""}</td>
+        <td>${formatTimestamp(currentJob?.started_at || null)}</td>
+        <td>${formatTimestamp(workerHealth.last_seen_at || workerHealth.claimed_at || null)}</td>
+      `;
+      els.executionTargetWorkersTableBody.appendChild(tr);
+    }
+  }
+
+  if (els.executionTargetJobMixTableBody) {
+    els.executionTargetJobMixTableBody.innerHTML = "";
+    const grouped = new Map();
+    for (const job of targetJobs) {
+      const kind = jobKindLabel(job);
+      if (!grouped.has(kind)) {
+        grouped.set(kind, {
+          kind,
+          running: 0,
+          queued: 0,
+          cancelling: 0,
+          lastUpdated: null,
+        });
+      }
+      const entry = grouped.get(kind);
+      if (job.status === "running") entry.running += 1;
+      if (job.status === "queued") entry.queued += 1;
+      if (job.status === "cancelling") entry.cancelling += 1;
+      const updatedAt = job.updated_at || job.heartbeat_at || job.started_at || job.created_at || null;
+      if (!entry.lastUpdated || (updatedAt && String(updatedAt) > String(entry.lastUpdated))) {
+        entry.lastUpdated = updatedAt;
+      }
+    }
+    const rows = [...grouped.values()].sort((a, b) => a.kind.localeCompare(b.kind));
+    for (const row of rows) {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${row.kind}</td>
+        <td>${row.running}</td>
+        <td>${row.queued}</td>
+        <td>${row.cancelling}</td>
+        <td>${formatTimestamp(row.lastUpdated)}</td>
+      `;
+      els.executionTargetJobMixTableBody.appendChild(tr);
+    }
+  }
 }
 
 function resolvePipelineRunProject() {
@@ -1805,7 +1917,13 @@ async function refreshExecutionTargets() {
   }
   const selectedId = state.selectedExecutionTarget?.id || null;
   const editingId = state.editingExecutionTarget?.id || null;
-  state.executionTargets = await apiGet("/execution-targets");
+  const requests = [apiGet("/execution-targets")];
+  if (pageFlags.hasExecutionTargetsView) {
+    requests.push(apiGet("/jobs"));
+  }
+  const [targets, jobs = state.jobs] = await Promise.all(requests);
+  state.executionTargets = targets;
+  state.jobs = jobs;
   state.selectedExecutionTarget = selectedId
     ? state.executionTargets.find((item) => String(item.id) === String(selectedId)) || null
     : null;
@@ -4794,6 +4912,9 @@ async function pollDashboard() {
     }
     if (pageFlags.hasMigrationView) {
       pollTasks.push(refreshMigrationPlans());
+    }
+    if (pageFlags.hasExecutionTargetsView && isAdmin()) {
+      pollTasks.push(refreshExecutionTargets());
     }
     if (pageFlags.hasPipelineRunsView) {
       pollTasks.push(refreshPipelineRuns());

@@ -238,6 +238,37 @@
             </table>
           </div>
           <p class="muted">Single click loads a target into the editor and metadata panel. Concurrency limits slots on a target; you still need the same number of running <code>detecdiv-worker</code> instances to use all slots.</p>
+          <div id="execution-target-worker-summary" class="muted">Select a target to inspect worker activity.</div>
+          <div class="table-wrap jobs-table-wrap">
+            <table id="execution-target-workers-table">
+              <thead>
+                <tr>
+                  <th>Worker</th>
+                  <th>Health</th>
+                  <th>Current Job</th>
+                  <th>Job Kind</th>
+                  <th>Status</th>
+                  <th>Started</th>
+                  <th>Last Seen</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+          <div class="table-wrap jobs-table-wrap">
+            <table id="execution-target-job-mix-table">
+              <thead>
+                <tr>
+                  <th>Job Kind</th>
+                  <th>Running</th>
+                  <th>Queued</th>
+                  <th>Cancelling</th>
+                  <th>Last Updated</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
           <pre id="execution-target-detail" class="stack-item-meta">Select a target to inspect its metadata.</pre>
         </section>
 
