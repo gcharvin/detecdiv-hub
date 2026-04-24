@@ -40,11 +40,45 @@ def session_scope():
 def get_worker_instance_id() -> str:
     configured = str(get_settings().worker_instance or "").strip()
     if configured:
-        return configured
-    return f"{socket.gethostname()}-pid{os.getpid()}"
+        return normalize_worker_instance_id(configured)
+    return normalize_worker_instance_id(f"{socket.gethostname()}-pid{os.getpid()}")
+
+
+def normalize_worker_instance_id(value: str) -> str:
+    text = str(value or "").strip()
+    if not text:
+        return text
+    if text.lower() == "main":
+        return "main"
+    core = text[1:] if text.startswith("@") else text
+    if core.isdigit():
+        return f"@{core}"
+    return text
+
+
+def normalize_worker_healths(worker_healths: dict[str, dict]) -> dict[str, dict]:
+    normalized: dict[str, dict] = {}
+    for raw_key, raw_value in (worker_healths or {}).items():
+        item = dict(raw_value or {})
+        candidate = normalize_worker_instance_id(
+            str(item.get("worker_instance") or raw_key or "")
+        )
+        if not candidate:
+            continue
+        item["worker_instance"] = candidate
+        existing = normalized.get(candidate)
+        if existing is None:
+            normalized[candidate] = item
+            continue
+        existing_seen = str(existing.get("last_seen_at") or "")
+        item_seen = str(item.get("last_seen_at") or "")
+        if item_seen >= existing_seen:
+            normalized[candidate] = item
+    return normalized
 
 
 def summarize_worker_health(worker_healths: dict[str, dict], *, max_concurrent_jobs: int | None) -> dict:
+    worker_healths = normalize_worker_healths(worker_healths)
     if not worker_healths:
         return {}
 
@@ -577,7 +611,7 @@ def update_worker_target_state(
     now = datetime.now(timezone.utc)
     metadata = dict(target.metadata_json or {})
     max_concurrent_jobs = read_positive_int(metadata.get("max_concurrent_jobs"))
-    worker_healths = dict(metadata.get("worker_healths") or {})
+    worker_healths = normalize_worker_healths(dict(metadata.get("worker_healths") or {}))
     worker_instance_id = get_worker_instance_id()
     worker_health = dict(worker_healths.get(worker_instance_id) or {})
     worker_health["worker_instance"] = worker_instance_id
