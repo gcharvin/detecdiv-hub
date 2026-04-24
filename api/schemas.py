@@ -999,6 +999,11 @@ class IndexJobLaunchResponse(HubBaseModel):
     message: str
 
 
+class IndexJobCleanupResponse(HubBaseModel):
+    deleted_count: int
+    message: str
+
+
 class IndexResponse(HubBaseModel):
     status: str
     source_kind: str

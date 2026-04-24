@@ -7,6 +7,7 @@ from api.config import get_settings
 from api.db import get_db
 from api.models import User
 from api.schemas import (
+    IndexJobCleanupResponse,
     IndexJobDetail,
     IndexJobLaunchResponse,
     IndexJobSummary,
@@ -15,6 +16,7 @@ from api.schemas import (
 )
 from api.services.indexing_jobs import (
     create_indexing_job,
+    delete_stale_indexing_jobs_for_user,
     enqueue_indexing_worker_job,
     get_indexing_job_for_user,
     list_indexing_jobs_for_user,
@@ -60,6 +62,19 @@ def list_jobs(
 ) -> list[IndexJobSummary]:
     jobs = list_indexing_jobs_for_user(db, current_user=current_user, limit=min(max(limit, 1), 100))
     return [IndexJobSummary.model_validate(job) for job in jobs]
+
+
+@router.post("/jobs/clear-stale", response_model=IndexJobCleanupResponse)
+def clear_stale_jobs(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> IndexJobCleanupResponse:
+    deleted_count = delete_stale_indexing_jobs_for_user(db, current_user=current_user)
+    db.commit()
+    return IndexJobCleanupResponse(
+        deleted_count=deleted_count,
+        message=f"Deleted {deleted_count} stale indexing job(s).",
+    )
 
 
 @router.get("/jobs/{job_id}", response_model=IndexJobDetail)

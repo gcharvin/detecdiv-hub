@@ -250,3 +250,28 @@ def get_indexing_job_for_user(
         )
     )
     return session.scalars(stmt).unique().first()
+
+
+def delete_stale_indexing_jobs_for_user(
+    session: Session,
+    *,
+    current_user: User,
+) -> int:
+    mark_stale_indexing_jobs(session)
+    stmt = (
+        select(IndexingJob)
+        .where(IndexingJob.status == "stale")
+        .where(
+            or_(
+                IndexingJob.requested_by_user_id == current_user.id,
+                IndexingJob.owner_user_id == current_user.id,
+            )
+        )
+    )
+    jobs = list(session.scalars(stmt).all())
+    deleted = len(jobs)
+    for job in jobs:
+        session.delete(job)
+    if deleted:
+        session.flush()
+    return deleted

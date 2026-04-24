@@ -109,6 +109,7 @@ const els = {
   indexBrowseTableBody: document.querySelector("#index-browse-table tbody"),
   indexButton: document.querySelector("#index-button"),
   indexJobsRefreshButton: document.querySelector("#index-jobs-refresh-button"),
+  indexJobsClearStaleButton: document.querySelector("#index-jobs-clear-stale-button"),
   activeIndexJob: document.querySelector("#active-index-job"),
   indexJobsTableBody: document.querySelector("#index-jobs-table tbody"),
   rawSearch: document.querySelector("#raw-search"),
@@ -1680,7 +1681,8 @@ function renderExecutionTargets() {
 }
 
 function jobKindLabel(job) {
-  return job?.params_json?.job_kind || "generic";
+  const raw = job?.params_json?.job_kind || "generic";
+  return String(raw).replaceAll("_", " ");
 }
 
 function executionTargetJobs(target) {
@@ -3567,7 +3569,24 @@ async function refreshIndexingJobs() {
     return;
   }
   state.indexingJobs = await apiGet("/indexing/jobs?limit=25");
+  if (els.indexJobsClearStaleButton) {
+    els.indexJobsClearStaleButton.disabled = !state.indexingJobs.some((job) => job.status === "stale");
+  }
   renderIndexingJobs();
+}
+
+async function clearStaleIndexingJobs() {
+  const staleCount = state.indexingJobs.filter((job) => job.status === "stale").length;
+  if (!staleCount) {
+    throw new Error("No stale indexing jobs to clear.");
+  }
+  const confirmed = window.confirm(`Delete ${staleCount} stale indexing job(s)?`);
+  if (!confirmed) {
+    return;
+  }
+  const result = await apiPost("/indexing/jobs/clear-stale", {});
+  setStatus(result.message || `Deleted ${result.deleted_count} stale indexing job(s).`);
+  await refreshIndexingJobs();
 }
 
 async function refreshRawDatasets() {
@@ -5120,6 +5139,10 @@ if (els.indexBrowseOpenButton) els.indexBrowseOpenButton.addEventListener("click
 if (els.indexBrowseUseButton) els.indexBrowseUseButton.addEventListener("click", () => useSelectedIndexFolder());
 if (els.indexButton) els.indexButton.addEventListener("click", () => runIndexing().catch((error) => setStatus(String(error))));
 if (els.indexJobsRefreshButton) els.indexJobsRefreshButton.addEventListener("click", () => refreshIndexingJobs().catch((error) => setStatus(String(error))));
+if (els.indexJobsClearStaleButton) els.indexJobsClearStaleButton.addEventListener("click", () => clearStaleIndexingJobs().catch((error) => {
+  setStatus(String(error));
+  window.alert(String(error));
+}));
 if (els.migrationCreateButton) els.migrationCreateButton.addEventListener("click", () => createMigrationPlan().catch((error) => setStatus(String(error))));
 if (els.migrationRefreshButton) els.migrationRefreshButton.addEventListener("click", () => refreshMigrationPlans().catch((error) => setStatus(String(error))));
 if (els.migrationExecutePilotButton) els.migrationExecutePilotButton.addEventListener("click", () => executePilotBatch().catch((error) => setStatus(String(error))));
