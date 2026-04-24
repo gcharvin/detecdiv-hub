@@ -429,9 +429,15 @@ def fill_pipeline_ref_from_registry(session: Session, *, pipeline_id, pipeline_r
     if not pipeline_ref.get("pipeline_key") and pipeline.pipeline_key:
         pipeline_ref["pipeline_key"] = pipeline.pipeline_key
 
-    for key in ("pipeline_bundle_uri", "pipeline_json_path", "export_manifest_uri"):
+    # Prefer direct pipeline paths over manifest URIs to avoid cross-platform
+    # separator issues from Windows-exported manifests.
+    for key in ("pipeline_bundle_uri", "pipeline_json_path"):
         if not pipeline_ref.get(key) and metadata.get(key):
             pipeline_ref[key] = metadata.get(key)
+
+    has_direct_path = bool(pipeline_ref.get("pipeline_bundle_uri") or pipeline_ref.get("pipeline_json_path"))
+    if not has_direct_path and not pipeline_ref.get("export_manifest_uri") and metadata.get("export_manifest_uri"):
+        pipeline_ref["export_manifest_uri"] = metadata.get("export_manifest_uri")
 
     observed = metadata.get("observed") or {}
     observed_path = observed.get("pipeline_path")
