@@ -123,7 +123,7 @@ def scale_execution_target_workers(
 
     settings = get_settings()
     repo_root = Path(__file__).resolve().parents[1]
-    script_path = repo_root.parent / "scripts" / "configure_worker_systemd.sh"
+    script_path = repo_root / "scripts" / "configure_worker_systemd.sh"
     if not script_path.exists():
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Worker systemd helper is missing")
 
@@ -133,7 +133,7 @@ def scale_execution_target_workers(
         "bash",
         str(script_path),
         "--repo-root",
-        str(repo_root.parent),
+        str(repo_root),
         "--service-user",
         settings.systemd_service_user,
         "--env-file",
@@ -149,7 +149,7 @@ def scale_execution_target_workers(
             check=True,
             capture_output=True,
             text=True,
-            cwd=str(repo_root.parent),
+            cwd=str(repo_root),
         )
     except subprocess.CalledProcessError as exc:
         stderr = (exc.stderr or "").strip()
