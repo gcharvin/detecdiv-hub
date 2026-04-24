@@ -262,6 +262,7 @@ const els = {
   newExecutionTargetButton: document.querySelector("#new-execution-target-button"),
   cancelExecutionTargetEditButton: document.querySelector("#cancel-execution-target-edit-button"),
   applyWorkerInstancesButton: document.querySelector("#apply-worker-instances-button"),
+  applyExecutionTargetDrainButton: document.querySelector("#apply-execution-target-drain-button"),
   saveExecutionTargetButton: document.querySelector("#save-execution-target-button"),
   executionTargetEditorMode: document.querySelector("#execution-target-editor-mode"),
   executionTargetName: document.querySelector("#execution-target-name"),
@@ -275,6 +276,7 @@ const els = {
   executionTargetMaxConcurrentJobs: document.querySelector("#execution-target-max-concurrent-jobs"),
   executionTargetMatlabMaxThreads: document.querySelector("#execution-target-matlab-max-threads"),
   executionTargetWorkerInstances: document.querySelector("#execution-target-worker-instances"),
+  executionTargetDrainNewJobs: document.querySelector("#execution-target-drain-new-jobs"),
   executionTargetMetadataJson: document.querySelector("#execution-target-metadata-json"),
   executionTargetsTableBody: document.querySelector("#execution-targets-table tbody"),
   executionTargetWorkerSummary: document.querySelector("#execution-target-worker-summary"),
@@ -1607,11 +1609,16 @@ function renderExecutionTargets() {
     const workerHealths = target.metadata_json?.worker_healths || {};
     const maxConcurrentJobs = target.metadata_json?.max_concurrent_jobs || "";
     const matlabMaxThreads = target.metadata_json?.matlab_max_threads || "";
+    const drainNewJobs = Boolean(target.metadata_json?.drain_new_jobs);
     const busyWorkers = Number(workerHealth.busy_workers || 0);
     const workerCount = Number(workerHealth.worker_count || Object.keys(workerHealths).length || 0);
     const workerSlots = maxConcurrentJobs || "";
     let healthLabel = workerHealth.health || target.status || "unknown";
-    if (busyWorkers > 0) {
+    if (drainNewJobs && busyWorkers > 0) {
+      healthLabel = `draining (${busyWorkers}${workerSlots ? `/${workerSlots}` : ""} slots used)`;
+    } else if (drainNewJobs) {
+      healthLabel = "drained";
+    } else if (busyWorkers > 0) {
       healthLabel = `busy (${busyWorkers}${workerSlots ? `/${workerSlots}` : ""} slots used)`;
     } else if (workerHealth.capacity_full) {
       healthLabel = "capacity full";
@@ -1647,6 +1654,12 @@ function renderExecutionTargets() {
   }
   if (els.applyWorkerInstancesButton) {
     els.applyWorkerInstancesButton.disabled = !state.selectedExecutionTarget;
+  }
+  if (els.applyExecutionTargetDrainButton) {
+    els.applyExecutionTargetDrainButton.disabled = !state.selectedExecutionTarget;
+    els.applyExecutionTargetDrainButton.textContent = (state.selectedExecutionTarget?.metadata_json?.drain_new_jobs)
+      ? "Disable drain"
+      : "Apply drain";
   }
   if (els.executionTargetDetail) {
     if (!state.selectedExecutionTarget) {
@@ -2032,6 +2045,7 @@ function resetExecutionTargetForm() {
   if (els.executionTargetMaxConcurrentJobs) els.executionTargetMaxConcurrentJobs.value = "1";
   if (els.executionTargetMatlabMaxThreads) els.executionTargetMatlabMaxThreads.value = "";
   if (els.executionTargetWorkerInstances) els.executionTargetWorkerInstances.value = "1";
+  if (els.executionTargetDrainNewJobs) els.executionTargetDrainNewJobs.checked = false;
   if (els.executionTargetMetadataJson) els.executionTargetMetadataJson.value = "{}";
   renderExecutionTargets();
 }
@@ -2070,6 +2084,9 @@ function fillExecutionTargetForm(target) {
       || target.metadata_json?.worker_health_summary?.worker_count
       || target.metadata_json?.worker_health?.worker_count
       || "";
+  }
+  if (els.executionTargetDrainNewJobs) {
+    els.executionTargetDrainNewJobs.checked = Boolean(target.metadata_json?.drain_new_jobs);
   }
   if (els.executionTargetMetadataJson) els.executionTargetMetadataJson.value = JSON.stringify(target.metadata_json || {}, null, 2);
 }
@@ -2127,6 +2144,7 @@ function buildExecutionTargetPayload() {
   } else {
     metadata.worker_instances_desired = workerInstances;
   }
+  metadata.drain_new_jobs = Boolean(els.executionTargetDrainNewJobs?.checked);
   return {
     target_key: targetKey || null,
     display_name: displayName,
@@ -2183,6 +2201,26 @@ async function applyWorkerInstances() {
     { worker_instances: workerInstances },
   );
   setStatus(response.message || `Configured ${workerInstances} worker instance(s).`);
+  await refreshExecutionTargets();
+}
+
+async function applyExecutionTargetDrain() {
+  if (!state.selectedExecutionTarget) {
+    throw new Error("Select an execution target first.");
+  }
+  const nextDrainValue = Boolean(els.executionTargetDrainNewJobs?.checked);
+  const saved = await apiPatch(`/execution-targets/${state.selectedExecutionTarget.id}`, {
+    metadata_json: {
+      drain_new_jobs: nextDrainValue,
+    },
+  });
+  setStatus(
+    nextDrainValue
+      ? `Drain enabled for ${saved.display_name}. Running jobs will finish; no new jobs will be claimed.`
+      : `Drain disabled for ${saved.display_name}. New jobs may be claimed again.`
+  );
+  state.selectedExecutionTarget = saved;
+  state.editingExecutionTarget = saved;
   await refreshExecutionTargets();
 }
 
@@ -5127,6 +5165,10 @@ if (els.refreshExecutionTargetsButton) els.refreshExecutionTargetsButton.addEven
 if (els.newExecutionTargetButton) els.newExecutionTargetButton.addEventListener("click", () => resetExecutionTargetForm());
 if (els.cancelExecutionTargetEditButton) els.cancelExecutionTargetEditButton.addEventListener("click", () => cancelExecutionTargetEdit());
 if (els.applyWorkerInstancesButton) els.applyWorkerInstancesButton.addEventListener("click", () => applyWorkerInstances().catch((error) => {
+  setStatus(String(error));
+  window.alert(String(error));
+}));
+if (els.applyExecutionTargetDrainButton) els.applyExecutionTargetDrainButton.addEventListener("click", () => applyExecutionTargetDrain().catch((error) => {
   setStatus(String(error));
   window.alert(String(error));
 }));

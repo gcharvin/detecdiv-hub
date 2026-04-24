@@ -168,6 +168,15 @@ def claim_next_job() -> Job | None:
         target = resolve_worker_target(session, settings.worker_target_key)
         if target is not None:
             target = session.scalars(select(ExecutionTarget).where(ExecutionTarget.id == target.id).with_for_update()).one()
+            if bool((target.metadata_json or {}).get("drain_new_jobs")):
+                update_worker_target_state(
+                    session,
+                    target=target,
+                    health="online",
+                    current_job=None,
+                    last_job_status="drain_active",
+                )
+                return None
             max_concurrent_jobs = read_positive_int((target.metadata_json or {}).get("max_concurrent_jobs"))
             if max_concurrent_jobs is not None:
                 running_jobs = session.scalar(

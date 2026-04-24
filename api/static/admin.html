@@ -151,6 +151,7 @@
               <button id="new-execution-target-button">New target</button>
               <button id="cancel-execution-target-edit-button">Cancel edit</button>
               <button id="apply-worker-instances-button">Apply workers</button>
+              <button id="apply-execution-target-drain-button">Apply drain</button>
               <button id="save-execution-target-button" class="primary">Save settings</button>
             </div>
           </div>
@@ -210,6 +211,10 @@
             <label class="field compact">
               <span>Worker instances</span>
               <input id="execution-target-worker-instances" type="number" min="1" step="1" placeholder="1" />
+            </label>
+            <label class="field compact checkbox-field">
+              <span>Drain new jobs</span>
+              <input id="execution-target-drain-new-jobs" type="checkbox" />
             </label>
             <label class="field">
               <span>Metadata JSON</span>
