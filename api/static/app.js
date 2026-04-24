@@ -260,6 +260,7 @@ const els = {
   refreshExecutionTargetsButton: document.querySelector("#refresh-execution-targets-button"),
   newExecutionTargetButton: document.querySelector("#new-execution-target-button"),
   cancelExecutionTargetEditButton: document.querySelector("#cancel-execution-target-edit-button"),
+  applyWorkerInstancesButton: document.querySelector("#apply-worker-instances-button"),
   saveExecutionTargetButton: document.querySelector("#save-execution-target-button"),
   executionTargetEditorMode: document.querySelector("#execution-target-editor-mode"),
   executionTargetName: document.querySelector("#execution-target-name"),
@@ -272,6 +273,7 @@ const els = {
   executionTargetSupportsGpu: document.querySelector("#execution-target-supports-gpu"),
   executionTargetMaxConcurrentJobs: document.querySelector("#execution-target-max-concurrent-jobs"),
   executionTargetMatlabMaxThreads: document.querySelector("#execution-target-matlab-max-threads"),
+  executionTargetWorkerInstances: document.querySelector("#execution-target-worker-instances"),
   executionTargetMetadataJson: document.querySelector("#execution-target-metadata-json"),
   executionTargetsTableBody: document.querySelector("#execution-targets-table tbody"),
   executionTargetDetail: document.querySelector("#execution-target-detail"),
@@ -1242,7 +1244,6 @@ function renderPipelines() {
     const source = pipeline.source || "registry";
     const version = pipeline.version || "observed";
     const updated = pipeline.updated_at || pipeline.latest_run_at || pipeline.created_at;
-    const canDelete = source === "registry" && Boolean(pipeline.id);
     const projectCount = pipeline.project_count || 0;
     const canDelete = source === "registry" && Boolean(pipeline.id);
     tr.innerHTML = `
@@ -1639,6 +1640,9 @@ function renderExecutionTargets() {
   if (els.cancelExecutionTargetEditButton) {
     els.cancelExecutionTargetEditButton.disabled = !state.editingExecutionTarget;
   }
+  if (els.applyWorkerInstancesButton) {
+    els.applyWorkerInstancesButton.disabled = !state.selectedExecutionTarget;
+  }
   if (els.executionTargetDetail) {
     if (!state.selectedExecutionTarget) {
       els.executionTargetDetail.textContent = "Select a target to inspect its metadata.";
@@ -1867,6 +1871,7 @@ function resetExecutionTargetForm() {
   if (els.executionTargetSupportsGpu) els.executionTargetSupportsGpu.value = "false";
   if (els.executionTargetMaxConcurrentJobs) els.executionTargetMaxConcurrentJobs.value = "1";
   if (els.executionTargetMatlabMaxThreads) els.executionTargetMatlabMaxThreads.value = "";
+  if (els.executionTargetWorkerInstances) els.executionTargetWorkerInstances.value = "1";
   if (els.executionTargetMetadataJson) els.executionTargetMetadataJson.value = "{}";
   renderExecutionTargets();
 }
@@ -1899,6 +1904,12 @@ function fillExecutionTargetForm(target) {
   }
   if (els.executionTargetMatlabMaxThreads) {
     els.executionTargetMatlabMaxThreads.value = target.metadata_json?.matlab_max_threads || "";
+  }
+  if (els.executionTargetWorkerInstances) {
+    els.executionTargetWorkerInstances.value = target.metadata_json?.worker_instances_desired
+      || target.metadata_json?.worker_health_summary?.worker_count
+      || target.metadata_json?.worker_health?.worker_count
+      || "";
   }
   if (els.executionTargetMetadataJson) els.executionTargetMetadataJson.value = JSON.stringify(target.metadata_json || {}, null, 2);
 }
@@ -1937,6 +1948,10 @@ function buildExecutionTargetPayload() {
     els.executionTargetMatlabMaxThreads?.value,
     "MATLAB max threads",
   );
+  const workerInstances = parsePositiveIntegerField(
+    els.executionTargetWorkerInstances?.value,
+    "Worker instances",
+  );
   if (maxConcurrentJobs === null) {
     metadata.max_concurrent_jobs = null;
   } else {
@@ -1946,6 +1961,11 @@ function buildExecutionTargetPayload() {
     metadata.matlab_max_threads = null;
   } else {
     metadata.matlab_max_threads = matlabMaxThreads;
+  }
+  if (workerInstances === null) {
+    delete metadata.worker_instances_desired;
+  } else {
+    metadata.worker_instances_desired = workerInstances;
   }
   return {
     target_key: targetKey || null,
@@ -1984,6 +2004,25 @@ async function saveExecutionTarget() {
   }
   state.selectedExecutionTarget = saved;
   state.editingExecutionTarget = saved;
+  await refreshExecutionTargets();
+}
+
+async function applyWorkerInstances() {
+  if (!state.selectedExecutionTarget) {
+    throw new Error("Select an execution target first.");
+  }
+  const workerInstances = parsePositiveIntegerField(
+    els.executionTargetWorkerInstances?.value,
+    "Worker instances",
+  );
+  if (workerInstances === null) {
+    throw new Error("Worker instances is required.");
+  }
+  const response = await apiPost(
+    `/execution-targets/${state.selectedExecutionTarget.id}/worker-scale`,
+    { worker_instances: workerInstances },
+  );
+  setStatus(response.message || `Configured ${workerInstances} worker instance(s).`);
   await refreshExecutionTargets();
 }
 
@@ -4924,6 +4963,10 @@ if (els.submitPipelineRunButton) els.submitPipelineRunButton.addEventListener("c
 if (els.refreshExecutionTargetsButton) els.refreshExecutionTargetsButton.addEventListener("click", () => refreshExecutionTargets().catch((error) => setStatus(String(error))));
 if (els.newExecutionTargetButton) els.newExecutionTargetButton.addEventListener("click", () => resetExecutionTargetForm());
 if (els.cancelExecutionTargetEditButton) els.cancelExecutionTargetEditButton.addEventListener("click", () => cancelExecutionTargetEdit());
+if (els.applyWorkerInstancesButton) els.applyWorkerInstancesButton.addEventListener("click", () => applyWorkerInstances().catch((error) => {
+  setStatus(String(error));
+  window.alert(String(error));
+}));
 if (els.saveExecutionTargetButton) els.saveExecutionTargetButton.addEventListener("click", () => saveExecutionTarget().catch((error) => {
   setStatus(String(error));
   window.alert(String(error));

@@ -1,12 +1,22 @@
+import subprocess
+from datetime import datetime, timezone
+from pathlib import Path
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from api.config import get_settings
 from api.db import get_db
 from api.models import ExecutionTarget, User
-from api.schemas import ExecutionTargetCreate, ExecutionTargetSummary, ExecutionTargetUpdate
+from api.schemas import (
+    ExecutionTargetCreate,
+    ExecutionTargetSummary,
+    ExecutionTargetUpdate,
+    ExecutionTargetWorkerScaleRequest,
+    ExecutionTargetWorkerScaleResponse,
+)
 from api.services.users import get_current_user
 
 
@@ -97,6 +107,75 @@ def update_execution_target(
     db.commit()
     db.refresh(target)
     return target
+
+
+@router.post("/{target_id}/worker-scale", response_model=ExecutionTargetWorkerScaleResponse)
+def scale_execution_target_workers(
+    target_id: UUID,
+    payload: ExecutionTargetWorkerScaleRequest,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> ExecutionTargetWorkerScaleResponse:
+    require_admin(current_user)
+    target = db.get(ExecutionTarget, target_id)
+    if target is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Execution target not found")
+
+    settings = get_settings()
+    repo_root = Path(__file__).resolve().parents[1]
+    script_path = repo_root.parent / "scripts" / "configure_worker_systemd.sh"
+    if not script_path.exists():
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Worker systemd helper is missing")
+
+    command = [
+        "sudo",
+        "-n",
+        "bash",
+        str(script_path),
+        "--repo-root",
+        str(repo_root.parent),
+        "--service-user",
+        settings.systemd_service_user,
+        "--env-file",
+        settings.systemd_env_file,
+        "--unit-dir",
+        settings.systemd_unit_dir,
+        "--worker-instances",
+        str(payload.worker_instances),
+    ]
+    try:
+        completed = subprocess.run(
+            command,
+            check=True,
+            capture_output=True,
+            text=True,
+            cwd=str(repo_root.parent),
+        )
+    except subprocess.CalledProcessError as exc:
+        stderr = (exc.stderr or "").strip()
+        stdout = (exc.stdout or "").strip()
+        detail = stderr or stdout or "Worker scaling command failed"
+        if "sudo" in detail.lower() and ("password" in detail.lower() or "a password is required" in detail.lower()):
+            detail = (
+                "Worker scaling requires passwordless sudo for scripts/configure_worker_systemd.sh "
+                "or equivalent systemctl commands."
+            )
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=detail) from exc
+
+    metadata = dict(target.metadata_json or {})
+    metadata["worker_instances_desired"] = payload.worker_instances
+    metadata["worker_scale_last_applied_at"] = datetime.now(timezone.utc).isoformat()
+    metadata["worker_scale_last_message"] = completed.stdout.strip() or None
+    target.metadata_json = metadata
+    db.commit()
+    db.refresh(target)
+    return ExecutionTargetWorkerScaleResponse(
+        target_id=target.id,
+        display_name=target.display_name,
+        worker_instances_requested=payload.worker_instances,
+        message=f"Configured {payload.worker_instances} worker instance(s) for {target.display_name}.",
+        metadata_json=target.metadata_json or {},
+    )
 
 
 def require_admin(user: User) -> None:

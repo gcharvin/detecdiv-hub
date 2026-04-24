@@ -893,6 +893,18 @@ class ExecutionTargetUpdate(HubBaseModel):
     metadata_json: dict[str, Any] | None = None
 
 
+class ExecutionTargetWorkerScaleRequest(HubBaseModel):
+    worker_instances: int = Field(default=1, ge=1)
+
+
+class ExecutionTargetWorkerScaleResponse(HubBaseModel):
+    target_id: UUID
+    display_name: str
+    worker_instances_requested: int
+    message: str
+    metadata_json: dict[str, Any] = Field(default_factory=dict)
+
+
 class PipelineSummary(HubBaseModel):
     id: UUID
     pipeline_key: str | None = None

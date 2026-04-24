@@ -1,4 +1,5 @@
 from functools import lru_cache
+import getpass
 
 from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -16,6 +17,9 @@ class Settings(BaseSettings):
     matlab_repo_root: str = ""
     worker_target_key: str = ""
     worker_instance: str = ""
+    systemd_env_file: str = "/etc/detecdiv-hub/detecdiv-hub.env"
+    systemd_unit_dir: str = "/etc/systemd/system"
+    systemd_service_user: str = Field(default_factory=getpass.getuser)
     log_level: str = "INFO"
     worker_poll_interval_sec: float = 5.0
     default_user_key: str = "localdev"

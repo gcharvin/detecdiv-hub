@@ -150,6 +150,7 @@
               <button id="refresh-execution-targets-button">Refresh targets</button>
               <button id="new-execution-target-button">New target</button>
               <button id="cancel-execution-target-edit-button">Cancel edit</button>
+              <button id="apply-worker-instances-button">Apply workers</button>
               <button id="save-execution-target-button" class="primary">Save settings</button>
             </div>
           </div>
@@ -205,6 +206,10 @@
             <label class="field compact">
               <span>MATLAB max threads</span>
               <input id="execution-target-matlab-max-threads" type="number" min="1" step="1" placeholder="18" />
+            </label>
+            <label class="field compact">
+              <span>Worker instances</span>
+              <input id="execution-target-worker-instances" type="number" min="1" step="1" placeholder="1" />
             </label>
             <label class="field">
               <span>Metadata JSON</span>
