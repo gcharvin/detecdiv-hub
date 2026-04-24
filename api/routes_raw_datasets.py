@@ -14,6 +14,12 @@ from api.schemas import (
     ArchivePolicyAutomaticRunRequest,
     ArchivePolicyAutomaticStatus,
     ArchivePolicyRunSummary,
+    RawArchiveSettingsConfig,
+    RawArchiveSettingsStatus,
+    RawArchiveSettingsUpdate,
+    RawDatasetArchiveBulkDeleteRequest,
+    RawDatasetArchiveBulkDeleteResult,
+    RawDatasetArchiveDeleteResult,
     RawDatasetArchivePolicyPreview,
     RawDatasetArchivePolicyQueueResult,
     RawDatasetArchivePolicyRequest,
@@ -27,6 +33,8 @@ from api.schemas import (
     RawDatasetDeletionResult,
     RawPreviewVideoQueueRequest,
     RawPreviewVideoQueueResult,
+    RawPreviewVideoBulkQueueRequest,
+    RawPreviewVideoBulkQueueResult,
     RawPreviewQualityConfig,
     RawPreviewQualitySample,
     RawPreviewQualityStatus,
@@ -36,6 +44,12 @@ from api.schemas import (
     RawDatasetUpdate,
     ProjectSummary,
     StorageLifecycleEventSummary,
+)
+from api.services.archive_settings import resolve_raw_archive_runtime_config, update_raw_archive_runtime_config
+from api.services.raw_archive_delete import (
+    RawArchiveDeleteConflictError,
+    archive_file_size_bytes,
+    delete_raw_dataset_archive_file,
 )
 from api.services.raw_dataset_deletion import build_raw_dataset_deletion_preview, execute_raw_dataset_deletion
 from api.services.archive_policy import (
@@ -180,6 +194,36 @@ def get_raw_preview_quality_status(
         summary=summary,
         recent_samples=samples,
     )
+
+
+@router.get("/settings/archive", response_model=RawArchiveSettingsStatus)
+def get_raw_archive_settings_status(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> RawArchiveSettingsStatus:
+    ensure_archive_policy_admin(current_user)
+    config = resolve_raw_archive_runtime_config(db)
+    return RawArchiveSettingsStatus(
+        config=RawArchiveSettingsConfig(
+            archive_root=config.archive_root,
+            archive_compression=config.archive_compression,
+            delete_hot_source=config.delete_hot_source,
+        )
+    )
+
+
+@router.patch("/settings/archive", response_model=RawArchiveSettingsStatus)
+def update_raw_archive_settings_status(
+    payload: RawArchiveSettingsUpdate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> RawArchiveSettingsStatus:
+    ensure_archive_policy_admin(current_user)
+    updates = payload.model_dump(exclude_unset=True)
+    if updates:
+        update_raw_archive_runtime_config(db, updates=updates)
+        db.commit()
+    return get_raw_archive_settings_status(db=db, current_user=current_user)
 
 
 @router.patch("/preview-quality", response_model=RawPreviewQualityStatus)
@@ -600,6 +644,78 @@ def request_raw_dataset_archive(
     return get_raw_dataset(raw_dataset_id=raw_dataset_id, db=db, current_user=current_user)
 
 
+@router.delete("/{raw_dataset_id}/archive-file", response_model=RawDatasetArchiveDeleteResult)
+def delete_raw_dataset_archive(
+    raw_dataset_id: UUID,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> RawDatasetArchiveDeleteResult:
+    raw_dataset = db.scalars(
+        select(RawDataset)
+        .options(
+            joinedload(RawDataset.owner),
+            joinedload(RawDataset.locations).joinedload(RawDatasetLocation.storage_root),
+            joinedload(RawDataset.lifecycle_events).joinedload(StorageLifecycleEvent.requested_by),
+        )
+        .where(RawDataset.id == raw_dataset_id)
+    ).unique().first()
+    raw_dataset = ensure_raw_dataset_readable(raw_dataset, current_user)
+    if not user_can_edit_raw_dataset(raw_dataset, current_user):
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Raw dataset is not editable")
+    try:
+        result = delete_raw_dataset_archive_file(db, raw_dataset=raw_dataset, requested_by_user=current_user)
+    except RawArchiveDeleteConflictError as exc:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(exc)) from exc
+    except FileNotFoundError as exc:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
+    db.commit()
+    return RawDatasetArchiveDeleteResult.model_validate(result)
+
+
+@router.post("/archive-files/delete-bulk", response_model=RawDatasetArchiveBulkDeleteResult)
+def delete_bulk_raw_dataset_archives(
+    payload: RawDatasetArchiveBulkDeleteRequest,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> RawDatasetArchiveBulkDeleteResult:
+    if not payload.raw_dataset_ids:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="raw_dataset_ids is required")
+    unique_raw_dataset_ids = list(dict.fromkeys(payload.raw_dataset_ids))
+    deleted_raw_dataset_ids: list[UUID] = []
+    skipped_raw_dataset_ids: list[UUID] = []
+    for raw_dataset_id in unique_raw_dataset_ids:
+        raw_dataset = db.scalars(
+            select(RawDataset)
+            .options(joinedload(RawDataset.locations).joinedload(RawDatasetLocation.storage_root))
+            .where(RawDataset.id == raw_dataset_id)
+        ).unique().first()
+        if raw_dataset is None:
+            skipped_raw_dataset_ids.append(raw_dataset_id)
+            continue
+        try:
+            raw_dataset = ensure_raw_dataset_readable(raw_dataset, current_user)
+        except HTTPException:
+            skipped_raw_dataset_ids.append(raw_dataset_id)
+            continue
+        if not user_can_edit_raw_dataset(raw_dataset, current_user):
+            skipped_raw_dataset_ids.append(raw_dataset_id)
+            continue
+        try:
+            delete_raw_dataset_archive_file(db, raw_dataset=raw_dataset, requested_by_user=current_user)
+            deleted_raw_dataset_ids.append(raw_dataset.id)
+        except (RawArchiveDeleteConflictError, FileNotFoundError):
+            skipped_raw_dataset_ids.append(raw_dataset_id)
+    db.commit()
+    return RawDatasetArchiveBulkDeleteResult(
+        requested_count=len(unique_raw_dataset_ids),
+        deleted_count=len(deleted_raw_dataset_ids),
+        skipped_count=len(skipped_raw_dataset_ids),
+        deleted_raw_dataset_ids=deleted_raw_dataset_ids,
+        skipped_raw_dataset_ids=skipped_raw_dataset_ids,
+        message=f"Deleted {len(deleted_raw_dataset_ids)} archive file(s).",
+    )
+
+
 @router.post("/{raw_dataset_id}/restore", response_model=RawDatasetDetail)
 def request_raw_dataset_restore(
     raw_dataset_id: UUID,
@@ -701,6 +817,75 @@ def queue_raw_preview_video(
     )
 
 
+@router.post("/preview-videos/queue-bulk", response_model=RawPreviewVideoBulkQueueResult, status_code=status.HTTP_201_CREATED)
+def queue_bulk_raw_preview_videos(
+    payload: RawPreviewVideoBulkQueueRequest,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> RawPreviewVideoBulkQueueResult:
+    if not payload.raw_dataset_ids:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="raw_dataset_ids is required")
+
+    unique_raw_dataset_ids = list(dict.fromkeys(payload.raw_dataset_ids))
+    queued_job_ids: list[UUID] = []
+    queued_raw_dataset_ids: list[UUID] = []
+    skipped_raw_dataset_ids: list[UUID] = []
+
+    for raw_dataset_id in unique_raw_dataset_ids:
+        raw_dataset = db.scalars(
+            select(RawDataset)
+            .options(joinedload(RawDataset.positions))
+            .where(RawDataset.id == raw_dataset_id)
+        ).unique().first()
+        if raw_dataset is None:
+            skipped_raw_dataset_ids.append(raw_dataset_id)
+            continue
+        try:
+            raw_dataset = ensure_raw_dataset_readable(raw_dataset, current_user)
+        except HTTPException:
+            skipped_raw_dataset_ids.append(raw_dataset_id)
+            continue
+        if not user_can_edit_raw_dataset(raw_dataset, current_user):
+            skipped_raw_dataset_ids.append(raw_dataset_id)
+            continue
+
+        params_json = dict(payload.params_json or {})
+        params_json.update(
+            {
+                "job_kind": "raw_preview_video",
+                "force": payload.force,
+                "position_id": None,
+                "position_key": None,
+                "scope": "dataset",
+            }
+        )
+        job = Job(
+            raw_dataset_id=raw_dataset.id,
+            requested_mode=payload.requested_mode,
+            priority=payload.priority,
+            requested_by=current_user.user_key,
+            params_json=params_json,
+            status="queued",
+        )
+        db.add(job)
+        for position in raw_dataset.positions or []:
+            position.preview_status = "queued"
+        db.flush()
+        queued_job_ids.append(job.id)
+        queued_raw_dataset_ids.append(raw_dataset.id)
+
+    db.commit()
+    return RawPreviewVideoBulkQueueResult(
+        raw_dataset_count=len(unique_raw_dataset_ids),
+        queued_count=len(queued_job_ids),
+        skipped_count=len(skipped_raw_dataset_ids),
+        raw_dataset_ids=queued_raw_dataset_ids,
+        queued_job_ids=queued_job_ids,
+        skipped_raw_dataset_ids=skipped_raw_dataset_ids,
+        message=f"Queued {len(queued_job_ids)} raw preview dataset job(s).",
+    )
+
+
 def _as_int(value: object) -> int | None:
     try:
         if value is None:
@@ -734,6 +919,7 @@ def raw_dataset_summary_view(raw_dataset: RawDataset) -> RawDatasetSummary:
             "archive_status": raw_dataset.archive_status,
             "archive_uri": raw_dataset.archive_uri,
             "archive_compression": raw_dataset.archive_compression,
+            "archive_file_bytes": archive_file_size_bytes(raw_dataset.archive_uri),
             "reclaimable_bytes": raw_dataset.reclaimable_bytes,
             "last_accessed_at": raw_dataset.last_accessed_at,
             "total_bytes": raw_dataset.total_bytes,

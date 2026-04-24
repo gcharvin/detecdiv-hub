@@ -8,6 +8,7 @@ from sqlalchemy.orm import Session, joinedload
 
 from api.config import Settings, get_settings
 from api.models import ArchivePolicyRun, RawDataset, RawDatasetLocation, User
+from api.services.archive_settings import resolve_raw_archive_runtime_config
 from api.services.raw_dataset_lifecycle import (
     RawDatasetLifecycleConflictError,
     build_archive_preview,
@@ -128,6 +129,7 @@ def build_archive_policy_preview(
     archive_compression: str | None = None,
 ) -> ArchivePolicyPreviewData:
     settings = get_settings()
+    archive_config = resolve_raw_archive_runtime_config(session, settings=settings)
     lifecycle_tiers = lifecycle_tiers or ["hot"]
     archive_statuses = archive_statuses or ["none", "restored", "archive_failed", "restore_failed"]
     generated_at = datetime.now(timezone.utc)
@@ -180,9 +182,16 @@ def build_archive_policy_preview(
                 raw_dataset=raw_dataset,
                 last_activity_at=last_activity_at,
                 reclaimable_bytes=preview.reclaimable_bytes,
-                suggested_archive_uri=archive_uri or raw_dataset.archive_uri or settings.default_archive_root or None,
+                suggested_archive_uri=(
+                    archive_uri
+                    or raw_dataset.archive_uri
+                    or archive_config.archive_root
+                    or settings.default_archive_root
+                    or None
+                ),
                 suggested_archive_compression=archive_compression
                 or raw_dataset.archive_compression
+                or archive_config.archive_compression
                 or settings.default_archive_compression,
             )
         )

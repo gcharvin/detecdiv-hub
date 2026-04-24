@@ -9,6 +9,7 @@ from sqlalchemy.orm import Session
 
 from api.config import get_settings
 from api.models import Job, RawDataset, RawDatasetLocation, StorageLifecycleEvent, User
+from api.services.archive_settings import resolve_raw_archive_runtime_config
 
 
 @dataclass
@@ -62,9 +63,10 @@ def transition_raw_dataset_to_archive(
     requested_by_user: User,
     archive_uri: str | None,
     archive_compression: str | None,
-    mark_archived: bool,
+    mark_archived: bool | None,
 ) -> StorageLifecycleEvent:
     settings = get_settings()
+    archive_config = resolve_raw_archive_runtime_config(session, settings=settings)
     existing_job = find_active_lifecycle_job(session, raw_dataset=raw_dataset)
     if existing_job is not None:
         raise RawDatasetLifecycleConflictError(
@@ -72,10 +74,20 @@ def transition_raw_dataset_to_archive(
         )
 
     from_tier = raw_dataset.lifecycle_tier
+    effective_mark_archived = archive_config.delete_hot_source if mark_archived is None else bool(mark_archived)
     raw_dataset.archive_status = "archive_queued"
-    raw_dataset.archive_uri = archive_uri or raw_dataset.archive_uri or settings.default_archive_root or None
+    raw_dataset.archive_uri = (
+        archive_uri
+        or raw_dataset.archive_uri
+        or archive_config.archive_root
+        or settings.default_archive_root
+        or None
+    )
     raw_dataset.archive_compression = (
-        archive_compression or raw_dataset.archive_compression or settings.default_archive_compression
+        archive_compression
+        or raw_dataset.archive_compression
+        or archive_config.archive_compression
+        or settings.default_archive_compression
     )
     raw_dataset.reclaimable_bytes = int(raw_dataset.total_bytes or 0)
 
@@ -89,7 +101,7 @@ def transition_raw_dataset_to_archive(
             "job_kind": "archive_raw_dataset",
             "archive_uri": raw_dataset.archive_uri,
             "archive_compression": raw_dataset.archive_compression,
-            "mark_archived": mark_archived,
+            "mark_archived": effective_mark_archived,
         },
         status="queued",
     )
@@ -108,7 +120,7 @@ def transition_raw_dataset_to_archive(
             "job_id": str(job.id),
             "archive_uri": raw_dataset.archive_uri,
             "archive_compression": raw_dataset.archive_compression,
-            "mark_archived": mark_archived,
+            "mark_archived": effective_mark_archived,
         },
     )
     session.add(event)

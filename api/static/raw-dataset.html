@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Detecdiv server - Raw dataset</title>
-    <link rel="stylesheet" href="/web/styles.css?v=20260423-raw-quality2" />
+    <link rel="stylesheet" href="/web/styles.css?v=20260424-raw-staticfix1" />
   </head>
   <body data-page="raw-dataset">
     <div class="page-shell">
@@ -36,10 +36,10 @@
         </div>
         <div class="hero-actions">
           <nav class="hero-nav">
-            <a class="nav-link" href="/web/">Catalog</a>
-            <a class="nav-link active" href="/web/raw-datasets.html">Raw Datasets</a>
-            <a class="nav-link" href="/web/raw-ops.html">Raw Ops</a>
-            <a class="nav-link" href="/web/indexing.html">Indexing</a>
+            <a class="nav-link" href="/web/">Project Catalog</a>
+            <a class="nav-link active" href="/web/raw-datasets.html">Raw datasets Catalog</a>
+            <a class="nav-link" href="/web/raw-ops.html">Raw datasets Ops</a>
+            <a class="nav-link" href="/web/indexing.html">Projects Ops</a>
             <a class="nav-link admin-nav-link hidden" href="/web/admin.html">Admin</a>
           </nav>
           <div class="session-box">
@@ -60,9 +60,11 @@
             <a class="button-link" href="/web/raw-datasets.html">Back to datasets</a>
             <button id="raw-preview-archive-button">Preview archive</button>
             <button id="raw-archive-button">Request archive</button>
+            <button id="raw-delete-archive-button">Delete archive</button>
             <button id="raw-restore-button">Request restore</button>
           </div>
         </div>
+        <div id="raw-action-feedback" class="inline-feedback hidden"></div>
 
         <div id="raw-detail-empty" class="empty-state">
           Raw dataset not loaded.
@@ -139,6 +141,6 @@
       </footer>
     </div>
 
-    <script src="/web/app.js?v=20260423-raw-quality5" defer></script>
+    <script src="/web/app.js?v=20260424-raw-staticfix1" defer></script>
   </body>
 </html>

@@ -126,6 +126,7 @@ class RawDatasetSummary(HubBaseModel):
     archive_status: str
     archive_uri: str | None = None
     archive_compression: str | None = None
+    archive_file_bytes: int | None = None
     reclaimable_bytes: int = 0
     last_accessed_at: datetime | None = None
     total_bytes: int = 0
@@ -365,7 +366,27 @@ class RawDatasetUpdate(HubBaseModel):
 class RawDatasetArchiveRequest(HubBaseModel):
     archive_uri: str | None = None
     archive_compression: str | None = None
-    mark_archived: bool = False
+    mark_archived: bool | None = None
+
+
+class RawDatasetArchiveDeleteResult(HubBaseModel):
+    raw_dataset_id: UUID
+    deleted: bool = False
+    archive_uri: str | None = None
+    message: str
+
+
+class RawDatasetArchiveBulkDeleteRequest(HubBaseModel):
+    raw_dataset_ids: list[UUID] = Field(default_factory=list)
+
+
+class RawDatasetArchiveBulkDeleteResult(HubBaseModel):
+    requested_count: int = 0
+    deleted_count: int = 0
+    skipped_count: int = 0
+    deleted_raw_dataset_ids: list[UUID] = Field(default_factory=list)
+    skipped_raw_dataset_ids: list[UUID] = Field(default_factory=list)
+    message: str
 
 
 class RawDatasetArchivePreview(HubBaseModel):
@@ -389,7 +410,23 @@ class RawDatasetArchivePolicyRequest(HubBaseModel):
     )
     archive_uri: str | None = None
     archive_compression: str | None = None
-    mark_archived: bool = False
+    mark_archived: bool | None = None
+
+
+class RawArchiveSettingsConfig(HubBaseModel):
+    archive_root: str | None = None
+    archive_compression: str = "zip"
+    delete_hot_source: bool = False
+
+
+class RawArchiveSettingsStatus(HubBaseModel):
+    config: RawArchiveSettingsConfig
+
+
+class RawArchiveSettingsUpdate(HubBaseModel):
+    archive_root: str | None = None
+    archive_compression: str | None = None
+    delete_hot_source: bool | None = None
 
 
 class RawDatasetArchivePolicyCandidate(HubBaseModel):
@@ -511,6 +548,8 @@ class MicroManagerIngestAutomaticStatus(HubBaseModel):
 
 class MicroManagerIngestRunRequest(HubBaseModel):
     report_only: bool = True
+    landing_root_override: str | None = None
+    storage_root_name_override: str | None = None
 
 
 class ExperimentProjectCreate(HubBaseModel):
@@ -652,6 +691,24 @@ class RawPreviewVideoQueueResult(HubBaseModel):
     position_id: UUID | None = None
     position_key: str | None = None
     job: JobSummary
+    message: str
+
+
+class RawPreviewVideoBulkQueueRequest(HubBaseModel):
+    raw_dataset_ids: list[UUID] = Field(default_factory=list)
+    force: bool = False
+    requested_mode: str = "auto"
+    priority: int = 100
+    params_json: dict[str, Any] = Field(default_factory=dict)
+
+
+class RawPreviewVideoBulkQueueResult(HubBaseModel):
+    raw_dataset_count: int = 0
+    queued_count: int = 0
+    skipped_count: int = 0
+    raw_dataset_ids: list[UUID] = Field(default_factory=list)
+    queued_job_ids: list[UUID] = Field(default_factory=list)
+    skipped_raw_dataset_ids: list[UUID] = Field(default_factory=list)
     message: str
 
 

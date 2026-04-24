@@ -123,19 +123,23 @@ h3 {
   display: flex;
   gap: 10px;
   align-items: center;
+  flex-wrap: wrap;
   margin-right: 4px;
 }
 
 .nav-link {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   min-height: 42px;
+  min-width: 108px;
   padding: 10px 14px;
   border-radius: var(--radius);
   border: 1px solid var(--line);
   background: #252931;
   color: var(--ink);
   text-decoration: none;
+  text-align: center;
 }
 
 .nav-link.active {
@@ -508,6 +512,24 @@ tbody tr.selected {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
+}
+
+.inline-feedback {
+  margin: -4px 0 14px;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  background: #252931;
+  color: var(--ink);
+}
+
+.inline-feedback.ok {
+  border-color: rgba(127, 209, 161, 0.45);
+  color: var(--ok);
+}
+
+.inline-feedback.warn {
+  border-color: rgba(217, 188, 118, 0.45);
+  color: var(--warn);
 }
 
 .job-highlight {

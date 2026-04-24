@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Detecdiv server - Raw datasets</title>
-    <link rel="stylesheet" href="/web/styles.css?v=20260423-raw-quality2" />
+    <link rel="stylesheet" href="/web/styles.css?v=20260424-raw-staticfix1" />
   </head>
   <body data-page="raw-datasets">
     <div class="page-shell">
@@ -38,10 +38,10 @@
         </div>
         <div class="hero-actions">
           <nav class="hero-nav">
-            <a class="nav-link" href="/web/">Catalog</a>
-            <a class="nav-link active" href="/web/raw-datasets.html">Raw Datasets</a>
-            <a class="nav-link" href="/web/raw-ops.html">Raw Ops</a>
-            <a class="nav-link" href="/web/indexing.html">Indexing</a>
+            <a class="nav-link" href="/web/">Project Catalog</a>
+            <a class="nav-link active" href="/web/raw-datasets.html">Raw datasets Catalog</a>
+            <a class="nav-link" href="/web/raw-ops.html">Raw datasets Ops</a>
+            <a class="nav-link" href="/web/indexing.html">Projects Ops</a>
             <a class="nav-link admin-nav-link hidden" href="/web/admin.html">Admin</a>
           </nav>
           <div class="session-box">
@@ -51,6 +51,25 @@
           </div>
         </div>
       </header>
+
+      <section class="summary-grid" id="summary-grid">
+        <article class="summary-card">
+          <div class="summary-label">Raw datasets</div>
+          <div id="summary-total-projects" class="summary-value">0</div>
+        </article>
+        <article class="summary-card">
+          <div class="summary-label">My raw datasets</div>
+          <div id="summary-owned-projects" class="summary-value">0</div>
+        </article>
+        <article class="summary-card">
+          <div class="summary-label">Raw storage</div>
+          <div id="summary-total-bytes" class="summary-value">0 B</div>
+        </article>
+        <article class="summary-card">
+          <div class="summary-label">Archived</div>
+          <div id="summary-group-count" class="summary-value">0</div>
+        </article>
+      </section>
 
       <section class="toolbar">
         <label class="field compact">
@@ -101,6 +120,7 @@
         <button id="refresh-button">Refresh</button>
         <button id="raw-select-visible-button">Select visible</button>
         <button id="raw-clear-selection-button">Clear selection</button>
+        <button id="raw-bulk-queue-previews-selected-button">Queue previews (selected)</button>
         <button id="raw-bulk-delete-selected-button" class="danger">Delete selected</button>
         <button id="raw-bulk-delete-visible-button" class="danger">Delete visible</button>
       </section>
@@ -153,7 +173,7 @@
         <main class="panel">
           <div class="panel-header">
             <div>
-              <h2>Raw Datasets</h2>
+              <h2>Raw datasets Catalog</h2>
               <p id="raw-count-label" class="muted">0 visible raw datasets</p>
             </div>
             <div class="status-pill" id="user-label">Signed in: not connected</div>
@@ -212,6 +232,6 @@
       </footer>
     </div>
 
-    <script src="/web/app.js?v=20260423-raw-quality5" defer></script>
+    <script src="/web/app.js?v=20260424-raw-staticfix1" defer></script>
   </body>
 </html>

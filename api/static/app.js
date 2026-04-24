@@ -22,6 +22,7 @@ const state = {
   pendingRawBulkDelete: null,
   rawBulkDeletePreviewToken: 0,
   rawPreviewQualityStatus: null,
+  archiveSettingsStatus: null,
   archivePolicyPreview: null,
   automaticArchivePolicyStatus: null,
   micromanagerIngestStatus: null,
@@ -119,6 +120,7 @@ const els = {
   rawSelectionSummary: document.querySelector("#raw-selection-summary"),
   rawSelectVisibleButton: document.querySelector("#raw-select-visible-button"),
   rawClearSelectionButton: document.querySelector("#raw-clear-selection-button"),
+  rawBulkQueuePreviewsSelectedButton: document.querySelector("#raw-bulk-queue-previews-selected-button"),
   rawBulkDeleteSelectedButton: document.querySelector("#raw-bulk-delete-selected-button"),
   rawBulkDeleteVisibleButton: document.querySelector("#raw-bulk-delete-visible-button"),
   rawBulkDeletePanel: document.querySelector("#raw-bulk-delete-panel"),
@@ -151,7 +153,9 @@ const els = {
   rawLifecycleEvents: document.querySelector("#raw-lifecycle-events"),
   rawPreviewArchiveButton: document.querySelector("#raw-preview-archive-button"),
   rawArchiveButton: document.querySelector("#raw-archive-button"),
+  rawDeleteArchiveButton: document.querySelector("#raw-delete-archive-button"),
   rawRestoreButton: document.querySelector("#raw-restore-button"),
+  rawActionFeedback: document.querySelector("#raw-action-feedback"),
   rawDatasetPageTitle: document.querySelector("#raw-dataset-page-title"),
   rawPreviewQualityRefreshButton: document.querySelector("#raw-preview-quality-refresh-button"),
   rawPreviewQualitySaveButton: document.querySelector("#raw-preview-quality-save-button"),
@@ -168,6 +172,12 @@ const els = {
   rawPreviewQualityConfig: document.querySelector("#raw-preview-quality-config"),
   rawPreviewQualitySummary: document.querySelector("#raw-preview-quality-summary"),
   rawPreviewQualityTableBody: document.querySelector("#raw-preview-quality-table tbody"),
+  archiveSettingsRefreshButton: document.querySelector("#archive-settings-refresh-button"),
+  archiveSettingsSaveButton: document.querySelector("#archive-settings-save-button"),
+  archiveSettingsRoot: document.querySelector("#archive-settings-root"),
+  archiveSettingsCompression: document.querySelector("#archive-settings-compression"),
+  archiveSettingsDeleteSource: document.querySelector("#archive-settings-delete-source"),
+  archiveSettingsSummary: document.querySelector("#archive-settings-summary"),
   automaticArchivePolicyPanel: document.querySelector("#automatic-archive-policy-panel"),
   automaticArchivePolicyReportOnly: document.querySelector("#automatic-archive-policy-report-only"),
   automaticArchivePolicyRefreshButton: document.querySelector("#automatic-archive-policy-refresh-button"),
@@ -176,6 +186,9 @@ const els = {
   automaticArchivePolicyConfig: document.querySelector("#automatic-archive-policy-config"),
   automaticArchivePolicyRunsTableBody: document.querySelector("#automatic-archive-policy-runs-table tbody"),
   micromanagerIngestPanel: document.querySelector("#micromanager-ingest-panel"),
+  micromanagerIngestRootMode: document.querySelector("#micromanager-ingest-root-mode"),
+  micromanagerIngestRootPath: document.querySelector("#micromanager-ingest-root-path"),
+  micromanagerIngestStorageRootName: document.querySelector("#micromanager-ingest-storage-root-name"),
   micromanagerIngestReportOnly: document.querySelector("#micromanager-ingest-report-only"),
   micromanagerIngestRefreshButton: document.querySelector("#micromanager-ingest-refresh-button"),
   micromanagerIngestRunButton: document.querySelector("#micromanager-ingest-run-button"),
@@ -192,6 +205,12 @@ const els = {
   archivePolicyQueueButton: document.querySelector("#archive-policy-queue-button"),
   archivePolicySummary: document.querySelector("#archive-policy-summary"),
   archivePolicyTableBody: document.querySelector("#archive-policy-table tbody"),
+  archivedRawSelectAll: document.querySelector("#archived-raw-select-all"),
+  archivedRawSelectVisibleButton: document.querySelector("#archived-raw-select-visible-button"),
+  archivedRawClearSelectionButton: document.querySelector("#archived-raw-clear-selection-button"),
+  archivedRawDeleteSelectedButton: document.querySelector("#archived-raw-delete-selected-button"),
+  archivedRawDatasetsSummary: document.querySelector("#archived-raw-datasets-summary"),
+  archivedRawDatasetsTableBody: document.querySelector("#archived-raw-datasets-table tbody"),
   migrationBatchName: document.querySelector("#migration-batch-name"),
   migrationSourcePath: document.querySelector("#migration-source-path"),
   migrationSourceKind: document.querySelector("#migration-source-kind"),
@@ -284,6 +303,7 @@ const pageFlags = {
   hasIndexingView: Boolean(els.indexJobsTableBody || els.activeIndexJob),
   hasRawDatasetsView: Boolean(els.rawDatasetsTableBody),
   hasRawDatasetPage: pageKind === "raw-dataset",
+  hasArchiveSettings: Boolean(els.archiveSettingsSummary),
   hasAutomaticArchivePolicy: Boolean(els.automaticArchivePolicyPanel),
   hasMicroManagerIngest: Boolean(els.micromanagerIngestPanel),
   hasRawDatasetDetail: Boolean(els.rawDetailContent || els.rawDetailList),
@@ -295,6 +315,22 @@ function setStatus(message) {
   if (els.statusLine) {
     els.statusLine.textContent = message;
   }
+}
+
+function setRawActionFeedback(message, tone = "ok") {
+  if (!els.rawActionFeedback) {
+    return;
+  }
+  if (!message) {
+    els.rawActionFeedback.textContent = "";
+    els.rawActionFeedback.classList.add("hidden");
+    els.rawActionFeedback.classList.remove("ok", "warn");
+    return;
+  }
+  els.rawActionFeedback.textContent = message;
+  els.rawActionFeedback.classList.remove("hidden");
+  els.rawActionFeedback.classList.remove("ok", "warn");
+  els.rawActionFeedback.classList.add(tone === "warn" ? "warn" : "ok");
 }
 
 function clearDashboardState() {
@@ -745,12 +781,134 @@ function updateSessionUi() {
 
 function setSummary(summary) {
   state.summary = summary;
-  if (els.summaryTotalProjects) els.summaryTotalProjects.textContent = summary.total_projects;
-  if (els.summaryOwnedProjects) els.summaryOwnedProjects.textContent = summary.owned_projects;
-  if (els.summaryTotalBytes) els.summaryTotalBytes.textContent = humanBytes(summary.total_bytes);
-  if (els.summaryGroupCount) els.summaryGroupCount.textContent = summary.group_count;
+  if (pageKind !== "raw-ops" && pageKind !== "raw-datasets") {
+    if (els.summaryTotalProjects) els.summaryTotalProjects.textContent = summary.total_projects;
+    if (els.summaryOwnedProjects) els.summaryOwnedProjects.textContent = summary.owned_projects;
+    if (els.summaryTotalBytes) els.summaryTotalBytes.textContent = humanBytes(summary.total_bytes);
+    if (els.summaryGroupCount) els.summaryGroupCount.textContent = summary.group_count;
+  }
   state.currentUser = summary.user || null;
   updateSessionUi();
+}
+
+function renderRawOpsSummary() {
+  if (pageKind !== "raw-ops" && pageKind !== "raw-datasets") {
+    return;
+  }
+  const rawItems = Array.isArray(state.rawDatasets) ? state.rawDatasets : [];
+  const currentUserKey = state.currentUser?.user_key || state.userKey || "";
+  const ownedCount = rawItems.filter((item) => (item.owner || {}).user_key === currentUserKey).length;
+  const archivedCount = rawItems.filter((item) => String(item.archive_status || "").toLowerCase() === "archived").length;
+  const totalBytes = rawItems.reduce((sum, item) => sum + Number(item.total_bytes || 0), 0);
+  if (els.summaryTotalProjects) els.summaryTotalProjects.textContent = `${rawItems.length}`;
+  if (els.summaryOwnedProjects) els.summaryOwnedProjects.textContent = `${ownedCount}`;
+  if (els.summaryTotalBytes) els.summaryTotalBytes.textContent = humanBytes(totalBytes);
+  if (els.summaryGroupCount) els.summaryGroupCount.textContent = `${archivedCount}`;
+}
+
+function renderArchiveSettingsStatus() {
+  if (!els.archiveSettingsSummary) {
+    return;
+  }
+  const status = state.archiveSettingsStatus;
+  if (!status) {
+    els.archiveSettingsSummary.textContent = "Archive defaults not loaded yet.";
+    return;
+  }
+  const config = status.config || {};
+  if (els.archiveSettingsRoot) {
+    els.archiveSettingsRoot.value = config.archive_root || "";
+  }
+  if (els.archiveSettingsCompression) {
+    els.archiveSettingsCompression.value = config.archive_compression || "zip";
+  }
+  if (els.archiveSettingsDeleteSource) {
+    els.archiveSettingsDeleteSource.checked = Boolean(config.delete_hot_source);
+  }
+  if (els.archivePolicyUri && !els.archivePolicyUri.value) {
+    els.archivePolicyUri.placeholder = config.archive_root || "archive root required";
+  }
+  if (els.archivePolicyCompression) {
+    els.archivePolicyCompression.value = config.archive_compression || "zip";
+  }
+  if (els.archivePolicyDeleteSource) {
+    els.archivePolicyDeleteSource.checked = Boolean(config.delete_hot_source);
+  }
+  const bits = [
+    config.archive_root || "no archive root configured",
+    config.archive_compression || "zip",
+    config.delete_hot_source ? "delete hot source" : "keep hot source",
+  ];
+  els.archiveSettingsSummary.textContent = bits.join(" | ");
+}
+
+function renderArchivedRawDatasets() {
+  if (!els.archivedRawDatasetsSummary || !els.archivedRawDatasetsTableBody) {
+    return;
+  }
+  const archivedItems = (state.rawDatasets || []).filter((raw) =>
+    ["archived", "restored", "restore_queued"].includes(String(raw.archive_status || "").toLowerCase())
+  );
+  els.archivedRawDatasetsTableBody.innerHTML = "";
+  if (!archivedItems.length) {
+    els.archivedRawDatasetsSummary.textContent = "No archived raw datasets in the current selection.";
+    renderArchivedRawSelectionControls([]);
+    return;
+  }
+  const archivedBytes = archivedItems.reduce((sum, item) => sum + Number(item.archive_file_bytes || 0), 0);
+  els.archivedRawDatasetsSummary.textContent =
+    `${archivedItems.length} archived dataset(s) visible | ${humanBytes(archivedBytes)} total`;
+  renderArchivedRawSelectionControls(archivedItems);
+  for (const raw of archivedItems) {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td><input class="archived-raw-select-checkbox" type="checkbox" ${isRawDatasetSelected(raw.id) ? "checked" : ""} /></td>
+      <td>${raw.acquisition_label}</td>
+      <td>${raw.owner ? userOptionLabel(raw.owner) : ""}</td>
+      <td>${raw.lifecycle_tier}</td>
+      <td>${raw.archive_status}</td>
+      <td>${raw.archive_compression || ""}</td>
+      <td title="${raw.archive_uri || ""}">${raw.archive_uri || ""}</td>
+      <td>${humanBytes(raw.archive_file_bytes || 0)}</td>
+    `;
+    tr.querySelector(".archived-raw-select-checkbox")?.addEventListener("click", (event) => {
+      event.stopPropagation();
+    });
+    tr.querySelector(".archived-raw-select-checkbox")?.addEventListener("change", (event) => {
+      toggleRawDatasetSelection(raw.id, Boolean(event.target.checked));
+    });
+    tr.addEventListener("click", () => openRawDatasetPage(raw.id));
+    els.archivedRawDatasetsTableBody.appendChild(tr);
+  }
+}
+
+function visibleArchivedRawDatasetIds() {
+  return (state.rawDatasets || [])
+    .filter((raw) => ["archived", "restored", "restore_queued"].includes(String(raw.archive_status || "").toLowerCase()))
+    .map((raw) => `${raw.id}`);
+}
+
+function renderArchivedRawSelectionControls(archivedItems) {
+  const visibleIds = (archivedItems || []).map((raw) => `${raw.id}`);
+  const selectedIds = state.selectedRawDatasetIds.filter((rawDatasetId) => visibleIds.includes(`${rawDatasetId}`));
+  const visibleCount = visibleIds.length;
+  const selectedCount = selectedIds.length;
+  if (els.archivedRawSelectAll) {
+    const allVisibleSelected = visibleCount > 0 && selectedCount === visibleCount;
+    const someVisibleSelected = selectedCount > 0 && selectedCount < visibleCount;
+    els.archivedRawSelectAll.checked = allVisibleSelected;
+    els.archivedRawSelectAll.indeterminate = someVisibleSelected;
+    els.archivedRawSelectAll.disabled = visibleCount === 0;
+  }
+  if (els.archivedRawSelectVisibleButton) {
+    els.archivedRawSelectVisibleButton.disabled = visibleCount === 0;
+  }
+  if (els.archivedRawClearSelectionButton) {
+    els.archivedRawClearSelectionButton.disabled = selectedCount === 0;
+  }
+  if (els.archivedRawDeleteSelectedButton) {
+    els.archivedRawDeleteSelectedButton.disabled = selectedCount === 0;
+  }
 }
 
 function userOptionLabel(user) {
@@ -1086,6 +1244,7 @@ function renderPipelines() {
     const updated = pipeline.updated_at || pipeline.latest_run_at || pipeline.created_at;
     const canDelete = source === "registry" && Boolean(pipeline.id);
     const projectCount = pipeline.project_count || 0;
+    const canDelete = source === "registry" && Boolean(pipeline.id);
     tr.innerHTML = `
       <td>${pipeline.display_name}</td>
       <td>${source}</td>
@@ -1887,6 +2046,7 @@ function setSelectedRawDatasetIds(rawDatasetIds) {
     closeRawBulkDeletePanel();
   }
   renderRawDatasets();
+  renderArchivedRawDatasets();
   renderRawSelectionControls();
 }
 
@@ -1922,6 +2082,9 @@ function renderRawSelectionControls() {
   }
   if (els.rawSelectVisibleButton) {
     els.rawSelectVisibleButton.disabled = visibleCount === 0;
+  }
+  if (els.rawBulkQueuePreviewsSelectedButton) {
+    els.rawBulkQueuePreviewsSelectedButton.disabled = selectedCount === 0;
   }
   if (els.rawBulkDeleteSelectedButton) {
     els.rawBulkDeleteSelectedButton.disabled = selectedCount === 0;
@@ -1978,6 +2141,8 @@ function renderRawDatasets() {
   }
   els.rawDatasetsTableBody.innerHTML = "";
   els.rawCountLabel.textContent = `${state.rawDatasets.length} visible raw datasets`;
+  renderRawOpsSummary();
+  renderArchivedRawDatasets();
   for (const raw of state.rawDatasets) {
     const tr = document.createElement("tr");
     if (state.selectedRawDataset && state.selectedRawDataset.id === raw.id) {
@@ -2016,7 +2181,9 @@ function renderRawDatasetDetail() {
     els.rawDetailSubtitle.textContent = "Select a raw dataset";
     if (els.rawPreviewArchiveButton) els.rawPreviewArchiveButton.disabled = true;
     if (els.rawArchiveButton) els.rawArchiveButton.disabled = true;
+    if (els.rawDeleteArchiveButton) els.rawDeleteArchiveButton.disabled = true;
     if (els.rawRestoreButton) els.rawRestoreButton.disabled = true;
+    setRawActionFeedback("");
     if (els.rawLifecycleEvents) {
       els.rawLifecycleEvents.innerHTML = "";
     }
@@ -2047,6 +2214,7 @@ function renderRawDatasetDetail() {
       ["Archive status", raw.archive_status],
       ["Archive URI", raw.archive_uri || ""],
       ["Compression", raw.archive_compression || ""],
+      ["Archive size", humanBytes(raw.archive_file_bytes || 0)],
       ["Reclaimable", humanBytes(raw.reclaimable_bytes)],
       ["Total size", humanBytes(raw.total_bytes)],
       ["Experiments", (raw.experiment_ids || []).join(", ") || "none"],
@@ -2094,7 +2262,17 @@ function renderRawDatasetDetail() {
   renderRawLifecycleEvents(isDedicatedRawPage ? (raw.lifecycle_events || []) : []);
   if (els.rawPreviewArchiveButton) els.rawPreviewArchiveButton.disabled = false;
   if (els.rawArchiveButton) els.rawArchiveButton.disabled = false;
+  if (els.rawDeleteArchiveButton) els.rawDeleteArchiveButton.disabled = !raw.archive_uri;
   if (els.rawRestoreButton) els.rawRestoreButton.disabled = false;
+  if (raw.archive_status === "archive_queued") {
+    setRawActionFeedback("Archive request queued. Waiting for worker execution.", "ok");
+  } else if (raw.archive_status === "restore_queued") {
+    setRawActionFeedback("Restore request queued. Waiting for worker execution.", "ok");
+  } else if (raw.archive_status === "archive_failed" || raw.archive_status === "restore_failed") {
+    setRawActionFeedback(`Latest lifecycle action failed: ${raw.archive_status}.`, "warn");
+  } else {
+    setRawActionFeedback("");
+  }
   els.rawDetailSubtitle.textContent = raw.acquisition_label;
   if (els.rawDatasetPageTitle) {
     els.rawDatasetPageTitle.textContent = raw.acquisition_label;
@@ -2473,6 +2651,16 @@ function renderMicroManagerIngestStatus() {
   }
 
   const config = status.config || {};
+  if (els.micromanagerIngestRootMode && !els.micromanagerIngestRootMode.value) {
+    els.micromanagerIngestRootMode.value = "auto";
+  }
+  if (els.micromanagerIngestRootPath && !els.micromanagerIngestRootPath.value && config.landing_root) {
+    els.micromanagerIngestRootPath.placeholder = config.landing_root;
+  }
+  if (els.micromanagerIngestStorageRootName && !els.micromanagerIngestStorageRootName.value && config.storage_root_name) {
+    els.micromanagerIngestStorageRootName.placeholder = config.storage_root_name;
+  }
+  updateMicroManagerIngestModeUi();
   const lastRun = status.last_run;
   const summaryBits = [
     config.enabled ? "enabled" : "disabled",
@@ -2496,7 +2684,7 @@ function renderMicroManagerIngestStatus() {
       ["Enabled", config.enabled ? "yes" : "no"],
       ["Interval", `${config.interval_minutes || 0} min`],
       ["Run as", config.run_as_user_key || ""],
-      ["Landing root", config.landing_root || ""],
+      ["Configured landing root", config.landing_root || ""],
       ["Storage root name", config.storage_root_name || ""],
       ["Host scope", config.host_scope || ""],
       ["Visibility", config.visibility || ""],
@@ -2557,9 +2745,11 @@ function renderArchivePolicyPreview() {
       <td>${candidate.acquisition_label}</td>
       <td>${candidate.owner ? candidate.owner.user_key : ""}</td>
       <td>${candidate.lifecycle_tier}</td>
+      <td>${candidate.archive_status || ""}</td>
       <td>${formatTimestamp(candidate.last_activity_at)}</td>
       <td>${humanBytes(candidate.total_bytes)}</td>
       <td>${humanBytes(candidate.reclaimable_bytes)}</td>
+      <td>${candidate.suggested_archive_compression || ""}</td>
       <td>${candidate.suggested_archive_uri || ""}</td>
     `;
     tr.addEventListener("click", () => selectRawDataset(candidate.raw_dataset_id));
@@ -3082,8 +3272,11 @@ async function refreshDashboard() {
   if (pageFlags.hasProjectsView) {
     refreshTasks.push(refreshProjects());
   }
-  if (pageFlags.hasRawDatasetsView) {
+  if (pageFlags.hasRawDatasetsView || pageKind === "raw-ops") {
     refreshTasks.push(refreshRawDatasets());
+  }
+  if (pageFlags.hasArchiveSettings && isAdmin()) {
+    refreshTasks.push(refreshArchiveSettingsStatus());
   }
   if (pageFlags.hasAutomaticArchivePolicy) {
     refreshTasks.push(refreshAutomaticArchivePolicyStatus());
@@ -3129,7 +3322,7 @@ async function refreshIndexingJobs() {
 }
 
 async function refreshRawDatasets() {
-  if (!els.rawDatasetsTableBody) {
+  if (!els.rawDatasetsTableBody && pageKind !== "raw-ops") {
     if (pageFlags.hasRawDatasetPage) {
       const rawDatasetId = getRawDatasetPageId();
       if (rawDatasetId) {
@@ -3152,8 +3345,13 @@ async function refreshRawDatasets() {
   if (state.pendingRawBulkDelete?.scope === "selected" && !selectedRawDatasetIds().length) {
     closeRawBulkDeletePanel();
   }
-  renderRawDatasets();
-  renderRawBulkDeletePanel();
+  if (els.rawDatasetsTableBody) {
+    renderRawDatasets();
+    renderRawBulkDeletePanel();
+  } else {
+    renderRawOpsSummary();
+    renderArchivedRawDatasets();
+  }
   const requestedRawDatasetId = getRawDatasetPageId();
   if (requestedRawDatasetId && (!state.selectedRawDataset || `${state.selectedRawDataset.id}` === requestedRawDatasetId)) {
     await selectRawDataset(requestedRawDatasetId);
@@ -3191,6 +3389,20 @@ async function refreshAutomaticArchivePolicyStatus() {
   }
 }
 
+async function refreshArchiveSettingsStatus() {
+  if (!isAdmin()) {
+    state.archiveSettingsStatus = null;
+    if (pageFlags.hasArchiveSettings) {
+      renderArchiveSettingsStatus();
+    }
+    return;
+  }
+  state.archiveSettingsStatus = await apiGet("/raw-datasets/settings/archive");
+  if (pageFlags.hasArchiveSettings) {
+    renderArchiveSettingsStatus();
+  }
+}
+
 async function refreshMicroManagerIngestStatus() {
   if (!pageFlags.hasMicroManagerIngest) {
     return;
@@ -3217,6 +3429,8 @@ function archivePolicyPayload() {
   const olderThanDays = Number(els.archivePolicyOlderDays?.value || 30);
   const minGb = Number(els.archivePolicyMinGb?.value || 0);
   const limit = Number(els.archivePolicyLimit?.value || 25);
+  const archiveConfig = state.archiveSettingsStatus?.config || {};
+  const explicitCompression = els.archivePolicyCompression?.value || "";
   return {
     older_than_days: Number.isFinite(olderThanDays) ? Math.max(0, Math.floor(olderThanDays)) : 30,
     min_total_bytes: Number.isFinite(minGb) ? Math.max(0, Math.round(minGb * 1024 * 1024 * 1024)) : 0,
@@ -3227,9 +3441,11 @@ function archivePolicyPayload() {
     archive_statuses: els.rawArchiveStatusFilter?.value
       ? [els.rawArchiveStatusFilter.value]
       : ["none", "restored", "archive_failed", "restore_failed"],
-    archive_uri: els.archivePolicyUri?.value.trim() || null,
-    archive_compression: els.archivePolicyCompression?.value || null,
-    mark_archived: Boolean(els.archivePolicyDeleteSource?.checked),
+    archive_uri: els.archivePolicyUri?.value.trim() || archiveConfig.archive_root || null,
+    archive_compression: explicitCompression || archiveConfig.archive_compression || null,
+    mark_archived: els.archivePolicyDeleteSource
+      ? Boolean(els.archivePolicyDeleteSource.checked)
+      : Boolean(archiveConfig.delete_hot_source),
   };
 }
 
@@ -3260,6 +3476,14 @@ async function runMicroManagerIngest() {
     throw new Error("Admin role required.");
   }
   const reportOnly = Boolean(els.micromanagerIngestReportOnly?.checked);
+  const rootMode = String(els.micromanagerIngestRootMode?.value || "auto");
+  const landingRootOverride = rootMode === "manual"
+    ? String(els.micromanagerIngestRootPath?.value || "").trim()
+    : "";
+  const storageRootNameOverride = String(els.micromanagerIngestStorageRootName?.value || "").trim();
+  if (rootMode === "manual" && !landingRootOverride) {
+    throw new Error("Manual raw root is required in manual mode.");
+  }
   const action = reportOnly ? "run a detection-only report" : "ingest datasets now";
   const ok = window.confirm(`Run Micro-Manager ingestion now and ${action}?`);
   if (!ok) {
@@ -3267,6 +3491,8 @@ async function runMicroManagerIngest() {
   }
   const run = await apiPost("/micromanager-ingest/run", {
     report_only: reportOnly,
+    landing_root_override: landingRootOverride || null,
+    storage_root_name_override: storageRootNameOverride || null,
   });
   await refreshMicroManagerIngestStatus();
   if (!reportOnly) {
@@ -3824,6 +4050,31 @@ async function executeBulkDelete() {
   }
 }
 
+async function saveArchiveSettings() {
+  if (!isAdmin()) {
+    throw new Error("Admin role required.");
+  }
+  const archiveRoot = String(els.archiveSettingsRoot?.value || "").trim();
+  const archiveCompression = String(els.archiveSettingsCompression?.value || "zip").trim() || "zip";
+  const deleteHotSource = Boolean(els.archiveSettingsDeleteSource?.checked);
+  state.archiveSettingsStatus = await apiPatch("/raw-datasets/settings/archive", {
+    archive_root: archiveRoot || null,
+    archive_compression: archiveCompression,
+    delete_hot_source: deleteHotSource,
+  });
+  renderArchiveSettingsStatus();
+  state.archivePolicyPreview = null;
+  renderArchivePolicyPreview();
+  setStatus("Archive defaults updated.");
+}
+
+function updateMicroManagerIngestModeUi() {
+  const manualMode = String(els.micromanagerIngestRootMode?.value || "auto") === "manual";
+  if (els.micromanagerIngestRootPath) {
+    els.micromanagerIngestRootPath.disabled = !manualMode;
+  }
+}
+
 async function queueRawPreviewVideosForSelectedProjects() {
   const projectIds = selectedProjectIds();
   if (!projectIds.length) {
@@ -3840,6 +4091,22 @@ async function queueRawPreviewVideosForSelectedProjects() {
   if (pageFlags.hasRawDatasetsView || pageFlags.hasRawDatasetPage) {
     await refreshRawDatasets();
   }
+}
+
+async function queueRawPreviewVideosForSelectedRawDatasets() {
+  const rawDatasetIds = selectedRawDatasetIds();
+  if (!rawDatasetIds.length) {
+    throw new Error("Select at least one raw dataset first.");
+  }
+  const result = await apiPost("/raw-datasets/preview-videos/queue-bulk", {
+    raw_dataset_ids: rawDatasetIds,
+    force: false,
+    requested_mode: "auto",
+    priority: 100,
+    params_json: {},
+  });
+  setStatus(result.message || `Queued ${result.queued_count} raw preview job(s).`);
+  await refreshRawDatasets();
 }
 
 async function refreshRawBulkDeletePreview() {
@@ -4170,26 +4437,69 @@ async function requestRawArchive() {
   if (!state.selectedRawDataset) {
     return;
   }
-  const archiveUri = window.prompt("Archive URI", state.selectedRawDatasetDetail?.archive_uri || "");
-  if (archiveUri === null) {
-    return;
+  if (!state.archiveSettingsStatus && isAdmin()) {
+    await refreshArchiveSettingsStatus();
   }
-  const archiveCompression = window.prompt(
-    "Archive compression",
-    state.selectedRawDatasetDetail?.archive_compression || "zip"
+  const config = state.archiveSettingsStatus?.config || {};
+  const archiveRoot = String(config.archive_root || state.selectedRawDatasetDetail?.archive_uri || "").trim();
+  if (!archiveRoot) {
+    throw new Error("No archive root configured. Set it in Raw datasets Ops > Archive Defaults.");
+  }
+  const archiveCompression = String(config.archive_compression || state.selectedRawDatasetDetail?.archive_compression || "zip");
+  const markArchived = Boolean(config.delete_hot_source);
+  const action = markArchived ? "archive and delete hot source" : "archive";
+  const ok = window.confirm(
+    `Request ${action} for ${state.selectedRawDataset.acquisition_label}?\nRoot: ${archiveRoot}\nCompression: ${archiveCompression}`
   );
-  if (archiveCompression === null) {
+  if (!ok) {
     return;
   }
-  const markArchived = window.confirm("Delete the hot source after successful archive?");
   await apiPost(`/raw-datasets/${state.selectedRawDataset.id}/archive`, {
-    archive_uri: archiveUri.trim() || null,
-    archive_compression: archiveCompression.trim() || null,
+    archive_uri: archiveRoot,
+    archive_compression: archiveCompression,
     mark_archived: markArchived,
   });
   await refreshRawDatasets();
   await selectRawDataset(state.selectedRawDataset.id);
+  setRawActionFeedback(`Archive request queued for ${state.selectedRawDataset.acquisition_label}.`, "ok");
   setStatus(`Archive transition requested for ${state.selectedRawDataset.acquisition_label}.`);
+}
+
+async function deleteRawArchive() {
+  if (!state.selectedRawDataset) {
+    return;
+  }
+  const archiveUri = String(state.selectedRawDatasetDetail?.archive_uri || "").trim();
+  if (!archiveUri) {
+    throw new Error("No archive file is registered for this dataset.");
+  }
+  const ok = window.confirm(
+    `Delete archive for ${state.selectedRawDataset.acquisition_label}?\nArchive: ${archiveUri}`
+  );
+  if (!ok) {
+    return;
+  }
+  const result = await apiDelete(`/raw-datasets/${state.selectedRawDataset.id}/archive-file`);
+  await refreshRawDatasets();
+  await selectRawDataset(state.selectedRawDataset.id);
+  setRawActionFeedback(`Archive deleted for ${state.selectedRawDataset.acquisition_label}.`, "ok");
+  setStatus(result.message || `Archive deleted for ${state.selectedRawDataset.acquisition_label}.`);
+}
+
+async function deleteSelectedRawArchives() {
+  const rawDatasetIds = selectedRawDatasetIds().filter((rawDatasetId) => visibleArchivedRawDatasetIds().includes(`${rawDatasetId}`));
+  if (!rawDatasetIds.length) {
+    throw new Error("Select at least one archived dataset first.");
+  }
+  const ok = window.confirm(`Delete archive files for ${rawDatasetIds.length} dataset(s)?`);
+  if (!ok) {
+    return;
+  }
+  const result = await apiPost("/raw-datasets/archive-files/delete-bulk", {
+    raw_dataset_ids: rawDatasetIds,
+  });
+  await refreshRawDatasets();
+  setStatus(result.message || `Deleted ${result.deleted_count} archive file(s).`);
 }
 
 async function requestRawRestore() {
@@ -4199,6 +4509,7 @@ async function requestRawRestore() {
   await apiPost(`/raw-datasets/${state.selectedRawDataset.id}/restore`, {});
   await refreshRawDatasets();
   await selectRawDataset(state.selectedRawDataset.id);
+  setRawActionFeedback(`Restore request queued for ${state.selectedRawDataset.acquisition_label}.`, "ok");
   setStatus(`Restore requested for ${state.selectedRawDataset.acquisition_label}.`);
 }
 
@@ -4425,7 +4736,7 @@ async function pollDashboard() {
     if (pageFlags.hasIndexingView) {
       pollTasks.push(refreshIndexingJobs());
     }
-    if (pageFlags.hasRawDatasetsView || pageFlags.hasRawDatasetPage) {
+    if (pageFlags.hasRawDatasetsView || pageFlags.hasRawDatasetPage || pageKind === "raw-ops") {
       pollTasks.push(refreshRawDatasets());
     }
     if (pageFlags.hasAutomaticArchivePolicy && isAdmin()) {
@@ -4524,6 +4835,7 @@ if (els.rawTierFilter) els.rawTierFilter.addEventListener("change", () => refres
 if (els.rawArchiveStatusFilter) els.rawArchiveStatusFilter.addEventListener("change", () => refreshRawDatasets().catch((error) => setStatus(String(error))));
 if (els.rawLimit) els.rawLimit.addEventListener("change", () => refreshRawDatasets().catch((error) => setStatus(String(error))));
 if (els.rawOwnedOnly) els.rawOwnedOnly.addEventListener("change", () => refreshRawDatasets().catch((error) => setStatus(String(error))));
+if (els.rawBulkQueuePreviewsSelectedButton) els.rawBulkQueuePreviewsSelectedButton.addEventListener("click", () => queueRawPreviewVideosForSelectedRawDatasets().catch((error) => setStatus(String(error))));
 if (els.rawSelectAll) els.rawSelectAll.addEventListener("change", () => setSelectedRawDatasetIds(els.rawSelectAll.checked ? visibleRawDatasetIds() : []));
 if (els.rawSelectVisibleButton) els.rawSelectVisibleButton.addEventListener("click", () => setSelectedRawDatasetIds(visibleRawDatasetIds()));
 if (els.rawClearSelectionButton) els.rawClearSelectionButton.addEventListener("click", () => setSelectedRawDatasetIds([]));
@@ -4566,13 +4878,21 @@ if (els.rawPreviewQualityRefreshButton) els.rawPreviewQualityRefreshButton.addEv
 if (els.rawPreviewQualitySaveButton) els.rawPreviewQualitySaveButton.addEventListener("click", () => saveRawPreviewQualitySettings().catch((error) => setStatus(String(error))));
 if (els.rawPreviewQualityFrameMode) els.rawPreviewQualityFrameMode.addEventListener("change", updateRawPreviewFrameModeUi);
 if (els.rawArchiveButton) els.rawArchiveButton.addEventListener("click", () => requestRawArchive().catch((error) => setStatus(String(error))));
+if (els.rawDeleteArchiveButton) els.rawDeleteArchiveButton.addEventListener("click", () => deleteRawArchive().catch((error) => setStatus(String(error))));
 if (els.rawRestoreButton) els.rawRestoreButton.addEventListener("click", () => requestRawRestore().catch((error) => setStatus(String(error))));
+if (els.archiveSettingsRefreshButton) els.archiveSettingsRefreshButton.addEventListener("click", () => refreshArchiveSettingsStatus().catch((error) => setStatus(String(error))));
+if (els.archiveSettingsSaveButton) els.archiveSettingsSaveButton.addEventListener("click", () => saveArchiveSettings().catch((error) => setStatus(String(error))));
 if (els.automaticArchivePolicyRefreshButton) els.automaticArchivePolicyRefreshButton.addEventListener("click", () => refreshAutomaticArchivePolicyStatus().catch((error) => setStatus(String(error))));
 if (els.automaticArchivePolicyRunButton) els.automaticArchivePolicyRunButton.addEventListener("click", () => runAutomaticArchivePolicy().catch((error) => setStatus(String(error))));
 if (els.micromanagerIngestRefreshButton) els.micromanagerIngestRefreshButton.addEventListener("click", () => refreshMicroManagerIngestStatus().catch((error) => setStatus(String(error))));
 if (els.micromanagerIngestRunButton) els.micromanagerIngestRunButton.addEventListener("click", () => runMicroManagerIngest().catch((error) => setStatus(String(error))));
+if (els.micromanagerIngestRootMode) els.micromanagerIngestRootMode.addEventListener("change", updateMicroManagerIngestModeUi);
 if (els.archivePolicyPreviewButton) els.archivePolicyPreviewButton.addEventListener("click", () => previewArchivePolicy().catch((error) => setStatus(String(error))));
 if (els.archivePolicyQueueButton) els.archivePolicyQueueButton.addEventListener("click", () => queueArchivePolicy().catch((error) => setStatus(String(error))));
+if (els.archivedRawSelectAll) els.archivedRawSelectAll.addEventListener("change", () => setSelectedRawDatasetIds(els.archivedRawSelectAll.checked ? visibleArchivedRawDatasetIds() : []));
+if (els.archivedRawSelectVisibleButton) els.archivedRawSelectVisibleButton.addEventListener("click", () => setSelectedRawDatasetIds(visibleArchivedRawDatasetIds()));
+if (els.archivedRawClearSelectionButton) els.archivedRawClearSelectionButton.addEventListener("click", () => setSelectedRawDatasetIds([]));
+if (els.archivedRawDeleteSelectedButton) els.archivedRawDeleteSelectedButton.addEventListener("click", () => deleteSelectedRawArchives().catch((error) => setStatus(String(error))));
 if (els.refreshPipelinesButton) els.refreshPipelinesButton.addEventListener("click", () => refreshPipelines().catch((error) => setStatus(String(error))));
 if (els.importObservedPipelinesButton) els.importObservedPipelinesButton.addEventListener("click", () => importObservedPipelines().catch((error) => setStatus(String(error))));
 if (els.newPipelineButton) els.newPipelineButton.addEventListener("click", () => createPipeline().catch((error) => setStatus(String(error))));

@@ -3,8 +3,8 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Detecdiv server - Raw ops</title>
-    <link rel="stylesheet" href="/web/styles.css?v=20260423-raw-quality2" />
+    <title>Detecdiv server - Raw datasets Ops</title>
+    <link rel="stylesheet" href="/web/styles.css?v=20260424-raw-staticfix1" />
   </head>
   <body data-page="raw-ops">
     <div class="page-shell">
@@ -31,17 +31,17 @@
       <header class="hero">
         <div>
           <div class="eyebrow">DetecDiv Hub</div>
-          <h1>Detecdiv server - Raw ops</h1>
+          <h1>Detecdiv server - Raw datasets Ops</h1>
           <p class="hero-copy">
             Run ingestion, preview archive candidates, and inspect automatic background policies without mixing them into the raw catalog.
           </p>
         </div>
         <div class="hero-actions">
           <nav class="hero-nav">
-            <a class="nav-link" href="/web/">Catalog</a>
-            <a class="nav-link" href="/web/raw-datasets.html">Raw Datasets</a>
-            <a class="nav-link active" href="/web/raw-ops.html">Raw Ops</a>
-            <a class="nav-link" href="/web/indexing.html">Indexing</a>
+            <a class="nav-link" href="/web/">Project Catalog</a>
+            <a class="nav-link" href="/web/raw-datasets.html">Raw datasets Catalog</a>
+            <a class="nav-link active" href="/web/raw-ops.html">Raw datasets Ops</a>
+            <a class="nav-link" href="/web/indexing.html">Projects Ops</a>
             <a class="nav-link admin-nav-link hidden" href="/web/admin.html">Admin</a>
           </nav>
           <div class="session-box">
@@ -54,19 +54,19 @@
 
       <section class="summary-grid" id="summary-grid">
         <article class="summary-card">
-          <div class="summary-label">Projects</div>
+          <div class="summary-label">Raw datasets</div>
           <div id="summary-total-projects" class="summary-value">0</div>
         </article>
         <article class="summary-card">
-          <div class="summary-label">My Projects</div>
+          <div class="summary-label">My raw datasets</div>
           <div id="summary-owned-projects" class="summary-value">0</div>
         </article>
         <article class="summary-card">
-          <div class="summary-label">Total Storage</div>
+          <div class="summary-label">Raw storage</div>
           <div id="summary-total-bytes" class="summary-value">0 B</div>
         </article>
         <article class="summary-card">
-          <div class="summary-label">Groups</div>
+          <div class="summary-label">Archived</div>
           <div id="summary-group-count" class="summary-value">0</div>
         </article>
       </section>
@@ -145,42 +145,35 @@
         </div>
       </section>
 
-      <section id="micromanager-ingest-panel" class="panel hidden">
+      <section class="panel">
         <div class="panel-header">
           <div>
-            <h2>Micro-Manager Ingestion</h2>
+            <h2>Archive Defaults</h2>
             <p class="muted">
-              Detect stable acquisitions in the landing zone and ingest them into experiments and raw datasets.
+              Default archive root and format used by single-dataset archive requests and as the default target for batch archive jobs.
             </p>
           </div>
         </div>
         <div class="toolbar">
-          <label class="toggle">
-            <input id="micromanager-ingest-report-only" type="checkbox" checked />
-            <span>Report only</span>
+          <label class="field">
+            <span>Archive root</span>
+            <input id="archive-settings-root" type="text" placeholder="/data/detecdiv-archives" />
           </label>
-          <button id="micromanager-ingest-refresh-button">Refresh ingestion status</button>
-          <button id="micromanager-ingest-run-button" class="primary">Run now</button>
+          <label class="field compact">
+            <span>Compression</span>
+            <select id="archive-settings-compression">
+              <option value="zip">zip</option>
+              <option value="tar.gz">tar.gz</option>
+            </select>
+          </label>
+          <label class="toggle">
+            <input id="archive-settings-delete-source" type="checkbox" />
+            <span>Delete hot source after archive</span>
+          </label>
+          <button id="archive-settings-refresh-button">Refresh defaults</button>
+          <button id="archive-settings-save-button" class="primary">Save defaults</button>
         </div>
-        <div id="micromanager-ingest-summary" class="muted">Micro-Manager ingestion is unavailable.</div>
-        <dl id="micromanager-ingest-config" class="detail-list"></dl>
-        <div class="table-wrap">
-          <table id="micromanager-ingest-runs-table">
-            <thead>
-              <tr>
-                <th>When</th>
-                <th>Mode</th>
-                <th>Status</th>
-                <th>Report only</th>
-                <th>Candidates</th>
-                <th>Ingested</th>
-                <th>Experiments</th>
-                <th>By</th>
-              </tr>
-            </thead>
-            <tbody></tbody>
-          </table>
-        </div>
+        <div id="archive-settings-summary" class="muted">Archive defaults not loaded yet.</div>
       </section>
 
       <section class="panel">
@@ -232,10 +225,103 @@
                 <th>Acquisition</th>
                 <th>Project owner</th>
                 <th>Tier</th>
+                <th>Archive status</th>
                 <th>Last activity</th>
-                <th>Size</th>
+                <th>Source size</th>
                 <th>Reclaimable</th>
+                <th>Compression</th>
                 <th>Archive target</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="micromanager-ingest-panel" class="panel hidden">
+        <div class="panel-header">
+          <div>
+            <h2>Raw Dataset Indexing</h2>
+            <p class="muted">
+              Scan a configured landing zone or a manual raw-data folder, detect stable acquisitions, and ingest them into the catalog.
+            </p>
+          </div>
+        </div>
+        <div class="toolbar">
+          <label class="field compact">
+            <span>Root mode</span>
+            <select id="micromanager-ingest-root-mode">
+              <option value="auto" selected>configured landing root</option>
+              <option value="manual">manual folder</option>
+            </select>
+          </label>
+          <label class="field">
+            <span>Manual raw root</span>
+            <input id="micromanager-ingest-root-path" type="text" placeholder="/data/microscope/landing" />
+          </label>
+          <label class="field compact">
+            <span>Storage root override</span>
+            <input id="micromanager-ingest-storage-root-name" type="text" placeholder="hub_timelapses" />
+          </label>
+          <label class="toggle">
+            <input id="micromanager-ingest-report-only" type="checkbox" checked />
+            <span>Report only</span>
+          </label>
+          <button id="micromanager-ingest-refresh-button">Refresh ingestion status</button>
+          <button id="micromanager-ingest-run-button" class="primary">Run now</button>
+        </div>
+        <div id="micromanager-ingest-summary" class="muted">Raw dataset indexing is unavailable.</div>
+        <dl id="micromanager-ingest-config" class="detail-list"></dl>
+        <div class="table-wrap">
+          <table id="micromanager-ingest-runs-table">
+            <thead>
+              <tr>
+                <th>When</th>
+                <th>Mode</th>
+                <th>Status</th>
+                <th>Report only</th>
+                <th>Candidates</th>
+                <th>Ingested</th>
+                <th>Experiments</th>
+                <th>By</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-header">
+          <div>
+            <h2>Archived Raw Datasets</h2>
+            <p class="muted">
+              Archived datasets visible in the current raw-dataset filter context.
+            </p>
+          </div>
+        </div>
+        <div class="toolbar">
+          <label class="toggle">
+            <input id="archived-raw-select-all" type="checkbox" />
+            <span>Select visible</span>
+          </label>
+          <button id="archived-raw-select-visible-button">Select visible</button>
+          <button id="archived-raw-clear-selection-button">Clear selection</button>
+          <button id="archived-raw-delete-selected-button">Delete archives (selected)</button>
+        </div>
+        <div id="archived-raw-datasets-summary" class="muted">No archived raw datasets in the current selection.</div>
+        <div class="table-wrap">
+          <table id="archived-raw-datasets-table">
+            <thead>
+              <tr>
+                <th></th>
+                <th>Acquisition</th>
+                <th>Project owner</th>
+                <th>Tier</th>
+                <th>Archive status</th>
+                <th>Compression</th>
+                <th>Archive target</th>
+                <th>Archive size</th>
               </tr>
             </thead>
             <tbody></tbody>
@@ -248,6 +334,6 @@
       </footer>
     </div>
 
-    <script src="/web/app.js?v=20260423-raw-quality2" defer></script>
+    <script src="/web/app.js?v=20260424-raw-staticfix1" defer></script>
   </body>
 </html>

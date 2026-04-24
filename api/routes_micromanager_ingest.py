@@ -1,3 +1,5 @@
+from dataclasses import replace
+
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
@@ -15,7 +17,6 @@ from api.services.micromanager_ingest import (
     latest_micromanager_ingest_run,
     list_micromanager_ingest_runs,
     release_micromanager_ingest_lock,
-    resolve_micromanager_ingest_user,
     try_acquire_micromanager_ingest_lock,
 )
 from api.services.users import get_current_user
@@ -63,6 +64,12 @@ def run_micromanager_ingest_now(
 
     try:
         config = automatic_micromanager_ingest_config()
+        if payload.landing_root_override or payload.storage_root_name_override:
+            config = replace(
+                config,
+                landing_root=(payload.landing_root_override or config.landing_root),
+                storage_root_name=(payload.storage_root_name_override or config.storage_root_name),
+            )
         result = execute_micromanager_ingest_run(
             db,
             config=config,
