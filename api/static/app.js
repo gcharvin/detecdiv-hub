@@ -4294,21 +4294,32 @@ async function createPipeline() {
   if (!displayName) {
     return;
   }
+  const pipelinePath = window.prompt("Pipeline path (pipeline.json or export_manifest.json)");
+  if (pipelinePath === null) {
+    return;
+  }
+  const trimmedPipelinePath = pipelinePath.trim();
+  if (!trimmedPipelinePath) {
+    throw new Error("Pipeline path is required for import.");
+  }
   const pipelineKey = window.prompt("Pipeline key", displayName.toLowerCase().replace(/[^a-z0-9]+/g, "_"));
   if (pipelineKey === null) {
     return;
   }
   const version = window.prompt("Version", "1.0") || "1.0";
   const runtimeKind = window.prompt("Runtime kind (matlab/python/hybrid)", "matlab") || "matlab";
+  const metadataJson = String(trimmedPipelinePath).toLowerCase().endsWith("export_manifest.json")
+    ? { export_manifest_uri: trimmedPipelinePath }
+    : { pipeline_json_path: trimmedPipelinePath };
   await apiPost("/pipelines", {
     display_name: displayName,
     pipeline_key: pipelineKey.trim() || null,
     version,
     runtime_kind: runtimeKind,
-    metadata_json: {},
+    metadata_json: metadataJson,
   });
   await refreshPipelines();
-  setStatus(`Created pipeline ${displayName}.`);
+  setStatus(`Imported pipeline ${displayName}.`);
 }
 
 async function editPipeline(pipeline) {
