@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import os
+import socket
 import threading
 from datetime import datetime, timedelta, timezone
 from typing import Any
@@ -10,10 +12,128 @@ from sqlalchemy.orm import Session, joinedload
 
 from api.db import SessionLocal
 from api.config import get_settings
-from api.models import IndexingJob, Job, User
+from api.models import ExecutionTarget, IndexingJob, Job, User
 from api.schemas import IndexRequest
 from api.services.project_indexing import ProjectIndexResult, index_project_root
 from api.services.users import get_or_create_user
+
+
+def indexing_worker_instance_id() -> str:
+    configured = str(get_settings().worker_instance or "").strip()
+    if configured:
+        return configured
+    return f"{socket.gethostname()}-pid{os.getpid()}"
+
+
+def read_positive_int(value) -> int | None:
+    if value is None or value == "":
+        return None
+    try:
+        parsed = int(value)
+    except (TypeError, ValueError):
+        return None
+    if parsed < 1:
+        return None
+    return parsed
+
+
+def summarize_worker_health(worker_healths: dict[str, dict], *, max_concurrent_jobs: int | None) -> dict:
+    if not worker_healths:
+        return {}
+
+    now = datetime.now(timezone.utc)
+    active_entries = []
+    stale_workers = 0
+    for item in worker_healths.values():
+        poll_interval_sec = read_positive_int(item.get("poll_interval_sec")) or 5
+        stale_after_sec = max(poll_interval_sec * 3, 30)
+        try:
+            last_seen_at = datetime.fromisoformat(str(item.get("last_seen_at") or ""))
+        except ValueError:
+            last_seen_at = None
+        if last_seen_at is None or (now - last_seen_at).total_seconds() > stale_after_sec:
+            stale_workers += 1
+            continue
+        active_entries.append(item)
+
+    busy_workers = sum(1 for item in active_entries if item.get("health") == "busy" or item.get("current_job_id"))
+    error_workers = sum(1 for item in active_entries if item.get("health") == "error")
+    online_workers = sum(1 for item in active_entries if item.get("health") in {"online", "idle", "busy"})
+    latest_seen_at = max((str(item.get("last_seen_at") or "") for item in active_entries), default="")
+    latest_claimed_at = max((str(item.get("claimed_at") or "") for item in active_entries), default="")
+    current_job_ids = [str(item.get("current_job_id")) for item in active_entries if item.get("current_job_id")]
+
+    if busy_workers:
+        summary_health = "busy"
+    elif error_workers:
+        summary_health = "error"
+    elif online_workers:
+        summary_health = "online"
+    else:
+        summary_health = "unknown"
+
+    summary = {
+        "worker_host": socket.gethostname(),
+        "worker_count": len(active_entries),
+        "registered_workers": len(worker_healths),
+        "stale_workers": stale_workers,
+        "busy_workers": busy_workers,
+        "online_workers": online_workers,
+        "error_workers": error_workers,
+        "current_job_count": len(current_job_ids),
+        "current_job_ids": current_job_ids,
+        "health": summary_health,
+        "last_seen_at": latest_seen_at or None,
+        "claimed_at": latest_claimed_at or None,
+        "worker_instances": sorted(worker_healths.keys()),
+    }
+    if max_concurrent_jobs is not None:
+        summary["max_concurrent_jobs"] = max_concurrent_jobs
+        summary["capacity_full"] = busy_workers >= max_concurrent_jobs
+    return summary
+
+
+def update_indexing_worker_telemetry(
+    session,
+    *,
+    worker_job: Job | None,
+    now: datetime,
+) -> None:
+    if worker_job is None:
+        return
+    worker_job.heartbeat_at = now
+    worker_job.updated_at = now
+
+    target = session.get(ExecutionTarget, worker_job.execution_target_id) if worker_job.execution_target_id else None
+    if target is None:
+        return
+
+    metadata = dict(target.metadata_json or {})
+    max_concurrent_jobs = read_positive_int(metadata.get("max_concurrent_jobs"))
+    worker_healths = dict(metadata.get("worker_healths") or {})
+    worker_instance = indexing_worker_instance_id()
+    worker_health = dict(worker_healths.get(worker_instance) or {})
+    worker_health["worker_instance"] = worker_instance
+    worker_health["worker_host"] = socket.gethostname()
+    worker_health["last_seen_at"] = now.isoformat()
+    worker_health["health"] = "busy"
+    worker_health["poll_interval_sec"] = get_settings().worker_poll_interval_sec
+    worker_health["current_job_id"] = str(worker_job.id)
+    worker_health["current_job_kind"] = str((worker_job.params_json or {}).get("job_kind") or "generic")
+    worker_health["current_job_status"] = str(worker_job.status or "running")
+    worker_health["current_job_started_at"] = (
+        worker_job.started_at.isoformat() if getattr(worker_job, "started_at", None) is not None else None
+    )
+    worker_health["claimed_at"] = (
+        worker_job.started_at.isoformat() if getattr(worker_job, "started_at", None) is not None else now.isoformat()
+    )
+    worker_health["last_error"] = None
+    worker_healths[worker_instance] = worker_health
+    metadata["worker_healths"] = worker_healths
+    metadata["worker_health_summary"] = summarize_worker_health(worker_healths, max_concurrent_jobs=max_concurrent_jobs)
+    metadata["worker_health"] = metadata["worker_health_summary"]
+    target.metadata_json = metadata
+    target.status = "online"
 
 
 def run_indexing_job_keepalive(indexing_job_id: UUID, stop_event: threading.Event, *, interval_sec: float = 10.0) -> None:
@@ -25,6 +145,9 @@ def run_indexing_job_keepalive(indexing_job_id: UUID, stop_event: threading.Even
             now = datetime.now(timezone.utc)
             job.heartbeat_at = now
             job.updated_at = now
+            worker_job_id = (job.metadata_json or {}).get("worker_job_id")
+            worker_job = session.get(Job, worker_job_id) if worker_job_id else None
+            update_indexing_worker_telemetry(session, worker_job=worker_job, now=now)
             session.commit()
 
 
@@ -105,6 +228,10 @@ def execute_indexing_job(indexing_job_id: UUID) -> dict[str, Any]:
                 raise ValueError(f"Indexing job {indexing_job_id} disappeared before execution")
             owner = job.owner
             owner_user_key = owner.user_key if owner is not None else "localdev"
+            worker_job_id = (job.metadata_json or {}).get("worker_job_id")
+            worker_job = session.get(Job, worker_job_id) if worker_job_id else None
+            update_indexing_worker_telemetry(session, worker_job=worker_job, now=datetime.now(timezone.utc))
+            session.commit()
             keepalive_stop = threading.Event()
             keepalive_thread = threading.Thread(
                 target=run_indexing_job_keepalive,

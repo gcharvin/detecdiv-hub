@@ -11,7 +11,7 @@ from sqlalchemy import func, select
 
 from api.config import get_settings
 from api.db import SessionLocal
-from api.models import ExecutionTarget, Job, RawDatasetPosition
+from api.models import ExecutionTarget, IndexingJob, Job, RawDatasetPosition
 from api.services.indexing_jobs import execute_indexing_job
 from worker.archive_policy_scheduler import run_archive_policy_if_due
 from worker.micromanager_ingest_scheduler import run_micromanager_ingest_if_due
@@ -148,6 +148,15 @@ def recover_orphaned_jobs(session, *, target: ExecutionTarget | None) -> int:
         job.finished_at = datetime.now(timezone.utc)
         job.heartbeat_at = job.finished_at
         job.updated_at = job.finished_at
+        sync_indexing_job_from_worker_job(
+            session,
+            job=job,
+            status="stale",
+            phase="stale",
+            message="Marked stale after worker heartbeat loss.",
+            error_text=job.error_text,
+            finished_at=job.finished_at,
+        )
         if (job.params_json or {}).get("job_kind") == "raw_preview_video":
             update_raw_preview_position_state(session, job=job, status="failed")
         recovered += 1
@@ -269,6 +278,15 @@ def mark_job_failed(job_id, error_text: str) -> None:
         job.finished_at = datetime.now(timezone.utc)
         job.heartbeat_at = job.finished_at
         job.updated_at = datetime.now(timezone.utc)
+        sync_indexing_job_from_worker_job(
+            session,
+            job=job,
+            status="failed",
+            phase="failed",
+            message="Indexing failed.",
+            error_text=error_text,
+            finished_at=job.finished_at,
+        )
         if (job.params_json or {}).get("job_kind") == "raw_preview_video":
             update_raw_preview_position_state(session, job=job, status="failed")
         target = resolve_target_for_job(session, job=job, configured_target_key=settings.worker_target_key)
@@ -298,6 +316,15 @@ def mark_job_cancelled(job_id, message: str) -> None:
         job.finished_at = datetime.now(timezone.utc)
         job.heartbeat_at = job.finished_at
         job.updated_at = datetime.now(timezone.utc)
+        sync_indexing_job_from_worker_job(
+            session,
+            job=job,
+            status="failed",
+            phase="failed",
+            message=message or "Indexing cancelled.",
+            error_text=message or None,
+            finished_at=job.finished_at,
+        )
         target = resolve_target_for_job(session, job=job, configured_target_key=settings.worker_target_key)
         update_worker_target_state(
             session,
@@ -364,6 +391,35 @@ def execute_job(job: Job) -> dict:
         "requested_mode": job.requested_mode,
         "resolved_mode": job.resolved_mode,
     }
+
+
+def sync_indexing_job_from_worker_job(
+    session,
+    *,
+    job: Job,
+    status: str,
+    phase: str,
+    message: str,
+    error_text: str | None,
+    finished_at: datetime,
+) -> None:
+    if (job.params_json or {}).get("job_kind") != "project_indexing":
+        return
+    indexing_job_id = (job.params_json or {}).get("indexing_job_id")
+    if not indexing_job_id:
+        return
+    indexing_job = session.get(IndexingJob, indexing_job_id)
+    if indexing_job is None:
+        return
+    if indexing_job.finished_at is not None and indexing_job.status in {"completed", "completed_with_errors"}:
+        return
+    indexing_job.status = status
+    indexing_job.phase = phase
+    indexing_job.message = message
+    indexing_job.error_text = error_text
+    indexing_job.finished_at = finished_at
+    indexing_job.heartbeat_at = finished_at
+    indexing_job.updated_at = finished_at
 
 
 def run_forever() -> None:
