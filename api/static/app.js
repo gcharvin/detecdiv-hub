@@ -261,6 +261,7 @@ const els = {
   refreshExecutionTargetsButton: document.querySelector("#refresh-execution-targets-button"),
   newExecutionTargetButton: document.querySelector("#new-execution-target-button"),
   cancelExecutionTargetEditButton: document.querySelector("#cancel-execution-target-edit-button"),
+  openExecutionTargetConfigButton: document.querySelector("#open-execution-target-config-button"),
   applyWorkerInstancesButton: document.querySelector("#apply-worker-instances-button"),
   applyExecutionTargetDrainButton: document.querySelector("#apply-execution-target-drain-button"),
   saveExecutionTargetButton: document.querySelector("#save-execution-target-button"),
@@ -277,12 +278,10 @@ const els = {
   executionTargetMatlabMaxThreads: document.querySelector("#execution-target-matlab-max-threads"),
   executionTargetWorkerInstances: document.querySelector("#execution-target-worker-instances"),
   executionTargetDrainNewJobs: document.querySelector("#execution-target-drain-new-jobs"),
-  executionTargetMetadataJson: document.querySelector("#execution-target-metadata-json"),
   executionTargetsTableBody: document.querySelector("#execution-targets-table tbody"),
   executionTargetWorkerSummary: document.querySelector("#execution-target-worker-summary"),
   executionTargetWorkersTableBody: document.querySelector("#execution-target-workers-table tbody"),
   executionTargetJobMixTableBody: document.querySelector("#execution-target-job-mix-table tbody"),
-  executionTargetDetail: document.querySelector("#execution-target-detail"),
   usersTableBody: document.querySelector("#users-table tbody"),
   newUserButton: document.querySelector("#new-user-button"),
   bulkImportUsersText: document.querySelector("#bulk-import-users-text"),
@@ -1661,22 +1660,21 @@ function renderExecutionTargets() {
       ? "Disable drain"
       : "Apply drain";
   }
-  if (els.executionTargetDetail) {
-    if (!state.selectedExecutionTarget) {
-      if (els.executionTargetWorkerSummary) {
-        els.executionTargetWorkerSummary.textContent = "Select a target to inspect worker activity.";
-      }
-      if (els.executionTargetWorkersTableBody) {
-        els.executionTargetWorkersTableBody.innerHTML = "";
-      }
-      if (els.executionTargetJobMixTableBody) {
-        els.executionTargetJobMixTableBody.innerHTML = "";
-      }
-      els.executionTargetDetail.textContent = "Select a target to inspect its metadata.";
-    } else {
-      renderExecutionTargetWorkerPanels(state.selectedExecutionTarget);
-      els.executionTargetDetail.textContent = JSON.stringify(state.selectedExecutionTarget, null, 2);
+  if (els.openExecutionTargetConfigButton) {
+    els.openExecutionTargetConfigButton.disabled = !state.selectedExecutionTarget;
+  }
+  if (!state.selectedExecutionTarget) {
+    if (els.executionTargetWorkerSummary) {
+      els.executionTargetWorkerSummary.textContent = "Select a target to inspect worker activity.";
     }
+    if (els.executionTargetWorkersTableBody) {
+      els.executionTargetWorkersTableBody.innerHTML = "";
+    }
+    if (els.executionTargetJobMixTableBody) {
+      els.executionTargetJobMixTableBody.innerHTML = "";
+    }
+  } else {
+    renderExecutionTargetWorkerPanels(state.selectedExecutionTarget);
   }
   renderPipelineRunBuilder();
 }
@@ -2046,7 +2044,6 @@ function resetExecutionTargetForm() {
   if (els.executionTargetMatlabMaxThreads) els.executionTargetMatlabMaxThreads.value = "";
   if (els.executionTargetWorkerInstances) els.executionTargetWorkerInstances.value = "1";
   if (els.executionTargetDrainNewJobs) els.executionTargetDrainNewJobs.checked = false;
-  if (els.executionTargetMetadataJson) els.executionTargetMetadataJson.value = "{}";
   renderExecutionTargets();
 }
 
@@ -2088,7 +2085,6 @@ function fillExecutionTargetForm(target) {
   if (els.executionTargetDrainNewJobs) {
     els.executionTargetDrainNewJobs.checked = Boolean(target.metadata_json?.drain_new_jobs);
   }
-  if (els.executionTargetMetadataJson) els.executionTargetMetadataJson.value = JSON.stringify(target.metadata_json || {}, null, 2);
 }
 
 function loadExecutionTargetIntoForm(target) {
@@ -2116,7 +2112,7 @@ function buildExecutionTargetPayload() {
   if (!statusValue) {
     throw new Error("Execution target status is required.");
   }
-  const metadata = parseOptionalJsonField(els.executionTargetMetadataJson?.value, "Metadata JSON", {});
+  const metadata = {};
   const maxConcurrentJobs = parsePositiveIntegerField(
     els.executionTargetMaxConcurrentJobs?.value,
     "Max concurrent jobs",
@@ -2222,6 +2218,14 @@ async function applyExecutionTargetDrain() {
   state.selectedExecutionTarget = saved;
   state.editingExecutionTarget = saved;
   await refreshExecutionTargets();
+}
+
+function openExecutionTargetConfig() {
+  if (!state.selectedExecutionTarget) {
+    throw new Error("Select an execution target first.");
+  }
+  const url = withIdentity(`/execution-targets/${state.selectedExecutionTarget.id}`);
+  window.open(url, "_blank", "noopener");
 }
 
 function renderIndexingJobs() {
@@ -5164,6 +5168,14 @@ if (els.submitPipelineRunButton) els.submitPipelineRunButton.addEventListener("c
 if (els.refreshExecutionTargetsButton) els.refreshExecutionTargetsButton.addEventListener("click", () => refreshExecutionTargets().catch((error) => setStatus(String(error))));
 if (els.newExecutionTargetButton) els.newExecutionTargetButton.addEventListener("click", () => resetExecutionTargetForm());
 if (els.cancelExecutionTargetEditButton) els.cancelExecutionTargetEditButton.addEventListener("click", () => cancelExecutionTargetEdit());
+if (els.openExecutionTargetConfigButton) els.openExecutionTargetConfigButton.addEventListener("click", () => {
+  try {
+    openExecutionTargetConfig();
+  } catch (error) {
+    setStatus(String(error));
+    window.alert(String(error));
+  }
+});
 if (els.applyWorkerInstancesButton) els.applyWorkerInstancesButton.addEventListener("click", () => applyWorkerInstances().catch((error) => {
   setStatus(String(error));
   window.alert(String(error));

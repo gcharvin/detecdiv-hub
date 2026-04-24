@@ -120,7 +120,7 @@ def get_raw_preview_quality_status(
         .outerjoin(RawDatasetPosition, RawDatasetPosition.preview_artifact_id == Artifact.id)
         .where(Artifact.artifact_kind == "raw_position_preview_mp4")
         .order_by(Artifact.created_at.desc())
-        .limit(20)
+        .limit(10)
     ).all()
 
     samples: list[RawPreviewQualitySample] = []
