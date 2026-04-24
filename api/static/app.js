@@ -1723,6 +1723,10 @@ function latestTimestampValue(...values) {
 function renderExecutionTargetWorkerPanels(target) {
   const targetJobs = executionTargetJobs(target);
   const workerEntries = executionTargetWorkerEntries(target);
+  const workerRunningFallbackCount = workerEntries.filter((entry) => {
+    const status = String(entry.workerHealth.current_job_status || "").toLowerCase();
+    return status === "running" || status === "cancelling";
+  }).length;
   const activeWorkerEntries = workerEntries.filter((entry) => {
     const lastSeen = entry.workerHealth.last_seen_at ? Date.parse(entry.workerHealth.last_seen_at) : NaN;
     if (Number.isNaN(lastSeen)) {
@@ -1733,10 +1737,11 @@ function renderExecutionTargetWorkerPanels(target) {
   const runningJobs = targetJobs.filter((job) => job.status === "running");
   const queuedJobs = targetJobs.filter((job) => job.status === "queued");
   const cancellingJobs = targetJobs.filter((job) => job.status === "cancelling");
+  const runningDisplayCount = Math.max(runningJobs.length, workerRunningFallbackCount);
 
   if (els.executionTargetWorkerSummary) {
     els.executionTargetWorkerSummary.textContent =
-      `${runningJobs.length} running, ${queuedJobs.length} queued, ${cancellingJobs.length} cancelling on ${target.display_name}. `
+      `${runningDisplayCount} running, ${queuedJobs.length} queued, ${cancellingJobs.length} cancelling on ${target.display_name}. `
       + `${activeWorkerEntries.length}/${workerEntries.length || 0} worker records seen in the last minute.`;
   }
 
