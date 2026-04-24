@@ -726,6 +726,7 @@ def encode_preview_video(
         position_label=position_label,
         channel_labels=channel_labels or [],
     )
+    annotated_frames = ensure_even_video_dimensions(annotated_frames)
     height, width, _ = annotated_frames[0].shape
     command = [
         resolve_ffmpeg_command(runtime_config),
@@ -763,6 +764,7 @@ def encode_preview_video(
     except FileNotFoundError as exc:
         raise RuntimeError(f"FFmpeg not found: {runtime_config.ffmpeg_command or 'auto'}") from exc
 
+    stderr = b""
     try:
         assert process.stdin is not None
         for frame in annotated_frames:
@@ -770,14 +772,42 @@ def encode_preview_video(
         process.stdin.close()
         stderr = process.stderr.read() if process.stderr is not None else b""
         process.wait()
+    except BrokenPipeError as exc:
+        stderr = process.stderr.read() if process.stderr is not None else b""
+        process.kill()
+        process.wait()
+        stderr_text = stderr.decode("utf-8", errors="replace").strip()
+        detail = f" FFmpeg stderr: {stderr_text}" if stderr_text else ""
+        raise RuntimeError(f"FFmpeg terminated while streaming raw frames.{detail}") from exc
     except Exception:
         process.kill()
+        process.wait()
         raise
 
     if process.returncode != 0:
         stderr_text = stderr.decode("utf-8", errors="replace").strip()
         raise RuntimeError(f"FFmpeg failed while encoding preview video: {stderr_text}")
     return width, height
+
+
+def ensure_even_video_dimensions(frames: list[np.ndarray]) -> list[np.ndarray]:
+    if not frames:
+        return frames
+    height, width = frames[0].shape[:2]
+    target_height = height if height % 2 == 0 else height + 1
+    target_width = width if width % 2 == 0 else width + 1
+    if target_height == height and target_width == width:
+        return frames
+
+    adjusted: list[np.ndarray] = []
+    for frame in frames:
+        if frame.shape[0] == target_height and frame.shape[1] == target_width:
+            adjusted.append(frame)
+            continue
+        padded = np.zeros((target_height, target_width, frame.shape[2]), dtype=frame.dtype)
+        padded[: frame.shape[0], : frame.shape[1], :] = frame
+        adjusted.append(padded)
+    return adjusted
 
 
 def resolve_ffmpeg_command(runtime_config: RawPreviewRuntimeConfig) -> str:
