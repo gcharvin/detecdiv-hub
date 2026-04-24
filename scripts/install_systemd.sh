@@ -7,6 +7,7 @@ ENV_FILE="/etc/detecdiv-hub/detecdiv-hub.env"
 UNIT_DIR="/etc/systemd/system"
 API_SERVICE_NAME="detecdiv-api.service"
 WORKER_SERVICE_NAME="detecdiv-worker.service"
+WORKER_INSTANCE_COUNT="1"
 API_HOST="127.0.0.1"
 API_PORT="8000"
 
@@ -24,6 +25,7 @@ Options:
   --api-port PORT        API bind port for uvicorn (default: 8000)
   --api-name NAME        API service unit filename (default: detecdiv-api.service)
   --worker-name NAME     Worker service unit filename (default: detecdiv-worker.service)
+  --worker-instances N   Number of worker service instances to run (default: 1)
 EOF
 }
 
@@ -61,6 +63,10 @@ while [[ $# -gt 0 ]]; do
       WORKER_SERVICE_NAME="$2"
       shift 2
       ;;
+    --worker-instances)
+      WORKER_INSTANCE_COUNT="$2"
+      shift 2
+      ;;
     -h|--help)
       usage
       exit 0
@@ -88,7 +94,16 @@ if [[ ! -x "$REPO_ROOT/.venv/bin/python" ]]; then
   exit 1
 fi
 
+if ! [[ "$WORKER_INSTANCE_COUNT" =~ ^[1-9][0-9]*$ ]]; then
+  echo "--worker-instances must be a positive integer." >&2
+  exit 1
+fi
+
 mkdir -p "$UNIT_DIR"
+
+WORKER_TEMPLATE_NAME="${WORKER_SERVICE_NAME%.service}@.service"
+WORKER_TEMPLATE_BASENAME="${WORKER_TEMPLATE_NAME%.service}"
+WORKER_BASENAME="${WORKER_SERVICE_NAME%.service}"
 
 cat >"$UNIT_DIR/$API_SERVICE_NAME" <<EOF
 [Unit]
@@ -118,6 +133,26 @@ Type=simple
 User=$SERVICE_USER
 WorkingDirectory=$REPO_ROOT
 EnvironmentFile=$ENV_FILE
+Environment=DETECDIV_HUB_WORKER_INSTANCE=main
+ExecStart=$REPO_ROOT/.venv/bin/python worker/run_worker.py
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+cat >"$UNIT_DIR/$WORKER_TEMPLATE_NAME" <<EOF
+[Unit]
+Description=DetecDiv Hub Worker Instance %i
+After=network.target postgresql.service
+
+[Service]
+Type=simple
+User=$SERVICE_USER
+WorkingDirectory=$REPO_ROOT
+EnvironmentFile=$ENV_FILE
+Environment=DETECDIV_HUB_WORKER_INSTANCE=%i
 ExecStart=$REPO_ROOT/.venv/bin/python worker/run_worker.py
 Restart=always
 RestartSec=5
@@ -127,7 +162,33 @@ WantedBy=multi-user.target
 EOF
 
 systemctl daemon-reload
-systemctl enable "${API_SERVICE_NAME%.service}" "${WORKER_SERVICE_NAME%.service}"
-systemctl restart "${API_SERVICE_NAME%.service}" "${WORKER_SERVICE_NAME%.service}"
+systemctl enable "${API_SERVICE_NAME%.service}"
+systemctl restart "${API_SERVICE_NAME%.service}"
 
-echo "Installed and restarted $API_SERVICE_NAME and $WORKER_SERVICE_NAME."
+mapfile -t EXISTING_WORKER_TEMPLATE_UNITS < <(
+  systemctl list-unit-files --type=service --no-legend "${WORKER_TEMPLATE_BASENAME}@*.service" 2>/dev/null | awk '{print $1}'
+)
+
+if [[ "$WORKER_INSTANCE_COUNT" == "1" ]]; then
+  for unit in "${EXISTING_WORKER_TEMPLATE_UNITS[@]}"; do
+    [[ -n "$unit" ]] || continue
+    systemctl stop "${unit%.service}" 2>/dev/null || true
+    systemctl disable "${unit%.service}" 2>/dev/null || true
+  done
+  systemctl enable "$WORKER_BASENAME"
+  systemctl restart "$WORKER_BASENAME"
+else
+  systemctl stop "$WORKER_BASENAME" 2>/dev/null || true
+  systemctl disable "$WORKER_BASENAME" 2>/dev/null || true
+  for unit in "${EXISTING_WORKER_TEMPLATE_UNITS[@]}"; do
+    [[ -n "$unit" ]] || continue
+    systemctl stop "${unit%.service}" 2>/dev/null || true
+    systemctl disable "${unit%.service}" 2>/dev/null || true
+  done
+  for instance in $(seq 1 "$WORKER_INSTANCE_COUNT"); do
+    systemctl enable "${WORKER_TEMPLATE_BASENAME}@${instance}"
+    systemctl restart "${WORKER_TEMPLATE_BASENAME}@${instance}"
+  done
+fi
+
+echo "Installed and restarted $API_SERVICE_NAME with $WORKER_INSTANCE_COUNT worker instance(s)."

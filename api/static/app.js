@@ -1597,12 +1597,19 @@ function renderExecutionTargets() {
     if (state.selectedExecutionTarget && String(state.selectedExecutionTarget.id) === String(target.id)) {
       tr.classList.add("selected");
     }
-    const workerHealth = target.metadata_json?.worker_health || {};
+    const workerHealth = target.metadata_json?.worker_health_summary || target.metadata_json?.worker_health || {};
+    const workerHealths = target.metadata_json?.worker_healths || {};
     const maxConcurrentJobs = target.metadata_json?.max_concurrent_jobs || "";
     const matlabMaxThreads = target.metadata_json?.matlab_max_threads || "";
-    const healthLabel = workerHealth.current_job_id
-      ? `busy (${workerHealth.last_job_status || "running"})`
-      : (workerHealth.health || target.status || "unknown");
+    const busyWorkers = Number(workerHealth.busy_workers || 0);
+    const workerCount = Number(workerHealth.worker_count || Object.keys(workerHealths).length || 0);
+    const workerSlots = maxConcurrentJobs || "";
+    let healthLabel = workerHealth.health || target.status || "unknown";
+    if (busyWorkers > 0) {
+      healthLabel = `busy (${busyWorkers}${workerSlots ? `/${workerSlots}` : ""} slots used)`;
+    } else if (workerHealth.capacity_full) {
+      healthLabel = "capacity full";
+    }
     tr.innerHTML = `
       <td>${target.display_name}</td>
       <td>${target.target_kind}</td>
@@ -1611,6 +1618,7 @@ function renderExecutionTargets() {
       <td>${target.supports_python ? "yes" : "no"}</td>
       <td>${target.supports_gpu ? "yes" : "no"}</td>
       <td>${maxConcurrentJobs || ""}</td>
+      <td>${busyWorkers}/${workerCount || 0}</td>
       <td>${matlabMaxThreads || ""}</td>
       <td>${target.status}</td>
       <td>${healthLabel}</td>

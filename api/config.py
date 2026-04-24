@@ -15,6 +15,7 @@ class Settings(BaseSettings):
     matlab_command: str = "matlab"
     matlab_repo_root: str = ""
     worker_target_key: str = ""
+    worker_instance: str = ""
     log_level: str = "INFO"
     worker_poll_interval_sec: float = 5.0
     default_user_key: str = "localdev"

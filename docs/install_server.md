@@ -140,7 +140,8 @@ sudo bash /srv/detecdiv/detecdiv-hub/scripts/install_systemd.sh \
   --service-user detecdiv \
   --env-file /etc/detecdiv-hub/detecdiv-hub.env \
   --api-host 127.0.0.1 \
-  --api-port 8000
+  --api-port 8000 \
+  --worker-instances 1
 ```
 
 Check status:
@@ -150,10 +151,28 @@ sudo systemctl status detecdiv-api --no-pager
 sudo systemctl status detecdiv-worker --no-pager
 ```
 
+To run several workers on the same execution target, reinstall with a higher
+instance count:
+
+```bash
+sudo bash /srv/detecdiv/detecdiv-hub/scripts/install_systemd.sh \
+  --repo-root /srv/detecdiv/detecdiv-hub \
+  --service-user detecdiv \
+  --env-file /etc/detecdiv-hub/detecdiv-hub.env \
+  --api-host 127.0.0.1 \
+  --api-port 8000 \
+  --worker-instances 3
+```
+
+This installs `detecdiv-worker@.service` and enables `detecdiv-worker@1`,
+`detecdiv-worker@2`, `detecdiv-worker@3`. Set the execution target
+`max_concurrent_jobs` to the same value, otherwise extra workers will idle.
+
 Tail logs:
 
 ```bash
 sudo journalctl -u detecdiv-api -u detecdiv-worker -f
+sudo journalctl -u 'detecdiv-worker*' -f
 ```
 
 If you are deploying under a different Linux user or a different repo path,
@@ -232,4 +251,10 @@ pip install -e .[dev]
 '
 
 sudo systemctl restart detecdiv-api detecdiv-worker
+```
+
+If you use multiple worker instances, restart them with:
+
+```bash
+sudo systemctl restart 'detecdiv-worker@*'
 ```

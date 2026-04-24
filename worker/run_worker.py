@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import logging
+import os
 import socket
 import time
 from contextlib import contextmanager
@@ -32,6 +33,70 @@ def session_scope():
         raise
     finally:
         session.close()
+
+
+def get_worker_instance_id() -> str:
+    configured = str(get_settings().worker_instance or "").strip()
+    if configured:
+        return configured
+    return f"{socket.gethostname()}-pid{os.getpid()}"
+
+
+def summarize_worker_health(worker_healths: dict[str, dict], *, max_concurrent_jobs: int | None) -> dict:
+    if not worker_healths:
+        return {}
+
+    now = datetime.now(timezone.utc)
+    active_entries = []
+    stale_workers = 0
+    for item in worker_healths.values():
+        poll_interval_sec = read_positive_int(item.get("poll_interval_sec")) or 5
+        stale_after_sec = max(poll_interval_sec * 3, 30)
+        try:
+            last_seen_at = datetime.fromisoformat(str(item.get("last_seen_at") or ""))
+        except ValueError:
+            last_seen_at = None
+        if last_seen_at is None or (now - last_seen_at).total_seconds() > stale_after_sec:
+            stale_workers += 1
+            continue
+        active_entries.append(item)
+
+    entries = active_entries
+    busy_workers = sum(1 for item in entries if item.get("health") == "busy" or item.get("current_job_id"))
+    error_workers = sum(1 for item in entries if item.get("health") == "error")
+    online_workers = sum(1 for item in entries if item.get("health") in {"online", "idle", "busy"})
+    latest_seen_at = max((str(item.get("last_seen_at") or "") for item in entries), default="")
+    latest_claimed_at = max((str(item.get("claimed_at") or "") for item in entries), default="")
+    current_job_ids = [str(item.get("current_job_id")) for item in entries if item.get("current_job_id")]
+
+    if busy_workers:
+        summary_health = "busy"
+    elif error_workers:
+        summary_health = "error"
+    elif online_workers:
+        summary_health = "online"
+    else:
+        summary_health = "unknown"
+
+    summary = {
+        "worker_host": socket.gethostname(),
+        "worker_count": len(entries),
+        "registered_workers": len(worker_healths),
+        "stale_workers": stale_workers,
+        "busy_workers": busy_workers,
+        "online_workers": online_workers,
+        "error_workers": error_workers,
+        "current_job_count": len(current_job_ids),
+        "current_job_ids": current_job_ids,
+        "health": summary_health,
+        "last_seen_at": latest_seen_at or None,
+        "claimed_at": latest_claimed_at or None,
+        "worker_instances": sorted(worker_healths.keys()),
+    }
+    if max_concurrent_jobs is not None:
+        summary["max_concurrent_jobs"] = max_concurrent_jobs
+        summary["capacity_full"] = busy_workers >= max_concurrent_jobs
+    return summary
 
 
 def claim_next_job() -> Job | None:
@@ -173,19 +238,23 @@ def mark_job_cancelled(job_id, message: str) -> None:
 
 def execute_job(job: Job) -> dict:
     job_kind = (job.params_json or {}).get("job_kind")
-    LOGGER.info("Executing job %s on host %s", job.id, socket.gethostname())
+    LOGGER.info("Executing job %s on host %s instance %s", job.id, socket.gethostname(), get_worker_instance_id())
     if job_kind == "pipeline_run":
         with session_scope() as session:
             job_record = session.get(Job, job.id)
             if job_record is None:
                 raise ValueError(f"Job {job.id} disappeared before execution")
-            return execute_pipeline_run_job(session, job=job_record)
+            result_json = execute_pipeline_run_job(session, job=job_record)
+            result_json["worker_instance"] = get_worker_instance_id()
+            return result_json
     if job_kind in {"archive_raw_dataset", "restore_raw_dataset"}:
         with session_scope() as session:
             job_record = session.get(Job, job.id)
             if job_record is None:
                 raise ValueError(f"Job {job.id} disappeared before execution")
-            return execute_storage_lifecycle_job(session, job=job_record)
+            result_json = execute_storage_lifecycle_job(session, job=job_record)
+            result_json["worker_instance"] = get_worker_instance_id()
+            return result_json
     if job_kind == "raw_preview_video":
         try:
             from worker.raw_preview_video import execute_raw_preview_video_job
@@ -199,12 +268,14 @@ def execute_job(job: Job) -> dict:
                 raise ValueError(f"Job {job.id} disappeared before execution")
             result_json = execute_raw_preview_video_job(session, job=job_record)
             result_json["worker_host"] = socket.gethostname()
+            result_json["worker_instance"] = get_worker_instance_id()
             result_json["requested_mode"] = job.requested_mode
             result_json["resolved_mode"] = job.resolved_mode
             return result_json
 
     return {
         "worker_host": socket.gethostname(),
+        "worker_instance": get_worker_instance_id(),
         "message": "Placeholder worker execution completed.",
         "job_kind": job_kind or "generic",
         "requested_mode": job.requested_mode,
@@ -216,7 +287,7 @@ def run_forever() -> None:
     settings = get_settings()
     last_archive_policy_run_at: datetime | None = None
     last_micromanager_ingest_run_at: datetime | None = None
-    LOGGER.info("Starting DetecDiv hub worker")
+    LOGGER.info("Starting DetecDiv hub worker instance %s", get_worker_instance_id())
     while True:
         try:
             with session_scope() as session:
@@ -304,7 +375,11 @@ def update_worker_target_state(
 
     now = datetime.now(timezone.utc)
     metadata = dict(target.metadata_json or {})
-    worker_health = dict(metadata.get("worker_health") or {})
+    max_concurrent_jobs = read_positive_int(metadata.get("max_concurrent_jobs"))
+    worker_healths = dict(metadata.get("worker_healths") or {})
+    worker_instance_id = get_worker_instance_id()
+    worker_health = dict(worker_healths.get(worker_instance_id) or {})
+    worker_health["worker_instance"] = worker_instance_id
     worker_health["worker_host"] = socket.gethostname()
     worker_health["last_seen_at"] = now.isoformat()
     worker_health["health"] = health
@@ -322,7 +397,13 @@ def update_worker_target_state(
         worker_health["last_error"] = error_text
     elif health != "error":
         worker_health["last_error"] = None
-    metadata["worker_health"] = worker_health
+    worker_healths[worker_instance_id] = worker_health
+    metadata["worker_healths"] = worker_healths
+    metadata["worker_health_summary"] = summarize_worker_health(
+        worker_healths,
+        max_concurrent_jobs=max_concurrent_jobs,
+    )
+    metadata["worker_health"] = metadata["worker_health_summary"]
     target.metadata_json = metadata
     if health == "error":
         target.status = "degraded"

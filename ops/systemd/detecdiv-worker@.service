@@ -1,13 +1,13 @@
 [Unit]
-Description=DetecDiv Hub Worker
-After=network.target
+Description=DetecDiv Hub Worker Instance %i
+After=network.target postgresql.service
 
 [Service]
 Type=simple
 User=detecdiv
 WorkingDirectory=/srv/detecdiv/detecdiv-hub
 EnvironmentFile=/etc/detecdiv-hub/detecdiv-hub.env
-Environment=DETECDIV_HUB_WORKER_INSTANCE=main
+Environment=DETECDIV_HUB_WORKER_INSTANCE=%i
 ExecStart=/srv/detecdiv/detecdiv-hub/.venv/bin/python worker/run_worker.py
 Restart=always
 RestartSec=5
