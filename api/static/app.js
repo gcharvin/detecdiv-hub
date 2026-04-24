@@ -1681,7 +1681,9 @@ function renderExecutionTargets() {
 }
 
 function jobKindLabel(job) {
-  const raw = job?.params_json?.job_kind || "generic";
+  const raw = typeof job === "string"
+    ? job
+    : (job?.params_json?.job_kind || job?.job_kind || "generic");
   return String(raw).replaceAll("_", " ");
 }
 
@@ -1786,7 +1788,7 @@ function renderExecutionTargetWorkerPanels(target) {
       }
     }
     for (const { workerHealth } of workerEntries) {
-      const kind = String(workerHealth.current_job_kind || "").trim();
+      const kind = jobKindLabel(workerHealth.current_job_kind || "");
       if (!kind) {
         continue;
       }

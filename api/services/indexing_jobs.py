@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import threading
 from datetime import datetime, timedelta, timezone
 from typing import Any
 from uuid import UUID
@@ -13,6 +14,18 @@ from api.models import IndexingJob, Job, User
 from api.schemas import IndexRequest
 from api.services.project_indexing import ProjectIndexResult, index_project_root
 from api.services.users import get_or_create_user
+
+
+def run_indexing_job_keepalive(indexing_job_id: UUID, stop_event: threading.Event, *, interval_sec: float = 10.0) -> None:
+    while not stop_event.wait(interval_sec):
+        with SessionLocal() as session:
+            job = session.get(IndexingJob, indexing_job_id)
+            if job is None or job.status != "running":
+                return
+            now = datetime.now(timezone.utc)
+            job.heartbeat_at = now
+            job.updated_at = now
+            session.commit()
 
 
 def create_indexing_job(
@@ -92,6 +105,15 @@ def execute_indexing_job(indexing_job_id: UUID) -> dict[str, Any]:
                 raise ValueError(f"Indexing job {indexing_job_id} disappeared before execution")
             owner = job.owner
             owner_user_key = owner.user_key if owner is not None else "localdev"
+            keepalive_stop = threading.Event()
+            keepalive_thread = threading.Thread(
+                target=run_indexing_job_keepalive,
+                args=(indexing_job_id, keepalive_stop),
+                kwargs={"interval_sec": 10.0},
+                daemon=True,
+                name=f"indexing-keepalive-{indexing_job_id}",
+            )
+            keepalive_thread.start()
 
             def on_progress(**kwargs: Any) -> None:
                 job_record = session.get(IndexingJob, indexing_job_id)
@@ -129,6 +151,8 @@ def execute_indexing_job(indexing_job_id: UUID) -> dict[str, Any]:
                 commit_each=True,
                 progress_callback=on_progress,
             )
+            keepalive_stop.set()
+            keepalive_thread.join(timeout=1.0)
             finalize_indexing_job_success(session, job, result)
             session.commit()
             return {
@@ -139,6 +163,12 @@ def execute_indexing_job(indexing_job_id: UUID) -> dict[str, Any]:
                 "result": dict(job.result_json or {}),
             }
     except Exception as exc:  # pragma: no cover - defensive for background worker
+        keepalive_stop = locals().get("keepalive_stop")
+        keepalive_thread = locals().get("keepalive_thread")
+        if isinstance(keepalive_stop, threading.Event):
+            keepalive_stop.set()
+        if isinstance(keepalive_thread, threading.Thread):
+            keepalive_thread.join(timeout=1.0)
         with SessionLocal() as session:
             job = session.get(IndexingJob, indexing_job_id)
             if job is None:
