@@ -99,6 +99,69 @@ def summarize_worker_health(worker_healths: dict[str, dict], *, max_concurrent_j
     return summary
 
 
+def worker_health_is_active(worker_health: dict) -> bool:
+    poll_interval_sec = read_positive_int(worker_health.get("poll_interval_sec")) or 5
+    stale_after_sec = max(poll_interval_sec * 3, 30)
+    try:
+        last_seen_at = datetime.fromisoformat(str(worker_health.get("last_seen_at") or ""))
+    except ValueError:
+        return False
+    return (datetime.now(timezone.utc) - last_seen_at).total_seconds() <= stale_after_sec
+
+
+def running_job_is_stale(job: Job) -> bool:
+    now = datetime.now(timezone.utc)
+    reference_time = job.heartbeat_at or job.updated_at or job.started_at or job.created_at
+    if reference_time is None:
+        return True
+    return (now - reference_time).total_seconds() > 60
+
+
+def recover_orphaned_jobs(session, *, target: ExecutionTarget | None) -> int:
+    if target is None:
+        return 0
+
+    metadata = dict(target.metadata_json or {})
+    worker_healths = dict(metadata.get("worker_healths") or {})
+    active_job_ids = {
+        str(item.get("current_job_id"))
+        for item in worker_healths.values()
+        if worker_health_is_active(item) and item.get("current_job_id")
+    }
+    running_jobs = list(
+        session.scalars(
+            select(Job).where(
+                Job.execution_target_id == target.id,
+                Job.status.in_(("running", "cancelling")),
+            )
+        )
+    )
+    recovered = 0
+    for job in running_jobs:
+        if str(job.id) in active_job_ids:
+            continue
+        if not running_job_is_stale(job):
+            continue
+        job.status = "failed"
+        job.error_text = "Job was orphaned after worker restart or heartbeat loss."
+        job.finished_at = datetime.now(timezone.utc)
+        job.heartbeat_at = job.finished_at
+        job.updated_at = job.finished_at
+        if (job.params_json or {}).get("job_kind") == "raw_preview_video":
+            update_raw_preview_position_state(session, job=job, status="failed")
+        recovered += 1
+        LOGGER.warning("Recovered orphaned job %s on target %s", job.id, target.display_name)
+    if recovered:
+        update_worker_target_state(
+            session,
+            target=target,
+            health="online",
+            current_job=None,
+            last_job_status="recovered_orphaned_jobs",
+        )
+    return recovered
+
+
 def claim_next_job() -> Job | None:
     settings = get_settings()
     with session_scope() as session:
@@ -293,6 +356,7 @@ def run_forever() -> None:
             with session_scope() as session:
                 target = resolve_worker_target(session, settings.worker_target_key)
                 update_worker_target_state(session, target=target, health="online", current_job=None, last_job_status=None)
+                recover_orphaned_jobs(session, target=target)
         except Exception:  # pragma: no cover - defensive around heartbeat
             LOGGER.exception("Execution target heartbeat update failed")
 
