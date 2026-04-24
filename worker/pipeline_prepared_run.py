@@ -2,10 +2,9 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
-from typing import Any, TYPE_CHECKING
+from typing import Any
 
-if TYPE_CHECKING:
-    from api.models import Job
+from api.models import Job
 
 
 def persist_prepared_pipeline_run(session, *, job: Job, payload: dict[str, Any]) -> None:
