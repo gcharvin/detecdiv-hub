@@ -1457,20 +1457,16 @@ function renderExecutionTargets() {
       <td>${healthLabel}</td>
       <td>${formatTimestamp(workerHealth.last_seen_at || workerHealth.claimed_at || null)}</td>
     `;
-    tr.addEventListener("click", () => {
-      state.selectedExecutionTarget = target;
-      renderExecutionTargets();
-    });
-    tr.addEventListener("dblclick", () => loadExecutionTargetIntoForm(target));
+    tr.addEventListener("click", () => loadExecutionTargetIntoForm(target));
     els.executionTargetsTableBody.appendChild(tr);
   }
   if (els.executionTargetEditorMode && els.saveExecutionTargetButton) {
     if (state.editingExecutionTarget) {
       els.executionTargetEditorMode.textContent = `Edit mode: ${state.editingExecutionTarget.display_name}`;
-      els.saveExecutionTargetButton.textContent = "Save target";
+      els.saveExecutionTargetButton.textContent = "Save settings";
     } else {
       els.executionTargetEditorMode.textContent = "Create mode.";
-      els.saveExecutionTargetButton.textContent = "Create target";
+      els.saveExecutionTargetButton.textContent = "Save settings";
     }
   }
   if (els.cancelExecutionTargetEditButton) {
