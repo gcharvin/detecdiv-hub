@@ -343,7 +343,65 @@ def finalize_indexing_job_success(session: Session, job: IndexingJob, result: Pr
     session.flush()
 
 
+def reconcile_running_indexing_jobs(session: Session) -> None:
+    running_jobs = list(session.scalars(select(IndexingJob).where(IndexingJob.status == "running")))
+    changed = False
+    for indexing_job in running_jobs:
+        worker_job_id = (indexing_job.metadata_json or {}).get("worker_job_id")
+        if not worker_job_id:
+            continue
+        worker_job = session.get(Job, worker_job_id)
+        if worker_job is None:
+            continue
+        worker_status = str(worker_job.status or "")
+        if worker_status in {"queued", "running"}:
+            continue
+
+        finished_at = worker_job.finished_at or worker_job.updated_at or datetime.now(timezone.utc)
+        now = datetime.now(timezone.utc)
+        if worker_status == "failed":
+            error_text = worker_job.error_text or "Worker indexing job failed."
+            indexing_job.status = "stale" if "orphaned" in error_text.lower() else "failed"
+            indexing_job.phase = "stale" if indexing_job.status == "stale" else "failed"
+            indexing_job.message = (
+                "Marked stale after worker heartbeat loss."
+                if indexing_job.status == "stale"
+                else "Indexing failed."
+            )
+            indexing_job.error_text = error_text
+            indexing_job.finished_at = finished_at
+            indexing_job.heartbeat_at = finished_at
+            indexing_job.updated_at = now
+            changed = True
+            continue
+
+        if worker_status == "cancelled":
+            indexing_job.status = "failed"
+            indexing_job.phase = "failed"
+            indexing_job.message = "Indexing cancelled."
+            indexing_job.error_text = worker_job.error_text or "Worker indexing job was cancelled."
+            indexing_job.finished_at = finished_at
+            indexing_job.heartbeat_at = finished_at
+            indexing_job.updated_at = now
+            changed = True
+            continue
+
+        if worker_status == "done":
+            indexing_job.status = "stale"
+            indexing_job.phase = "stale"
+            indexing_job.message = "Worker indexing job finished without updating indexing record."
+            indexing_job.error_text = indexing_job.error_text or "Indexing record was left running after worker completion."
+            indexing_job.finished_at = finished_at
+            indexing_job.heartbeat_at = finished_at
+            indexing_job.updated_at = now
+            changed = True
+
+    if changed:
+        session.flush()
+
+
 def mark_stale_indexing_jobs(session: Session) -> None:
+    reconcile_running_indexing_jobs(session)
     settings = get_settings()
     cutoff = datetime.now(timezone.utc) - timedelta(minutes=int(settings.indexing_stale_after_minutes))
     stmt = select(IndexingJob).where(
