@@ -22,6 +22,20 @@ from worker.pipeline_prepared_run import merge_prepared_pipeline_run, persist_pr
 
 
 PIPELINE_REF_PATH_KEYS = ("export_manifest_uri", "pipeline_bundle_uri", "pipeline_json_path")
+PIPELINE_PATHISH_KEYS = {
+    "path",
+    "modulePath",
+    "module_path",
+    "modelPath",
+    "model_path",
+    "scriptPath",
+    "script_path",
+    "filePath",
+    "file_path",
+    "directory",
+    "dir",
+    "folder",
+}
 
 
 class PipelineRunCancelled(RuntimeError):
@@ -41,6 +55,7 @@ def execute_pipeline_run_job(session: Session, *, job: Job) -> dict[str, Any]:
     matlab_command = str(settings.matlab_command or "matlab").strip() or "matlab"
 
     payload = normalize_pipeline_run_payload(session, job=job)
+    payload = normalize_pipeline_ref_paths_for_posix(payload=payload, job=job)
     persist_prepared_pipeline_run(session, job=job, payload=payload)
     preflight = evaluate_pipeline_dependency_preflight(payload)
     persist_pipeline_preflight(session, job=job, preflight=preflight)
@@ -487,6 +502,88 @@ def path_exists(path_text: str) -> bool:
 def path_leaf(path_text: str) -> str:
     parts = str(path_text).replace("\\", "/").rstrip("/").split("/")
     return parts[-1] if parts else ""
+
+
+def normalize_pipeline_ref_paths_for_posix(*, payload: dict[str, Any], job: Job) -> dict[str, Any]:
+    pipeline_ref = dict(payload.get("pipeline_ref") or {})
+    pipeline_json_path = str(pipeline_ref.get("pipeline_json_path") or "").strip()
+    if not pipeline_json_path:
+        return payload
+
+    source_path = Path(pipeline_json_path)
+    if not source_path.is_file():
+        return payload
+
+    try:
+        pipeline_data = json.loads(source_path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return payload
+
+    normalized_data, changed = normalize_pipeline_data_paths_for_posix(pipeline_data)
+    if not changed:
+        return payload
+
+    runtime_path = source_path.parent / f".detecdiv_runtime_pipeline_{job.id}.json"
+    runtime_path.write_text(json.dumps(normalized_data, indent=2), encoding="utf-8")
+
+    pipeline_ref["pipeline_json_path_original"] = pipeline_json_path
+    pipeline_ref["pipeline_json_path"] = str(runtime_path)
+    pipeline_ref["path_normalization"] = "relative_windows_paths_rewritten_for_posix"
+
+    normalized_payload = dict(payload)
+    normalized_payload["pipeline_ref"] = pipeline_ref
+    return normalized_payload
+
+
+def normalize_pipeline_data_paths_for_posix(value: Any, *, key: str | None = None) -> tuple[Any, bool]:
+    if isinstance(value, dict):
+        changed_any = False
+        normalized: dict[str, Any] = {}
+        for item_key, item_value in value.items():
+            normalized_item, changed = normalize_pipeline_data_paths_for_posix(item_value, key=item_key)
+            normalized[item_key] = normalized_item
+            changed_any = changed_any or changed
+        return normalized, changed_any
+
+    if isinstance(value, list):
+        changed_any = False
+        normalized_items: list[Any] = []
+        for item in value:
+            normalized_item, changed = normalize_pipeline_data_paths_for_posix(item, key=key)
+            normalized_items.append(normalized_item)
+            changed_any = changed_any or changed
+        return normalized_items, changed_any
+
+    if not isinstance(value, str):
+        return value, False
+
+    text = value.strip()
+    if "\\" not in text:
+        return value, False
+    if is_windows_absolute_or_unc_path(text):
+        return value, False
+    if not is_path_like_key(key):
+        return value, False
+
+    normalized = value.replace("\\", "/")
+    return normalized, normalized != value
+
+
+def is_windows_absolute_or_unc_path(path_text: str) -> bool:
+    if re.match(r"^[A-Za-z]:\\", path_text):
+        return True
+    if path_text.startswith("\\\\"):
+        return True
+    return False
+
+
+def is_path_like_key(key: str | None) -> bool:
+    if not key:
+        return False
+    if key in PIPELINE_PATHISH_KEYS:
+        return True
+    lowered = key.lower()
+    return "path" in lowered or "file" in lowered or "dir" in lowered or "folder" in lowered
 
 
 def build_pipeline_run_error(returncode: int, stdout: str, stderr: str, result_json: dict[str, Any]) -> str:
