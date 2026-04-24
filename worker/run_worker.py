@@ -3,6 +3,7 @@ from __future__ import annotations
 import logging
 import os
 import socket
+import threading
 import time
 from contextlib import contextmanager
 from datetime import datetime, timezone
@@ -116,6 +117,43 @@ def running_job_is_stale(job: Job) -> bool:
     if reference_time is None:
         return True
     return (now - reference_time).total_seconds() > 60
+
+
+def keep_running_job_alive(stop_event: threading.Event, *, job_id) -> None:
+    settings = get_settings()
+    while not stop_event.wait(10.0):
+        try:
+            with session_scope() as session:
+                job = session.get(Job, job_id)
+                if job is None or job.status not in {"running", "cancelling"}:
+                    return
+                now = datetime.now(timezone.utc)
+                job.heartbeat_at = now
+                job.updated_at = now
+                sync_indexing_job_heartbeat(session, job=job, now=now)
+                target = resolve_target_for_job(session, job=job, configured_target_key=settings.worker_target_key)
+                update_worker_target_state(
+                    session,
+                    target=target,
+                    health="busy",
+                    current_job=job,
+                    last_job_status="running",
+                )
+        except Exception:  # pragma: no cover - defensive around keepalive
+            LOGGER.exception("Job keepalive update failed for %s", job_id)
+
+
+def sync_indexing_job_heartbeat(session, *, job: Job, now: datetime) -> None:
+    if (job.params_json or {}).get("job_kind") != "project_indexing":
+        return
+    indexing_job_id = (job.params_json or {}).get("indexing_job_id")
+    if not indexing_job_id:
+        return
+    indexing_job = session.get(IndexingJob, indexing_job_id)
+    if indexing_job is None or indexing_job.status != "running":
+        return
+    indexing_job.heartbeat_at = now
+    indexing_job.updated_at = now
 
 
 def recover_orphaned_jobs(session, *, target: ExecutionTarget | None) -> int:
@@ -460,13 +498,36 @@ def run_forever() -> None:
             continue
 
         try:
+            keepalive_stop = threading.Event()
+            keepalive_thread = threading.Thread(
+                target=keep_running_job_alive,
+                args=(keepalive_stop,),
+                kwargs={"job_id": job.id},
+                daemon=True,
+                name=f"job-keepalive-{job.id}",
+            )
+            keepalive_thread.start()
             result_json = execute_job(job)
+            keepalive_stop.set()
+            keepalive_thread.join(timeout=1.0)
             mark_job_done(job.id, result_json)
             LOGGER.info("Job %s completed", job.id)
         except PipelineRunCancelled as exc:
+            keepalive_stop = locals().get("keepalive_stop")
+            keepalive_thread = locals().get("keepalive_thread")
+            if isinstance(keepalive_stop, threading.Event):
+                keepalive_stop.set()
+            if isinstance(keepalive_thread, threading.Thread):
+                keepalive_thread.join(timeout=1.0)
             mark_job_cancelled(job.id, str(exc))
             LOGGER.info("Job %s cancelled", job.id)
         except Exception as exc:  # pragma: no cover - defensive for worker loop
+            keepalive_stop = locals().get("keepalive_stop")
+            keepalive_thread = locals().get("keepalive_thread")
+            if isinstance(keepalive_stop, threading.Event):
+                keepalive_stop.set()
+            if isinstance(keepalive_thread, threading.Thread):
+                keepalive_thread.join(timeout=1.0)
             with session_scope() as session:
                 job_record = session.get(Job, job.id)
                 if job_record is not None:
