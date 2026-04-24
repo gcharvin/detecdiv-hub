@@ -636,14 +636,14 @@ def encode_preview_video(
     if not frame_list:
         raise ValueError(f"No frames available to encode preview video {video_path}")
 
+    prepared_frames = [prepare_frame_for_video(frame, runtime_config=runtime_config) for frame in frame_list]
     annotated_frames = annotate_preview_frames(
-        frame_list,
+        prepared_frames,
         project_label=project_label,
         position_label=position_label,
         channel_labels=channel_labels or [],
     )
-    prepared_frames = [prepare_frame_for_video(frame, runtime_config=runtime_config) for frame in annotated_frames]
-    height, width, _ = prepared_frames[0].shape
+    height, width, _ = annotated_frames[0].shape
     command = [
         resolve_ffmpeg_command(runtime_config),
         "-y",
@@ -682,7 +682,7 @@ def encode_preview_video(
 
     try:
         assert process.stdin is not None
-        for frame in prepared_frames:
+        for frame in annotated_frames:
             process.stdin.write(frame.tobytes(order="C"))
         process.stdin.close()
         stderr = process.stderr.read() if process.stderr is not None else b""
@@ -728,22 +728,28 @@ def annotate_preview_frames(
     annotated: list[np.ndarray] = []
     for index, frame in enumerate(frames):
         canvas = np.array(frame, copy=True)
-        draw_text_with_box(canvas, f"F{index + 1}", x=8, y=8, scale=2)
+        height, width = canvas.shape[:2]
+        frame_scale = max(3, min(6, min(height, width) // 120))
+        label_scale = max(2, frame_scale - 1)
+        title_scale = max(2, frame_scale - 1)
+        margin = max(8, frame_scale * 3)
+        line_gap = max(8, label_scale * 10)
+        draw_text_with_box(canvas, f"FRAME {index + 1}", x=margin, y=margin, scale=frame_scale)
         if overlay_project_label:
             draw_text_with_box(
                 canvas,
                 overlay_project_label[:48],
-                x=8,
-                y=max(8, canvas.shape[0] - 18),
-                scale=1,
+                x=margin,
+                y=max(margin, height - (title_scale * 22)),
+                scale=title_scale,
             )
         if overlay_position_label:
             draw_text_with_box(
                 canvas,
-                overlay_position_label[:32],
-                x=8,
-                y=max(8, canvas.shape[0] - 34),
-                scale=1,
+                f"POS {overlay_position_label[:28]}",
+                x=margin,
+                y=max(margin, height - (title_scale * 36)),
+                scale=title_scale,
             )
         if overlay_channel_labels:
             panel_width = max(1, canvas.shape[1] // len(overlay_channel_labels))
@@ -751,9 +757,9 @@ def annotate_preview_frames(
                 draw_text_with_box(
                     canvas,
                     label,
-                    x=channel_index * panel_width + 8,
-                    y=34,
-                    scale=1,
+                    x=channel_index * panel_width + margin,
+                    y=margin + line_gap,
+                    scale=label_scale,
                 )
         annotated.append(canvas)
     return annotated
