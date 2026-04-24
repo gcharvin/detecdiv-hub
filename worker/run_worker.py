@@ -386,9 +386,17 @@ def update_worker_target_state(
     worker_health["poll_interval_sec"] = get_settings().worker_poll_interval_sec
     if current_job is not None:
         worker_health["current_job_id"] = str(current_job.id)
+        worker_health["current_job_kind"] = str((current_job.params_json or {}).get("job_kind") or "generic")
+        worker_health["current_job_status"] = str(current_job.status or "running")
+        worker_health["current_job_started_at"] = (
+            current_job.started_at.isoformat() if getattr(current_job, "started_at", None) is not None else None
+        )
         worker_health["claimed_at"] = now.isoformat()
     else:
         worker_health["current_job_id"] = None
+        worker_health["current_job_kind"] = None
+        worker_health["current_job_status"] = None
+        worker_health["current_job_started_at"] = None
     if last_job is not None:
         worker_health["last_job_id"] = str(last_job.id)
     if last_job_status is not None:

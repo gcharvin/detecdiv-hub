@@ -123,6 +123,16 @@ def execute_raw_preview_video_job(session: Session, *, job: Job) -> dict[str, An
     skipped: list[dict[str, Any]] = []
     failed: list[dict[str, Any]] = []
     project_label = resolve_preview_project_label(session, job=job, raw_dataset=raw_dataset)
+    update_raw_preview_job_progress(
+        session,
+        job=job,
+        raw_dataset=raw_dataset,
+        generated=generated,
+        skipped=skipped,
+        failed=failed,
+        current_position_key=None,
+        stage="starting",
+    )
     for position in positions:
         if position.preview_artifact_id and not should_force_generation(job):
             if not runtime_config.include_existing:
@@ -131,6 +141,16 @@ def execute_raw_preview_video_job(session: Session, *, job: Job) -> dict[str, An
                 session.flush()
                 session.commit()
                 skipped.append({"position_id": str(position.id), "position_key": position.position_key, "reason": "existing"})
+                update_raw_preview_job_progress(
+                    session,
+                    job=job,
+                    raw_dataset=raw_dataset,
+                    generated=generated,
+                    skipped=skipped,
+                    failed=failed,
+                    current_position_key=position.position_key,
+                    stage="skipped",
+                )
                 continue
 
         try:
@@ -138,6 +158,16 @@ def execute_raw_preview_video_job(session: Session, *, job: Job) -> dict[str, An
             position.updated_at = datetime.now(timezone.utc)
             session.flush()
             session.commit()
+            update_raw_preview_job_progress(
+                session,
+                job=job,
+                raw_dataset=raw_dataset,
+                generated=generated,
+                skipped=skipped,
+                failed=failed,
+                current_position_key=position.position_key,
+                stage="running",
+            )
             sequence = read_preview_frames(
                 dataset_path=dataset_path,
                 raw_dataset=raw_dataset,
@@ -183,6 +213,16 @@ def execute_raw_preview_video_job(session: Session, *, job: Job) -> dict[str, An
                     "frame_count": len(sequence.frames),
                 }
             )
+            update_raw_preview_job_progress(
+                session,
+                job=job,
+                raw_dataset=raw_dataset,
+                generated=generated,
+                skipped=skipped,
+                failed=failed,
+                current_position_key=position.position_key,
+                stage="generated",
+            )
         except Exception as exc:
             position.preview_status = "failed"
             position.updated_at = datetime.now(timezone.utc)
@@ -192,6 +232,16 @@ def execute_raw_preview_video_job(session: Session, *, job: Job) -> dict[str, An
                     "position_key": position.position_key,
                     "error": str(exc),
                 }
+            )
+            update_raw_preview_job_progress(
+                session,
+                job=job,
+                raw_dataset=raw_dataset,
+                generated=generated,
+                skipped=skipped,
+                failed=failed,
+                current_position_key=position.position_key,
+                stage="failed",
             )
         session.flush()
         session.commit()
@@ -216,6 +266,39 @@ def execute_raw_preview_video_job(session: Session, *, job: Job) -> dict[str, An
         "preview_status": preview_status,
         "scope": str((job.params_json or {}).get("scope") or "dataset"),
     }
+
+
+def update_raw_preview_job_progress(
+    session: Session,
+    *,
+    job: Job,
+    raw_dataset: RawDataset,
+    generated: list[dict[str, Any]],
+    skipped: list[dict[str, Any]],
+    failed: list[dict[str, Any]],
+    current_position_key: str | None,
+    stage: str,
+) -> None:
+    job_record = session.get(Job, job.id)
+    if job_record is None:
+        return
+    now = datetime.now(timezone.utc)
+    result_json = dict(job_record.result_json or {})
+    result_json["progress"] = {
+        "job_kind": "raw_preview_video",
+        "dataset_label": raw_dataset.acquisition_label,
+        "current_position_key": current_position_key,
+        "stage": stage,
+        "generated_count": len(generated),
+        "skipped_count": len(skipped),
+        "failed_count": len(failed),
+        "total_positions": len(generated) + len(skipped) + len(failed) + (1 if current_position_key else 0),
+    }
+    job_record.result_json = result_json
+    job_record.heartbeat_at = now
+    job_record.updated_at = now
+    session.flush()
+    session.commit()
 
 
 def should_force_generation(job: Job) -> bool:

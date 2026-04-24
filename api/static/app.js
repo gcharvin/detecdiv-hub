@@ -1686,6 +1686,25 @@ function executionTargetWorkerEntries(target) {
     .sort((a, b) => String(a.workerId).localeCompare(String(b.workerId)));
 }
 
+function latestTimestampValue(...values) {
+  let best = null;
+  let bestMs = -Infinity;
+  for (const value of values) {
+    if (!value) {
+      continue;
+    }
+    const ms = Date.parse(value);
+    if (Number.isNaN(ms)) {
+      continue;
+    }
+    if (ms > bestMs) {
+      bestMs = ms;
+      best = value;
+    }
+  }
+  return best;
+}
+
 function renderExecutionTargetWorkerPanels(target) {
   const targetJobs = executionTargetJobs(target);
   const workerEntries = executionTargetWorkerEntries(target);
@@ -1714,13 +1733,16 @@ function renderExecutionTargetWorkerPanels(target) {
       const currentJob = currentJobId
         ? targetJobs.find((job) => String(job.id) === currentJobId) || null
         : null;
+      const currentJobKind = currentJob ? jobKindLabel(currentJob) : (workerHealth.current_job_kind || "");
+      const currentJobStatus = currentJob?.status || workerHealth.current_job_status || "";
+      const currentJobStartedAt = currentJob?.started_at || workerHealth.current_job_started_at || null;
       tr.innerHTML = `
         <td>${workerId}</td>
         <td>${workerHealth.health || "unknown"}</td>
         <td>${currentJobId || ""}</td>
-        <td>${currentJob ? jobKindLabel(currentJob) : ""}</td>
-        <td>${currentJob?.status || ""}</td>
-        <td>${formatTimestamp(currentJob?.started_at || null)}</td>
+        <td>${currentJobKind}</td>
+        <td>${currentJobStatus}</td>
+        <td>${formatTimestamp(currentJobStartedAt)}</td>
         <td>${formatTimestamp(workerHealth.last_seen_at || workerHealth.claimed_at || null)}</td>
       `;
       els.executionTargetWorkersTableBody.appendChild(tr);
@@ -1745,9 +1767,29 @@ function renderExecutionTargetWorkerPanels(target) {
       if (job.status === "running") entry.running += 1;
       if (job.status === "queued") entry.queued += 1;
       if (job.status === "cancelling") entry.cancelling += 1;
-      const updatedAt = job.updated_at || job.heartbeat_at || job.started_at || job.created_at || null;
-      if (!entry.lastUpdated || (updatedAt && String(updatedAt) > String(entry.lastUpdated))) {
+      const updatedAt = latestTimestampValue(job.heartbeat_at, job.updated_at, job.started_at, job.created_at);
+      if (!entry.lastUpdated || latestTimestampValue(updatedAt, entry.lastUpdated) === updatedAt) {
         entry.lastUpdated = updatedAt;
+      }
+    }
+    for (const { workerHealth } of workerEntries) {
+      const kind = String(workerHealth.current_job_kind || "").trim();
+      if (!kind) {
+        continue;
+      }
+      if (!grouped.has(kind)) {
+        grouped.set(kind, {
+          kind,
+          running: 0,
+          queued: 0,
+          cancelling: 0,
+          lastUpdated: null,
+        });
+      }
+      const entry = grouped.get(kind);
+      const lastSeenAt = latestTimestampValue(workerHealth.last_seen_at, workerHealth.claimed_at);
+      if (!entry.lastUpdated || latestTimestampValue(lastSeenAt, entry.lastUpdated) === lastSeenAt) {
+        entry.lastUpdated = lastSeenAt;
       }
     }
     const rows = [...grouped.values()].sort((a, b) => a.kind.localeCompare(b.kind));
