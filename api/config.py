@@ -15,6 +15,7 @@ class Settings(BaseSettings):
     api_port: int = 8000
     matlab_command: str = "matlab"
     matlab_repo_root: str = ""
+    indexing_target_key: str = ""
     worker_target_key: str = ""
     worker_instance: str = ""
     systemd_env_file: str = "/etc/detecdiv-hub/detecdiv-hub.env"

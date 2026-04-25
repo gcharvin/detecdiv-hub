@@ -39,10 +39,22 @@ def create_job(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Only source_kind=project_root is implemented.",
         )
+    if payload.host_scope != "server":
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Worker-backed indexing currently requires host_scope=server.",
+        )
 
-    job = create_indexing_job(db, payload=payload, current_user=current_user)
-    enqueue_indexing_worker_job(db, indexing_job=job, current_user=current_user)
-    db.commit()
+    try:
+        job = create_indexing_job(db, payload=payload, current_user=current_user)
+        enqueue_indexing_worker_job(db, indexing_job=job, current_user=current_user)
+        db.commit()
+    except ValueError as exc:
+        db.rollback()
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc
+    except Exception:
+        db.rollback()
+        raise
     job = get_indexing_job_for_user(db, job_id=job.id, current_user=current_user)
     if job is None:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Failed to reload job.")
@@ -100,6 +112,11 @@ def request_index(
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Only source_kind=project_root is implemented.",
+        )
+    if payload.host_scope == "server" and settings.environment.strip().lower() in {"prod", "production"}:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Server-side indexing must be queued through POST /indexing/jobs in production.",
         )
 
     try:

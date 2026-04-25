@@ -955,6 +955,8 @@ class IndexRequest(HubBaseModel):
     visibility: str = "private"
     clear_existing_for_root: bool = False
     requested_by: str | None = None
+    execution_target_id: UUID | None = None
+    execution_target_key: str | None = None
     metadata_json: dict[str, Any] = Field(default_factory=dict)
 
 

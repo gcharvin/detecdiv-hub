@@ -191,6 +191,11 @@ def create_indexing_job(
 ) -> IndexingJob:
     owner_user_key = payload.owner_user_key or current_user.user_key
     owner = get_or_create_user(session, user_key=owner_user_key, display_name=owner_user_key)
+    metadata = dict(payload.metadata_json or {})
+    if payload.execution_target_id is not None:
+        metadata["execution_target_id"] = str(payload.execution_target_id)
+    if payload.execution_target_key:
+        metadata["execution_target_key"] = payload.execution_target_key
     job = IndexingJob(
         requested_by_user_id=current_user.id,
         owner_user_id=owner.id,
@@ -204,12 +209,105 @@ def create_indexing_job(
         status="queued",
         phase="queued",
         message="Queued for indexing.",
-        metadata_json=payload.metadata_json or {},
+        metadata_json=metadata,
     )
     session.add(job)
     session.flush()
     session.refresh(job)
     return job
+
+
+def parse_target_uuid(value: Any) -> UUID | None:
+    if value is None or value == "":
+        return None
+    if isinstance(value, UUID):
+        return value
+    try:
+        return UUID(str(value))
+    except (TypeError, ValueError):
+        return None
+
+
+def target_storage_root_names(target: ExecutionTarget) -> set[str]:
+    metadata = dict(target.metadata_json or {})
+    raw_names = metadata.get("storage_root_names")
+    if isinstance(raw_names, str):
+        return {raw_names.strip()} if raw_names.strip() else set()
+    if isinstance(raw_names, list):
+        return {str(item).strip() for item in raw_names if str(item).strip()}
+    return set()
+
+
+def target_can_index_project_roots(target: ExecutionTarget) -> bool:
+    metadata = dict(target.metadata_json or {})
+    return any(
+        bool(metadata.get(flag))
+        for flag in (
+            "can_index_project_roots",
+            "can_index_server_projects",
+            "storage_visible",
+        )
+    )
+
+
+def resolve_indexing_execution_target(session: Session, *, indexing_job: IndexingJob) -> ExecutionTarget:
+    metadata = dict(indexing_job.metadata_json or {})
+
+    explicit_target_id = parse_target_uuid(metadata.get("execution_target_id"))
+    if explicit_target_id is not None:
+        target = session.get(ExecutionTarget, explicit_target_id)
+        if target is None:
+            raise ValueError(f"Execution target {explicit_target_id} does not exist.")
+        return target
+
+    explicit_target_key = str(metadata.get("execution_target_key") or metadata.get("target_key") or "").strip()
+    if explicit_target_key:
+        target = session.scalars(select(ExecutionTarget).where(ExecutionTarget.target_key == explicit_target_key)).first()
+        if target is None:
+            raise ValueError(f"Execution target '{explicit_target_key}' does not exist.")
+        return target
+
+    settings = get_settings()
+    configured_target_key = str(settings.indexing_target_key or settings.worker_target_key or "").strip()
+    if configured_target_key:
+        target = session.scalars(select(ExecutionTarget).where(ExecutionTarget.target_key == configured_target_key)).first()
+        if target is None:
+            raise ValueError(
+                f"Configured indexing target '{configured_target_key}' does not exist."
+            )
+        return target
+
+    candidates = list(
+        session.scalars(
+            select(ExecutionTarget).where(ExecutionTarget.status.in_(("online", "degraded")))
+        )
+    )
+    eligible_targets = [target for target in candidates if target_can_index_project_roots(target)]
+    if indexing_job.storage_root_name:
+        matching_targets = [
+            target
+            for target in eligible_targets
+            if indexing_job.storage_root_name in target_storage_root_names(target)
+        ]
+        if len(matching_targets) == 1:
+            return matching_targets[0]
+        if len(matching_targets) > 1:
+            raise ValueError(
+                f"Several execution targets can index storage root '{indexing_job.storage_root_name}'. "
+                "Specify execution_target_key or execution_target_id explicitly."
+            )
+    if len(eligible_targets) == 1:
+        return eligible_targets[0]
+    if len(eligible_targets) > 1:
+        raise ValueError(
+            "Several execution targets are eligible for server-side indexing. "
+            "Specify execution_target_key or execution_target_id explicitly."
+        )
+    raise ValueError(
+        "No execution target is configured for server-side indexing. "
+        "Set DETECDIV_HUB_INDEXING_TARGET_KEY, pass execution_target_key/execution_target_id, "
+        "or mark one execution target metadata_json.can_index_project_roots=true."
+    )
 
 
 def enqueue_indexing_worker_job(
@@ -218,7 +316,9 @@ def enqueue_indexing_worker_job(
     indexing_job: IndexingJob,
     current_user: User,
 ) -> Job:
+    execution_target = resolve_indexing_execution_target(session, indexing_job=indexing_job)
     worker_job = Job(
+        execution_target_id=execution_target.id,
         requested_mode="server",
         priority=100,
         requested_by=current_user.user_key,
@@ -233,8 +333,12 @@ def enqueue_indexing_worker_job(
     session.flush()
     metadata = dict(indexing_job.metadata_json or {})
     metadata["worker_job_id"] = str(worker_job.id)
+    metadata["execution_target_id"] = str(execution_target.id)
+    metadata["execution_target_key"] = execution_target.target_key
     indexing_job.metadata_json = metadata
-    indexing_job.message = "Queued for worker execution."
+    indexing_job.message = (
+        f"Queued for worker execution on {execution_target.display_name}."
+    )
     indexing_job.phase = "queued"
     indexing_job.status = "queued"
     session.flush()
