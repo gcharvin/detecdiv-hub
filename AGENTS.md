@@ -6,6 +6,11 @@ This repository is the server-side control plane around DetecDiv. It is not the
 MATLAB compute engine itself. Its job is to index, expose, orchestrate, and
 dispatch work across storage and compute hosts.
 
+For the current live deployment topology, read `CURRENT_DEPLOYMENT.md` before
+making deployment, worker, database, or server-path assumptions. The primary
+deployment target is now the `webserver-labo` VM, with compute/storage-visible
+workers on `detecdiv-server`.
+
 Primary responsibilities:
 
 - index raw microscope datasets and DetecDiv projects
@@ -121,10 +126,11 @@ Server paths and client paths must remain separate concerns:
 When opening a new agent thread on this repo, the agent should:
 
 1. read this `AGENTS.md`
-2. read `docs/architecture.md`
-3. inspect `db/schema.sql`
-4. inspect the API entrypoint in `api/app.py`
-5. inspect the worker entrypoint in `worker/run_worker.py`
+2. read `CURRENT_DEPLOYMENT.md`
+3. read `docs/architecture.md`
+4. inspect `db/schema.sql`
+5. inspect the API entrypoint in `api/app.py`
+6. inspect the worker entrypoint in `worker/run_worker.py`
 
 For new features, agents should first identify which layer is affected:
 
