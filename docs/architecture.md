@@ -58,6 +58,8 @@ It is designed to support:
   - user-defined project collections
 - `project_notes`
   - collaborative or private notes attached to projects
+- `project_locks`
+  - active write leases for local clients and server-side jobs
 
 Future entity extensions that should be planned now:
 
@@ -332,3 +334,27 @@ captures:
 This registry should stay separate from historical `pipeline runs` discovered in
 project folders. One defines what can be launched; the other records what did
 happen.
+
+## Project write coordination
+
+DetecDiv projects can be opened locally while hub workers are also able to run
+MATLAB batch jobs against the same project files. The hub is therefore the
+coordination authority for write access to hub-managed projects.
+
+The first implementation uses exclusive project-level locks:
+
+- a client can acquire a `client_edit_lease` before opening or saving a project
+  in write mode
+- a submitted `pipeline_run` creates a `server_job` lock before the job is
+  queued
+- locks are visible through `GET /projects/{project_id}/locks`
+- client leases have a TTL and must be refreshed through the heartbeat endpoint
+- worker locks are refreshed by job heartbeats and released when the job reaches
+  a terminal state
+
+Initial DetecDiv-side behavior should be conservative:
+
+- if the hub grants a lease, local editing is allowed
+- if a server job lock is active, open the project read-only
+- if the hub is unreachable for a hub-managed project, default to read-only
+  unless the user explicitly forces local editing

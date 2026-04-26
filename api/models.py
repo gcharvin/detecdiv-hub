@@ -32,6 +32,7 @@ class User(Base):
     project_acl_entries: Mapped[list["ProjectAcl"]] = relationship(back_populates="user")
     project_groups: Mapped[list["ProjectGroup"]] = relationship(back_populates="owner")
     project_notes: Mapped[list["ProjectNote"]] = relationship(back_populates="author")
+    project_locks: Mapped[list["ProjectLock"]] = relationship(back_populates="owner")
     requested_indexing_jobs: Mapped[list["IndexingJob"]] = relationship(
         back_populates="requested_by", foreign_keys="IndexingJob.requested_by_user_id"
     )
@@ -269,6 +270,7 @@ class Project(Base):
     notes: Mapped[list["ProjectNote"]] = relationship(back_populates="project")
     group_memberships: Mapped[list["ProjectGroupMember"]] = relationship(back_populates="project")
     deletion_events: Mapped[list["ProjectDeletionEvent"]] = relationship(back_populates="project")
+    locks: Mapped[list["ProjectLock"]] = relationship(back_populates="project")
 
 
 class ProjectLocation(Base):
@@ -407,6 +409,40 @@ class ProjectDeletionEvent(Base):
     project: Mapped[Project] = relationship(back_populates="deletion_events")
 
 
+class ProjectLock(Base):
+    __tablename__ = "project_locks"
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    project_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("detecdiv_projects.id", ondelete="CASCADE"), nullable=False
+    )
+    job_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("jobs.id", ondelete="SET NULL")
+    )
+    owner_user_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("users.id", ondelete="SET NULL")
+    )
+    lock_kind: Mapped[str] = mapped_column(String, nullable=False, default="client_edit_lease")
+    lock_scope: Mapped[str] = mapped_column(String, nullable=False, default="project")
+    write_scope: Mapped[str] = mapped_column(String, nullable=False, default="project_update")
+    status: Mapped[str] = mapped_column(String, nullable=False, default="active")
+    holder_key: Mapped[str | None] = mapped_column(String)
+    holder_host: Mapped[str | None] = mapped_column(String)
+    reason: Mapped[str | None] = mapped_column(Text)
+    metadata_json: Mapped[dict] = mapped_column(JSONB, nullable=False, default=dict)
+    expires_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    heartbeat_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    released_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
+    )
+
+    project: Mapped[Project] = relationship(back_populates="locks")
+    job: Mapped["Job | None"] = relationship(back_populates="project_locks")
+    owner: Mapped[User | None] = relationship(back_populates="project_locks")
+
+
 class IndexingJob(Base):
     __tablename__ = "indexing_jobs"
 
@@ -519,6 +555,7 @@ class Job(Base):
     project: Mapped[Project | None] = relationship(back_populates="jobs")
     raw_dataset: Mapped[RawDataset | None] = relationship()
     artifacts: Mapped[list["Artifact"]] = relationship(back_populates="job")
+    project_locks: Mapped[list[ProjectLock]] = relationship(back_populates="job")
 
 
 class Artifact(Base):

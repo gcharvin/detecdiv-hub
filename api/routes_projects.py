@@ -1,4 +1,5 @@
 from pathlib import Path
+from datetime import timedelta
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, status
@@ -12,6 +13,7 @@ from api.models import (
     ProjectAcl,
     ProjectGroup,
     ProjectGroupMember,
+    ProjectLock,
     ProjectLocation,
     ProjectRawLink,
     ProjectNote,
@@ -30,7 +32,10 @@ from api.schemas import (
     ProjectGroupCreate,
     ProjectGroupDetail,
     ProjectGroupSummary,
+    ProjectEditLeaseRequest,
     ProjectLocationSummary,
+    ProjectLockStatus,
+    ProjectLockSummary,
     ProjectNoteCreate,
     ProjectNoteSummary,
     ProjectSummary,
@@ -51,6 +56,13 @@ from api.schemas import (
 from api.services.auth import set_user_password
 from api.services.path_resolution import compose_storage_path
 from api.services.project_deletion import build_deletion_preview, execute_project_deletion, record_deletion_preview
+from api.services.project_locks import (
+    ProjectLockConflict,
+    acquire_client_edit_lease,
+    project_lock_status,
+    release_project_lock,
+    utcnow,
+)
 from api.services.users import ensure_project_readable, get_current_user, get_or_create_user, project_access_filter, user_can_edit_project
 
 
@@ -381,6 +393,126 @@ def delete_project(
         reclaimable_bytes=event.reclaimable_bytes,
         result_json=event.result_json,
     )
+
+
+@router.get("/{project_id}/locks", response_model=ProjectLockStatus)
+def get_project_lock_status(
+    project_id: UUID,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> ProjectLockStatus:
+    project = db.scalars(
+        select(Project)
+        .options(joinedload(Project.owner), joinedload(Project.acl_entries))
+        .where(Project.id == project_id, Project.status != "deleted")
+    ).unique().first()
+    project = ensure_project_readable(project, current_user)
+    return ProjectLockStatus.model_validate(project_lock_status(db, project_id=project.id))
+
+
+@router.post("/{project_id}/leases", response_model=ProjectLockSummary, status_code=status.HTTP_201_CREATED)
+def acquire_project_edit_lease(
+    project_id: UUID,
+    payload: ProjectEditLeaseRequest,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> ProjectLock:
+    project = db.scalars(
+        select(Project)
+        .options(joinedload(Project.owner), joinedload(Project.acl_entries))
+        .where(Project.id == project_id, Project.status != "deleted")
+    ).unique().first()
+    project = ensure_project_readable(project, current_user)
+    if not user_can_edit_project(project, current_user):
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Project is not editable")
+    try:
+        lease = acquire_client_edit_lease(
+            db,
+            project_id=project.id,
+            owner=current_user,
+            holder_key=payload.holder_key,
+            holder_host=payload.holder_host,
+            ttl_seconds=payload.ttl_seconds,
+            write_scope=payload.write_scope,
+            reason=payload.reason,
+            metadata_json=payload.metadata_json,
+        )
+    except ProjectLockConflict as exc:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail={
+                "message": "Project is locked",
+                "locks": [ProjectLockSummary.model_validate(lock).model_dump(mode="json") for lock in exc.locks],
+            },
+        ) from exc
+    db.commit()
+    db.refresh(lease)
+    return db.scalars(
+        select(ProjectLock).options(joinedload(ProjectLock.owner)).where(ProjectLock.id == lease.id)
+    ).first()
+
+
+@router.post("/{project_id}/leases/{lock_id}/heartbeat", response_model=ProjectLockSummary)
+def heartbeat_project_edit_lease(
+    project_id: UUID,
+    lock_id: UUID,
+    payload: ProjectEditLeaseRequest | None = None,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> ProjectLock:
+    project = db.scalars(
+        select(Project)
+        .options(joinedload(Project.owner), joinedload(Project.acl_entries))
+        .where(Project.id == project_id, Project.status != "deleted")
+    ).unique().first()
+    project = ensure_project_readable(project, current_user)
+    lease = db.scalars(
+        select(ProjectLock)
+        .options(joinedload(ProjectLock.owner))
+        .where(ProjectLock.id == lock_id, ProjectLock.project_id == project.id, ProjectLock.status == "active")
+    ).first()
+    if lease is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Active project lease not found")
+    if lease.owner_user_id != current_user.id and current_user.role not in {"admin", "service"}:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Lease owner required")
+
+    now = utcnow()
+    ttl_seconds = payload.ttl_seconds if payload is not None else 300
+    lease.heartbeat_at = now
+    lease.expires_at = now + timedelta(seconds=ttl_seconds)
+    lease.updated_at = now
+    db.commit()
+    db.refresh(lease)
+    return lease
+
+
+@router.delete("/{project_id}/leases/{lock_id}", response_model=ProjectLockSummary)
+def release_project_edit_lease(
+    project_id: UUID,
+    lock_id: UUID,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> ProjectLock:
+    project = db.scalars(
+        select(Project)
+        .options(joinedload(Project.owner), joinedload(Project.acl_entries))
+        .where(Project.id == project_id, Project.status != "deleted")
+    ).unique().first()
+    project = ensure_project_readable(project, current_user)
+    lease = db.scalars(
+        select(ProjectLock)
+        .options(joinedload(ProjectLock.owner))
+        .where(ProjectLock.id == lock_id, ProjectLock.project_id == project.id)
+    ).first()
+    if lease is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Project lease not found")
+    if lease.owner_user_id != current_user.id and current_user.role not in {"admin", "service"}:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Lease owner required")
+    if lease.status == "active":
+        release_project_lock(db, lock=lease)
+    db.commit()
+    db.refresh(lease)
+    return lease
 
 
 @router.get("/{project_id}/acl", response_model=list[ProjectAclSummary])

@@ -14,6 +14,7 @@ from api.config import get_settings
 from api.db import SessionLocal
 from api.models import ExecutionTarget, IndexingJob, Job, RawDatasetPosition
 from api.services.indexing_jobs import execute_indexing_job
+from api.services.project_locks import heartbeat_project_locks_for_job, release_project_locks_for_job
 from worker.archive_policy_scheduler import run_archive_policy_if_due
 from worker.micromanager_ingest_scheduler import run_micromanager_ingest_if_due
 from worker.pipeline_run_executor import PipelineRunCancelled, execute_pipeline_run_job
@@ -164,6 +165,7 @@ def keep_running_job_alive(stop_event: threading.Event, *, job_id) -> None:
                 now = datetime.now(timezone.utc)
                 job.heartbeat_at = now
                 job.updated_at = now
+                heartbeat_project_locks_for_job(session, job_id=job.id)
                 sync_indexing_job_heartbeat(session, job=job, now=now)
                 target = resolve_target_for_job(session, job=job, configured_target_key=settings.worker_target_key)
                 update_worker_target_state(
@@ -326,6 +328,7 @@ def mark_job_done(job_id, result_json: dict) -> None:
         job.finished_at = datetime.now(timezone.utc)
         job.heartbeat_at = job.finished_at
         job.updated_at = datetime.now(timezone.utc)
+        release_project_locks_for_job(session, job_id=job.id)
         if (job.params_json or {}).get("job_kind") == "raw_preview_video":
             update_raw_preview_position_state(session, job=job, status=result_json.get("preview_status", "done"))
         target = resolve_target_for_job(session, job=job, configured_target_key=settings.worker_target_key)
@@ -350,6 +353,7 @@ def mark_job_failed(job_id, error_text: str) -> None:
         job.finished_at = datetime.now(timezone.utc)
         job.heartbeat_at = job.finished_at
         job.updated_at = datetime.now(timezone.utc)
+        release_project_locks_for_job(session, job_id=job.id)
         sync_indexing_job_from_worker_job(
             session,
             job=job,
@@ -388,6 +392,7 @@ def mark_job_cancelled(job_id, message: str) -> None:
         job.finished_at = datetime.now(timezone.utc)
         job.heartbeat_at = job.finished_at
         job.updated_at = datetime.now(timezone.utc)
+        release_project_locks_for_job(session, job_id=job.id)
         sync_indexing_job_from_worker_job(
             session,
             job=job,

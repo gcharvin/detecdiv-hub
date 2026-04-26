@@ -303,6 +303,26 @@ CREATE TABLE IF NOT EXISTS jobs (
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
+CREATE TABLE IF NOT EXISTS project_locks (
+    id UUID PRIMARY KEY,
+    project_id UUID NOT NULL REFERENCES detecdiv_projects(id) ON DELETE CASCADE,
+    job_id UUID REFERENCES jobs(id) ON DELETE SET NULL,
+    owner_user_id UUID REFERENCES users(id) ON DELETE SET NULL,
+    lock_kind TEXT NOT NULL DEFAULT 'client_edit_lease',
+    lock_scope TEXT NOT NULL DEFAULT 'project',
+    write_scope TEXT NOT NULL DEFAULT 'project_update',
+    status TEXT NOT NULL DEFAULT 'active',
+    holder_key TEXT,
+    holder_host TEXT,
+    reason TEXT,
+    metadata_json JSONB NOT NULL DEFAULT '{}'::jsonb,
+    expires_at TIMESTAMPTZ,
+    heartbeat_at TIMESTAMPTZ,
+    released_at TIMESTAMPTZ,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
 CREATE TABLE IF NOT EXISTS artifacts (
     id UUID PRIMARY KEY,
     job_id UUID NOT NULL REFERENCES jobs(id) ON DELETE CASCADE,
@@ -469,6 +489,8 @@ CREATE INDEX IF NOT EXISTS idx_project_groups_owner_user_id ON project_groups(ow
 CREATE INDEX IF NOT EXISTS idx_project_group_members_project_id ON project_group_members(project_id);
 CREATE INDEX IF NOT EXISTS idx_project_notes_project_id ON project_notes(project_id);
 CREATE INDEX IF NOT EXISTS idx_project_deletion_events_project_id ON project_deletion_events(project_id);
+CREATE INDEX IF NOT EXISTS idx_project_locks_project_status ON project_locks(project_id, status, expires_at);
+CREATE INDEX IF NOT EXISTS idx_project_locks_job_id ON project_locks(job_id);
 CREATE INDEX IF NOT EXISTS idx_indexing_jobs_status_created_at ON indexing_jobs(status, created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_indexing_jobs_requested_by_user_id ON indexing_jobs(requested_by_user_id);
 CREATE INDEX IF NOT EXISTS idx_indexing_jobs_heartbeat_at ON indexing_jobs(heartbeat_at DESC);

@@ -246,6 +246,44 @@ class ProjectDeletionResult(HubBaseModel):
     result_json: dict[str, Any] = Field(default_factory=dict)
 
 
+class ProjectLockSummary(HubBaseModel):
+    id: UUID
+    project_id: UUID
+    job_id: UUID | None = None
+    owner: UserSummary | None = None
+    lock_kind: str
+    lock_scope: str
+    write_scope: str
+    status: str
+    holder_key: str | None = None
+    holder_host: str | None = None
+    reason: str | None = None
+    metadata_json: dict[str, Any] = Field(default_factory=dict)
+    expires_at: datetime | None = None
+    heartbeat_at: datetime | None = None
+    released_at: datetime | None = None
+    created_at: datetime | None = None
+    updated_at: datetime | None = None
+
+
+class ProjectEditLeaseRequest(HubBaseModel):
+    holder_key: str | None = None
+    holder_host: str | None = None
+    ttl_seconds: int = Field(default=300, ge=30, le=86400)
+    write_scope: str = "project_update"
+    reason: str | None = None
+    metadata_json: dict[str, Any] = Field(default_factory=dict)
+
+
+class ProjectLockStatus(HubBaseModel):
+    project_id: UUID
+    editable: bool
+    mode: str
+    reason: str
+    active_locks: list[ProjectLockSummary] = Field(default_factory=list)
+    active_jobs: list[dict[str, Any]] = Field(default_factory=list)
+
+
 class ProjectNoteSummary(HubBaseModel):
     id: int
     note_text: str

@@ -13,6 +13,7 @@ from sqlalchemy.orm import Session, joinedload
 from api.config import get_settings
 from api.models import Artifact, ExecutionTarget, Job, Pipeline, Project, ProjectLocation
 from api.services.project_deletion import resolve_project_location_paths
+from api.services.project_locks import heartbeat_project_locks_for_job
 from worker.executors.matlab_executor import build_matlab_batch_command, run_matlab_command
 from worker.pipeline_dependency_preflight import (
     build_preflight_error_text,
@@ -307,6 +308,7 @@ def update_job_heartbeat(session: Session, *, job: Job) -> None:
         return
     job_record.heartbeat_at = now
     job_record.updated_at = now
+    heartbeat_project_locks_for_job(session, job_id=job.id)
     if job_record.status == "cancelling":
         write_cancel_token(job_record)
     session.commit()
@@ -329,6 +331,7 @@ def update_pipeline_run_progress(
     job_record.result_json = result_json
     job_record.heartbeat_at = now
     job_record.updated_at = now
+    heartbeat_project_locks_for_job(session, job_id=job.id)
     if job_record.status == "cancelling":
         write_cancel_token(job_record)
     session.commit()
