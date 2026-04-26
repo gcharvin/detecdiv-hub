@@ -323,6 +323,28 @@ CREATE TABLE IF NOT EXISTS project_locks (
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
+CREATE TABLE IF NOT EXISTS worker_instances (
+    id UUID PRIMARY KEY,
+    execution_target_id UUID NOT NULL REFERENCES execution_targets(id) ON DELETE CASCADE,
+    worker_instance TEXT NOT NULL,
+    worker_host TEXT,
+    process_id INTEGER,
+    health TEXT NOT NULL DEFAULT 'online',
+    current_job_id UUID REFERENCES jobs(id) ON DELETE SET NULL,
+    current_job_kind TEXT,
+    current_job_status TEXT,
+    current_job_started_at TIMESTAMPTZ,
+    last_job_id UUID REFERENCES jobs(id) ON DELETE SET NULL,
+    last_job_status TEXT,
+    last_error TEXT,
+    poll_interval_sec DOUBLE PRECISION,
+    claimed_at TIMESTAMPTZ,
+    last_seen_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    UNIQUE(execution_target_id, worker_instance)
+);
+
 CREATE TABLE IF NOT EXISTS artifacts (
     id UUID PRIMARY KEY,
     job_id UUID NOT NULL REFERENCES jobs(id) ON DELETE CASCADE,
@@ -491,6 +513,8 @@ CREATE INDEX IF NOT EXISTS idx_project_notes_project_id ON project_notes(project
 CREATE INDEX IF NOT EXISTS idx_project_deletion_events_project_id ON project_deletion_events(project_id);
 CREATE INDEX IF NOT EXISTS idx_project_locks_project_status ON project_locks(project_id, status, expires_at);
 CREATE INDEX IF NOT EXISTS idx_project_locks_job_id ON project_locks(job_id);
+CREATE INDEX IF NOT EXISTS idx_worker_instances_target_seen ON worker_instances(execution_target_id, last_seen_at DESC);
+CREATE INDEX IF NOT EXISTS idx_worker_instances_current_job_id ON worker_instances(current_job_id);
 CREATE INDEX IF NOT EXISTS idx_indexing_jobs_status_created_at ON indexing_jobs(status, created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_indexing_jobs_requested_by_user_id ON indexing_jobs(requested_by_user_id);
 CREATE INDEX IF NOT EXISTS idx_indexing_jobs_heartbeat_at ON indexing_jobs(heartbeat_at DESC);

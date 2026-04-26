@@ -3,7 +3,7 @@ from __future__ import annotations
 import uuid
 from datetime import datetime
 
-from sqlalchemy import BIGINT, Boolean, DateTime, ForeignKey, Integer, String, Text, func
+from sqlalchemy import BIGINT, Boolean, DateTime, Float, ForeignKey, Integer, String, Text, UniqueConstraint, func
 from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -517,6 +517,9 @@ class ExecutionTarget(Base):
     supports_python: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
     status: Mapped[str] = mapped_column(String, nullable=False, default="online")
     metadata_json: Mapped[dict] = mapped_column(JSONB, nullable=False, default=dict)
+    worker_instances: Mapped[list["WorkerInstance"]] = relationship(
+        back_populates="execution_target", cascade="all, delete-orphan"
+    )
 
 
 class Job(Base):
@@ -556,6 +559,36 @@ class Job(Base):
     raw_dataset: Mapped[RawDataset | None] = relationship()
     artifacts: Mapped[list["Artifact"]] = relationship(back_populates="job")
     project_locks: Mapped[list[ProjectLock]] = relationship(back_populates="job")
+
+
+class WorkerInstance(Base):
+    __tablename__ = "worker_instances"
+    __table_args__ = (UniqueConstraint("execution_target_id", "worker_instance", name="uq_worker_instances_target_instance"),)
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    execution_target_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("execution_targets.id", ondelete="CASCADE"), nullable=False
+    )
+    worker_instance: Mapped[str] = mapped_column(String, nullable=False)
+    worker_host: Mapped[str | None] = mapped_column(String)
+    process_id: Mapped[int | None] = mapped_column(Integer)
+    health: Mapped[str] = mapped_column(String, nullable=False, default="online")
+    current_job_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True), ForeignKey("jobs.id", ondelete="SET NULL"))
+    current_job_kind: Mapped[str | None] = mapped_column(String)
+    current_job_status: Mapped[str | None] = mapped_column(String)
+    current_job_started_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    last_job_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True), ForeignKey("jobs.id", ondelete="SET NULL"))
+    last_job_status: Mapped[str | None] = mapped_column(String)
+    last_error: Mapped[str | None] = mapped_column(Text)
+    poll_interval_sec: Mapped[float | None] = mapped_column(Float)
+    claimed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    last_seen_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
+    )
+
+    execution_target: Mapped[ExecutionTarget] = relationship(back_populates="worker_instances")
 
 
 class Artifact(Base):

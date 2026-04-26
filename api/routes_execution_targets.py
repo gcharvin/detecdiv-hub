@@ -17,6 +17,7 @@ from api.schemas import (
     ExecutionTargetWorkerScaleRequest,
     ExecutionTargetWorkerScaleResponse,
 )
+from api.services.worker_instances import enrich_execution_target
 from api.services.users import get_current_user
 
 
@@ -33,7 +34,7 @@ def list_execution_targets(
     stmt = select(ExecutionTarget).order_by(ExecutionTarget.display_name.asc())
     if status_filter:
         stmt = stmt.where(ExecutionTarget.status == status_filter)
-    return list(db.scalars(stmt))
+    return [enrich_execution_target(db, target) for target in db.scalars(stmt)]
 
 
 @router.post("", response_model=ExecutionTargetSummary, status_code=status.HTTP_201_CREATED)
@@ -70,7 +71,7 @@ def get_execution_target(
     target = db.get(ExecutionTarget, target_id)
     if target is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Execution target not found")
-    return target
+    return enrich_execution_target(db, target)
 
 
 @router.patch("/{target_id}", response_model=ExecutionTargetSummary)
@@ -106,7 +107,7 @@ def update_execution_target(
 
     db.commit()
     db.refresh(target)
-    return target
+    return enrich_execution_target(db, target)
 
 
 @router.post("/{target_id}/worker-scale", response_model=ExecutionTargetWorkerScaleResponse)

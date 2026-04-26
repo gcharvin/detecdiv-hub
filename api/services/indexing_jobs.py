@@ -16,6 +16,11 @@ from api.models import ExecutionTarget, IndexingJob, Job, User
 from api.schemas import IndexRequest
 from api.services.project_indexing import ProjectIndexResult, index_project_root
 from api.services.users import get_or_create_user
+from api.services.worker_instances import (
+    execution_target_worker_metadata,
+    normalize_worker_instance_id,
+    upsert_worker_instance,
+)
 
 
 def indexing_worker_instance_id() -> str:
@@ -23,37 +28,6 @@ def indexing_worker_instance_id() -> str:
     if configured:
         return normalize_worker_instance_id(configured)
     return normalize_worker_instance_id(f"{socket.gethostname()}-pid{os.getpid()}")
-
-
-def normalize_worker_instance_id(value: str) -> str:
-    text = str(value or "").strip()
-    if not text:
-        return text
-    if text.lower() == "main":
-        return "main"
-    core = text[1:] if text.startswith("@") else text
-    if core.isdigit():
-        return f"@{core}"
-    return text
-
-
-def normalize_worker_healths(worker_healths: dict[str, dict]) -> dict[str, dict]:
-    normalized: dict[str, dict] = {}
-    for raw_key, raw_value in (worker_healths or {}).items():
-        item = dict(raw_value or {})
-        candidate = normalize_worker_instance_id(str(item.get("worker_instance") or raw_key or ""))
-        if not candidate:
-            continue
-        item["worker_instance"] = candidate
-        existing = normalized.get(candidate)
-        if existing is None:
-            normalized[candidate] = item
-            continue
-        existing_seen = str(existing.get("last_seen_at") or "")
-        item_seen = str(item.get("last_seen_at") or "")
-        if item_seen >= existing_seen:
-            normalized[candidate] = item
-    return normalized
 
 
 def read_positive_int(value) -> int | None:
@@ -66,63 +40,6 @@ def read_positive_int(value) -> int | None:
     if parsed < 1:
         return None
     return parsed
-
-
-def summarize_worker_health(worker_healths: dict[str, dict], *, max_concurrent_jobs: int | None) -> dict:
-    worker_healths = normalize_worker_healths(worker_healths)
-    if not worker_healths:
-        return {}
-
-    now = datetime.now(timezone.utc)
-    active_entries = []
-    stale_workers = 0
-    for item in worker_healths.values():
-        poll_interval_sec = read_positive_int(item.get("poll_interval_sec")) or 5
-        stale_after_sec = max(poll_interval_sec * 3, 30)
-        try:
-            last_seen_at = datetime.fromisoformat(str(item.get("last_seen_at") or ""))
-        except ValueError:
-            last_seen_at = None
-        if last_seen_at is None or (now - last_seen_at).total_seconds() > stale_after_sec:
-            stale_workers += 1
-            continue
-        active_entries.append(item)
-
-    busy_workers = sum(1 for item in active_entries if item.get("health") == "busy" or item.get("current_job_id"))
-    error_workers = sum(1 for item in active_entries if item.get("health") == "error")
-    online_workers = sum(1 for item in active_entries if item.get("health") in {"online", "idle", "busy"})
-    latest_seen_at = max((str(item.get("last_seen_at") or "") for item in active_entries), default="")
-    latest_claimed_at = max((str(item.get("claimed_at") or "") for item in active_entries), default="")
-    current_job_ids = [str(item.get("current_job_id")) for item in active_entries if item.get("current_job_id")]
-
-    if busy_workers:
-        summary_health = "busy"
-    elif error_workers:
-        summary_health = "error"
-    elif online_workers:
-        summary_health = "online"
-    else:
-        summary_health = "unknown"
-
-    summary = {
-        "worker_host": socket.gethostname(),
-        "worker_count": len(active_entries),
-        "registered_workers": len(worker_healths),
-        "stale_workers": stale_workers,
-        "busy_workers": busy_workers,
-        "online_workers": online_workers,
-        "error_workers": error_workers,
-        "current_job_count": len(current_job_ids),
-        "current_job_ids": current_job_ids,
-        "health": summary_health,
-        "last_seen_at": latest_seen_at or None,
-        "claimed_at": latest_claimed_at or None,
-        "worker_instances": sorted(worker_healths.keys()),
-    }
-    if max_concurrent_jobs is not None:
-        summary["max_concurrent_jobs"] = max_concurrent_jobs
-        summary["capacity_full"] = busy_workers >= max_concurrent_jobs
-    return summary
 
 
 def update_indexing_worker_telemetry(
@@ -140,31 +57,16 @@ def update_indexing_worker_telemetry(
     if target is None:
         return
 
-    metadata = dict(target.metadata_json or {})
-    max_concurrent_jobs = read_positive_int(metadata.get("max_concurrent_jobs"))
-    worker_healths = normalize_worker_healths(dict(metadata.get("worker_healths") or {}))
-    worker_instance = indexing_worker_instance_id()
-    worker_health = dict(worker_healths.get(worker_instance) or {})
-    worker_health["worker_instance"] = worker_instance
-    worker_health["worker_host"] = socket.gethostname()
-    worker_health["last_seen_at"] = now.isoformat()
-    worker_health["health"] = "busy"
-    worker_health["poll_interval_sec"] = get_settings().worker_poll_interval_sec
-    worker_health["current_job_id"] = str(worker_job.id)
-    worker_health["current_job_kind"] = str((worker_job.params_json or {}).get("job_kind") or "generic")
-    worker_health["current_job_status"] = str(worker_job.status or "running")
-    worker_health["current_job_started_at"] = (
-        worker_job.started_at.isoformat() if getattr(worker_job, "started_at", None) is not None else None
+    upsert_worker_instance(
+        session,
+        target=target,
+        worker_instance=indexing_worker_instance_id(),
+        health="busy",
+        current_job=worker_job,
+        poll_interval_sec=get_settings().worker_poll_interval_sec,
+        now=now,
     )
-    worker_health["claimed_at"] = (
-        worker_job.started_at.isoformat() if getattr(worker_job, "started_at", None) is not None else now.isoformat()
-    )
-    worker_health["last_error"] = None
-    worker_healths[worker_instance] = worker_health
-    metadata["worker_healths"] = worker_healths
-    metadata["worker_health_summary"] = summarize_worker_health(worker_healths, max_concurrent_jobs=max_concurrent_jobs)
-    metadata["worker_health"] = metadata["worker_health_summary"]
-    target.metadata_json = metadata
+    target.metadata_json = execution_target_worker_metadata(session, target)
     target.status = "online"
 
 
