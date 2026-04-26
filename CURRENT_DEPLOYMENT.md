@@ -52,17 +52,17 @@ docker-compose ps
 curl -sS http://127.0.0.1:8000/health
 ```
 
-On `detecdiv-server`, the worker currently runs from:
+On `detecdiv-server`, the workers currently run from:
 
 ```bash
 /home/charvin-admin/repos/detecdiv-hub-webvm
 ```
 
-The active worker service is intentionally limited to one instance for now:
+The active worker services are:
 
 ```bash
 systemctl list-units 'detecdiv-worker@*.service' --all --no-pager
-systemctl status detecdiv-worker@2.service --no-pager
+systemctl status detecdiv-worker@1.service detecdiv-worker@2.service detecdiv-worker@3.service --no-pager
 ```
 
 The systemd override that points the worker to the VM database is:
@@ -88,9 +88,8 @@ Future agents should assume:
 - Compute and storage-visible worker work should target `detecdiv-server`.
 - Do not reintroduce API-side filesystem scans for server paths.
 - Do not assume the VM can see project storage.
-- Be careful with multiple worker instances: the current stable state uses only
-  `detecdiv-worker@2` until worker heartbeat/state handling is made robust for
-  concurrent instances.
+- The current stable worker state uses `detecdiv-worker@1`, `@2`, and `@3`.
+  Per-worker heartbeat state is stored in the `worker_instances` table.
 
 ## Rollback Note
 

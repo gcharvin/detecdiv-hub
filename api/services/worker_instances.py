@@ -56,6 +56,11 @@ def summarize_worker_instances(
     current_job_ids = [str(worker.current_job_id) for worker in active_workers if worker.current_job_id]
     latest_seen_at = max((worker.last_seen_at for worker in active_workers if worker.last_seen_at), default=None)
     latest_claimed_at = max((worker.claimed_at for worker in active_workers if worker.claimed_at), default=None)
+    latest_worker = max(
+        (worker for worker in active_workers if worker.last_seen_at),
+        key=lambda worker: worker.last_seen_at,
+        default=None,
+    )
 
     if busy_workers:
         health = "busy"
@@ -68,7 +73,7 @@ def summarize_worker_instances(
 
     summary = {
         "health": health,
-        "worker_host": socket.gethostname(),
+        "worker_host": getattr(latest_worker, "worker_host", None) if latest_worker is not None else None,
         "worker_count": len(active_workers),
         "registered_workers": len(workers),
         "stale_workers": len(workers) - len(active_workers),

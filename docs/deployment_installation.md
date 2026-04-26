@@ -139,17 +139,19 @@ The current lab worker checkout is:
 /home/charvin-admin/repos/detecdiv-hub-webvm
 ```
 
-The current stable service is intentionally limited to one instance:
+The current stable services are:
 
 ```bash
+detecdiv-worker@1.service
 detecdiv-worker@2.service
+detecdiv-worker@3.service
 ```
 
 Check it on `detecdiv-server`:
 
 ```bash
 systemctl list-units 'detecdiv-worker@*.service' --all --no-pager
-systemctl status detecdiv-worker@2.service --no-pager
+systemctl status detecdiv-worker@1.service detecdiv-worker@2.service detecdiv-worker@3.service --no-pager
 ```
 
 The worker systemd override is:
@@ -191,8 +193,16 @@ Important details:
 - `DETECDIV_HUB_WORKER_TARGET_KEY` must match an existing row in
   `execution_targets`.
 - The current target key is `detecdiv-server`.
-- The target metadata currently uses `max_concurrent_jobs=1` and
-  `worker_instances_desired=1`.
+- The target metadata currently uses `max_concurrent_jobs=3` and
+  `worker_instances_desired=3`.
+
+The worker management scripts are versioned in:
+
+```bash
+scripts/ops/install_webvm_worker_override.sh
+scripts/ops/manage_webvm_workers.sh
+scripts/ops/README_detecdiv_webvm_workers.md
+```
 
 ## Execution Target Contract
 
@@ -214,17 +224,17 @@ explicitly or through:
 DETECDIV_HUB_INDEXING_TARGET_KEY=detecdiv-server
 ```
 
-## Multi-Worker Caution
+## Multi-Worker State
 
-The current stable deployment uses only `detecdiv-worker@2`.
+The current stable deployment uses `detecdiv-worker@1`, `@2`, and `@3`.
 
-Multiple workers on the same `execution_targets` row currently share heartbeat
-state through `execution_targets.metadata_json`. This works for basic telemetry
-but has shown inconsistent stale-worker summaries with concurrent instances.
+Per-process heartbeat state is stored in the `worker_instances` table. Each
+worker updates only its own row, keyed by `(execution_target_id,
+worker_instance)`.
 
-Until worker telemetry/state is made first-class or concurrency is otherwise
-hardened, do not assume that starting `@1`, `@2`, and `@3` is safer. Prefer one
-worker instance for production continuity.
+`execution_targets.metadata_json.worker_healths` and
+`execution_targets.metadata_json.worker_health_summary` are still populated as a
+compatibility view for the current UI.
 
 ## Operational Checks
 
@@ -245,8 +255,8 @@ docker-compose logs --tail=100 api
 From `detecdiv-server`:
 
 ```bash
-systemctl status detecdiv-worker@2.service --no-pager
-journalctl -u detecdiv-worker@2.service -n 100 --no-pager
+systemctl status detecdiv-worker@1.service detecdiv-worker@2.service detecdiv-worker@3.service --no-pager
+journalctl -u detecdiv-worker@1.service -u detecdiv-worker@2.service -u detecdiv-worker@3.service -n 100 --no-pager
 ```
 
 Through the API:
@@ -260,7 +270,7 @@ Expected worker state:
 
 - target key `detecdiv-server`
 - `status=online`
-- one registered worker instance, `@2`
+- three registered worker instances, `@1`, `@2`, and `@3`
 - `stale_workers=0`
 
 ## Rollback Outline
