@@ -50,6 +50,16 @@ The current target is three workers:
 sudo bash scripts/ops/manage_webvm_workers.sh three
 ```
 
+## Boot Orchestration
+
+The host-level boot sequence for `webserver-labo` lives in the adjacent
+`Webserver` repository, not here.
+
+See:
+
+- `../Webserver/OPERATIONS.md`
+- `../Webserver/deploy/systemd/detecdiv-webvm-bootstrap.service`
+
 ## Verify From The API
 
 ```bash

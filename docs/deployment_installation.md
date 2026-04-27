@@ -236,6 +236,24 @@ worker_instance)`.
 `execution_targets.metadata_json.worker_health_summary` are still populated as a
 compatibility view for the current UI.
 
+## Boot Orchestration
+
+The VM-level boot sequence for `webserver-labo` lives in the adjacent
+`Webserver` repository. It is deliberately kept out of this repository because
+it manages the VM host and the libvirt service, not the DetecDiv hub runtime
+itself.
+
+`detecdiv-hub` keeps only:
+
+- the API and web UI service units
+- the worker service units and overrides
+- the worker management scripts
+
+For the VM bootstrap details, see:
+
+- `../Webserver/OPERATIONS.md`
+- `../Webserver/deploy/systemd/detecdiv-webvm-bootstrap.service`
+
 ## Operational Checks
 
 From Windows or a client machine:

@@ -71,6 +71,9 @@ The systemd override that points the worker to the VM database is:
 /etc/systemd/system/detecdiv-worker@.service.d/10-webvm-db.conf
 ```
 
+The boot-time VM orchestration service now lives in the adjacent `Webserver`
+repository because it belongs to the VM host layer, not the hub control plane.
+
 ## Data State
 
 The PostgreSQL database from the former local `detecdiv-server` deployment was
@@ -90,6 +93,8 @@ Future agents should assume:
 - Do not assume the VM can see project storage.
 - The current stable worker state uses `detecdiv-worker@1`, `@2`, and `@3`.
   Per-worker heartbeat state is stored in the `worker_instances` table.
+- VM autostart and host-level reboot orchestration are documented in
+  `../Webserver`, not here.
 
 ## Rollback Note
 
