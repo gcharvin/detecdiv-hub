@@ -126,7 +126,7 @@ def get_raw_preview_quality_status(
         .outerjoin(RawDataset, Job.raw_dataset_id == RawDataset.id)
         .outerjoin(RawDatasetPosition, RawDatasetPosition.preview_artifact_id == Artifact.id)
         .where(Artifact.artifact_kind == "raw_position_preview_mp4")
-        .order_by(Artifact.created_at.desc())
+        .order_by(Job.finished_at.desc(), Artifact.created_at.desc())
         .limit(10)
     ).all()
 
@@ -165,7 +165,7 @@ def get_raw_preview_quality_status(
         samples.append(
             RawPreviewQualitySample(
                 artifact_id=artifact.id,
-                created_at=artifact.created_at,
+                created_at=_job.finished_at or artifact.created_at,
                 raw_dataset_id=raw_dataset.id if raw_dataset is not None else None,
                 acquisition_label=raw_dataset.acquisition_label if raw_dataset is not None else None,
                 position_key=position.position_key if position is not None else str(metadata.get("position_key") or ""),
