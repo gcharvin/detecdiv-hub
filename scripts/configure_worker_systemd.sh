@@ -84,7 +84,7 @@ fi
 mkdir -p "$UNIT_DIR"
 
 WORKER_TEMPLATE_NAME="${WORKER_SERVICE_NAME%.service}@.service"
-WORKER_TEMPLATE_BASENAME="${WORKER_TEMPLATE_NAME%.service}"
+WORKER_TEMPLATE_BASENAME="${WORKER_SERVICE_NAME%.service}"
 WORKER_BASENAME="${WORKER_SERVICE_NAME%.service}"
 
 cat >"$UNIT_DIR/$WORKER_SERVICE_NAME" <<EOF
@@ -130,6 +130,9 @@ systemctl daemon-reload
 mapfile -t EXISTING_WORKER_TEMPLATE_UNITS < <(
   systemctl list-unit-files --type=service --no-legend "${WORKER_TEMPLATE_BASENAME}@*.service" 2>/dev/null | awk '{print $1}'
 )
+mapfile -t LEGACY_DOUBLE_AT_UNITS < <(
+  systemctl list-units 'detecdiv-worker@@*.service' --all --no-legend 2>/dev/null | awk '{print $1}'
+)
 
 if [[ "$WORKER_INSTANCE_COUNT" == "1" ]]; then
   for unit in "${EXISTING_WORKER_TEMPLATE_UNITS[@]}"; do
@@ -143,6 +146,11 @@ else
   systemctl stop "$WORKER_BASENAME" 2>/dev/null || true
   systemctl disable "$WORKER_BASENAME" 2>/dev/null || true
   for unit in "${EXISTING_WORKER_TEMPLATE_UNITS[@]}"; do
+    [[ -n "$unit" ]] || continue
+    systemctl stop "${unit%.service}" 2>/dev/null || true
+    systemctl disable "${unit%.service}" 2>/dev/null || true
+  done
+  for unit in "${LEGACY_DOUBLE_AT_UNITS[@]}"; do
     [[ -n "$unit" ]] || continue
     systemctl stop "${unit%.service}" 2>/dev/null || true
     systemctl disable "${unit%.service}" 2>/dev/null || true

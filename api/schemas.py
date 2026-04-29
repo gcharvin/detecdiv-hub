@@ -12,6 +12,9 @@ class HubBaseModel(BaseModel):
 class HealthResponse(HubBaseModel):
     status: str = "ok"
     service: str = "detecdiv-hub"
+    database_status: str = "unknown"
+    database_message: str | None = None
+    hostname: str | None = None
 
 
 class UserSummary(HubBaseModel):
@@ -859,6 +862,27 @@ class RawDatasetDeletionPreview(HubBaseModel):
 class RawDatasetDeletionResult(HubBaseModel):
     raw_dataset_id: UUID
     status: str
+    reclaimable_bytes: int = 0
+    result_json: dict[str, Any] = Field(default_factory=dict)
+
+
+class RawDatasetPositionDeletionRequest(HubBaseModel):
+    position_ids: list[UUID] = Field(default_factory=list)
+    confirm: bool = False
+
+
+class RawDatasetPositionDeletionPreview(HubBaseModel):
+    raw_dataset_id: UUID
+    acquisition_label: str
+    position_count: int = 0
+    reclaimable_bytes: int = 0
+    preview_json: dict[str, Any] = Field(default_factory=dict)
+
+
+class RawDatasetPositionDeletionResult(HubBaseModel):
+    raw_dataset_id: UUID
+    status: str
+    position_count: int = 0
     reclaimable_bytes: int = 0
     result_json: dict[str, Any] = Field(default_factory=dict)
 

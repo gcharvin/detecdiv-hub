@@ -977,27 +977,13 @@ def build_rebased_raw_path_candidates(session: Session, *, source_path: str, pro
 
     push(normalized)
 
-    inferred_relative = infer_relative_suffix(normalized)
     suffixes = suffix_candidates(normalized)
-    root_candidates = raw_root_candidates(session, project_dir=project_dir)
-    source_kind = classify_raw_source_path(normalized)
+    root_candidates = raw_root_candidates(session)
 
     for root in root_candidates:
         root_path = Path(root)
-        if inferred_relative:
-            push(str(root_path / inferred_relative))
         for suffix in suffixes:
             push(str(root_path / suffix))
-
-    if source_kind == "file":
-        for candidate in build_rebased_file_candidates(normalized, root_candidates=root_candidates):
-            push(str(candidate))
-    elif source_kind == "position":
-        for candidate in build_rebased_position_candidates(normalized, root_candidates=root_candidates):
-            push(str(candidate))
-    else:
-        for candidate in build_rebased_dataset_candidates(normalized, root_candidates=root_candidates):
-            push(str(candidate))
 
     return candidates
 
@@ -1022,109 +1008,7 @@ def classify_raw_source_path(path_text: str) -> str:
     return "dataset"
 
 
-def build_rebased_file_candidates(path_text: str, *, root_candidates: list[Path]) -> list[Path]:
-    target_name, old_leaf = extract_target_and_leaf(path_text)
-    if not target_name:
-        return []
-
-    candidates: list[Path] = []
-    seen: set[str] = set()
-
-    def push(path: Path | None) -> None:
-        if path is None:
-            return
-        key = str(path)
-        if key in seen:
-            return
-        seen.add(key)
-        candidates.append(path)
-
-    for root in root_candidates:
-        push(root / target_name)
-        if old_leaf:
-            push(root / old_leaf / target_name)
-        suffix = suffix_after_raw_data(path_text)
-        if suffix is not None:
-            push(root / suffix)
-
-        if should_scan_under_root(root):
-            found = find_named_file(root, target_name, max_depth=1)
-            push(found)
-            if old_leaf:
-                push(find_named_file(root / old_leaf, target_name, max_depth=1))
-            push(find_named_file(root, target_name, max_depth=4))
-
-    return candidates
-
-
-def build_rebased_position_candidates(path_text: str, *, root_candidates: list[Path]) -> list[Path]:
-    info = position_path_info(path_text)
-    if info is None:
-        return []
-
-    candidates: list[Path] = []
-    seen: set[str] = set()
-
-    def push(path: Path | None) -> None:
-        if path is None:
-            return
-        key = str(path)
-        if key in seen:
-            return
-        seen.add(key)
-        candidates.append(path)
-
-    for root in root_candidates:
-        if normalize_name(root.name) == normalize_name(info["dataset_name"]):
-            push(root / info["position_name"])
-
-        dataset_direct = root / info["dataset_name"]
-        if dataset_direct.is_dir():
-            push(dataset_direct / info["position_name"])
-
-        if should_scan_under_root(root):
-            dataset_found = find_dataset_folder(root, info["dataset_name"], max_depth=6)
-            if dataset_found is not None:
-                push(dataset_found / info["position_name"])
-
-    return candidates
-
-
-def build_rebased_dataset_candidates(path_text: str, *, root_candidates: list[Path]) -> list[Path]:
-    infos = dataset_info_candidates(path_text)
-    if not infos:
-        return []
-
-    candidates: list[Path] = []
-    seen: set[str] = set()
-
-    def push(path: Path | None) -> None:
-        if path is None:
-            return
-        key = str(path)
-        if key in seen:
-            return
-        seen.add(key)
-        candidates.append(path)
-
-    dataset_names = [str(info["dataset_name"]) for info in infos if str(info["dataset_name"])]
-    for root in root_candidates:
-        for info in infos:
-            push(root / str(info["dataset_name"]))
-            parent_leaf = str(info["parent_leaf"] or "")
-            if parent_leaf:
-                push(root / parent_leaf / str(info["dataset_name"]))
-            for suffix in info["suffixes"]:
-                push(root / suffix)
-
-        if should_scan_under_root(root):
-            for dataset_name in dataset_names:
-                push(find_dataset_folder(root, dataset_name, max_depth=4))
-
-    return candidates
-
-
-def raw_root_candidates(session: Session, *, project_dir: Path) -> list[Path]:
+def raw_root_candidates(session: Session) -> list[Path]:
     from api.models import StorageRoot
 
     candidates: list[Path] = []
@@ -1149,133 +1033,18 @@ def raw_root_candidates(session: Session, *, project_dir: Path) -> list[Path]:
         if "raw" in root_type:
             push(root.path_prefix)
 
-    for inferred in infer_raw_roots_from_project_dir(project_dir):
-        push(str(inferred))
-
     return candidates
-
-
-def infer_raw_roots_from_project_dir(project_dir: Path) -> list[Path]:
-    candidates: list[Path] = []
-    seen: set[str] = set()
-    for parent in [project_dir.parent, *project_dir.parents]:
-        leaf = parent.name.lower()
-        if leaf in {"projects", "analysis", "analyses", "analyse"}:
-            continue
-        if str(parent).startswith("/data"):
-            key = str(parent)
-            if key not in seen and parent.exists():
-                seen.add(key)
-                candidates.append(parent)
-        for child in ("raw", "Raw", "RAWDATA", "raw_data", "Timelapses", "timelapses", "Acquisitions", "acquisitions"):
-            candidate = parent / child
-            key = str(candidate)
-            if key in seen or not candidate.exists():
-                continue
-            seen.add(key)
-            candidates.append(candidate)
-    return candidates
-
-
-def infer_relative_suffix(path_text: str) -> Path | None:
-    normalized = str(path_text or "").replace("\\", "/")
-    lowered = normalized.lower()
-    drive_match = re.match(r"^[A-Za-z]:/(.+)$", normalized)
-    if drive_match:
-        suffix = drive_match.group(1)
-        if suffix:
-            return Path(*[part for part in suffix.split("/") if part])
-    markers = [
-        "/synologydrive/data/",
-        "//10.20.11.250/data/",
-    ]
-    for marker in markers:
-        index = lowered.find(marker)
-        if index >= 0:
-            suffix = normalized[index + len(marker) :]
-            if suffix:
-                return Path(*[part for part in suffix.split("/") if part])
-
-    if normalized.startswith("//"):
-        parts = [part for part in normalized.split("/") if part]
-        if len(parts) >= 3:
-            return Path(*parts[2:])
-    return None
 
 
 def suffix_candidates(path_text: str) -> list[Path]:
-    parts = split_legacy_path_parts(path_text)
+    parts = split_path_parts(path_text)
     suffixes: list[Path] = []
-    for width in range(2, min(8, len(parts)) + 1):
+    for width in range(1, min(8, len(parts)) + 1):
         suffixes.append(Path(*parts[-width:]))
     return suffixes
 
 
-def raw_dataset_leaf_name(path_text: str) -> str:
-    candidate = infer_raw_dataset_dir(Path(str(path_text)))
-    if candidate is not None:
-        return candidate.name
-    normalized = str(path_text or "").replace("\\", "/").rstrip("/")
-    if not normalized:
-        return ""
-    return normalized.split("/")[-1]
-
-
-def find_dataset_folder(root: Path, dataset_name: str, *, max_depth: int) -> Path | None:
-    if max_depth <= 0 or not root.is_dir():
-        return None
-    try:
-        children = [entry for entry in root.iterdir() if entry.is_dir()]
-    except OSError:
-        return None
-
-    target = normalize_name(dataset_name)
-    for child in children:
-        if normalize_name(child.name) == target and infer_raw_dataset_dir(child) is not None:
-            return child
-
-    for child in children:
-        found = find_dataset_folder(child, dataset_name, max_depth=max_depth - 1)
-        if found is not None:
-            return found
-    return None
-
-
-def find_named_file(root: Path, file_name: str, *, max_depth: int) -> Path | None:
-    if max_depth <= 0 or not root.is_dir():
-        return None
-    target = normalize_name(file_name)
-    try:
-        children = list(root.iterdir())
-    except OSError:
-        return None
-
-    for child in children:
-        if child.is_file() and normalize_name(child.name) == target:
-            return child
-
-    for child in children:
-        if not child.is_dir():
-            continue
-        found = find_named_file(child, file_name, max_depth=max_depth - 1)
-        if found is not None:
-            return found
-    return None
-
-
-def should_scan_under_root(root: Path) -> bool:
-    try:
-        root = root.resolve()
-    except OSError:
-        return False
-    return root.is_dir() and len(root.parts) >= 4
-
-
-def normalize_name(value: str) -> str:
-    return "".join(str(value or "").strip().lower().split())
-
-
-def split_legacy_path_parts(path_text: str) -> list[str]:
+def split_path_parts(path_text: str) -> list[str]:
     normalized = str(path_text or "").replace("\\", "/").strip()
     if not normalized:
         return []
@@ -1283,70 +1052,6 @@ def split_legacy_path_parts(path_text: str) -> list[str]:
     if parts and re.fullmatch(r"[A-Za-z]:", parts[0]):
         parts = parts[1:]
     return parts
-
-
-def extract_target_and_leaf(path_text: str) -> tuple[str, str]:
-    parts = split_legacy_path_parts(path_text)
-    if not parts:
-        return "", ""
-    target = parts[-1]
-    old_leaf = parts[-2] if len(parts) >= 2 else ""
-    return target, old_leaf
-
-
-def suffix_after_raw_data(path_text: str) -> Path | None:
-    normalized = str(path_text or "").replace("\\", "/")
-    lowered = normalized.lower()
-    token = "/raw_data/"
-    index = lowered.rfind(token)
-    if index < 0:
-        return None
-    suffix = normalized[index + len(token) :]
-    parts = [part for part in suffix.split("/") if part]
-    if not parts:
-        return None
-    return Path(*parts)
-
-
-def position_path_info(path_text: str) -> dict | None:
-    parts = split_legacy_path_parts(path_text)
-    if len(parts) < 2:
-        return None
-    position_name = parts[-1]
-    dataset_name = parts[-2]
-    if not is_position_like_name(position_name):
-        return None
-    return {"dataset_name": dataset_name, "position_name": position_name}
-
-
-def dataset_info_candidates(path_text: str) -> list[dict]:
-    parts = split_legacy_path_parts(path_text)
-    if not parts:
-        return []
-
-    dataset_name = parts[-1]
-    parent_leaf = parts[-2] if len(parts) >= 2 else ""
-    infos = [
-        {
-            "parts": parts,
-            "dataset_name": dataset_name,
-            "parent_leaf": parent_leaf,
-            "suffixes": [Path(*parts[-width:]) for width in range(2, min(8, len(parts)) + 1)],
-        }
-    ]
-
-    malformed = re.match(r"^(\d{4}[_-]\d{2}[_-]\d{2})([^/\\\\]+\.ome\.zarr)$", dataset_name, flags=re.IGNORECASE)
-    if malformed:
-        fixed_parts = [*parts[:-1], malformed.group(1), malformed.group(2)]
-        infos.append(
-            {
-                "parts": fixed_parts,
-                "dataset_name": malformed.group(2),
-                "parent_leaf": malformed.group(1),
-                "suffixes": [Path(*fixed_parts[-width:]) for width in range(2, min(8, len(fixed_parts)) + 1)],
-            }
-        )
-    return infos
 
 
 def looks_like_dataset_folder(path: Path) -> bool:

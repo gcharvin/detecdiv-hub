@@ -27,6 +27,8 @@ The production-like split is:
   - PostgreSQL, in Docker Compose
   - FastAPI app, in Docker Compose
   - static web UI served by the FastAPI app
+  - read-only `/data` bridge mounted at boot from `detecdiv-server` for
+    project ops browsing and preview serving
 - `detecdiv-server` / `GC-CALCUL-306`
   - compute worker only
   - MATLAB access
@@ -81,6 +83,10 @@ restored into the VM PostgreSQL container on 2026-04-26.
 
 The VM is now the main database to use for ongoing DetecDiv Hub work unless an
 explicit rollback is requested.
+
+The VM guest also mounts `/data` read-only through `detecdiv-server` so the API
+container can serve raw-dataset preview MP4s and the project ops browser can
+inspect storage-backed folders without logging into the storage host directly.
 
 ## Agent Rules
 

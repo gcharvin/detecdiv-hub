@@ -209,6 +209,45 @@ h3 {
   max-height: none;
 }
 
+.raw-positions-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.08fr) minmax(360px, 0.92fr);
+  gap: 14px;
+  align-items: start;
+}
+
+.raw-positions-table-panel,
+.raw-position-viewer-panel {
+  min-width: 0;
+}
+
+.raw-positions-table-wrap {
+  max-height: min(58vh, 560px);
+}
+
+.raw-position-selection-toolbar {
+  margin-top: 10px;
+  align-items: center;
+}
+
+.raw-position-selection-toolbar .muted {
+  margin-left: auto;
+}
+
+.raw-position-viewer-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 14px;
+  border: 1px solid var(--line);
+  background: var(--panel-strong);
+}
+
+.raw-position-viewer-panel .empty-state {
+  margin: 0;
+  min-height: 240px;
+}
+
 .migration-grid {
   grid-template-columns: minmax(0, 1.25fr) minmax(520px, 1.4fr);
 }
@@ -472,6 +511,46 @@ tbody tr.selected {
   color: #7be0a0;
 }
 
+#raw-positions-table th:nth-child(1),
+#raw-positions-table td:nth-child(1) {
+  width: 35%;
+  max-width: 35%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+#raw-positions-table th:nth-child(2),
+#raw-positions-table td:nth-child(2) {
+  width: 16%;
+  white-space: nowrap;
+}
+
+#raw-positions-table th:nth-child(3),
+#raw-positions-table td:nth-child(3) {
+  width: 16%;
+  white-space: nowrap;
+}
+
+#raw-positions-table th:nth-child(4),
+#raw-positions-table td:nth-child(4) {
+  width: 96px;
+  white-space: nowrap;
+}
+
+.deployment-summary-grid {
+  margin-top: 12px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.deployment-summary-grid .summary-card {
+  min-height: 100px;
+}
+
+#execution-target-health-warning {
+  margin: -2px 0 14px;
+}
+
 .stack-actions {
   display: flex;
   flex-wrap: wrap;
@@ -503,9 +582,27 @@ tbody tr.selected {
 
 .raw-preview-viewer video {
   width: 100%;
-  max-height: 360px;
+  max-height: 420px;
   border: 1px solid var(--line);
   background: #111317;
+}
+
+.raw-position-viewer-panel .stack-item-meta {
+  min-height: 18px;
+}
+
+.raw-position-viewer-panel .action-stack {
+  margin-top: auto;
+}
+
+@media (max-width: 1180px) {
+  .raw-positions-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .deployment-summary-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 .action-stack {

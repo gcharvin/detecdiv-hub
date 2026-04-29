@@ -19,6 +19,7 @@ from api.models import Artifact, Job, Project, ProjectRawLink, RawDataset, RawDa
 from api.services.path_resolution import compose_storage_path
 from api.services.project_indexing import slugify
 from api.services.raw_preview_settings import RawPreviewRuntimeConfig, resolve_raw_preview_runtime_config
+from worker.preview_text import fit_text_scale
 
 
 TIFF_SUFFIXES = (".tif", ".tiff")
@@ -831,6 +832,7 @@ def annotate_preview_frames(
 ) -> list[np.ndarray]:
     overlay_project_label = sanitize_overlay_text(project_label)
     overlay_position_label = sanitize_overlay_text(position_label)
+    compact_overlay = False
     overlay_channel_labels = []
     for index, label in enumerate(channel_labels):
         label_suffix = sanitize_overlay_text(label)
@@ -842,37 +844,58 @@ def annotate_preview_frames(
     for index, frame in enumerate(frames):
         canvas = np.array(frame, copy=True)
         height, width = canvas.shape[:2]
-        frame_scale = max(3, min(6, min(height, width) // 120))
-        label_scale = max(2, frame_scale - 1)
-        title_scale = max(2, frame_scale - 1)
-        margin = max(8, frame_scale * 3)
-        line_gap = max(8, label_scale * 10)
-        draw_text_with_box(canvas, f"FRAME {index + 1}", x=margin, y=margin, scale=frame_scale)
+        compact_overlay = min(height, width) < 512
+        frame_scale = max(1, min(4, min(height, width) // 320))
+        label_scale = 1 if compact_overlay else max(1, frame_scale - 1)
+        title_scale = 1 if compact_overlay else max(1, frame_scale - 1)
+        margin = 2 if compact_overlay else max(4, frame_scale * 3)
+        line_gap = 2 if compact_overlay else max(4, label_scale * 8)
+        frame_label = f"F{index + 1}" if compact_overlay else f"FRAME {index + 1}"
+        frame_scale = fit_text_scale(frame_label, available_width=max(32, width - (margin * 2)), desired_scale=frame_scale)
+        draw_text_with_box(canvas, frame_label, x=margin, y=margin, scale=frame_scale)
         if overlay_project_label:
+            project_text = overlay_project_label[:18] if compact_overlay else overlay_project_label[:48]
+            project_scale = fit_text_scale(
+                project_text,
+                available_width=max(32, width - (margin * 2)),
+                desired_scale=title_scale,
+            )
             draw_text_with_box(
                 canvas,
-                overlay_project_label[:48],
+                project_text,
                 x=margin,
-                y=max(margin, height - (title_scale * 22)),
-                scale=title_scale,
+                y=max(margin, height - (7 * project_scale) - margin),
+                scale=project_scale,
             )
         if overlay_position_label:
+            position_text = f"P{overlay_position_label[:10]}" if compact_overlay else f"POS {overlay_position_label[:28]}"
+            position_scale = fit_text_scale(
+                position_text,
+                available_width=max(32, width - (margin * 2)),
+                desired_scale=title_scale,
+            )
             draw_text_with_box(
                 canvas,
-                f"POS {overlay_position_label[:28]}",
+                position_text,
                 x=margin,
-                y=max(margin, height - (title_scale * 36)),
-                scale=title_scale,
+                y=max(margin, height - (7 * project_scale if overlay_project_label else 7 * position_scale) - line_gap - margin),
+                scale=position_scale,
             )
         if overlay_channel_labels:
             panel_width = max(1, canvas.shape[1] // len(overlay_channel_labels))
             for channel_index, label in enumerate(overlay_channel_labels):
+                channel_text = f"CH{channel_index + 1}" if compact_overlay else label
+                channel_scale = fit_text_scale(
+                    channel_text,
+                    available_width=max(24, panel_width - (margin * 2)),
+                    desired_scale=label_scale,
+                )
                 draw_text_with_box(
                     canvas,
-                    label,
+                    channel_text,
                     x=channel_index * panel_width + margin,
                     y=margin + line_gap,
-                    scale=label_scale,
+                    scale=channel_scale,
                 )
         annotated.append(canvas)
     return annotated

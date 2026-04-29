@@ -19,6 +19,10 @@ This file tracks future UI improvements for `detecdiv-hub`.
   The UI should show each worker instance separately, for example `@1`, `@2`,
   `@3`, with state, last heartbeat, current job, and last error.
 
+- Show which user launched the current worker job.
+  The admin worker table should surface the submitting user for the current
+  job, not only the job UUID or job kind.
+
 - Add a clear mismatch warning.
   Warn when `worker_instances_desired`, active systemd workers, registered
   heartbeats, and `max_concurrent_jobs` disagree.

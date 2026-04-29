@@ -1,9 +1,12 @@
 from pathlib import Path
+import socket
 
 from fastapi import FastAPI
 from fastapi.responses import RedirectResponse
 from fastapi.staticfiles import StaticFiles
+from sqlalchemy import text
 
+from api.db import SessionLocal
 from api.config import get_settings
 from api.routes_experiments import router as experiments_router
 from api.routes_auth import router as auth_router
@@ -44,7 +47,19 @@ app.mount("/web", StaticFiles(directory=STATIC_DIR, html=True), name="web")
 
 @app.get("/health", response_model=HealthResponse)
 def health() -> HealthResponse:
-    return HealthResponse()
+    database_status = "ok"
+    database_message = None
+    try:
+        with SessionLocal() as session:
+            session.execute(text("SELECT 1"))
+    except Exception as exc:  # pragma: no cover - defensive health probe
+        database_status = "error"
+        database_message = str(exc)
+    return HealthResponse(
+        database_status=database_status,
+        database_message=database_message,
+        hostname=socket.gethostname(),
+    )
 
 
 @app.get("/", include_in_schema=False)

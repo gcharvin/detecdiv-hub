@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import hashlib
-import json
 import re
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
@@ -12,6 +11,7 @@ from sqlalchemy.orm import Session, joinedload
 
 from api.config import Settings, get_settings
 from api.models import ExperimentProject, Job, MicroManagerIngestRun, Pipeline, RawDataset, User
+from api.services.micromanager_metadata import extract_acquisition_dimensions, read_micromanager_metadata
 from api.services.external_publications import ensure_publication_records
 from api.services.project_indexing import slugify
 from api.services.raw_dataset_ingest import ingest_raw_dataset_from_directory
@@ -290,33 +290,6 @@ def latest_dataset_activity(dataset_dir: Path) -> tuple[datetime | None, int]:
     return latest_timestamp, file_count
 
 
-def read_micromanager_metadata(dataset_dir: Path) -> dict:
-    for file_name in ("metadata.txt", "Metadata.txt", "Acquisition metadata.txt", "AcquisitionMetadata.txt"):
-        metadata_path = dataset_dir / file_name
-        if not metadata_path.exists() or not metadata_path.is_file():
-            continue
-        try:
-            text_value = metadata_path.read_text(encoding="utf-8")
-        except UnicodeDecodeError:
-            try:
-                text_value = metadata_path.read_text(encoding="latin-1")
-            except OSError:
-                continue
-        except OSError:
-            continue
-
-        stripped = text_value.strip()
-        if not stripped:
-            return {}
-        try:
-            parsed = json.loads(stripped)
-            if isinstance(parsed, dict):
-                return parsed
-        except json.JSONDecodeError:
-            return {"raw_text": stripped[:2000]}
-    return {}
-
-
 def extract_microscope_name(metadata_json: dict) -> str | None:
     summary = metadata_json.get("Summary") if isinstance(metadata_json, dict) else None
     if isinstance(summary, dict):
@@ -366,38 +339,6 @@ def extract_session_datetime(metadata_json: dict) -> datetime | None:
             if parsed is not None:
                 return parsed
     return None
-
-
-def extract_acquisition_dimensions(metadata_json: dict) -> dict:
-    summary = metadata_json.get("Summary") if isinstance(metadata_json, dict) else None
-    if not isinstance(summary, dict):
-        return {}
-    channel_names = summary.get("ChNames")
-    if isinstance(channel_names, list):
-        channel_count = len(channel_names)
-    else:
-        channel_count = safe_int(summary.get("Channels")) or 0
-    return {
-        "channel_count": channel_count,
-        "position_count": safe_int(summary.get("Positions")) or 0,
-        "slice_count": safe_int(summary.get("Slices")) or 0,
-        "frame_count": safe_int(summary.get("Frames")) or 0,
-        "width_px": safe_int(summary.get("Width")) or 0,
-        "height_px": safe_int(summary.get("Height")) or 0,
-        "pixel_type": summary.get("PixelType"),
-        "channel_names": channel_names if isinstance(channel_names, list) else [],
-    }
-
-
-def safe_int(value: object) -> int | None:
-    try:
-        if value in (None, ""):
-            return None
-        return int(value)
-    except (TypeError, ValueError):
-        return None
-
-
 def parse_datetime_guess(value: object) -> datetime | None:
     if value in (None, ""):
         return None

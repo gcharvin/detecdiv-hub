@@ -31,6 +31,9 @@ from api.schemas import (
     RawDatasetDeletionPreview,
     RawDatasetDeletionRequest,
     RawDatasetDeletionResult,
+    RawDatasetPositionDeletionPreview,
+    RawDatasetPositionDeletionRequest,
+    RawDatasetPositionDeletionResult,
     RawPreviewVideoQueueRequest,
     RawPreviewVideoQueueResult,
     RawPreviewVideoBulkQueueRequest,
@@ -52,6 +55,10 @@ from api.services.raw_archive_delete import (
     delete_raw_dataset_archive_file,
 )
 from api.services.raw_dataset_deletion import build_raw_dataset_deletion_preview, execute_raw_dataset_deletion
+from api.services.raw_dataset_position_deletion import (
+    build_raw_dataset_position_deletion_preview,
+    execute_raw_dataset_position_deletion,
+)
 from api.services.archive_policy import (
     automatic_archive_policy_config,
     build_archive_policy_preview,
@@ -389,6 +396,89 @@ def preview_raw_dataset_deletion(
         delete_linked_project_files=payload.delete_linked_project_files,
         reclaimable_bytes=preview.reclaimable_bytes,
         preview_json=preview.preview_json,
+    )
+
+
+@router.post("/{raw_dataset_id}/positions/deletion-preview", response_model=RawDatasetPositionDeletionPreview)
+def preview_raw_dataset_positions_deletion(
+    raw_dataset_id: UUID,
+    payload: RawDatasetPositionDeletionRequest,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> RawDatasetPositionDeletionPreview:
+    if not payload.position_ids:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Select at least one position")
+    raw_dataset = db.scalars(
+        select(RawDataset)
+        .options(
+            joinedload(RawDataset.locations).joinedload(RawDatasetLocation.storage_root),
+            joinedload(RawDataset.positions).joinedload(RawDatasetPosition.preview_artifact),
+            joinedload(RawDataset.project_links).joinedload(ProjectRawLink.project).joinedload(Project.owner),
+        )
+        .where(RawDataset.id == raw_dataset_id)
+    ).unique().first()
+    raw_dataset = ensure_raw_dataset_readable(raw_dataset, current_user)
+    if not user_can_edit_raw_dataset(raw_dataset, current_user):
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Raw dataset is not deletable")
+
+    try:
+        preview = build_raw_dataset_position_deletion_preview(
+            db,
+            raw_dataset=raw_dataset,
+            position_ids=[position_id for position_id in payload.position_ids],
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc
+    return RawDatasetPositionDeletionPreview(
+        raw_dataset_id=raw_dataset.id,
+        acquisition_label=raw_dataset.acquisition_label,
+        position_count=len(preview.position_ids),
+        reclaimable_bytes=preview.reclaimable_bytes,
+        preview_json=preview.preview_json,
+    )
+
+
+@router.post("/{raw_dataset_id}/positions/delete", response_model=RawDatasetPositionDeletionResult)
+def delete_raw_dataset_positions(
+    raw_dataset_id: UUID,
+    payload: RawDatasetPositionDeletionRequest,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> RawDatasetPositionDeletionResult:
+    if not payload.position_ids:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Select at least one position")
+    if not payload.confirm:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Deletion requires confirm=true")
+
+    raw_dataset = db.scalars(
+        select(RawDataset)
+        .options(
+            joinedload(RawDataset.locations).joinedload(RawDatasetLocation.storage_root),
+            joinedload(RawDataset.positions).joinedload(RawDatasetPosition.preview_artifact),
+            joinedload(RawDataset.project_links).joinedload(ProjectRawLink.project).joinedload(Project.owner),
+        )
+        .where(RawDataset.id == raw_dataset_id)
+    ).unique().first()
+    raw_dataset = ensure_raw_dataset_readable(raw_dataset, current_user)
+    if not user_can_edit_raw_dataset(raw_dataset, current_user):
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Raw dataset is not deletable")
+
+    try:
+        preview = build_raw_dataset_position_deletion_preview(
+            db,
+            raw_dataset=raw_dataset,
+            position_ids=[position_id for position_id in payload.position_ids],
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc
+    result = execute_raw_dataset_position_deletion(db, preview=preview, requested_by_user=current_user)
+    db.commit()
+    return RawDatasetPositionDeletionResult(
+        raw_dataset_id=raw_dataset_id,
+        status=result["status"],
+        position_count=result["position_count"],
+        reclaimable_bytes=result["reclaimable_bytes"],
+        result_json=result["result_json"],
     )
 
 

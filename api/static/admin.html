@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Detecdiv server - Admin</title>
-    <link rel="stylesheet" href="/web/styles.css?v=20260423-raw-quality7" />
+    <link rel="stylesheet" href="/web/styles.css?v=20260429-ui3" />
   </head>
   <body data-page="admin">
     <div class="page-shell">
@@ -60,6 +60,34 @@
       </section>
 
       <main id="admin-content" class="admin-content hidden">
+        <section class="panel">
+          <div class="panel-header">
+            <div>
+              <h2>Deployment Awareness</h2>
+              <p class="muted">Primary API and database live on webserver-labo; compute workers run on detecdiv-server.</p>
+            </div>
+            <div id="deployment-awareness-summary" class="muted">Loading deployment status...</div>
+          </div>
+          <div class="summary-grid deployment-summary-grid">
+            <article class="summary-card">
+              <div class="summary-label">API</div>
+              <div id="deployment-api-status" class="summary-value">unknown</div>
+            </article>
+            <article class="summary-card">
+              <div class="summary-label">Database</div>
+              <div id="deployment-db-status" class="summary-value">unknown</div>
+            </article>
+            <article class="summary-card">
+              <div class="summary-label">Workers</div>
+              <div id="deployment-worker-status" class="summary-value">unknown</div>
+            </article>
+            <article class="summary-card">
+              <div class="summary-label">Heartbeats</div>
+              <div id="deployment-heartbeat-status" class="summary-value">unknown</div>
+            </article>
+          </div>
+        </section>
+
         <section class="panel">
           <div class="panel-header">
             <div>
@@ -144,7 +172,7 @@
           <div class="panel-header">
             <div>
               <h2>Execution Targets</h2>
-              <p class="muted">Manage available local, CPU, and GPU run destinations.</p>
+              <p class="muted">Manage available local, CPU, and GPU run destinations. Active workers are the control surface; concurrency is a guardrail.</p>
             </div>
             <div class="action-stack">
               <button id="refresh-execution-targets-button">Refresh targets</button>
@@ -156,6 +184,7 @@
               <button id="save-execution-target-button" class="primary">Save settings</button>
             </div>
           </div>
+          <div id="execution-target-health-warning" class="inline-feedback hidden"></div>
           <div class="table-wrap jobs-table-wrap">
             <table id="execution-targets-table">
               <thead>
@@ -186,10 +215,12 @@
                   <th>Worker</th>
                   <th>Health</th>
                   <th>Current Job</th>
+                  <th>Current User</th>
                   <th>Job Kind</th>
                   <th>Status</th>
                   <th>Started</th>
                   <th>Last Seen</th>
+                  <th>Last Error</th>
                 </tr>
               </thead>
               <tbody></tbody>
@@ -203,6 +234,8 @@
                   <th>Running</th>
                   <th>Queued</th>
                   <th>Cancelling</th>
+                  <th>Done</th>
+                  <th>Failed</th>
                   <th>Last Updated</th>
                 </tr>
               </thead>
@@ -346,6 +379,6 @@
       </footer>
     </div>
 
-    <script src="/web/app.js?v=20260423-raw-quality7" defer></script>
+    <script src="/web/app.js?v=20260429-ui3" defer></script>
   </body>
 </html>

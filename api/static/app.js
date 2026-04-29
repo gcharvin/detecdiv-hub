@@ -19,9 +19,12 @@ const state = {
   selectedRawDataset: null,
   selectedRawDatasetDetail: null,
   selectedRawPositionId: null,
+  selectedRawPositionIds: [],
   selectedRawDatasetIds: [],
   pendingRawBulkDelete: null,
   rawBulkDeletePreviewToken: 0,
+  pendingRawPositionDelete: null,
+  rawPositionDeletePreviewToken: 0,
   rawPreviewQualityStatus: null,
   archiveSettingsStatus: null,
   archivePolicyPreview: null,
@@ -133,6 +136,15 @@ const els = {
   rawBulkDeleteConfirmText: document.querySelector("#raw-bulk-delete-confirm-text"),
   rawBulkDeleteCancelButton: document.querySelector("#raw-bulk-delete-cancel-button"),
   rawBulkDeleteConfirmButton: document.querySelector("#raw-bulk-delete-confirm-button"),
+  rawPositionSelectAll: document.querySelector("#raw-position-select-all"),
+  rawPositionSelectionSummary: document.querySelector("#raw-position-selection-summary"),
+  rawPositionClearSelectionButton: document.querySelector("#raw-position-clear-selection-button"),
+  rawPositionDeleteSelectedButton: document.querySelector("#raw-position-delete-selected-button"),
+  rawPositionDeletePanel: document.querySelector("#raw-position-delete-panel"),
+  rawPositionDeleteSummary: document.querySelector("#raw-position-delete-summary"),
+  rawPositionDeleteConfirmText: document.querySelector("#raw-position-delete-confirm-text"),
+  rawPositionDeleteCancelButton: document.querySelector("#raw-position-delete-cancel-button"),
+  rawPositionDeleteConfirmButton: document.querySelector("#raw-position-delete-confirm-button"),
   rawDatasetsTableBody: document.querySelector("#raw-datasets-table tbody"),
   rawCountLabel: document.querySelector("#raw-count-label"),
   rawDetailEmpty: document.querySelector("#raw-detail-empty"),
@@ -174,6 +186,12 @@ const els = {
   rawPreviewQualityConfig: document.querySelector("#raw-preview-quality-config"),
   rawPreviewQualitySummary: document.querySelector("#raw-preview-quality-summary"),
   rawPreviewQualityTableBody: document.querySelector("#raw-preview-quality-table tbody"),
+  deploymentAwarenessSummary: document.querySelector("#deployment-awareness-summary"),
+  deploymentApiStatus: document.querySelector("#deployment-api-status"),
+  deploymentDbStatus: document.querySelector("#deployment-db-status"),
+  deploymentWorkerStatus: document.querySelector("#deployment-worker-status"),
+  deploymentHeartbeatStatus: document.querySelector("#deployment-heartbeat-status"),
+  executionTargetHealthWarning: document.querySelector("#execution-target-health-warning"),
   archiveSettingsRefreshButton: document.querySelector("#archive-settings-refresh-button"),
   archiveSettingsSaveButton: document.querySelector("#archive-settings-save-button"),
   archiveSettingsRoot: document.querySelector("#archive-settings-root"),
@@ -358,9 +376,12 @@ function clearDashboardState() {
   state.selectedRawDataset = null;
   state.selectedRawDatasetDetail = null;
   state.selectedRawPositionId = null;
+  state.selectedRawPositionIds = [];
   state.selectedRawDatasetIds = [];
   state.pendingRawBulkDelete = null;
   state.rawBulkDeletePreviewToken = 0;
+  state.pendingRawPositionDelete = null;
+  state.rawPositionDeletePreviewToken = 0;
   state.rawPreviewQualityStatus = null;
   state.archivePolicyPreview = null;
   state.automaticArchivePolicyStatus = null;
@@ -378,6 +399,8 @@ function clearDashboardState() {
   state.notes = [];
   state.acl = [];
   state.summary = null;
+  state.systemHealth = null;
+  state.systemHealth = null;
 
   if (els.summaryTotalProjects) els.summaryTotalProjects.textContent = "0";
   if (els.summaryOwnedProjects) els.summaryOwnedProjects.textContent = "0";
@@ -394,6 +417,7 @@ function clearDashboardState() {
   renderPipelineRunBuilder();
   renderPipelineRuns();
   renderExecutionTargets();
+  renderDeploymentAwareness();
   renderOwnerFilters();
   renderIndexOwnerOptions();
   renderIndexingJobs();
@@ -1061,24 +1085,29 @@ function renderIndexBrowser() {
   els.indexBrowseCurrent.textContent = `${currentLabel} -> ${browse.current_absolute_path}`;
 
   els.indexBrowseTableBody.innerHTML = "";
-  if (browse.parent_relative_path !== null) {
-    const upRow = document.createElement("tr");
-    upRow.innerHTML = `
-      <td>..</td>
-      <td>${browse.parent_relative_path || "/"}</td>
-      <td><button type="button">Up</button></td>
-    `;
-    upRow.querySelector("button")?.addEventListener("click", () => {
-      openIndexBrowserPath(browse.parent_relative_path).catch((error) => setStatus(String(error)));
-    });
-    els.indexBrowseTableBody.appendChild(upRow);
+  const canGoUp = browse.parent_relative_path !== null;
+  const upRow = document.createElement("tr");
+  if (!canGoUp) {
+    upRow.classList.add("muted");
   }
+  upRow.innerHTML = `
+    <td>..</td>
+    <td>${escapeHtml(browse.parent_relative_path || "/")}</td>
+    <td><button type="button" ${canGoUp ? "" : "disabled"}>${canGoUp ? "Up" : "Root"}</button></td>
+  `;
+  upRow.querySelector("button")?.addEventListener("click", () => {
+    if (!canGoUp) {
+      return;
+    }
+    openIndexBrowserPath(browse.parent_relative_path).catch((error) => setStatus(String(error)));
+  });
+  els.indexBrowseTableBody.appendChild(upRow);
 
   for (const directory of browse.directories || []) {
     const tr = document.createElement("tr");
     tr.innerHTML = `
-      <td>${directory.name}</td>
-      <td>${directory.relative_path || "/"}</td>
+      <td>${escapeHtml(directory.name)}</td>
+      <td>${escapeHtml(directory.relative_path || "/")}</td>
       <td><button type="button">Enter</button></td>
     `;
     tr.querySelector("button")?.addEventListener("click", () => {
@@ -1605,21 +1634,19 @@ function renderExecutionTargets() {
     if (state.selectedExecutionTarget && String(state.selectedExecutionTarget.id) === String(target.id)) {
       tr.classList.add("selected");
     }
-    const workerHealth = target.metadata_json?.worker_health_summary || target.metadata_json?.worker_health || {};
-    const workerHealths = target.metadata_json?.worker_healths || {};
-    const maxConcurrentJobs = target.metadata_json?.max_concurrent_jobs || "";
+    const workerSnapshot = executionTargetWorkerSnapshot(target);
+    const workerHealth = workerSnapshot.workerHealthSummary || {};
+    const maxConcurrentJobs = workerSnapshot.maxConcurrentJobs || "";
     const matlabMaxThreads = target.metadata_json?.matlab_max_threads || "";
     const drainNewJobs = Boolean(target.metadata_json?.drain_new_jobs);
-    const busyWorkers = Number(workerHealth.busy_workers || 0);
-    const workerCount = Number(workerHealth.worker_count || Object.keys(workerHealths).length || 0);
     const workerSlots = maxConcurrentJobs || "";
     let healthLabel = workerHealth.health || target.status || "unknown";
-    if (drainNewJobs && busyWorkers > 0) {
-      healthLabel = `draining (${busyWorkers}${workerSlots ? `/${workerSlots}` : ""} slots used)`;
+    if (drainNewJobs && workerSnapshot.busyWorkerCount > 0) {
+      healthLabel = `draining (${workerSnapshot.busyWorkerCount}${workerSlots ? `/${workerSlots}` : ""} slots used)`;
     } else if (drainNewJobs) {
       healthLabel = "drained";
-    } else if (busyWorkers > 0) {
-      healthLabel = `busy (${busyWorkers}${workerSlots ? `/${workerSlots}` : ""} slots used)`;
+    } else if (workerSnapshot.busyWorkerCount > 0) {
+      healthLabel = `busy (${workerSnapshot.busyWorkerCount}${workerSlots ? `/${workerSlots}` : ""} slots used)`;
     } else if (workerHealth.capacity_full) {
       healthLabel = "capacity full";
     }
@@ -1631,11 +1658,11 @@ function renderExecutionTargets() {
       <td>${target.supports_python ? "yes" : "no"}</td>
       <td>${target.supports_gpu ? "yes" : "no"}</td>
       <td>${maxConcurrentJobs || ""}</td>
-      <td>${busyWorkers}/${workerCount || 0}</td>
+      <td>${workerSnapshot.activeWorkerCount}/${workerSnapshot.registeredWorkerCount}</td>
       <td>${matlabMaxThreads || ""}</td>
       <td>${target.status}</td>
       <td>${healthLabel}</td>
-      <td>${formatTimestamp(workerHealth.last_seen_at || workerHealth.claimed_at || null)}</td>
+      <td>${formatTimestamp(workerSnapshot.heartbeatLabel || workerHealth.last_seen_at || workerHealth.claimed_at || null)}</td>
     `;
     tr.addEventListener("click", () => loadExecutionTargetIntoForm(target));
     els.executionTargetsTableBody.appendChild(tr);
@@ -1674,9 +1701,27 @@ function renderExecutionTargets() {
     if (els.executionTargetJobMixTableBody) {
       els.executionTargetJobMixTableBody.innerHTML = "";
     }
+    if (els.executionTargetHealthWarning) {
+      els.executionTargetHealthWarning.classList.add("hidden");
+      els.executionTargetHealthWarning.textContent = "";
+    }
   } else {
     renderExecutionTargetWorkerPanels(state.selectedExecutionTarget);
+    const snapshot = executionTargetWorkerSnapshot(state.selectedExecutionTarget);
+    if (els.executionTargetHealthWarning) {
+      if (snapshot.mismatch.length) {
+        els.executionTargetHealthWarning.textContent = `Capacity mismatch: ${snapshot.mismatch.join("; ")}.`;
+        els.executionTargetHealthWarning.classList.remove("hidden");
+        els.executionTargetHealthWarning.classList.remove("ok");
+        els.executionTargetHealthWarning.classList.add("warn");
+      } else {
+        els.executionTargetHealthWarning.classList.add("hidden");
+        els.executionTargetHealthWarning.textContent = "";
+        els.executionTargetHealthWarning.classList.remove("warn", "ok");
+      }
+    }
   }
+  renderDeploymentAwareness();
   renderPipelineRunBuilder();
 }
 
@@ -1687,18 +1732,15 @@ function jobKindLabel(job) {
   return String(raw).replaceAll("_", " ");
 }
 
+function normalizedJobStatus(job) {
+  return String(job?.status || "").trim().toLowerCase();
+}
+
 function executionTargetJobs(target) {
   if (!target) {
     return [];
   }
   return state.jobs.filter((job) => String(job.execution_target_id || "") === String(target.id));
-}
-
-function executionTargetWorkerEntries(target) {
-  const workerHealths = target?.metadata_json?.worker_healths || {};
-  return Object.entries(workerHealths)
-    .map(([workerId, workerHealth]) => ({ workerId, workerHealth: workerHealth || {} }))
-    .sort((a, b) => String(a.workerId).localeCompare(String(b.workerId)));
 }
 
 function latestTimestampValue(...values) {
@@ -1720,13 +1762,31 @@ function latestTimestampValue(...values) {
   return best;
 }
 
-function renderExecutionTargetWorkerPanels(target) {
-  const targetJobs = executionTargetJobs(target);
+function userLabelForKey(userKey) {
+  const normalized = String(userKey || "").trim();
+  if (!normalized) {
+    return "";
+  }
+  const users = state.users.length ? state.users : (state.currentUser ? [state.currentUser] : []);
+  const user = users.find((item) => item.user_key === normalized);
+  return user ? userOptionLabel(user) : normalized;
+}
+
+function executionTargetWorkerEntries(target) {
+  const workerHealths = target?.metadata_json?.worker_healths || {};
+  return Object.entries(workerHealths)
+    .map(([workerId, workerHealth]) => ({ workerId, workerHealth: workerHealth || {} }))
+    .sort((a, b) => String(a.workerId).localeCompare(String(b.workerId)));
+}
+
+function executionTargetWorkerSnapshot(target) {
   const workerEntries = executionTargetWorkerEntries(target);
-  const workerRunningFallbackCount = workerEntries.filter((entry) => {
-    const status = String(entry.workerHealth.current_job_status || "").toLowerCase();
-    return status === "running" || status === "cancelling";
-  }).length;
+  const maxConcurrentJobs = target?.metadata_json?.max_concurrent_jobs || "";
+  const desiredWorkers = target?.metadata_json?.worker_instances_desired
+    ?? target?.metadata_json?.worker_health_summary?.registered_workers
+    ?? workerEntries.length
+    ?? 0;
+  const workerHealthSummary = target?.metadata_json?.worker_health_summary || {};
   const activeWorkerEntries = workerEntries.filter((entry) => {
     const lastSeen = entry.workerHealth.last_seen_at ? Date.parse(entry.workerHealth.last_seen_at) : NaN;
     if (Number.isNaN(lastSeen)) {
@@ -1734,15 +1794,61 @@ function renderExecutionTargetWorkerPanels(target) {
     }
     return (Date.now() - lastSeen) <= 60000;
   });
-  const runningJobs = targetJobs.filter((job) => job.status === "running");
+  const activeWorkerCount = Number(workerHealthSummary.worker_count || activeWorkerEntries.length || 0);
+  const registeredWorkerCount = Number(workerHealthSummary.registered_workers || workerEntries.length || 0);
+  const busyWorkerCount = Number(workerHealthSummary.busy_workers || 0);
+  const errorWorkerCount = Number(workerHealthSummary.error_workers || 0);
+  const staleWorkerCount = Number(workerHealthSummary.stale_workers || Math.max(registeredWorkerCount - activeWorkerCount, 0));
+  const heartbeatLabel = latestTimestampValue(
+    workerHealthSummary.last_seen_at,
+    workerHealthSummary.claimed_at,
+    ...workerEntries.map((entry) => entry.workerHealth.last_seen_at),
+    ...workerEntries.map((entry) => entry.workerHealth.claimed_at)
+  );
+  const lastClaimLabel = latestTimestampValue(
+    workerHealthSummary.claimed_at,
+    ...workerEntries.map((entry) => entry.workerHealth.claimed_at)
+  );
+  const mismatch = [];
+  if (Number(desiredWorkers) && Number(desiredWorkers) !== registeredWorkerCount) {
+    mismatch.push(`desired ${desiredWorkers} vs registered ${registeredWorkerCount}`);
+  }
+  if (registeredWorkerCount !== activeWorkerCount) {
+    mismatch.push(`active ${activeWorkerCount}/${registeredWorkerCount}`);
+  }
+  if (maxConcurrentJobs && busyWorkerCount > Number(maxConcurrentJobs)) {
+    mismatch.push(`busy ${busyWorkerCount}/${maxConcurrentJobs}`);
+  }
+  return {
+    workerEntries,
+    workerHealthSummary,
+    activeWorkerEntries,
+    activeWorkerCount,
+    registeredWorkerCount,
+    desiredWorkers: Number(desiredWorkers) || 0,
+    busyWorkerCount,
+    errorWorkerCount,
+    staleWorkerCount,
+    maxConcurrentJobs: maxConcurrentJobs || "",
+    heartbeatLabel,
+    lastClaimLabel,
+    mismatch,
+  };
+}
+
+function renderExecutionTargetWorkerPanels(target) {
+  const targetJobs = executionTargetJobs(target);
+  const snapshot = executionTargetWorkerSnapshot(target);
+  const workerEntries = snapshot.workerEntries;
   const queuedJobs = targetJobs.filter((job) => job.status === "queued");
   const cancellingJobs = targetJobs.filter((job) => job.status === "cancelling");
-  const runningDisplayCount = Math.max(runningJobs.length, workerRunningFallbackCount);
 
   if (els.executionTargetWorkerSummary) {
     els.executionTargetWorkerSummary.textContent =
-      `${runningDisplayCount} running, ${queuedJobs.length} queued, ${cancellingJobs.length} cancelling on ${target.display_name}. `
-      + `${activeWorkerEntries.length}/${workerEntries.length || 0} worker records seen in the last minute.`;
+      `${snapshot.activeWorkerCount}/${snapshot.registeredWorkerCount} worker records active on ${target.display_name}. `
+      + `${snapshot.busyWorkerCount} busy, ${snapshot.staleWorkerCount} stale, ${queuedJobs.length} queued, ${cancellingJobs.length} cancelling.`
+      + (snapshot.desiredWorkers ? ` Desired ${snapshot.desiredWorkers}.` : "")
+      + (snapshot.maxConcurrentJobs ? ` Max concurrent jobs ${snapshot.maxConcurrentJobs}.` : "");
   }
 
   if (els.executionTargetWorkersTableBody) {
@@ -1751,19 +1857,22 @@ function renderExecutionTargetWorkerPanels(target) {
       const tr = document.createElement("tr");
       const currentJobId = String(workerHealth.current_job_id || "");
       const currentJob = currentJobId
-        ? targetJobs.find((job) => String(job.id) === currentJobId) || null
+        ? targetJobs.find((job) => String(job.id) === currentJobId) || state.jobs.find((job) => String(job.id) === currentJobId) || null
         : null;
       const currentJobKind = currentJob ? jobKindLabel(currentJob) : (workerHealth.current_job_kind || "");
       const currentJobStatus = currentJob?.status || workerHealth.current_job_status || "";
       const currentJobStartedAt = currentJob?.started_at || workerHealth.current_job_started_at || null;
+      const currentUserKey = currentJob?.requested_by || "";
       tr.innerHTML = `
         <td>${workerId}</td>
         <td>${workerHealth.health || "unknown"}</td>
-        <td>${currentJobId || ""}</td>
+        <td>${currentJobId ? `${shortText(currentJobId, 10)}${currentJob ? ` (${shortText(currentJobKind, 18)})` : ""}` : ""}</td>
+        <td>${currentUserKey ? userLabelForKey(currentUserKey) : ""}</td>
         <td>${currentJobKind}</td>
         <td>${currentJobStatus}</td>
         <td>${formatTimestamp(currentJobStartedAt)}</td>
         <td>${formatTimestamp(workerHealth.last_seen_at || workerHealth.claimed_at || null)}</td>
+        <td>${shortText(workerHealth.last_error || "", 120)}</td>
       `;
       els.executionTargetWorkersTableBody.appendChild(tr);
     }
@@ -1780,13 +1889,18 @@ function renderExecutionTargetWorkerPanels(target) {
           running: 0,
           queued: 0,
           cancelling: 0,
+          done: 0,
+          failed: 0,
           lastUpdated: null,
         });
       }
       const entry = grouped.get(kind);
-      if (job.status === "running") entry.running += 1;
-      if (job.status === "queued") entry.queued += 1;
-      if (job.status === "cancelling") entry.cancelling += 1;
+      const status = normalizedJobStatus(job);
+      if (status === "running") entry.running += 1;
+      if (status === "queued") entry.queued += 1;
+      if (status === "cancelling") entry.cancelling += 1;
+      if (status === "done") entry.done += 1;
+      if (status === "failed") entry.failed += 1;
       const updatedAt = latestTimestampValue(job.heartbeat_at, job.updated_at, job.started_at, job.created_at);
       if (!entry.lastUpdated || latestTimestampValue(updatedAt, entry.lastUpdated) === updatedAt) {
         entry.lastUpdated = updatedAt;
@@ -1803,6 +1917,8 @@ function renderExecutionTargetWorkerPanels(target) {
           running: 0,
           queued: 0,
           cancelling: 0,
+          done: 0,
+          failed: 0,
           lastUpdated: null,
         });
       }
@@ -1820,11 +1936,97 @@ function renderExecutionTargetWorkerPanels(target) {
         <td>${row.running}</td>
         <td>${row.queued}</td>
         <td>${row.cancelling}</td>
+        <td>${row.done}</td>
+        <td>${row.failed}</td>
         <td>${formatTimestamp(row.lastUpdated)}</td>
       `;
       els.executionTargetJobMixTableBody.appendChild(tr);
     }
   }
+}
+
+function deploymentAwarenessSnapshot() {
+  const targetSnapshots = state.executionTargets.map((target) => ({
+    target,
+    snapshot: executionTargetWorkerSnapshot(target),
+  }));
+  const totalRegistered = targetSnapshots.reduce((sum, item) => sum + item.snapshot.registeredWorkerCount, 0);
+  const totalActive = targetSnapshots.reduce((sum, item) => sum + item.snapshot.activeWorkerCount, 0);
+  const totalBusy = targetSnapshots.reduce((sum, item) => sum + item.snapshot.busyWorkerCount, 0);
+  const totalStale = targetSnapshots.reduce((sum, item) => sum + item.snapshot.staleWorkerCount, 0);
+  const latestHeartbeat = latestTimestampValue(...targetSnapshots.map((item) => item.snapshot.heartbeatLabel));
+  const latestClaim = latestTimestampValue(...targetSnapshots.map((item) => item.snapshot.lastClaimLabel));
+  const deploymentTargets = [
+    "webserver-labo",
+    "detecdiv-server",
+  ];
+  return {
+    apiStatus: state.systemHealth || null,
+    deploymentTargets,
+    totalRegistered,
+    totalActive,
+    totalBusy,
+    totalStale,
+    latestHeartbeat,
+    latestClaim,
+  };
+}
+
+function renderDeploymentAwareness() {
+  if (!els.deploymentAwarenessSummary && !els.deploymentApiStatus) {
+    return;
+  }
+  const snapshot = deploymentAwarenessSnapshot();
+  const apiHealth = state.systemHealth || {};
+  const dbStatus = apiHealth.database_status || (state.summary ? "reachable" : "unknown");
+  const apiStatus = apiHealth.status || "unknown";
+  const apiHost = apiHealth.hostname || "unknown host";
+  const apiLabel = `${apiStatus} on ${apiHost}`;
+  const dbLabel = dbStatus === "ok"
+    ? `ok via ${apiHealth.service || "detecdiv-hub"}`
+    : dbStatus === "error"
+      ? `error${apiHealth.database_message ? `: ${shortText(apiHealth.database_message, 70)}` : ""}`
+      : dbStatus;
+  const workerLabel = snapshot.totalRegistered
+    ? `${snapshot.totalActive}/${snapshot.totalRegistered} active on detecdiv-server`
+    : "no worker metadata yet";
+  const heartbeatLabel = snapshot.latestHeartbeat
+    ? `latest ${formatTimestamp(snapshot.latestHeartbeat)}`
+    : "no heartbeat yet";
+
+  if (els.deploymentAwarenessSummary) {
+    els.deploymentAwarenessSummary.textContent =
+      `Primary API/DB: webserver-labo. Compute workers: detecdiv-server. `
+      + `Targets: ${snapshot.deploymentTargets.join(" / ")}.`;
+  }
+  if (els.deploymentApiStatus) els.deploymentApiStatus.textContent = apiLabel;
+  if (els.deploymentDbStatus) els.deploymentDbStatus.textContent = dbLabel;
+  if (els.deploymentWorkerStatus) {
+    els.deploymentWorkerStatus.textContent = snapshot.totalRegistered
+      ? `${workerLabel} | ${snapshot.totalBusy} busy | ${snapshot.totalStale} stale`
+      : workerLabel;
+  }
+  if (els.deploymentHeartbeatStatus) {
+    els.deploymentHeartbeatStatus.textContent = `${heartbeatLabel}${snapshot.latestClaim ? ` | last claim ${formatTimestamp(snapshot.latestClaim)}` : ""}`;
+  }
+}
+
+async function refreshDeploymentAwareness() {
+  if (!els.deploymentAwarenessSummary && !els.deploymentApiStatus) {
+    return;
+  }
+  try {
+    state.systemHealth = await apiGet("/health");
+  } catch (error) {
+    state.systemHealth = {
+      status: "error",
+      service: "detecdiv-hub",
+      database_status: "error",
+      database_message: String(error),
+      hostname: window.location.hostname || null,
+    };
+  }
+  renderDeploymentAwareness();
 }
 
 function resolvePipelineRunProject() {
@@ -2319,6 +2521,43 @@ function toggleRawDatasetSelection(rawDatasetId, isSelected) {
   setSelectedRawDatasetIds([...selected]);
 }
 
+function currentRawPositions() {
+  return state.selectedRawDatasetDetail?.positions || [];
+}
+
+function visibleRawPositionIds() {
+  return currentRawPositions().map((position) => `${position.id}`);
+}
+
+function selectedRawPositionIds() {
+  const visibleIds = new Set(visibleRawPositionIds());
+  return state.selectedRawPositionIds.filter((positionId) => visibleIds.has(`${positionId}`));
+}
+
+function isRawPositionSelected(positionId) {
+  return state.selectedRawPositionIds.includes(`${positionId}`);
+}
+
+function setSelectedRawPositionIds(positionIds) {
+  state.selectedRawPositionIds = [...new Set((positionIds || []).map((positionId) => `${positionId}`))];
+  if (state.pendingRawPositionDelete?.scope === "selected") {
+    closeRawPositionDeletePanel();
+  }
+  renderRawPositions(currentRawPositions());
+  renderRawPositionDeletePanel();
+}
+
+function toggleRawPositionSelection(positionId, isSelected) {
+  const normalizedId = `${positionId}`;
+  const selected = new Set(state.selectedRawPositionIds);
+  if (isSelected) {
+    selected.add(normalizedId);
+  } else {
+    selected.delete(normalizedId);
+  }
+  setSelectedRawPositionIds([...selected]);
+}
+
 function renderRawSelectionControls() {
   const visibleIds = visibleRawDatasetIds();
   const selectedIds = selectedRawDatasetIds();
@@ -2350,6 +2589,72 @@ function renderRawSelectionControls() {
   if (els.rawBulkDeleteVisibleButton) {
     els.rawBulkDeleteVisibleButton.disabled = visibleCount === 0;
   }
+}
+
+function renderRawPositionSelectionControls(positions) {
+  if (!els.rawPositionSelectAll && !els.rawPositionSelectionSummary && !els.rawPositionClearSelectionButton && !els.rawPositionDeleteSelectedButton) {
+    return;
+  }
+  const visibleCount = positions.length;
+  const selectedIds = selectedRawPositionIds();
+  const selectedCount = selectedIds.length;
+
+  if (els.rawPositionSelectAll) {
+    const allVisibleSelected = visibleCount > 0 && selectedCount === visibleCount;
+    const someVisibleSelected = selectedCount > 0 && selectedCount < visibleCount;
+    els.rawPositionSelectAll.checked = allVisibleSelected;
+    els.rawPositionSelectAll.indeterminate = someVisibleSelected;
+    els.rawPositionSelectAll.disabled = visibleCount === 0;
+  }
+  if (els.rawPositionSelectionSummary) {
+    els.rawPositionSelectionSummary.textContent = `${selectedCount} selected / ${visibleCount} positions`;
+  }
+  if (els.rawPositionClearSelectionButton) {
+    els.rawPositionClearSelectionButton.disabled = selectedCount === 0;
+  }
+  if (els.rawPositionDeleteSelectedButton) {
+    els.rawPositionDeleteSelectedButton.disabled = selectedCount === 0;
+  }
+}
+
+function renderRawPositionDeletePanel() {
+  if (!els.rawPositionDeletePanel || !els.rawPositionDeleteSummary || !els.rawPositionDeleteConfirmButton) {
+    return;
+  }
+  const pending = state.pendingRawPositionDelete;
+  if (!pending || !pending.positionIds?.length) {
+    els.rawPositionDeletePanel.classList.add("hidden");
+    return;
+  }
+
+  els.rawPositionDeletePanel.classList.remove("hidden");
+  els.rawPositionDeleteConfirmButton.textContent = "Delete selected positions";
+  if (!pending.preview) {
+    els.rawPositionDeleteSummary.textContent = `Preparing deletion preview for ${pending.positionIds.length} selected position(s)...`;
+    return;
+  }
+
+  const preview = pending.preview;
+  const positionList = (preview.positions || [])
+    .map((position) => position.display_name || position.position_key || position.position_id)
+    .slice(0, 4);
+  const linkedProjects = preview.linked_projects || [];
+  const warningCount = (preview.warnings || []).length;
+  const parts = [`${pending.positionIds.length} selected position(s)`];
+  parts.push(`source reclaimable ${humanBytes(preview.reclaimable_bytes || 0)}`);
+  if (positionList.length) {
+    parts.push(`positions: ${positionList.join(", ")}${preview.positions?.length > positionList.length ? " ..." : ""}`);
+  }
+  if (linkedProjects.length) {
+    const projectNames = linkedProjects
+      .map((project) => project.project_name)
+      .slice(0, 4);
+    parts.push(`linked projects: ${projectNames.join(", ")}${linkedProjects.length > projectNames.length ? " ..." : ""}`);
+  }
+  if (warningCount) {
+    parts.push(`${warningCount} warning(s)`);
+  }
+  els.rawPositionDeleteSummary.textContent = parts.join(" | ");
 }
 
 function renderRawBulkDeletePanel() {
@@ -2598,10 +2903,15 @@ function renderRawPositions(positions) {
   if (els.rawQueuePreviewButton) {
     els.rawQueuePreviewButton.disabled = !state.selectedRawDatasetDetail;
   }
+  if (els.rawRegeneratePreviewButton) {
+    els.rawRegeneratePreviewButton.disabled = !state.selectedRawDatasetDetail;
+  }
   if (!positions.length) {
     const tr = document.createElement("tr");
-    tr.innerHTML = `<td colspan="4">No positions indexed yet.</td>`;
+    tr.innerHTML = `<td colspan="5">No positions indexed yet.</td>`;
     els.rawPositionsTableBody.appendChild(tr);
+    renderRawPositionSelectionControls(positions);
+    renderRawPositionDeletePanel();
     return;
   }
   syncSelectedRawPosition(positions);
@@ -2611,34 +2921,42 @@ function renderRawPositions(positions) {
     if (state.selectedRawPositionId === position.id) {
       tr.classList.add("selected");
     }
-    const actionCell = artifact?.uri
-      ? `<button data-position-id="${position.id}" class="select-position-preview">View</button>`
-      : `<button data-position-id="${position.id}" class="queue-position-preview">Queue</button>`;
+    const actionLabel = artifact?.uri ? "Regenerate MP4" : "Queue MP4";
     tr.innerHTML = `
+      <td><input class="raw-position-select-checkbox" type="checkbox" ${isRawPositionSelected(position.id) ? "checked" : ""} /></td>
       <td>${position.display_name || position.position_key}</td>
       <td>${position.status}</td>
       <td>${position.preview_status}</td>
-      <td>${actionCell}</td>
+      <td><button data-position-id="${position.id}" class="queue-position-preview">${actionLabel}</button></td>
     `;
     tr.addEventListener("click", () => {
       state.selectedRawPositionId = position.id;
       renderRawPositions(positions);
       renderRawPositionViewer(positions);
     });
+    tr.querySelector(".raw-position-select-checkbox")?.addEventListener("click", (event) => {
+      event.stopPropagation();
+    });
+    tr.querySelector(".raw-position-select-checkbox")?.addEventListener("change", (event) => {
+      toggleRawPositionSelection(position.id, Boolean(event.target.checked));
+    });
     els.rawPositionsTableBody.appendChild(tr);
   }
-  els.rawPositionsTableBody.querySelectorAll(".select-position-preview").forEach((button) => {
-    button.addEventListener("click", (event) => {
-      event.stopPropagation();
-      state.selectedRawPositionId = button.dataset.positionId || null;
-      renderRawPositions(positions);
-      renderRawPositionViewer(positions);
-    });
-  });
+  const selectedRow = els.rawPositionsTableBody.querySelector("tr.selected");
+  if (selectedRow) {
+    selectedRow.scrollIntoView({ block: "nearest", inline: "nearest" });
+  }
+  renderRawPositionSelectionControls(positions);
+  renderRawPositionDeletePanel();
+  if (els.rawPositionSelectAll) {
+    els.rawPositionSelectAll.disabled = positions.length === 0;
+  }
   els.rawPositionsTableBody.querySelectorAll(".queue-position-preview").forEach((button) => {
     button.addEventListener("click", (event) => {
       event.stopPropagation();
-      queueRawPreviewVideo(button.dataset.positionId || "").catch((error) => setStatus(String(error)));
+      const positionId = button.dataset.positionId || "";
+      const selectedPosition = positions.find((position) => `${position.id}` === positionId);
+      queueRawPreviewVideo(positionId, Boolean(selectedPosition?.preview_artifact?.uri)).catch((error) => setStatus(String(error)));
     });
   });
 }
@@ -2692,9 +3010,11 @@ function renderRawPositionViewer(positions) {
   }
   const selected = positions.find((position) => position.id === state.selectedRawPositionId);
   const artifactUrl = selected?.preview_artifact?.uri ? withIdentity(selected.preview_artifact.uri) : "";
+  const currentVideoSrc = els.rawPositionViewerVideo.getAttribute("src") || "";
 
   if (!selected) {
     els.rawPositionViewerEmpty.classList.remove("hidden");
+    els.rawPositionViewerEmpty.textContent = "Click a position to load its preview movie.";
     els.rawPositionViewer.classList.add("hidden");
     if (els.rawPositionViewerVideo) {
       els.rawPositionViewerVideo.removeAttribute("src");
@@ -2704,11 +3024,14 @@ function renderRawPositionViewer(positions) {
   }
 
   if (els.rawPositionViewerMeta) {
-    els.rawPositionViewerMeta.textContent = `${selected.display_name || selected.position_key} | ${selected.preview_status}`;
+    const indexLabel = selected.position_index != null ? `#${selected.position_index}` : "";
+    els.rawPositionViewerMeta.textContent = `${selected.display_name || selected.position_key}${indexLabel ? ` (${indexLabel})` : ""} | ${selected.preview_status}`;
   }
   if (artifactUrl) {
-    els.rawPositionViewerVideo.src = artifactUrl;
-    void els.rawPositionViewerVideo.play().catch(() => {});
+    if (currentVideoSrc !== artifactUrl) {
+      els.rawPositionViewerVideo.src = artifactUrl;
+      void els.rawPositionViewerVideo.play().catch(() => {});
+    }
     if (els.rawPositionViewerOpenLink) {
       els.rawPositionViewerOpenLink.href = artifactUrl;
       const fileName = `${(selected.position_key || "position").replace(/[^a-zA-Z0-9_-]+/g, "_")}.mp4`;
@@ -2721,6 +3044,7 @@ function renderRawPositionViewer(positions) {
     if (els.rawPositionViewerOpenLink) {
       els.rawPositionViewerOpenLink.classList.add("hidden");
     }
+    els.rawPositionViewerEmpty.textContent = `No preview movie available for ${selected.display_name || selected.position_key}.`;
   }
 
   els.rawPositionViewerEmpty.classList.toggle("hidden", Boolean(artifactUrl));
@@ -3565,6 +3889,7 @@ async function refreshDashboard() {
   }
   if (pageFlags.hasAdminView) {
     refreshTasks.push(refreshRawPreviewQualityStatus());
+    refreshTasks.push(refreshDeploymentAwareness());
   }
   await Promise.all(refreshTasks);
 
@@ -3919,6 +4244,10 @@ async function selectMigrationPlan(planId) {
 }
 
 async function selectRawDataset(rawDatasetId) {
+  if (!state.selectedRawDatasetDetail || `${state.selectedRawDatasetDetail.id}` !== `${rawDatasetId}`) {
+    state.selectedRawPositionIds = [];
+    closeRawPositionDeletePanel();
+  }
   const raw = state.rawDatasets.find((item) => item.id === rawDatasetId);
   state.selectedRawDatasetDetail = await apiGet(`/raw-datasets/${rawDatasetId}`);
   state.selectedRawDataset = raw || state.selectedRawDatasetDetail;
@@ -4537,6 +4866,91 @@ async function executeRawBulkDelete() {
   }
 }
 
+async function refreshRawPositionDeletePreview() {
+  if (!state.pendingRawPositionDelete?.positionIds?.length || !state.selectedRawDatasetDetail) {
+    return;
+  }
+  const currentToken = state.rawPositionDeletePreviewToken + 1;
+  state.rawPositionDeletePreviewToken = currentToken;
+
+  state.pendingRawPositionDelete.preview = null;
+  renderRawPositionDeletePanel();
+
+  const preview = await apiPost(`/raw-datasets/${state.selectedRawDatasetDetail.id}/positions/deletion-preview`, {
+    position_ids: state.pendingRawPositionDelete.positionIds,
+    confirm: false,
+  });
+
+  if (state.rawPositionDeletePreviewToken !== currentToken || !state.pendingRawPositionDelete) {
+    return;
+  }
+  state.pendingRawPositionDelete.preview = preview.preview_json || {};
+  renderRawPositionDeletePanel();
+}
+
+async function openRawPositionDeletePanel() {
+  const positionIds = selectedRawPositionIds();
+  if (!positionIds.length) {
+    throw new Error("Select at least one position first.");
+  }
+  if (!state.selectedRawDatasetDetail) {
+    throw new Error("Select a raw dataset first.");
+  }
+  state.pendingRawPositionDelete = {
+    scope: "selected",
+    positionIds,
+    preview: null,
+  };
+  if (els.rawPositionDeleteConfirmText) {
+    els.rawPositionDeleteConfirmText.value = "";
+  }
+  renderRawPositionDeletePanel();
+  await refreshRawPositionDeletePreview();
+}
+
+function closeRawPositionDeletePanel() {
+  state.pendingRawPositionDelete = null;
+  state.rawPositionDeletePreviewToken += 1;
+  if (els.rawPositionDeleteConfirmText) {
+    els.rawPositionDeleteConfirmText.value = "";
+  }
+  renderRawPositionDeletePanel();
+}
+
+async function executeRawPositionDelete() {
+  if (!state.pendingRawPositionDelete?.positionIds?.length || !state.selectedRawDatasetDetail) {
+    return;
+  }
+  const confirmationText = els.rawPositionDeleteConfirmText?.value.trim() || "";
+  if (confirmationText !== "DELETE") {
+    throw new Error("Type DELETE to confirm the position deletion.");
+  }
+
+  const positionIds = [...state.pendingRawPositionDelete.positionIds];
+  const positionNames = positionIds.map((positionId) => {
+    const position = currentRawPositions().find((item) => `${item.id}` === `${positionId}`);
+    return position?.display_name || position?.position_key || `${positionId}`;
+  });
+  setStatus(`Deleting ${positionIds.length} selected position(s)...`);
+  const result = await apiPost(`/raw-datasets/${state.selectedRawDatasetDetail.id}/positions/delete`, {
+    position_ids: positionIds,
+    confirm: true,
+  });
+
+  state.selectedRawPositionIds = state.selectedRawPositionIds.filter((positionId) => !positionIds.includes(`${positionId}`));
+  if (state.selectedRawPositionId && positionIds.includes(`${state.selectedRawPositionId}`)) {
+    state.selectedRawPositionId = null;
+  }
+  closeRawPositionDeletePanel();
+  await selectRawDataset(state.selectedRawDatasetDetail.id);
+  setStatus(result.message || `Deleted ${result.position_count || positionIds.length} position(s).`);
+  if (result.result_json?.errors?.length) {
+    window.alert(`Position delete completed with failures:\n${result.result_json.errors.join("\n")}`);
+  } else if (positionNames.length) {
+    setStatus(`Deleted ${positionNames.join(", ")}.`);
+  }
+}
+
 async function previewDelete() {
   if (!state.selectedProject) {
     return;
@@ -4671,6 +5085,7 @@ async function queueRawPreviewVideo(positionId = "", force = false) {
   if (!state.selectedRawDatasetDetail) {
     return;
   }
+  const selectedPositionId = positionId || state.selectedRawPositionId || null;
   const payload = {
     position_id: positionId || null,
     force,
@@ -4680,6 +5095,11 @@ async function queueRawPreviewVideo(positionId = "", force = false) {
   };
   const result = await apiPost(`/raw-datasets/${state.selectedRawDatasetDetail.id}/preview-videos/queue`, payload);
   await selectRawDataset(state.selectedRawDatasetDetail.id);
+  if (selectedPositionId) {
+    state.selectedRawPositionId = selectedPositionId;
+    renderRawPositions(currentRawPositions());
+    renderRawPositionViewer(currentRawPositions());
+  }
   setStatus(result.message || "Raw preview video job queued.");
 }
 
@@ -5127,6 +5547,15 @@ if (els.rawBulkDeleteConfirmButton) els.rawBulkDeleteConfirmButton.addEventListe
   setStatus(String(error));
   window.alert(String(error));
 }));
+if (els.rawPositionSelectAll) els.rawPositionSelectAll.addEventListener("change", () => setSelectedRawPositionIds(els.rawPositionSelectAll.checked ? visibleRawPositionIds() : []));
+if (els.rawPositionClearSelectionButton) els.rawPositionClearSelectionButton.addEventListener("click", () => setSelectedRawPositionIds([]));
+if (els.rawPositionDeleteSelectedButton) els.rawPositionDeleteSelectedButton.addEventListener("click", () => openRawPositionDeletePanel().catch((error) => setStatus(String(error))));
+if (els.rawPositionDeleteCancelButton) els.rawPositionDeleteCancelButton.addEventListener("click", () => closeRawPositionDeletePanel());
+if (els.rawPositionDeleteConfirmButton) els.rawPositionDeleteConfirmButton.addEventListener("click", () => executeRawPositionDelete().catch((error) => {
+  setStatus(String(error));
+  window.alert(String(error));
+}));
+if (els.rawPositionDeleteConfirmText) els.rawPositionDeleteConfirmText.addEventListener("input", () => renderRawPositionDeletePanel());
 if (els.newGroupButton) els.newGroupButton.addEventListener("click", () => createGroup().catch((error) => setStatus(String(error))));
 if (els.addNoteButton) els.addNoteButton.addEventListener("click", () => addNote().catch((error) => setStatus(String(error))));
 if (els.shareButton) els.shareButton.addEventListener("click", () => shareProject().catch((error) => setStatus(String(error))));

@@ -8,6 +8,11 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from api.models import ExperimentProject, ExperimentRawLink, RawDataset, RawDatasetLocation, RawDatasetPosition, User
+from api.services.micromanager_metadata import (
+    extract_acquisition_dimensions,
+    merge_metadata_dicts,
+    read_micromanager_metadata,
+)
 from api.services.project_indexing import get_or_create_storage_root, slugify
 from api.services.storage_metrics import safe_dir_size
 
@@ -52,15 +57,29 @@ def ingest_raw_dataset_from_directory(
     total_bytes = safe_dir_size(dataset_dir)
     size_timestamp = datetime.now(timezone.utc)
     relative_path = str(dataset_dir.relative_to(root_path))
-    data_format = detect_raw_dataset_format(dataset_dir, source_metadata or {})
-    metadata = {
-        "source": source_label,
-        "dataset_dir_abs": str(dataset_dir),
-        "dataset_rel_from_root": relative_path,
-        "data_format": data_format,
-    }
+    parsed_metadata = read_micromanager_metadata(dataset_dir)
+    metadata = merge_metadata_dicts(
+        parsed_metadata,
+        {
+            "source": source_label,
+            "dataset_dir_abs": str(dataset_dir),
+            "dataset_rel_from_root": relative_path,
+        },
+    )
     if source_metadata:
-        metadata.update(source_metadata)
+        metadata = merge_metadata_dicts(metadata, source_metadata)
+    metadata["dimensions"] = extract_acquisition_dimensions(metadata)
+    data_format = detect_raw_dataset_format(dataset_dir, metadata)
+    metadata["data_format"] = data_format
+    metadata = merge_metadata_dicts(
+        metadata,
+        {
+            "source": source_label,
+            "dataset_dir_abs": str(dataset_dir),
+            "dataset_rel_from_root": relative_path,
+            "data_format": data_format,
+        },
+    )
     effective_label = acquisition_label or dataset_dir.name
     effective_started_at = started_at or size_timestamp
     effective_ended_at = ended_at or effective_started_at
@@ -153,7 +172,7 @@ def ingest_raw_dataset_from_directory(
 def detect_raw_dataset_format(dataset_dir: Path, source_metadata: dict) -> str:
     for key in ("data_format", "raw_format", "format", "input_format"):
         value = str(source_metadata.get(key) or "").strip().lower()
-        if value:
+        if value and value not in {"micro-manager property map", "property map"}:
             return value
 
     name_lower = dataset_dir.name.lower()

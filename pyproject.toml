@@ -18,6 +18,7 @@ dependencies = [
     "numpy>=2.1",
     "tifffile>=2024.8.30",
     "zarr>=2.18",
+    "numcodecs<0.16",
     "imageio-ffmpeg>=0.6",
 ]
 

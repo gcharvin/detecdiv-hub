@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Detecdiv server - Raw dataset</title>
-    <link rel="stylesheet" href="/web/styles.css?v=20260424-raw-staticfix1" />
+    <link rel="stylesheet" href="/web/styles.css?v=20260429-ui3" />
   </head>
   <body data-page="raw-dataset">
     <div class="page-shell">
@@ -87,44 +87,74 @@
             <div id="raw-analysis-projects-list" class="stack-list"></div>
           </section>
 
-          <section class="subpanel">
+          <section class="subpanel raw-positions-panel">
             <div class="subpanel-header">
               <h3>Positions</h3>
               <div class="action-stack">
                 <button id="raw-queue-preview-button">Queue dataset previews</button>
-                <button id="raw-regenerate-preview-button">Regenerate previews</button>
+                <button id="raw-regenerate-preview-button">Regenerate MP4s</button>
               </div>
             </div>
-            <p id="raw-preview-progress" class="muted">No preview job running.</p>
-            <div class="table-wrap">
-              <table id="raw-positions-table">
-                <thead>
-                  <tr>
-                    <th>Position</th>
-                    <th>Status</th>
-                    <th>Preview</th>
-                    <th>Action</th>
-                  </tr>
-                </thead>
-                <tbody></tbody>
-              </table>
-            </div>
-          </section>
-
-          <section class="subpanel">
-            <div class="subpanel-header">
-              <h3>Preview Viewer</h3>
-            </div>
-            <div id="raw-position-viewer-empty" class="empty-state">
-              Click a position to load its preview movie.
-            </div>
-            <div id="raw-position-viewer" class="raw-preview-viewer hidden">
-              <div id="raw-position-viewer-meta" class="stack-item-meta"></div>
-              <video id="raw-position-viewer-video" controls preload="none"></video>
-              <div class="action-stack">
-                <a id="raw-position-viewer-open-link" class="button-link hidden" href="#" target="_blank" rel="noreferrer" download>Download MP4</a>
+            <div class="raw-positions-layout">
+              <div class="raw-positions-table-panel">
+                <p id="raw-preview-progress" class="muted">No preview job running.</p>
+                <div class="toolbar raw-position-selection-toolbar">
+                  <label class="toggle">
+                    <input id="raw-position-select-all" type="checkbox" title="Select all visible positions" />
+                    <span>Select all</span>
+                  </label>
+                  <button id="raw-position-clear-selection-button">Clear selection</button>
+                  <button id="raw-position-delete-selected-button" class="danger">Delete selected positions</button>
+                  <span id="raw-position-selection-summary" class="muted">0 selected / 0 positions</span>
+                </div>
+                <div class="table-wrap raw-positions-table-wrap">
+                  <table id="raw-positions-table">
+                    <thead>
+                      <tr>
+                        <th>Select</th>
+                        <th>Position</th>
+                        <th>Status</th>
+                        <th>Preview</th>
+                        <th>Action</th>
+                      </tr>
+                    </thead>
+                    <tbody></tbody>
+                  </table>
+                </div>
+              </div>
+              <div class="raw-position-viewer-panel">
+                <div class="subpanel-header">
+                  <h3>Preview Viewer</h3>
+                </div>
+                <div id="raw-position-viewer-empty" class="empty-state">
+                  Click a position to load its preview movie.
+                </div>
+                <div id="raw-position-viewer" class="raw-preview-viewer hidden">
+                  <div id="raw-position-viewer-meta" class="stack-item-meta"></div>
+                  <video id="raw-position-viewer-video" controls preload="none"></video>
+                  <div class="action-stack">
+                    <a id="raw-position-viewer-open-link" class="button-link hidden" href="#" target="_blank" rel="noreferrer" download>Download MP4</a>
+                  </div>
+                </div>
               </div>
             </div>
+            <section id="raw-position-delete-panel" class="subpanel danger-panel hidden">
+              <div class="subpanel-header">
+                <h3>Delete Selected Positions</h3>
+                <button id="raw-position-delete-cancel-button">Cancel</button>
+              </div>
+              <p id="raw-position-delete-summary" class="danger-copy">No positions queued for deletion.</p>
+              <div class="toolbar">
+                <label class="field compact">
+                  <span>Type DELETE to confirm</span>
+                  <input id="raw-position-delete-confirm-text" type="text" placeholder="DELETE" />
+                </label>
+                <button id="raw-position-delete-confirm-button" class="danger">Delete selected positions</button>
+              </div>
+              <p class="danger-copy">
+                Warning: deleting selected positions removes the source folders and preview MP4s on disk. Linked projects are only warned about, not modified.
+              </p>
+            </section>
           </section>
 
           <section class="subpanel">
@@ -141,6 +171,6 @@
       </footer>
     </div>
 
-    <script src="/web/app.js?v=20260424-raw-staticfix1" defer></script>
+    <script src="/web/app.js?v=20260429-ui3" defer></script>
   </body>
 </html>
