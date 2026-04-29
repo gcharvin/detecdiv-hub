@@ -107,8 +107,10 @@ const els = {
   indexClearExisting: document.querySelector("#index-clear-existing"),
   indexBrowseRoot: document.querySelector("#index-browse-root"),
   indexBrowseOpenButton: document.querySelector("#index-browse-open-button"),
+  indexBrowseUpButton: document.querySelector("#index-browse-up-button"),
   indexBrowseUseButton: document.querySelector("#index-browse-use-button"),
   indexBrowseCurrent: document.querySelector("#index-browse-current"),
+  indexBrowseCurrentText: document.querySelector("#index-browse-current-text"),
   indexBrowseTableBody: document.querySelector("#index-browse-table tbody"),
   indexButton: document.querySelector("#index-button"),
   indexJobsRefreshButton: document.querySelector("#index-jobs-refresh-button"),
@@ -1044,8 +1046,15 @@ function renderIndexBrowser() {
     option.value = "";
     option.textContent = "No server storage roots";
     els.indexBrowseRoot.appendChild(option);
-    els.indexBrowseCurrent.textContent = "No browseable server storage roots are registered.";
+    if (els.indexBrowseCurrentText) {
+      els.indexBrowseCurrentText.textContent = "No browseable server storage roots are registered.";
+    } else {
+      els.indexBrowseCurrent.textContent = "No browseable server storage roots are registered.";
+    }
     els.indexBrowseTableBody.innerHTML = "";
+    if (els.indexBrowseUpButton) {
+      els.indexBrowseUpButton.disabled = true;
+    }
     return;
   }
 
@@ -1074,15 +1083,29 @@ function renderIndexBrowser() {
 
   const browse = state.indexBrowse;
   if (!browse) {
-    els.indexBrowseCurrent.textContent = "No storage root selected.";
+    if (els.indexBrowseCurrentText) {
+      els.indexBrowseCurrentText.textContent = "No storage root selected.";
+    } else {
+      els.indexBrowseCurrent.textContent = "No storage root selected.";
+    }
     els.indexBrowseTableBody.innerHTML = "";
+    if (els.indexBrowseUpButton) {
+      els.indexBrowseUpButton.disabled = true;
+    }
     return;
   }
 
   const currentLabel = browse.current_relative_path
     ? `${browse.storage_root.name}: ${browse.current_relative_path}`
     : `${browse.storage_root.name}: /`;
-  els.indexBrowseCurrent.textContent = `${currentLabel} -> ${browse.current_absolute_path}`;
+  if (els.indexBrowseCurrentText) {
+    els.indexBrowseCurrentText.textContent = `${currentLabel} -> ${browse.current_absolute_path}`;
+  } else {
+    els.indexBrowseCurrent.textContent = `${currentLabel} -> ${browse.current_absolute_path}`;
+  }
+  if (els.indexBrowseUpButton) {
+    els.indexBrowseUpButton.disabled = browse.parent_relative_path === null;
+  }
 
   els.indexBrowseTableBody.innerHTML = "";
   const canGoUp = browse.parent_relative_path !== null;
@@ -5572,6 +5595,13 @@ if (els.projectQueueRawPreviewsButton) els.projectQueueRawPreviewsButton.addEven
 if (els.previewDeleteButton) els.previewDeleteButton.addEventListener("click", () => previewDelete().catch((error) => setStatus(String(error))));
 if (els.indexBrowseRoot) els.indexBrowseRoot.addEventListener("change", () => openIndexBrowserPath("").catch((error) => setStatus(String(error))));
 if (els.indexBrowseOpenButton) els.indexBrowseOpenButton.addEventListener("click", () => openIndexBrowserPath(state.indexBrowse?.current_relative_path || "").catch((error) => setStatus(String(error))));
+if (els.indexBrowseUpButton) els.indexBrowseUpButton.addEventListener("click", () => {
+  const parentPath = state.indexBrowse?.parent_relative_path;
+  if (parentPath === null || parentPath === undefined) {
+    return;
+  }
+  openIndexBrowserPath(parentPath).catch((error) => setStatus(String(error)));
+});
 if (els.indexBrowseUseButton) els.indexBrowseUseButton.addEventListener("click", () => useSelectedIndexFolder());
 if (els.indexButton) els.indexButton.addEventListener("click", () => runIndexing().catch((error) => setStatus(String(error))));
 if (els.indexJobsRefreshButton) els.indexJobsRefreshButton.addEventListener("click", () => refreshIndexingJobs().catch((error) => setStatus(String(error))));

@@ -118,10 +118,13 @@
               <span>Storage root</span>
               <select id="index-browse-root"></select>
             </label>
-            <button id="index-browse-open-button">Load root</button>
-            <button id="index-browse-use-button">Use this folder</button>
+            <button id="index-browse-open-button" type="button">Load root</button>
+            <button id="index-browse-use-button" type="button">Use this folder</button>
           </div>
-          <div id="index-browse-current" class="browser-current muted">No storage root selected.</div>
+          <div id="index-browse-current" class="browser-current">
+            <span id="index-browse-current-text" class="muted">No storage root selected.</span>
+            <button id="index-browse-up-button" type="button" class="primary">Up</button>
+          </div>
           <div class="table-wrap browser-table-wrap">
             <table id="index-browse-table">
               <thead>
