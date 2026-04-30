@@ -16,7 +16,6 @@ from api.models import (
     ProjectLock,
     ProjectLocation,
     ProjectRawLink,
-    ProjectNote,
     RawDataset,
     StorageRoot,
     User,
@@ -36,8 +35,6 @@ from api.schemas import (
     ProjectLocationSummary,
     ProjectLockStatus,
     ProjectLockSummary,
-    ProjectNoteCreate,
-    ProjectNoteSummary,
     ProjectSummary,
     ProjectRawPreviewQueueRequest,
     ProjectRawPreviewQueueResult,
@@ -70,6 +67,7 @@ router = APIRouter(prefix="/projects", tags=["projects"])
 groups_router = APIRouter(prefix="/project-groups", tags=["project-groups"])
 users_router = APIRouter(prefix="/users", tags=["users"])
 storage_roots_router = APIRouter(prefix="/storage-roots", tags=["storage-roots"])
+DEFAULT_USER_PASSWORD = "detecdiv"
 
 
 @router.get("", response_model=list[ProjectSummary])
@@ -172,6 +170,8 @@ def update_project(
     if payload.owner_user_key:
         new_owner = get_or_create_user(db, user_key=payload.owner_user_key, display_name=payload.owner_user_key)
         project.owner_user_id = new_owner.id
+    if payload.notes is not None:
+        project.notes = payload.notes
     if payload.metadata_json:
         merged = dict(project.metadata_json or {})
         merged.update(payload.metadata_json)
@@ -564,56 +564,6 @@ def create_project_acl(
     ).first()
 
 
-@router.get("/{project_id}/notes", response_model=list[ProjectNoteSummary])
-def list_project_notes(
-    project_id: UUID,
-    db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
-) -> list[ProjectNote]:
-    project = db.scalars(
-        select(Project)
-        .options(joinedload(Project.acl_entries))
-        .where(Project.id == project_id, Project.status != "deleted")
-    ).unique().first()
-    ensure_project_readable(project, current_user)
-
-    stmt = (
-        select(ProjectNote)
-        .options(joinedload(ProjectNote.author))
-        .where(ProjectNote.project_id == project_id)
-        .order_by(ProjectNote.is_pinned.desc(), ProjectNote.updated_at.desc())
-    )
-    return list(db.scalars(stmt))
-
-
-@router.post("/{project_id}/notes", response_model=ProjectNoteSummary)
-def create_project_note(
-    project_id: UUID,
-    payload: ProjectNoteCreate,
-    db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
-) -> ProjectNote:
-    project = db.scalars(
-        select(Project)
-        .options(joinedload(Project.acl_entries))
-        .where(Project.id == project_id)
-    ).unique().first()
-    project = ensure_project_readable(project, current_user)
-    if not user_can_edit_project(project, current_user):
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Project is not editable")
-
-    note = ProjectNote(
-        project_id=project.id,
-        author_user_id=current_user.id,
-        note_text=payload.note_text,
-        is_pinned=payload.is_pinned,
-    )
-    db.add(note)
-    db.commit()
-    db.refresh(note)
-    return note
-
-
 @groups_router.get("", response_model=list[ProjectGroupSummary])
 def list_project_groups(
     db: Session = Depends(get_db),
@@ -756,6 +706,8 @@ def create_user(
                 detail="Use the password change endpoint for self-service password updates",
             )
         set_user_password(db, user=user, password=payload.password)
+    else:
+        set_user_password(db, user=user, password=DEFAULT_USER_PASSWORD)
     db.commit()
     db.refresh(user)
     return user
@@ -816,6 +768,8 @@ def bulk_upsert_users(
 
         if item.password:
             set_user_password(db, user=user, password=item.password)
+        else:
+            set_user_password(db, user=user, password=DEFAULT_USER_PASSWORD)
         touched_users.append(user)
 
     db.commit()
@@ -1070,6 +1024,7 @@ def enqueue_raw_preview_job_for_dataset(
 
 def project_detail_view(project: Project) -> ProjectDetail:
     detail = ProjectDetail.model_validate(project_summary_view(project).model_dump())
+    detail.notes = project.notes
     detail.locations = [project_location_summary_view(location) for location in project.locations or []]
     detail.raw_datasets = [
         raw_dataset_summary_view(link.raw_dataset)

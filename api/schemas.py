@@ -223,12 +223,14 @@ class ProjectSummary(HubBaseModel):
 
 
 class ProjectDetail(ProjectSummary):
+    notes: str | None = None
     locations: list[ProjectLocationSummary] = Field(default_factory=list)
     raw_datasets: list[RawDatasetSummary] = Field(default_factory=list)
 
 
 class ProjectUpdate(HubBaseModel):
     owner_user_key: str | None = None
+    notes: str | None = None
     visibility: str | None = None
     metadata_json: dict[str, Any] = Field(default_factory=dict)
 
@@ -304,20 +306,6 @@ class ProjectLockStatus(HubBaseModel):
     reason: str
     active_locks: list[ProjectLockSummary] = Field(default_factory=list)
     active_jobs: list[dict[str, Any]] = Field(default_factory=list)
-
-
-class ProjectNoteSummary(HubBaseModel):
-    id: int
-    note_text: str
-    is_pinned: bool
-    author: UserSummary | None = None
-    created_at: datetime | None = None
-    updated_at: datetime | None = None
-
-
-class ProjectNoteCreate(HubBaseModel):
-    note_text: str
-    is_pinned: bool = False
 
 
 class ProjectGroupSummary(HubBaseModel):
@@ -404,6 +392,7 @@ class RawDatasetLocationSummary(HubBaseModel):
 
 
 class RawDatasetDetail(RawDatasetSummary):
+    notes: str | None = None
     locations: list[RawDatasetLocationSummary] = Field(default_factory=list)
     experiment_ids: list[UUID] = Field(default_factory=list)
     analysis_project_ids: list[UUID] = Field(default_factory=list)
@@ -415,6 +404,7 @@ class RawDatasetDetail(RawDatasetSummary):
 class RawDatasetUpdate(HubBaseModel):
     data_format: str | None = None
     owner_user_key: str | None = None
+    notes: str | None = None
     visibility: str | None = None
     lifecycle_tier: str | None = None
     archive_status: str | None = None

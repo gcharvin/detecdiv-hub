@@ -384,6 +384,8 @@ def update_raw_dataset(
     if payload.owner_user_key:
         new_owner = get_or_create_user(db, user_key=payload.owner_user_key, display_name=payload.owner_user_key)
         raw_dataset.owner_user_id = new_owner.id
+    if payload.notes is not None:
+        raw_dataset.notes = payload.notes
     if payload.visibility is not None:
         raw_dataset.visibility = payload.visibility
     if payload.data_format is not None:
@@ -1067,6 +1069,7 @@ def raw_dataset_summary_view(raw_dataset: RawDataset) -> RawDatasetSummary:
 
 def raw_dataset_detail_view(raw_dataset: RawDataset) -> RawDatasetDetail:
     detail = RawDatasetDetail.model_validate(raw_dataset_summary_view(raw_dataset).model_dump())
+    detail.notes = raw_dataset.notes
     detail.locations = [
         RawDatasetLocationSummary.model_validate(
             {

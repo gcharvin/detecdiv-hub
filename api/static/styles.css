@@ -699,6 +699,15 @@ tbody tr.selected {
   min-width: 180px;
 }
 
+.subpanel .field {
+  min-width: 0;
+  width: 100%;
+}
+
+.subpanel .field textarea {
+  width: 100%;
+}
+
 .field span,
 .toggle span {
   color: var(--muted);

@@ -114,6 +114,7 @@ class RawDataset(Base):
     archive_uri: Mapped[str | None] = mapped_column(Text)
     archive_compression: Mapped[str | None] = mapped_column(String)
     display_settings_uri: Mapped[str | None] = mapped_column(Text)
+    notes: Mapped[str | None] = mapped_column(Text)
     reclaimable_bytes: Mapped[int] = mapped_column(BIGINT, nullable=False, default=0)
     last_accessed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     total_bytes: Mapped[int] = mapped_column(BIGINT, nullable=False, default=0)
@@ -239,6 +240,7 @@ class Project(Base):
     )
     project_key: Mapped[str | None] = mapped_column(String, unique=True)
     project_name: Mapped[str] = mapped_column(String, nullable=False)
+    notes: Mapped[str | None] = mapped_column(Text)
     visibility: Mapped[str] = mapped_column(String, nullable=False, default="private")
     status: Mapped[str] = mapped_column(String, nullable=False, default="indexed")
     health_status: Mapped[str] = mapped_column(String, nullable=False, default="ok")
@@ -271,7 +273,7 @@ class Project(Base):
     locations: Mapped[list["ProjectLocation"]] = relationship(back_populates="project")
     raw_links: Mapped[list["ProjectRawLink"]] = relationship(back_populates="project")
     acl_entries: Mapped[list["ProjectAcl"]] = relationship(back_populates="project")
-    notes: Mapped[list["ProjectNote"]] = relationship(back_populates="project")
+    note_entries: Mapped[list["ProjectNote"]] = relationship(back_populates="project")
     group_memberships: Mapped[list["ProjectGroupMember"]] = relationship(back_populates="project")
     deletion_events: Mapped[list["ProjectDeletionEvent"]] = relationship(back_populates="project")
     locks: Mapped[list["ProjectLock"]] = relationship(back_populates="project")
@@ -387,7 +389,7 @@ class ProjectNote(Base):
         DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
     )
 
-    project: Mapped[Project] = relationship(back_populates="notes")
+    project: Mapped[Project] = relationship(back_populates="note_entries")
     author: Mapped[User | None] = relationship(back_populates="project_notes")
 
 
