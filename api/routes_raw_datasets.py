@@ -88,6 +88,16 @@ from api.services.users import (
 router = APIRouter(prefix="/raw-datasets", tags=["raw-datasets"])
 
 
+def resolve_local_file_path(file_uri: str | None) -> Path | None:
+    text = str(file_uri or "").strip()
+    if not text:
+        return None
+    path = Path(text).expanduser()
+    if path.is_absolute():
+        return path
+    return Path.cwd() / path
+
+
 @router.get("/artifacts/{artifact_id}/content")
 def get_raw_preview_artifact_content(
     artifact_id: UUID,
@@ -110,7 +120,16 @@ def get_raw_preview_artifact_content(
     if not artifact_path.is_file():
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Artifact content is missing on disk")
     media_type = "video/mp4" if artifact_path.suffix.lower() == ".mp4" else "application/octet-stream"
-    return FileResponse(path=artifact_path, media_type=media_type, filename=artifact_path.name)
+    return FileResponse(
+        path=artifact_path,
+        media_type=media_type,
+        filename=artifact_path.name,
+        headers={
+            "Cache-Control": "no-store, max-age=0",
+            "Pragma": "no-cache",
+            "Expires": "0",
+        },
+    )
 
 
 @router.get("/preview-quality", response_model=RawPreviewQualityStatus)
@@ -313,6 +332,30 @@ def get_raw_dataset(
     ).unique().first()
     raw_dataset = ensure_raw_dataset_readable(raw_dataset, current_user)
     return raw_dataset_detail_view(raw_dataset)
+
+
+@router.get("/{raw_dataset_id}/display-settings")
+def get_raw_dataset_display_settings(
+    raw_dataset_id: UUID,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    raw_dataset = db.scalars(select(RawDataset).where(RawDataset.id == raw_dataset_id)).first()
+    raw_dataset = ensure_raw_dataset_readable(raw_dataset, current_user)
+    display_settings_path = resolve_local_file_path(raw_dataset.display_settings_uri)
+    if display_settings_path is None or not display_settings_path.exists() or not display_settings_path.is_file():
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Display settings file not found")
+    media_type = "application/json" if display_settings_path.suffix.lower() == ".json" else "text/plain"
+    return FileResponse(
+        path=str(display_settings_path),
+        media_type=media_type,
+        filename=display_settings_path.name,
+        headers={
+            "Cache-Control": "no-store, max-age=0",
+            "Pragma": "no-cache",
+            "Expires": "0",
+        },
+    )
 
 
 @router.patch("/{raw_dataset_id}", response_model=RawDatasetDetail)
@@ -1009,6 +1052,7 @@ def raw_dataset_summary_view(raw_dataset: RawDataset) -> RawDatasetSummary:
             "archive_status": raw_dataset.archive_status,
             "archive_uri": raw_dataset.archive_uri,
             "archive_compression": raw_dataset.archive_compression,
+            "display_settings_uri": raw_dataset.display_settings_uri,
             "archive_file_bytes": archive_file_size_bytes(raw_dataset.archive_uri),
             "reclaimable_bytes": raw_dataset.reclaimable_bytes,
             "last_accessed_at": raw_dataset.last_accessed_at,
@@ -1122,6 +1166,7 @@ def raw_dataset_position_summary_view(position: RawDatasetPosition) -> RawDatase
             "uri": f"/raw-datasets/artifacts/{position.preview_artifact.id}/content",
             "metadata_json": dict(position.preview_artifact.metadata_json or {}),
             "created_at": position.preview_artifact.created_at,
+            "job_finished_at": position.preview_artifact.job.finished_at if position.preview_artifact.job is not None else None,
         }
     return RawDatasetPositionSummary.model_validate(
         {

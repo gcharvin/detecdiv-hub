@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import re
 from pathlib import Path
 from typing import Any
 
@@ -111,6 +112,39 @@ def find_first_micromanager_file(dataset_dir: Path, file_names: tuple[str, ...])
     return None
 
 
+def find_micromanager_display_settings_path(dataset_dir: Path) -> Path | None:
+    return find_first_micromanager_file(dataset_dir, MICROMANAGER_DISPLAY_SETTINGS_FILES)
+
+
+def build_compact_micromanager_metadata(
+    *,
+    dataset_dir: Path,
+    relative_path: str,
+    source_label: str,
+    parsed_metadata: dict[str, Any],
+    data_format: str,
+    source_metadata: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    metadata: dict[str, Any] = {
+        "source": source_label,
+        "dataset_dir_abs": str(dataset_dir),
+        "dataset_rel_from_root": relative_path,
+        "data_format": data_format,
+        "dimensions": extract_acquisition_dimensions(parsed_metadata),
+    }
+
+    if source_metadata:
+        ingest_trace: dict[str, Any] = {}
+        for key in ("file_count", "last_modified_at", "session_label", "session_date", "group_key", "group_label"):
+            value = source_metadata.get(key)
+            if value not in (None, "", [], {}):
+                ingest_trace[key] = value
+        if ingest_trace:
+            metadata["ingest"] = ingest_trace
+
+    return metadata
+
+
 def normalize_micromanager_property_map(node: Any) -> Any:
     if isinstance(node, dict):
         if "scalar" in node and len(node) <= 2:
@@ -146,6 +180,30 @@ def extract_display_settings_dimensions(display_settings: dict[str, Any]) -> dic
             )
             if channel_name:
                 channel_names.append(channel_name)
+            exposure_ms = first_numeric_text(
+                item.get("Exposure-ms"),
+                item.get("ExposureMs"),
+                item.get("Exposure time"),
+                item.get("Exposure Time"),
+                item.get("Exposure Time (ms)"),
+                item.get("Exposure"),
+            )
+            led_power = first_numeric_text(
+                item.get("LED power"),
+                item.get("LED Power"),
+                item.get("IlluminationPower"),
+                item.get("LaserPower"),
+                item.get("Power"),
+                item.get("Intensity"),
+            )
+            interval_ms = first_numeric_text(
+                item.get("Interval-ms"),
+                item.get("IntervalMs"),
+                item.get("Frame interval"),
+                item.get("FrameInterval-ms"),
+                item.get("Interval"),
+            )
+            frames = safe_int(item.get("Frames")) or safe_int(item.get("FrameCount"))
             channel_details.append(
                 {
                     "index": index,
@@ -156,6 +214,10 @@ def extract_display_settings_dimensions(display_settings: dict[str, Any]) -> dic
                     "histogram_bit_depth": item.get("HistogramBitDepth"),
                     "uniform_component_scaling": item.get("UniformComponentScaling"),
                     "use_camera_bit_depth": item.get("UseCameraBitDepth"),
+                    "exposure_ms": exposure_ms,
+                    "led_power": led_power,
+                    "interval_ms": interval_ms,
+                    "frames": frames,
                 }
             )
 
@@ -192,22 +254,44 @@ def extract_acquisition_dimensions(metadata_json: dict[str, Any]) -> dict[str, A
         if isinstance(raw_dimensions, dict):
             dimensions.update(raw_dimensions)
     summary = metadata_json.get("Summary") if isinstance(metadata_json, dict) else None
-    if not isinstance(summary, dict):
-        return {key: value for key, value in dimensions.items() if value not in (None, [], {})}
-    channel_names = summary.get("ChNames")
-    if isinstance(channel_names, list):
-        dimensions["channel_count"] = len(channel_names)
-        dimensions["channel_names"] = channel_names
-    elif "channel_count" not in dimensions:
-        dimensions["channel_count"] = safe_int(summary.get("Channels")) or 0
-    dimensions["position_count"] = safe_int(summary.get("Positions")) or int(dimensions.get("position_count") or 0)
-    dimensions["slice_count"] = safe_int(summary.get("Slices")) or int(dimensions.get("slice_count") or 0)
-    dimensions["frame_count"] = safe_int(summary.get("Frames")) or int(dimensions.get("frame_count") or 0)
-    dimensions["width_px"] = safe_int(summary.get("Width")) or int(dimensions.get("width_px") or 0)
-    dimensions["height_px"] = safe_int(summary.get("Height")) or int(dimensions.get("height_px") or 0)
-    dimensions["pixel_type"] = summary.get("PixelType") or dimensions.get("pixel_type")
-    if isinstance(channel_names, list) and channel_names:
-        dimensions["channel_names"] = channel_names
+    channel_names = []
+    if isinstance(summary, dict):
+        raw_channel_names = summary.get("ChNames")
+        if isinstance(raw_channel_names, list):
+            channel_names = [str(name).strip() for name in raw_channel_names if str(name).strip()]
+            if channel_names:
+                dimensions["channel_names"] = channel_names
+    channel_settings = dimensions.get("channel_settings")
+    if not isinstance(channel_settings, list):
+        channel_settings = []
+    if isinstance(summary, dict):
+        if channel_names:
+            dimensions["channel_count"] = len(channel_names)
+        elif "channel_count" not in dimensions:
+            dimensions["channel_count"] = safe_int(summary.get("Channels")) or 0
+        dimensions["position_count"] = safe_int(summary.get("Positions")) or int(dimensions.get("position_count") or 0)
+        dimensions["slice_count"] = safe_int(summary.get("Slices")) or int(dimensions.get("slice_count") or 0)
+        dimensions["frame_count"] = safe_int(summary.get("Frames")) or int(dimensions.get("frame_count") or 0)
+        interval_ms = first_numeric_text(
+            summary.get("Interval-ms"),
+            summary.get("IntervalMs"),
+            summary.get("FrameInterval-ms"),
+            summary.get("Frame interval"),
+            summary.get("Interval"),
+        )
+        if interval_ms is not None:
+            dimensions["interval_ms"] = interval_ms
+            dimensions["interval_seconds"] = round(float(interval_ms) / 1000.0, 6)
+        dimensions["width_px"] = safe_int(summary.get("Width")) or int(dimensions.get("width_px") or 0)
+        dimensions["height_px"] = safe_int(summary.get("Height")) or int(dimensions.get("height_px") or 0)
+        dimensions["pixel_type"] = summary.get("PixelType") or dimensions.get("pixel_type")
+    merged_channel_settings = merge_channel_settings(
+        base_settings=channel_settings,
+        metadata_json=metadata_json if isinstance(metadata_json, dict) else {},
+        channel_names=channel_names if isinstance(channel_names, list) else [],
+    )
+    if merged_channel_settings:
+        dimensions["channel_settings"] = merged_channel_settings
     return {key: value for key, value in dimensions.items() if value not in (None, [], {})}
 
 
@@ -242,3 +326,125 @@ def coerce_number(value: Any) -> float | int | None:
     except (TypeError, ValueError):
         return None
     return int(numeric) if numeric.is_integer() else numeric
+
+
+def first_numeric_text(*values: Any) -> float | int | None:
+    for value in values:
+        numeric = coerce_number(value)
+        if numeric is not None:
+            return numeric
+    return None
+
+
+def merge_channel_settings(
+    *,
+    base_settings: list[dict[str, Any]],
+    metadata_json: dict[str, Any],
+    channel_names: list[str],
+) -> list[dict[str, Any]]:
+    channel_details: dict[int, dict[str, Any]] = {}
+
+    for index, item in enumerate(base_settings):
+        if isinstance(item, dict):
+            channel_details[index] = dict(item)
+
+    if not channel_details and channel_names:
+        for index, channel_name in enumerate(channel_names):
+            channel_details[index] = {"index": index, "channel": channel_name}
+
+    for key, value in metadata_json.items():
+        if key in {"Summary", "display_settings", "dimensions", "source_file", "source_path"}:
+            continue
+        if not isinstance(value, dict):
+            continue
+        channel_index = infer_channel_index(key)
+        if channel_index is None:
+            channel_index = infer_channel_index_from_payload(value)
+        if channel_index is None:
+            continue
+        detail = channel_details.setdefault(channel_index, {"index": channel_index})
+        if channel_index < len(channel_names) and not detail.get("channel"):
+            detail["channel"] = channel_names[channel_index]
+        merge_channel_detail_from_payload(detail, value)
+
+    ordered = [channel_details[index] for index in sorted(channel_details)]
+    return ordered
+
+
+CHANNEL_INDEX_PATTERNS = (
+    re.compile(r"(?:^|[^a-z0-9])channel[_\-. ]*(\d+)", flags=re.IGNORECASE),
+    re.compile(r"(?:^|[^a-z0-9])ch[_\-. ]*(\d+)", flags=re.IGNORECASE),
+    re.compile(r"(?:^|[^a-z0-9])w(\d+)", flags=re.IGNORECASE),
+    re.compile(r"(?:^|[^a-z0-9])img[_\-. ]*channel(\d+)", flags=re.IGNORECASE),
+)
+
+
+def infer_channel_index(text: str) -> int | None:
+    normalized = str(text or "").strip()
+    if not normalized:
+        return None
+    for pattern in CHANNEL_INDEX_PATTERNS:
+        match = pattern.search(normalized)
+        if match:
+            try:
+                return max(0, int(match.group(1)))
+            except (TypeError, ValueError):
+                return None
+    return None
+
+
+def infer_channel_index_from_payload(payload: dict[str, Any]) -> int | None:
+    for key in ("ChannelIndex", "channel_index", "Channel", "channel"):
+        value = payload.get(key)
+        if isinstance(value, (int, float)) and int(value) >= 0:
+            return int(value)
+        if isinstance(value, str):
+            maybe = infer_channel_index(value)
+            if maybe is not None:
+                return maybe
+    return None
+
+
+def merge_channel_detail_from_payload(detail: dict[str, Any], payload: dict[str, Any]) -> None:
+    for key, value in payload.items():
+        normalized = str(key or "").strip().lower()
+        if normalized in {"type"}:
+            continue
+        if normalized in {"channel", "channelname", "name", "label"}:
+            text = first_non_empty_text(value)
+            if text:
+                detail["channel"] = text
+            continue
+        if "exposure" in normalized:
+            numeric = first_numeric_text(value)
+            if numeric is not None:
+                detail["exposure_ms"] = numeric
+            continue
+        if any(token in normalized for token in ("led", "power", "illumination", "laser", "intensity")):
+            numeric = first_numeric_text(value)
+            if numeric is not None:
+                detail["led_power"] = numeric
+            elif normalized in {"channel", "label"}:
+                continue
+            else:
+                text = first_non_empty_text(value)
+                if text:
+                    detail.setdefault("led_power_text", text)
+            continue
+        if "interval" in normalized:
+            numeric = first_numeric_text(value)
+            if numeric is not None:
+                detail["interval_ms"] = numeric
+                detail["interval_seconds"] = round(float(numeric) / 1000.0, 6)
+            continue
+        if normalized in {"frames", "framecount", "frame_count"}:
+            numeric = safe_int(value)
+            if numeric is not None:
+                detail["frames"] = numeric
+            continue
+        if isinstance(value, dict):
+            merge_channel_detail_from_payload(detail, value)
+        elif isinstance(value, list):
+            for item in value:
+                if isinstance(item, dict):
+                    merge_channel_detail_from_payload(detail, item)

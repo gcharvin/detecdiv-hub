@@ -146,6 +146,7 @@ class RawDatasetSummary(HubBaseModel):
     archive_status: str
     archive_uri: str | None = None
     archive_compression: str | None = None
+    display_settings_uri: str | None = None
     archive_file_bytes: int | None = None
     reclaimable_bytes: int = 0
     last_accessed_at: datetime | None = None

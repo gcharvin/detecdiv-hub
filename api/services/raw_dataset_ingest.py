@@ -9,10 +9,11 @@ from sqlalchemy.orm import Session
 
 from api.models import ExperimentProject, ExperimentRawLink, RawDataset, RawDatasetLocation, RawDatasetPosition, User
 from api.services.micromanager_metadata import (
-    extract_acquisition_dimensions,
-    merge_metadata_dicts,
+    build_compact_micromanager_metadata,
+    find_micromanager_display_settings_path,
     read_micromanager_metadata,
 )
+from api.services.raw_preview_jobs import queue_raw_preview_job_for_dataset
 from api.services.project_indexing import get_or_create_storage_root, slugify
 from api.services.storage_metrics import safe_dir_size
 
@@ -58,27 +59,16 @@ def ingest_raw_dataset_from_directory(
     size_timestamp = datetime.now(timezone.utc)
     relative_path = str(dataset_dir.relative_to(root_path))
     parsed_metadata = read_micromanager_metadata(dataset_dir)
-    metadata = merge_metadata_dicts(
-        parsed_metadata,
-        {
-            "source": source_label,
-            "dataset_dir_abs": str(dataset_dir),
-            "dataset_rel_from_root": relative_path,
-        },
-    )
-    if source_metadata:
-        metadata = merge_metadata_dicts(metadata, source_metadata)
-    metadata["dimensions"] = extract_acquisition_dimensions(metadata)
-    data_format = detect_raw_dataset_format(dataset_dir, metadata)
-    metadata["data_format"] = data_format
-    metadata = merge_metadata_dicts(
-        metadata,
-        {
-            "source": source_label,
-            "dataset_dir_abs": str(dataset_dir),
-            "dataset_rel_from_root": relative_path,
-            "data_format": data_format,
-        },
+    display_settings_path = find_micromanager_display_settings_path(dataset_dir)
+    display_settings_uri = str(display_settings_path) if display_settings_path is not None else None
+    data_format = detect_raw_dataset_format(dataset_dir, parsed_metadata)
+    metadata = build_compact_micromanager_metadata(
+        dataset_dir=dataset_dir,
+        relative_path=relative_path,
+        source_label=source_label,
+        parsed_metadata=parsed_metadata,
+        data_format=data_format,
+        source_metadata=source_metadata,
     )
     effective_label = acquisition_label or dataset_dir.name
     effective_started_at = started_at or size_timestamp
@@ -96,6 +86,7 @@ def ingest_raw_dataset_from_directory(
             completeness_status=completeness_status,
             lifecycle_tier="hot",
             archive_status="none",
+            display_settings_uri=display_settings_uri,
             reclaimable_bytes=0,
             total_bytes=total_bytes,
             last_size_scan_at=size_timestamp,
@@ -107,8 +98,6 @@ def ingest_raw_dataset_from_directory(
         session.add(raw_dataset)
         session.flush()
     else:
-        merged_metadata = dict(raw_dataset.metadata_json or {})
-        merged_metadata.update(metadata)
         raw_dataset.owner_user_id = owner.id
         raw_dataset.microscope_name = microscope_name or raw_dataset.microscope_name
         raw_dataset.acquisition_label = effective_label
@@ -116,12 +105,14 @@ def ingest_raw_dataset_from_directory(
         raw_dataset.visibility = visibility
         raw_dataset.status = status
         raw_dataset.completeness_status = completeness_status
+        if display_settings_uri is not None:
+            raw_dataset.display_settings_uri = display_settings_uri
         raw_dataset.total_bytes = total_bytes
         raw_dataset.last_size_scan_at = size_timestamp
         raw_dataset.last_accessed_at = size_timestamp
         raw_dataset.started_at = effective_started_at
         raw_dataset.ended_at = effective_ended_at
-        raw_dataset.metadata_json = merged_metadata
+        raw_dataset.metadata_json = metadata
         session.flush()
 
     location = session.scalars(
@@ -166,6 +157,17 @@ def ingest_raw_dataset_from_directory(
                 raw_dataset.total_bytes or 0
             )
             preferred_experiment.last_indexed_at = size_timestamp
+
+    if source_label in {"legacy_raw_ingest", "micromanager_ingest"}:
+        queue_raw_preview_job_for_dataset(
+            session,
+            raw_dataset=raw_dataset,
+            requested_by_user=owner,
+            requested_mode="auto",
+            priority=200,
+            requested_from_host=source_label,
+            source=source_label,
+        )
     return raw_dataset
 
 

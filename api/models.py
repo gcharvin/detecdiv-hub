@@ -113,6 +113,7 @@ class RawDataset(Base):
     archive_status: Mapped[str] = mapped_column(String, nullable=False, default="none")
     archive_uri: Mapped[str | None] = mapped_column(Text)
     archive_compression: Mapped[str | None] = mapped_column(String)
+    display_settings_uri: Mapped[str | None] = mapped_column(Text)
     reclaimable_bytes: Mapped[int] = mapped_column(BIGINT, nullable=False, default=0)
     last_accessed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     total_bytes: Mapped[int] = mapped_column(BIGINT, nullable=False, default=0)

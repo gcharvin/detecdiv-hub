@@ -57,6 +57,7 @@ CREATE TABLE IF NOT EXISTS raw_datasets (
     archive_status TEXT NOT NULL DEFAULT 'none',
     archive_uri TEXT,
     archive_compression TEXT,
+    display_settings_uri TEXT,
     reclaimable_bytes BIGINT NOT NULL DEFAULT 0,
     last_accessed_at TIMESTAMPTZ,
     total_bytes BIGINT NOT NULL DEFAULT 0,

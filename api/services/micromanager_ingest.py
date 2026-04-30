@@ -11,7 +11,11 @@ from sqlalchemy.orm import Session, joinedload
 
 from api.config import Settings, get_settings
 from api.models import ExperimentProject, Job, MicroManagerIngestRun, Pipeline, RawDataset, User
-from api.services.micromanager_metadata import extract_acquisition_dimensions, read_micromanager_metadata
+from api.services.micromanager_metadata import (
+    extract_acquisition_dimensions,
+    find_micromanager_display_settings_path,
+    read_micromanager_metadata,
+)
 from api.services.external_publications import ensure_publication_records
 from api.services.project_indexing import slugify
 from api.services.raw_dataset_ingest import ingest_raw_dataset_from_directory
@@ -202,6 +206,7 @@ def discover_micromanager_candidates(
         session_label = extract_session_label(dataset_dir, metadata_json, acquisition_label=acquisition_label)
         session_date = extract_session_datetime(metadata_json) or last_modified_at
         dimensions = extract_acquisition_dimensions(metadata_json)
+        display_settings_path = find_micromanager_display_settings_path(dataset_dir)
         group_key, group_label = build_experiment_grouping(
             relative_path=str(dataset_dir.relative_to(landing_root)),
             session_label=session_label,
@@ -231,7 +236,7 @@ def discover_micromanager_candidates(
                     "group_key": group_key,
                     "group_label": group_label,
                     "dimensions": dimensions,
-                    "micromanager_metadata": metadata_json,
+                    "display_settings_uri": str(display_settings_path) if display_settings_path is not None else None,
                 },
                 completeness_status=completeness_status,
             )
