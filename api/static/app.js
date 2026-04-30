@@ -5129,7 +5129,7 @@ async function executeRawPositionDelete() {
   }
 }
 
-async function previewDelete() {
+async function deleteProject() {
   if (!state.selectedProject) {
     return;
   }
@@ -5857,7 +5857,7 @@ if (els.editProjectButton) els.editProjectButton.addEventListener("click", () =>
 if (els.updateProjectButton) els.updateProjectButton.addEventListener("click", () => editProject().catch((error) => setStatus(String(error))));
 if (els.addToGroupButton) els.addToGroupButton.addEventListener("click", () => addSelectedProjectToGroup().catch((error) => setStatus(String(error))));
 if (els.projectQueueRawPreviewsButton) els.projectQueueRawPreviewsButton.addEventListener("click", () => queueProjectRawPreviewVideos().catch((error) => setStatus(String(error))));
-if (els.previewDeleteButton) els.previewDeleteButton.addEventListener("click", () => previewDelete().catch((error) => setStatus(String(error))));
+if (els.previewDeleteButton) els.previewDeleteButton.addEventListener("click", () => deleteProject().catch((error) => setStatus(String(error))));
 if (els.indexBrowseRoot) els.indexBrowseRoot.addEventListener("change", () => openIndexBrowserPath("").catch((error) => setStatus(String(error))));
 if (els.indexBrowseOpenButton) els.indexBrowseOpenButton.addEventListener("click", () => openIndexBrowserPath(state.indexBrowse?.current_relative_path || "").catch((error) => setStatus(String(error))));
 if (els.indexBrowseUpButton) els.indexBrowseUpButton.addEventListener("click", () => {
