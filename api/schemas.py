@@ -24,6 +24,9 @@ class UserSummary(HubBaseModel):
     email: str | None = None
     role: str
     is_active: bool
+    admin_portal_access: bool = False
+    lab_status: str = "yes"
+    default_path: str | None = None
 
 
 class UserCreate(HubBaseModel):
@@ -32,6 +35,9 @@ class UserCreate(HubBaseModel):
     email: str | None = None
     role: str = "user"
     is_active: bool = True
+    admin_portal_access: bool = False
+    lab_status: str = "yes"
+    default_path: str | None = None
     password: str | None = None
     metadata_json: dict[str, Any] = Field(default_factory=dict)
 
@@ -42,6 +48,9 @@ class UserBulkUpsertItem(HubBaseModel):
     email: str | None = None
     role: str = "user"
     is_active: bool = True
+    admin_portal_access: bool = False
+    lab_status: str = "yes"
+    default_path: str | None = None
     password: str | None = None
     metadata_json: dict[str, Any] = Field(default_factory=dict)
 
@@ -61,8 +70,16 @@ class UserUpdate(HubBaseModel):
     email: str | None = None
     role: str | None = None
     is_active: bool | None = None
+    admin_portal_access: bool | None = None
+    lab_status: str | None = None
+    default_path: str | None = None
     password: str | None = None
     metadata_json: dict[str, Any] | None = None
+
+
+class UserPasswordChangeRequest(HubBaseModel):
+    current_password: str
+    new_password: str
 
 
 class AuthLoginRequest(HubBaseModel):
@@ -157,6 +174,7 @@ class ArtifactSummary(HubBaseModel):
     uri: str
     metadata_json: dict[str, Any] = Field(default_factory=dict)
     created_at: datetime | None = None
+    job_finished_at: datetime | None = None
 
 
 class RawDatasetPositionSummary(HubBaseModel):

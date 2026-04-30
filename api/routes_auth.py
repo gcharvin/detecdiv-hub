@@ -9,11 +9,19 @@ from sqlalchemy.orm import Session
 from api.config import get_settings
 from api.db import get_db
 from api.models import User
-from api.schemas import AuthLoginRequest, AuthLoginResponse, AuthSessionResponse, UserSessionSummary, UserSummary
+from api.schemas import (
+    AuthLoginRequest,
+    AuthLoginResponse,
+    AuthSessionResponse,
+    UserPasswordChangeRequest,
+    UserSessionSummary,
+    UserSummary,
+)
 from api.services.auth import (
     get_user_by_session_token,
     issue_user_session,
     list_active_sessions,
+    set_user_password,
     revoke_session_token,
     revoke_user_session,
     verify_password,
@@ -153,3 +161,18 @@ def delete_session(
         response.delete_cookie(settings.session_cookie_name)
     db.commit()
     return {"status": "revoked", "session_id": str(session_id)}
+
+
+@router.post("/me/password")
+def change_my_password(
+    payload: UserPasswordChangeRequest,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> dict:
+    if not payload.new_password.strip():
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="New password is required")
+    if not verify_password(payload.current_password, current_user.password_hash):
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Current password is invalid")
+    set_user_password(db, user=current_user, password=payload.new_password)
+    db.commit()
+    return {"status": "password_updated"}

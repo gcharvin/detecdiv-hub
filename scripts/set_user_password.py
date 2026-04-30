@@ -35,6 +35,8 @@ def main() -> None:
                 email=args.email,
                 role=args.role,
                 is_active=True,
+                admin_portal_access=False,
+                lab_status="yes",
                 metadata_json={},
             )
             session.add(user)

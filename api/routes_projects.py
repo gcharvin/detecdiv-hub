@@ -742,11 +742,19 @@ def create_user(
         email=payload.email,
         role=payload.role,
         is_active=payload.is_active,
+        admin_portal_access=payload.admin_portal_access,
+        lab_status=payload.lab_status,
+        default_path=payload.default_path,
         metadata_json=payload.metadata_json,
     )
     db.add(user)
     db.flush()
     if payload.password:
+        if current_user.role not in {"admin", "service"} and current_user.id == user.id:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Use the password change endpoint for self-service password updates",
+            )
         set_user_password(db, user=user, password=payload.password)
     db.commit()
     db.refresh(user)
@@ -785,6 +793,9 @@ def bulk_upsert_users(
                 email=item.email,
                 role=item.role,
                 is_active=item.is_active,
+                admin_portal_access=item.admin_portal_access,
+                lab_status=item.lab_status,
+                default_path=item.default_path,
                 metadata_json=item.metadata_json,
             )
             db.add(user)
@@ -795,6 +806,9 @@ def bulk_upsert_users(
             user.email = item.email
             user.role = item.role
             user.is_active = item.is_active
+            user.admin_portal_access = item.admin_portal_access
+            user.lab_status = item.lab_status
+            user.default_path = item.default_path
             merged_metadata = dict(user.metadata_json or {})
             merged_metadata.update(item.metadata_json or {})
             user.metadata_json = merged_metadata
@@ -835,11 +849,22 @@ def update_user(
         user.role = payload.role
     if payload.is_active is not None and current_user.role in {"admin", "service"}:
         user.is_active = payload.is_active
+    if payload.admin_portal_access is not None and current_user.role in {"admin", "service"}:
+        user.admin_portal_access = payload.admin_portal_access
+    if payload.lab_status is not None and current_user.role in {"admin", "service"}:
+        user.lab_status = payload.lab_status
+    if payload.default_path is not None and current_user.role in {"admin", "service"}:
+        user.default_path = payload.default_path
     if payload.metadata_json is not None:
         merged = dict(user.metadata_json or {})
         merged.update(payload.metadata_json)
         user.metadata_json = merged
     if payload.password:
+        if current_user.role not in {"admin", "service"} and current_user.id == user.id:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Use the password change endpoint for self-service password updates",
+            )
         set_user_password(db, user=user, password=payload.password)
 
     db.commit()

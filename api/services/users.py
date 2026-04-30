@@ -16,6 +16,9 @@ def get_or_create_user(
     user_key: str,
     display_name: str | None = None,
     role: str = "user",
+    admin_portal_access: bool = False,
+    lab_status: str = "yes",
+    default_path: str | None = None,
 ) -> User:
     user = session.scalars(select(User).where(User.user_key == user_key)).first()
     if user is None:
@@ -24,6 +27,9 @@ def get_or_create_user(
             display_name=display_name or user_key,
             role=role,
             is_active=True,
+            admin_portal_access=admin_portal_access,
+            lab_status=lab_status,
+            default_path=default_path,
             metadata_json={},
         )
         session.add(user)
@@ -186,6 +192,10 @@ def raw_dataset_access_filter(user: User):
         RawDataset.visibility == "public",
         RawDataset.owner_user_id == user.id,
     )
+
+
+def can_access_admin_portal(user: User) -> bool:
+    return user.role in {"admin", "service"} or bool(user.admin_portal_access)
 
 
 def ensure_raw_dataset_readable(raw_dataset: RawDataset | None, user: User) -> RawDataset:

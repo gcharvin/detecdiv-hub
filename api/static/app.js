@@ -54,6 +54,7 @@ const els = {
   sessionLabel: document.querySelector("#session-label"),
   connectButton: document.querySelector("#connect-button"),
   logoutButton: document.querySelector("#logout-button"),
+  changePasswordButton: document.querySelector("#change-password-button"),
   adminNavLinks: document.querySelectorAll(".admin-nav-link"),
   adminContent: document.querySelector("#admin-content"),
   adminDeniedPanel: document.querySelector("#admin-denied-panel"),
@@ -461,6 +462,14 @@ function withIdentity(path) {
   return `${path}${separator}${query}`;
 }
 
+function withCacheBust(path, token) {
+  if (!path || !token) {
+    return path;
+  }
+  const separator = path.includes("?") ? "&" : "?";
+  return `${path}${separator}v=${encodeURIComponent(token)}`;
+}
+
 async function apiJson(path, options = {}) {
   const response = await fetch(withIdentity(path), {
     credentials: "same-origin",
@@ -559,17 +568,87 @@ function extractRawAcquisitionFacts(raw) {
   const metadataPositionCount = Number(dimensions.position_count || 0);
   const positionsLabel = metadataPositionCount > 0 ? `${metadataPositionCount}` : "unknown";
 
-  const exposureValues = collectExposureMsValues(metadata);
-  const exposureLabel = exposureValues.length
-    ? exposureValues.map((value) => Number(value.toFixed(3))).join(", ")
-    : "unknown";
+  const channelSettings = Array.isArray(dimensions.channel_settings) ? dimensions.channel_settings : [];
+  const channelSettingsLabel = summarizeChannelSettings(channelSettings);
+  const framesLabel = Number(dimensions.frame_count || 0) > 0 ? `${Number(dimensions.frame_count)}` : "unknown";
+  const intervalLabel = formatIntervalLabel(dimensions.interval_ms, dimensions.interval_seconds);
+  const exposureLabel = channelSettings.length
+    ? summarizeChannelMetric(channelSettings, "exposure_ms", "ms")
+    : summarizeNumericValues(collectExposureMsValues(metadata), "ms");
+  const ledPowerLabel = channelSettings.length
+    ? summarizeChannelMetric(channelSettings, "led_power", "")
+    : summarizeNumericValues(collectLedPowerValues(metadata), "");
 
   return {
     positionsIndexed,
     positionsLabel,
     channelsLabel,
+    channelSettingsLabel,
     exposureLabel,
+    ledPowerLabel,
+    framesLabel,
+    intervalLabel,
   };
+}
+
+function summarizeChannelSettings(channelSettings) {
+  if (!Array.isArray(channelSettings) || !channelSettings.length) {
+    return "unknown";
+  }
+  const items = channelSettings
+    .map((setting) => {
+      const name = String(setting?.channel || "").trim() || `Channel ${Number(setting?.index ?? 0) + 1}`;
+      const parts = [];
+      if (setting?.exposure_ms != null) parts.push(`Exposure ${Number(setting.exposure_ms).toFixed(3).replace(/\.?0+$/, "")} ms`);
+      if (setting?.led_power != null) parts.push(`LED ${Number(setting.led_power).toFixed(3).replace(/\.?0+$/, "")}`);
+      if (setting?.interval_ms != null) parts.push(`Interval ${Number(setting.interval_ms).toFixed(3).replace(/\.?0+$/, "")} ms`);
+      if (setting?.frames != null) parts.push(`Frames ${Number(setting.frames)}`);
+      return parts.length ? `${name}: ${parts.join(" | ")}` : name;
+    })
+    .filter(Boolean);
+  return summarizeList(items, 4);
+}
+
+function summarizeChannelMetric(channelSettings, key, suffix) {
+  const items = (Array.isArray(channelSettings) ? channelSettings : [])
+    .map((setting) => {
+      const value = setting?.[key];
+      if (value == null || value === "") {
+        return "";
+      }
+      const name = String(setting?.channel || "").trim() || `Channel ${Number(setting?.index ?? 0) + 1}`;
+      const numeric = Number(value);
+      const text = Number.isFinite(numeric) ? numeric.toFixed(3).replace(/\.?0+$/, "") : String(value);
+      return `${name}: ${text}${suffix ? ` ${suffix}` : ""}`;
+    })
+    .filter(Boolean);
+  return items.length ? summarizeList(items, 4) : "unknown";
+}
+
+function summarizeNumericValues(values, suffix) {
+  const items = (Array.isArray(values) ? values : [])
+    .filter((value) => Number.isFinite(Number(value)))
+    .map((value) => {
+      const numeric = Number(value);
+      const text = numeric.toFixed(3).replace(/\.?0+$/, "");
+      return `${text}${suffix ? ` ${suffix}` : ""}`;
+    });
+  return items.length ? summarizeList(items, 4) : "unknown";
+}
+
+function formatIntervalLabel(intervalMsValue, intervalSecondsValue) {
+  const intervalMs = Number(intervalMsValue);
+  if (Number.isFinite(intervalMs) && intervalMs > 0) {
+    if (intervalMs >= 1000) {
+      return `${Number((intervalMs / 1000)).toFixed(3).replace(/\.?0+$/, "")} s`;
+    }
+    return `${intervalMs.toFixed(3).replace(/\.?0+$/, "")} ms`;
+  }
+  const intervalSeconds = Number(intervalSecondsValue);
+  if (!Number.isFinite(intervalSeconds) || intervalSeconds <= 0) {
+    return "unknown";
+  }
+  return `${intervalSeconds.toFixed(3).replace(/\.?0+$/, "")} s`;
 }
 
 function collectExposureMsValues(metadata) {
@@ -597,6 +676,49 @@ function collectExposureMsValues(metadata) {
     for (const [key, rawValue] of Object.entries(current)) {
       const normalizedKey = String(key || "").toLowerCase();
       if (normalizedKey.includes("exposure")) {
+        const parsed = Number(rawValue);
+        if (Number.isFinite(parsed) && parsed >= 0) {
+          const token = parsed.toFixed(6);
+          if (!seen.has(token)) {
+            seen.add(token);
+            values.push(parsed);
+          }
+        }
+      }
+      if (rawValue && typeof rawValue === "object") {
+        stack.push({ value: rawValue, depth: node.depth + 1 });
+      }
+    }
+  }
+  values.sort((a, b) => a - b);
+  return values.slice(0, 12);
+}
+
+function collectLedPowerValues(metadata) {
+  const values = [];
+  const seen = new Set();
+  const stack = [{ value: metadata, depth: 0 }];
+  let visited = 0;
+
+  while (stack.length && visited < 5000) {
+    const node = stack.pop();
+    visited += 1;
+    if (!node || node.depth > 7) {
+      continue;
+    }
+    const current = node.value;
+    if (Array.isArray(current)) {
+      for (const item of current) {
+        stack.push({ value: item, depth: node.depth + 1 });
+      }
+      continue;
+    }
+    if (!current || typeof current !== "object") {
+      continue;
+    }
+    for (const [key, rawValue] of Object.entries(current)) {
+      const normalizedKey = String(key || "").toLowerCase();
+      if (normalizedKey.includes("led") || normalizedKey.includes("power") || normalizedKey.includes("illumination") || normalizedKey.includes("laser")) {
         const parsed = Number(rawValue);
         if (Number.isFinite(parsed) && parsed >= 0) {
           const token = parsed.toFixed(6);
@@ -662,6 +784,18 @@ function progressPercent(job) {
 
 function isAdmin() {
   return state.currentUser && ["admin", "service"].includes(state.currentUser.role);
+}
+
+function canAccessAdminPortal() {
+  return isAdmin() || Boolean(state.currentUser?.admin_portal_access);
+}
+
+function hasAdminPrivileges() {
+  return isAdmin();
+}
+
+function labStatusLabel(user) {
+  return String(user?.lab_status || "yes");
 }
 
 function fieldValueFromForm(form, name) {
@@ -800,11 +934,27 @@ function updateSessionUi() {
   if (els.logoutButton) {
     els.logoutButton.disabled = !authenticated;
   }
+  if (authenticated) {
+    if (!els.changePasswordButton) {
+      els.changePasswordButton = document.createElement("button");
+      els.changePasswordButton.id = "change-password-button";
+      els.changePasswordButton.textContent = "Change password";
+      els.changePasswordButton.addEventListener("click", () => {
+        changeMyPassword().catch((error) => setStatus(String(error)));
+      });
+      els.logoutButton?.parentElement?.insertBefore(els.changePasswordButton, els.logoutButton);
+    }
+    els.changePasswordButton.classList.remove("hidden");
+    els.changePasswordButton.disabled = false;
+  } else if (els.changePasswordButton) {
+    els.changePasswordButton.classList.add("hidden");
+    els.changePasswordButton.disabled = true;
+  }
   for (const link of els.adminNavLinks || []) {
-    link.classList.toggle("hidden", !isAdmin());
+    link.classList.toggle("hidden", !canAccessAdminPortal());
   }
   if (pageFlags.hasAdminView) {
-    const allowed = isAdmin();
+    const allowed = canAccessAdminPortal();
     if (els.adminContent) {
       els.adminContent.classList.toggle("hidden", !allowed);
     }
@@ -2789,7 +2939,11 @@ function renderRawDatasetDetail() {
       ["Acquisition", raw.acquisition_label],
       ["Data type", raw.data_format || "unknown"],
       ["Channels", acquisitionFacts.channelsLabel],
-      ["Exposure time (ms)", acquisitionFacts.exposureLabel],
+      ["Channel settings", acquisitionFacts.channelSettingsLabel],
+      ["Exposure time (per channel)", acquisitionFacts.exposureLabel],
+      ["LED power (per channel)", acquisitionFacts.ledPowerLabel],
+      ["Frames", acquisitionFacts.framesLabel],
+      ["Interval", acquisitionFacts.intervalLabel],
       ["Positions (metadata)", acquisitionFacts.positionsLabel],
       ["Positions (indexed)", `${acquisitionFacts.positionsIndexed}`],
       ["Project owner", owner],
@@ -3032,7 +3186,9 @@ function renderRawPositionViewer(positions) {
     return;
   }
   const selected = positions.find((position) => position.id === state.selectedRawPositionId);
-  const artifactUrl = selected?.preview_artifact?.uri ? withIdentity(selected.preview_artifact.uri) : "";
+  const artifact = selected?.preview_artifact || null;
+  const artifactVersion = artifact?.job_finished_at || artifact?.created_at || "";
+  const artifactUrl = artifact?.uri ? withCacheBust(withIdentity(artifact.uri), artifactVersion) : "";
   const currentVideoSrc = els.rawPositionViewerVideo.getAttribute("src") || "";
 
   if (!selected) {
@@ -3053,6 +3209,7 @@ function renderRawPositionViewer(positions) {
   if (artifactUrl) {
     if (currentVideoSrc !== artifactUrl) {
       els.rawPositionViewerVideo.src = artifactUrl;
+      els.rawPositionViewerVideo.load();
       void els.rawPositionViewerVideo.play().catch(() => {});
     }
     if (els.rawPositionViewerOpenLink) {
@@ -3110,7 +3267,7 @@ function renderRawPreviewQualityStatus() {
     ["CRF", `${config.crf || 0}`],
     ["Preset", config.preset || ""],
     ["Include existing", config.include_existing ? "yes" : "no"],
-    ["Artifact root", config.artifact_root || "dataset-local .detecdiv-previews"],
+    ["Artifact root", config.artifact_root || "dataset/.detecdiv-previews"],
     ["FFmpeg command", config.ffmpeg_command || "auto-detected"],
   ];
   for (const [label, value] of configRows) {
@@ -3649,9 +3806,17 @@ function renderUsers() {
       <td>${user.user_key}</td>
       <td>${user.display_name}</td>
       <td>${user.role}</td>
+      <td>${escapeHtml(labStatusLabel(user))}</td>
+      <td>${user.admin_portal_access ? "yes" : "no"}</td>
+      <td title="${escapeHtml(user.default_path || "")}">${escapeHtml(user.default_path || "")}</td>
       <td>${user.is_active ? "yes" : "no"}</td>
+      <td><button type="button" class="user-edit-button">Settings</button></td>
     `;
     tr.addEventListener("click", () => editUser(user));
+    tr.querySelector(".user-edit-button")?.addEventListener("click", (event) => {
+      event.stopPropagation();
+      editUser(user).catch((error) => setStatus(String(error)));
+    });
     els.usersTableBody.appendChild(tr);
   }
 }
@@ -5057,7 +5222,7 @@ function parseBulkUserLine(line) {
   if (!parts.length) {
     parts = [normalized];
   }
-  const [userKey, displayName, email, role] = parts;
+  const [userKey, displayName, email, role, labStatus] = parts;
   if (!userKey) {
     return null;
   }
@@ -5067,6 +5232,7 @@ function parseBulkUserLine(line) {
     email: email || null,
     role: role || "user",
     is_active: true,
+    lab_status: labStatus || "yes",
     metadata_json: {},
   };
 }
@@ -5403,12 +5569,18 @@ async function createUser() {
   }
   const displayName = window.prompt("Display name", userKey) || userKey;
   const role = window.prompt("Role (user/admin/service)", "user") || "user";
+  const labStatus = window.prompt("Lab status (yes/alumni)", "yes") || "yes";
+  const defaultPath = window.prompt("Default path", "") || null;
+  const adminPortalAccess = window.confirm("Allow admin portal access for this account?");
   const password = window.prompt("Temporary password", "");
   await apiPost("/users", {
     user_key: userKey,
     display_name: displayName,
     role,
     is_active: true,
+    admin_portal_access: adminPortalAccess,
+    lab_status: labStatus,
+    default_path: defaultPath,
     password: password || null,
     metadata_json: {},
   });
@@ -5417,22 +5589,125 @@ async function createUser() {
 }
 
 async function editUser(user) {
-  const displayName = window.prompt("Display name", user.display_name);
-  if (displayName === null) {
+  const adminFields = hasAdminPrivileges()
+    ? [
+        {
+          name: "labStatus",
+          label: "Lab status",
+          type: "select",
+          value: user.lab_status || "yes",
+          options: [
+            { value: "yes", label: "yes" },
+            { value: "alumni", label: "alumni" },
+          ],
+        },
+        {
+          name: "defaultPath",
+          label: "Default path",
+          value: user.default_path || "",
+        },
+        {
+          name: "role",
+          label: "Role",
+          type: "select",
+          value: user.role,
+          options: [
+            { value: "user", label: "user" },
+            { value: "admin", label: "admin" },
+            { value: "service", label: "service" },
+          ],
+        },
+        {
+          name: "adminPortalAccess",
+          label: "Admin portal access",
+          type: "select",
+          value: user.admin_portal_access ? "true" : "false",
+          options: [
+            { value: "true", label: "yes" },
+            { value: "false", label: "no" },
+          ],
+        },
+        {
+          name: "accountActive",
+          label: "Account active",
+          type: "select",
+          value: user.is_active ? "true" : "false",
+          options: [
+            { value: "true", label: "yes" },
+            { value: "false", label: "no" },
+          ],
+        },
+        {
+          name: "password",
+          label: "Reset password",
+          type: "password",
+        },
+      ]
+    : [];
+  const values = await openFormDialog({
+    title: `Edit user ${user.user_key}`,
+    description: "Update the account profile and access settings.",
+    submitLabel: "Save user",
+    fields: [
+      { name: "displayName", label: "Display name", value: user.display_name, required: true },
+      { name: "email", label: "Email", value: user.email || "" },
+      ...adminFields,
+    ],
+  });
+  if (!values) {
     return;
   }
-  const role = isAdmin() ? (window.prompt("Role (user/admin/service)", user.role) || user.role) : user.role;
-  const activeText = isAdmin() ? window.prompt("Active? (yes/no)", user.is_active ? "yes" : "no") : null;
-  const password = window.prompt("New password (leave empty to keep unchanged)", "");
-  await apiPatch(`/users/${user.id}`, {
-    display_name: displayName,
-    role,
-    is_active: activeText ? /^y/i.test(activeText) : user.is_active,
-    password: password || null,
+  const payload = {
+    display_name: values.displayName.trim(),
+    email: values.email.trim() || null,
     metadata_json: {},
-  });
+  };
+  if (hasAdminPrivileges()) {
+    payload.role = values.role || user.role;
+    payload.is_active = String(values.accountActive) === "true";
+    payload.admin_portal_access = String(values.adminPortalAccess) === "true";
+    payload.lab_status = values.labStatus || "yes";
+    payload.default_path = values.defaultPath.trim() || null;
+  }
+  if (values.password && values.password.trim()) {
+    payload.password = values.password.trim();
+  }
+  await apiPatch(`/users/${user.id}`, payload);
   await refreshUsers();
   setStatus(`Updated user ${user.user_key}.`);
+}
+
+async function changeMyPassword() {
+  if (!state.currentUser) {
+    return;
+  }
+  const values = await openFormDialog({
+    title: "Change password",
+    description: `Account: ${state.currentUser.user_key}`,
+    submitLabel: "Update password",
+    fields: [
+      { name: "currentPassword", label: "Current password", type: "password", required: true },
+      { name: "newPassword", label: "New password", type: "password", required: true },
+      { name: "confirmPassword", label: "Confirm password", type: "password", required: true },
+    ],
+  });
+  if (!values) {
+    return;
+  }
+  const currentPassword = String(values.currentPassword || "").trim();
+  const newPassword = String(values.newPassword || "").trim();
+  const confirmPassword = String(values.confirmPassword || "").trim();
+  if (!currentPassword || !newPassword) {
+    throw new Error("Current and new passwords are required.");
+  }
+  if (newPassword !== confirmPassword) {
+    throw new Error("Password confirmation does not match.");
+  }
+  await apiPost("/auth/me/password", {
+    current_password: currentPassword,
+    new_password: newPassword,
+  });
+  setStatus("Password updated.");
 }
 
 async function revokeSession(sessionId) {

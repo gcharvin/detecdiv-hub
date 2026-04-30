@@ -5,6 +5,9 @@ CREATE TABLE IF NOT EXISTS users (
     email TEXT,
     role TEXT NOT NULL DEFAULT 'user',
     is_active BOOLEAN NOT NULL DEFAULT TRUE,
+    admin_portal_access BOOLEAN NOT NULL DEFAULT FALSE,
+    lab_status TEXT NOT NULL DEFAULT 'yes',
+    default_path TEXT,
     password_hash TEXT,
     metadata_json JSONB NOT NULL DEFAULT '{}'::jsonb,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
@@ -464,6 +467,9 @@ ALTER TABLE raw_datasets ADD COLUMN IF NOT EXISTS last_accessed_at TIMESTAMPTZ;
 ALTER TABLE raw_datasets ADD COLUMN IF NOT EXISTS total_bytes BIGINT NOT NULL DEFAULT 0;
 ALTER TABLE raw_datasets ADD COLUMN IF NOT EXISTS last_size_scan_at TIMESTAMPTZ;
 ALTER TABLE users ADD COLUMN IF NOT EXISTS password_hash TEXT;
+ALTER TABLE users ADD COLUMN IF NOT EXISTS admin_portal_access BOOLEAN NOT NULL DEFAULT FALSE;
+ALTER TABLE users ADD COLUMN IF NOT EXISTS lab_status TEXT NOT NULL DEFAULT 'yes';
+ALTER TABLE users ADD COLUMN IF NOT EXISTS default_path TEXT;
 
 ALTER TABLE detecdiv_projects ADD COLUMN IF NOT EXISTS experiment_project_id UUID REFERENCES experiment_projects(id) ON DELETE SET NULL;
 ALTER TABLE detecdiv_projects ADD COLUMN IF NOT EXISTS owner_user_id UUID REFERENCES users(id) ON DELETE SET NULL;

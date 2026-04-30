@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Detecdiv server - Admin</title>
-    <link rel="stylesheet" href="/web/styles.css?v=20260429-ui3" />
+    <link rel="stylesheet" href="/web/styles.css?v=20260430-ui1" />
   </head>
   <body data-page="admin">
     <div class="page-shell">
@@ -317,21 +317,23 @@
           <div class="panel-header">
             <div>
               <h2>User Accounts</h2>
-              <p class="muted">Administer hub user accounts and passwords.</p>
+              <p class="muted">Click a user row or the Settings button to edit passwords, roles, portal access, and default paths.</p>
             </div>
-            <button id="new-user-button">New account</button>
+            <div class="action-stack">
+              <button id="new-user-button">New account</button>
+            </div>
           </div>
           <section class="subpanel">
             <div class="subpanel-header">
               <div>
                 <h3>Bulk Import</h3>
-                <p class="muted">Paste one user account per line: user_key;display_name;email;role.</p>
+                <p class="muted">Paste one user account per line: user_key;display_name;email;role;lab_status.</p>
               </div>
               <button id="bulk-import-users-button">Import accounts</button>
             </div>
             <label class="field">
               <span>User account list</span>
-              <textarea id="bulk-import-users-text" rows="6" placeholder="florian;Florian;florian@example.org;user"></textarea>
+              <textarea id="bulk-import-users-text" rows="6" placeholder="florian;Florian;florian@example.org;user;yes"></textarea>
             </label>
           </section>
           <div class="table-wrap jobs-table-wrap">
@@ -341,7 +343,11 @@
                   <th>User key</th>
                   <th>Name</th>
                   <th>Role</th>
-                  <th>Active</th>
+                  <th>Lab status</th>
+                  <th>Admin portal</th>
+                  <th>Default path</th>
+                  <th>Account active</th>
+                  <th>Settings</th>
                 </tr>
               </thead>
               <tbody></tbody>
@@ -379,6 +385,6 @@
       </footer>
     </div>
 
-    <script src="/web/app.js?v=20260429-ui3" defer></script>
+    <script src="/web/app.js?v=20260430-ui1" defer></script>
   </body>
 </html>
