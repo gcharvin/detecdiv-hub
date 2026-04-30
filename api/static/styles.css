@@ -27,6 +27,23 @@ body {
   color: var(--ink);
 }
 
+body.auth-locked {
+  overflow-y: auto;
+}
+
+body.auth-locked .page-shell > :not(#login-panel),
+body.auth-locked .footer {
+  display: none !important;
+}
+
+body.auth-locked .page-shell {
+  width: min(920px, calc(100vw - 18px));
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
 a {
   color: #9fd8ff;
 }

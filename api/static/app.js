@@ -1,5 +1,5 @@
 const state = {
-  userKey: localStorage.getItem("detecdivHub.userKey") || "localdev",
+  userKey: localStorage.getItem("detecdivHub.userKey") || "",
   sessionToken: localStorage.getItem("detecdivHub.sessionToken") || "",
   authMode: "",
   currentUser: null,
@@ -161,6 +161,7 @@ const els = {
   rawRegeneratePreviewButton: document.querySelector("#raw-regenerate-preview-button"),
   rawPreviewProgress: document.querySelector("#raw-preview-progress"),
   rawOpenDatasetPageButton: document.querySelector("#raw-open-dataset-page-button"),
+  rawOpenDisplaySettingsButton: document.querySelector("#raw-open-display-settings-button"),
   rawOpenProjectPageButton: document.querySelector("#raw-open-project-page-button"),
   rawPositionViewerEmpty: document.querySelector("#raw-position-viewer-empty"),
   rawPositionViewer: document.querySelector("#raw-position-viewer"),
@@ -447,9 +448,6 @@ function authHeaders(extra = {}) {
 }
 
 function currentQuery() {
-  if (!state.sessionToken && state.userKey) {
-    return `user_key=${encodeURIComponent(state.userKey)}`;
-  }
   return "";
 }
 
@@ -897,6 +895,7 @@ function escapeHtml(value) {
 }
 
 function updateSessionUi() {
+  document.body?.classList.toggle("auth-locked", !Boolean(state.currentUser));
   if (els.loginUserKey) {
     els.loginUserKey.value = state.userKey || "";
   }
@@ -906,15 +905,9 @@ function updateSessionUi() {
   }
   if (els.sessionLabel) {
     if (!authenticated) {
-      els.sessionLabel.textContent = state.userKey
-        ? `User key fallback: ${state.userKey} (no session)`
-        : "Not logged in.";
+      els.sessionLabel.textContent = "Not logged in.";
     } else if (state.authMode === "session") {
       els.sessionLabel.textContent = `Session: ${state.currentUser.display_name} (${state.currentUser.user_key})`;
-    } else if (state.authMode === "user_key") {
-      els.sessionLabel.textContent = `User key identity: ${state.currentUser.display_name} (${state.currentUser.user_key})`;
-    } else if (state.authMode === "default_user_key") {
-      els.sessionLabel.textContent = `Default user identity: ${state.currentUser.display_name} (${state.currentUser.user_key})`;
     } else if (state.authMode === "header") {
       els.sessionLabel.textContent = `Header identity: ${state.currentUser.display_name} (${state.currentUser.user_key})`;
     } else {
@@ -926,9 +919,7 @@ function updateSessionUi() {
       const modeLabel = state.authMode === "session" ? "session" : (state.authMode || "identity");
       els.userLabel.textContent = `Signed in: ${state.currentUser.display_name} (${state.currentUser.user_key}) via ${modeLabel}`;
     } else {
-      els.userLabel.textContent = state.userKey
-        ? `Signed in: ${state.userKey} via user_key fallback`
-        : "Signed in: not connected";
+      els.userLabel.textContent = "Signed in: not connected";
     }
   }
   if (els.logoutButton) {
@@ -1605,6 +1596,13 @@ function openRawDatasetPage(rawDatasetId) {
     return;
   }
   window.location.href = `/web/raw-dataset.html?id=${encodeURIComponent(rawDatasetId)}`;
+}
+
+function openRawDisplaySettings(rawDatasetId) {
+  if (!rawDatasetId) {
+    return;
+  }
+  window.open(`/raw-datasets/${encodeURIComponent(rawDatasetId)}/display-settings`, "_blank", "noopener,noreferrer");
 }
 
 function resetPipelineRunForm() {
@@ -2919,6 +2917,7 @@ function renderRawDatasetDetail() {
     if (els.rawArchiveButton) els.rawArchiveButton.disabled = true;
     if (els.rawDeleteArchiveButton) els.rawDeleteArchiveButton.disabled = true;
     if (els.rawRestoreButton) els.rawRestoreButton.disabled = true;
+    if (els.rawOpenDisplaySettingsButton) els.rawOpenDisplaySettingsButton.disabled = true;
     setRawActionFeedback("");
     if (els.rawLifecycleEvents) {
       els.rawLifecycleEvents.innerHTML = "";
@@ -2984,6 +2983,11 @@ function renderRawDatasetDetail() {
   if (els.rawOpenDatasetPageButton) {
     els.rawOpenDatasetPageButton.disabled = false;
     els.rawOpenDatasetPageButton.onclick = () => openRawDatasetPage(raw.id);
+  }
+  if (els.rawOpenDisplaySettingsButton) {
+    const hasDisplaySettings = Boolean(raw.display_settings_uri);
+    els.rawOpenDisplaySettingsButton.disabled = !hasDisplaySettings;
+    els.rawOpenDisplaySettingsButton.onclick = hasDisplaySettings ? () => openRawDisplaySettings(raw.id) : null;
   }
   if (els.rawOpenProjectPageButton) {
     const firstProjectId = linkedProjects[0]?.id || "";
@@ -3944,26 +3948,12 @@ async function logout() {
 }
 
 async function restoreSession() {
-  try {
-    const session = await apiGet("/auth/legacy-session");
-    if (session.authenticated) {
-      state.currentUser = session.user;
-      state.authMode = session.auth_mode || "session";
-      state.userKey = session.user?.user_key || state.userKey;
-      updateSessionUi();
-      await refreshDashboard();
-      return;
-    }
-  } catch (error) {
-    setStatus(String(error));
-  }
-
-  if (state.userKey) {
+  if (state.sessionToken) {
   try {
     const session = await apiGet("/auth/session");
     if (session.authenticated) {
       state.currentUser = session.user;
-      state.authMode = session.auth_mode || (state.sessionToken ? "session" : "user_key");
+      state.authMode = session.auth_mode || "session";
       state.userKey = session.user?.user_key || state.userKey;
       updateSessionUi();
       await refreshDashboard();
@@ -3971,7 +3961,7 @@ async function restoreSession() {
       return;
     }
   } catch {
-    // Ignore legacy fallback errors and show login panel.
+    // Session expired or invalid; fall through to login.
   }
   }
 
@@ -5721,7 +5711,7 @@ async function revokeSession(sessionId) {
 }
 
 async function pollDashboard() {
-  if (!state.currentUser && !state.userKey) {
+  if (!state.currentUser) {
     return;
   }
   try {
@@ -5775,7 +5765,7 @@ async function refreshProjectsAndDetail() {
 }
 
 async function forceRefreshCurrentPage() {
-  if (!state.currentUser && !state.userKey) {
+  if (!state.currentUser) {
     await restoreSession();
     return;
   }
