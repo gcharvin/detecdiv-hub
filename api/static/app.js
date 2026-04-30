@@ -41,7 +41,6 @@ const state = {
   editingExecutionTarget: null,
   pendingBulkDelete: null,
   bulkDeletePreviewToken: 0,
-  notes: [],
   acl: [],
   summary: null,
 };
@@ -85,14 +84,15 @@ const els = {
   detailContent: document.querySelector("#detail-content"),
   detailSubtitle: document.querySelector("#detail-subtitle"),
   detailList: document.querySelector("#detail-list"),
-  notesList: document.querySelector("#notes-list"),
+  projectNotes: document.querySelector("#project-notes"),
+  projectNotesSaveButton: document.querySelector("#project-notes-save-button"),
   aclList: document.querySelector("#acl-list"),
   projectRawDatasetsList: document.querySelector("#project-raw-datasets-list"),
   projectQueueRawPreviewsButton: document.querySelector("#project-queue-raw-previews-button"),
-  addNoteButton: document.querySelector("#add-note-button"),
   shareButton: document.querySelector("#share-button"),
   editProjectButton: document.querySelector("#edit-project-button"),
   updateProjectButton: document.querySelector("#update-project-button"),
+  changeProjectOwnerButton: document.querySelector("#change-project-owner-button"),
   addToGroupButton: document.querySelector("#add-to-group-button"),
   previewDeleteButton: document.querySelector("#preview-delete-button"),
   bulkDeletePanel: document.querySelector("#bulk-delete-panel"),
@@ -154,6 +154,9 @@ const els = {
   rawDetailContent: document.querySelector("#raw-detail-content"),
   rawDetailSubtitle: document.querySelector("#raw-detail-subtitle"),
   rawDetailList: document.querySelector("#raw-detail-list"),
+  rawDatasetNotes: document.querySelector("#raw-dataset-notes"),
+  rawDatasetNotesSaveButton: document.querySelector("#raw-dataset-notes-save-button"),
+  changeRawOwnerButton: document.querySelector("#change-raw-owner-button"),
   rawLocationsList: document.querySelector("#raw-locations-list"),
   rawAnalysisProjectsList: document.querySelector("#raw-analysis-projects-list"),
   rawPositionsTableBody: document.querySelector("#raw-positions-table tbody"),
@@ -400,7 +403,6 @@ function clearDashboardState() {
   state.selectedExecutionTarget = null;
   state.pendingBulkDelete = null;
   state.bulkDeletePreviewToken = 0;
-  state.notes = [];
   state.acl = [];
   state.summary = null;
   state.systemHealth = null;
@@ -1089,6 +1091,17 @@ function renderArchivedRawSelectionControls(archivedItems) {
 
 function userOptionLabel(user) {
   return `${user.display_name} (${user.user_key})`;
+}
+
+function ownerUserOptions(currentOwnerKey) {
+  const options = availableOwnerUsers().map((user) => ({
+    value: user.user_key,
+    label: userOptionLabel(user),
+  }));
+  if (currentOwnerKey && !options.some((option) => option.value === currentOwnerKey)) {
+    options.unshift({ value: currentOwnerKey, label: currentOwnerKey });
+  }
+  return options;
 }
 
 function renderUserSelect(selectElement, users, options = {}) {
@@ -2913,6 +2926,11 @@ function renderRawDatasetDetail() {
     els.rawDetailEmpty.classList.remove("hidden");
     els.rawDetailContent.classList.add("hidden");
     els.rawDetailSubtitle.textContent = "Select a raw dataset";
+    renderRawDatasetNotes();
+    if (els.changeRawOwnerButton) {
+      els.changeRawOwnerButton.classList.add("hidden");
+      els.changeRawOwnerButton.disabled = true;
+    }
     if (els.rawPreviewArchiveButton) els.rawPreviewArchiveButton.disabled = true;
     if (els.rawArchiveButton) els.rawArchiveButton.disabled = true;
     if (els.rawDeleteArchiveButton) els.rawDeleteArchiveButton.disabled = true;
@@ -2969,7 +2987,13 @@ function renderRawDatasetDetail() {
       ["Projects", `${linkedProjects.length}`],
       ["Positions", `${(raw.positions || []).length}`],
       ["Last accessed", formatTimestamp(raw.last_accessed_at)],
-    ];
+  ];
+
+  if (els.changeRawOwnerButton) {
+    const canChangeOwner = isAdmin();
+    els.changeRawOwnerButton.classList.toggle("hidden", !canChangeOwner);
+    els.changeRawOwnerButton.disabled = !canChangeOwner;
+  }
 
   els.rawDetailList.innerHTML = "";
   for (const [label, value] of fields) {
@@ -3000,6 +3024,7 @@ function renderRawDatasetDetail() {
   }
 
   renderRawLocations(isDedicatedRawPage ? (raw.locations || []) : []);
+  renderRawDatasetNotes();
   renderRawAnalysisProjects(isDedicatedRawPage ? linkedProjects : []);
   renderRawPositions(isDedicatedRawPage ? (raw.positions || []) : []);
   renderRawPositionViewer(isDedicatedRawPage ? (raw.positions || []) : []);
@@ -3676,23 +3701,29 @@ function renderMigrationItems(items) {
   }
 }
 
-function renderNotes() {
-  if (!els.notesList) {
+function renderProjectNotes() {
+  if (!els.projectNotes) {
     return;
   }
-  els.notesList.innerHTML = "";
-  if (!state.notes.length) {
-    els.notesList.innerHTML = `<div class="stack-item">No notes.</div>`;
+  const notes = state.selectedProjectDetail?.notes || "";
+  if (document.activeElement !== els.projectNotes || els.projectNotes.value === notes) {
+    els.projectNotes.value = notes;
+  }
+  if (els.projectNotesSaveButton) {
+    els.projectNotesSaveButton.disabled = !state.selectedProjectDetail;
+  }
+}
+
+function renderRawDatasetNotes() {
+  if (!els.rawDatasetNotes) {
     return;
   }
-  for (const note of state.notes) {
-    const div = document.createElement("div");
-    div.className = "stack-item";
-    div.innerHTML = `
-      <div class="stack-item-meta">${note.author ? note.author.user_key : "unknown"} | ${formatTimestamp(note.updated_at || note.created_at)}${note.is_pinned ? " | pinned" : ""}</div>
-      <div>${note.note_text}</div>
-    `;
-    els.notesList.appendChild(div);
+  const notes = state.selectedRawDatasetDetail?.notes || "";
+  if (document.activeElement !== els.rawDatasetNotes || els.rawDatasetNotes.value === notes) {
+    els.rawDatasetNotes.value = notes;
+  }
+  if (els.rawDatasetNotesSaveButton) {
+    els.rawDatasetNotesSaveButton.disabled = !state.selectedRawDatasetDetail;
   }
 }
 
@@ -3724,6 +3755,11 @@ function renderDetail() {
     els.detailEmpty.classList.remove("hidden");
     els.detailContent.classList.add("hidden");
     els.detailSubtitle.textContent = "Select a project";
+    renderProjectNotes();
+    if (els.changeProjectOwnerButton) {
+      els.changeProjectOwnerButton.classList.add("hidden");
+      els.changeProjectOwnerButton.disabled = true;
+    }
     renderProjectRawDatasets();
     return;
   }
@@ -3765,7 +3801,13 @@ function renderDetail() {
     els.detailList.append(dt, dd);
   }
 
-  renderNotes();
+  if (els.changeProjectOwnerButton) {
+    const canChangeOwner = isAdmin();
+    els.changeProjectOwnerButton.classList.toggle("hidden", !canChangeOwner);
+    els.changeProjectOwnerButton.disabled = !canChangeOwner;
+  }
+
+  renderProjectNotes();
   renderAcl();
   renderProjectRawDatasets();
   els.detailSubtitle.textContent = project.project_name;
@@ -4407,7 +4449,6 @@ async function refreshProjects() {
     } else {
       state.selectedProject = null;
       state.selectedProjectDetail = null;
-      state.notes = [];
       state.acl = [];
       renderDetail();
     }
@@ -4469,15 +4510,13 @@ async function refreshProjectPage() {
     return;
   }
 
-  const [detail, notes, acl] = await Promise.all([
+  const [detail, acl] = await Promise.all([
     apiGet(`/projects/${projectId}`),
-    apiGet(`/projects/${projectId}/notes`),
     apiGet(`/projects/${projectId}/acl`),
   ]);
   state.selectedProject = detail;
   state.selectedProjectDetail = detail;
   state.projects = [detail];
-  state.notes = notes;
   state.acl = acl;
   if (els.projectPageTitle) {
     els.projectPageTitle.textContent = detail.project_name;
@@ -4488,7 +4527,7 @@ async function refreshProjectPage() {
 
 async function refreshUsers() {
   if (!els.usersTableBody) {
-    if (els.indexOwnerUserKey || els.ownerFilter || els.rawOwnerFilter || pageFlags.hasProjectPage) {
+    if (els.indexOwnerUserKey || els.ownerFilter || els.rawOwnerFilter || pageFlags.hasProjectPage || pageFlags.hasRawDatasetPage) {
       state.users = await apiGet("/users");
       renderUserSelectors();
     }
@@ -4514,13 +4553,11 @@ async function selectProject(projectId) {
     return;
   }
   state.selectedProject = project;
-  const [detail, notes, acl] = await Promise.all([
+  const [detail, acl] = await Promise.all([
     apiGet(`/projects/${projectId}`),
-    apiGet(`/projects/${projectId}/notes`),
     apiGet(`/projects/${projectId}/acl`),
   ]);
   state.selectedProjectDetail = detail;
-  state.notes = notes;
   state.acl = acl;
   renderProjects();
   renderDetail();
@@ -4552,28 +4589,87 @@ async function createGroup() {
   await refreshDashboard();
 }
 
-async function addNote() {
-  if (!state.selectedProject) {
+async function saveProjectNotes() {
+  if (!state.selectedProjectDetail || !els.projectNotes) {
     return;
   }
+  const notes = els.projectNotes.value;
+  const payload = {
+    notes: notes.trim() ? notes : null,
+  };
+  const saved = await apiPatch(`/projects/${state.selectedProjectDetail.id}`, payload);
+  state.selectedProjectDetail = saved;
+  state.selectedProject = saved;
+  state.projects = state.projects.map((project) => (project.id === saved.id ? saved : project));
+  renderProjects();
+  renderDetail();
+  renderPipelineRunBuilder();
+  setStatus("Project notes saved.");
+}
+
+async function saveRawDatasetNotes() {
+  if (!state.selectedRawDatasetDetail || !els.rawDatasetNotes) {
+    return;
+  }
+  const notes = els.rawDatasetNotes.value;
+  const payload = {
+    notes: notes.trim() ? notes : null,
+  };
+  const saved = await apiPatch(`/raw-datasets/${state.selectedRawDatasetDetail.id}`, payload);
+  state.selectedRawDatasetDetail = saved;
+  state.selectedRawDataset = saved;
+  state.rawDatasets = state.rawDatasets.map((raw) => (raw.id === saved.id ? saved : raw));
+  renderRawDatasets();
+  renderRawDatasetDetail();
+  setStatus("Raw dataset notes saved.");
+}
+
+async function changeRawDatasetOwner() {
+  if (!state.selectedRawDatasetDetail) {
+    return;
+  }
+  if (!isAdmin()) {
+    throw new Error("Admin role required.");
+  }
+  const currentOwner = state.selectedRawDatasetDetail.owner?.user_key || "";
+  const ownerOptions = ownerUserOptions(currentOwner);
   const values = await openFormDialog({
-    title: "New note",
-    description: state.selectedProject.project_name || "",
-    submitLabel: "Add note",
+    title: "Change raw dataset owner",
+    description: state.selectedRawDatasetDetail.acquisition_label || "",
+    submitLabel: "Change owner",
     fields: [
-      { name: "noteText", label: "Note", type: "textarea", rows: 5, required: true },
+      {
+        name: "ownerUserKey",
+        label: "New owner",
+        type: ownerOptions.length ? "select" : "text",
+        value: currentOwner,
+        options: ownerOptions,
+      },
     ],
   });
-  const noteText = values?.noteText?.trim();
-  if (!noteText) {
+  if (!values) {
     return;
   }
-  await apiPost(`/projects/${state.selectedProject.id}/notes`, {
-    note_text: noteText,
-    is_pinned: false,
+  const ownerUserKey = String(values.ownerUserKey || "").trim();
+  if (!ownerUserKey) {
+    return;
+  }
+  if (ownerUserKey === currentOwner) {
+    setStatus("Raw dataset owner unchanged.");
+    return;
+  }
+  const saved = await apiPatch(`/raw-datasets/${state.selectedRawDatasetDetail.id}`, {
+    owner_user_key: ownerUserKey,
+    metadata_json: {},
   });
-  await selectProject(state.selectedProject.id);
-  setStatus("Note added.");
+  state.selectedRawDatasetDetail = saved;
+  state.selectedRawDataset = saved;
+  state.rawDatasets = state.rawDatasets.map((raw) => (raw.id === saved.id ? saved : raw));
+  await refreshDashboard();
+  await refreshUsers();
+  renderRawDatasets();
+  renderRawDatasetDetail();
+  setStatus(`Raw dataset owner changed to ${ownerUserKey}.`);
 }
 
 async function editProject() {
@@ -4582,13 +4678,7 @@ async function editProject() {
   }
   const currentOwner = state.selectedProjectDetail.owner?.user_key || "";
   const currentVisibility = state.selectedProjectDetail.visibility || "private";
-  const ownerOptions = availableOwnerUsers().map((user) => ({
-    value: user.user_key,
-    label: userOptionLabel(user),
-  }));
-  if (currentOwner && !ownerOptions.some((option) => option.value === currentOwner)) {
-    ownerOptions.unshift({ value: currentOwner, label: currentOwner });
-  }
+  const ownerOptions = ownerUserOptions(currentOwner);
   const values = await openFormDialog({
     title: "Update project",
     description: state.selectedProjectDetail.project_name || "",
@@ -4625,6 +4715,55 @@ async function editProject() {
   await refreshDashboard();
   await selectProject(state.selectedProjectDetail.id);
   setStatus("Project updated.");
+}
+
+async function changeProjectOwner() {
+  if (!state.selectedProjectDetail) {
+    return;
+  }
+  if (!isAdmin()) {
+    throw new Error("Admin role required.");
+  }
+  const currentOwner = state.selectedProjectDetail.owner?.user_key || "";
+  const ownerOptions = ownerUserOptions(currentOwner);
+  const values = await openFormDialog({
+    title: "Change project owner",
+    description: state.selectedProjectDetail.project_name || "",
+    submitLabel: "Change owner",
+    fields: [
+      {
+        name: "ownerUserKey",
+        label: "New owner",
+        type: ownerOptions.length ? "select" : "text",
+        value: currentOwner,
+        options: ownerOptions,
+      },
+    ],
+  });
+  if (!values) {
+    return;
+  }
+  const ownerUserKey = String(values.ownerUserKey || "").trim();
+  if (!ownerUserKey) {
+    return;
+  }
+  if (ownerUserKey === currentOwner) {
+    setStatus("Project owner unchanged.");
+    return;
+  }
+  const saved = await apiPatch(`/projects/${state.selectedProjectDetail.id}`, {
+    owner_user_key: ownerUserKey,
+    metadata_json: {},
+  });
+  state.selectedProjectDetail = saved;
+  state.selectedProject = saved;
+  state.projects = state.projects.map((project) => (project.id === saved.id ? saved : project));
+  await refreshDashboard();
+  await refreshUsers();
+  renderProjects();
+  renderDetail();
+  renderPipelineRunBuilder();
+  setStatus(`Project owner changed to ${ownerUserKey}.`);
 }
 
 async function shareProject() {
@@ -5845,7 +5984,8 @@ if (els.rawPositionDeleteConfirmButton) els.rawPositionDeleteConfirmButton.addEv
 }));
 if (els.rawPositionDeleteConfirmText) els.rawPositionDeleteConfirmText.addEventListener("input", () => renderRawPositionDeletePanel());
 if (els.newGroupButton) els.newGroupButton.addEventListener("click", () => createGroup().catch((error) => setStatus(String(error))));
-if (els.addNoteButton) els.addNoteButton.addEventListener("click", () => addNote().catch((error) => setStatus(String(error))));
+if (els.projectNotesSaveButton) els.projectNotesSaveButton.addEventListener("click", () => saveProjectNotes().catch((error) => setStatus(String(error))));
+if (els.rawDatasetNotesSaveButton) els.rawDatasetNotesSaveButton.addEventListener("click", () => saveRawDatasetNotes().catch((error) => setStatus(String(error))));
 if (els.shareButton) els.shareButton.addEventListener("click", () => shareProject().catch((error) => setStatus(String(error))));
 if (els.editProjectButton) els.editProjectButton.addEventListener("click", () => {
   if (pageFlags.hasProjectPage) {
@@ -5855,6 +5995,7 @@ if (els.editProjectButton) els.editProjectButton.addEventListener("click", () =>
   }
 });
 if (els.updateProjectButton) els.updateProjectButton.addEventListener("click", () => editProject().catch((error) => setStatus(String(error))));
+if (els.changeProjectOwnerButton) els.changeProjectOwnerButton.addEventListener("click", () => changeProjectOwner().catch((error) => setStatus(String(error))));
 if (els.addToGroupButton) els.addToGroupButton.addEventListener("click", () => addSelectedProjectToGroup().catch((error) => setStatus(String(error))));
 if (els.projectQueueRawPreviewsButton) els.projectQueueRawPreviewsButton.addEventListener("click", () => queueProjectRawPreviewVideos().catch((error) => setStatus(String(error))));
 if (els.previewDeleteButton) els.previewDeleteButton.addEventListener("click", () => deleteProject().catch((error) => setStatus(String(error))));
@@ -5883,6 +6024,7 @@ if (els.rawRegeneratePreviewButton) els.rawRegeneratePreviewButton.addEventListe
 if (els.rawPreviewQualityRefreshButton) els.rawPreviewQualityRefreshButton.addEventListener("click", () => refreshRawPreviewQualityStatus().catch((error) => setStatus(String(error))));
 if (els.rawPreviewQualitySaveButton) els.rawPreviewQualitySaveButton.addEventListener("click", () => saveRawPreviewQualitySettings().catch((error) => setStatus(String(error))));
 if (els.rawPreviewQualityFrameMode) els.rawPreviewQualityFrameMode.addEventListener("change", updateRawPreviewFrameModeUi);
+if (els.changeRawOwnerButton) els.changeRawOwnerButton.addEventListener("click", () => changeRawDatasetOwner().catch((error) => setStatus(String(error))));
 if (els.rawArchiveButton) els.rawArchiveButton.addEventListener("click", () => requestRawArchive().catch((error) => setStatus(String(error))));
 if (els.rawDeleteArchiveButton) els.rawDeleteArchiveButton.addEventListener("click", () => deleteRawArchive().catch((error) => setStatus(String(error))));
 if (els.rawRestoreButton) els.rawRestoreButton.addEventListener("click", () => requestRawRestore().catch((error) => setStatus(String(error))));

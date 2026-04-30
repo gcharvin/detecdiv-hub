@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Detecdiv server - Raw dataset</title>
-    <link rel="stylesheet" href="/web/styles.css?v=20260430-ui3" />
+    <link rel="stylesheet" href="/web/styles.css?v=20260430-ui4" />
   </head>
   <body data-page="raw-dataset">
     <div class="page-shell">
@@ -72,6 +72,21 @@
 
         <div id="raw-detail-content" class="detail-content hidden">
           <dl class="detail-list" id="raw-detail-list"></dl>
+
+          <div class="action-stack detail-actions">
+            <button id="change-raw-owner-button" class="hidden">Change owner</button>
+          </div>
+
+          <section class="subpanel">
+            <div class="subpanel-header">
+              <h3>Notes</h3>
+              <button id="raw-dataset-notes-save-button" class="primary">Save</button>
+            </div>
+            <label class="field">
+              <span>Notes</span>
+              <textarea id="raw-dataset-notes" rows="6" placeholder="Enter raw dataset notes here..."></textarea>
+            </label>
+          </section>
 
           <section class="subpanel">
             <div class="subpanel-header">
@@ -172,6 +187,6 @@
       </footer>
     </div>
 
-    <script src="/web/app.js?v=20260430-ui3" defer></script>
+    <script src="/web/app.js?v=20260430-ui4" defer></script>
   </body>
 </html>

@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Detecdiv server - Project</title>
-    <link rel="stylesheet" href="/web/styles.css?v=20260430-ui3" />
+    <link rel="stylesheet" href="/web/styles.css?v=20260430-ui4" />
   </head>
   <body data-page="project">
     <div class="page-shell">
@@ -58,9 +58,9 @@
               <p id="detail-subtitle" class="muted">Loading project</p>
             </div>
             <div class="action-stack">
-              <button id="update-project-button">Update project</button>
-              <button id="add-to-group-button">Add to group</button>
-              <button id="preview-delete-button" class="danger">Delete</button>
+            <button id="update-project-button">Update project</button>
+            <button id="add-to-group-button">Add to group</button>
+            <button id="preview-delete-button" class="danger">Delete</button>
             </div>
           </div>
 
@@ -69,12 +69,19 @@
           <div id="detail-content" class="detail-content hidden">
             <dl class="detail-list" id="detail-list"></dl>
 
+            <div class="action-stack detail-actions">
+              <button id="change-project-owner-button" class="hidden">Change owner</button>
+            </div>
+
             <section class="subpanel">
               <div class="subpanel-header">
                 <h3>Notes</h3>
-                <button id="add-note-button">Add note</button>
+                <button id="project-notes-save-button" class="primary">Save</button>
               </div>
-              <div id="notes-list" class="stack-list"></div>
+              <label class="field">
+                <span>Notes</span>
+                <textarea id="project-notes" rows="6" placeholder="Enter project notes here..."></textarea>
+              </label>
             </section>
 
             <section class="subpanel">
@@ -283,6 +290,6 @@
       </footer>
     </div>
 
-    <script src="/web/app.js?v=20260430-ui3" defer></script>
+    <script src="/web/app.js?v=20260430-ui4" defer></script>
   </body>
 </html>
