@@ -344,6 +344,152 @@ const pageFlags = {
   hasMigrationView: Boolean(els.migrationPlansTableBody || els.migrationDetailContent),
 };
 
+let appLayoutInitialized = false;
+
+function getSidebarActiveRoute() {
+  if (pageKind === "admin") {
+    return "admin";
+  }
+  if (pageKind === "indexing") {
+    return "projects-settings";
+  }
+  if (pageKind === "raw-ops") {
+    return "datasets-settings";
+  }
+  if (pageKind === "raw-datasets" || pageKind === "raw-dataset") {
+    return "datasets-catalog";
+  }
+  return "projects-catalog";
+}
+
+function initializeAppLayout() {
+  if (appLayoutInitialized) {
+    return;
+  }
+  const pageShell = document.querySelector(".page-shell");
+  if (!pageShell) {
+    return;
+  }
+
+  const existingChildren = Array.from(pageShell.children);
+  const hero = existingChildren.find((child) => child.classList?.contains("hero")) || null;
+  const heroActions = hero?.querySelector(".hero-actions") || null;
+  const sidebar = document.createElement("aside");
+  sidebar.className = "sidebar-shell";
+  sidebar.innerHTML = `
+    <div class="sidebar-brand">
+      <div class="eyebrow">DetecDiv Hub</div>
+      <h2>Navigation</h2>
+      <p class="muted">Projects, datasets, and admin tools stay available from one place.</p>
+    </div>
+    <div class="sidebar-auth" data-sidebar-auth></div>
+    <nav class="sidebar-menu" aria-label="Primary navigation" data-sidebar-menu></nav>
+  `;
+
+  const mainContent = document.createElement("div");
+  mainContent.className = "main-content";
+
+  pageShell.replaceChildren(sidebar, mainContent);
+
+  const sidebarAuth = sidebar.querySelector("[data-sidebar-auth]");
+  const sidebarMenu = sidebar.querySelector("[data-sidebar-menu]");
+
+  if (els.loginPanel && sidebarAuth) {
+    sidebarAuth.appendChild(els.loginPanel);
+  }
+
+  if (heroActions && sidebarAuth) {
+    const sessionBox = heroActions.querySelector(".session-box");
+    if (sessionBox) {
+      sidebarAuth.appendChild(sessionBox);
+    }
+    heroActions.classList.add("hidden");
+  }
+
+  for (const child of existingChildren) {
+    if (child === els.loginPanel) {
+      continue;
+    }
+    if (child.classList?.contains("hero-actions")) {
+      continue;
+    }
+    if (child.classList?.contains("hero")) {
+      mainContent.appendChild(child);
+      continue;
+    }
+    if (child !== sidebar && child !== mainContent) {
+      mainContent.appendChild(child);
+    }
+  }
+
+  if (sidebarMenu) {
+    const activeRoute = getSidebarActiveRoute();
+    const groups = [
+      {
+        label: "Projects",
+        items: [
+          { label: "Catalog", href: "/web/", route: "projects-catalog" },
+          { label: "Setting", href: "/web/indexing.html", route: "projects-settings" },
+        ],
+      },
+      {
+        label: "Datasets",
+        items: [
+          { label: "Catalog", href: "/web/raw-datasets.html", route: "datasets-catalog" },
+          { label: "Settings", href: "/web/raw-ops.html", route: "datasets-settings" },
+        ],
+      },
+    ];
+
+    const fragments = [];
+    for (const group of groups) {
+      const details = document.createElement("details");
+      details.className = "sidebar-group";
+      details.open = true;
+
+      const summary = document.createElement("summary");
+      summary.textContent = group.label;
+      details.appendChild(summary);
+
+      const branch = document.createElement("div");
+      branch.className = "sidebar-branch";
+
+      for (const item of group.items) {
+        const link = document.createElement("a");
+        link.href = item.href;
+        link.textContent = item.label;
+        link.className = "sidebar-link";
+        if (item.route === activeRoute) {
+          link.classList.add("active");
+          link.setAttribute("aria-current", "page");
+        }
+        branch.appendChild(link);
+      }
+
+      details.appendChild(branch);
+      fragments.push(details);
+    }
+
+    const adminAllowed = canAccessAdminPortal();
+    const adminLink = document.createElement("a");
+    adminLink.href = "/web/admin.html";
+    adminLink.textContent = "Admin";
+    adminLink.className = "sidebar-link admin-nav-link";
+    if (activeRoute === "admin") {
+      adminLink.classList.add("active");
+      adminLink.setAttribute("aria-current", "page");
+    }
+    if (!adminAllowed) {
+      adminLink.classList.add("hidden");
+    }
+    fragments.push(adminLink);
+
+    sidebarMenu.replaceChildren(...fragments);
+  }
+
+  appLayoutInitialized = true;
+}
+
 function setStatus(message) {
   if (els.statusLine) {
     els.statusLine.textContent = message;
@@ -6092,5 +6238,6 @@ if (els.bulkImportUsersButton) els.bulkImportUsersButton.addEventListener("click
 if (els.refreshSessionsButton) els.refreshSessionsButton.addEventListener("click", () => refreshSessions().catch((error) => setStatus(String(error))));
 
 ensureDashboardPolling();
+initializeAppLayout();
 updateSessionUi();
 restoreSession().catch((error) => setStatus(String(error)));
