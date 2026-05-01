@@ -19,50 +19,37 @@
       </aside>
 
       <div class="main-content">
-      <section id="login-panel" class="panel login-panel hidden">
-        <div class="panel-header">
+        <section id="login-panel" class="panel login-panel hidden">
+          <div class="panel-header">
+            <div>
+              <h2>Login</h2>
+              <p class="muted">Open a hub session with a user key and password.</p>
+            </div>
+          </div>
+          <div class="toolbar">
+            <label class="field compact">
+              <span>User key</span>
+              <input id="login-user-key" type="text" placeholder="admin" />
+            </label>
+            <label class="field compact">
+              <span>Password</span>
+              <input id="login-password" type="password" placeholder="password" />
+            </label>
+            <button id="login-button" class="primary">Login</button>
+          </div>
+        </section>
+
+        <header class="hero">
           <div>
-            <h2>Login</h2>
-            <p class="muted">Open a hub session with a user key and password.</p>
+            <div class="eyebrow">DetecDiv Hub</div>
+            <h1>Detecdiv server - Raw datasets</h1>
+            <p class="hero-copy">
+              Browse indexed acquisitions, inspect linked projects, and trigger preview generation without the archive tooling noise.
+            </p>
           </div>
-        </div>
-        <div class="toolbar">
-          <label class="field compact">
-            <span>User key</span>
-            <input id="login-user-key" type="text" placeholder="admin" />
-          </label>
-          <label class="field compact">
-            <span>Password</span>
-            <input id="login-password" type="password" placeholder="password" />
-          </label>
-          <button id="login-button" class="primary">Login</button>
-        </div>
-      </section>
+        </header>
 
-      <header class="hero">
-        <div>
-          <div class="eyebrow">DetecDiv Hub</div>
-          <h1>Detecdiv server - Raw datasets</h1>
-          <p class="hero-copy">
-            Browse indexed acquisitions, inspect linked projects, and trigger preview generation without the archive tooling noise.
-          </p>
-        </div>
-        <div class="hero-actions">
-          <nav class="hero-nav">
-            <a class="nav-link" href="/web/">Project Catalog</a>
-            <a class="nav-link active" href="/web/raw-datasets.html">Raw datasets Catalog</a>
-            <a class="nav-link" href="/web/raw-ops.html">Raw datasets Ops</a>
-            <a class="nav-link" href="/web/indexing.html">Projects Ops</a>
-            <a class="nav-link admin-nav-link hidden" href="/web/admin.html">Admin</a>
-          </nav>
-          <div class="session-box">
-            <div id="session-label" class="muted">Not logged in.</div>
-            <button id="logout-button">Logout</button>
-          </div>
-        </div>
-      </header>
-
-      <section class="summary-grid" id="summary-grid">
+        <section class="summary-grid" id="summary-grid">
         <article class="summary-card">
           <div class="summary-label">Raw datasets</div>
           <div id="summary-total-projects" class="summary-value">0</div>
@@ -81,100 +68,100 @@
         </article>
       </section>
 
-      <section class="toolbar">
-        <label class="field compact">
-          <span>Search</span>
-          <input id="raw-search" type="text" placeholder="dataset, key, microscope..." />
-        </label>
-        <label class="field compact">
-          <span>Project owner</span>
-          <select id="raw-owner-filter">
-            <option value="">All project owners</option>
-          </select>
-        </label>
-        <label class="field compact">
-          <span>Tier</span>
-          <select id="raw-tier-filter">
-            <option value="">All tiers</option>
-            <option value="hot">hot</option>
-            <option value="warm">warm</option>
-            <option value="cold">cold</option>
-          </select>
-        </label>
-        <label class="field compact">
-          <span>Archive</span>
-          <select id="raw-archive-status-filter">
-            <option value="">All states</option>
-            <option value="none">none</option>
-            <option value="archive_queued">archive_queued</option>
-            <option value="archived">archived</option>
-            <option value="restored">restored</option>
-            <option value="restore_queued">restore_queued</option>
-            <option value="archive_failed">archive_failed</option>
-            <option value="restore_failed">restore_failed</option>
-          </select>
-        </label>
-        <label class="field compact">
-          <span>Show</span>
-          <select id="raw-limit">
-            <option value="25">25</option>
-            <option value="50" selected>50</option>
-            <option value="100">100</option>
-            <option value="200">200</option>
-          </select>
-        </label>
-        <label class="toggle">
-          <input id="raw-owned-only" type="checkbox" />
-          <span>Only my datasets</span>
-        </label>
-      </section>
-
-      <section class="panel bulk-actions-panel">
-        <div class="panel-header">
-          <div>
-            <h2>Raw Bulk Selection</h2>
-            <p id="raw-selection-summary" class="muted">0 selected / 0 visible</p>
-          </div>
-        </div>
-      </section>
-
-      <section id="raw-bulk-delete-panel" class="panel danger-panel hidden">
-        <div class="panel-header">
-          <div>
-            <h2>Bulk Delete Raw Datasets</h2>
-            <p id="raw-bulk-delete-summary" class="danger-copy">No raw datasets queued for deletion.</p>
-          </div>
-          <button id="raw-bulk-delete-cancel-button">Cancel</button>
-        </div>
-        <div class="toolbar">
+        <section class="toolbar">
           <label class="field compact">
-            <span>Delete mode</span>
-            <select id="raw-bulk-delete-mode">
-              <option value="database_only">Delete catalog entries only</option>
-              <option value="source_files">Delete catalog entries and raw source files on disk</option>
+            <span>Search</span>
+            <input id="raw-search" type="text" placeholder="dataset, key, microscope..." />
+          </label>
+          <label class="field compact">
+            <span>Project owner</span>
+            <select id="raw-owner-filter">
+              <option value="">All project owners</option>
+            </select>
+          </label>
+          <label class="field compact">
+            <span>Tier</span>
+            <select id="raw-tier-filter">
+              <option value="">All tiers</option>
+              <option value="hot">hot</option>
+              <option value="warm">warm</option>
+              <option value="cold">cold</option>
+            </select>
+          </label>
+          <label class="field compact">
+            <span>Archive</span>
+            <select id="raw-archive-status-filter">
+              <option value="">All states</option>
+              <option value="none">none</option>
+              <option value="archive_queued">archive_queued</option>
+              <option value="archived">archived</option>
+              <option value="restored">restored</option>
+              <option value="restore_queued">restore_queued</option>
+              <option value="archive_failed">archive_failed</option>
+              <option value="restore_failed">restore_failed</option>
+            </select>
+          </label>
+          <label class="field compact">
+            <span>Show</span>
+            <select id="raw-limit">
+              <option value="25">25</option>
+              <option value="50" selected>50</option>
+              <option value="100">100</option>
+              <option value="200">200</option>
             </select>
           </label>
           <label class="toggle">
-            <input id="raw-bulk-delete-linked-projects" type="checkbox" />
-            <span>Delete linked projects too (when exclusive)</span>
+            <input id="raw-owned-only" type="checkbox" />
+            <span>Only my datasets</span>
           </label>
-          <label class="toggle">
-            <input id="raw-bulk-delete-linked-project-files" type="checkbox" />
-            <span>Also delete linked project files</span>
-          </label>
-          <label class="field compact">
-            <span>Type DELETE to confirm</span>
-            <input id="raw-bulk-delete-confirm-text" type="text" placeholder="DELETE" />
-          </label>
-          <button id="raw-bulk-delete-confirm-button" class="danger">Delete catalog entries only</button>
-        </div>
-        <p class="danger-copy">
-          Warning: deleting raw source files removes indexed acquisition folders. Linked projects are only auto-deleted when they are exclusive to the selected raw datasets.
-        </p>
-      </section>
+        </section>
 
-      <section class="layout-grid">
-        <main class="panel">
+        <section class="panel bulk-actions-panel">
+          <div class="panel-header">
+            <div>
+              <h2>Raw Bulk Selection</h2>
+              <p id="raw-selection-summary" class="muted">0 selected / 0 visible</p>
+            </div>
+          </div>
+        </section>
+
+        <section id="raw-bulk-delete-panel" class="panel danger-panel hidden">
+          <div class="panel-header">
+            <div>
+              <h2>Bulk Delete Raw Datasets</h2>
+              <p id="raw-bulk-delete-summary" class="danger-copy">No raw datasets queued for deletion.</p>
+            </div>
+            <button id="raw-bulk-delete-cancel-button">Cancel</button>
+          </div>
+          <div class="toolbar">
+            <label class="field compact">
+              <span>Delete mode</span>
+              <select id="raw-bulk-delete-mode">
+                <option value="database_only">Delete catalog entries only</option>
+                <option value="source_files">Delete catalog entries and raw source files on disk</option>
+              </select>
+            </label>
+            <label class="toggle">
+              <input id="raw-bulk-delete-linked-projects" type="checkbox" />
+              <span>Delete linked projects too (when exclusive)</span>
+            </label>
+            <label class="toggle">
+              <input id="raw-bulk-delete-linked-project-files" type="checkbox" />
+              <span>Also delete linked project files</span>
+            </label>
+            <label class="field compact">
+              <span>Type DELETE to confirm</span>
+              <input id="raw-bulk-delete-confirm-text" type="text" placeholder="DELETE" />
+            </label>
+            <button id="raw-bulk-delete-confirm-button" class="danger">Delete catalog entries only</button>
+          </div>
+          <p class="danger-copy">
+            Warning: deleting raw source files removes indexed acquisition folders. Linked projects are only auto-deleted when they are exclusive to the selected raw datasets.
+          </p>
+        </section>
+
+        <section class="layout-grid">
+          <main class="panel">
           <div class="panel-header">
             <div>
               <h2>Raw datasets Catalog</h2>
@@ -199,9 +186,9 @@
               <tbody></tbody>
             </table>
           </div>
-        </main>
+          </main>
 
-        <aside class="panel detail-panel">
+          <aside class="panel detail-panel">
           <div class="panel-header">
             <div>
               <h2>Raw Dataset Summary</h2>
@@ -229,16 +216,16 @@
               </div>
             </section>
           </div>
-        </aside>
-      </section>
+          </aside>
+        </section>
 
-      <footer class="footer">
-        <div id="status-line">Ready.</div>
-      </footer>
+        <footer class="footer">
+          <div id="status-line">Ready.</div>
+        </footer>
       </div>
     </div>
 
-    <script src="/web/app.js?v=20260501-ui6" defer></script>
+    <script src="/web/app.js?v=20260501-ui7" defer></script>
   </body>
 </html>
 
