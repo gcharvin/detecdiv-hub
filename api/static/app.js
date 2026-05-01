@@ -1089,9 +1089,11 @@ function updateSessionUi() {
     els.changePasswordButton.classList.add("hidden");
     els.changePasswordButton.disabled = true;
   }
-  for (const link of els.adminNavLinks || []) {
+  const adminLinks = document.querySelectorAll(".admin-nav-link");
+  for (const link of adminLinks) {
     link.classList.toggle("hidden", !canAccessAdminPortal());
   }
+  els.adminNavLinks = adminLinks;
   if (pageFlags.hasAdminView) {
     const allowed = canAccessAdminPortal();
     if (els.adminContent) {
