@@ -70,6 +70,9 @@ def ingest_raw_dataset_from_directory(
         data_format=data_format,
         source_metadata=source_metadata,
     )
+    effective_source_metadata = dict(parsed_metadata)
+    if source_metadata:
+        effective_source_metadata.update(source_metadata)
     effective_label = acquisition_label or dataset_dir.name
     effective_started_at = started_at or size_timestamp
     effective_ended_at = ended_at or effective_started_at
@@ -140,7 +143,7 @@ def ingest_raw_dataset_from_directory(
         session,
         raw_dataset=raw_dataset,
         dataset_dir=dataset_dir,
-        source_metadata=source_metadata or {},
+        source_metadata=effective_source_metadata,
     )
 
     if preferred_experiment is not None:

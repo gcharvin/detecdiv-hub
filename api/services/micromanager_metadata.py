@@ -5,6 +5,8 @@ import re
 from pathlib import Path
 from typing import Any
 
+from api.services.ome_zarr_metadata import read_ome_zarr_metadata
+
 
 MICROMANAGER_METADATA_TEXT_FILES = (
     "metadata.txt",
@@ -22,6 +24,9 @@ MICROMANAGER_DISPLAY_SETTINGS_FILES = (
 
 def read_micromanager_metadata(dataset_dir: Path) -> dict[str, Any]:
     metadata = read_micromanager_metadata_text(dataset_dir)
+    ome_zarr_metadata = read_ome_zarr_metadata(dataset_dir)
+    if ome_zarr_metadata:
+        metadata = merge_metadata_dicts(metadata, ome_zarr_metadata)
     display_settings = read_micromanager_display_settings(dataset_dir)
     if display_settings:
         metadata = merge_metadata_dicts(
