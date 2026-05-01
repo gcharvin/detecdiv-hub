@@ -52,7 +52,6 @@ const els = {
   loginButton: document.querySelector("#login-button"),
   sessionLabel: document.querySelector("#session-label"),
   sessionBox: document.querySelector(".session-box"),
-  connectButton: document.querySelector("#connect-button"),
   logoutButton: document.querySelector("#logout-button"),
   changePasswordButton: document.querySelector("#change-password-button"),
   adminNavLinks: document.querySelectorAll(".admin-nav-link"),
@@ -392,6 +391,7 @@ function initializeAppLayout() {
       <div class="sidebar-auth" data-sidebar-auth></div>
       <nav class="sidebar-menu" aria-label="Primary navigation" data-sidebar-menu></nav>
     `;
+    sidebarMenu = sidebar.querySelector("[data-sidebar-menu]") || sidebar.querySelector(".sidebar-menu");
 
     mainContent = document.createElement("div");
     mainContent.className = "main-content";
@@ -6111,7 +6111,6 @@ function ensureDashboardPolling() {
 }
 
 if (els.loginButton) els.loginButton.addEventListener("click", () => login().catch((error) => setStatus(String(error))));
-if (els.connectButton) els.connectButton.addEventListener("click", () => forceRefreshCurrentPage().catch((error) => setStatus(String(error))));
 if (els.logoutButton) els.logoutButton.addEventListener("click", () => logout().catch((error) => setStatus(String(error))));
 if (els.refreshButton) els.refreshButton.addEventListener("click", () => forceRefreshCurrentPage().catch((error) => setStatus(String(error))));
 if (els.groupFilter) els.groupFilter.addEventListener("change", () => refreshProjects().catch((error) => setStatus(String(error))));
