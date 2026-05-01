@@ -372,53 +372,79 @@ function initializeAppLayout() {
   }
 
   const existingChildren = Array.from(pageShell.children);
+  const existingSidebar = existingChildren.find((child) => child.classList?.contains("sidebar-shell")) || null;
+  const existingMainContent = existingChildren.find((child) => child.classList?.contains("main-content")) || null;
   const hero = existingChildren.find((child) => child.classList?.contains("hero")) || null;
   const heroActions = hero?.querySelector(".hero-actions") || null;
-  const sidebar = document.createElement("aside");
-  sidebar.className = "sidebar-shell";
-  sidebar.innerHTML = `
-    <div class="sidebar-brand">
-      <div class="eyebrow">DetecDiv Hub</div>
-      <h2>Navigation</h2>
-      <p class="muted">Projects, datasets, and admin tools stay available from one place.</p>
-    </div>
-    <div class="sidebar-auth" data-sidebar-auth></div>
-    <nav class="sidebar-menu" aria-label="Primary navigation" data-sidebar-menu></nav>
-  `;
+  let sidebar = existingSidebar;
+  let mainContent = existingMainContent;
+  let sidebarMenu = null;
+  if (!sidebar || !mainContent) {
+    sidebar = document.createElement("aside");
+    sidebar.className = "sidebar-shell";
+    sidebar.innerHTML = `
+      <div class="sidebar-brand">
+        <div class="eyebrow">DetecDiv Hub</div>
+        <h2>Navigation</h2>
+        <p class="muted">Projects, datasets, and admin tools stay available from one place.</p>
+      </div>
+      <div class="sidebar-auth" data-sidebar-auth></div>
+      <nav class="sidebar-menu" aria-label="Primary navigation" data-sidebar-menu></nav>
+    `;
 
-  const mainContent = document.createElement("div");
-  mainContent.className = "main-content";
+    mainContent = document.createElement("div");
+    mainContent.className = "main-content";
 
-  pageShell.replaceChildren(sidebar, mainContent);
+    pageShell.replaceChildren(sidebar, mainContent);
 
-  const sidebarAuth = sidebar.querySelector("[data-sidebar-auth]");
-  const sidebarMenu = sidebar.querySelector("[data-sidebar-menu]");
-
-  if (els.loginPanel && sidebarAuth) {
-    sidebarAuth.appendChild(els.loginPanel);
-  }
-
-  if (heroActions && sidebarAuth) {
-    const sessionBox = heroActions.querySelector(".session-box");
-    if (sessionBox) {
-      sidebarAuth.appendChild(sessionBox);
+    if (els.loginPanel) {
+      const sidebarAuth = sidebar.querySelector("[data-sidebar-auth]");
+      if (sidebarAuth) {
+        sidebarAuth.appendChild(els.loginPanel);
+      }
     }
-    heroActions.classList.add("hidden");
-  }
 
-  for (const child of existingChildren) {
-    if (child === els.loginPanel) {
-      continue;
+    if (heroActions) {
+      const sidebarAuth = sidebar.querySelector("[data-sidebar-auth]");
+      if (sidebarAuth) {
+        const sessionBox = heroActions.querySelector(".session-box");
+        if (sessionBox) {
+          sidebarAuth.appendChild(sessionBox);
+        }
+      }
+      heroActions.classList.add("hidden");
     }
-    if (child.classList?.contains("hero-actions")) {
-      continue;
+
+    for (const child of existingChildren) {
+      if (child === els.loginPanel) {
+        continue;
+      }
+      if (child.classList?.contains("hero-actions")) {
+        continue;
+      }
+      if (child.classList?.contains("hero")) {
+        mainContent.appendChild(child);
+        continue;
+      }
+      if (child !== sidebar && child !== mainContent) {
+        mainContent.appendChild(child);
+      }
     }
-    if (child.classList?.contains("hero")) {
-      mainContent.appendChild(child);
-      continue;
+  } else {
+    const sidebarAuth = sidebar.querySelector("[data-sidebar-auth]") || sidebar.querySelector(".sidebar-auth");
+    sidebarMenu = sidebar.querySelector("[data-sidebar-menu]") || sidebar.querySelector(".sidebar-menu");
+    if (els.loginPanel && sidebarAuth && els.loginPanel.parentElement !== sidebarAuth) {
+      sidebarAuth.appendChild(els.loginPanel);
     }
-    if (child !== sidebar && child !== mainContent) {
-      mainContent.appendChild(child);
+    if (heroActions && sidebarAuth) {
+      const sessionBox = heroActions.querySelector(".session-box");
+      if (sessionBox && sessionBox.parentElement !== sidebarAuth) {
+        sidebarAuth.appendChild(sessionBox);
+      }
+      heroActions.classList.add("hidden");
+    }
+    if (sidebarMenu && !sidebarMenu.childElementCount) {
+      sidebarMenu.replaceChildren();
     }
   }
 
