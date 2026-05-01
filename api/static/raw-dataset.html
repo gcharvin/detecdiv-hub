@@ -15,6 +15,10 @@
           <p class="muted">Projects, datasets, and admin tools stay available from one place.</p>
         </div>
         <div class="sidebar-auth"></div>
+        <div class="session-box hidden">
+          <div id="session-label" class="muted">Not logged in.</div>
+          <button id="logout-button">Logout</button>
+        </div>
         <nav class="sidebar-menu" aria-label="Primary navigation"></nav>
       </aside>
 
@@ -45,19 +49,6 @@
           <h1 id="raw-dataset-page-title">Raw dataset</h1>
           <p class="hero-copy">Inspect acquisition metadata, linked projects, positions, and preview movies.</p>
         </div>
-        <div class="hero-actions">
-          <nav class="hero-nav">
-            <a class="nav-link" href="/web/">Project Catalog</a>
-            <a class="nav-link active" href="/web/raw-datasets.html">Raw datasets Catalog</a>
-            <a class="nav-link" href="/web/raw-ops.html">Raw datasets Ops</a>
-            <a class="nav-link" href="/web/indexing.html">Projects Ops</a>
-            <a class="nav-link admin-nav-link hidden" href="/web/admin.html">Admin</a>
-          </nav>
-          <div class="session-box">
-            <div id="session-label" class="muted">Not logged in.</div>
-            <button id="logout-button">Logout</button>
-          </div>
-        </div>
       </header>
 
       <section class="panel detail-panel">
@@ -65,13 +56,6 @@
           <div>
             <h2>Raw Dataset Details</h2>
             <p id="raw-detail-subtitle" class="muted">Loading raw dataset</p>
-          </div>
-          <div class="action-stack">
-            <a class="button-link" href="/web/raw-datasets.html">Back to datasets</a>
-            <button id="raw-preview-archive-button">Preview archive</button>
-            <button id="raw-archive-button">Request archive</button>
-            <button id="raw-delete-archive-button">Delete archive</button>
-            <button id="raw-restore-button">Request restore</button>
           </div>
         </div>
         <div id="raw-action-feedback" class="inline-feedback hidden"></div>
@@ -86,6 +70,19 @@
           <div class="action-stack detail-actions">
             <button id="change-raw-owner-button" class="hidden">Change owner</button>
           </div>
+
+          <section class="subpanel">
+            <div class="subpanel-header">
+              <h3>Actions</h3>
+            </div>
+            <div class="action-stack">
+              <button id="raw-preview-archive-button">Preview archive</button>
+              <button id="raw-archive-button">Request archive</button>
+              <button id="raw-delete-archive-button">Delete archive</button>
+              <button id="raw-restore-button">Request restore</button>
+              <a class="button-link" href="/web/raw-datasets.html">Back to datasets</a>
+            </div>
+          </section>
 
           <section class="subpanel">
             <div class="subpanel-header">

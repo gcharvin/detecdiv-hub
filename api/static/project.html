@@ -15,6 +15,10 @@
           <p class="muted">Projects, datasets, and admin tools stay available from one place.</p>
         </div>
         <div class="sidebar-auth"></div>
+        <div class="session-box hidden">
+          <div id="session-label" class="muted">Not logged in.</div>
+          <button id="logout-button">Logout</button>
+        </div>
         <nav class="sidebar-menu" aria-label="Primary navigation"></nav>
       </aside>
 
@@ -45,19 +49,6 @@
           <h1 id="project-page-title">Project</h1>
           <p class="hero-copy">Review project metadata, notes, access, and pipeline runs.</p>
         </div>
-        <div class="hero-actions">
-          <nav class="hero-nav">
-            <a class="nav-link" href="/web/">Project Catalog</a>
-            <a class="nav-link" href="/web/raw-datasets.html">Raw datasets Catalog</a>
-            <a class="nav-link" href="/web/raw-ops.html">Raw datasets Ops</a>
-            <a class="nav-link" href="/web/indexing.html">Projects Ops</a>
-            <a class="nav-link admin-nav-link hidden" href="/web/admin.html">Admin</a>
-          </nav>
-          <div class="session-box">
-            <div id="session-label" class="muted">Not logged in.</div>
-            <button id="logout-button">Logout</button>
-          </div>
-        </div>
       </header>
 
       <section class="layout-grid project-page-grid">
@@ -67,19 +58,16 @@
               <h2>Project Details</h2>
               <p id="detail-subtitle" class="muted">Loading project</p>
             </div>
-            <div class="action-stack">
-            <button id="update-project-button">Update project</button>
-            <button id="add-to-group-button">Add to group</button>
-            <button id="preview-delete-button" class="danger">Delete</button>
-            </div>
           </div>
 
           <div id="detail-empty" class="empty-state">Project not loaded.</div>
 
           <div id="detail-content" class="detail-content hidden">
             <dl class="detail-list" id="detail-list"></dl>
-
             <div class="action-stack detail-actions">
+              <button id="update-project-button">Update project</button>
+              <button id="add-to-group-button">Add to group</button>
+              <button id="preview-delete-button" class="danger">Delete</button>
               <button id="change-project-owner-button" class="hidden">Change owner</button>
             </div>
 
