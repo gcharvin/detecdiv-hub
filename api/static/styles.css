@@ -103,6 +103,10 @@ textarea {
 
 .sidebar-shell .login-panel {
   margin-bottom: 0;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  box-shadow: none;
 }
 
 .sidebar-shell .session-box {
@@ -111,6 +115,19 @@ textarea {
 }
 
 .sidebar-shell .session-box > * {
+  width: 100%;
+}
+
+.sidebar-shell .login-panel .panel-header {
+  margin-bottom: 10px;
+}
+
+.sidebar-shell .login-panel .toolbar {
+  margin-top: 12px;
+}
+
+.sidebar-shell .login-panel .field {
+  min-width: 0;
   width: 100%;
 }
 
