@@ -51,6 +51,7 @@ const els = {
   loginPassword: document.querySelector("#login-password"),
   loginButton: document.querySelector("#login-button"),
   sessionLabel: document.querySelector("#session-label"),
+  sessionBox: document.querySelector(".session-box"),
   connectButton: document.querySelector("#connect-button"),
   logoutButton: document.querySelector("#logout-button"),
   changePasswordButton: document.querySelector("#change-password-button"),
@@ -1087,6 +1088,9 @@ function updateSessionUi() {
     } else {
       els.sessionLabel.textContent = `Identity: ${state.currentUser.display_name} (${state.currentUser.user_key})`;
     }
+  }
+  if (els.sessionBox) {
+    els.sessionBox.classList.toggle("hidden", !authenticated);
   }
   if (els.userLabel) {
     if (authenticated) {

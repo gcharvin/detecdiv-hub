@@ -37,11 +37,11 @@ body.auth-locked .footer {
 }
 
 body.auth-locked .page-shell {
-  width: min(920px, calc(100vw - 18px));
+  width: min(1760px, calc(100vw - 18px));
   min-height: 100vh;
   display: grid;
-  grid-template-columns: minmax(320px, 1fr);
-  justify-content: center;
+  grid-template-columns: minmax(300px, 336px) minmax(0, 1fr);
+  justify-content: stretch;
 }
 
 a {
