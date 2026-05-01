@@ -3,10 +3,10 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Detecdiv server - Admin - General</title>
+    <title>Detecdiv server - Admin - Sessions</title>
     <link rel="stylesheet" href="/web/styles.css?v=20260501-ui2" />
   </head>
-  <body data-page="admin-general">
+  <body data-page="admin-sessions">
     <div class="page-shell">
       <section id="login-panel" class="panel login-panel hidden">
         <div class="panel-header">
@@ -31,8 +31,8 @@
       <header class="hero">
         <div>
           <div class="eyebrow">DetecDiv Hub</div>
-          <h1>Admin - General</h1>
-          <p class="hero-copy">Inspect deployment awareness and hub health.</p>
+          <h1>Admin - Sessions</h1>
+          <p class="hero-copy">Review active sessions and revoke stale ones.</p>
         </div>
         <div class="hero-actions">
           <nav class="hero-nav">
@@ -62,28 +62,24 @@
         <section class="panel">
           <div class="panel-header">
             <div>
-              <h2>Deployment Awareness</h2>
-              <p class="muted">Primary API and database live on webserver-labo; compute workers run on detecdiv-server.</p>
+              <h2>Sessions</h2>
+              <p class="muted">Review active sessions and revoke stale ones.</p>
             </div>
-            <div id="deployment-awareness-summary" class="muted">Loading deployment status...</div>
+            <button id="refresh-sessions-button">Refresh sessions</button>
           </div>
-          <div class="summary-grid deployment-summary-grid">
-            <article class="summary-card">
-              <div class="summary-label">API</div>
-              <div id="deployment-api-status" class="summary-value">unknown</div>
-            </article>
-            <article class="summary-card">
-              <div class="summary-label">Database</div>
-              <div id="deployment-db-status" class="summary-value">unknown</div>
-            </article>
-            <article class="summary-card">
-              <div class="summary-label">Workers</div>
-              <div id="deployment-worker-status" class="summary-value">unknown</div>
-            </article>
-            <article class="summary-card">
-              <div class="summary-label">Heartbeats</div>
-              <div id="deployment-heartbeat-status" class="summary-value">unknown</div>
-            </article>
+          <div class="table-wrap jobs-table-wrap">
+            <table id="sessions-table">
+              <thead>
+                <tr>
+                  <th>User</th>
+                  <th>Client</th>
+                  <th>Last seen</th>
+                  <th>Expires</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
           </div>
         </section>
       </main>

@@ -3,10 +3,10 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Detecdiv server - Admin - General</title>
+    <title>Detecdiv server - Admin - User Accounts</title>
     <link rel="stylesheet" href="/web/styles.css?v=20260501-ui2" />
   </head>
-  <body data-page="admin-general">
+  <body data-page="admin-users">
     <div class="page-shell">
       <section id="login-panel" class="panel login-panel hidden">
         <div class="panel-header">
@@ -31,8 +31,8 @@
       <header class="hero">
         <div>
           <div class="eyebrow">DetecDiv Hub</div>
-          <h1>Admin - General</h1>
-          <p class="hero-copy">Inspect deployment awareness and hub health.</p>
+          <h1>Admin - User Accounts</h1>
+          <p class="hero-copy">Manage user records, roles, portal access, and default paths.</p>
         </div>
         <div class="hero-actions">
           <nav class="hero-nav">
@@ -62,28 +62,42 @@
         <section class="panel">
           <div class="panel-header">
             <div>
-              <h2>Deployment Awareness</h2>
-              <p class="muted">Primary API and database live on webserver-labo; compute workers run on detecdiv-server.</p>
+              <h2>User Accounts</h2>
+              <p class="muted">Click a user row or the Settings button to edit passwords, roles, portal access, and default paths.</p>
             </div>
-            <div id="deployment-awareness-summary" class="muted">Loading deployment status...</div>
+            <div class="action-stack">
+              <button id="new-user-button">New account</button>
+            </div>
           </div>
-          <div class="summary-grid deployment-summary-grid">
-            <article class="summary-card">
-              <div class="summary-label">API</div>
-              <div id="deployment-api-status" class="summary-value">unknown</div>
-            </article>
-            <article class="summary-card">
-              <div class="summary-label">Database</div>
-              <div id="deployment-db-status" class="summary-value">unknown</div>
-            </article>
-            <article class="summary-card">
-              <div class="summary-label">Workers</div>
-              <div id="deployment-worker-status" class="summary-value">unknown</div>
-            </article>
-            <article class="summary-card">
-              <div class="summary-label">Heartbeats</div>
-              <div id="deployment-heartbeat-status" class="summary-value">unknown</div>
-            </article>
+          <section class="subpanel">
+            <div class="subpanel-header">
+              <div>
+                <h3>Bulk Import</h3>
+                <p class="muted">Paste one user account per line: user_key;display_name;email;role;lab_status.</p>
+              </div>
+              <button id="bulk-import-users-button">Import accounts</button>
+            </div>
+            <label class="field">
+              <span>User account list</span>
+              <textarea id="bulk-import-users-text" rows="6" placeholder="florian;Florian;florian@example.org;user;yes"></textarea>
+            </label>
+          </section>
+          <div class="table-wrap jobs-table-wrap">
+            <table id="users-table">
+              <thead>
+                <tr>
+                  <th>User key</th>
+                  <th>Name</th>
+                  <th>Role</th>
+                  <th>Lab status</th>
+                  <th>Admin portal</th>
+                  <th>Default path</th>
+                  <th>Account active</th>
+                  <th>Settings</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
           </div>
         </section>
       </main>

@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Detecdiv server - Admin - Raw Preview Quality</title>
+    <link rel="stylesheet" href="/web/styles.css?v=20260501-ui2" />
+  </head>
+  <body data-page="admin-raw-preview-quality">
+    <div class="page-shell">
+      <section id="login-panel" class="panel login-panel hidden">
+        <div class="panel-header">
+          <div>
+            <h2>Login</h2>
+            <p class="muted">Open a hub session with a user key and password.</p>
+          </div>
+        </div>
+        <div class="toolbar">
+          <label class="field compact">
+            <span>User key</span>
+            <input id="login-user-key" type="text" placeholder="admin" />
+          </label>
+          <label class="field compact">
+            <span>Password</span>
+            <input id="login-password" type="password" placeholder="password" />
+          </label>
+          <button id="login-button" class="primary">Login</button>
+        </div>
+      </section>
+
+      <header class="hero">
+        <div>
+          <div class="eyebrow">DetecDiv Hub</div>
+          <h1>Admin - Raw Preview Quality</h1>
+          <p class="hero-copy">Tune preview encoding defaults and inspect recent generated preview movies.</p>
+        </div>
+        <div class="hero-actions">
+          <nav class="hero-nav">
+            <a class="nav-link" href="/web/">Project Catalog</a>
+            <a class="nav-link" href="/web/raw-datasets.html">Raw datasets Catalog</a>
+            <a class="nav-link" href="/web/raw-ops.html">Raw datasets Ops</a>
+            <a class="nav-link" href="/web/indexing.html">Projects Ops</a>
+            <a class="nav-link admin-nav-link active hidden" href="/web/admin.html">Admin</a>
+          </nav>
+          <div class="session-box">
+            <div id="session-label" class="muted">Not logged in.</div>
+            <button id="logout-button">Logout</button>
+          </div>
+        </div>
+      </header>
+
+      <section id="admin-denied-panel" class="panel hidden">
+        <div class="panel-header">
+          <div>
+            <h2>Admin role required</h2>
+            <p class="muted">This page is restricted to admin and service accounts.</p>
+          </div>
+        </div>
+      </section>
+
+      <main id="admin-content" class="admin-content hidden">
+        <section class="panel">
+          <div class="panel-header">
+            <div>
+              <h2>Raw Preview Quality</h2>
+              <p class="muted">Track configured movie quality and the 10 most recent generated preview movies.</p>
+            </div>
+            <div class="action-stack">
+              <button id="raw-preview-quality-refresh-button">Refresh quality</button>
+              <button id="raw-preview-quality-save-button" class="primary">Save quality</button>
+            </div>
+          </div>
+          <div class="toolbar">
+            <label class="field compact">
+              <span>Resolution cap (px)</span>
+              <input id="raw-preview-quality-max-dimension" type="number" min="64" step="1" />
+            </label>
+            <label class="field compact">
+              <span>Frames per second</span>
+              <input id="raw-preview-quality-fps" type="number" min="1" step="1" />
+            </label>
+            <label class="field compact">
+              <span>Frame mode</span>
+              <select id="raw-preview-quality-frame-mode">
+                <option value="full">full</option>
+                <option value="limit">limit</option>
+              </select>
+            </label>
+            <label class="field compact">
+              <span>Max frames</span>
+              <input id="raw-preview-quality-max-frames" type="number" min="1" step="1" />
+            </label>
+            <label class="field compact">
+              <span>Binning factor</span>
+              <input id="raw-preview-quality-binning-factor" type="text" placeholder="4x4" />
+            </label>
+            <label class="field compact">
+              <span>CRF</span>
+              <input id="raw-preview-quality-crf" type="number" min="16" max="40" step="1" />
+            </label>
+            <label class="field compact">
+              <span>Preset</span>
+              <input id="raw-preview-quality-preset" type="text" placeholder="medium" />
+            </label>
+            <label class="toggle">
+              <input id="raw-preview-quality-include-existing" type="checkbox" />
+              <span>Include existing previews</span>
+            </label>
+          </div>
+          <div class="toolbar">
+            <label class="field">
+              <span>Artifact root (optional)</span>
+              <input id="raw-preview-quality-artifact-root" type="text" placeholder="/data/previews" />
+            </label>
+            <label class="field">
+              <span>FFmpeg command (optional)</span>
+              <input id="raw-preview-quality-ffmpeg-command" type="text" placeholder="ffmpeg" />
+            </label>
+          </div>
+          <dl id="raw-preview-quality-config" class="detail-list"></dl>
+          <p id="raw-preview-quality-summary" class="muted">No quality metrics loaded yet.</p>
+          <div class="table-wrap jobs-table-wrap">
+            <table id="raw-preview-quality-table">
+              <thead>
+                <tr>
+                  <th>Dataset</th>
+                  <th>Position</th>
+                  <th>Resolution</th>
+                  <th>FPS</th>
+                  <th>Frames</th>
+                  <th>Duration</th>
+                  <th>Size</th>
+                  <th>Bit rate</th>
+                  <th>Created</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </section>
+      </main>
+
+      <footer class="footer">
+        <div id="status-line">Ready.</div>
+      </footer>
+    </div>
+
+    <script src="/web/app.js?v=20260501-ui5" defer></script>
+  </body>
+</html>
+

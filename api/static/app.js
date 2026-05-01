@@ -320,9 +320,12 @@ const els = {
 let dashboardPollHandle = null;
 let lastPollSucceededAt = null;
 const pageKind = document.body?.dataset?.page || "";
+const isAdminPage = pageKind === "admin" || pageKind.startsWith("admin-");
 
 const pageFlags = {
-  hasAdminView: pageKind === "admin",
+  hasAdminView: isAdminPage,
+  hasAdminGeneralView: pageKind === "admin" || pageKind === "admin-general",
+  hasRawPreviewQualityView: pageKind === "admin-raw-preview-quality",
   hasProjectPage: pageKind === "project",
   hasProjectsView: Boolean(els.projectsTableBody),
   hasProjectGroups: Boolean(els.groupFilter),
@@ -330,9 +333,9 @@ const pageFlags = {
   hasProjectDetail: Boolean(els.detailContent),
   hasPipelinesView: Boolean(els.pipelinesTableBody),
   hasPipelineRunsView: pageKind === "project" && Boolean(els.pipelineRunsTableBody),
-  hasExecutionTargetsView: pageKind === "admin" && Boolean(els.executionTargetsTableBody),
-  hasUsersView: pageKind === "admin" && Boolean(els.usersTableBody),
-  hasSessionsView: pageKind === "admin" && Boolean(els.sessionsTableBody),
+  hasExecutionTargetsView: pageKind === "admin-execution-targets" && Boolean(els.executionTargetsTableBody),
+  hasUsersView: pageKind === "admin-users" && Boolean(els.usersTableBody),
+  hasSessionsView: pageKind === "admin-sessions" && Boolean(els.sessionsTableBody),
   hasIndexingView: Boolean(els.indexJobsTableBody || els.activeIndexJob),
   hasRawDatasetsView: Boolean(els.rawDatasetsTableBody),
   hasRawDatasetPage: pageKind === "raw-dataset",
@@ -347,8 +350,20 @@ const pageFlags = {
 let appLayoutInitialized = false;
 
 function getSidebarActiveRoute() {
-  if (pageKind === "admin") {
-    return "admin";
+  if (pageKind === "admin" || pageKind === "admin-general") {
+    return "admin-general";
+  }
+  if (pageKind === "admin-raw-preview-quality") {
+    return "admin-raw-preview-quality";
+  }
+  if (pageKind === "admin-execution-targets") {
+    return "admin-execution-targets";
+  }
+  if (pageKind === "admin-users") {
+    return "admin-users";
+  }
+  if (pageKind === "admin-sessions") {
+    return "admin-sessions";
   }
   if (pageKind === "indexing") {
     return "projects-settings";
@@ -497,19 +512,39 @@ function initializeAppLayout() {
       fragments.push(details);
     }
 
-    const adminAllowed = canAccessAdminPortal();
-    const adminLink = document.createElement("a");
-    adminLink.href = "/web/admin.html";
-    adminLink.textContent = "Admin";
-    adminLink.className = "sidebar-link admin-nav-link";
-    if (activeRoute === "admin") {
-      adminLink.classList.add("active");
-      adminLink.setAttribute("aria-current", "page");
+    const adminGroup = document.createElement("details");
+    adminGroup.className = "sidebar-group admin-nav-link";
+    adminGroup.open = true;
+    if (!canAccessAdminPortal()) {
+      adminGroup.classList.add("hidden");
     }
-    if (!adminAllowed) {
-      adminLink.classList.add("hidden");
+
+    const adminSummary = document.createElement("summary");
+    adminSummary.textContent = "Admin";
+    adminGroup.appendChild(adminSummary);
+
+    const adminBranch = document.createElement("div");
+    adminBranch.className = "sidebar-branch";
+    const adminItems = [
+      { label: "General", href: "/web/admin.html", route: "admin-general" },
+      { label: "Raw Preview Quality", href: "/web/admin-raw-preview-quality.html", route: "admin-raw-preview-quality" },
+      { label: "Execution Targets", href: "/web/admin-execution-targets.html", route: "admin-execution-targets" },
+      { label: "User Accounts", href: "/web/admin-users.html", route: "admin-users" },
+      { label: "Sessions", href: "/web/admin-sessions.html", route: "admin-sessions" },
+    ];
+    for (const item of adminItems) {
+      const link = document.createElement("a");
+      link.href = item.href;
+      link.textContent = item.label;
+      link.className = "sidebar-link";
+      if (item.route === activeRoute) {
+        link.classList.add("active");
+        link.setAttribute("aria-current", "page");
+      }
+      adminBranch.appendChild(link);
     }
-    fragments.push(adminLink);
+    adminGroup.appendChild(adminBranch);
+    fragments.push(adminGroup);
 
     sidebarMenu.replaceChildren(...fragments);
   }

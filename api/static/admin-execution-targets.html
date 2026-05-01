@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Detecdiv server - Admin - Execution Targets</title>
+    <link rel="stylesheet" href="/web/styles.css?v=20260501-ui2" />
+  </head>
+  <body data-page="admin-execution-targets">
+    <div class="page-shell">
+      <section id="login-panel" class="panel login-panel hidden">
+        <div class="panel-header">
+          <div>
+            <h2>Login</h2>
+            <p class="muted">Open a hub session with a user key and password.</p>
+          </div>
+        </div>
+        <div class="toolbar">
+          <label class="field compact">
+            <span>User key</span>
+            <input id="login-user-key" type="text" placeholder="admin" />
+          </label>
+          <label class="field compact">
+            <span>Password</span>
+            <input id="login-password" type="password" placeholder="password" />
+          </label>
+          <button id="login-button" class="primary">Login</button>
+        </div>
+      </section>
+
+      <header class="hero">
+        <div>
+          <div class="eyebrow">DetecDiv Hub</div>
+          <h1>Admin - Execution Targets</h1>
+          <p class="hero-copy">Manage available run destinations and the worker capacity behind them.</p>
+        </div>
+        <div class="hero-actions">
+          <nav class="hero-nav">
+            <a class="nav-link" href="/web/">Project Catalog</a>
+            <a class="nav-link" href="/web/raw-datasets.html">Raw datasets Catalog</a>
+            <a class="nav-link" href="/web/raw-ops.html">Raw datasets Ops</a>
+            <a class="nav-link" href="/web/indexing.html">Projects Ops</a>
+            <a class="nav-link admin-nav-link active hidden" href="/web/admin.html">Admin</a>
+          </nav>
+          <div class="session-box">
+            <div id="session-label" class="muted">Not logged in.</div>
+            <button id="logout-button">Logout</button>
+          </div>
+        </div>
+      </header>
+
+      <section id="admin-denied-panel" class="panel hidden">
+        <div class="panel-header">
+          <div>
+            <h2>Admin role required</h2>
+            <p class="muted">This page is restricted to admin and service accounts.</p>
+          </div>
+        </div>
+      </section>
+
+      <main id="admin-content" class="admin-content hidden">
+        <section class="panel">
+          <div class="panel-header">
+            <div>
+              <h2>Execution Targets</h2>
+              <p class="muted">Manage available local, CPU, and GPU run destinations. Active workers are the control surface; concurrency is a guardrail.</p>
+            </div>
+            <div class="action-stack">
+              <button id="refresh-execution-targets-button">Refresh targets</button>
+              <button id="new-execution-target-button">New target</button>
+              <button id="cancel-execution-target-edit-button">Cancel edit</button>
+              <button id="open-execution-target-config-button">Open config</button>
+              <button id="apply-worker-instances-button">Apply workers</button>
+              <button id="apply-execution-target-drain-button">Apply drain</button>
+              <button id="save-execution-target-button" class="primary">Save settings</button>
+            </div>
+          </div>
+          <div id="execution-target-health-warning" class="inline-feedback hidden"></div>
+          <div class="table-wrap jobs-table-wrap">
+            <table id="execution-targets-table">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Kind</th>
+                  <th>Host</th>
+                  <th>MATLAB</th>
+                  <th>Python</th>
+                  <th>GPU</th>
+                  <th>Concurrency</th>
+                  <th>Workers</th>
+                  <th>MATLAB Threads</th>
+                  <th>Status</th>
+                  <th>Health</th>
+                  <th>Last Seen</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+          <p class="muted">Single click loads a target into the editor and live status panels. Concurrency limits slots on a target; you still need the same number of running <code>detecdiv-worker</code> instances to use all slots.</p>
+          <div id="execution-target-worker-summary" class="muted">Select a target to inspect worker activity.</div>
+          <div class="table-wrap jobs-table-wrap">
+            <table id="execution-target-workers-table">
+              <thead>
+                <tr>
+                  <th>Worker</th>
+                  <th>Health</th>
+                  <th>Current Job</th>
+                  <th>Current User</th>
+                  <th>Job Kind</th>
+                  <th>Status</th>
+                  <th>Started</th>
+                  <th>Last Seen</th>
+                  <th>Last Error</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+          <div class="table-wrap jobs-table-wrap">
+            <table id="execution-target-job-mix-table">
+              <thead>
+                <tr>
+                  <th>Job Kind</th>
+                  <th>Running</th>
+                  <th>Queued</th>
+                  <th>Cancelling</th>
+                  <th>Done</th>
+                  <th>Failed</th>
+                  <th>Last Updated</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+          <section class="subpanel">
+            <div class="subpanel-header">
+              <div>
+                <h3>Target Settings</h3>
+                <p id="execution-target-editor-mode" class="muted">Create mode.</p>
+              </div>
+            </div>
+            <div class="toolbar">
+              <label class="field compact">
+                <span>Name</span>
+                <input id="execution-target-name" type="text" placeholder="Central GPU Server" />
+              </label>
+              <label class="field compact">
+                <span>Key</span>
+                <input id="execution-target-key" type="text" placeholder="server_gpu" />
+              </label>
+              <label class="field compact">
+                <span>Kind</span>
+                <input id="execution-target-kind" type="text" placeholder="server_gpu" />
+              </label>
+              <label class="field compact">
+                <span>Host</span>
+                <input id="execution-target-host" type="text" placeholder="detecdiv-server" />
+              </label>
+              <label class="field compact">
+                <span>Status</span>
+                <input id="execution-target-status" type="text" placeholder="online" />
+              </label>
+            </div>
+            <div class="toolbar">
+              <label class="field compact">
+                <span>MATLAB</span>
+                <select id="execution-target-supports-matlab">
+                  <option value="true">yes</option>
+                  <option value="false">no</option>
+                </select>
+              </label>
+              <label class="field compact">
+                <span>Python</span>
+                <select id="execution-target-supports-python">
+                  <option value="true">yes</option>
+                  <option value="false">no</option>
+                </select>
+              </label>
+              <label class="field compact">
+                <span>GPU</span>
+                <select id="execution-target-supports-gpu">
+                  <option value="false">no</option>
+                  <option value="true">yes</option>
+                </select>
+              </label>
+              <label class="field compact">
+                <span>Max concurrent jobs</span>
+                <input id="execution-target-max-concurrent-jobs" type="number" min="1" step="1" placeholder="1" />
+              </label>
+              <label class="field compact">
+                <span>MATLAB max threads</span>
+                <input id="execution-target-matlab-max-threads" type="number" min="1" step="1" placeholder="18" />
+              </label>
+              <label class="field compact">
+                <span>Worker instances</span>
+                <input id="execution-target-worker-instances" type="number" min="1" step="1" placeholder="1" />
+              </label>
+              <label class="field compact checkbox-field">
+                <span>Drain new jobs</span>
+                <input id="execution-target-drain-new-jobs" type="checkbox" />
+              </label>
+            </div>
+          </section>
+        </section>
+      </main>
+
+      <footer class="footer">
+        <div id="status-line">Ready.</div>
+      </footer>
+    </div>
+
+    <script src="/web/app.js?v=20260501-ui5" defer></script>
+  </body>
+</html>
+
