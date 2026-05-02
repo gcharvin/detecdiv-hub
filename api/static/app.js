@@ -16,6 +16,7 @@ const state = {
   users: [],
   indexingJobs: [],
   rawDatasets: [],
+  rawDatasetsLastRefreshAt: 0,
   selectedRawDataset: null,
   selectedRawDatasetDetail: null,
   selectedRawPositionId: null,
@@ -44,6 +45,8 @@ const state = {
   acl: [],
   summary: null,
 };
+
+const RAW_DATASETS_POLL_INTERVAL_MS = 15_000;
 
 const els = {
   loginPanel: document.querySelector("#login-panel"),
@@ -4373,6 +4376,7 @@ async function refreshRawDatasets() {
   if (els.rawLimit?.value) params.set("limit", els.rawLimit.value);
 
   state.rawDatasets = await apiGet(`/raw-datasets${params.toString() ? `?${params.toString()}` : ""}`);
+  state.rawDatasetsLastRefreshAt = Date.now();
   const visibleIds = new Set(state.rawDatasets.map((raw) => `${raw.id}`));
   state.selectedRawDatasetIds = state.selectedRawDatasetIds.filter((rawDatasetId) => visibleIds.has(`${rawDatasetId}`));
   if (state.pendingRawBulkDelete?.scope === "selected" && !selectedRawDatasetIds().length) {
@@ -4386,12 +4390,16 @@ async function refreshRawDatasets() {
     renderArchivedRawDatasets();
   }
   const requestedRawDatasetId = getRawDatasetPageId();
-  if (requestedRawDatasetId && (!state.selectedRawDataset || `${state.selectedRawDataset.id}` === requestedRawDatasetId)) {
-    await selectRawDataset(requestedRawDatasetId);
+  if (requestedRawDatasetId && pageFlags.hasRawDatasetPage) {
+    if (!state.selectedRawDataset || `${state.selectedRawDataset.id}` === requestedRawDatasetId) {
+      await selectRawDataset(requestedRawDatasetId, { hydrateDetail: true });
+    }
   } else if (state.selectedRawDataset) {
     const stillExists = state.rawDatasets.find((raw) => raw.id === state.selectedRawDataset.id);
     if (stillExists) {
-      await selectRawDataset(stillExists.id);
+      state.selectedRawDataset = stillExists;
+      state.selectedRawDatasetDetail = stillExists;
+      renderRawDatasetDetail();
     } else {
       state.selectedRawDataset = null;
       state.selectedRawDatasetDetail = null;
@@ -4675,12 +4683,26 @@ async function selectMigrationPlan(planId) {
   renderMigrationDetail();
 }
 
-async function selectRawDataset(rawDatasetId) {
+async function selectRawDataset(rawDatasetId, options = {}) {
+  const hydrateDetail = options.hydrateDetail ?? pageFlags.hasRawDatasetPage;
   if (!state.selectedRawDatasetDetail || `${state.selectedRawDatasetDetail.id}` !== `${rawDatasetId}`) {
     state.selectedRawPositionIds = [];
     closeRawPositionDeletePanel();
   }
   const raw = state.rawDatasets.find((item) => item.id === rawDatasetId);
+  if (!hydrateDetail) {
+    if (!raw) {
+      return;
+    }
+    state.selectedRawDatasetDetail = raw;
+    state.selectedRawDataset = raw;
+    if ((rawDatasetId === getRawDatasetPageId() || pageFlags.hasRawDatasetPage) && els.rawDetailSubtitle) {
+      document.title = `Detecdiv server - ${raw.acquisition_label}`;
+    }
+    renderRawDatasets();
+    renderRawDatasetDetail();
+    return;
+  }
   state.selectedRawDatasetDetail = await apiGet(`/raw-datasets/${rawDatasetId}`);
   state.selectedRawDataset = raw || state.selectedRawDatasetDetail;
   if ((rawDatasetId === getRawDatasetPageId() || pageFlags.hasRawDatasetPage) && els.rawDetailSubtitle) {
@@ -6072,7 +6094,9 @@ async function pollDashboard() {
       pollTasks.push(refreshIndexingJobs());
     }
     if (pageFlags.hasRawDatasetsView || pageFlags.hasRawDatasetPage || pageKind === "raw-ops") {
-      pollTasks.push(refreshRawDatasets());
+      if (Date.now() - state.rawDatasetsLastRefreshAt >= RAW_DATASETS_POLL_INTERVAL_MS) {
+        pollTasks.push(refreshRawDatasets());
+      }
     }
     if (pageFlags.hasAutomaticArchivePolicy && isAdmin()) {
       pollTasks.push(refreshAutomaticArchivePolicyStatus());
