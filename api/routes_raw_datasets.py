@@ -5,7 +5,7 @@ from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.responses import FileResponse
 from sqlalchemy import or_, select
-from sqlalchemy.orm import Session, joinedload
+from sqlalchemy.orm import Session, joinedload, load_only
 
 from api.db import get_db
 from api.models import Artifact, Job, Project, ProjectRawLink, RawDataset, RawDatasetLocation, RawDatasetPosition, StorageLifecycleEvent, User
@@ -287,7 +287,30 @@ def list_raw_datasets(
 ) -> list[RawDatasetSummary]:
     stmt = (
         select(RawDataset)
-        .options(joinedload(RawDataset.owner))
+        .options(
+            load_only(
+                RawDataset.id,
+                RawDataset.external_key,
+                RawDataset.microscope_name,
+                RawDataset.acquisition_label,
+                RawDataset.data_format,
+                RawDataset.visibility,
+                RawDataset.status,
+                RawDataset.completeness_status,
+                RawDataset.lifecycle_tier,
+                RawDataset.archive_status,
+                RawDataset.archive_uri,
+                RawDataset.archive_compression,
+                RawDataset.display_settings_uri,
+                RawDataset.reclaimable_bytes,
+                RawDataset.last_accessed_at,
+                RawDataset.total_bytes,
+                RawDataset.owner_user_id,
+                RawDataset.created_at,
+                RawDataset.updated_at,
+            ),
+            joinedload(RawDataset.owner),
+        )
         .where(raw_dataset_access_filter(current_user))
         .order_by(RawDataset.updated_at.desc(), RawDataset.acquisition_label.asc())
     )
@@ -309,7 +332,7 @@ def list_raw_datasets(
     if archive_status:
         stmt = stmt.where(RawDataset.archive_status == archive_status)
     stmt = stmt.limit(min(max(limit, 1), 500))
-    return [raw_dataset_summary_view(raw_dataset) for raw_dataset in db.scalars(stmt).unique()]
+    return [raw_dataset_catalog_summary_view(raw_dataset) for raw_dataset in db.scalars(stmt).unique()]
 
 
 @router.get("/{raw_dataset_id}", response_model=RawDatasetDetail)
@@ -1060,6 +1083,32 @@ def raw_dataset_summary_view(raw_dataset: RawDataset) -> RawDatasetSummary:
             "last_accessed_at": raw_dataset.last_accessed_at,
             "total_bytes": raw_dataset.total_bytes,
             "metadata_json": raw_dataset.metadata_json or {},
+            "owner": raw_dataset.owner,
+            "created_at": raw_dataset.created_at,
+            "updated_at": raw_dataset.updated_at,
+        }
+    )
+
+
+def raw_dataset_catalog_summary_view(raw_dataset: RawDataset) -> RawDatasetSummary:
+    return RawDatasetSummary.model_validate(
+        {
+            "id": raw_dataset.id,
+            "external_key": raw_dataset.external_key,
+            "microscope_name": raw_dataset.microscope_name,
+            "acquisition_label": raw_dataset.acquisition_label,
+            "data_format": raw_dataset.data_format,
+            "visibility": raw_dataset.visibility,
+            "status": raw_dataset.status,
+            "completeness_status": raw_dataset.completeness_status,
+            "lifecycle_tier": raw_dataset.lifecycle_tier,
+            "archive_status": raw_dataset.archive_status,
+            "archive_uri": raw_dataset.archive_uri,
+            "archive_compression": raw_dataset.archive_compression,
+            "display_settings_uri": raw_dataset.display_settings_uri,
+            "reclaimable_bytes": raw_dataset.reclaimable_bytes,
+            "last_accessed_at": raw_dataset.last_accessed_at,
+            "total_bytes": raw_dataset.total_bytes,
             "owner": raw_dataset.owner,
             "created_at": raw_dataset.created_at,
             "updated_at": raw_dataset.updated_at,
