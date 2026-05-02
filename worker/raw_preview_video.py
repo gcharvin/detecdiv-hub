@@ -364,7 +364,7 @@ def resolve_preview_output_dir(
     if configured_root:
         base_root = Path(configured_root)
     else:
-        base_root = dataset_path.parent / ".detecdiv-previews"
+        base_root = dataset_path / ".detecdiv-previews"
     dataset_leaf = slugify(raw_dataset.external_key or raw_dataset.acquisition_label) or str(raw_dataset.id)
     return base_root / dataset_leaf
 
@@ -446,16 +446,22 @@ def read_zarr_preview_frames(
     runtime_config: RawPreviewRuntimeConfig,
 ) -> PreviewSequence:
     candidate_path = resolve_position_source_path(dataset_path=dataset_path, position=position)
-    node = open_best_zarr_node(candidate_path if candidate_path.exists() else dataset_path)
-    array = select_best_zarr_array(node)
-    if array is None:
-        if candidate_path != dataset_path:
-            node = open_best_zarr_node(dataset_path)
-            array = select_best_zarr_array(node)
-    if array is None:
-        raise ValueError(f"No readable Zarr array found under {dataset_path}")
+    attempted_targets = list(iter_zarr_preview_targets(candidate_path, dataset_path))
+    last_error: Exception | None = None
 
-    return sample_frames_from_ndarray(array, runtime_config=runtime_config)
+    for target_path in attempted_targets:
+        try:
+            node = open_best_zarr_node(target_path)
+            array = select_best_zarr_array(node)
+        except Exception as exc:
+            last_error = exc
+            continue
+        if array is not None:
+            return sample_frames_from_ndarray(array, runtime_config=runtime_config)
+
+    if last_error is None:
+        raise ValueError(f"No readable Zarr array found under {dataset_path}")
+    raise ValueError(f"No readable Zarr array found under {dataset_path}: {last_error}") from last_error
 
 
 def resolve_position_source_path(*, dataset_path: Path, position: RawDatasetPosition) -> Path:
@@ -468,6 +474,32 @@ def resolve_position_source_path(*, dataset_path: Path, position: RawDatasetPosi
     if display_candidate.exists():
         return display_candidate
     return dataset_path
+
+
+def iter_zarr_preview_targets(candidate_path: Path, dataset_path: Path) -> list[Path]:
+    targets: list[Path] = []
+    seen: set[Path] = set()
+
+    def add_target(path: Path | None) -> None:
+        if path is None:
+            return
+        if not path.exists():
+            return
+        resolved = path.resolve(strict=False)
+        if resolved in seen:
+            return
+        seen.add(resolved)
+        targets.append(path)
+
+    def add_group_and_first_array(path: Path) -> None:
+        add_target(path)
+        add_target(find_first_zarr_array_dir(path))
+
+    add_group_and_first_array(candidate_path)
+    if candidate_path != dataset_path:
+        add_group_and_first_array(dataset_path)
+
+    return targets
 
 
 def collect_tiff_paths(path: Path) -> list[Path]:
@@ -569,6 +601,19 @@ def open_best_zarr_node(path: Path):
         return zarr.open(str(path), mode="r")
     except Exception as exc:
         raise ValueError(f"Unable to open Zarr path {path}: {exc}") from exc
+
+
+def find_first_zarr_array_dir(path: Path) -> Path | None:
+    if not path.exists() or not path.is_dir():
+        return None
+    try:
+        children = sorted((entry for entry in path.iterdir() if entry.is_dir()), key=lambda entry: entry.name.lower())
+    except OSError:
+        return None
+    for child in children:
+        if (child / "zarr.json").is_file() or (child / ".zarray").is_file():
+            return child
+    return None
 
 
 def select_best_zarr_array(node):
