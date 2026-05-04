@@ -11,6 +11,12 @@ def _repo_root() -> Path:
     return Path(__file__).resolve().parents[2]
 
 
+def _should_include_fingerprint_path(path: Path) -> bool:
+    if any(part == "__pycache__" for part in path.parts):
+        return False
+    return path.suffix not in {".pyc", ".pyo"}
+
+
 def _iter_fingerprint_paths(root: Path) -> list[Path]:
     candidates = [
         root / "api",
@@ -21,9 +27,16 @@ def _iter_fingerprint_paths(root: Path) -> list[Path]:
     paths: list[Path] = []
     for candidate in candidates:
         if candidate.is_dir():
-            paths.extend(sorted(path for path in candidate.rglob("*") if path.is_file()))
+            paths.extend(
+                sorted(
+                    path
+                    for path in candidate.rglob("*")
+                    if path.is_file() and _should_include_fingerprint_path(path)
+                )
+            )
         elif candidate.is_file():
-            paths.append(candidate)
+            if _should_include_fingerprint_path(candidate):
+                paths.append(candidate)
     return paths
 
 
