@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import math
+import json
 import re
 import subprocess
 from collections.abc import Iterable
@@ -16,6 +17,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session, joinedload
 
 from api.models import Artifact, Job, Project, ProjectRawLink, RawDataset, RawDatasetLocation, RawDatasetPosition
+from api.services.ome_zarr_metadata import read_ome_zarr_group_metadata
 from api.services.path_resolution import compose_storage_path
 from api.services.project_indexing import slugify
 from api.services.raw_preview_settings import RawPreviewRuntimeConfig, resolve_raw_preview_runtime_config
@@ -446,7 +448,7 @@ def read_zarr_preview_frames(
     runtime_config: RawPreviewRuntimeConfig,
 ) -> PreviewSequence:
     candidate_path = resolve_position_source_path(dataset_path=dataset_path, position=position)
-    attempted_targets = list(iter_zarr_preview_targets(candidate_path, dataset_path))
+    attempted_targets = list(iter_zarr_preview_targets(candidate_path, dataset_path, position=position))
     last_error: Exception | None = None
 
     for target_path in attempted_targets:
@@ -455,6 +457,9 @@ def read_zarr_preview_frames(
             array = select_best_zarr_array(node)
         except Exception as exc:
             last_error = exc
+            v3_sequence = try_read_v3_ome_writers_preview_frames(target_path, runtime_config=runtime_config)
+            if v3_sequence is not None:
+                return v3_sequence
             continue
         if array is not None:
             return sample_frames_from_ndarray(array, runtime_config=runtime_config)
@@ -465,18 +470,47 @@ def read_zarr_preview_frames(
 
 
 def resolve_position_source_path(*, dataset_path: Path, position: RawDatasetPosition) -> Path:
-    relative_path = str((position.metadata_json or {}).get("relative_path") or "").strip()
-    if relative_path:
-        candidate = dataset_path / relative_path
+    for candidate in iter_position_source_candidates(dataset_path=dataset_path, position=position):
         if candidate.exists():
             return candidate
-    display_candidate = dataset_path / position.display_name
-    if display_candidate.exists():
-        return display_candidate
     return dataset_path
 
 
-def iter_zarr_preview_targets(candidate_path: Path, dataset_path: Path) -> list[Path]:
+def iter_position_source_candidates(*, dataset_path: Path, position: RawDatasetPosition) -> list[Path]:
+    metadata = dict(position.metadata_json or {})
+    candidates: list[Path] = []
+    seen: set[Path] = set()
+
+    def add_candidate(value: str | Path | None) -> None:
+        text = str(value or "").strip()
+        if not text:
+            return
+        path = Path(text)
+        candidate = path if path.is_absolute() else dataset_path / path
+        resolved = candidate.resolve(strict=False)
+        if resolved in seen:
+            return
+        seen.add(resolved)
+        candidates.append(candidate)
+
+    add_candidate(metadata.get("relative_path"))
+    well_path = str(metadata.get("well_path") or "").strip()
+    image_path = str(metadata.get("image_path") or metadata.get("path") or "").strip()
+    if well_path and image_path:
+        add_candidate(Path(well_path) / Path(image_path))
+    add_candidate(well_path)
+    add_candidate(image_path)
+    add_candidate(metadata.get("series_name"))
+    add_candidate(position.display_name)
+    return candidates
+
+
+def iter_zarr_preview_targets(
+    candidate_path: Path,
+    dataset_path: Path,
+    *,
+    position: RawDatasetPosition | None = None,
+) -> list[Path]:
     targets: list[Path] = []
     seen: set[Path] = set()
 
@@ -492,14 +526,87 @@ def iter_zarr_preview_targets(candidate_path: Path, dataset_path: Path) -> list[
         targets.append(path)
 
     def add_group_and_first_array(path: Path) -> None:
+        for preferred_path in iter_preferred_zarr_targets(path):
+            add_target(preferred_path)
         add_target(path)
         add_target(find_first_zarr_array_dir(path))
+
+    if position is not None:
+        for position_path in iter_position_source_candidates(dataset_path=dataset_path, position=position):
+            add_group_and_first_array(position_path)
 
     add_group_and_first_array(candidate_path)
     if candidate_path != dataset_path:
         add_group_and_first_array(dataset_path)
 
     return targets
+
+
+def iter_preferred_zarr_targets(path: Path) -> list[Path]:
+    metadata = read_ome_zarr_group_metadata(path)
+    if not metadata:
+        return []
+
+    preferred: list[Path] = []
+    seen: set[Path] = set()
+
+    def add_path(value: str | Path | None) -> None:
+        text = str(value or "").strip()
+        if not text:
+            return
+        candidate = path / Path(text)
+        if not candidate.exists():
+            return
+        resolved = candidate.resolve(strict=False)
+        if resolved in seen:
+            return
+        seen.add(resolved)
+        preferred.append(candidate)
+
+    multiscales = metadata.get("multiscales")
+    if isinstance(multiscales, list):
+        first_multiscales = next((item for item in multiscales if isinstance(item, dict)), None)
+        if isinstance(first_multiscales, dict):
+            datasets = first_multiscales.get("datasets")
+            if isinstance(datasets, list):
+                first_dataset = next((item for item in datasets if isinstance(item, dict)), None)
+                if isinstance(first_dataset, dict):
+                    add_path(first_dataset.get("path"))
+
+    ome = metadata.get("ome")
+    if isinstance(ome, dict):
+        series = ome.get("series")
+        if isinstance(series, list):
+            for item in series:
+                series_name = first_text(
+                    item.get("name"),
+                    item.get("path"),
+                    item.get("label"),
+                ) if isinstance(item, dict) else first_text(item)
+                if not series_name:
+                    continue
+                series_dir = path / Path(series_name)
+                if series_dir.exists():
+                    resolved = series_dir.resolve(strict=False)
+                    if resolved not in seen:
+                        seen.add(resolved)
+                        preferred.append(series_dir)
+                first_array_dir = find_first_zarr_array_dir(series_dir)
+                if first_array_dir is not None:
+                    resolved = first_array_dir.resolve(strict=False)
+                    if resolved not in seen:
+                        seen.add(resolved)
+                        preferred.append(first_array_dir)
+
+    return preferred
+
+
+def first_text(*values: Any) -> str:
+    for value in values:
+        text = str(value or "").strip()
+        if text:
+            return text
+    return ""
 
 
 def collect_tiff_paths(path: Path) -> list[Path]:
@@ -601,6 +708,309 @@ def open_best_zarr_node(path: Path):
         return zarr.open(str(path), mode="r")
     except Exception as exc:
         raise ValueError(f"Unable to open Zarr path {path}: {exc}") from exc
+
+
+def try_read_v3_ome_writers_preview_frames(
+    target_path: Path,
+    *,
+    runtime_config: RawPreviewRuntimeConfig,
+) -> PreviewSequence | None:
+    if not target_path.is_dir():
+        return None
+
+    series_path = target_path
+    array_path = find_first_zarr_array_dir(series_path)
+    if array_path is None and (target_path / "zarr.json").is_file():
+        array_metadata = json.loads((target_path / "zarr.json").read_text(encoding="utf-8"))
+        if isinstance(array_metadata, dict) and str(array_metadata.get("node_type") or "").strip().lower() == "array":
+            array_path = target_path
+            series_path = target_path.parent
+
+    if array_path is None:
+        return None
+
+    series_metadata = read_ome_zarr_group_metadata(series_path)
+    frame_metadata = (series_metadata.get("ome_writers") or {}).get("frame_metadata") if isinstance(series_metadata, dict) else None
+    if not isinstance(frame_metadata, list) or not frame_metadata:
+        return None
+
+    array_metadata = json.loads((array_path / "zarr.json").read_text(encoding="utf-8"))
+    if not isinstance(array_metadata, dict) or str(array_metadata.get("node_type") or "").strip().lower() != "array":
+        return None
+
+    try:
+        array_view = V3FrameMetadataArrayView(array_path=array_path, array_metadata=array_metadata, frame_metadata=frame_metadata)
+    except Exception:
+        return None
+
+    ome = series_metadata.get("ome") if isinstance(series_metadata, dict) else None
+    omero = ome.get("omero") if isinstance(ome, dict) else None
+    channels = omero.get("channels") if isinstance(omero, dict) else None
+    channel_names = []
+    if isinstance(channels, list):
+        for index, channel in enumerate(channels):
+            if not isinstance(channel, dict):
+                continue
+            label = str(channel.get("label") or channel.get("name") or channel.get("channel") or "").strip()
+            if not label:
+                label = f"Channel {index + 1}"
+            channel_names.append(label)
+    channel_axis, time_axis = infer_v3_axes_roles(
+        series_metadata=series_metadata,
+        shape=array_view.shape,
+        channel_count=len(channel_names),
+    )
+    if channel_axis is None:
+        return None
+
+    context_axes = [axis for axis in range(len(array_view.shape) - 2) if axis not in {channel_axis, time_axis}]
+    grouped_records: dict[tuple[int, ...], dict[tuple[int, ...], dict[int, dict[str, Any]]]] = {}
+    ordered_time_keys: list[tuple[int, ...]] = []
+    for record in frame_metadata:
+        if not isinstance(record, dict):
+            continue
+        storage_index = record.get("storage_index")
+        if not isinstance(storage_index, list):
+            continue
+        if len(storage_index) != len(array_view.shape) - 2:
+            continue
+        try:
+            storage_index_tuple = tuple(int(value) for value in storage_index)
+        except (TypeError, ValueError):
+            continue
+        channel_index = storage_index_tuple[channel_axis]
+        time_key = (storage_index_tuple[time_axis],) if time_axis is not None else ()
+        context_key = tuple(storage_index_tuple[axis] for axis in context_axes)
+        if time_key not in grouped_records:
+            grouped_records[time_key] = {}
+            ordered_time_keys.append(time_key)
+        if context_key not in grouped_records[time_key]:
+            grouped_records[time_key][context_key] = {}
+        grouped_records[time_key][context_key][channel_index] = record
+
+    if not ordered_time_keys:
+        return None
+
+    sample_count = resolve_frame_limit(total_count=len(ordered_time_keys), runtime_config=runtime_config)
+    sampled_time_keys = [ordered_time_keys[index] for index in sample_index_values(len(ordered_time_keys), max_count=sample_count)]
+
+    frames: list[np.ndarray] = []
+    for time_key in sampled_time_keys:
+        context_groups = grouped_records.get(time_key, {})
+        if not context_groups:
+            continue
+        best_context_key = max(
+            context_groups,
+            key=lambda context_key: (
+                len(context_groups[context_key]),
+                -sum(
+                    abs(float(value) - ((float(array_view.shape[axis]) - 1.0) / 2.0))
+                    for axis, value in zip(context_axes, context_key)
+                ),
+            ),
+        )
+        channel_records = context_groups.get(best_context_key, {})
+        channel_frames: list[np.ndarray] = []
+        for channel_index in sorted(channel_records):
+            record = channel_records[channel_index]
+            storage_index = record.get("storage_index")
+            if not isinstance(storage_index, list):
+                continue
+            frame = array_view.read_frame(storage_index)
+            channel_frames.append(normalize_frame(frame))
+        if not channel_frames:
+            continue
+        frames.append(compose_channel_strip(channel_frames) if len(channel_frames) > 1 else channel_frames[0])
+
+    if not frames:
+        return None
+    inferred_channel_count = len(channel_names)
+    if inferred_channel_count <= 0:
+        inferred_channel_count = int(array_view.shape[channel_axis])
+    return PreviewSequence(frames=frames, channel_labels=channel_names or [f"Channel {index + 1}" for index in range(inferred_channel_count)])
+
+
+def infer_v3_axes_roles(
+    *,
+    series_metadata: dict[str, Any],
+    shape: tuple[int, ...],
+    channel_count: int,
+) -> tuple[int | None, int | None]:
+    ome = series_metadata.get("ome") if isinstance(series_metadata, dict) else None
+    multiscales = ome.get("multiscales") if isinstance(ome, dict) else series_metadata.get("multiscales")
+    axes = None
+    if isinstance(multiscales, list):
+        first_multiscales = next((item for item in multiscales if isinstance(item, dict)), None)
+        if isinstance(first_multiscales, dict):
+            axes = first_multiscales.get("axes")
+
+    channel_axis: int | None = None
+    time_axis: int | None = None
+    if isinstance(axes, list):
+        for index, axis in enumerate(axes[: max(0, len(shape) - 2)]):
+            if not isinstance(axis, dict):
+                continue
+            axis_name = str(axis.get("name") or "").strip().lower()
+            axis_type = str(axis.get("type") or "").strip().lower()
+            if axis_name == "c" or axis_type == "channel":
+                channel_axis = index
+            elif axis_name == "t" or axis_type == "time":
+                time_axis = index
+    if channel_axis is not None:
+        return channel_axis, time_axis
+
+    leading_shape = shape[:-2]
+    candidates = [
+        axis
+        for axis, size in enumerate(leading_shape)
+        if channel_count > 0 and int(size) == int(channel_count)
+    ]
+    if candidates:
+        channel_axis = candidates[-1]
+        if time_axis == channel_axis:
+            time_axis = None
+        return channel_axis, time_axis
+
+    candidates = [axis for axis, size in enumerate(leading_shape) if 1 < int(size) <= 4]
+    if candidates:
+        channel_axis = candidates[-1]
+        if time_axis == channel_axis:
+            time_axis = None
+        return channel_axis, time_axis
+    return None, time_axis
+
+
+@dataclass(frozen=True)
+class V3FrameMetadataArrayView:
+    array_path: Path
+    array_metadata: dict[str, Any]
+    frame_metadata: list[dict[str, Any]]
+
+    def __post_init__(self) -> None:
+        shape = tuple(int(value) for value in self.array_metadata.get("shape") or [])
+        if len(shape) != 5:
+            raise ValueError(f"Unsupported Zarr v3 preview shape for {self.array_path}: {shape}")
+        chunk_grid = self.array_metadata.get("chunk_grid")
+        if not isinstance(chunk_grid, dict):
+            raise ValueError(f"Missing chunk grid for {self.array_path}")
+        configuration = chunk_grid.get("configuration")
+        if not isinstance(configuration, dict):
+            raise ValueError(f"Missing chunk grid configuration for {self.array_path}")
+        chunk_shape = tuple(int(value) for value in configuration.get("chunk_shape") or [])
+        if len(chunk_shape) != len(shape):
+            raise ValueError(f"Chunk shape mismatch for {self.array_path}: {chunk_shape} vs {shape}")
+        object.__setattr__(self, "shape", shape)
+        object.__setattr__(self, "ndim", len(shape))
+        object.__setattr__(self, "chunk_shape", chunk_shape)
+        data_type = str(self.array_metadata.get("data_type") or "").strip()
+        if not data_type:
+            raise ValueError(f"Missing data type for {self.array_path}")
+        dtype = np.dtype(data_type)
+        codecs = self.array_metadata.get("codecs")
+        endian = "little"
+        if isinstance(codecs, list):
+            bytes_codec = next((codec for codec in codecs if isinstance(codec, dict) and codec.get("name") == "bytes"), None)
+            if isinstance(bytes_codec, dict):
+                endian = str((bytes_codec.get("configuration") or {}).get("endian") or "little").strip().lower()
+        if endian == "little":
+            dtype = dtype.newbyteorder("<")
+        elif endian == "big":
+            dtype = dtype.newbyteorder(">")
+        object.__setattr__(self, "dtype", dtype)
+
+    def read_frame(self, storage_index: list[Any]) -> np.ndarray:
+        if self.chunk_shape[-2:] != self.shape[-2:]:
+            raise NotImplementedError(f"Spatial chunking is not supported for {self.array_path}")
+        if len(storage_index) < 3:
+            raise ValueError(f"Invalid storage_index for {self.array_path}: {storage_index}")
+        chunk_path = self.array_path / "c"
+        for index, chunk_size in zip(storage_index[:3], self.chunk_shape[:3]):
+            chunk_path /= str(int(index) // int(chunk_size))
+        chunk_path /= "0"
+        chunk_path /= "0"
+        raw = chunk_path.read_bytes()
+        frame = np.frombuffer(raw, dtype=self.dtype).reshape(self.shape[-2:])
+        return frame
+
+
+def try_open_v3_zarr_array(path: Path):
+    metadata_path = path / "zarr.json"
+    if not metadata_path.is_file():
+        return None
+    try:
+        metadata = json.loads(metadata_path.read_text(encoding="utf-8"))
+    except Exception:
+        return None
+    if not isinstance(metadata, dict):
+        return None
+    if str(metadata.get("zarr_format") or "").strip() != "3":
+        try:
+            if int(metadata.get("zarr_format")) != 3:
+                return None
+        except (TypeError, ValueError):
+            return None
+    if str(metadata.get("node_type") or "").strip().lower() != "array":
+        return None
+
+    return V3ZarrArrayView(path=path, metadata=metadata)
+
+
+@dataclass(frozen=True)
+class V3ZarrArrayView:
+    path: Path
+    metadata: dict[str, Any]
+
+    def __post_init__(self) -> None:
+        shape = tuple(int(value) for value in self.metadata.get("shape") or [])
+        if len(shape) < 2:
+            raise ValueError(f"Invalid Zarr v3 shape for {self.path}: {shape}")
+        chunk_grid = self.metadata.get("chunk_grid")
+        if not isinstance(chunk_grid, dict):
+            raise ValueError(f"Invalid Zarr v3 chunk grid for {self.path}")
+        configuration = chunk_grid.get("configuration")
+        if not isinstance(configuration, dict):
+            raise ValueError(f"Invalid Zarr v3 chunk configuration for {self.path}")
+        chunk_shape = tuple(int(value) for value in configuration.get("chunk_shape") or [])
+        if len(chunk_shape) != len(shape):
+            raise ValueError(f"Chunk shape mismatch for {self.path}: {chunk_shape} vs {shape}")
+        object.__setattr__(self, "shape", shape)
+        object.__setattr__(self, "ndim", len(shape))
+        object.__setattr__(self, "chunk_shape", chunk_shape)
+        data_type = str(self.metadata.get("data_type") or "").strip()
+        if not data_type:
+            raise ValueError(f"Missing Zarr v3 data type for {self.path}")
+        dtype = np.dtype(data_type)
+        codecs = self.metadata.get("codecs")
+        if isinstance(codecs, list):
+            bytes_codec = next((codec for codec in codecs if isinstance(codec, dict) and codec.get("name") == "bytes"), None)
+        else:
+            bytes_codec = None
+        endian = "little"
+        if isinstance(bytes_codec, dict):
+            endian = str((bytes_codec.get("configuration") or {}).get("endian") or "little").strip().lower()
+        if endian == "little":
+            dtype = dtype.newbyteorder("<")
+        elif endian == "big":
+            dtype = dtype.newbyteorder(">")
+        object.__setattr__(self, "dtype", dtype)
+
+    def __getitem__(self, item):
+        if not isinstance(item, tuple):
+            item = (item,)
+        leading_dims = len(self.shape) - 2
+        if len(item) != leading_dims:
+            raise ValueError(f"Expected {leading_dims} leading indices for {self.path}, got {len(item)}")
+        if self.chunk_shape[-2:] != self.shape[-2:]:
+            raise NotImplementedError(f"Spatial chunking is not supported for {self.path}")
+        chunk_coords = [int(index) // int(chunk_size) for index, chunk_size in zip(item, self.chunk_shape[:-2])]
+        chunk_path = self.path / "c"
+        for coord in chunk_coords:
+            chunk_path /= str(coord)
+        for _ in range(2):
+            chunk_path /= "0"
+        raw = chunk_path.read_bytes()
+        frame = np.frombuffer(raw, dtype=self.dtype).reshape(self.chunk_shape[-2:])
+        return frame
 
 
 def find_first_zarr_array_dir(path: Path) -> Path | None:
