@@ -20,6 +20,7 @@ MICROMANAGER_DISPLAY_SETTINGS_FILES = (
     "displaysettings.json",
     "displaysettings.txt",
 )
+LEGACY_TIMELAPSE_ID_FILE_SUFFIX = "-id.txt"
 
 
 def read_micromanager_metadata(dataset_dir: Path) -> dict[str, Any]:
@@ -43,7 +44,7 @@ def read_micromanager_metadata(dataset_dir: Path) -> dict[str, Any]:
 def read_micromanager_metadata_text(dataset_dir: Path) -> dict[str, Any]:
     metadata_path = find_first_micromanager_file(dataset_dir, MICROMANAGER_METADATA_TEXT_FILES)
     if metadata_path is None:
-        return {}
+        return read_legacy_timelapse_metadata_text(dataset_dir)
     try:
         text_value = metadata_path.read_text(encoding="utf-8")
     except UnicodeDecodeError:
@@ -66,6 +67,28 @@ def read_micromanager_metadata_text(dataset_dir: Path) -> dict[str, Any]:
     except json.JSONDecodeError:
         return {"raw_text": stripped[:2000], "source_file": metadata_path.name, "source_path": str(metadata_path)}
     return {}
+
+
+def read_legacy_timelapse_metadata_text(dataset_dir: Path) -> dict[str, Any]:
+    metadata_path = find_legacy_timelapse_id_file(dataset_dir)
+    if metadata_path is None:
+        return {}
+    try:
+        text_value = metadata_path.read_text(encoding="utf-8")
+    except UnicodeDecodeError:
+        try:
+            text_value = metadata_path.read_text(encoding="latin-1")
+        except OSError:
+            return {}
+    except OSError:
+        return {}
+
+    parsed = parse_legacy_timelapse_id_text(text_value)
+    if not parsed:
+        return {}
+    parsed["source_file"] = metadata_path.name
+    parsed["source_path"] = str(metadata_path)
+    return parsed
 
 
 def read_micromanager_display_settings(dataset_dir: Path) -> dict[str, Any]:
@@ -121,6 +144,16 @@ def find_micromanager_display_settings_path(dataset_dir: Path) -> Path | None:
     return find_first_micromanager_file(dataset_dir, MICROMANAGER_DISPLAY_SETTINGS_FILES)
 
 
+def find_legacy_timelapse_id_file(dataset_dir: Path) -> Path | None:
+    try:
+        for candidate in sorted(dataset_dir.iterdir(), key=lambda path: path.name.lower()):
+            if candidate.is_file() and candidate.name.lower().endswith(LEGACY_TIMELAPSE_ID_FILE_SUFFIX):
+                return candidate
+    except OSError:
+        return None
+    return None
+
+
 def build_compact_micromanager_metadata(
     *,
     dataset_dir: Path,
@@ -148,6 +181,193 @@ def build_compact_micromanager_metadata(
             metadata["ingest"] = ingest_trace
 
     return metadata
+
+
+def parse_legacy_timelapse_id_text(text_value: str) -> dict[str, Any]:
+    lines = [line.rstrip() for line in str(text_value or "").splitlines()]
+    if not any("time-lapse assay id file" in line.lower() for line in lines):
+        return {}
+
+    parsed_sections = parse_legacy_timelapse_sections(lines)
+    general = parsed_sections.get("general", {})
+    analysis = parsed_sections.get("analysis", {})
+    positions = parsed_sections.get("positions", [])
+    channels = parsed_sections.get("channels", [])
+
+    frame_count = safe_int(general.get("Number of frames"))
+    position_count = safe_int(general.get("Number of positions")) or len(positions)
+    channel_count = safe_int(general.get("Number of channels")) or len(channels)
+    interval_seconds = coerce_number(general.get("Interval (s)"))
+    interval_ms = round(float(interval_seconds) * 1000.0, 6) if interval_seconds is not None else None
+
+    channel_names = []
+    for index, channel in enumerate(channels):
+        channel_name = normalize_legacy_channel_name(channel, index=index)
+        channel["channel"] = channel_name
+        channel_names.append(channel_name)
+
+    summary: dict[str, Any] = {
+        "Prefix": first_non_empty_text(general.get("Filename")),
+        "Comment": first_non_empty_text(general.get("Comments"), general.get("Goal")),
+        "Channels": channel_count,
+        "Positions": position_count,
+        "Frames": frame_count,
+        "ChNames": channel_names,
+    }
+    if interval_ms is not None:
+        summary["Interval-ms"] = interval_ms
+
+    dimensions = {
+        "channel_count": channel_count,
+        "position_count": position_count,
+        "frame_count": frame_count,
+        "channel_names": channel_names,
+        "channel_settings": channels,
+    }
+    if interval_seconds is not None:
+        dimensions["interval_seconds"] = interval_seconds
+    if interval_ms is not None:
+        dimensions["interval_ms"] = interval_ms
+
+    metadata: dict[str, Any] = {
+        "Summary": {key: value for key, value in summary.items() if value not in (None, "", [], {})},
+        "dimensions": {key: value for key, value in dimensions.items() if value not in (None, "", [], {})},
+        "positions": positions,
+        "legacy_timelapse_id": {
+            "created_at_text": first_non_empty_text(general.get("Created")),
+            "path": first_non_empty_text(general.get("Path")),
+            "filename": first_non_empty_text(general.get("Filename")),
+            "movie_type": first_non_empty_text(general.get("Movie type")),
+            "data_saving_mode": first_non_empty_text(general.get("Data saving mode")),
+            "analysis_mode": first_non_empty_text(analysis.get("performing analysis")),
+            "comments": first_non_empty_text(general.get("Comments")),
+        },
+    }
+    for index, channel in enumerate(channels):
+        metadata[f"Channel{index}"] = channel
+    return metadata
+
+
+def parse_legacy_timelapse_sections(lines: list[str]) -> dict[str, Any]:
+    general_keys = {
+        "Created",
+        "Path",
+        "Filename",
+        "Strains",
+        "Genotype",
+        "Goal",
+        "Comments",
+        "Movie type",
+        "Interval (s)",
+        "Number of frames",
+        "Data saving mode",
+        "Number of channels",
+        "Number of positions",
+    }
+    section = "general"
+    current_block: dict[str, Any] | None = None
+    sections: dict[str, Any] = {"general": {}, "analysis": {}, "positions": [], "channels": []}
+
+    for raw_line in lines:
+        line = raw_line.strip()
+        if not line:
+            continue
+        lower_line = line.lower()
+        if lower_line.startswith("%"):
+            continue
+        if "time lapse analysis" in lower_line:
+            section = "analysis"
+            current_block = None
+            continue
+        if "time lapse channels" in lower_line:
+            section = "channels"
+            current_block = None
+            continue
+        if "position list" in lower_line:
+            section = "positions"
+            current_block = None
+            continue
+        channel_match = re.match(r"^-+\s*channel\s*(\d+)\s*-+$", line, flags=re.IGNORECASE)
+        if channel_match:
+            current_block = {"index": max(0, int(channel_match.group(1)) - 1)}
+            sections["channels"].append(current_block)
+            continue
+        position_match = re.match(r"^-+\s*position\s*(\d+)\s*-+$", line, flags=re.IGNORECASE)
+        if position_match:
+            position_index = max(0, int(position_match.group(1)) - 1)
+            current_block = {
+                "position_index": position_index,
+                "position_key": f"position_{position_index + 1}",
+                "display_name": f"Position{position_index + 1}",
+            }
+            sections["positions"].append(current_block)
+            continue
+        if ":" not in line:
+            continue
+        key, value = [part.strip() for part in line.split(":", 1)]
+        if not key:
+            continue
+        target = current_block if current_block is not None else sections[section]
+        if current_block is None and key not in general_keys and section == "general":
+            continue
+        target[key] = value
+
+    normalize_legacy_positions(sections["positions"])
+    normalize_legacy_channels(sections["channels"])
+    return sections
+
+
+def normalize_legacy_positions(positions: list[dict[str, Any]]) -> None:
+    for index, position in enumerate(positions):
+        display_name = first_non_empty_text(position.get("Name"))
+        if display_name and display_name != "-":
+            position["display_name"] = display_name
+        position.setdefault("position_index", index)
+        position.setdefault("position_key", f"position_{index + 1}")
+        roi_text = first_non_empty_text(position.get("ROI"))
+        if roi_text:
+            roi_values = [safe_int(value) for value in re.split(r"\s+", roi_text) if value.strip()]
+            if all(value is not None for value in roi_values):
+                position["roi"] = [int(value) for value in roi_values]
+        imaged_channels = safe_int(position.get("Number of Channels imaged"))
+        if imaged_channels is not None:
+            position["channel_count"] = imaged_channels
+        indices_text = first_non_empty_text(position.get("Indices"))
+        if indices_text:
+            index_values = [safe_int(value) for value in re.split(r"\s+", indices_text) if value.strip()]
+            index_values = [int(value) for value in index_values if value is not None]
+            if index_values:
+                position["indices"] = index_values
+
+
+def normalize_legacy_channels(channels: list[dict[str, Any]]) -> None:
+    for index, channel in enumerate(channels):
+        exposure_seconds = coerce_number(channel.get("Exposure Time (s)"))
+        if exposure_seconds is not None:
+            channel["exposure_ms"] = round(float(exposure_seconds) * 1000.0, 6)
+        led_power_text = first_non_empty_text(channel.get("Fluo excitation manager"))
+        if led_power_text:
+            led_power_match = re.search(r"([0-9]+(?:\.[0-9]+)?)", led_power_text)
+            if led_power_match:
+                channel["led_power"] = coerce_number(led_power_match.group(1))
+        resolution_text = first_non_empty_text(channel.get("Video Resolution"))
+        if resolution_text:
+            dims = [safe_int(value) for value in re.split(r"\s+", resolution_text) if value.strip()]
+            dims = [int(value) for value in dims if value is not None]
+            if len(dims) >= 2:
+                channel["width_px"] = dims[0]
+                channel["height_px"] = dims[1]
+        channel["index"] = int(channel.get("index", index) or index)
+
+
+def normalize_legacy_channel_name(channel: dict[str, Any], *, index: int) -> str:
+    explicit = first_non_empty_text(channel.get("Channel Name"))
+    if explicit and explicit != "-":
+        return explicit
+    imaging = first_non_empty_text(channel.get("Imaging"))
+    filter_cube = first_non_empty_text(channel.get("Filter Cube"))
+    fallback = " | ".join(part for part in (imaging, filter_cube) if part and part != "-")
+    return fallback or f"Channel {index + 1}"
 
 
 def normalize_micromanager_property_map(node: Any) -> Any:

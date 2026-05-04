@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from fastapi import Depends, Header, HTTPException, Query, Request, status
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy import exists, literal, or_, select
 from sqlalchemy.orm import Session
 
@@ -33,7 +34,13 @@ def get_or_create_user(
             metadata_json={},
         )
         session.add(user)
-        session.flush()
+        try:
+            session.flush()
+        except IntegrityError:
+            session.rollback()
+            user = session.scalars(select(User).where(User.user_key == user_key)).first()
+            if user is None:
+                raise
     return user
 
 

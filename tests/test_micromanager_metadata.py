@@ -1,7 +1,6 @@
 import json
 
-from api.services.micromanager_ingest import extract_acquisition_dimensions
-from api.services.micromanager_metadata import read_micromanager_metadata
+from api.services.micromanager_metadata import extract_acquisition_dimensions, read_micromanager_metadata
 
 
 def test_read_micromanager_metadata_extracts_channels_and_playback(tmp_path):
@@ -253,3 +252,69 @@ def test_read_micromanager_metadata_extracts_ome_series_positions(tmp_path):
     assert dimensions["width_px"] == 1024
     assert dimensions["height_px"] == 1024
     assert [position["display_name"] for position in metadata["positions"]] == ["Yam_1", "Yam_2", "Yak8_1"]
+
+
+def test_read_micromanager_metadata_parses_legacy_timelapse_id_file(tmp_path):
+    (tmp_path / "sample-ID.txt").write_text(
+        """
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%% Time-Lapse Assay ID File %%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+Created : 10-Apr-2018 15:50:51
+Path : C:\\movies\\Basile\\180410\\sample\\
+Filename : sample
+Comments : legacy dataset
+
+%%%%%%%%%%%%%%%%%%%%%% Time Lapse General Settings %%%%%%%%%%%%%
+Movie type : Flow-Cell
+Interval (s): 480
+Number of frames: 450
+Data saving mode :
+Jpg 16 Bits
+
+%%%%%%%%%%%%%%%%%%%%%% Time Lapse Channels %%%%%%%%%%%%%%%%%%%%%
+Number of channels: 2
+----- Channel1 --------
+Imaging : 2 : TL_PH : Phase contrast
+Filter Cube : 6 : Empty (PH+BF)
+Exposure Time (s) : 0.05
+Fluo excitation manager : 30%
+Video Resolution : 1000  1000
+----- Channel2 --------
+Imaging : 3 : Fluo : fluorescence
+Filter Cube : 2 : GFP
+Exposure Time (s) : 0.35
+Fluo excitation manager : 40%
+Video Resolution : 500  500
+
+%%%%%%%%%%%%%%%%%%%%%% Position List %%%%%%%%%%%%%%%%%%%%%%%%%%%
+Number of positions: 2
+----- Position1 --------
+Name : PosA
+ROI : 1     1  1002  1004
+Number of Channels imaged : 2
+Indices : 1
+----- Position2 --------
+Name : -
+ROI : 1     1  1002  1004
+Number of Channels imaged : 2
+Indices : 1
+""".strip(),
+        encoding="utf-8",
+    )
+
+    metadata = read_micromanager_metadata(tmp_path)
+
+    assert metadata["source_file"] == "sample-ID.txt"
+    assert metadata["Summary"]["Channels"] == 2
+    assert metadata["Summary"]["Positions"] == 2
+    assert metadata["Summary"]["Frames"] == 450
+    assert metadata["dimensions"]["interval_seconds"] == 480
+    assert metadata["dimensions"]["interval_ms"] == 480000
+    assert metadata["dimensions"]["channel_count"] == 2
+    assert metadata["dimensions"]["position_count"] == 2
+    assert metadata["dimensions"]["channel_settings"][0]["exposure_ms"] == 50
+    assert metadata["dimensions"]["channel_settings"][1]["led_power"] == 40
+    assert metadata["positions"][0]["display_name"] == "PosA"
+    assert metadata["positions"][0]["roi"] == [1, 1, 1002, 1004]

@@ -10,6 +10,7 @@ from sqlalchemy.orm import Session
 from api.models import ExperimentProject, ExperimentRawLink, RawDataset, RawDatasetLocation, RawDatasetPosition, User
 from api.services.micromanager_metadata import (
     build_compact_micromanager_metadata,
+    find_legacy_timelapse_id_file,
     find_micromanager_display_settings_path,
     read_micromanager_metadata,
 )
@@ -191,6 +192,8 @@ def detect_raw_dataset_format(dataset_dir: Path, source_metadata: dict) -> str:
         return "zarr"
     if (dataset_dir / "NDTiff.index").is_file():
         return "ndtiff"
+    if is_legacy_matlab_timelapse_dataset_dir(dataset_dir):
+        return "legacy_matlab_jpg_timelapse"
 
     try:
         entries = list(dataset_dir.iterdir())
@@ -235,6 +238,19 @@ def detect_raw_dataset_format(dataset_dir: Path, source_metadata: dict) -> str:
                 return "tiff_sequence"
 
     return "unknown"
+
+
+def is_legacy_matlab_timelapse_dataset_dir(dataset_dir: Path) -> bool:
+    if find_legacy_timelapse_id_file(dataset_dir) is None:
+        return False
+    project_mat = dataset_dir / f"{dataset_dir.name}-project.mat"
+    if not project_mat.is_file():
+        return False
+    try:
+        child_dirs = [entry for entry in dataset_dir.iterdir() if entry.is_dir()]
+    except OSError:
+        return False
+    return any(entry.name.lower().startswith(f"{dataset_dir.name.lower()}-pos") for entry in child_dirs)
 
 
 def upsert_raw_dataset_positions(

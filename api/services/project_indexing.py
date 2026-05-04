@@ -17,6 +17,7 @@ from sqlalchemy.orm import Session
 
 from api.config import get_settings
 from api.models import Pipeline, Project, ProjectLocation, StorageRoot, User
+from api.services.micromanager_metadata import find_legacy_timelapse_id_file, read_micromanager_metadata
 from api.services.project_inventory import inspect_project_directory
 from api.services.storage_metrics import safe_dir_size, safe_file_size
 from api.services.users import get_or_create_user
@@ -434,6 +435,7 @@ def iter_project_candidates(root_path: Path, progress_callback: Callable[..., No
     mat_files_seen = 0
     candidate_projects = 0
     last_report_at = time.monotonic()
+    seen_candidates: set[tuple[Path, Path]] = set()
     for mat_path in root_path.rglob("*.mat"):
         mat_files_seen += 1
         now = time.monotonic()
@@ -451,11 +453,14 @@ def iter_project_candidates(root_path: Path, progress_callback: Callable[..., No
                 message=f"Discovering DetecDiv projects under {root_path} ({mat_files_seen} .mat files inspected).",
             )
             last_report_at = now
-        project_dir = mat_path.with_suffix("")
-        if not project_dir.is_dir():
+        candidate = classify_project_candidate(mat_path)
+        if candidate is None:
             continue
-        if not is_detecdiv_project_dir(project_dir):
+        resolved_mat_path, project_dir = candidate
+        candidate_key = (resolved_mat_path, project_dir)
+        if candidate_key in seen_candidates:
             continue
+        seen_candidates.add(candidate_key)
         candidate_projects += 1
         if progress_callback is not None:
             progress_callback(
@@ -467,16 +472,32 @@ def iter_project_candidates(root_path: Path, progress_callback: Callable[..., No
                 failed_projects=0,
                 deleted_projects=0,
                 mat_files_seen=mat_files_seen,
-                current_project_path=str(mat_path),
+                current_project_path=str(resolved_mat_path),
                 message=f"Found {candidate_projects} DetecDiv project candidate(s) after inspecting {mat_files_seen} .mat files.",
             )
-        yield mat_path.resolve(), project_dir.resolve()
+        yield resolved_mat_path, project_dir
 
 
-def is_detecdiv_project_dir(project_dir: Path) -> bool:
+def classify_project_candidate(mat_path: Path) -> tuple[Path, Path] | None:
+    mat_path = mat_path.resolve()
+    project_dir = mat_path.with_suffix("")
+    if project_dir.is_dir() and is_detecdiv_project_dir(project_dir):
+        return mat_path, project_dir.resolve()
+
+    if mat_path.name.lower() == f"{mat_path.parent.name.lower()}-project.mat" and is_detecdiv_project_dir(
+        mat_path.parent, project_mat_path=mat_path
+    ):
+        return mat_path, mat_path.parent.resolve()
+    return None
+
+
+def is_detecdiv_project_dir(project_dir: Path, *, project_mat_path: Path | None = None) -> bool:
     """Heuristic filter to reject image/frame folders that happen to have sibling MAT files."""
     if not project_dir.is_dir():
         return False
+
+    if is_legacy_matlab_timelapse_project_dir(project_dir, project_mat_path=project_mat_path):
+        return True
 
     top_level_dir_markers = {"pipeline", "processor", "classification", "classifier", "fov"}
     try:
@@ -504,6 +525,27 @@ def is_detecdiv_project_dir(project_dir: Path) -> bool:
 
     # Reject typical per-image folders such as Pos*/im_* trees when they have no project markers.
     return False
+
+
+def is_legacy_matlab_timelapse_project_dir(project_dir: Path, *, project_mat_path: Path | None = None) -> bool:
+    expected_project_mat = project_dir / f"{project_dir.name}-project.mat"
+    mat_candidate = project_mat_path.resolve() if project_mat_path is not None else expected_project_mat.resolve()
+    if mat_candidate != expected_project_mat.resolve():
+        return False
+    if not expected_project_mat.is_file():
+        return False
+    if find_legacy_timelapse_id_file(project_dir) is None:
+        return False
+    try:
+        children = [entry for entry in project_dir.iterdir() if entry.is_dir()]
+    except OSError:
+        return False
+    prefix = f"{project_dir.name.lower()}-pos"
+    return any(entry.name.lower().startswith(prefix) for entry in children)
+
+
+def is_legacy_matlab_timelapse_dataset_dir(dataset_dir: Path) -> bool:
+    return is_legacy_matlab_timelapse_project_dir(dataset_dir)
 
 
 def get_or_create_storage_root(
@@ -546,9 +588,10 @@ def upsert_project_from_paths(
     relative_parent = project_relative_parent(root_path, mat_path)
     project_key = build_project_key(str(mat_path), relative_parent, mat_path.stem)
     project = session.scalars(select(Project).where(Project.project_key == project_key)).first()
+    is_legacy_hybrid = is_legacy_matlab_timelapse_project_dir(project_dir, project_mat_path=mat_path)
 
     project_mat_bytes = safe_file_size(mat_path)
-    project_dir_bytes = safe_dir_size(project_dir)
+    project_dir_bytes = 0 if is_legacy_hybrid else safe_dir_size(project_dir)
     total_bytes = project_mat_bytes + project_dir_bytes
     size_timestamp = datetime.now(timezone.utc)
     inventory = inspect_project_directory(project_dir)
@@ -566,6 +609,7 @@ def upsert_project_from_paths(
         "project_rel_from_root": str(project_dir.relative_to(root_path)),
         "inventory": inventory.metadata_json(),
         "raw_relink": raw_scan.metadata_json(),
+        "storage_is_shared_with_raw_dataset": is_legacy_hybrid,
     }
 
     if project is None:
@@ -698,6 +742,14 @@ def scan_project_raw_sources(
     mat_path: Path,
     project_dir: Path,
 ) -> RawSourceScanResult:
+    if is_legacy_matlab_timelapse_project_dir(project_dir, project_mat_path=mat_path):
+        return scan_legacy_matlab_timelapse_project(
+            session,
+            owner=owner,
+            visibility=visibility,
+            project_dir=project_dir,
+        )
+
     extracted = extract_project_raw_srcpaths(mat_path)
     if extracted["status"] != "ok":
         return RawSourceScanResult(
@@ -756,6 +808,55 @@ def scan_project_raw_sources(
         missing_sources=missing_sources,
         extraction_status="ok",
     )
+
+
+def scan_legacy_matlab_timelapse_project(
+    session: Session,
+    *,
+    owner: User,
+    visibility: str,
+    project_dir: Path,
+) -> RawSourceScanResult:
+    raw_dataset = get_or_create_raw_dataset_for_path(
+        session,
+        owner=owner,
+        visibility=visibility,
+        dataset_dir=project_dir,
+    )
+    parsed_metadata = read_micromanager_metadata(project_dir)
+    dimensions = (parsed_metadata.get("dimensions") if isinstance(parsed_metadata, dict) else {}) or {}
+    position_count = int(dimensions.get("position_count") or 0)
+    if position_count <= 0:
+        position_count = len(parsed_metadata.get("positions") or []) if isinstance(parsed_metadata, dict) else 0
+    if position_count <= 0:
+        position_count = count_legacy_position_dirs(project_dir)
+
+    return RawSourceScanResult(
+        fov_count=position_count,
+        available_raw_count=1,
+        missing_raw_count=0,
+        estimated_raw_bytes=int(raw_dataset.total_bytes or 0),
+        linked_raw_dataset_ids=[raw_dataset.id],
+        linked_sources=[
+            {
+                "srcpath": str(project_dir),
+                "dataset_path": str(project_dir),
+                "raw_dataset_id": str(raw_dataset.id),
+                "acquisition_label": raw_dataset.acquisition_label,
+                "source": "legacy_matlab_timelapse_project",
+            }
+        ],
+        missing_sources=[],
+        extraction_status="ok",
+    )
+
+
+def count_legacy_position_dirs(project_dir: Path) -> int:
+    prefix = f"{project_dir.name.lower()}-pos"
+    try:
+        return sum(1 for entry in project_dir.iterdir() if entry.is_dir() and entry.name.lower().startswith(prefix))
+    except OSError:
+        return 0
 
 
 def extract_project_raw_srcpaths(mat_path: Path) -> dict:
@@ -1076,6 +1177,8 @@ def infer_raw_dataset_dir(path: Path) -> Path | None:
         return zarr_ancestor
 
     for ancestor in [path, *path.parents]:
+        if is_legacy_matlab_timelapse_dataset_dir(ancestor):
+            return ancestor
         if looks_like_dataset_folder(ancestor):
             return ancestor
 

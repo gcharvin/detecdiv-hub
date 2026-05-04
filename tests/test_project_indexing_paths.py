@@ -3,7 +3,13 @@ from __future__ import annotations
 from dataclasses import dataclass
 from pathlib import Path
 
-from api.services.project_indexing import build_rebased_raw_path_candidates, raw_root_candidates
+from api.services.project_indexing import (
+    build_rebased_raw_path_candidates,
+    classify_project_candidate,
+    is_legacy_matlab_timelapse_project_dir,
+    raw_root_candidates,
+)
+from api.services.raw_dataset_ingest import detect_raw_dataset_format
 
 
 @dataclass
@@ -57,3 +63,30 @@ def test_build_rebased_raw_path_candidates_rebases_against_explicit_root(tmp_pat
 
     assert str(raw_root / "Florian" / "Microscopy" / "2026_04_16_YAM853_switch_1_0001" / "Pos0" / "frame_0001.tif") in candidates
     assert not any("//10.20.11.250" in candidate for candidate in candidates)
+
+
+def test_legacy_matlab_timelapse_project_dir_is_detected(tmp_path: Path):
+    dataset_dir = tmp_path / "sample"
+    dataset_dir.mkdir()
+    (dataset_dir / "sample-project.mat").write_text("mat", encoding="utf-8")
+    (dataset_dir / "sample-ID.txt").write_text("Time-Lapse Assay ID File", encoding="utf-8")
+    (dataset_dir / "sample-pos1").mkdir()
+    (dataset_dir / "sample-pos2").mkdir()
+
+    assert is_legacy_matlab_timelapse_project_dir(dataset_dir)
+    assert detect_raw_dataset_format(dataset_dir, {}) == "legacy_matlab_jpg_timelapse"
+
+
+def test_classify_project_candidate_accepts_in_place_project_mat(tmp_path: Path):
+    dataset_dir = tmp_path / "sample"
+    dataset_dir.mkdir()
+    mat_path = dataset_dir / "sample-project.mat"
+    mat_path.write_text("mat", encoding="utf-8")
+    (dataset_dir / "sample-ID.txt").write_text("Time-Lapse Assay ID File", encoding="utf-8")
+    (dataset_dir / "sample-pos1").mkdir()
+
+    candidate = classify_project_candidate(mat_path)
+
+    assert candidate is not None
+    assert candidate[0] == mat_path.resolve()
+    assert candidate[1] == dataset_dir.resolve()
