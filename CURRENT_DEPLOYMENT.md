@@ -1,7 +1,12 @@
 # Current Deployment
 
-This file records the current live deployment target for agents and developers
-working on this repository.
+This file is the source of truth for the current live deployment target and
+runtime topology for this repository.
+
+Use the `detecdiv-hub-ops` skill for the operational sequence:
+restart commands, verification steps, and deployment classification.
+This file should describe what is live; the skill should describe how to act on
+it.
 
 ## Stable Deployment Target
 
