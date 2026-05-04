@@ -201,6 +201,7 @@ const els = {
   deploymentDbStatus: document.querySelector("#deployment-db-status"),
   deploymentWorkerStatus: document.querySelector("#deployment-worker-status"),
   deploymentHeartbeatStatus: document.querySelector("#deployment-heartbeat-status"),
+  deploymentVersionStatus: document.querySelector("#deployment-version-status"),
   executionTargetHealthWarning: document.querySelector("#execution-target-health-warning"),
   archiveSettingsRefreshButton: document.querySelector("#archive-settings-refresh-button"),
   archiveSettingsSaveButton: document.querySelector("#archive-settings-save-button"),
@@ -2233,6 +2234,52 @@ function executionTargetWorkerSnapshot(target) {
     heartbeatLabel,
     lastClaimLabel,
     mismatch,
+    deploymentVersions: workerHealthSummary.deployment_versions || workerEntries.map((entry) => entry.workerHealth.deployment_version).filter(Boolean),
+    codeFingerprints: workerHealthSummary.code_fingerprints || workerEntries.map((entry) => entry.workerHealth.code_fingerprint).filter(Boolean),
+    versionDrift: Boolean(workerHealthSummary.version_drift),
+  };
+}
+
+function deploymentVersionSnapshot() {
+  const apiHealth = state.systemHealth || {};
+  const targetSnapshots = state.executionTargets.map((target) => ({ target, snapshot: executionTargetWorkerSnapshot(target) }));
+  const workerVersions = [];
+  const workerFingerprints = [];
+  for (const item of targetSnapshots) {
+    for (const version of item.snapshot.deploymentVersions || []) {
+      if (version && !workerVersions.includes(version)) workerVersions.push(version);
+    }
+    for (const fingerprint of item.snapshot.codeFingerprints || []) {
+      if (fingerprint && !workerFingerprints.includes(fingerprint)) workerFingerprints.push(fingerprint);
+    }
+  }
+  const apiVersion = String(apiHealth.deployment_version || "").trim();
+  const apiFingerprint = String(apiHealth.code_fingerprint || "").trim();
+  const workerVersionDrift = workerVersions.length > 1 || workerFingerprints.length > 1;
+  const apiWorkerMismatch = Boolean(
+    (apiVersion && workerVersions.length && !workerVersions.includes(apiVersion))
+    || (apiFingerprint && workerFingerprints.length && !workerFingerprints.includes(apiFingerprint))
+  );
+  let status = "unknown";
+  if (!apiVersion && !workerVersions.length) {
+    status = "no version metadata yet";
+  } else if (workerVersionDrift || apiWorkerMismatch) {
+    status = "drift detected";
+  } else if (apiVersion || workerVersions.length) {
+    status = "in sync";
+  }
+  const apiLabel = apiVersion || (apiFingerprint ? `fp-${apiFingerprint}` : "unknown");
+  const workerLabel = workerVersions.length
+    ? workerVersions.join(" / ")
+    : workerFingerprints.length
+      ? workerFingerprints.map((item) => `fp-${item}`).join(" / ")
+      : "unknown";
+  return {
+    status,
+    apiLabel,
+    workerLabel,
+    workerVersionDrift,
+    apiWorkerMismatch,
   };
 }
 
@@ -2408,6 +2455,10 @@ function renderDeploymentAwareness() {
   }
   if (els.deploymentHeartbeatStatus) {
     els.deploymentHeartbeatStatus.textContent = `${heartbeatLabel}${snapshot.latestClaim ? ` | last claim ${formatTimestamp(snapshot.latestClaim)}` : ""}`;
+  }
+  if (els.deploymentVersionStatus) {
+    const versionSnapshot = deploymentVersionSnapshot();
+    els.deploymentVersionStatus.textContent = `${versionSnapshot.status} | api ${versionSnapshot.apiLabel} | workers ${versionSnapshot.workerLabel}`;
   }
 }
 

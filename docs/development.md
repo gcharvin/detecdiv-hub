@@ -17,6 +17,28 @@ Recommended setup:
 4. push changes
 5. pull and restart services on the server
 
+## Live deployment safety
+
+For the current split deployment, local development and live deployment are not
+the same thing.
+
+- local Windows checkout is only your working tree
+- `webserver-labo` is the live API and database runtime
+- `detecdiv-server` is the live worker runtime
+
+Do not assume that a local edit is live. Do not assume that restarting one side
+updates the other. Before touching live services, read
+[docs/dev_deploy_workflow.md](docs/dev_deploy_workflow.md) for the deployment
+classification and restart rules.
+
+Short version:
+
+1. classify the change as `API-only`, `worker-only`, or `cross-layer`
+2. verify which remote copies need updating
+3. avoid restarting workers during active indexing unless you are explicitly
+   interrupting the job
+4. verify the live API and worker state after restart
+
 ## Useful commands
 
 Start local API:

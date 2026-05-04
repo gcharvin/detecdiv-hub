@@ -343,6 +343,9 @@ CREATE TABLE IF NOT EXISTS worker_instances (
     last_job_id UUID REFERENCES jobs(id) ON DELETE SET NULL,
     last_job_status TEXT,
     last_error TEXT,
+    deployment_version TEXT,
+    version_source TEXT,
+    code_fingerprint TEXT,
     poll_interval_sec DOUBLE PRECISION,
     claimed_at TIMESTAMPTZ,
     last_seen_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
@@ -498,6 +501,9 @@ ALTER TABLE jobs ADD COLUMN IF NOT EXISTS heartbeat_at TIMESTAMPTZ;
 ALTER TABLE indexing_jobs ADD COLUMN IF NOT EXISTS phase TEXT NOT NULL DEFAULT 'queued';
 ALTER TABLE indexing_jobs ADD COLUMN IF NOT EXISTS mat_files_seen INTEGER NOT NULL DEFAULT 0;
 ALTER TABLE indexing_jobs ADD COLUMN IF NOT EXISTS heartbeat_at TIMESTAMPTZ;
+ALTER TABLE worker_instances ADD COLUMN IF NOT EXISTS deployment_version TEXT;
+ALTER TABLE worker_instances ADD COLUMN IF NOT EXISTS version_source TEXT;
+ALTER TABLE worker_instances ADD COLUMN IF NOT EXISTS code_fingerprint TEXT;
 
 CREATE INDEX IF NOT EXISTS idx_projects_name ON detecdiv_projects(project_name);
 CREATE INDEX IF NOT EXISTS idx_projects_owner_user_id ON detecdiv_projects(owner_user_id);

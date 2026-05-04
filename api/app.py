@@ -21,6 +21,7 @@ from api.routes_pipeline_runs import router as pipeline_runs_router
 from api.routes_projects import groups_router, router as projects_router, storage_roots_router, users_router
 from api.routes_raw_datasets import router as raw_datasets_router
 from api.schemas import HealthResponse
+from api.services.runtime_version import get_runtime_version_info
 
 
 settings = get_settings()
@@ -55,10 +56,14 @@ def health() -> HealthResponse:
     except Exception as exc:  # pragma: no cover - defensive health probe
         database_status = "error"
         database_message = str(exc)
+    version = get_runtime_version_info()
     return HealthResponse(
         database_status=database_status,
         database_message=database_message,
         hostname=socket.gethostname(),
+        deployment_version=version.get("deployment_version"),
+        version_source=version.get("version_source"),
+        code_fingerprint=version.get("code_fingerprint"),
     )
 
 

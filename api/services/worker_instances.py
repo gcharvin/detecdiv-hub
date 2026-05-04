@@ -11,6 +11,7 @@ from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.orm import Session
 
 from api.models import ExecutionTarget, Job, WorkerInstance
+from api.services.runtime_version import get_runtime_version_info
 
 
 def normalize_worker_instance_id(value: str) -> str:
@@ -61,6 +62,20 @@ def summarize_worker_instances(
         key=lambda worker: worker.last_seen_at,
         default=None,
     )
+    deployment_versions = sorted(
+        {
+            str(worker.deployment_version).strip()
+            for worker in workers
+            if str(worker.deployment_version or "").strip()
+        }
+    )
+    code_fingerprints = sorted(
+        {
+            str(worker.code_fingerprint).strip()
+            for worker in workers
+            if str(worker.code_fingerprint or "").strip()
+        }
+    )
 
     if busy_workers:
         health = "busy"
@@ -85,6 +100,9 @@ def summarize_worker_instances(
         "last_seen_at": latest_seen_at.isoformat() if latest_seen_at else None,
         "claimed_at": latest_claimed_at.isoformat() if latest_claimed_at else None,
         "worker_instances": sorted(worker.worker_instance for worker in workers),
+        "deployment_versions": deployment_versions,
+        "code_fingerprints": code_fingerprints,
+        "version_drift": len(deployment_versions) > 1 or len(code_fingerprints) > 1,
     }
     if max_concurrent_jobs is not None:
         summary["max_concurrent_jobs"] = max_concurrent_jobs
@@ -105,6 +123,9 @@ def worker_instance_to_health(worker: WorkerInstance) -> dict:
         "last_job_id": str(worker.last_job_id) if worker.last_job_id else None,
         "last_job_status": worker.last_job_status,
         "last_error": worker.last_error,
+        "deployment_version": worker.deployment_version,
+        "version_source": worker.version_source,
+        "code_fingerprint": worker.code_fingerprint,
         "poll_interval_sec": worker.poll_interval_sec,
         "claimed_at": worker.claimed_at.isoformat() if worker.claimed_at else None,
         "last_seen_at": worker.last_seen_at.isoformat() if worker.last_seen_at else None,
@@ -156,6 +177,7 @@ def upsert_worker_instance(
 ) -> WorkerInstance:
     now = now or datetime.now(timezone.utc)
     worker_instance = normalize_worker_instance_id(worker_instance)
+    version_info = get_runtime_version_info()
     current_job_id = current_job.id if current_job is not None else None
     current_job_kind = str((current_job.params_json or {}).get("job_kind") or "generic") if current_job is not None else None
     current_job_status = str(current_job.status or "running") if current_job is not None else None
@@ -176,6 +198,9 @@ def upsert_worker_instance(
         "last_job_id": last_job.id if last_job is not None else None,
         "last_job_status": last_job_status,
         "last_error": error_text,
+        "deployment_version": version_info.get("deployment_version"),
+        "version_source": version_info.get("version_source"),
+        "code_fingerprint": version_info.get("code_fingerprint"),
         "poll_interval_sec": poll_interval_sec,
         "claimed_at": claimed_at,
         "last_seen_at": now,

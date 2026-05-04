@@ -55,7 +55,7 @@ Shortcuts:
 .\scripts\run_worker.ps1
 ```
 
-See [docs/architecture.md](docs/architecture.md), [docs/install_server.md](docs/install_server.md), [docs/install_client.md](docs/install_client.md), and [AGENTS.md](AGENTS.md).
+See [docs/architecture.md](docs/architecture.md), [docs/install_server.md](docs/install_server.md), [docs/install_client.md](docs/install_client.md), [docs/development.md](docs/development.md), [docs/dev_deploy_workflow.md](docs/dev_deploy_workflow.md), and [AGENTS.md](AGENTS.md).
 
 ## Bootstrap a local development database
 

@@ -15,6 +15,9 @@ class HealthResponse(HubBaseModel):
     database_status: str = "unknown"
     database_message: str | None = None
     hostname: str | None = None
+    deployment_version: str | None = None
+    version_source: str | None = None
+    code_fingerprint: str | None = None
 
 
 class UserSummary(HubBaseModel):
