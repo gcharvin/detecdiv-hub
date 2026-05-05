@@ -41,6 +41,8 @@ class ProjectIndexResult:
     stale_cleanup_skipped: bool
     indexed_pipelines: int = 0
     failed_pipelines: int = 0
+    indexed_raw_datasets: int = 0
+    failed_raw_datasets: int = 0
 
 
 @dataclass
@@ -62,6 +64,7 @@ def index_project_root(
     clear_existing_for_root: bool = False,
     continue_on_error: bool = True,
     commit_each: bool = False,
+    scan_orphan_raw: bool = False,
     progress_callback: Callable[..., None] | None = None,
 ) -> ProjectIndexResult:
     root = Path(root_path).expanduser().resolve()
@@ -258,6 +261,85 @@ def index_project_root(
             message=f"No DetecDiv project candidates found under {root}.",
         )
 
+    indexed_raw_datasets = 0
+    failed_raw_datasets = 0
+    if scan_orphan_raw:
+        if progress_callback is not None:
+            progress_callback(
+                status="running",
+                phase="scanning_raw",
+                total_projects=total_projects,
+                scanned_projects=scanned_projects,
+                indexed_projects=indexed_projects,
+                failed_projects=failed_projects,
+                deleted_projects=deleted_projects,
+                mat_files_seen=total_projects,
+                current_project_path=None,
+                message=f"Scanning {root} for orphan raw datasets.",
+            )
+        for raw_dir in iter_orphan_raw_candidates(root, project_dirs=project_dirs):
+            try:
+                get_or_create_raw_dataset_for_path(
+                    session,
+                    owner=owner,
+                    visibility=visibility,
+                    dataset_dir=raw_dir,
+                )
+                indexed_raw_datasets += 1
+                if progress_callback is not None:
+                    progress_callback(
+                        status="running",
+                        phase="scanning_raw",
+                        total_projects=total_projects,
+                        scanned_projects=scanned_projects,
+                        indexed_projects=indexed_projects,
+                        failed_projects=failed_projects,
+                        deleted_projects=deleted_projects,
+                        mat_files_seen=total_projects,
+                        indexed_raw_datasets=indexed_raw_datasets,
+                        failed_raw_datasets=failed_raw_datasets,
+                        current_project_path=str(raw_dir),
+                        message=f"Indexed raw dataset {raw_dir.name} ({indexed_raw_datasets} raw datasets so far).",
+                    )
+                if commit_each:
+                    session.commit()
+            except Exception as exc:
+                session.rollback()
+                failed_raw_datasets += 1
+                if progress_callback is not None:
+                    progress_callback(
+                        status="running",
+                        phase="scanning_raw",
+                        total_projects=total_projects,
+                        scanned_projects=scanned_projects,
+                        indexed_projects=indexed_projects,
+                        failed_projects=failed_projects,
+                        deleted_projects=deleted_projects,
+                        mat_files_seen=total_projects,
+                        indexed_raw_datasets=indexed_raw_datasets,
+                        failed_raw_datasets=failed_raw_datasets,
+                        current_project_path=str(raw_dir),
+                        message=f"Failed to index raw dataset {raw_dir.name}: {exc}",
+                        error_text=str(exc),
+                    )
+                if not continue_on_error:
+                    raise
+        if progress_callback is not None and indexed_raw_datasets > 0:
+            progress_callback(
+                status="running",
+                phase="scanning_raw",
+                total_projects=total_projects,
+                scanned_projects=scanned_projects,
+                indexed_projects=indexed_projects,
+                failed_projects=failed_projects,
+                deleted_projects=deleted_projects,
+                mat_files_seen=total_projects,
+                indexed_raw_datasets=indexed_raw_datasets,
+                failed_raw_datasets=failed_raw_datasets,
+                current_project_path=None,
+                message=f"Indexed {indexed_raw_datasets} orphan raw dataset(s) from {root}.",
+            )
+
     return ProjectIndexResult(
         root_path=str(root),
         storage_root_name=storage_root.name,
@@ -271,6 +353,8 @@ def index_project_root(
         stale_cleanup_skipped=stale_cleanup_skipped,
         indexed_pipelines=indexed_pipelines,
         failed_pipelines=failed_pipelines,
+        indexed_raw_datasets=indexed_raw_datasets,
+        failed_raw_datasets=failed_raw_datasets,
     )
 
 
@@ -1389,6 +1473,50 @@ def infer_raw_dataset_dir(path: Path) -> Path | None:
 def is_position_like_name(name: str) -> bool:
     lowered = str(name or "").strip().lower()
     return lowered.startswith("pos") or lowered.startswith("position") or lowered.startswith("xy")
+
+
+_MICROMANAGER_MARKER_FILES = frozenset(
+    {"metadata.txt", "acquisitionmetadata.txt", "displaysettings.txt"}
+)
+
+
+def looks_like_raw_dataset_dir(path: Path) -> bool:
+    if not path.is_dir():
+        return False
+    name_lower = path.name.lower()
+    if name_lower.endswith(".ome.zarr") or name_lower.endswith(".zarr"):
+        return has_zarr_root_metadata(path)
+    if (path / "NDTiff.index").is_file():
+        return True
+    if is_legacy_matlab_timelapse_dataset_dir(path):
+        return True
+    try:
+        child_names = {entry.name.lower() for entry in path.iterdir() if entry.is_file()}
+    except OSError:
+        return False
+    return bool(_MICROMANAGER_MARKER_FILES.intersection(child_names))
+
+
+def iter_orphan_raw_candidates(root: Path, *, project_dirs: list[Path], max_depth: int = 5):
+    """Yield directories that look like raw datasets but are not inside any project dir."""
+    stack: list[tuple[Path, int]] = [(root, 0)]
+    while stack:
+        current, depth = stack.pop()
+        if depth > max_depth:
+            continue
+        try:
+            entries = sorted(current.iterdir(), key=lambda e: e.name.lower())
+        except OSError:
+            continue
+        for entry in entries:
+            if not entry.is_dir():
+                continue
+            if is_relative_to_any(entry, project_dirs):
+                continue
+            if looks_like_raw_dataset_dir(entry):
+                yield entry
+            else:
+                stack.append((entry, depth + 1))
 
 
 def get_or_create_raw_dataset_for_path(

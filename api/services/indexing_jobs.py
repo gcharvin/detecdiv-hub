@@ -98,6 +98,7 @@ def create_indexing_job(
         metadata["execution_target_id"] = str(payload.execution_target_id)
     if payload.execution_target_key:
         metadata["execution_target_key"] = payload.execution_target_key
+    metadata["scan_orphan_raw"] = bool(payload.scan_orphan_raw)
     job = IndexingJob(
         requested_by_user_id=current_user.id,
         owner_user_id=owner.id,
@@ -303,6 +304,7 @@ def execute_indexing_job(indexing_job_id: UUID) -> dict[str, Any]:
                 session.flush()
                 session.commit()
 
+            scan_orphan_raw = bool((job.metadata_json or {}).get("scan_orphan_raw", False))
             result = index_project_root(
                 session,
                 root_path=job.source_path,
@@ -314,6 +316,7 @@ def execute_indexing_job(indexing_job_id: UUID) -> dict[str, Any]:
                 clear_existing_for_root=job.clear_existing_for_root,
                 continue_on_error=True,
                 commit_each=True,
+                scan_orphan_raw=scan_orphan_raw,
                 progress_callback=on_progress,
             )
             keepalive_stop.set()
@@ -350,7 +353,8 @@ def execute_indexing_job(indexing_job_id: UUID) -> dict[str, Any]:
 
 
 def finalize_indexing_job_success(session: Session, job: IndexingJob, result: ProjectIndexResult) -> None:
-    job.status = "completed" if result.failed_projects == 0 else "completed_with_errors"
+    has_errors = result.failed_projects > 0 or result.failed_raw_datasets > 0
+    job.status = "completed" if not has_errors else "completed_with_errors"
     job.phase = "completed"
     job.total_projects = result.total_projects
     job.scanned_projects = result.scanned_projects
@@ -360,9 +364,14 @@ def finalize_indexing_job_success(session: Session, job: IndexingJob, result: Pr
     job.current_project_path = None
     job.finished_at = datetime.now(timezone.utc)
     job.heartbeat_at = job.finished_at
+    raw_suffix = (
+        f" and {result.indexed_raw_datasets} orphan raw dataset(s)"
+        if result.indexed_raw_datasets > 0
+        else ""
+    )
     job.message = (
         f"Indexed {result.indexed_projects}/{result.total_projects} projects"
-        f" and {result.indexed_pipelines} independent pipelines from {result.root_path}."
+        f" and {result.indexed_pipelines} independent pipelines{raw_suffix} from {result.root_path}."
     )
     job.result_json = {
         "root_path": result.root_path,
@@ -377,6 +386,8 @@ def finalize_indexing_job_success(session: Session, job: IndexingJob, result: Pr
         "stale_cleanup_skipped": result.stale_cleanup_skipped,
         "indexed_pipelines": result.indexed_pipelines,
         "failed_pipelines": result.failed_pipelines,
+        "indexed_raw_datasets": result.indexed_raw_datasets,
+        "failed_raw_datasets": result.failed_raw_datasets,
     }
     session.flush()
 

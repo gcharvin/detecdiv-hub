@@ -129,6 +129,7 @@ def request_index(
             owner_user_key=payload.owner_user_key or current_user.user_key or settings.default_user_key,
             visibility=payload.visibility,
             clear_existing_for_root=payload.clear_existing_for_root,
+            scan_orphan_raw=payload.scan_orphan_raw,
         )
         db.commit()
     except ValueError as exc:
@@ -153,5 +154,7 @@ def request_index(
         indexed_pipelines=result.indexed_pipelines,
         failed_pipelines=result.failed_pipelines,
         stale_cleanup_skipped=result.stale_cleanup_skipped,
+        indexed_raw_datasets=result.indexed_raw_datasets,
+        failed_raw_datasets=result.failed_raw_datasets,
         message="Project root indexed successfully.",
     )

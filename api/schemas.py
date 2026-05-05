@@ -1028,6 +1028,7 @@ class IndexRequest(HubBaseModel):
     owner_user_key: str | None = None
     visibility: str = "private"
     clear_existing_for_root: bool = False
+    scan_orphan_raw: bool = False
     requested_by: str | None = None
     execution_target_id: UUID | None = None
     execution_target_key: str | None = None
@@ -1095,6 +1096,8 @@ class IndexResponse(HubBaseModel):
     indexed_pipelines: int = 0
     failed_pipelines: int = 0
     stale_cleanup_skipped: bool = False
+    indexed_raw_datasets: int = 0
+    failed_raw_datasets: int = 0
     message: str
 
 
