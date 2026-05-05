@@ -15,6 +15,7 @@ from api.db import SessionLocal
 from api.models import User
 
 
+DEFAULT_USER_PASSWORD = "detecdiv"
 FIRST_NAME_PATTERN = re.compile(r"^[A-Z][A-Za-z']{1,31}$")
 NON_NAME_DIRS = {
     ".trash-1000",
@@ -115,6 +116,12 @@ def main() -> int:
                             metadata_json={},
                         )
                     )
+                    session.flush()
+                    user = session.scalars(select(User).where(User.user_key == user_key)).first()
+                    if user is not None:
+                        from api.services.auth import set_user_password
+
+                        set_user_password(session, user=user, password=DEFAULT_USER_PASSWORD)
                 continue
 
             changes = []
@@ -136,6 +143,11 @@ def main() -> int:
                 updated.append(f"{existing.user_key}: {', '.join(changes)}")
             else:
                 skipped.append(existing.user_key)
+
+            if args.apply and existing.password_hash is None:
+                from api.services.auth import set_user_password
+
+                set_user_password(session, user=existing, password=DEFAULT_USER_PASSWORD)
 
         if args.apply:
             session.commit()
