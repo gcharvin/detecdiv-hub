@@ -244,15 +244,6 @@ channelSettings = config.channel_settings;
 if isempty(channelSettings)
     return;
 end
-
-function scaleFactor = channel_scale_factor(channelBinning, referenceBinning, rawWidth, rawHeight, referenceWidth, referenceHeight)
-scaleFactor = 1;
-if channelBinning > 0 && referenceBinning > 0
-    scaleFactor = double(channelBinning) / double(referenceBinning);
-    return;
-end
-scaleFactor = infer_scale_from_reference(rawWidth, rawHeight, referenceWidth, referenceHeight);
-end
 for idx = 1:min(channelCount, numel(channelSettings))
     entry = channelSettings(idx);
     if isstruct(entry)
@@ -262,6 +253,15 @@ for idx = 1:min(channelCount, numel(channelSettings))
         end
     end
 end
+end
+
+function scaleFactor = channel_scale_factor(channelBinning, referenceBinning, rawWidth, rawHeight, referenceWidth, referenceHeight)
+scaleFactor = 1;
+if channelBinning > 0 && referenceBinning > 0
+    scaleFactor = double(channelBinning) / double(referenceBinning);
+    return;
+end
+scaleFactor = infer_scale_from_reference(rawWidth, rawHeight, referenceWidth, referenceHeight);
 end
 
 function factor = parse_binning_factor(entry)
