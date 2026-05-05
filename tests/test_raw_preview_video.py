@@ -267,7 +267,7 @@ def test_render_legacy_matlab_jpg_preview_video_uses_matlab(tmp_path, monkeypatc
         config = json.loads(config_path.read_text(encoding="utf-8"))
         frame_dir = Path(config["frame_dir"])
         frame_dir.mkdir(parents=True, exist_ok=True)
-        tifffile.imwrite(frame_dir / "frame_000001.tif", np.full((8, 8, 3), 127, dtype=np.uint8))
+        tifffile.imwrite(frame_dir / "frame_000001.tif", np.full((8, 8), 127, dtype=np.uint8))
         Path(config["result_path"]).write_text(
             json.dumps(
                 {
@@ -308,7 +308,7 @@ def test_render_legacy_matlab_jpg_preview_video_uses_matlab(tmp_path, monkeypatc
     )
 
     assert calls
-    assert encoded_calls[0]["frame_shapes"] == [(8, 8, 3)]
+    assert encoded_calls[0]["frame_shapes"] == [(8, 8)]
     assert result.video_path.exists()
     assert result.frame_count == 1
     assert result.channel_labels == ["Ch 1"]

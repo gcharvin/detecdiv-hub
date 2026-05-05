@@ -161,7 +161,7 @@ else
 end
 image = normalize_uint8(image);
 image = resize_to_limit(image, maxDimension);
-frame = repmat(image, 1, 1, 3);
+frame = image;
 end
 
 function out = normalize_uint8(image)
