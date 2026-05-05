@@ -110,6 +110,7 @@ const els = {
   indexVisibility: document.querySelector("#index-visibility"),
   indexClearExisting: document.querySelector("#index-clear-existing"),
   indexScanOrphanRaw: document.querySelector("#index-scan-orphan-raw"),
+  indexQueuePreviews: document.querySelector("#index-queue-previews"),
   indexBrowseRoot: document.querySelector("#index-browse-root"),
   indexBrowseOpenButton: document.querySelector("#index-browse-open-button"),
   indexBrowseUpButton: document.querySelector("#index-browse-up-button"),
@@ -5625,6 +5626,7 @@ async function runIndexing() {
     visibility: els.indexVisibility?.value || "private",
     clear_existing_for_root: Boolean(els.indexClearExisting?.checked),
     scan_orphan_raw: Boolean(els.indexScanOrphanRaw?.checked),
+    queue_previews: Boolean(els.indexQueuePreviews?.checked),
     metadata_json: {},
   });
   await refreshIndexingJobs();

@@ -130,6 +130,7 @@ def request_index(
             visibility=payload.visibility,
             clear_existing_for_root=payload.clear_existing_for_root,
             scan_orphan_raw=payload.scan_orphan_raw,
+            queue_previews=payload.queue_previews,
         )
         db.commit()
     except ValueError as exc:
@@ -156,5 +157,6 @@ def request_index(
         stale_cleanup_skipped=result.stale_cleanup_skipped,
         indexed_raw_datasets=result.indexed_raw_datasets,
         failed_raw_datasets=result.failed_raw_datasets,
+        queued_previews=result.queued_previews,
         message="Project root indexed successfully.",
     )

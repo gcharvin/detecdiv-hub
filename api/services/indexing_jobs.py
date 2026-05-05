@@ -99,6 +99,7 @@ def create_indexing_job(
     if payload.execution_target_key:
         metadata["execution_target_key"] = payload.execution_target_key
     metadata["scan_orphan_raw"] = bool(payload.scan_orphan_raw)
+    metadata["queue_previews"] = bool(payload.queue_previews)
     job = IndexingJob(
         requested_by_user_id=current_user.id,
         owner_user_id=owner.id,
@@ -305,6 +306,7 @@ def execute_indexing_job(indexing_job_id: UUID) -> dict[str, Any]:
                 session.commit()
 
             scan_orphan_raw = bool((job.metadata_json or {}).get("scan_orphan_raw", False))
+            queue_previews = bool((job.metadata_json or {}).get("queue_previews", False))
             result = index_project_root(
                 session,
                 root_path=job.source_path,
@@ -317,6 +319,7 @@ def execute_indexing_job(indexing_job_id: UUID) -> dict[str, Any]:
                 continue_on_error=True,
                 commit_each=True,
                 scan_orphan_raw=scan_orphan_raw,
+                queue_previews=queue_previews,
                 progress_callback=on_progress,
             )
             keepalive_stop.set()
@@ -369,9 +372,14 @@ def finalize_indexing_job_success(session: Session, job: IndexingJob, result: Pr
         if result.indexed_raw_datasets > 0
         else ""
     )
+    preview_suffix = (
+        f", {result.queued_previews} preview job(s) queued"
+        if result.queued_previews > 0
+        else ""
+    )
     job.message = (
         f"Indexed {result.indexed_projects}/{result.total_projects} projects"
-        f" and {result.indexed_pipelines} independent pipelines{raw_suffix} from {result.root_path}."
+        f" and {result.indexed_pipelines} independent pipelines{raw_suffix}{preview_suffix} from {result.root_path}."
     )
     job.result_json = {
         "root_path": result.root_path,
@@ -388,6 +396,7 @@ def finalize_indexing_job_success(session: Session, job: IndexingJob, result: Pr
         "failed_pipelines": result.failed_pipelines,
         "indexed_raw_datasets": result.indexed_raw_datasets,
         "failed_raw_datasets": result.failed_raw_datasets,
+        "queued_previews": result.queued_previews,
     }
     session.flush()
 

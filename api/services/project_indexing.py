@@ -43,6 +43,7 @@ class ProjectIndexResult:
     failed_pipelines: int = 0
     indexed_raw_datasets: int = 0
     failed_raw_datasets: int = 0
+    queued_previews: int = 0
 
 
 @dataclass
@@ -65,6 +66,7 @@ def index_project_root(
     continue_on_error: bool = True,
     commit_each: bool = False,
     scan_orphan_raw: bool = False,
+    queue_previews: bool = False,
     progress_callback: Callable[..., None] | None = None,
 ) -> ProjectIndexResult:
     root = Path(root_path).expanduser().resolve()
@@ -106,11 +108,12 @@ def index_project_root(
             message=f"Scanning {root} for DetecDiv projects.",
         )
 
+    queued_previews = 0
     for mat_path, project_dir in iter_project_candidates(root, progress_callback=progress_callback):
         total_projects += 1
         scanned_projects += 1
         try:
-            project = upsert_project_from_paths(
+            project, raw_scan = upsert_project_from_paths(
                 session,
                 owner=owner,
                 visibility=visibility,
@@ -118,7 +121,9 @@ def index_project_root(
                 root_path=root,
                 mat_path=mat_path,
                 project_dir=project_dir,
+                queue_previews=queue_previews,
             )
+            queued_previews += raw_scan.queued_previews if raw_scan is not None else 0
             seen_project_ids.add(project.id)
             project_dirs.append(project_dir)
             indexed_projects += 1
@@ -279,12 +284,25 @@ def index_project_root(
             )
         for raw_dir in iter_orphan_raw_candidates(root, project_dirs=project_dirs):
             try:
-                get_or_create_raw_dataset_for_path(
+                raw_dataset = get_or_create_raw_dataset_for_path(
                     session,
                     owner=owner,
                     visibility=visibility,
                     dataset_dir=raw_dir,
                 )
+                if queue_previews:
+                    from api.services.raw_preview_jobs import queue_raw_preview_job_for_dataset
+                    job = queue_raw_preview_job_for_dataset(
+                        session,
+                        raw_dataset=raw_dataset,
+                        requested_by_user=owner,
+                        requested_mode="auto",
+                        priority=200,
+                        requested_from_host="project_indexing",
+                        source="project_indexing",
+                    )
+                    if job is not None:
+                        queued_previews += 1
                 indexed_raw_datasets += 1
                 if progress_callback is not None:
                     progress_callback(
@@ -355,6 +373,7 @@ def index_project_root(
         failed_pipelines=failed_pipelines,
         indexed_raw_datasets=indexed_raw_datasets,
         failed_raw_datasets=failed_raw_datasets,
+        queued_previews=queued_previews,
     )
 
 
@@ -710,7 +729,8 @@ def upsert_project_from_paths(
     root_path: Path,
     mat_path: Path,
     project_dir: Path,
-) -> Project:
+    queue_previews: bool = False,
+) -> tuple[Project, RawSourceScanResult | None]:
     relative_parent = project_relative_parent(root_path, mat_path)
     project_key = build_project_key(str(mat_path), relative_parent, mat_path.stem)
     project = session.scalars(select(Project).where(Project.project_key == project_key)).first()
@@ -760,6 +780,7 @@ def upsert_project_from_paths(
             visibility=visibility,
             mat_path=mat_path,
             project_dir=project_dir,
+            queue_previews=queue_previews,
         )
         metadata = {
             "source": "hub_indexer",
@@ -874,7 +895,7 @@ def upsert_project_from_paths(
     session.flush()
     if not cache_hit and raw_scan.extraction_status == "ok":
         synchronize_project_raw_links(session, project=project, linked_raw_dataset_ids=raw_scan.linked_raw_dataset_ids)
-    return project
+    return project, (raw_scan if not cache_hit else None)
 
 
 def existing_project_scan_signature(project: Project | None) -> dict | None:
@@ -984,6 +1005,7 @@ class RawSourceScanResult:
     missing_sources: list[dict]
     extraction_status: str
     extraction_error: str | None = None
+    queued_previews: int = 0
 
     def metadata_json(self) -> dict:
         return {
@@ -1005,6 +1027,7 @@ def scan_project_raw_sources(
     visibility: str,
     mat_path: Path,
     project_dir: Path,
+    queue_previews: bool = False,
 ) -> RawSourceScanResult:
     if is_legacy_matlab_timelapse_project_dir(project_dir, project_mat_path=mat_path):
         return scan_legacy_matlab_timelapse_project(
@@ -1012,6 +1035,7 @@ def scan_project_raw_sources(
             owner=owner,
             visibility=visibility,
             project_dir=project_dir,
+            queue_previews=queue_previews,
         )
 
     extracted = extract_project_raw_srcpaths(mat_path)
@@ -1032,6 +1056,7 @@ def scan_project_raw_sources(
     linked_sources: list[dict] = []
     missing_sources: list[dict] = []
     estimated_raw_bytes = 0
+    queued_previews = 0
     seen_dataset_ids: set = set()
     seen_missing_paths: set[str] = set()
     for source_path in extracted.get("srcpaths", []):
@@ -1061,6 +1086,19 @@ def scan_project_raw_sources(
                 "acquisition_label": raw_dataset.acquisition_label,
             }
         )
+        if queue_previews:
+            from api.services.raw_preview_jobs import queue_raw_preview_job_for_dataset
+            job = queue_raw_preview_job_for_dataset(
+                session,
+                raw_dataset=raw_dataset,
+                requested_by_user=owner,
+                requested_mode="auto",
+                priority=200,
+                requested_from_host="project_indexing",
+                source="project_indexing",
+            )
+            if job is not None:
+                queued_previews += 1
 
     return RawSourceScanResult(
         fov_count=int(extracted.get("fov_count") or len(extracted.get("srcpaths", []))),
@@ -1071,6 +1109,7 @@ def scan_project_raw_sources(
         linked_sources=linked_sources,
         missing_sources=missing_sources,
         extraction_status="ok",
+        queued_previews=queued_previews,
     )
 
 
@@ -1080,6 +1119,7 @@ def scan_legacy_matlab_timelapse_project(
     owner: User,
     visibility: str,
     project_dir: Path,
+    queue_previews: bool = False,
 ) -> RawSourceScanResult:
     raw_dataset = get_or_create_raw_dataset_for_path(
         session,
@@ -1087,6 +1127,20 @@ def scan_legacy_matlab_timelapse_project(
         visibility=visibility,
         dataset_dir=project_dir,
     )
+    queued_previews = 0
+    if queue_previews:
+        from api.services.raw_preview_jobs import queue_raw_preview_job_for_dataset
+        job = queue_raw_preview_job_for_dataset(
+            session,
+            raw_dataset=raw_dataset,
+            requested_by_user=owner,
+            requested_mode="auto",
+            priority=200,
+            requested_from_host="project_indexing",
+            source="project_indexing",
+        )
+        if job is not None:
+            queued_previews = 1
     parsed_metadata = read_micromanager_metadata(project_dir)
     dimensions = (parsed_metadata.get("dimensions") if isinstance(parsed_metadata, dict) else {}) or {}
     position_count = int(dimensions.get("position_count") or 0)
@@ -1112,6 +1166,7 @@ def scan_legacy_matlab_timelapse_project(
         ],
         missing_sources=[],
         extraction_status="ok",
+        queued_previews=queued_previews,
     )
 
 
