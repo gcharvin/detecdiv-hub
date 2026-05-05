@@ -86,6 +86,8 @@ The hub now includes a first governance layer:
 - project notes
 - project size accounting fields
 
+For a future multi-user notebook deployment, see [ops/jupyterhub/README.md](ops/jupyterhub/README.md) and the authenticator implementation in [api/jupyterhub_auth.py](api/jupyterhub_auth.py).
+
 The project catalog now also exposes richer direct indexing metrics:
 
 - `fov_count`, `roi_count` when imported from the MATLAB SQLite catalog
