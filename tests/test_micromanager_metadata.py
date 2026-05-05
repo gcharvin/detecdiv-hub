@@ -279,12 +279,14 @@ Number of channels: 2
 Imaging : 2 : TL_PH : Phase contrast
 Filter Cube : 6 : Empty (PH+BF)
 Exposure Time (s) : 0.05
+Binning : 1x1
 Fluo excitation manager : 30%
 Video Resolution : 1000  1000
 ----- Channel2 --------
 Imaging : 3 : Fluo : fluorescence
 Filter Cube : 2 : GFP
 Exposure Time (s) : 0.35
+Binning : 2x2
 Fluo excitation manager : 40%
 Video Resolution : 500  500
 
@@ -315,6 +317,8 @@ Indices : 1
     assert metadata["dimensions"]["channel_count"] == 2
     assert metadata["dimensions"]["position_count"] == 2
     assert metadata["dimensions"]["channel_settings"][0]["exposure_ms"] == 50
+    assert metadata["dimensions"]["channel_settings"][0]["binning_factor"] == 1
     assert metadata["dimensions"]["channel_settings"][1]["led_power"] == 40
+    assert metadata["dimensions"]["channel_settings"][1]["binning_factor"] == 2
     assert metadata["positions"][0]["display_name"] == "PosA"
     assert metadata["positions"][0]["roi"] == [1, 1, 1002, 1004]

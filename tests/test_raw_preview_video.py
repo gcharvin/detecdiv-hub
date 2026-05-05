@@ -1,10 +1,19 @@
 import json
+import re
 from types import SimpleNamespace
+from pathlib import Path
 
 import numpy as np
+import tifffile
 
 from worker.preview_text import fit_text_scale
-from worker.raw_preview_video import read_zarr_preview_frames
+from worker.raw_preview_video import (
+    annotate_preview_frames,
+    read_preview_frames,
+    read_zarr_preview_frames,
+    render_legacy_matlab_jpg_preview_video,
+    should_use_legacy_matlab_jpg_preview,
+)
 
 
 def test_fit_text_scale_shrinks_long_text_on_small_frames():
@@ -17,6 +26,20 @@ def test_fit_text_scale_shrinks_long_text_on_small_frames():
 def test_fit_text_scale_honors_lower_bounds():
     assert fit_text_scale("", available_width=200, desired_scale=4) == 1
     assert fit_text_scale("FRAME 1", available_width=20, desired_scale=4) == 1
+
+
+def test_annotate_preview_frames_uses_visible_compact_overlay():
+    frame = np.zeros((256, 256), dtype=np.uint8)
+
+    annotated = annotate_preview_frames(
+        [frame],
+        project_label="recircu_SCL1_DAD2_ABP1GFP_LV3mC",
+        position_label="Position1",
+        channel_labels=["Ch 1", "Ch 2", "Ch 3"],
+    )[0]
+
+    assert annotated.shape == (256, 256)
+    assert int((annotated[:32, :32] == 255).sum()) > 80
 
 
 def test_read_zarr_preview_frames_falls_back_to_series_array_child(tmp_path, monkeypatch):
@@ -183,3 +206,134 @@ def test_read_zarr_preview_frames_handles_v3_ome_writers_chunks(tmp_path, monkey
     assert len(sequence.frames) == 2
     assert sequence.channel_labels == ["A", "B"]
     assert sequence.frames[0].shape == (4, 8)
+
+
+def test_should_use_legacy_matlab_jpg_preview_detects_legacy_root(tmp_path):
+    dataset_path = tmp_path / "legacy_dataset"
+    position_dir = dataset_path / "legacy_dataset-pos1" / "legacy_dataset-pos1-ch1--"
+    position_dir.mkdir(parents=True)
+    (dataset_path / "legacy_dataset-project.mat").write_text("mat", encoding="utf-8")
+    (dataset_path / "legacy_dataset-ID.txt").write_text("Time-Lapse Assay ID File", encoding="utf-8")
+    (position_dir / "legacy_dataset-pos1-ch1---001.jpg").write_bytes(b"jpeg-fixture")
+
+    raw_dataset = SimpleNamespace(data_format="unknown")
+    position = SimpleNamespace(
+        position_index=0,
+        position_key="position_1",
+        display_name="Position1",
+        metadata_json={},
+    )
+
+    assert should_use_legacy_matlab_jpg_preview(
+        dataset_path=dataset_path,
+        raw_dataset=raw_dataset,
+        position=position,
+    )
+
+
+def test_read_preview_frames_does_not_guess_jpegs_for_non_legacy_dataset(tmp_path):
+    dataset_path = tmp_path / "plain_jpegs"
+    dataset_path.mkdir()
+    (dataset_path / "frame_0001.jpg").write_bytes(b"jpeg-fixture")
+
+    raw_dataset = SimpleNamespace(data_format="unknown")
+    position = SimpleNamespace(display_name="frame_0001", metadata_json={})
+    runtime_config = SimpleNamespace(max_frames=1, frame_mode="full", max_dimension=768, binning_factor=1)
+
+    try:
+        read_preview_frames(
+            dataset_path=dataset_path,
+            raw_dataset=raw_dataset,
+            position=position,
+            runtime_config=runtime_config,
+        )
+    except ValueError as exc:
+        assert "TIFF files" in str(exc)
+    else:
+        raise AssertionError("Expected non-legacy JPEG folder to stay on the TIFF path")
+
+
+def test_render_legacy_matlab_jpg_preview_video_uses_matlab(tmp_path, monkeypatch):
+    dataset_path = tmp_path / "legacy_dataset"
+    position_dir = dataset_path / "legacy_dataset-pos1" / "legacy_dataset-pos1-ch1--"
+    position_dir.mkdir(parents=True)
+    (dataset_path / "legacy_dataset-project.mat").write_text("mat", encoding="utf-8")
+    (dataset_path / "legacy_dataset-ID.txt").write_text("Time-Lapse Assay ID File", encoding="utf-8")
+    (position_dir / "legacy_dataset-pos1-ch1---001.jpg").write_bytes(b"jpeg-fixture")
+
+    raw_dataset = SimpleNamespace(data_format="legacy_matlab_jpg_timelapse")
+    raw_dataset.metadata_json = {
+        "dimensions": {
+            "channel_settings": [
+                {"index": 0, "channel": "Ch 1", "binning_factor": 1},
+                {"index": 1, "channel": "Ch 2", "binning_factor": 2},
+            ]
+        }
+    }
+    position = SimpleNamespace(
+        position_index=0,
+        position_key="position_1",
+        display_name="Position1",
+        metadata_json={},
+    )
+    runtime_config = SimpleNamespace(max_frames=1, frame_mode="full", max_dimension=256, fps=2)
+    output_dir = tmp_path / "previews"
+    calls = []
+    encoded_calls = []
+
+    def fake_run_matlab_command(command, **kwargs):
+        calls.append(command)
+        script = command[-1]
+        match = re.search(r"legacy_matlab_jpg_preview\('([^']+)'\)", script)
+        assert match is not None
+        config_path = Path(match.group(1))
+        config = json.loads(config_path.read_text(encoding="utf-8"))
+        assert config["channel_settings"][0]["binning_factor"] == 1
+        assert config["channel_settings"][1]["binning_factor"] == 2
+        frame_dir = Path(config["frame_dir"])
+        frame_dir.mkdir(parents=True, exist_ok=True)
+        tifffile.imwrite(frame_dir / "frame_000001.tif", np.full((8, 8), 127, dtype=np.uint8))
+        Path(config["result_path"]).write_text(
+            json.dumps(
+                {
+                    "status": "ok",
+                    "frame_count": 1,
+                    "source_width": 8,
+                    "source_height": 8,
+                    "channel_labels": ["Ch 1"],
+                }
+            ),
+            encoding="utf-8",
+        )
+        return SimpleNamespace(returncode=0, stdout="", stderr="")
+
+    monkeypatch.setattr("worker.raw_preview_video.run_matlab_command", fake_run_matlab_command)
+
+    def fake_encode_preview_video(*, video_path, frames, project_label, position_label, channel_labels, runtime_config):
+        encoded_calls.append(
+            {
+                "video_path": video_path,
+                "frame_shapes": [frame.shape for frame in frames],
+                "project_label": project_label,
+                "position_label": position_label,
+                "channel_labels": channel_labels,
+            }
+        )
+        video_path.write_bytes(b"mp4")
+        return 8, 8
+
+    monkeypatch.setattr("worker.raw_preview_video.encode_preview_video", fake_encode_preview_video)
+
+    result = render_legacy_matlab_jpg_preview_video(
+        dataset_path=dataset_path,
+        raw_dataset=raw_dataset,
+        position=position,
+        runtime_config=runtime_config,
+        output_dir=output_dir,
+    )
+
+    assert calls
+    assert encoded_calls[0]["frame_shapes"] == [(8, 8)]
+    assert result.video_path.exists()
+    assert result.frame_count == 1
+    assert result.channel_labels == ["Ch 1"]

@@ -345,6 +345,16 @@ def normalize_legacy_channels(channels: list[dict[str, Any]]) -> None:
         exposure_seconds = coerce_number(channel.get("Exposure Time (s)"))
         if exposure_seconds is not None:
             channel["exposure_ms"] = round(float(exposure_seconds) * 1000.0, 6)
+        binning_factor = parse_binning_factor(
+            first_non_empty_text(
+                channel.get("Binning"),
+                channel.get("Binning factor"),
+                channel.get("Binning Factor"),
+                channel.get("binning"),
+            )
+        )
+        if binning_factor is not None:
+            channel["binning_factor"] = binning_factor
         led_power_text = first_non_empty_text(channel.get("Fluo excitation manager"))
         if led_power_text:
             led_power_match = re.search(r"([0-9]+(?:\.[0-9]+)?)", led_power_text)
@@ -387,6 +397,19 @@ def normalize_micromanager_property_map(node: Any) -> Any:
     if isinstance(node, list):
         return [normalize_micromanager_property_map(item) for item in node]
     return node
+
+
+def parse_binning_factor(value: Any) -> int | None:
+    text = first_non_empty_text(value)
+    if text is None:
+        return None
+    match = re.search(r"(\d+)", text)
+    if match is None:
+        return safe_int(text)
+    try:
+        return max(1, int(match.group(1)))
+    except (TypeError, ValueError):
+        return None
 
 
 def extract_display_settings_dimensions(display_settings: dict[str, Any]) -> dict[str, Any]:
@@ -440,6 +463,14 @@ def extract_display_settings_dimensions(display_settings: dict[str, Any]) -> dic
                     "uniform_component_scaling": item.get("UniformComponentScaling"),
                     "use_camera_bit_depth": item.get("UseCameraBitDepth"),
                     "exposure_ms": exposure_ms,
+                    "binning_factor": parse_binning_factor(
+                        first_non_empty_text(
+                            item.get("Binning"),
+                            item.get("Binning factor"),
+                            item.get("Binning Factor"),
+                            item.get("binning"),
+                        )
+                    ),
                     "led_power": led_power,
                     "interval_ms": interval_ms,
                     "frames": frames,
@@ -661,6 +692,11 @@ def merge_channel_detail_from_payload(detail: dict[str, Any], payload: dict[str,
             if numeric is not None:
                 detail["interval_ms"] = numeric
                 detail["interval_seconds"] = round(float(numeric) / 1000.0, 6)
+            continue
+        if "binning" in normalized:
+            binning_factor = parse_binning_factor(value)
+            if binning_factor is not None:
+                detail["binning_factor"] = binning_factor
             continue
         if normalized in {"frames", "framecount", "frame_count"}:
             numeric = safe_int(value)
