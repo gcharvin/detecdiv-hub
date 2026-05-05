@@ -109,6 +109,7 @@ const els = {
   indexOwnerUserKey: document.querySelector("#index-owner-user-key"),
   indexVisibility: document.querySelector("#index-visibility"),
   indexClearExisting: document.querySelector("#index-clear-existing"),
+  indexScanOrphanRaw: document.querySelector("#index-scan-orphan-raw"),
   indexBrowseRoot: document.querySelector("#index-browse-root"),
   indexBrowseOpenButton: document.querySelector("#index-browse-open-button"),
   indexBrowseUpButton: document.querySelector("#index-browse-up-button"),
@@ -5623,6 +5624,7 @@ async function runIndexing() {
     owner_user_key: els.indexOwnerUserKey?.value || null,
     visibility: els.indexVisibility?.value || "private",
     clear_existing_for_root: Boolean(els.indexClearExisting?.checked),
+    scan_orphan_raw: Boolean(els.indexScanOrphanRaw?.checked),
     metadata_json: {},
   });
   await refreshIndexingJobs();
