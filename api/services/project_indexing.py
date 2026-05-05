@@ -9,6 +9,7 @@ import tempfile
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
+from stat import S_ISDIR, S_ISREG
 from typing import Callable
 import time
 
@@ -19,8 +20,11 @@ from api.config import get_settings
 from api.models import Pipeline, Project, ProjectLocation, StorageRoot, User
 from api.services.micromanager_metadata import find_legacy_timelapse_id_file, read_micromanager_metadata
 from api.services.project_inventory import inspect_project_directory
-from api.services.storage_metrics import safe_dir_size, safe_file_size
 from api.services.users import get_or_create_user
+
+
+SCAN_SIGNATURE_VERSION = 1
+SCAN_SIGNATURE_KEY = "indexing_signature"
 
 
 @dataclass
@@ -37,6 +41,13 @@ class ProjectIndexResult:
     stale_cleanup_skipped: bool
     indexed_pipelines: int = 0
     failed_pipelines: int = 0
+
+
+@dataclass
+class ProjectScanState:
+    signature: dict
+    project_mat_bytes: int
+    project_dir_bytes: int
 
 
 def index_project_root(
@@ -621,27 +632,62 @@ def upsert_project_from_paths(
     project = session.scalars(select(Project).where(Project.project_key == project_key)).first()
     is_legacy_hybrid = is_legacy_matlab_timelapse_project_dir(project_dir, project_mat_path=mat_path)
 
-    project_mat_bytes = safe_file_size(mat_path)
-    project_dir_bytes = 0 if is_legacy_hybrid else safe_dir_size(project_dir)
+    scan_state = build_project_scan_state(project_dir=project_dir, mat_path=mat_path)
+    if scan_state is None:
+        try:
+            project_mat_bytes = mat_path.stat().st_size
+        except OSError:
+            project_mat_bytes = 0
+        project_dir_bytes = 0 if is_legacy_hybrid else fallback_dir_size(project_dir)
+        current_signature = None
+    else:
+        project_mat_bytes = scan_state.project_mat_bytes
+        project_dir_bytes = 0 if is_legacy_hybrid else scan_state.project_dir_bytes
+        current_signature = scan_state.signature
+
     total_bytes = project_mat_bytes + project_dir_bytes
     size_timestamp = datetime.now(timezone.utc)
-    inventory = inspect_project_directory(project_dir)
-    raw_scan = scan_project_raw_sources(
-        session,
-        owner=owner,
-        visibility=visibility,
-        mat_path=mat_path,
-        project_dir=project_dir,
+    existing_signature = existing_project_scan_signature(project)
+    cache_hit = (
+        project is not None
+        and current_signature is not None
+        and existing_signature is not None
+        and existing_signature == current_signature
     )
-    metadata = {
-        "source": "hub_indexer",
-        "project_mat_abs": str(mat_path),
-        "project_dir_abs": str(project_dir),
-        "project_rel_from_root": str(project_dir.relative_to(root_path)),
-        "inventory": inventory.metadata_json(),
-        "raw_relink": raw_scan.metadata_json(),
-        "storage_is_shared_with_raw_dataset": is_legacy_hybrid,
-    }
+
+    if cache_hit:
+        metadata = dict(project.metadata_json or {})
+        metadata.update(
+            {
+                "source": "hub_indexer",
+                "project_mat_abs": str(mat_path),
+                "project_dir_abs": str(project_dir),
+                "project_rel_from_root": str(project_dir.relative_to(root_path)),
+                "storage_is_shared_with_raw_dataset": is_legacy_hybrid,
+                SCAN_SIGNATURE_KEY: current_signature,
+                "last_cached_index_refresh_at": size_timestamp.isoformat(),
+            }
+        )
+    else:
+        inventory = inspect_project_directory(project_dir)
+        raw_scan = scan_project_raw_sources(
+            session,
+            owner=owner,
+            visibility=visibility,
+            mat_path=mat_path,
+            project_dir=project_dir,
+        )
+        metadata = {
+            "source": "hub_indexer",
+            "project_mat_abs": str(mat_path),
+            "project_dir_abs": str(project_dir),
+            "project_rel_from_root": str(project_dir.relative_to(root_path)),
+            "inventory": inventory.metadata_json(),
+            "raw_relink": raw_scan.metadata_json(),
+            "storage_is_shared_with_raw_dataset": is_legacy_hybrid,
+        }
+        if current_signature is not None:
+            metadata[SCAN_SIGNATURE_KEY] = current_signature
 
     if project is None:
         project = Project(
@@ -684,27 +730,34 @@ def upsert_project_from_paths(
         project.project_name = mat_path.stem
         project.visibility = visibility
         project.status = "indexed"
-        if raw_scan.extraction_status == "ok":
-            project.health_status = "raw_missing" if raw_scan.missing_raw_count > 0 else "ok"
-            project.fov_count = raw_scan.fov_count or existing_fov_count
-            project.available_raw_count = raw_scan.available_raw_count
-            project.missing_raw_count = raw_scan.missing_raw_count
-            project.estimated_raw_bytes = raw_scan.estimated_raw_bytes
-        else:
+        if cache_hit:
             project.health_status = "raw_missing" if existing_missing_raw_count > 0 else "ok"
             project.fov_count = existing_fov_count
             project.available_raw_count = existing_available_raw_count
             project.missing_raw_count = existing_missing_raw_count
             project.estimated_raw_bytes = existing_estimated_raw_bytes
+        else:
+            if raw_scan.extraction_status == "ok":
+                project.health_status = "raw_missing" if raw_scan.missing_raw_count > 0 else "ok"
+                project.fov_count = raw_scan.fov_count or existing_fov_count
+                project.available_raw_count = raw_scan.available_raw_count
+                project.missing_raw_count = raw_scan.missing_raw_count
+                project.estimated_raw_bytes = raw_scan.estimated_raw_bytes
+            else:
+                project.health_status = "raw_missing" if existing_missing_raw_count > 0 else "ok"
+                project.fov_count = existing_fov_count
+                project.available_raw_count = existing_available_raw_count
+                project.missing_raw_count = existing_missing_raw_count
+                project.estimated_raw_bytes = existing_estimated_raw_bytes
+            project.classifier_count = inventory.classifier_count
+            project.processor_count = inventory.processor_count
+            project.pipeline_run_count = inventory.pipeline_run_count
+            project.run_json_count = inventory.run_json_count
+            project.h5_count = inventory.h5_count
+            project.h5_bytes = inventory.h5_bytes
+            project.latest_run_status = inventory.latest_run_status
+            project.latest_run_at = inventory.latest_run_at
         project.roi_count = existing_roi_count
-        project.classifier_count = inventory.classifier_count
-        project.processor_count = inventory.processor_count
-        project.pipeline_run_count = inventory.pipeline_run_count
-        project.run_json_count = inventory.run_json_count
-        project.h5_count = inventory.h5_count
-        project.h5_bytes = inventory.h5_bytes
-        project.latest_run_status = inventory.latest_run_status
-        project.latest_run_at = inventory.latest_run_at
         project.project_mat_bytes = project_mat_bytes
         project.project_dir_bytes = project_dir_bytes
         project.total_bytes = total_bytes
@@ -735,9 +788,105 @@ def upsert_project_from_paths(
         location.is_preferred = True
 
     session.flush()
-    if raw_scan.extraction_status == "ok":
+    if not cache_hit and raw_scan.extraction_status == "ok":
         synchronize_project_raw_links(session, project=project, linked_raw_dataset_ids=raw_scan.linked_raw_dataset_ids)
     return project
+
+
+def existing_project_scan_signature(project: Project | None) -> dict | None:
+    if project is None:
+        return None
+    metadata = project.metadata_json or {}
+    if not isinstance(metadata, dict):
+        return None
+    signature = metadata.get(SCAN_SIGNATURE_KEY)
+    if not isinstance(signature, dict):
+        return None
+    if int(signature.get("version") or 0) != SCAN_SIGNATURE_VERSION:
+        return None
+    return signature
+
+
+def build_project_scan_state(*, project_dir: Path, mat_path: Path) -> ProjectScanState | None:
+    project_dir = Path(project_dir).resolve()
+    mat_path = Path(mat_path).resolve()
+    try:
+        mat_stat = mat_path.stat()
+    except OSError:
+        return None
+
+    try:
+        project_dir_bytes, tree_digest = fingerprint_project_tree(project_dir)
+    except OSError:
+        return None
+
+    signature = {
+        "version": SCAN_SIGNATURE_VERSION,
+        "project_mat_path": str(mat_path),
+        "project_mat_mtime_ns": int(mat_stat.st_mtime_ns),
+        "project_mat_size": int(mat_stat.st_size),
+        "project_dir_path": str(project_dir),
+        "tree_digest": tree_digest,
+    }
+    return ProjectScanState(
+        signature=signature,
+        project_mat_bytes=int(mat_stat.st_size),
+        project_dir_bytes=project_dir_bytes,
+    )
+
+
+def fingerprint_project_tree(project_dir: Path) -> tuple[int, str]:
+    hasher = hashlib.sha256()
+    total_bytes = 0
+
+    def visit(current_dir: Path) -> None:
+        nonlocal total_bytes
+        try:
+            entries = sorted(current_dir.iterdir(), key=lambda entry: entry.name.lower())
+        except OSError as exc:
+            raise exc
+        for entry in entries:
+            try:
+                stat = entry.stat(follow_symlinks=False)
+            except OSError as exc:
+                raise exc
+            try:
+                rel_path = str(entry.relative_to(project_dir))
+            except ValueError as exc:
+                raise OSError(f"Entry {entry} is outside project root {project_dir}") from exc
+            is_dir = S_ISDIR(stat.st_mode)
+            is_file = S_ISREG(stat.st_mode)
+            kind = "dir" if is_dir else "file" if is_file else "other"
+            hasher.update(kind.encode("utf-8"))
+            hasher.update(b"\0")
+            hasher.update(rel_path.encode("utf-8"))
+            hasher.update(b"\0")
+            hasher.update(str(int(stat.st_size)).encode("utf-8"))
+            hasher.update(b"\0")
+            hasher.update(str(int(stat.st_mtime_ns)).encode("utf-8"))
+            hasher.update(b"\0")
+            if is_file:
+                total_bytes += int(stat.st_size)
+            if is_dir:
+                visit(entry)
+
+    visit(project_dir)
+    return total_bytes, hasher.hexdigest()
+
+
+def fallback_dir_size(path: Path) -> int:
+    total = 0
+    try:
+        for entry in path.rglob("*"):
+            if not entry.is_file():
+                continue
+            try:
+                total += int(entry.stat().st_size)
+            except OSError:
+                continue
+    except OSError:
+        return 0
+    return total
 
 
 @dataclass
