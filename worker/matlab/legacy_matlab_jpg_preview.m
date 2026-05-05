@@ -3,7 +3,7 @@ config = jsondecode(fileread(config_path));
 sourcePath = char(string(config.source_path));
 resultPath = char(string(config.result_path));
 fps = max(1, double(config.fps));
-maxFrames = max(1, double(config.max_frames));
+maxFrames = max(0, double(config.max_frames));
 maxDimension = max(64, double(config.max_dimension));
 
 result = struct( ...
@@ -171,7 +171,7 @@ if totalCount <= 0
     indices = 1;
     return;
 end
-if totalCount <= maxFrames
+if maxFrames <= 0 || totalCount <= maxFrames
     indices = 1:totalCount;
     return;
 end
