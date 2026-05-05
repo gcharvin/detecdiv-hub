@@ -357,7 +357,7 @@ def execute_job(job: Job) -> dict:
             from worker.raw_preview_video import execute_raw_preview_video_job
         except ImportError as exc:
             raise RuntimeError(
-                "Raw preview video dependencies are missing. Install numpy, tifffile, and zarr in the worker environment."
+                "Raw preview video dependencies are missing. Install numpy, Pillow, tifffile, and zarr in the worker environment."
             ) from exc
         with session_scope() as session:
             job_record = session.get(Job, job.id)

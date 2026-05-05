@@ -4,6 +4,7 @@ import math
 import json
 import re
 import subprocess
+import tempfile
 from collections.abc import Iterable
 from dataclasses import dataclass
 from datetime import datetime, timezone
@@ -19,13 +20,17 @@ from sqlalchemy.orm import Session, joinedload
 from api.models import Artifact, Job, Project, ProjectRawLink, RawDataset, RawDatasetLocation, RawDatasetPosition
 from api.services.ome_zarr_metadata import read_ome_zarr_group_metadata
 from api.services.path_resolution import compose_storage_path
-from api.services.project_indexing import slugify
+from api.config import get_settings
+from api.services.project_indexing import is_legacy_matlab_timelapse_dataset_dir, slugify
 from api.services.raw_preview_settings import RawPreviewRuntimeConfig, resolve_raw_preview_runtime_config
+from worker.executors.matlab_executor import build_matlab_batch_command, run_matlab_command
 from worker.preview_text import fit_text_scale
 
 
 TIFF_SUFFIXES = (".tif", ".tiff")
+IMAGE_SUFFIXES = (".jpg", ".jpeg")
 TIFF_LIKE_FORMATS = {"single_tiff", "ome_tiff", "tiff_sequence", "micromanager_tiff_dir", "ndtiff"}
+LEGACY_IMAGE_FORMATS = {"legacy_matlab_jpg_timelapse"}
 ZARR_LIKE_FORMATS = {"zarr", "ome_zarr"}
 TIME_TOKEN_PATTERNS = (
     re.compile(r"(?:^|[_\-.])(time|frame|tp|t)[_\- ]*(\d+)(?=[_\-.]|$)", flags=re.IGNORECASE),
@@ -82,6 +87,17 @@ CHANNEL_TOKEN_PATTERNS = (
 @dataclass(frozen=True)
 class PreviewSequence:
     frames: list[np.ndarray]
+    channel_labels: list[str]
+
+
+@dataclass(frozen=True)
+class LegacyMatlabPreviewResult:
+    video_path: Path
+    frame_count: int
+    source_width: int
+    source_height: int
+    encoded_width: int
+    encoded_height: int
     channel_labels: list[str]
 
 
@@ -171,36 +187,63 @@ def execute_raw_preview_video_job(session: Session, *, job: Job) -> dict[str, An
                 current_position_key=position.position_key,
                 stage="running",
             )
-            sequence = read_preview_frames(
+            if should_use_legacy_matlab_jpg_preview(
                 dataset_path=dataset_path,
                 raw_dataset=raw_dataset,
                 position=position,
-                runtime_config=runtime_config,
-            )
-            if not sequence.frames:
-                raise ValueError(
-                    f"No preview frames extracted for raw dataset {raw_dataset.acquisition_label} position {position.position_key}"
+            ):
+                render_result = render_legacy_matlab_jpg_preview_video(
+                    dataset_path=dataset_path,
+                    raw_dataset=raw_dataset,
+                    position=position,
+                    runtime_config=runtime_config,
+                    output_dir=output_dir,
                 )
+                video_path = render_result.video_path
+                encoded_width = render_result.encoded_width
+                encoded_height = render_result.encoded_height
+                source_width = render_result.source_width
+                source_height = render_result.source_height
+                frame_count = render_result.frame_count
+                channel_labels = render_result.channel_labels
+            else:
+                sequence = read_preview_frames(
+                    dataset_path=dataset_path,
+                    raw_dataset=raw_dataset,
+                    position=position,
+                    runtime_config=runtime_config,
+                )
+                if not sequence.frames:
+                    raise ValueError(
+                        f"No preview frames extracted for raw dataset {raw_dataset.acquisition_label} position {position.position_key}"
+                    )
 
-            video_path = output_dir / f"{slugify(position.position_key) or 'position'}.mp4"
-            encoded_width, encoded_height = encode_preview_video(
-                video_path=video_path,
-                frames=sequence.frames,
-                project_label=project_label,
-                position_label=str(position.display_name or position.position_key or ""),
-                channel_labels=sequence.channel_labels,
-                runtime_config=runtime_config,
-            )
+                video_path = output_dir / f"{slugify(position.position_key) or 'position'}.mp4"
+                encoded_width, encoded_height = encode_preview_video(
+                    video_path=video_path,
+                    frames=sequence.frames,
+                    project_label=project_label,
+                    position_label=str(position.display_name or position.position_key or ""),
+                    channel_labels=sequence.channel_labels,
+                    runtime_config=runtime_config,
+                )
+                source_width = int(sequence.frames[0].shape[1])
+                source_height = int(sequence.frames[0].shape[0])
+                frame_count = len(sequence.frames)
+                channel_labels = sequence.channel_labels
+
             artifact = upsert_preview_artifact(
                 session,
                 job=job,
                 raw_dataset=raw_dataset,
                 position=position,
                 video_path=video_path,
-                frames=sequence.frames,
+                frame_count=frame_count,
+                source_width=source_width,
+                source_height=source_height,
                 encoded_width=encoded_width,
                 encoded_height=encoded_height,
-                channel_labels=sequence.channel_labels,
+                channel_labels=channel_labels,
                 project_label=project_label,
                 runtime_config=runtime_config,
             )
@@ -213,7 +256,7 @@ def execute_raw_preview_video_job(session: Session, *, job: Job) -> dict[str, An
                     "position_key": position.position_key,
                     "artifact_id": str(artifact.id),
                     "path": str(video_path),
-                    "frame_count": len(sequence.frames),
+                    "frame_count": frame_count,
                 }
             )
             update_raw_preview_job_progress(
@@ -423,7 +466,11 @@ def read_tiff_preview_frames(
     records = build_tiff_frame_records(tiff_paths)
     channel_labels = ordered_unique([record.channel_label for record in records])
     if len(channel_labels) > 1:
-        return build_multichannel_tiff_sequence(records, runtime_config=runtime_config)
+        return build_multichannel_frame_sequence(
+            records,
+            load_frame_fn=load_tiff_frame,
+            runtime_config=runtime_config,
+        )
 
     frame_paths = sample_evenly(
         tiff_paths,
@@ -436,9 +483,127 @@ def read_tiff_preview_frames(
 
     frames: list[np.ndarray] = []
     for path in frame_paths:
-        array = tifffile.imread(path)
+        array = load_tiff_frame(path)
         frames.append(normalize_frame(reduce_array_to_frame(np.asarray(array))))
     return PreviewSequence(frames=frames, channel_labels=channel_labels)
+
+
+def should_use_legacy_matlab_jpg_preview(
+    *,
+    dataset_path: Path,
+    raw_dataset: RawDataset,
+    position: RawDatasetPosition,
+) -> bool:
+    data_format = str(raw_dataset.data_format or "").strip().lower()
+    if data_format in LEGACY_IMAGE_FORMATS:
+        return True
+
+    candidate_path = resolve_position_source_path(dataset_path=dataset_path, position=position)
+    if not has_legacy_matlab_timelapse_marker(candidate_path):
+        if candidate_path != dataset_path and has_legacy_matlab_timelapse_marker(dataset_path):
+            pass
+        else:
+            return False
+
+    image_source = resolve_legacy_matlab_image_source(candidate_path=candidate_path, dataset_path=dataset_path)
+    return image_source is not None and bool(collect_legacy_image_paths(image_source))
+
+
+def has_legacy_matlab_timelapse_marker(path: Path) -> bool:
+    if not path.exists():
+        return False
+    return is_legacy_matlab_timelapse_dataset_dir(path)
+
+
+def resolve_legacy_matlab_image_source(*, candidate_path: Path, dataset_path: Path) -> Path | None:
+    direct_candidates = [candidate_path]
+    if candidate_path != dataset_path:
+        direct_candidates.append(dataset_path)
+
+    for path in direct_candidates:
+        image_paths = collect_legacy_image_paths(path)
+        if image_paths:
+            return path
+
+    if not is_legacy_matlab_timelapse_dataset_dir(dataset_path):
+        return None
+
+    try:
+        child_dirs = sorted((entry for entry in dataset_path.iterdir() if entry.is_dir()), key=lambda value: value.name.lower())
+    except OSError:
+        return None
+    prefix = f"{dataset_path.name.lower()}-pos"
+    for child in child_dirs:
+        if not child.name.lower().startswith(prefix):
+            continue
+        if collect_legacy_image_paths(child):
+            return child
+    return None
+
+
+def render_legacy_matlab_jpg_preview_video(
+    *,
+    dataset_path: Path,
+    raw_dataset: RawDataset,
+    position: RawDatasetPosition,
+    runtime_config: RawPreviewRuntimeConfig,
+    output_dir: Path,
+) -> LegacyMatlabPreviewResult:
+    candidate_path = resolve_position_source_path(dataset_path=dataset_path, position=position)
+    image_source = resolve_legacy_matlab_image_source(candidate_path=candidate_path, dataset_path=dataset_path)
+    if image_source is None:
+        raise ValueError(f"No legacy MATLAB JPEG source found for dataset {dataset_path}")
+
+    settings = get_settings()
+    matlab_command = str(settings.matlab_command or "matlab").strip() or "matlab"
+    repo_root = str(Path(__file__).resolve().parents[1])
+
+    output_dir.mkdir(parents=True, exist_ok=True)
+    video_path = output_dir / f"{slugify(position.position_key) or 'position'}.mp4"
+
+    with tempfile.TemporaryDirectory(prefix="detecdiv_legacy_preview_") as tmpdir:
+        tmp_path = Path(tmpdir)
+        config_path = tmp_path / "preview_config.json"
+        result_path = tmp_path / "preview_result.json"
+        config = {
+            "source_path": str(image_source),
+            "output_path": str(video_path),
+            "result_path": str(result_path),
+            "fps": int(max(1, runtime_config.fps)),
+            "max_frames": int(max(0, runtime_config.max_frames)),
+            "frame_mode": str(runtime_config.frame_mode or "full"),
+            "max_dimension": int(max(64, runtime_config.max_dimension)),
+        }
+        config_path.write_text(json.dumps(config, indent=2), encoding="utf-8")
+
+        entrypoint = (
+            f"addpath(genpath(pwd)); "
+            f"legacy_matlab_jpg_preview('{matlab_escape(config_path)}')"
+        )
+        command = build_matlab_batch_command(repo_root, entrypoint, matlab_command=matlab_command)
+        completed = run_matlab_command(command)
+        if completed.returncode != 0:
+            stderr_text = (completed.stderr or completed.stdout or "").strip()
+            raise RuntimeError(f"MATLAB legacy preview renderer failed: {stderr_text}")
+        if not result_path.is_file():
+            raise RuntimeError("MATLAB legacy preview renderer did not write a result JSON file.")
+
+        result = json.loads(result_path.read_text(encoding="utf-8"))
+        if str(result.get("status") or "").lower() != "ok":
+            raise RuntimeError(str(result.get("error") or "MATLAB legacy preview renderer failed."))
+
+    if not video_path.is_file():
+        raise RuntimeError(f"MATLAB legacy preview renderer did not create {video_path}")
+
+    return LegacyMatlabPreviewResult(
+        video_path=video_path,
+        frame_count=int(result.get("frame_count") or 0),
+        source_width=int(result.get("source_width") or 0),
+        source_height=int(result.get("source_height") or 0),
+        encoded_width=int(result.get("encoded_width") or 0),
+        encoded_height=int(result.get("encoded_height") or 0),
+        channel_labels=[str(value) for value in list(result.get("channel_labels") or []) if str(value).strip()],
+    )
 
 
 def read_zarr_preview_frames(
@@ -502,6 +667,10 @@ def iter_position_source_candidates(*, dataset_path: Path, position: RawDatasetP
     add_candidate(image_path)
     add_candidate(metadata.get("series_name"))
     add_candidate(position.display_name)
+    if is_legacy_matlab_timelapse_dataset_dir(dataset_path):
+        legacy_position_number = infer_legacy_matlab_position_number(position=position, metadata=metadata)
+        if legacy_position_number is not None:
+            add_candidate(Path(f"{dataset_path.name}-pos{legacy_position_number}"))
     return candidates
 
 
@@ -618,6 +787,44 @@ def collect_tiff_paths(path: Path) -> list[Path]:
     return [entry for entry in files if entry.suffix.lower() in TIFF_SUFFIXES]
 
 
+def collect_legacy_image_paths(path: Path) -> list[Path]:
+    if path.is_file() and path.suffix.lower() in IMAGE_SUFFIXES:
+        return [path]
+    if not path.is_dir():
+        return []
+    try:
+        files = sorted(
+            (entry for entry in path.rglob("*") if entry.is_file() and entry.suffix.lower() in IMAGE_SUFFIXES),
+            key=lambda value: value.relative_to(path).as_posix().lower(),
+        )
+    except OSError:
+        return []
+    return files
+
+
+def infer_legacy_matlab_position_number(*, position: RawDatasetPosition, metadata: dict[str, Any]) -> int | None:
+    if position.position_index is not None:
+        return int(position.position_index) + 1
+
+    for value in (
+        metadata.get("position_index"),
+        metadata.get("position"),
+        metadata.get("index"),
+        position.position_key,
+        position.display_name,
+    ):
+        if value is None:
+            continue
+        match = re.search(r"(\d+)", str(value))
+        if match:
+            return int(match.group(1))
+    return None
+
+
+def matlab_escape(path: Path | str) -> str:
+    return str(path).replace("\\", "/").replace("'", "''")
+
+
 def build_tiff_frame_records(paths: list[Path]) -> list[TiffFrameRecord]:
     records: list[TiffFrameRecord] = []
     for order_index, path in enumerate(paths):
@@ -634,9 +841,10 @@ def build_tiff_frame_records(paths: list[Path]) -> list[TiffFrameRecord]:
     return records
 
 
-def build_multichannel_tiff_sequence(
+def build_multichannel_frame_sequence(
     records: list[TiffFrameRecord],
     *,
+    load_frame_fn,
     runtime_config: RawPreviewRuntimeConfig,
 ) -> PreviewSequence:
     channel_keys = ordered_unique([record.channel_key for record in records])
@@ -664,6 +872,7 @@ def build_multichannel_tiff_sequence(
                 load_channel_frame(
                     select_record_for_time(records_by_channel[channel_key], time_index),
                     cache=cache,
+                    load_frame_fn=load_frame_fn,
                 )
                 for channel_key in channel_keys
             ]
@@ -673,7 +882,11 @@ def build_multichannel_tiff_sequence(
         selected_indices = sample_index_values(max_count, max_count=max_frames)
         for index in selected_indices:
             channel_frames = [
-                load_channel_frame(channel_records[min(index, len(channel_records) - 1)], cache=cache)
+                load_channel_frame(
+                    channel_records[min(index, len(channel_records) - 1)],
+                    cache=cache,
+                    load_frame_fn=load_frame_fn,
+                )
                 for channel_records in records_by_channel.values()
             ]
             composed_frames.append(compose_channel_strip(channel_frames))
@@ -691,14 +904,23 @@ def select_record_for_time(records: list[TiffFrameRecord], time_index: int) -> T
     return records[0]
 
 
-def load_channel_frame(record: TiffFrameRecord, *, cache: dict[Path, np.ndarray]) -> np.ndarray:
+def load_channel_frame(
+    record: TiffFrameRecord,
+    *,
+    cache: dict[Path, np.ndarray],
+    load_frame_fn,
+) -> np.ndarray:
     cached = cache.get(record.path)
     if cached is not None:
         return cached
-    array = np.asarray(tifffile.imread(record.path))
+    array = np.asarray(load_frame_fn(record.path))
     frame = normalize_frame(reduce_array_to_frame(array))
     cache[record.path] = frame
     return frame
+
+
+def load_tiff_frame(path: Path) -> np.ndarray:
+    return np.asarray(tifffile.imread(path))
 
 
 def open_best_zarr_node(path: Path):
@@ -1488,7 +1710,9 @@ def upsert_preview_artifact(
     raw_dataset: RawDataset,
     position: RawDatasetPosition,
     video_path: Path,
-    frames: list[np.ndarray],
+    frame_count: int,
+    source_width: int,
+    source_height: int,
     encoded_width: int,
     encoded_height: int,
     channel_labels: list[str],
@@ -1496,7 +1720,6 @@ def upsert_preview_artifact(
     runtime_config: RawPreviewRuntimeConfig,
 ) -> Artifact:
     fps_value = max(1, runtime_config.fps)
-    frame_count = len(frames)
     duration_seconds = float(frame_count) / float(fps_value) if frame_count > 0 else 0.0
     file_size_bytes = int(video_path.stat().st_size) if video_path.exists() else 0
     bitrate_kbps = (
@@ -1525,6 +1748,8 @@ def upsert_preview_artifact(
         "absolute_path": str(video_path),
         "channel_labels": channel_labels,
         "project_label": project_label,
+        "source_width": int(source_width),
+        "source_height": int(source_height),
     }
     artifact = position.preview_artifact
     if artifact is None:
