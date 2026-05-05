@@ -563,11 +563,12 @@ def render_legacy_matlab_jpg_preview_video(
 
     with tempfile.TemporaryDirectory(prefix="detecdiv_legacy_preview_") as tmpdir:
         tmp_path = Path(tmpdir)
+        frame_dir = tmp_path / "frames"
         config_path = tmp_path / "preview_config.json"
         result_path = tmp_path / "preview_result.json"
         config = {
             "source_path": str(image_source),
-            "output_path": str(video_path),
+            "frame_dir": str(frame_dir),
             "result_path": str(result_path),
             "fps": int(max(1, runtime_config.fps)),
             "max_frames": int(max(0, runtime_config.max_frames)),
@@ -592,6 +593,25 @@ def render_legacy_matlab_jpg_preview_video(
         if str(result.get("status") or "").lower() != "ok":
             raise RuntimeError(str(result.get("error") or "MATLAB legacy preview renderer failed."))
 
+        frame_paths = sorted(
+            path for path in frame_dir.glob("frame_*.tif*") if path.is_file()
+        )
+        if not frame_paths:
+            raise RuntimeError("MATLAB legacy preview renderer did not write any TIFF frames.")
+
+        frames = [np.asarray(tifffile.imread(path)) for path in frame_paths]
+        project_label = str(
+            getattr(raw_dataset, "external_key", "") or getattr(raw_dataset, "acquisition_label", "") or ""
+        ).strip()
+        encoded_width, encoded_height = encode_preview_video(
+            video_path=video_path,
+            frames=frames,
+            project_label=project_label,
+            position_label=str(position.display_name or position.position_key or ""),
+            channel_labels=[str(value) for value in list(result.get("channel_labels") or []) if str(value).strip()],
+            runtime_config=runtime_config,
+        )
+
     if not video_path.is_file():
         raise RuntimeError(f"MATLAB legacy preview renderer did not create {video_path}")
 
@@ -600,8 +620,8 @@ def render_legacy_matlab_jpg_preview_video(
         frame_count=int(result.get("frame_count") or 0),
         source_width=int(result.get("source_width") or 0),
         source_height=int(result.get("source_height") or 0),
-        encoded_width=int(result.get("encoded_width") or 0),
-        encoded_height=int(result.get("encoded_height") or 0),
+        encoded_width=int(encoded_width),
+        encoded_height=int(encoded_height),
         channel_labels=[str(value) for value in list(result.get("channel_labels") or []) if str(value).strip()],
     )
 
@@ -1735,8 +1755,6 @@ def upsert_preview_artifact(
         "frame_count": frame_count,
         "width": int(encoded_width),
         "height": int(encoded_height),
-        "source_width": int(frames[0].shape[1]),
-        "source_height": int(frames[0].shape[0]),
         "fps": fps_value,
         "frame_mode": runtime_config.frame_mode,
         "max_frames_setting": runtime_config.max_frames,

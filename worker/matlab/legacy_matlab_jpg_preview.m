@@ -1,7 +1,6 @@
 function legacy_matlab_jpg_preview(config_path)
 config = jsondecode(fileread(config_path));
 sourcePath = char(string(config.source_path));
-outputPath = char(string(config.output_path));
 resultPath = char(string(config.result_path));
 fps = max(1, double(config.fps));
 maxFrames = max(1, double(config.max_frames));
@@ -18,8 +17,8 @@ result = struct( ...
     'channel_labels', {{}} ...
 );
 
-writer = [];
 try
+    frameDir = char(string(config.frame_dir));
     files = collect_legacy_image_files(sourcePath);
     if isempty(files)
         error('legacy_matlab_jpg_preview:NoFiles', 'No JPEG files found under %s.', sourcePath);
@@ -40,9 +39,9 @@ try
     totalFrames = max(counts);
     selectedIndices = sample_indices(totalFrames, maxFrames);
 
-    writer = VideoWriter(outputPath, 'MPEG-4');
-    writer.FrameRate = fps;
-    open(writer);
+    if ~exist(frameDir, 'dir')
+        mkdir(frameDir);
+    end
 
     sourceWidth = 0;
     sourceHeight = 0;
@@ -70,11 +69,10 @@ try
         end
         encodedHeight = size(frame, 1);
         encodedWidth = size(frame, 2);
-        writeVideo(writer, frame);
+        framePath = fullfile(frameDir, sprintf('frame_%06d.tif', frameIndex));
+        imwrite(frame, framePath, 'tif');
     end
 
-    close(writer);
-    writer = [];
     result.status = 'ok';
     result.frame_count = numel(selectedIndices);
     result.source_width = sourceWidth;
@@ -83,12 +81,6 @@ try
     result.encoded_height = encodedHeight;
     result.channel_labels = channelLabels;
 catch ME
-    if ~isempty(writer)
-        try
-            close(writer);
-        catch
-        end
-    end
     result.error = getReport(ME, 'basic', 'hyperlinks', 'off');
 end
 
