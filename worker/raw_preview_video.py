@@ -574,6 +574,7 @@ def render_legacy_matlab_jpg_preview_video(
             "max_frames": int(max(0, runtime_config.max_frames)),
             "frame_mode": str(runtime_config.frame_mode or "full"),
             "max_dimension": int(max(64, runtime_config.max_dimension)),
+            "channel_settings": legacy_channel_settings_from_raw_dataset(raw_dataset),
         }
         config_path.write_text(json.dumps(config, indent=2), encoding="utf-8")
 
@@ -624,6 +625,24 @@ def render_legacy_matlab_jpg_preview_video(
         encoded_height=int(encoded_height),
         channel_labels=[str(value) for value in list(result.get("channel_labels") or []) if str(value).strip()],
     )
+
+
+def legacy_channel_settings_from_raw_dataset(raw_dataset: RawDataset) -> list[dict[str, Any]]:
+    metadata = dict(raw_dataset.metadata_json or {})
+    dimensions = metadata.get("dimensions") if isinstance(metadata, dict) else None
+    if not isinstance(dimensions, dict):
+        return []
+    channel_settings = dimensions.get("channel_settings")
+    if not isinstance(channel_settings, list):
+        return []
+    normalized: list[dict[str, Any]] = []
+    for index, item in enumerate(channel_settings):
+        if not isinstance(item, dict):
+            continue
+        detail = dict(item)
+        detail.setdefault("index", index)
+        normalized.append(detail)
+    return normalized
 
 
 def read_zarr_preview_frames(

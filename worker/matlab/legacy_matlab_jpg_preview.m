@@ -34,6 +34,7 @@ try
         channelFiles{idx} = files(mask);
         channelLabels{idx} = char(channel_label_from_key(key));
     end
+    channelBinningFactors = channel_binning_factors(config, numel(channelFiles));
 
     counts = cellfun(@numel, channelFiles);
     totalFrames = max(counts);
@@ -50,6 +51,8 @@ try
 
     for frameIndex = selectedIndices
         channelFrames = cell(1, numel(channelFiles));
+        rawWidths = zeros(1, numel(channelFiles));
+        rawHeights = zeros(1, numel(channelFiles));
         for channelIndex = 1:numel(channelFiles)
             framesForChannel = channelFiles{channelIndex};
             sourceIndex = min(frameIndex, numel(framesForChannel));
@@ -60,6 +63,39 @@ try
                 sourceHeight = rawHeight;
             end
             channelFrames{channelIndex} = frame;
+            rawWidths(channelIndex) = rawWidth;
+            rawHeights(channelIndex) = rawHeight;
+        end
+
+        referenceIndex = first_known_binning_index(channelBinningFactors);
+        if referenceIndex < 1
+            referenceIndex = 1;
+        end
+        referenceBinning = max(1, channelBinningFactors(referenceIndex));
+        referenceWidth = rawWidths(referenceIndex);
+        referenceHeight = rawHeights(referenceIndex);
+
+        targetWidths = zeros(1, numel(channelFiles));
+        targetHeights = zeros(1, numel(channelFiles));
+        for channelIndex = 1:numel(channelFiles)
+            binningFactor = max(1, channelBinningFactors(channelIndex));
+            scaleFactor = binningFactor / double(referenceBinning);
+            if channelBinningFactors(channelIndex) <= 0
+                scaleFactor = infer_scale_from_reference(
+                    rawWidths(channelIndex),
+                    rawHeights(channelIndex),
+                    referenceWidth,
+                    referenceHeight
+                );
+            end
+            targetWidths(channelIndex) = max(1, round(rawWidths(channelIndex) * scaleFactor));
+            targetHeights(channelIndex) = max(1, round(rawHeights(channelIndex) * scaleFactor));
+        end
+
+        targetWidth = max(targetWidths);
+        targetHeight = max(targetHeights);
+        for channelIndex = 1:numel(channelFrames)
+            channelFrames{channelIndex} = resize_frame_to_target(channelFrames{channelIndex}, targetHeight, targetWidth);
         end
 
         if numel(channelFrames) > 1
@@ -188,4 +224,86 @@ targetWidth = max(1, round(width * scale));
 [xGrid, yGrid] = meshgrid(linspace(1, width, targetWidth), linspace(1, height, targetHeight));
 resized = interp2(double(image), xGrid, yGrid, 'linear', 0);
 out = uint8(round(max(0, min(255, resized))));
+end
+
+function out = resize_frame_to_target(image, targetHeight, targetWidth)
+[height, width] = size(image);
+if height == targetHeight && width == targetWidth
+    out = image;
+    return;
+end
+[xGrid, yGrid] = meshgrid(linspace(1, width, targetWidth), linspace(1, height, targetHeight));
+resized = interp2(double(image), xGrid, yGrid, 'linear', 0);
+out = uint8(round(max(0, min(255, resized))));
+end
+
+function binningFactors = channel_binning_factors(config, channelCount)
+binningFactors = ones(1, channelCount);
+if ~isfield(config, 'channel_settings')
+    return;
+end
+channelSettings = config.channel_settings;
+if isempty(channelSettings)
+    return;
+end
+for idx = 1:min(channelCount, numel(channelSettings))
+    entry = channelSettings(idx);
+    if isstruct(entry)
+        factor = parse_binning_factor(entry);
+        if factor > 0
+            binningFactors(idx) = factor;
+        end
+    end
+end
+end
+
+function factor = parse_binning_factor(entry)
+factor = 0;
+if ~isstruct(entry)
+    return;
+end
+candidateFields = {'binning_factor', 'binning', 'Binning', 'Binning factor', 'Binning Factor'};
+for idx = 1:numel(candidateFields)
+    fieldName = candidateFields{idx};
+    if ~isfield(entry, fieldName)
+        continue;
+    end
+    value = entry.(fieldName);
+    if isstring(value) || ischar(value)
+        token = regexp(char(value), '(\d+)', 'tokens', 'once');
+        if ~isempty(token)
+            factor = max(1, str2double(token{1}));
+            return;
+        end
+    elseif isnumeric(value) && isscalar(value) && isfinite(value)
+        factor = max(1, round(double(value)));
+        return;
+    end
+end
+end
+
+function scaleFactor = infer_scale_from_reference(rawWidth, rawHeight, referenceWidth, referenceHeight)
+scaleFactor = 1;
+if rawWidth <= 0 || rawHeight <= 0 || referenceWidth <= 0 || referenceHeight <= 0
+    return;
+end
+widthRatio = double(referenceWidth) / double(rawWidth);
+heightRatio = double(referenceHeight) / double(rawHeight);
+if abs(widthRatio - heightRatio) > 0.15 * max([1, abs(widthRatio), abs(heightRatio)])
+    return;
+end
+if widthRatio >= 1 && heightRatio >= 1
+    candidate = mean([widthRatio, heightRatio]);
+    rounded = round(candidate);
+    if abs(candidate - rounded) <= 0.2 * max(1, candidate)
+        scaleFactor = max(1, rounded);
+    end
+end
+end
+
+function index = first_known_binning_index(binningFactors)
+index = find(binningFactors > 0, 1, 'first');
+if isempty(index)
+    index = 0;
+end
 end

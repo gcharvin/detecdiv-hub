@@ -247,6 +247,14 @@ def test_render_legacy_matlab_jpg_preview_video_uses_matlab(tmp_path, monkeypatc
     (position_dir / "legacy_dataset-pos1-ch1---001.jpg").write_bytes(b"jpeg-fixture")
 
     raw_dataset = SimpleNamespace(data_format="legacy_matlab_jpg_timelapse")
+    raw_dataset.metadata_json = {
+        "dimensions": {
+            "channel_settings": [
+                {"index": 0, "channel": "Ch 1", "binning_factor": 1},
+                {"index": 1, "channel": "Ch 2", "binning_factor": 2},
+            ]
+        }
+    }
     position = SimpleNamespace(
         position_index=0,
         position_key="position_1",
@@ -265,6 +273,8 @@ def test_render_legacy_matlab_jpg_preview_video_uses_matlab(tmp_path, monkeypatc
         assert match is not None
         config_path = Path(match.group(1))
         config = json.loads(config_path.read_text(encoding="utf-8"))
+        assert config["channel_settings"][0]["binning_factor"] == 1
+        assert config["channel_settings"][1]["binning_factor"] == 2
         frame_dir = Path(config["frame_dir"])
         frame_dir.mkdir(parents=True, exist_ok=True)
         tifffile.imwrite(frame_dir / "frame_000001.tif", np.full((8, 8), 127, dtype=np.uint8))
