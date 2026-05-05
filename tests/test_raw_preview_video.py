@@ -8,6 +8,7 @@ import tifffile
 
 from worker.preview_text import fit_text_scale
 from worker.raw_preview_video import (
+    annotate_preview_frames,
     read_preview_frames,
     read_zarr_preview_frames,
     render_legacy_matlab_jpg_preview_video,
@@ -25,6 +26,20 @@ def test_fit_text_scale_shrinks_long_text_on_small_frames():
 def test_fit_text_scale_honors_lower_bounds():
     assert fit_text_scale("", available_width=200, desired_scale=4) == 1
     assert fit_text_scale("FRAME 1", available_width=20, desired_scale=4) == 1
+
+
+def test_annotate_preview_frames_uses_visible_compact_overlay():
+    frame = np.zeros((256, 256), dtype=np.uint8)
+
+    annotated = annotate_preview_frames(
+        [frame],
+        project_label="recircu_SCL1_DAD2_ABP1GFP_LV3mC",
+        position_label="Position1",
+        channel_labels=["Ch 1", "Ch 2", "Ch 3"],
+    )[0]
+
+    assert annotated.shape == (256, 256)
+    assert int((annotated[:32, :32] == 255).sum()) > 80
 
 
 def test_read_zarr_preview_frames_falls_back_to_series_array_child(tmp_path, monkeypatch):

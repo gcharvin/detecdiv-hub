@@ -1562,10 +1562,17 @@ def annotate_preview_frames(
         height, width = canvas.shape[:2]
         compact_overlay = min(height, width) < 512
         frame_scale = max(1, min(4, min(height, width) // 320))
-        label_scale = 1 if compact_overlay else max(1, frame_scale - 1)
-        title_scale = 1 if compact_overlay else max(1, frame_scale - 1)
-        margin = 2 if compact_overlay else max(4, frame_scale * 3)
-        line_gap = 2 if compact_overlay else max(4, label_scale * 8)
+        if compact_overlay:
+            frame_scale = max(2, frame_scale)
+            label_scale = frame_scale
+            title_scale = frame_scale
+            margin = max(4, frame_scale * 2)
+            line_gap = max(4, frame_scale * 2)
+        else:
+            label_scale = max(1, frame_scale - 1)
+            title_scale = max(1, frame_scale - 1)
+            margin = max(4, frame_scale * 3)
+            line_gap = max(4, label_scale * 8)
         frame_label = f"F{index + 1}" if compact_overlay else f"FRAME {index + 1}"
         frame_scale = fit_text_scale(frame_label, available_width=max(32, width - (margin * 2)), desired_scale=frame_scale)
         draw_text_with_box(canvas, frame_label, x=margin, y=margin, scale=frame_scale)
