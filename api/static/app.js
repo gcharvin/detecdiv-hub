@@ -4362,7 +4362,14 @@ async function refreshDashboard() {
   if (pageFlags.hasPipelineRunsView) {
     refreshTasks.push(refreshPipelineRuns());
   }
-  if ((pageFlags.hasUsersView && isAdmin()) || els.indexOwnerUserKey || els.ownerFilter || els.rawOwnerFilter || pageFlags.hasProjectPage) {
+  if (
+    (pageFlags.hasUsersView && isAdmin()) ||
+    els.indexOwnerUserKey ||
+    els.ownerFilter ||
+    els.rawOwnerFilter ||
+    pageFlags.hasProjectPage ||
+    pageFlags.hasRawDatasetPage
+  ) {
     refreshTasks.push(refreshUsers());
   }
   if (pageFlags.hasSessionsView && isAdmin()) {
@@ -6144,7 +6151,7 @@ async function pollDashboard() {
     if (pageFlags.hasIndexingView) {
       pollTasks.push(refreshIndexingJobs());
     }
-    if (pageFlags.hasRawDatasetsView || pageFlags.hasRawDatasetPage || pageKind === "raw-ops") {
+    if (pageFlags.hasRawDatasetsView || pageKind === "raw-ops") {
       if (Date.now() - state.rawDatasetsLastRefreshAt >= RAW_DATASETS_POLL_INTERVAL_MS) {
         pollTasks.push(refreshRawDatasets());
       }
@@ -6199,6 +6206,7 @@ async function forceRefreshCurrentPage() {
   if (
     pageFlags.hasProjectsView ||
     pageFlags.hasRawDatasetsView ||
+    pageFlags.hasRawDatasetPage ||
     pageFlags.hasAutomaticArchivePolicy ||
     pageFlags.hasMicroManagerIngest ||
     pageFlags.hasIndexingView ||
