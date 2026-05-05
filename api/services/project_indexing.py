@@ -556,23 +556,54 @@ def get_or_create_storage_root(
     host_scope: str,
     root_type: str,
 ) -> StorageRoot:
-    root_name = storage_root_name or build_storage_root_name(root_path)
-    root = session.scalars(select(StorageRoot).where(StorageRoot.name == root_name)).first()
+    normalized_root_path = str(Path(root_path).expanduser().resolve())
+    root = find_existing_storage_root(
+        session,
+        root_path=normalized_root_path,
+        host_scope=host_scope,
+        root_type=root_type,
+    )
     if root is None:
+        root_name = storage_root_name or build_storage_root_name(normalized_root_path)
+        root = session.scalars(select(StorageRoot).where(StorageRoot.name == root_name)).first()
+    if root is None:
+        root_name = storage_root_name or build_storage_root_name(normalized_root_path)
         root = StorageRoot(
             name=root_name,
             root_type=root_type,
             host_scope=host_scope,
-            path_prefix=root_path,
+            path_prefix=normalized_root_path,
         )
         session.add(root)
         session.flush()
     else:
         root.root_type = root_type
         root.host_scope = host_scope
-        root.path_prefix = root_path
+        root.path_prefix = normalized_root_path
         session.flush()
     return root
+
+
+def find_existing_storage_root(
+    session: Session,
+    *,
+    root_path: str,
+    host_scope: str,
+    root_type: str,
+) -> StorageRoot | None:
+    candidates = list(
+        session.scalars(
+            select(StorageRoot).where(
+                StorageRoot.host_scope == host_scope,
+                StorageRoot.root_type == root_type,
+            )
+        )
+    )
+    matching_roots = [root for root in candidates if str(root.path_prefix or "") == root_path]
+    if not matching_roots:
+        return None
+    matching_roots.sort(key=lambda root: getattr(root, "created_at", None) or datetime.min.replace(tzinfo=timezone.utc))
+    return matching_roots[0]
 
 
 def upsert_project_from_paths(
