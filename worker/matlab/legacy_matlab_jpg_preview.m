@@ -67,26 +67,24 @@ try
             rawHeights(channelIndex) = rawHeight;
         end
 
-        referenceIndex = first_known_binning_index(channelBinningFactors);
-        if referenceIndex < 1
-            referenceIndex = 1;
-        end
-        referenceBinning = max(1, channelBinningFactors(referenceIndex));
-        referenceWidth = rawWidths(referenceIndex);
-        referenceHeight = rawHeights(referenceIndex);
+    referenceIndex = 1;
+    referenceBinning = channelBinningFactors(referenceIndex);
+    referenceWidth = rawWidths(referenceIndex);
+    referenceHeight = rawHeights(referenceIndex);
 
         targetWidths = zeros(1, numel(channelFiles));
         targetHeights = zeros(1, numel(channelFiles));
         for channelIndex = 1:numel(channelFiles)
-            binningFactor = max(1, channelBinningFactors(channelIndex));
-            scaleFactor = binningFactor / double(referenceBinning);
-            if channelBinningFactors(channelIndex) <= 0
-                scaleFactor = infer_scale_from_reference(
-                    rawWidths(channelIndex),
-                    rawHeights(channelIndex),
-                    referenceWidth,
-                    referenceHeight
-                );
+            scaleFactor = channel_scale_factor( ...
+                channelBinningFactors(channelIndex), ...
+                referenceBinning, ...
+                rawWidths(channelIndex), ...
+                rawHeights(channelIndex), ...
+                referenceWidth, ...
+                referenceHeight ...
+            );
+            if scaleFactor <= 0 || ~isfinite(scaleFactor)
+                scaleFactor = 1;
             end
             targetWidths(channelIndex) = max(1, round(rawWidths(channelIndex) * scaleFactor));
             targetHeights(channelIndex) = max(1, round(rawHeights(channelIndex) * scaleFactor));
@@ -238,13 +236,22 @@ out = uint8(round(max(0, min(255, resized))));
 end
 
 function binningFactors = channel_binning_factors(config, channelCount)
-binningFactors = ones(1, channelCount);
+binningFactors = zeros(1, channelCount);
 if ~isfield(config, 'channel_settings')
     return;
 end
 channelSettings = config.channel_settings;
 if isempty(channelSettings)
     return;
+end
+
+function scaleFactor = channel_scale_factor(channelBinning, referenceBinning, rawWidth, rawHeight, referenceWidth, referenceHeight)
+scaleFactor = 1;
+if channelBinning > 0 && referenceBinning > 0
+    scaleFactor = double(channelBinning) / double(referenceBinning);
+    return;
+end
+scaleFactor = infer_scale_from_reference(rawWidth, rawHeight, referenceWidth, referenceHeight);
 end
 for idx = 1:min(channelCount, numel(channelSettings))
     entry = channelSettings(idx);
@@ -292,18 +299,24 @@ heightRatio = double(referenceHeight) / double(rawHeight);
 if abs(widthRatio - heightRatio) > 0.15 * max([1, abs(widthRatio), abs(heightRatio)])
     return;
 end
-if widthRatio >= 1 && heightRatio >= 1
-    candidate = mean([widthRatio, heightRatio]);
-    rounded = round(candidate);
-    if abs(candidate - rounded) <= 0.2 * max(1, candidate)
-        scaleFactor = max(1, rounded);
-    end
-end
+candidate = mean([widthRatio, heightRatio]);
+scaleFactor = snap_ratio_to_integer_multiple(candidate);
 end
 
-function index = first_known_binning_index(binningFactors)
-index = find(binningFactors > 0, 1, 'first');
-if isempty(index)
-    index = 0;
+function value = snap_ratio_to_integer_multiple(candidate)
+value = candidate;
+if ~isfinite(candidate) || candidate <= 0
+    value = 1;
+    return;
+end
+rounded = round(candidate);
+if rounded >= 1 && abs(candidate - rounded) <= 0.15 * max(1, candidate)
+    value = max(1, rounded);
+    return;
+end
+reciprocal = 1 / candidate;
+roundedReciprocal = round(reciprocal);
+if roundedReciprocal >= 1 && abs(reciprocal - roundedReciprocal) <= 0.15 * max(1, reciprocal)
+    value = 1 / max(1, roundedReciprocal);
 end
 end
