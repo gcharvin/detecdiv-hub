@@ -119,7 +119,7 @@ def list_projects(
         )
     if visibility:
         stmt = stmt.where(Project.visibility == visibility)
-    stmt = stmt.limit(min(max(limit, 1), 500))
+    stmt = stmt.limit(min(max(limit, 1), 5000))
     return [project_summary_view(project) for project in db.scalars(stmt).unique()]
 
 

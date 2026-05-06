@@ -4,7 +4,7 @@ const state = {
   authMode: "",
   currentUser: null,
   projects: [],
-  projectPageSize: 15,
+  projectPageSize: 50,
   projectCurrentPage: 0,
   groups: [],
   storageRoots: [],
@@ -19,7 +19,7 @@ const state = {
   indexingJobs: [],
   rawDatasets: [],
   rawDatasetsLastRefreshAt: 0,
-  rawDatasetPageSize: 15,
+  rawDatasetPageSize: 50,
   rawDatasetCurrentPage: 0,
   selectedRawDataset: null,
   selectedRawDatasetDetail: null,
@@ -1628,7 +1628,7 @@ function renderProjects() {
     return;
   }
   els.projectsTableBody.innerHTML = "";
-  els.projectCountLabel.textContent = `${state.projects.length} visible projects`;
+  els.projectCountLabel.textContent = `${state.projects.length} projects`;
 
   const pageSize = state.projectPageSize;
   const totalPages = Math.ceil(state.projects.length / pageSize);
@@ -3205,7 +3205,7 @@ function renderRawDatasets() {
     return;
   }
   els.rawDatasetsTableBody.innerHTML = "";
-  els.rawCountLabel.textContent = `${state.rawDatasets.length} visible raw datasets`;
+  els.rawCountLabel.textContent = `${state.rawDatasets.length} raw datasets`;
   renderRawOpsSummary();
   renderArchivedRawDatasets();
 
@@ -4527,7 +4527,8 @@ async function refreshRawDatasets() {
   if (els.rawOwnerFilter?.value.trim()) params.set("owner_key", els.rawOwnerFilter.value.trim());
   if (els.rawTierFilter?.value) params.set("lifecycle_tier", els.rawTierFilter.value);
   if (els.rawArchiveStatusFilter?.value) params.set("archive_status", els.rawArchiveStatusFilter.value);
-  if (els.rawLimit?.value) params.set("limit", els.rawLimit.value);
+  if (els.rawLimit?.value) state.rawDatasetPageSize = parseInt(els.rawLimit.value) || 50;
+  params.set("limit", "5000");
 
   state.rawDatasets = await apiGet(`/raw-datasets${params.toString() ? `?${params.toString()}` : ""}`);
   state.rawDatasetsLastRefreshAt = Date.now();
@@ -4814,7 +4815,8 @@ async function refreshProjects() {
   if (els.projectSearch?.value.trim()) params.set("search", els.projectSearch.value.trim());
   if (els.ownerFilter?.value.trim()) params.set("owner_key", els.ownerFilter.value.trim());
   if (els.storageRootFilter?.value) params.set("storage_root_name", els.storageRootFilter.value);
-  if (els.projectLimit?.value) params.set("limit", els.projectLimit.value);
+  if (els.projectLimit?.value) state.projectPageSize = parseInt(els.projectLimit.value) || 50;
+  params.set("limit", "5000");
 
   state.projects = await apiGet(`/projects${params.toString() ? `?${params.toString()}` : ""}`);
   state.projectCurrentPage = 0;

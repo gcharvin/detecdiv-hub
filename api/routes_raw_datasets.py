@@ -331,7 +331,7 @@ def list_raw_datasets(
         stmt = stmt.where(RawDataset.lifecycle_tier == lifecycle_tier)
     if archive_status:
         stmt = stmt.where(RawDataset.archive_status == archive_status)
-    stmt = stmt.limit(min(max(limit, 1), 500))
+    stmt = stmt.limit(min(max(limit, 1), 5000))
     return [raw_dataset_catalog_summary_view(raw_dataset) for raw_dataset in db.scalars(stmt).unique()]
 
 
