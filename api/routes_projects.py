@@ -3,7 +3,7 @@ from datetime import timedelta
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy import or_, select
+from sqlalchemy import func, or_, select
 from sqlalchemy.orm import Session, joinedload
 
 from api.db import get_db
@@ -669,10 +669,33 @@ def get_me(current_user: User = Depends(get_current_user)) -> User:
 def list_users(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
-) -> list[User]:
+) -> list[dict]:
     if current_user.role not in {"admin", "service"}:
-        return [current_user]
-    return list(db.scalars(select(User).where(User.is_active.is_(True)).order_by(User.display_name.asc())))
+        users = [current_user]
+    else:
+        users = list(db.scalars(select(User).where(User.is_active.is_(True)).order_by(User.display_name.asc())))
+
+    project_bytes_by_user = dict(
+        db.execute(
+            select(Project.owner_user_id, func.sum(Project.total_bytes))
+            .where(Project.status != "deleted")
+            .group_by(Project.owner_user_id)
+        ).all()
+    )
+    raw_bytes_by_user = dict(
+        db.execute(
+            select(RawDataset.owner_user_id, func.sum(RawDataset.total_bytes))
+            .group_by(RawDataset.owner_user_id)
+        ).all()
+    )
+
+    result = []
+    for user in users:
+        d = {c.name: getattr(user, c.name) for c in user.__table__.columns}
+        d["project_bytes"] = int(project_bytes_by_user.get(user.id) or 0)
+        d["raw_dataset_bytes"] = int(raw_bytes_by_user.get(user.id) or 0)
+        result.append(d)
+    return result
 
 
 @users_router.post("", response_model=UserSummary, status_code=status.HTTP_201_CREATED)

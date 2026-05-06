@@ -30,6 +30,8 @@ class UserSummary(HubBaseModel):
     admin_portal_access: bool = False
     lab_status: str = "yes"
     default_path: str | None = None
+    project_bytes: int = 0
+    raw_dataset_bytes: int = 0
 
 
 class UserCreate(HubBaseModel):

@@ -1182,7 +1182,7 @@ function updateSessionUi() {
 
 function setSummary(summary) {
   state.summary = summary;
-  if (pageKind !== "raw-ops" && pageKind !== "raw-datasets") {
+  if (pageKind !== "raw-ops" && pageKind !== "raw-datasets" && pageKind !== "catalog") {
     if (els.summaryTotalProjects) els.summaryTotalProjects.textContent = summary.total_projects;
     if (els.summaryOwnedProjects) els.summaryOwnedProjects.textContent = summary.owned_projects;
     if (els.summaryTotalBytes) els.summaryTotalBytes.textContent = humanBytes(summary.total_bytes);
@@ -1623,12 +1623,24 @@ function renderBulkDeletePanel() {
   els.bulkDeleteSummary.textContent = parts.join(" | ");
 }
 
+function renderProjectsSummary() {
+  const projects = Array.isArray(state.projects) ? state.projects : [];
+  if (!projects.length) return;
+  const currentUserKey = state.currentUser?.user_key || state.userKey || "";
+  const ownedCount = projects.filter((p) => (p.owner || {}).user_key === currentUserKey).length;
+  const totalBytes = projects.reduce((sum, p) => sum + Number(p.total_bytes || 0), 0);
+  if (els.summaryTotalProjects) els.summaryTotalProjects.textContent = `${projects.length}`;
+  if (els.summaryOwnedProjects) els.summaryOwnedProjects.textContent = `${ownedCount}`;
+  if (els.summaryTotalBytes) els.summaryTotalBytes.textContent = humanBytes(totalBytes);
+}
+
 function renderProjects() {
   if (!els.projectsTableBody || !els.projectCountLabel) {
     return;
   }
   els.projectsTableBody.innerHTML = "";
   els.projectCountLabel.textContent = `${state.projects.length} projects`;
+  renderProjectsSummary();
 
   const pageSize = state.projectPageSize;
   const totalPages = Math.ceil(state.projects.length / pageSize);
@@ -4219,6 +4231,9 @@ function renderUsers() {
       <td>${user.admin_portal_access ? "yes" : "no"}</td>
       <td title="${escapeHtml(user.default_path || "")}">${escapeHtml(user.default_path || "")}</td>
       <td>${user.is_active ? "yes" : "no"}</td>
+      <td>${humanBytes(user.project_bytes || 0)}</td>
+      <td>${humanBytes(user.raw_dataset_bytes || 0)}</td>
+      <td>${humanBytes((user.project_bytes || 0) + (user.raw_dataset_bytes || 0))}</td>
       <td><button type="button" class="user-edit-button">Settings</button></td>
     `;
     tr.addEventListener("click", () => editUser(user));
