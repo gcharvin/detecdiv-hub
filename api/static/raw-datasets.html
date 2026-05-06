@@ -147,14 +147,6 @@
                 <option value="source_files">Delete catalog entries and raw source files on disk</option>
               </select>
             </label>
-            <label class="toggle">
-              <input id="raw-bulk-delete-linked-projects" type="checkbox" />
-              <span>Delete linked projects too (when exclusive)</span>
-            </label>
-            <label class="toggle">
-              <input id="raw-bulk-delete-linked-project-files" type="checkbox" />
-              <span>Also delete linked project files</span>
-            </label>
             <label class="field compact">
               <span>Type DELETE to confirm</span>
               <input id="raw-bulk-delete-confirm-text" type="text" placeholder="DELETE" />
@@ -162,7 +154,7 @@
             <button id="raw-bulk-delete-confirm-button" class="danger">Delete catalog entries only</button>
           </div>
           <p class="danger-copy">
-            Warning: deleting raw source files removes indexed acquisition folders. Linked projects are only auto-deleted when they are exclusive to the selected raw datasets.
+            Warning: deleting raw source files removes indexed acquisition folders on disk. This action is not reversible from the UI.
           </p>
         </section>
 
