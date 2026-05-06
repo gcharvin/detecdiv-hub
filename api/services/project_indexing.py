@@ -1582,6 +1582,18 @@ def looks_like_raw_dataset_dir(path: Path) -> bool:
         except OSError:
             pass
 
+    # MM directories without any Pos*/Position*/XY* subdirectories are single-image
+    # acquisitions (snapshots, per-channel captures), not multi-position timelapses.
+    try:
+        has_position_dirs = any(
+            entry.is_dir() and is_position_like_name(entry.name)
+            for entry in path.iterdir()
+        )
+    except OSError:
+        has_position_dirs = False
+    if not has_position_dirs:
+        return False
+
     return True
 
 
