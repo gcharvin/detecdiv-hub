@@ -321,6 +321,26 @@ def index_project_root(
                     )
                 if commit_each:
                     session.commit()
+            except ValueError as exc:
+                session.rollback()
+                if "few frames" in str(exc).lower():
+                    continue
+                failed_raw_datasets += 1
+                if progress_callback is not None:
+                    progress_callback(
+                        status="running",
+                        phase="scanning_raw",
+                        total_projects=total_projects,
+                        scanned_projects=scanned_projects,
+                        indexed_projects=indexed_projects,
+                        failed_projects=failed_projects,
+                        deleted_projects=deleted_projects,
+                        mat_files_seen=total_projects,
+                        indexed_raw_datasets=indexed_raw_datasets,
+                        failed_raw_datasets=failed_raw_datasets,
+                        current_project_path=str(raw_dir),
+                        message=f"Failed to index raw dataset {raw_dir.name}: {exc}",
+                    )
             except Exception as exc:
                 session.rollback()
                 failed_raw_datasets += 1
@@ -1549,11 +1569,35 @@ def looks_like_raw_dataset_dir(path: Path) -> bool:
         child_names = {entry.name.lower() for entry in path.iterdir() if entry.is_file()}
     except OSError:
         return False
-    return bool(_MICROMANAGER_MARKER_FILES.intersection(child_names))
+
+    has_mm_markers = bool(_MICROMANAGER_MARKER_FILES.intersection(child_names))
+    if not has_mm_markers:
+        return False
+
+    if name_lower.startswith("pos"):
+        try:
+            parent_child_names = {entry.name.lower() for entry in path.parent.iterdir() if entry.is_file()}
+            if _MICROMANAGER_MARKER_FILES.intersection(parent_child_names):
+                return False
+        except OSError:
+            pass
+
+    return True
 
 
 def iter_orphan_raw_candidates(root: Path, *, project_dirs: list[Path], max_depth: int = 5):
-    """Yield directories that look like raw datasets but are not inside any project dir."""
+    """Yield directories that look like raw datasets but are not inside any project dir.
+
+    Skips position subdirectories (Pos*) of Micro-Manager parents, as those are handled
+    as positions within the parent dataset, not as separate datasets.
+    """
+    def has_micromanager_markers(path: Path) -> bool:
+        try:
+            child_names = {entry.name.lower() for entry in path.iterdir() if entry.is_file()}
+            return bool(_MICROMANAGER_MARKER_FILES.intersection(child_names))
+        except OSError:
+            return False
+
     stack: list[tuple[Path, int]] = [(root, 0)]
     while stack:
         current, depth = stack.pop()
@@ -1563,12 +1607,21 @@ def iter_orphan_raw_candidates(root: Path, *, project_dirs: list[Path], max_dept
             entries = sorted(current.iterdir(), key=lambda e: e.name.lower())
         except OSError:
             continue
+
+        is_mm_parent = has_micromanager_markers(current)
+
         for entry in entries:
             if not entry.is_dir():
                 continue
             if is_relative_to_any(entry, project_dirs):
                 continue
-            if looks_like_raw_dataset_dir(entry):
+
+            entry_name_lower = entry.name.lower()
+            if is_mm_parent and entry_name_lower.startswith("pos"):
+                continue
+
+            is_dataset = looks_like_raw_dataset_dir(entry)
+            if is_dataset:
                 yield entry
             else:
                 stack.append((entry, depth + 1))

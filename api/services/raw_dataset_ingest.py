@@ -63,6 +63,14 @@ def ingest_raw_dataset_from_directory(
     display_settings_path = find_micromanager_display_settings_path(dataset_dir)
     display_settings_uri = str(display_settings_path) if display_settings_path is not None else None
     data_format = detect_raw_dataset_format(dataset_dir, parsed_metadata)
+
+    if data_format == "micromanager_tiff_dir":
+        frame_count = parsed_metadata.get("frame_count", 0)
+        if frame_count < 10:
+            raise ValueError(
+                f"Micro-Manager dataset {dataset_dir.name} has only {frame_count} frames; "
+                "excluding as likely a single-position phenotyping snapshot, not a timelapse"
+            )
     metadata = build_compact_micromanager_metadata(
         dataset_dir=dataset_dir,
         relative_path=relative_path,

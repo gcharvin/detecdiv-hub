@@ -4,6 +4,8 @@ const state = {
   authMode: "",
   currentUser: null,
   projects: [],
+  projectPageSize: 15,
+  projectCurrentPage: 0,
   groups: [],
   storageRoots: [],
   indexBrowse: null,
@@ -17,6 +19,8 @@ const state = {
   indexingJobs: [],
   rawDatasets: [],
   rawDatasetsLastRefreshAt: 0,
+  rawDatasetPageSize: 15,
+  rawDatasetCurrentPage: 0,
   selectedRawDataset: null,
   selectedRawDatasetDetail: null,
   selectedRawPositionId: null,
@@ -1625,7 +1629,16 @@ function renderProjects() {
   }
   els.projectsTableBody.innerHTML = "";
   els.projectCountLabel.textContent = `${state.projects.length} visible projects`;
-  for (const project of state.projects) {
+
+  const pageSize = state.projectPageSize;
+  const totalPages = Math.ceil(state.projects.length / pageSize);
+  state.projectCurrentPage = Math.min(state.projectCurrentPage, Math.max(0, totalPages - 1));
+
+  const startIdx = state.projectCurrentPage * pageSize;
+  const endIdx = startIdx + pageSize;
+  const pageProjects = state.projects.slice(startIdx, endIdx);
+
+  for (const project of pageProjects) {
     const tr = document.createElement("tr");
     if (state.selectedProject && state.selectedProject.id === project.id) {
       tr.classList.add("selected");
@@ -1649,7 +1662,43 @@ function renderProjects() {
     tr.addEventListener("click", () => selectProject(project.id));
     els.projectsTableBody.appendChild(tr);
   }
+
+  renderProjectPagination(totalPages);
   renderProjectSelectionControls();
+}
+
+function renderProjectPagination(totalPages) {
+  const pageInfo = document.querySelector("#project-page-info");
+  const prevBtn = document.querySelector("#project-prev-page");
+  const nextBtn = document.querySelector("#project-next-page");
+
+  if (!pageInfo || !prevBtn || !nextBtn) return;
+
+  const currentPage = state.projectCurrentPage + 1;
+  pageInfo.textContent = totalPages > 0 ? `Page ${currentPage} / ${totalPages}` : "No projects";
+
+  prevBtn.disabled = state.projectCurrentPage === 0;
+  nextBtn.disabled = state.projectCurrentPage >= totalPages - 1;
+
+  prevBtn.replaceWith(prevBtn.cloneNode(true));
+  nextBtn.replaceWith(nextBtn.cloneNode(true));
+
+  const newPrevBtn = document.querySelector("#project-prev-page");
+  const newNextBtn = document.querySelector("#project-next-page");
+
+  newPrevBtn.addEventListener("click", () => {
+    if (state.projectCurrentPage > 0) {
+      state.projectCurrentPage--;
+      renderProjects();
+    }
+  });
+
+  newNextBtn.addEventListener("click", () => {
+    if (state.projectCurrentPage < totalPages - 1) {
+      state.projectCurrentPage++;
+      renderProjects();
+    }
+  });
 }
 
 function pipelineRows() {
@@ -3159,7 +3208,16 @@ function renderRawDatasets() {
   els.rawCountLabel.textContent = `${state.rawDatasets.length} visible raw datasets`;
   renderRawOpsSummary();
   renderArchivedRawDatasets();
-  for (const raw of state.rawDatasets) {
+
+  const pageSize = state.rawDatasetPageSize;
+  const totalPages = Math.ceil(state.rawDatasets.length / pageSize);
+  state.rawDatasetCurrentPage = Math.min(state.rawDatasetCurrentPage, Math.max(0, totalPages - 1));
+
+  const startIdx = state.rawDatasetCurrentPage * pageSize;
+  const endIdx = startIdx + pageSize;
+  const pageDatasets = state.rawDatasets.slice(startIdx, endIdx);
+
+  for (const raw of pageDatasets) {
     const tr = document.createElement("tr");
     if (state.selectedRawDataset && state.selectedRawDataset.id === raw.id) {
       tr.classList.add("selected");
@@ -3183,7 +3241,43 @@ function renderRawDatasets() {
     tr.addEventListener("click", () => selectRawDataset(raw.id));
     els.rawDatasetsTableBody.appendChild(tr);
   }
+
+  renderRawPagination(totalPages);
   renderRawSelectionControls();
+}
+
+function renderRawPagination(totalPages) {
+  const pageInfo = document.querySelector("#raw-page-info");
+  const prevBtn = document.querySelector("#raw-prev-page");
+  const nextBtn = document.querySelector("#raw-next-page");
+
+  if (!pageInfo || !prevBtn || !nextBtn) return;
+
+  const currentPage = state.rawDatasetCurrentPage + 1;
+  pageInfo.textContent = totalPages > 0 ? `Page ${currentPage} / ${totalPages}` : "No datasets";
+
+  prevBtn.disabled = state.rawDatasetCurrentPage === 0;
+  nextBtn.disabled = state.rawDatasetCurrentPage >= totalPages - 1;
+
+  prevBtn.replaceWith(prevBtn.cloneNode(true));
+  nextBtn.replaceWith(nextBtn.cloneNode(true));
+
+  const newPrevBtn = document.querySelector("#raw-prev-page");
+  const newNextBtn = document.querySelector("#raw-next-page");
+
+  newPrevBtn.addEventListener("click", () => {
+    if (state.rawDatasetCurrentPage > 0) {
+      state.rawDatasetCurrentPage--;
+      renderRawDatasets();
+    }
+  });
+
+  newNextBtn.addEventListener("click", () => {
+    if (state.rawDatasetCurrentPage < totalPages - 1) {
+      state.rawDatasetCurrentPage++;
+      renderRawDatasets();
+    }
+  });
 }
 
 function renderRawDatasetDetail() {
@@ -4437,6 +4531,7 @@ async function refreshRawDatasets() {
 
   state.rawDatasets = await apiGet(`/raw-datasets${params.toString() ? `?${params.toString()}` : ""}`);
   state.rawDatasetsLastRefreshAt = Date.now();
+  state.rawDatasetCurrentPage = 0;
   const visibleIds = new Set(state.rawDatasets.map((raw) => `${raw.id}`));
   state.selectedRawDatasetIds = state.selectedRawDatasetIds.filter((rawDatasetId) => visibleIds.has(`${rawDatasetId}`));
   if (state.pendingRawBulkDelete?.scope === "selected" && !selectedRawDatasetIds().length) {
@@ -4722,6 +4817,7 @@ async function refreshProjects() {
   if (els.projectLimit?.value) params.set("limit", els.projectLimit.value);
 
   state.projects = await apiGet(`/projects${params.toString() ? `?${params.toString()}` : ""}`);
+  state.projectCurrentPage = 0;
   renderProjects();
   if (state.selectedProject) {
     const stillExists = state.projects.find((project) => project.id === state.selectedProject.id);
