@@ -1551,7 +1551,7 @@ def is_position_like_name(name: str) -> bool:
 
 
 _MICROMANAGER_MARKER_FILES = frozenset(
-    {"metadata.txt", "acquisitionmetadata.txt", "displaysettings.txt"}
+    {"metadata.txt", "acquisitionmetadata.txt", "displaysettings.txt", "displaysettings.json"}
 )
 
 
