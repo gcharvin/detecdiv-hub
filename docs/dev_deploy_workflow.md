@@ -16,6 +16,21 @@ Do not assume that a local edit is live. Do not assume that restarting one side
 updates the other. The live incident on 2026-05-04 confirmed that this
 assumption is unsafe.
 
+## Deployment Philosophy
+
+Use the smallest deployment that is actually safe:
+
+- if code is imported only by the API container, deploy only on
+  `webserver-labo`
+- if code is imported only by the worker, deploy only on `detecdiv-server`
+- if code is shared between API and worker, treat it as cross-layer and update
+  both hosts before calling the change complete
+- if the remote worker tree is a snapshot or opaque copy, verify the live
+  files directly instead of assuming git semantics
+
+Never claim a fix is live until the affected remote copy has been inspected and
+the relevant service has been restarted or rebuilt on that host.
+
 ## Current Lab Reality
 
 - `webserver-labo` runs PostgreSQL and FastAPI in Docker Compose
@@ -86,6 +101,7 @@ Action:
 
 - deploy both `webserver-labo` and `detecdiv-server`
 - treat the deployment as incomplete until both sides are updated
+- confirm that the remote files on both hosts match the intended revision
 
 ## Pre-Restart Safety Checks
 

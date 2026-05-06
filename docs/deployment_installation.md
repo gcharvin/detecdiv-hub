@@ -139,6 +139,10 @@ The current lab worker checkout is:
 /home/charvin-admin/repos/detecdiv-hub-webvm
 ```
 
+Treat this path as the live worker deployment artifact, not as proof that the
+remote tree is a clean git checkout. Verify the remote files directly before
+assuming git-based deployment semantics.
+
 The current stable services are:
 
 ```bash

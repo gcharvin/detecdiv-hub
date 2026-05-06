@@ -100,6 +100,12 @@ Future agents should assume:
 - The VM deployment is the primary runtime.
 - New deployment work should target `webserver-labo`.
 - Compute and storage-visible worker work should target `detecdiv-server`.
+- The local checkout, the deployed API copy, and the deployed worker copy are
+  separate states; never assume a local edit is live.
+- Do not assume the remote worker copy is a clean git checkout. Verify the
+  remote state before claiming a deploy.
+- If a change touches code imported by both API and worker, treat it as a
+  cross-layer deploy and update both hosts.
 - Do not reintroduce API-side filesystem scans for server paths.
 - Do not assume the VM can see project storage.
 - The current stable worker state uses `detecdiv-worker@1`, `@2`, and `@3`.
