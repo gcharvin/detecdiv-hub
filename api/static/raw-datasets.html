@@ -118,6 +118,10 @@
           <button id="raw-select-visible-button">Select visible</button>
           <button id="raw-clear-selection-button">Clear selection</button>
           <button id="raw-bulk-queue-previews-selected-button">Queue previews (selected)</button>
+          <button id="raw-bulk-archive-selected-button">Archive selected</button>
+          <button id="raw-bulk-archive-visible-button">Archive visible</button>
+          <button id="raw-bulk-restore-selected-button">Restore selected</button>
+          <button id="raw-bulk-restore-visible-button">Restore visible</button>
           <button id="raw-bulk-delete-selected-button" class="danger">Delete selected</button>
           <button id="raw-bulk-delete-visible-button" class="danger">Delete visible</button>
         </section>
@@ -128,6 +132,48 @@
               <h2>Raw Bulk Selection</h2>
               <p id="raw-selection-summary" class="muted">0 selected / 0 visible</p>
             </div>
+          </div>
+        </section>
+
+        <section id="raw-bulk-archive-panel" class="panel hidden">
+          <div class="panel-header">
+            <div>
+              <h2>Bulk Archive Raw Datasets</h2>
+              <p id="raw-bulk-archive-summary" class="muted">No raw datasets queued for archival.</p>
+            </div>
+            <button id="raw-bulk-archive-cancel-button">Cancel</button>
+          </div>
+          <div class="toolbar">
+            <label class="field compact">
+              <span>Archive root URI</span>
+              <input id="raw-bulk-archive-uri" type="text" placeholder="Archive destination path" />
+            </label>
+            <label class="field compact">
+              <span>Compression</span>
+              <select id="raw-bulk-archive-compression">
+                <option value="zip">ZIP</option>
+                <option value="tar">TAR</option>
+                <option value="tar.gz">TAR.GZ</option>
+              </select>
+            </label>
+            <label class="toggle">
+              <input id="raw-bulk-archive-mark-archived" type="checkbox" />
+              <span>Delete hot source after archival</span>
+            </label>
+            <button id="raw-bulk-archive-confirm-button">Queue archive requests</button>
+          </div>
+        </section>
+
+        <section id="raw-bulk-restore-panel" class="panel hidden">
+          <div class="panel-header">
+            <div>
+              <h2>Bulk Restore Raw Datasets</h2>
+              <p id="raw-bulk-restore-summary" class="muted">No raw datasets queued for restore.</p>
+            </div>
+            <button id="raw-bulk-restore-cancel-button">Cancel</button>
+          </div>
+          <div class="toolbar">
+            <button id="raw-bulk-restore-confirm-button">Queue restore requests</button>
           </div>
         </section>
 
@@ -228,7 +274,7 @@
       </div>
     </div>
 
-    <script src="/web/app.js?v=20260507-ui2" defer></script>
+    <script src="/web/app.js?v=20260507-ui3" defer></script>
   </body>
 </html>
 
