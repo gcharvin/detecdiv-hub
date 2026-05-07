@@ -6413,7 +6413,21 @@ if (els.editProjectButton) els.editProjectButton.addEventListener("click", () =>
     openSelectedProjectPage();
   }
 });
-if (els.updateProjectButton) els.updateProjectButton.addEventListener("click", () => editProject().catch((error) => setStatus(String(error))));
+if (els.updateProjectButton) els.updateProjectButton.addEventListener("click", () => editProject().catch((error) => setStatus(String(error))));if (els.rawBulkArchiveSelectedButton) els.rawBulkArchiveSelectedButton.addEventListener("click", () => openRawBulkArchivePanel("selected").catch((error) => setStatus(String(error))));
+if (els.rawBulkArchiveVisibleButton) els.rawBulkArchiveVisibleButton.addEventListener("click", () => openRawBulkArchivePanel("visible").catch((error) => setStatus(String(error))));
+if (els.rawBulkArchiveCancelButton) els.rawBulkArchiveCancelButton.addEventListener("click", () => closeRawBulkArchivePanel());
+if (els.rawBulkArchiveConfirmButton) els.rawBulkArchiveConfirmButton.addEventListener("click", () => executeRawBulkArchive().catch((error) => {
+  setStatus(String(error));
+  window.alert(String(error));
+}));
+if (els.rawBulkRestoreSelectedButton) els.rawBulkRestoreSelectedButton.addEventListener("click", () => openRawBulkRestorePanel("selected").catch((error) => setStatus(String(error))));
+if (els.rawBulkRestoreVisibleButton) els.rawBulkRestoreVisibleButton.addEventListener("click", () => openRawBulkRestorePanel("visible").catch((error) => setStatus(String(error))));
+if (els.rawBulkRestoreCancelButton) els.rawBulkRestoreCancelButton.addEventListener("click", () => closeRawBulkRestorePanel());
+if (els.rawBulkRestoreConfirmButton) els.rawBulkRestoreConfirmButton.addEventListener("click", () => executeRawBulkRestore().catch((error) => {
+  setStatus(String(error));
+  window.alert(String(error));
+}));
+
 if (els.changeProjectOwnerButton) els.changeProjectOwnerButton.addEventListener("click", () => changeProjectOwner().catch((error) => setStatus(String(error))));
 if (els.addToGroupButton) els.addToGroupButton.addEventListener("click", () => addSelectedProjectToGroup().catch((error) => setStatus(String(error))));
 if (els.projectQueueRawPreviewsButton) els.projectQueueRawPreviewsButton.addEventListener("click", () => queueProjectRawPreviewVideos().catch((error) => setStatus(String(error))));
