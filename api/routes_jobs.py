@@ -6,7 +6,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from api.db import get_db
-from api.models import Job, User
+from api.models import Job, RawDatasetPosition, User
 from api.schemas import JobCreateRequest, JobSummary
 from api.services.users import get_current_user
 
@@ -62,10 +62,21 @@ def purge_queued_jobs(
         stmt = stmt.where(Job.params_json["job_kind"].as_string() == payload.job_kind)
     jobs = list(db.scalars(stmt))
     now = datetime.now(timezone.utc)
+    preview_ds_ids = set()
     for job in jobs:
         job.status = "cancelled"
         job.updated_at = now
         job.finished_at = now
+        if (job.params_json or {}).get("job_kind") == "raw_preview_video" and job.raw_dataset_id:
+            preview_ds_ids.add(job.raw_dataset_id)
+    if preview_ds_ids:
+        positions = list(db.scalars(
+            select(RawDatasetPosition)
+            .where(RawDatasetPosition.raw_dataset_id.in_(preview_ds_ids))
+            .where(RawDatasetPosition.preview_status == "queued")
+        ))
+        for pos in positions:
+            pos.preview_status = "missing"
     db.commit()
     return JobPurgeQueuedResult(
         cancelled_count=len(jobs),
