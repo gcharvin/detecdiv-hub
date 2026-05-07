@@ -117,6 +117,16 @@
               <tbody></tbody>
             </table>
           </div>
+          <div class="toolbar">
+            <button id="purge-queued-jobs-button" class="danger">Purge queue</button>
+            <select id="purge-queued-jobs-kind">
+              <option value="">All job kinds</option>
+              <option value="raw_preview_video">raw preview video</option>
+              <option value="archive_raw_dataset">archive raw dataset</option>
+              <option value="restore_raw_dataset">restore raw dataset</option>
+              <option value="project_indexing">project indexing</option>
+            </select>
+          </div>
           <div class="table-wrap jobs-table-wrap">
             <table id="execution-target-queued-jobs-table">
               <thead>

@@ -1,13 +1,26 @@
+from datetime import datetime, timezone
+
 from fastapi import APIRouter, Depends, HTTPException, status
+from pydantic import BaseModel
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from api.db import get_db
-from api.models import Job
+from api.models import Job, User
 from api.schemas import JobCreateRequest, JobSummary
+from api.services.auth import get_current_user
 
 
 router = APIRouter(prefix="/jobs", tags=["jobs"])
+
+
+class JobPurgeQueuedRequest(BaseModel):
+    job_kind: str | None = None
+
+
+class JobPurgeQueuedResult(BaseModel):
+    cancelled_count: int
+    message: str
 
 
 @router.get("", response_model=list[JobSummary])
@@ -34,6 +47,30 @@ def create_job(payload: JobCreateRequest, db: Session = Depends(get_db)) -> Job:
     db.commit()
     db.refresh(job)
     return job
+
+
+@router.post("/purge-queued", response_model=JobPurgeQueuedResult)
+def purge_queued_jobs(
+    payload: JobPurgeQueuedRequest,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> JobPurgeQueuedResult:
+    if current_user.role not in {"admin", "service"}:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Admin role required")
+    stmt = select(Job).where(Job.status == "queued")
+    if payload.job_kind:
+        stmt = stmt.where(Job.params_json["job_kind"].as_string() == payload.job_kind)
+    jobs = list(db.scalars(stmt))
+    now = datetime.now(timezone.utc)
+    for job in jobs:
+        job.status = "cancelled"
+        job.updated_at = now
+        job.finished_at = now
+    db.commit()
+    return JobPurgeQueuedResult(
+        cancelled_count=len(jobs),
+        message=f"Cancelled {len(jobs)} queued job(s).",
+    )
 
 
 @router.get("/{job_id}", response_model=JobSummary)
