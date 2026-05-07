@@ -47,7 +47,9 @@
       "Bash(python3)",
       "Bash(curl -s \"http://webserver-labo:5100/api/raw-datasets?limit=100\")",
       "Bash(sqlite3 '~/.detecdiv/detecdiv.db' 'SELECT COUNT\\(*\\) as total, *)",
-      "Bash(git commit -m 'Test smoke test documentation for orphan dataset detection *)"
+      "Bash(git commit -m 'Test smoke test documentation for orphan dataset detection *)",
+      "Bash(scp *)",
+      "Bash(ssh gitlab-webserver *)"
     ]
   }
 }

@@ -152,13 +152,6 @@ const els = {
   rawBulkDeleteConfirmButton: document.querySelector("#raw-bulk-delete-confirm-button"),
   rawBulkArchiveSelectedButton: document.querySelector("#raw-bulk-archive-selected-button"),
   rawBulkArchiveVisibleButton: document.querySelector("#raw-bulk-archive-visible-button"),
-  rawBulkArchivePanel: document.querySelector("#raw-bulk-archive-panel"),
-  rawBulkArchiveSummary: document.querySelector("#raw-bulk-archive-summary"),
-  rawBulkArchiveUri: document.querySelector("#raw-bulk-archive-uri"),
-  rawBulkArchiveCompression: document.querySelector("#raw-bulk-archive-compression"),
-  rawBulkArchiveMarkArchived: document.querySelector("#raw-bulk-archive-mark-archived"),
-  rawBulkArchiveCancelButton: document.querySelector("#raw-bulk-archive-cancel-button"),
-  rawBulkArchiveConfirmButton: document.querySelector("#raw-bulk-archive-confirm-button"),
   rawBulkRestoreSelectedButton: document.querySelector("#raw-bulk-restore-selected-button"),
   rawBulkRestoreVisibleButton: document.querySelector("#raw-bulk-restore-visible-button"),
   rawBulkRestorePanel: document.querySelector("#raw-bulk-restore-panel"),
@@ -5627,72 +5620,42 @@ async function executeRawBulkDelete() {
   }
 }
 
-async function openRawBulkArchivePanel(scope) {
+async function requestRawBulkArchive(scope) {
   const rawDatasetIds = scope === "selected" ? selectedRawDatasetIds() : visibleRawDatasetIds();
   if (!rawDatasetIds.length) {
     throw new Error(scope === "selected" ? "Select at least one raw dataset first." : "No visible raw datasets to archive.");
   }
-  state.pendingRawBulkArchive = {
-    scope,
-    rawDatasetIds,
-  };
-  if (els.rawBulkArchiveUri) {
-    els.rawBulkArchiveUri.value = "";
+  if (!state.archiveSettingsStatus && isAdmin()) {
+    await refreshArchiveSettingsStatus();
   }
-  if (els.rawBulkArchiveCompression) {
-    els.rawBulkArchiveCompression.value = "tar.gz";
+  const config = state.archiveSettingsStatus?.config || {};
+  const archiveRoot = String(config.archive_root || "").trim();
+  if (!archiveRoot) {
+    throw new Error("No archive root configured. Set it in Raw datasets Ops > Archive Defaults.");
   }
-  if (els.rawBulkArchiveMarkArchived) {
-    els.rawBulkArchiveMarkArchived.checked = false;
-  }
-  renderRawBulkArchivePanel();
-}
-
-function closeRawBulkArchivePanel() {
-  state.pendingRawBulkArchive = null;
-  renderRawBulkArchivePanel();
-}
-
-async function executeRawBulkArchive() {
-  if (!state.pendingRawBulkArchive?.rawDatasetIds?.length) {
+  const archiveCompression = String(config.archive_compression || "zip");
+  const markArchived = Boolean(config.delete_hot_source);
+  const action = markArchived ? "archive and delete hot source" : "archive";
+  const datasetCount = rawDatasetIds.length;
+  const ok = window.confirm(
+    `Request bulk ${action} for ${datasetCount} dataset(s)?\nRoot: ${archiveRoot}\nCompression: ${archiveCompression}`
+  );
+  if (!ok) {
     return;
   }
-  const archiveUri = els.rawBulkArchiveUri?.value.trim() || "";
-  if (!archiveUri) {
-    throw new Error("Archive URI is required.");
-  }
-  const archiveCompression = els.rawBulkArchiveCompression?.value || "tar.gz";
-  const markArchived = Boolean(els.rawBulkArchiveMarkArchived?.checked);
-  const rawDatasetIds = [...state.pendingRawBulkArchive.rawDatasetIds];
-
   setStatus("Queuing archive requests...");
   try {
     const result = await apiPost("/raw-datasets/archive-bulk", {
       raw_dataset_ids: rawDatasetIds,
-      archive_uri: archiveUri,
+      archive_uri: archiveRoot,
       archive_compression: archiveCompression,
       mark_archived: markArchived,
     });
-    closeRawBulkArchivePanel();
     await refreshRawDatasets();
     const suffix = result.skipped_count > 0 ? ` Skipped: ${result.skipped_count}.` : "";
-    setStatus(`Archive requests queued: ${result.queued_count}/${rawDatasetIds.length}.${suffix}`);
+    setStatus(`Archive requests queued: ${result.queued_count}/${datasetCount}.${suffix}`);
   } catch (error) {
     throw new Error(`Failed to queue archive requests: ${String(error)}`);
-  }
-}
-
-function renderRawBulkArchivePanel() {
-  if (!els.rawBulkArchivePanel) {
-    return;
-  }
-  if (!state.pendingRawBulkArchive) {
-    els.rawBulkArchivePanel.classList.add("hidden");
-    return;
-  }
-  els.rawBulkArchivePanel.classList.remove("hidden");
-  if (els.rawBulkArchiveSummary) {
-    els.rawBulkArchiveSummary.textContent = `${state.pendingRawBulkArchive.rawDatasetIds.length} raw dataset(s) ready to archive.`;
   }
 }
 
@@ -6542,10 +6505,11 @@ if (els.rawBulkDeleteConfirmButton) els.rawBulkDeleteConfirmButton.addEventListe
   setStatus(String(error));
   window.alert(String(error));
 }));
-if (els.rawBulkArchiveSelectedButton) els.rawBulkArchiveSelectedButton.addEventListener("click", () => openRawBulkArchivePanel("selected").catch((error) => setStatus(String(error))));
-if (els.rawBulkArchiveVisibleButton) els.rawBulkArchiveVisibleButton.addEventListener("click", () => openRawBulkArchivePanel("visible").catch((error) => setStatus(String(error))));
-if (els.rawBulkArchiveCancelButton) els.rawBulkArchiveCancelButton.addEventListener("click", () => closeRawBulkArchivePanel());
-if (els.rawBulkArchiveConfirmButton) els.rawBulkArchiveConfirmButton.addEventListener("click", () => executeRawBulkArchive().catch((error) => {
+if (els.rawBulkArchiveSelectedButton) els.rawBulkArchiveSelectedButton.addEventListener("click", () => requestRawBulkArchive("selected").catch((error) => {
+  setStatus(String(error));
+  window.alert(String(error));
+}));
+if (els.rawBulkArchiveVisibleButton) els.rawBulkArchiveVisibleButton.addEventListener("click", () => requestRawBulkArchive("visible").catch((error) => {
   setStatus(String(error));
   window.alert(String(error));
 }));
@@ -6576,13 +6540,7 @@ if (els.editProjectButton) els.editProjectButton.addEventListener("click", () =>
     openSelectedProjectPage();
   }
 });
-if (els.updateProjectButton) els.updateProjectButton.addEventListener("click", () => editProject().catch((error) => setStatus(String(error))));if (els.rawBulkArchiveSelectedButton) els.rawBulkArchiveSelectedButton.addEventListener("click", () => openRawBulkArchivePanel("selected").catch((error) => setStatus(String(error))));
-if (els.rawBulkArchiveVisibleButton) els.rawBulkArchiveVisibleButton.addEventListener("click", () => openRawBulkArchivePanel("visible").catch((error) => setStatus(String(error))));
-if (els.rawBulkArchiveCancelButton) els.rawBulkArchiveCancelButton.addEventListener("click", () => closeRawBulkArchivePanel());
-if (els.rawBulkArchiveConfirmButton) els.rawBulkArchiveConfirmButton.addEventListener("click", () => executeRawBulkArchive().catch((error) => {
-  setStatus(String(error));
-  window.alert(String(error));
-}));
+if (els.updateProjectButton) els.updateProjectButton.addEventListener("click", () => editProject().catch((error) => setStatus(String(error))));
 if (els.rawBulkRestoreSelectedButton) els.rawBulkRestoreSelectedButton.addEventListener("click", () => openRawBulkRestorePanel("selected").catch((error) => setStatus(String(error))));
 if (els.rawBulkRestoreVisibleButton) els.rawBulkRestoreVisibleButton.addEventListener("click", () => openRawBulkRestorePanel("visible").catch((error) => setStatus(String(error))));
 if (els.rawBulkRestoreCancelButton) els.rawBulkRestoreCancelButton.addEventListener("click", () => closeRawBulkRestorePanel());
