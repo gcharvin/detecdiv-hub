@@ -8,7 +8,7 @@ from sqlalchemy.orm import Session
 from api.db import get_db
 from api.models import Job, User
 from api.schemas import JobCreateRequest, JobSummary
-from api.services.auth import get_current_user
+from api.services.users import get_current_user
 
 
 router = APIRouter(prefix="/jobs", tags=["jobs"])
