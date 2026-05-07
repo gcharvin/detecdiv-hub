@@ -366,6 +366,7 @@ h3 {
 
 .raw-positions-table-wrap {
   max-height: min(58vh, 560px);
+  overflow-y: auto;
 }
 
 .raw-position-selection-toolbar {

@@ -3496,7 +3496,14 @@ function renderRawPositions(positions) {
     return;
   }
   syncSelectedRawPosition(positions);
-  for (const position of positions) {
+  const sortedPositions = [...positions].sort((a, b) => {
+    const keyA = (a.position_key || a.display_name || "").toLowerCase();
+    const keyB = (b.position_key || b.display_name || "").toLowerCase();
+    const numA = parseInt(keyA.replace(/\D/g, "") || "0");
+    const numB = parseInt(keyB.replace(/\D/g, "") || "0");
+    return numA - numB;
+  });
+  for (const position of sortedPositions) {
     const artifact = position.preview_artifact;
     const tr = document.createElement("tr");
     if (state.selectedRawPositionId === position.id) {
