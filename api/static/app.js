@@ -2401,7 +2401,11 @@ function renderExecutionTargetWorkerPanels(target) {
 
   if (els.executionTargetQueuedJobsTableBody) {
     els.executionTargetQueuedJobsTableBody.innerHTML = "";
-    const sortedQueued = [...queuedJobs].sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+    const allQueued = state.jobs.filter((job) =>
+      job.status === "queued" &&
+      (job.execution_target_id == null || String(job.execution_target_id) === String(target.id))
+    );
+    const sortedQueued = [...allQueued].sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
     for (const job of sortedQueued) {
       const tr = document.createElement("tr");
       tr.innerHTML = `
