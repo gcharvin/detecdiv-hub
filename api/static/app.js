@@ -327,6 +327,7 @@ const els = {
   executionTargetsTableBody: document.querySelector("#execution-targets-table tbody"),
   executionTargetWorkerSummary: document.querySelector("#execution-target-worker-summary"),
   executionTargetWorkersTableBody: document.querySelector("#execution-target-workers-table tbody"),
+  executionTargetQueuedJobsTableBody: document.querySelector("#execution-target-queued-jobs-table tbody"),
   executionTargetJobMixTableBody: document.querySelector("#execution-target-job-mix-table tbody"),
   usersTableBody: document.querySelector("#users-table tbody"),
   newUserButton: document.querySelector("#new-user-button"),
@@ -2395,6 +2396,22 @@ function renderExecutionTargetWorkerPanels(target) {
         <td>${shortText(workerHealth.last_error || "", 120)}</td>
       `;
       els.executionTargetWorkersTableBody.appendChild(tr);
+    }
+  }
+
+  if (els.executionTargetQueuedJobsTableBody) {
+    els.executionTargetQueuedJobsTableBody.innerHTML = "";
+    const sortedQueued = [...queuedJobs].sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+    for (const job of sortedQueued) {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${shortText(String(job.id), 12)}</td>
+        <td>${jobKindLabel(job)}</td>
+        <td>${job.requested_by ? userLabelForKey(job.requested_by) : ""}</td>
+        <td>${formatTimestamp(job.created_at)}</td>
+        <td>${job.priority ?? ""}</td>
+      `;
+      els.executionTargetQueuedJobsTableBody.appendChild(tr);
     }
   }
 
