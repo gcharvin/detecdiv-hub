@@ -2965,8 +2965,7 @@ async function purgeQueuedJobs() {
   if (!ok) return;
   const result = await apiPost("/jobs/purge-queued", { job_kind: kind || null });
   setStatus(result.message);
-  await refreshJobs();
-  renderExecutionTargets();
+  await refreshExecutionTargets();
 }
 
 async function applyExecutionTargetDrain() {
