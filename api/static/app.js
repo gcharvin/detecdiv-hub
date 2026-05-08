@@ -385,6 +385,9 @@ function getSidebarActiveRoute() {
   if (pageKind === "admin-sessions") {
     return "admin-sessions";
   }
+  if (pageKind === "admin-backup") {
+    return "admin-backup";
+  }
   if (pageKind === "indexing") {
     return "projects-settings";
   }
@@ -551,6 +554,7 @@ function initializeAppLayout() {
       { label: "Execution Targets", href: "/web/admin-execution-targets.html", route: "admin-execution-targets" },
       { label: "User Accounts", href: "/web/admin-users.html", route: "admin-users" },
       { label: "Sessions", href: "/web/admin-sessions.html", route: "admin-sessions" },
+      { label: "Backup", href: "/web/admin-backup.html", route: "admin-backup" },
     ];
     for (const item of adminItems) {
       const link = document.createElement("a");
