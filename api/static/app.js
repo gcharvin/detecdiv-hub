@@ -201,6 +201,8 @@ const els = {
   rawBackupStatus: document.querySelector("#raw-backup-status"),
   rawLastBackupAt: document.querySelector("#raw-last-backup-at"),
   rawBackupExcluded: document.querySelector("#raw-backup-excluded"),
+  rawBackupNowButton: document.querySelector("#raw-backup-now-button"),
+  rawBackupFeedback: document.querySelector("#raw-backup-feedback"),
   rawActionFeedback: document.querySelector("#raw-action-feedback"),
   rawDatasetPageTitle: document.querySelector("#raw-dataset-page-title"),
   rawPreviewQualityRefreshButton: document.querySelector("#raw-preview-quality-refresh-button"),
@@ -6120,6 +6122,16 @@ async function toggleProjectBackupExclude() {
   setStatus(`Project ${excluded ? "excluded from" : "included in"} backup.`);
 }
 
+async function backupRawDatasetNow() {
+  if (!state.selectedRawDatasetDetail) return;
+  if (els.rawBackupFeedback) els.rawBackupFeedback.textContent = "Queuing backup job…";
+  const r = await apiPost(`/backup/raw-datasets/${state.selectedRawDatasetDetail.id}/backup-now`, {});
+  if (els.rawBackupFeedback) els.rawBackupFeedback.textContent = `Job queued: ${r.job_id}`;
+  state.selectedRawDatasetDetail.backup_status = "queued";
+  if (els.rawBackupStatus) els.rawBackupStatus.textContent = "queued";
+  setStatus("Backup job queued for this dataset.");
+}
+
 async function createMigrationPlan() {
   if (!els.migrationSourcePath || !els.migrationBatchName) {
     return;
@@ -6648,6 +6660,7 @@ if (els.rawArchiveButton) els.rawArchiveButton.addEventListener("click", () => r
 if (els.rawDeleteArchiveButton) els.rawDeleteArchiveButton.addEventListener("click", () => deleteRawArchive().catch((error) => setStatus(String(error))));
 if (els.rawRestoreButton) els.rawRestoreButton.addEventListener("click", () => requestRawRestore().catch((error) => setStatus(String(error))));
 if (els.rawBackupExcluded) els.rawBackupExcluded.addEventListener("change", () => toggleRawBackupExclude().catch((error) => setStatus(String(error))));
+if (els.rawBackupNowButton) els.rawBackupNowButton.addEventListener("click", () => backupRawDatasetNow().catch((error) => { if (els.rawBackupFeedback) els.rawBackupFeedback.textContent = String(error); setStatus(String(error)); }));
 if (els.projectBackupExcluded) els.projectBackupExcluded.addEventListener("change", () => toggleProjectBackupExclude().catch((error) => setStatus(String(error))));
 if (els.archiveSettingsRefreshButton) els.archiveSettingsRefreshButton.addEventListener("click", () => refreshArchiveSettingsStatus().catch((error) => setStatus(String(error))));
 if (els.archiveSettingsSaveButton) els.archiveSettingsSaveButton.addEventListener("click", () => saveArchiveSettings().catch((error) => setStatus(String(error))));

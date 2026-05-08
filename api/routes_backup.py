@@ -382,6 +382,35 @@ def update_raw_dataset_backup_settings(
     return {"backup_excluded": rd.backup_excluded}
 
 
+@router.post("/raw-datasets/{raw_dataset_id}/backup-now", status_code=202)
+def backup_raw_dataset_now(
+    raw_dataset_id: UUID,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    _require_admin(current_user)
+    rd = db.get(RawDataset, raw_dataset_id)
+    if rd is None:
+        raise HTTPException(status_code=404, detail="Raw dataset not found")
+    config = _load_config_and_repo(db)
+    job = Job(
+        raw_dataset_id=raw_dataset_id,
+        status="queued",
+        priority=200,
+        requested_by=current_user.user_key,
+        params_json={
+            "job_kind": "backup_raw_dataset",
+            "raw_dataset_id": str(raw_dataset_id),
+            "backup_repo": config.backup_repo,
+            "force": True,
+        },
+    )
+    db.add(job)
+    rd.backup_status = "queued"
+    db.flush()
+    return {"job_id": str(job.id), "detail": "Backup job queued."}
+
+
 # ---------------------------------------------------------------------------
 # Project backup endpoints
 # ---------------------------------------------------------------------------
