@@ -117,6 +117,30 @@
               <tbody></tbody>
             </table>
           </div>
+          <div class="toolbar">
+            <button id="purge-queued-jobs-button" class="danger">Purge queue</button>
+            <select id="purge-queued-jobs-kind">
+              <option value="">All job kinds</option>
+              <option value="raw_preview_video">raw preview video</option>
+              <option value="archive_raw_dataset">archive raw dataset</option>
+              <option value="restore_raw_dataset">restore raw dataset</option>
+              <option value="project_indexing">project indexing</option>
+            </select>
+          </div>
+          <div class="table-wrap jobs-table-wrap">
+            <table id="execution-target-queued-jobs-table">
+              <thead>
+                <tr>
+                  <th>Job</th>
+                  <th>Kind</th>
+                  <th>User</th>
+                  <th>Queued At</th>
+                  <th>Priority</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
           <div class="table-wrap jobs-table-wrap">
             <table id="execution-target-job-mix-table">
               <thead>
@@ -210,7 +234,7 @@
       </footer>
     </div>
 
-    <script src="/web/app.js?v=20260507-ui2" defer></script>
+    <script src="/web/app.js?v=20260507-ui4" defer></script>
   </body>
 </html>
 

@@ -327,6 +327,9 @@ const els = {
   executionTargetsTableBody: document.querySelector("#execution-targets-table tbody"),
   executionTargetWorkerSummary: document.querySelector("#execution-target-worker-summary"),
   executionTargetWorkersTableBody: document.querySelector("#execution-target-workers-table tbody"),
+  executionTargetQueuedJobsTableBody: document.querySelector("#execution-target-queued-jobs-table tbody"),
+  purgeQueuedJobsButton: document.querySelector("#purge-queued-jobs-button"),
+  purgeQueuedJobsKind: document.querySelector("#purge-queued-jobs-kind"),
   executionTargetJobMixTableBody: document.querySelector("#execution-target-job-mix-table tbody"),
   usersTableBody: document.querySelector("#users-table tbody"),
   newUserButton: document.querySelector("#new-user-button"),
@@ -2402,6 +2405,26 @@ function renderExecutionTargetWorkerPanels(target) {
     }
   }
 
+  if (els.executionTargetQueuedJobsTableBody) {
+    els.executionTargetQueuedJobsTableBody.innerHTML = "";
+    const allQueued = state.jobs.filter((job) =>
+      job.status === "queued" &&
+      (job.execution_target_id == null || String(job.execution_target_id) === String(target.id))
+    );
+    const sortedQueued = [...allQueued].sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+    for (const job of sortedQueued) {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${shortText(String(job.id), 12)}</td>
+        <td>${jobKindLabel(job)}</td>
+        <td>${job.requested_by ? userLabelForKey(job.requested_by) : ""}</td>
+        <td>${formatTimestamp(job.created_at)}</td>
+        <td>${job.priority ?? ""}</td>
+      `;
+      els.executionTargetQueuedJobsTableBody.appendChild(tr);
+    }
+  }
+
   if (els.executionTargetJobMixTableBody) {
     els.executionTargetJobMixTableBody.innerHTML = "";
     const grouped = new Map();
@@ -2936,6 +2959,16 @@ async function applyWorkerInstances() {
     { worker_instances: workerInstances },
   );
   setStatus(response.message || `Configured ${workerInstances} worker instance(s).`);
+  await refreshExecutionTargets();
+}
+
+async function purgeQueuedJobs() {
+  const kind = els.purgeQueuedJobsKind?.value || "";
+  const label = kind || "all";
+  const ok = window.confirm(`Cancel all queued jobs (${label})? This cannot be undone.`);
+  if (!ok) return;
+  const result = await apiPost("/jobs/purge-queued", { job_kind: kind || null });
+  setStatus(result.message);
   await refreshExecutionTargets();
 }
 
@@ -6631,6 +6664,10 @@ if (els.openExecutionTargetConfigButton) els.openExecutionTargetConfigButton.add
   }
 });
 if (els.applyWorkerInstancesButton) els.applyWorkerInstancesButton.addEventListener("click", () => applyWorkerInstances().catch((error) => {
+  setStatus(String(error));
+  window.alert(String(error));
+}));
+if (els.purgeQueuedJobsButton) els.purgeQueuedJobsButton.addEventListener("click", () => purgeQueuedJobs().catch((error) => {
   setStatus(String(error));
   window.alert(String(error));
 }));
