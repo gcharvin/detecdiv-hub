@@ -182,6 +182,7 @@ def update_backup_settings(
     _require_admin(current_user)
     updates = {k: v for k, v in body.model_dump().items() if v is not None}
     config = update_backup_runtime_config(db, updates=updates)
+    db.commit()
     initialized = False
     if config.backup_repo and config.backup_passphrase:
         try:
@@ -362,7 +363,7 @@ def restore_raw_dataset_from_snapshot(
         },
     )
     db.add(job)
-    db.flush()
+    db.commit()
     return {"job_id": str(job.id), "detail": "Restore job queued."}
 
 
@@ -378,7 +379,7 @@ def update_raw_dataset_backup_settings(
     if rd is None:
         raise HTTPException(status_code=404, detail="Raw dataset not found")
     rd.backup_excluded = body.backup_excluded
-    db.flush()
+    db.commit()
     return {"backup_excluded": rd.backup_excluded}
 
 
@@ -407,7 +408,7 @@ def backup_raw_dataset_now(
     )
     db.add(job)
     rd.backup_status = "queued"
-    db.flush()
+    db.commit()
     return {"job_id": str(job.id), "detail": "Backup job queued."}
 
 
@@ -474,7 +475,7 @@ def restore_project_from_snapshot(
         },
     )
     db.add(job)
-    db.flush()
+    db.commit()
     return {"job_id": str(job.id), "detail": "Restore job queued."}
 
 
@@ -490,5 +491,5 @@ def update_project_backup_settings(
     if project is None:
         raise HTTPException(status_code=404, detail="Project not found")
     project.backup_excluded = body.backup_excluded
-    db.flush()
+    db.commit()
     return {"backup_excluded": project.backup_excluded}
