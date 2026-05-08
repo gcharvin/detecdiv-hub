@@ -102,6 +102,9 @@ const els = {
   editProjectButton: document.querySelector("#edit-project-button"),
   updateProjectButton: document.querySelector("#update-project-button"),
   changeProjectOwnerButton: document.querySelector("#change-project-owner-button"),
+  projectBackupStatus: document.querySelector("#project-backup-status"),
+  projectLastBackupAt: document.querySelector("#project-last-backup-at"),
+  projectBackupExcluded: document.querySelector("#project-backup-excluded"),
   addToGroupButton: document.querySelector("#add-to-group-button"),
   previewDeleteButton: document.querySelector("#preview-delete-button"),
   bulkDeletePanel: document.querySelector("#bulk-delete-panel"),
@@ -195,6 +198,9 @@ const els = {
   rawArchiveButton: document.querySelector("#raw-archive-button"),
   rawDeleteArchiveButton: document.querySelector("#raw-delete-archive-button"),
   rawRestoreButton: document.querySelector("#raw-restore-button"),
+  rawBackupStatus: document.querySelector("#raw-backup-status"),
+  rawLastBackupAt: document.querySelector("#raw-last-backup-at"),
+  rawBackupExcluded: document.querySelector("#raw-backup-excluded"),
   rawActionFeedback: document.querySelector("#raw-action-feedback"),
   rawDatasetPageTitle: document.querySelector("#raw-dataset-page-title"),
   rawPreviewQualityRefreshButton: document.querySelector("#raw-preview-quality-refresh-button"),
@@ -3467,6 +3473,9 @@ function renderRawDatasetDetail() {
   if (els.rawArchiveButton) els.rawArchiveButton.disabled = false;
   if (els.rawDeleteArchiveButton) els.rawDeleteArchiveButton.disabled = !raw.archive_uri;
   if (els.rawRestoreButton) els.rawRestoreButton.disabled = false;
+  if (els.rawBackupStatus) els.rawBackupStatus.textContent = (raw.backup_status || "none").replaceAll("_", " ");
+  if (els.rawLastBackupAt) els.rawLastBackupAt.textContent = raw.last_backup_at ? formatTimestamp(raw.last_backup_at) : "never";
+  if (els.rawBackupExcluded) els.rawBackupExcluded.checked = Boolean(raw.backup_excluded);
   if (raw.archive_status === "archive_queued") {
     setRawActionFeedback("Archive request queued. Waiting for worker execution.", "ok");
   } else if (raw.archive_status === "restore_queued") {
@@ -4251,6 +4260,9 @@ function renderDetail() {
   renderProjectNotes();
   renderAcl();
   renderProjectRawDatasets();
+  if (els.projectBackupStatus) els.projectBackupStatus.textContent = (project.backup_status || "none").replaceAll("_", " ");
+  if (els.projectLastBackupAt) els.projectLastBackupAt.textContent = project.last_backup_at ? formatTimestamp(project.last_backup_at) : "never";
+  if (els.projectBackupExcluded) els.projectBackupExcluded.checked = Boolean(project.backup_excluded);
   els.detailSubtitle.textContent = project.project_name;
   els.detailEmpty.classList.add("hidden");
   els.detailContent.classList.remove("hidden");
@@ -6092,6 +6104,22 @@ async function requestRawRestore() {
   setStatus(`Restore requested for ${state.selectedRawDataset.acquisition_label}.`);
 }
 
+async function toggleRawBackupExclude() {
+  if (!state.selectedRawDatasetDetail) return;
+  const excluded = els.rawBackupExcluded.checked;
+  await apiPatch(`/backup/raw-datasets/${state.selectedRawDatasetDetail.id}/backup-settings`, { backup_excluded: excluded });
+  state.selectedRawDatasetDetail.backup_excluded = excluded;
+  setStatus(`Dataset ${excluded ? "excluded from" : "included in"} backup.`);
+}
+
+async function toggleProjectBackupExclude() {
+  if (!state.selectedProjectDetail) return;
+  const excluded = els.projectBackupExcluded.checked;
+  await apiPatch(`/backup/projects/${state.selectedProjectDetail.id}/backup-settings`, { backup_excluded: excluded });
+  state.selectedProjectDetail.backup_excluded = excluded;
+  setStatus(`Project ${excluded ? "excluded from" : "included in"} backup.`);
+}
+
 async function createMigrationPlan() {
   if (!els.migrationSourcePath || !els.migrationBatchName) {
     return;
@@ -6619,6 +6647,8 @@ if (els.changeRawOwnerButton) els.changeRawOwnerButton.addEventListener("click",
 if (els.rawArchiveButton) els.rawArchiveButton.addEventListener("click", () => requestRawArchive().catch((error) => setStatus(String(error))));
 if (els.rawDeleteArchiveButton) els.rawDeleteArchiveButton.addEventListener("click", () => deleteRawArchive().catch((error) => setStatus(String(error))));
 if (els.rawRestoreButton) els.rawRestoreButton.addEventListener("click", () => requestRawRestore().catch((error) => setStatus(String(error))));
+if (els.rawBackupExcluded) els.rawBackupExcluded.addEventListener("change", () => toggleRawBackupExclude().catch((error) => setStatus(String(error))));
+if (els.projectBackupExcluded) els.projectBackupExcluded.addEventListener("change", () => toggleProjectBackupExclude().catch((error) => setStatus(String(error))));
 if (els.archiveSettingsRefreshButton) els.archiveSettingsRefreshButton.addEventListener("click", () => refreshArchiveSettingsStatus().catch((error) => setStatus(String(error))));
 if (els.archiveSettingsSaveButton) els.archiveSettingsSaveButton.addEventListener("click", () => saveArchiveSettings().catch((error) => setStatus(String(error))));
 if (els.automaticArchivePolicyRefreshButton) els.automaticArchivePolicyRefreshButton.addEventListener("click", () => refreshAutomaticArchivePolicyStatus().catch((error) => setStatus(String(error))));

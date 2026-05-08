@@ -160,6 +160,9 @@ class RawDatasetSummary(HubBaseModel):
     owner: UserSummary | None = None
     created_at: datetime | None = None
     updated_at: datetime | None = None
+    backup_status: str = "none"
+    backup_excluded: bool = False
+    last_backup_at: datetime | None = None
 
 
 class ProjectLocationSummary(HubBaseModel):
@@ -225,6 +228,9 @@ class ProjectSummary(HubBaseModel):
     owner: UserSummary | None = None
     created_at: datetime | None = None
     updated_at: datetime | None = None
+    backup_status: str = "none"
+    backup_excluded: bool = False
+    last_backup_at: datetime | None = None
 
 
 class ProjectDetail(ProjectSummary):
