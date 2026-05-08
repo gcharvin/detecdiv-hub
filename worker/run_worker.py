@@ -21,6 +21,8 @@ from api.services.worker_instances import (
     upsert_worker_instance,
 )
 from worker.archive_policy_scheduler import run_archive_policy_if_due
+from worker.backup_executor import BACKUP_JOB_KINDS, execute_backup_job, finalize_backup_failure
+from worker.backup_scheduler import run_backup_if_due
 from worker.micromanager_ingest_scheduler import run_micromanager_ingest_if_due
 from worker.pipeline_run_executor import PipelineRunCancelled, execute_pipeline_run_job
 from worker.storage_lifecycle import execute_storage_lifecycle_job, finalize_storage_lifecycle_failure
@@ -352,6 +354,14 @@ def execute_job(job: Job) -> dict:
             result_json = execute_storage_lifecycle_job(session, job=job_record)
             result_json["worker_instance"] = get_worker_instance_id()
             return result_json
+    if job_kind in BACKUP_JOB_KINDS:
+        with session_scope() as session:
+            job_record = session.get(Job, job.id)
+            if job_record is None:
+                raise ValueError(f"Job {job.id} disappeared before execution")
+            result_json = execute_backup_job(session, job=job_record)
+            result_json["worker_instance"] = get_worker_instance_id()
+            return result_json
     if job_kind == "raw_preview_video":
         try:
             from worker.raw_preview_video import execute_raw_preview_video_job
@@ -413,6 +423,7 @@ def run_forever() -> None:
     settings = get_settings()
     last_archive_policy_run_at: datetime | None = None
     last_micromanager_ingest_run_at: datetime | None = None
+    last_backup_run_at: datetime | None = None
     LOGGER.info("Starting DetecDiv hub worker instance %s", get_worker_instance_id())
     while True:
         try:
@@ -440,6 +451,12 @@ def run_forever() -> None:
                 )
         except Exception:  # pragma: no cover - defensive around periodic maintenance
             LOGGER.exception("Micro-Manager ingest run failed")
+
+        try:
+            with session_scope() as session:
+                last_backup_run_at = run_backup_if_due(session, last_run_at=last_backup_run_at)
+        except Exception:  # pragma: no cover - defensive around periodic maintenance
+            LOGGER.exception("Backup scheduler run failed")
 
         job = claim_next_job()
         if job is None:
@@ -481,6 +498,7 @@ def run_forever() -> None:
                 job_record = session.get(Job, job.id)
                 if job_record is not None:
                     finalize_storage_lifecycle_failure(session, job=job_record, error_text=str(exc))
+                    finalize_backup_failure(session, job=job_record, error_text=str(exc))
             mark_job_failed(job.id, str(exc))
             LOGGER.exception("Job %s failed", job.id)
 

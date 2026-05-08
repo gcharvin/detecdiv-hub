@@ -68,6 +68,13 @@ class Settings(BaseSettings):
     raw_preview_crf: int = 24
     raw_preview_preset: str = "medium"
     raw_preview_include_existing: bool = False
+    backup_repo: str = "/archive/detecdiv-backup"
+    backup_passphrase: str = ""
+    backup_enabled: bool = False
+    backup_interval_minutes: int = 1440
+    backup_run_as_user_key: str = "backup-bot"
+    backup_include_raw_datasets: bool = True
+    backup_include_projects: bool = True
 
     model_config = SettingsConfigDict(
         env_prefix="DETECDIV_HUB_",

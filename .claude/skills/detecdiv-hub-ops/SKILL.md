@@ -183,7 +183,7 @@ Classify changed files by path:
 - `api/routes_*.py`, `api/app.py`, `api/config.py`, `api/db.py`: API container, deploy to `webserver-labo`, rebuild API container.
 - `api/static/*`: static web UI, deploy to `webserver-labo`, rebuild API container.
 - `ops/compose/webserver-labo/*`, `Dockerfile`, `pyproject.toml`, `constraints.txt`: API container image/runtime, deploy to `webserver-labo`, rebuild API container.
-- `db/schema.sql`, `alembic/*`, schema/model changes in `api/models.py`: database/API contract, deploy to `webserver-labo`; if workers import the changed model/schema contract, also deploy to `detecdiv-server`.
+- `db/migrations/*.sql`, `db/schema.sql`, `alembic/*`, schema/model changes in `api/models.py`: database/API contract, deploy to `webserver-labo`, apply migrations before rebuilding the container; if workers import the changed model/schema contract, also deploy to `detecdiv-server`.
 - `worker/*`: worker runtime, deploy to `detecdiv-server`, restart workers after checking active jobs.
 - `api/services/*`: classify by imports and use. If imported by API only, deploy to `webserver-labo`. If imported by workers or job execution, deploy to `detecdiv-server`. If shared, deploy both.
 - `scripts/ops/*`: operational scripts, deploy only to the host where the script is run.
@@ -200,6 +200,19 @@ From Windows:
 tar --exclude='__pycache__' --exclude='*.pyc' --exclude='.git' -czf C:\tmp\detecdiv-api-deploy.tar.gz api db alembic ops pyproject.toml constraints.txt README.md alembic.ini
 & $SCP C:\tmp\detecdiv-api-deploy.tar.gz webserver-labo:/tmp/
 & $SSH webserver-labo "cd /home/charvin-admin/repos/detecdiv-hub-webvm && tar -xzf /tmp/detecdiv-api-deploy.tar.gz"
+```
+
+If the change includes new files under `db/migrations/`, apply them **before** rebuilding:
+
+```bash
+# On webserver-labo, for each new migration file:
+docker cp /home/charvin-admin/repos/detecdiv-hub-webvm/db/migrations/<file>.sql detecdiv-hub-postgres:/tmp/migration.sql
+docker exec detecdiv-hub-postgres psql 'postgresql://detecdiv:<password>@localhost/detecdiv_hub' -f /tmp/migration.sql
+```
+
+The DB credentials are in the API container env:
+```bash
+docker exec detecdiv-hub-api env | grep DATABASE_URL
 ```
 
 Then rebuild the API container on `webserver-labo`:
@@ -333,5 +346,7 @@ When using this skill, report explicitly:
 - Prefer logs over guesswork. On the VM, inspect container logs before assuming the build succeeded.
 - If the remote checkout was never updated, treat the incident as a failed deployment procedure, not as an application runtime failure.
 - If the API container fails to start, look for import errors, syntax errors, or schema mismatches in the logs.
+- If the API logs show `UndefinedColumn` or `UndefinedTable` after a rebuild, a migration was not applied. Apply the missing `db/migrations/*.sql` file, then `docker-compose restart api`. Do not rebuild — the code is already there.
+- Always check `docker-compose logs --tail=20 api` after a rebuild to catch schema errors before calling the deployment done.
 - If a worker restart orphaned a running job, say so explicitly instead of describing it as a generic indexing crash.
 - Do not ask the user to restart the API or worker when you have SSH access and can perform the restart directly.

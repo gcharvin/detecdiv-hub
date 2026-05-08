@@ -127,6 +127,11 @@ class RawDataset(Base):
         DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
     )
 
+    backup_status: Mapped[str] = mapped_column(String, nullable=False, default="none")
+    backup_excluded: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
+    last_backup_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    backup_snapshot_id: Mapped[str | None] = mapped_column(Text)
+
     owner: Mapped[User | None] = relationship(back_populates="owned_raw_datasets")
     locations: Mapped[list["RawDatasetLocation"]] = relationship(back_populates="raw_dataset")
     positions: Mapped[list["RawDatasetPosition"]] = relationship(back_populates="raw_dataset")
@@ -266,6 +271,11 @@ class Project(Base):
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
     )
+
+    backup_status: Mapped[str] = mapped_column(String, nullable=False, default="none")
+    backup_excluded: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
+    last_backup_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    backup_snapshot_id: Mapped[str | None] = mapped_column(Text)
 
     owner: Mapped[User | None] = relationship(back_populates="owned_projects")
     experiment_project: Mapped[ExperimentProject | None] = relationship(back_populates="analysis_projects")
@@ -755,3 +765,31 @@ class MicroManagerIngestRun(Base):
     finished_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
 
     triggered_by: Mapped[User | None] = relationship(back_populates="micromanager_ingest_runs")
+
+
+class BackupRun(Base):
+    __tablename__ = "backup_runs"
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    triggered_by_user_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("users.id", ondelete="SET NULL")
+    )
+    trigger_mode: Mapped[str] = mapped_column(String, nullable=False, default="manual")
+    status: Mapped[str] = mapped_column(String, nullable=False, default="running")
+    config_json: Mapped[dict] = mapped_column(JSONB, nullable=False, default=dict)
+    result_json: Mapped[dict] = mapped_column(JSONB, nullable=False, default=dict)
+    raw_datasets_total: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    raw_datasets_backed_up: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    raw_datasets_skipped: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    raw_datasets_failed: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    projects_total: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    projects_backed_up: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    projects_skipped: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    projects_failed: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    total_bytes_backed_up: Mapped[int] = mapped_column(BIGINT, nullable=False, default=0)
+    error_text: Mapped[str | None] = mapped_column(Text)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    started_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    finished_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+
+    triggered_by: Mapped[User | None] = relationship()
