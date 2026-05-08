@@ -23,6 +23,7 @@ from api.services.raw_dataset_lifecycle import pick_preferred_raw_location, reso
 LOGGER = logging.getLogger("detecdiv-hub-worker")
 
 BACKUP_JOB_KINDS = {
+    "init_backup_repo",
     "backup_raw_dataset",
     "backup_project",
     "restore_raw_dataset_from_backup",
@@ -32,6 +33,8 @@ BACKUP_JOB_KINDS = {
 
 def execute_backup_job(session: Session, *, job: Job) -> dict:
     job_kind = (job.params_json or {}).get("job_kind")
+    if job_kind == "init_backup_repo":
+        return _execute_init_backup_repo(session, job=job)
     if job_kind == "backup_raw_dataset":
         return _execute_backup_raw_dataset(session, job=job)
     if job_kind == "backup_project":
@@ -53,6 +56,21 @@ def finalize_backup_failure(session: Session, *, job: Job, error_text: str) -> N
         project = _load_project(session, job=job)
         if project and project.backup_status == "queued":
             project.backup_status = "failed"
+
+
+# ---------------------------------------------------------------------------
+# Repo init
+# ---------------------------------------------------------------------------
+
+def _execute_init_backup_repo(session: Session, *, job: Job) -> dict:
+    config = resolve_backup_runtime_config(session)
+    LOGGER.info("Initializing backup repo at %s", config.backup_repo)
+    ensure_repo_initialized(config.backup_repo, config.backup_passphrase)
+    return {
+        "job_kind": "init_backup_repo",
+        "backup_repo": config.backup_repo,
+        "worker_host": socket.gethostname(),
+    }
 
 
 # ---------------------------------------------------------------------------

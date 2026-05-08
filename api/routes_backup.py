@@ -11,11 +11,9 @@ from api.db import get_db
 from api.models import BackupRun, Job, Project, ProjectLocation, RawDataset, RawDatasetLocation, User
 from api.services.backup import (
     ResticError,
-    ensure_repo_initialized,
     list_files,
     project_tags,
     raw_dataset_tags,
-    repo_is_initialized,
     snapshots,
 )
 from api.services.backup_policy import (
@@ -46,7 +44,6 @@ class BackupSettingsResponse(BaseModel):
     backup_run_as_user_key: str
     backup_include_raw_datasets: bool
     backup_include_projects: bool
-    repo_initialized: bool
 
 
 class BackupSettingsUpdate(BaseModel):
@@ -155,12 +152,6 @@ def get_backup_settings(
 ):
     _require_admin(current_user)
     config = resolve_backup_runtime_config(db)
-    initialized = False
-    if config.backup_repo and config.backup_passphrase:
-        try:
-            initialized = repo_is_initialized(config.backup_repo, config.backup_passphrase)
-        except ResticError:
-            initialized = False
     return BackupSettingsResponse(
         backup_repo=config.backup_repo,
         backup_passphrase_set=bool(config.backup_passphrase),
@@ -169,7 +160,6 @@ def get_backup_settings(
         backup_run_as_user_key=config.backup_run_as_user_key,
         backup_include_raw_datasets=config.backup_include_raw_datasets,
         backup_include_projects=config.backup_include_projects,
-        repo_initialized=initialized,
     )
 
 
@@ -183,12 +173,6 @@ def update_backup_settings(
     updates = {k: v for k, v in body.model_dump().items() if v is not None}
     config = update_backup_runtime_config(db, updates=updates)
     db.commit()
-    initialized = False
-    if config.backup_repo and config.backup_passphrase:
-        try:
-            initialized = repo_is_initialized(config.backup_repo, config.backup_passphrase)
-        except ResticError:
-            initialized = False
     return BackupSettingsResponse(
         backup_repo=config.backup_repo,
         backup_passphrase_set=bool(config.backup_passphrase),
@@ -197,22 +181,25 @@ def update_backup_settings(
         backup_run_as_user_key=config.backup_run_as_user_key,
         backup_include_raw_datasets=config.backup_include_raw_datasets,
         backup_include_projects=config.backup_include_projects,
-        repo_initialized=initialized,
     )
 
 
-@router.post("/init-repo", status_code=200)
+@router.post("/init-repo", status_code=202)
 def init_backup_repo(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
     _require_admin(current_user)
-    config = _load_config_and_repo(db)
-    try:
-        ensure_repo_initialized(config.backup_repo, config.backup_passphrase)
-    except ResticError as exc:
-        raise HTTPException(status_code=500, detail=str(exc)) from exc
-    return {"detail": f"Repo initialized at {config.backup_repo}"}
+    _load_config_and_repo(db)
+    job = Job(
+        status="queued",
+        priority=200,
+        requested_by=current_user.user_key,
+        params_json={"job_kind": "init_backup_repo"},
+    )
+    db.add(job)
+    db.commit()
+    return {"job_id": str(job.id), "detail": "Repo init job queued."}
 
 
 # ---------------------------------------------------------------------------
