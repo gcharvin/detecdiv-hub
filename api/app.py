@@ -18,6 +18,7 @@ from api.routes_migrations import router as migrations_router
 from api.routes_micromanager_ingest import router as micromanager_ingest_router
 from api.routes_pipelines import router as pipelines_router
 from api.routes_pipeline_runs import router as pipeline_runs_router
+from api.routes_backup import router as backup_router
 from api.routes_projects import groups_router, router as projects_router, storage_roots_router, users_router
 from api.routes_raw_datasets import router as raw_datasets_router
 from api.schemas import HealthResponse
@@ -27,6 +28,7 @@ from api.services.runtime_version import get_runtime_version_info
 settings = get_settings()
 app = FastAPI(title=settings.app_name, version="0.1.0")
 app.include_router(auth_router)
+app.include_router(backup_router)
 app.include_router(experiments_router)
 app.include_router(migrations_router)
 app.include_router(micromanager_ingest_router)

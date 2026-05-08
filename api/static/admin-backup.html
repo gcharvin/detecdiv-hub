@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Detecdiv server - Admin - Backup</title>
+    <link rel="stylesheet" href="/web/styles.css?v=20260507-ui1" />
+  </head>
+  <body data-page="admin-backup">
+    <div class="page-shell">
+      <section id="login-panel" class="panel login-panel hidden">
+        <div class="panel-header">
+          <div>
+            <h2>Login</h2>
+            <p class="muted">Open a hub session with a user key and password.</p>
+          </div>
+        </div>
+        <div class="toolbar">
+          <label class="field compact">
+            <span>User key</span>
+            <input id="login-user-key" type="text" placeholder="admin" />
+          </label>
+          <label class="field compact">
+            <span>Password</span>
+            <input id="login-password" type="password" placeholder="password" />
+          </label>
+          <button id="login-button" class="primary">Login</button>
+        </div>
+      </section>
+
+      <header class="hero">
+        <div>
+          <div class="eyebrow">DetecDiv Hub</div>
+          <h1>Admin - Backup</h1>
+          <p class="hero-copy">
+            Manage restic-based backups for raw datasets and projects. Configure the repo, trigger runs, browse snapshots and restore files.
+          </p>
+        </div>
+        <div class="hero-actions">
+          <nav class="hero-nav">
+            <a class="nav-link" href="/web/">Project Catalog</a>
+            <a class="nav-link" href="/web/raw-datasets.html">Raw datasets Catalog</a>
+            <a class="nav-link" href="/web/raw-ops.html">Raw datasets Ops</a>
+            <a class="nav-link" href="/web/indexing.html">Projects Ops</a>
+            <a class="nav-link admin-nav-link active hidden" href="/web/admin.html">Admin</a>
+          </nav>
+          <div class="session-box">
+            <div id="session-label" class="muted">Not logged in.</div>
+            <button id="logout-button">Logout</button>
+          </div>
+        </div>
+      </header>
+
+      <section id="admin-denied-panel" class="panel hidden">
+        <div class="panel-header">
+          <div>
+            <h2>Admin role required</h2>
+            <p class="muted">This page is restricted to admin and service accounts.</p>
+          </div>
+        </div>
+      </section>
+
+      <main id="backup-content" class="admin-content hidden">
+
+        <!-- Settings -->
+        <section class="panel" id="backup-settings-panel">
+          <div class="panel-header">
+            <div>
+              <h2>Backup Settings</h2>
+              <p class="muted">Configure the restic repository and backup schedule. The passphrase is stored in the database — keep it secret.</p>
+            </div>
+            <div id="backup-repo-status" class="muted">Loading…</div>
+          </div>
+
+          <div class="toolbar">
+            <label class="field compact">
+              <span>Repo path</span>
+              <input id="backup-repo-path" type="text" placeholder="/archive/detecdiv-backup" style="min-width:300px" />
+            </label>
+            <label class="field compact">
+              <span>Passphrase</span>
+              <input id="backup-passphrase" type="password" placeholder="Leave blank to keep current" style="min-width:200px" />
+            </label>
+            <label class="field compact">
+              <span>Interval (min)</span>
+              <input id="backup-interval" type="number" min="1" value="1440" style="width:90px" />
+            </label>
+          </div>
+          <div class="toolbar">
+            <label class="field compact">
+              <span>Run as user key</span>
+              <input id="backup-run-as" type="text" value="backup-bot" />
+            </label>
+            <label class="field compact checkbox-field">
+              <input id="backup-enabled" type="checkbox" />
+              <span>Auto-backup enabled</span>
+            </label>
+            <label class="field compact checkbox-field">
+              <input id="backup-include-raw" type="checkbox" checked />
+              <span>Include raw datasets</span>
+            </label>
+            <label class="field compact checkbox-field">
+              <input id="backup-include-projects" type="checkbox" checked />
+              <span>Include projects</span>
+            </label>
+          </div>
+          <div class="toolbar">
+            <button id="backup-save-settings" class="primary">Save settings</button>
+            <button id="backup-init-repo">Initialize repo</button>
+            <button id="backup-run-now">Run backup now</button>
+          </div>
+          <div id="backup-settings-message" class="muted" style="margin-top:0.5rem;min-height:1.4em;"></div>
+        </section>
+
+        <!-- Summary cards -->
+        <section class="summary-grid" id="backup-summary-grid">
+          <article class="summary-card">
+            <div class="summary-label">Repo</div>
+            <div id="backup-summary-repo" class="summary-value" style="font-size:1rem">—</div>
+          </article>
+          <article class="summary-card">
+            <div class="summary-label">Auto-backup</div>
+            <div id="backup-summary-enabled" class="summary-value">—</div>
+          </article>
+          <article class="summary-card">
+            <div class="summary-label">Last run</div>
+            <div id="backup-summary-last-run" class="summary-value">—</div>
+          </article>
+          <article class="summary-card">
+            <div class="summary-label">Repo status</div>
+            <div id="backup-summary-repo-status" class="summary-value">—</div>
+          </article>
+        </section>
+
+        <!-- Backup runs log -->
+        <section class="panel" id="backup-runs-panel">
+          <div class="panel-header">
+            <div>
+              <h2>Backup Runs</h2>
+              <p class="muted">History of manual and scheduled backup policy runs.</p>
+            </div>
+            <button id="backup-runs-refresh">Refresh</button>
+          </div>
+          <div class="table-wrapper">
+            <table id="backup-runs-table">
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Trigger</th>
+                  <th>Status</th>
+                  <th>User</th>
+                  <th>Raw datasets</th>
+                  <th>Projects</th>
+                  <th>Error</th>
+                </tr>
+              </thead>
+              <tbody id="backup-runs-tbody">
+                <tr><td colspan="7" class="muted">Loading…</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- Snapshot browser -->
+        <section class="panel" id="backup-snapshots-panel">
+          <div class="panel-header">
+            <div>
+              <h2>Snapshots</h2>
+              <p class="muted">All restic snapshots in the repository. Select one to browse files and restore.</p>
+            </div>
+            <button id="backup-snapshots-refresh">Refresh</button>
+          </div>
+          <div class="table-wrapper">
+            <table id="backup-snapshots-table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Date</th>
+                  <th>Host</th>
+                  <th>Tags</th>
+                  <th>Paths</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="backup-snapshots-tbody">
+                <tr><td colspan="6" class="muted">Click Refresh to load snapshots.</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- File browser modal -->
+        <section class="panel hidden" id="backup-filebrowser-panel">
+          <div class="panel-header">
+            <div>
+              <h2>Browse snapshot <span id="filebrowser-snapshot-id">—</span></h2>
+              <p class="muted">Select files or directories to restore. Restore target is the path on detecdiv-server where files will be written.</p>
+            </div>
+            <button id="filebrowser-close">Close</button>
+          </div>
+          <div class="toolbar">
+            <label class="field compact">
+              <span>Restore target dir</span>
+              <input id="filebrowser-target-dir" type="text" placeholder="/tmp/detecdiv-restore" style="min-width:300px" />
+            </label>
+            <button id="filebrowser-restore-selected" class="primary">Restore selected</button>
+            <button id="filebrowser-restore-all">Restore all (full snapshot)</button>
+          </div>
+          <div id="filebrowser-message" class="muted" style="min-height:1.4em;"></div>
+          <div class="table-wrapper">
+            <table id="filebrowser-table">
+              <thead>
+                <tr>
+                  <th><input type="checkbox" id="filebrowser-select-all" /></th>
+                  <th>Path</th>
+                  <th>Type</th>
+                  <th>Size</th>
+                  <th>Modified</th>
+                </tr>
+              </thead>
+              <tbody id="filebrowser-tbody">
+                <tr><td colspan="5" class="muted">Loading files…</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+      </main>
+
+      <footer class="footer">
+        <div id="status-line">Ready.</div>
+      </footer>
+    </div>
+
+    <script src="/web/app.js?v=20260508-ui1" defer></script>
+    <script defer>
+    // -----------------------------------------------------------------------
+    // Backup admin page logic
+    // -----------------------------------------------------------------------
+    document.addEventListener('DOMContentLoaded', () => {
+      const $ = id => document.getElementById(id);
+      let currentSnapshotId = null;
+      let currentSnapshotKind = null; // 'raw_dataset' | 'project'
+      let currentEntityId = null;
+
+      function setStatus(msg, isError = false) {
+        const el = $('backup-settings-message');
+        el.textContent = msg;
+        el.style.color = isError ? 'var(--color-danger, #c00)' : '';
+      }
+
+      function fmtDate(iso) {
+        if (!iso) return '—';
+        return new Date(iso).toLocaleString();
+      }
+
+      function fmtBytes(n) {
+        if (!n) return '0 B';
+        const u = ['B','KB','MB','GB','TB'];
+        let i = 0;
+        while (n >= 1024 && i < u.length - 1) { n /= 1024; i++; }
+        return n.toFixed(1) + ' ' + u[i];
+      }
+
+      async function apiFetch(path, opts = {}) {
+        const res = await fetch(path, {
+          credentials: 'include',
+          headers: {'Content-Type': 'application/json'},
+          ...opts,
+        });
+        if (!res.ok) {
+          const body = await res.json().catch(() => ({}));
+          throw new Error(body.detail || `HTTP ${res.status}`);
+        }
+        return res.json();
+      }
+
+      // ---- Load settings ----
+      async function loadSettings() {
+        try {
+          const cfg = await apiFetch('/backup/settings');
+          $('backup-repo-path').value = cfg.backup_repo || '';
+          $('backup-interval').value = cfg.backup_interval_minutes || 1440;
+          $('backup-run-as').value = cfg.backup_run_as_user_key || 'backup-bot';
+          $('backup-enabled').checked = !!cfg.backup_enabled;
+          $('backup-include-raw').checked = !!cfg.backup_include_raw_datasets;
+          $('backup-include-projects').checked = !!cfg.backup_include_projects;
+
+          $('backup-summary-repo').textContent = cfg.backup_repo || '(not set)';
+          $('backup-summary-enabled').textContent = cfg.backup_enabled ? 'Yes' : 'No';
+          $('backup-summary-repo-status').textContent = cfg.repo_initialized ? '✓ Initialized' : '✗ Not initialized';
+          $('backup-repo-status').textContent = cfg.backup_passphrase_set ? 'Passphrase set' : 'No passphrase';
+        } catch (err) {
+          setStatus('Failed to load settings: ' + err.message, true);
+        }
+      }
+
+      $('backup-save-settings').addEventListener('click', async () => {
+        setStatus('Saving…');
+        const body = {
+          backup_repo: $('backup-repo-path').value.trim() || undefined,
+          backup_enabled: $('backup-enabled').checked,
+          backup_interval_minutes: parseInt($('backup-interval').value) || 1440,
+          backup_run_as_user_key: $('backup-run-as').value.trim() || undefined,
+          backup_include_raw_datasets: $('backup-include-raw').checked,
+          backup_include_projects: $('backup-include-projects').checked,
+        };
+        const pw = $('backup-passphrase').value;
+        if (pw) body.backup_passphrase = pw;
+        try {
+          await apiFetch('/backup/settings', {method: 'PATCH', body: JSON.stringify(body)});
+          $('backup-passphrase').value = '';
+          setStatus('Settings saved.');
+          await loadSettings();
+        } catch (err) {
+          setStatus('Save failed: ' + err.message, true);
+        }
+      });
+
+      $('backup-init-repo').addEventListener('click', async () => {
+        setStatus('Initializing repo…');
+        try {
+          const r = await apiFetch('/backup/init-repo', {method: 'POST'});
+          setStatus(r.detail || 'Repo initialized.');
+          await loadSettings();
+        } catch (err) {
+          setStatus('Init failed: ' + err.message, true);
+        }
+      });
+
+      $('backup-run-now').addEventListener('click', async () => {
+        setStatus('Triggering backup run…');
+        try {
+          const r = await apiFetch('/backup/run', {method: 'POST'});
+          setStatus(`Run started (id: ${r.run_id}). Queued ${r.raw_datasets_queued} datasets, ${r.projects_queued} projects.`);
+          await loadRuns();
+        } catch (err) {
+          setStatus('Run failed: ' + err.message, true);
+        }
+      });
+
+      // ---- Runs log ----
+      async function loadRuns() {
+        try {
+          const runs = await apiFetch('/backup/runs?limit=25');
+          const tbody = $('backup-runs-tbody');
+          if (!runs.length) {
+            tbody.innerHTML = '<tr><td colspan="7" class="muted">No backup runs yet.</td></tr>';
+            if (runs.length > 0) $('backup-summary-last-run').textContent = fmtDate(runs[0].created_at);
+            return;
+          }
+          $('backup-summary-last-run').textContent = fmtDate(runs[0].created_at);
+          tbody.innerHTML = runs.map(r => `
+            <tr>
+              <td>${fmtDate(r.created_at)}</td>
+              <td>${r.trigger_mode}</td>
+              <td class="${r.status === 'done' ? '' : r.status === 'failed' ? 'text-danger' : ''}">${r.status}</td>
+              <td>${r.triggered_by || '—'}</td>
+              <td>${r.raw_datasets_backed_up}/${r.raw_datasets_total} <span class="muted">(skip ${r.raw_datasets_skipped}, fail ${r.raw_datasets_failed})</span></td>
+              <td>${r.projects_backed_up}/${r.projects_total} <span class="muted">(skip ${r.projects_skipped}, fail ${r.projects_failed})</span></td>
+              <td class="muted text-small">${r.error_text || ''}</td>
+            </tr>
+          `).join('');
+        } catch (err) {
+          $('backup-runs-tbody').innerHTML = `<tr><td colspan="7" class="muted">Error: ${err.message}</td></tr>`;
+        }
+      }
+
+      $('backup-runs-refresh').addEventListener('click', loadRuns);
+
+      // ---- Snapshots ----
+      async function loadSnapshots() {
+        $('backup-snapshots-tbody').innerHTML = '<tr><td colspan="6" class="muted">Loading…</td></tr>';
+        try {
+          const snaps = await apiFetch('/backup/snapshots');
+          if (!snaps.length) {
+            $('backup-snapshots-tbody').innerHTML = '<tr><td colspan="6" class="muted">No snapshots found in repo.</td></tr>';
+            return;
+          }
+          $('backup-snapshots-tbody').innerHTML = snaps.map(s => `
+            <tr>
+              <td><code>${s.snapshot_id}</code></td>
+              <td>${fmtDate(s.time)}</td>
+              <td>${s.hostname}</td>
+              <td class="text-small">${(s.tags || []).join(', ')}</td>
+              <td class="text-small muted">${(s.paths || []).join('<br>')}</td>
+              <td>
+                <button class="small" onclick="window._browseSnapshot('${s.snapshot_id}', null, null)">Browse & Restore</button>
+              </td>
+            </tr>
+          `).join('');
+        } catch (err) {
+          $('backup-snapshots-tbody').innerHTML = `<tr><td colspan="6" class="muted">Error: ${err.message}</td></tr>`;
+        }
+      }
+
+      $('backup-snapshots-refresh').addEventListener('click', loadSnapshots);
+
+      // ---- File browser ----
+      window._browseSnapshot = async (snapId, kind, entityId) => {
+        currentSnapshotId = snapId;
+        currentSnapshotKind = kind;
+        currentEntityId = entityId;
+        $('filebrowser-snapshot-id').textContent = snapId;
+        $('filebrowser-tbody').innerHTML = '<tr><td colspan="5" class="muted">Loading…</td></tr>';
+        $('filebrowser-message').textContent = '';
+        $('backup-filebrowser-panel').classList.remove('hidden');
+        $('backup-filebrowser-panel').scrollIntoView({behavior: 'smooth'});
+
+        try {
+          let url;
+          if (kind === 'raw_dataset' && entityId) {
+            url = `/backup/raw-datasets/${entityId}/snapshots/${snapId}/files`;
+          } else if (kind === 'project' && entityId) {
+            url = `/backup/projects/${entityId}/snapshots/${snapId}/files`;
+          } else {
+            // Global snapshot — list files using the snapshot ID directly
+            url = `/backup/raw-datasets/00000000-0000-0000-0000-000000000000/snapshots/${snapId}/files`;
+          }
+          // For global browse we use the generic snapshots endpoint.
+          // Since the route needs a raw_dataset_id or project_id, we pass a dummy one and rely on the snapshot_id.
+          // Better: use a dedicated files endpoint.
+          const files = await apiFetch(`/backup/snapshots/${snapId}/files`).catch(() =>
+            apiFetch(url)
+          );
+          renderFileBrowser(files);
+        } catch (err) {
+          $('filebrowser-tbody').innerHTML = `<tr><td colspan="5" class="muted">Error: ${err.message}</td></tr>`;
+        }
+      };
+
+      function renderFileBrowser(entries) {
+        if (!entries || !entries.length) {
+          $('filebrowser-tbody').innerHTML = '<tr><td colspan="5" class="muted">No files in snapshot.</td></tr>';
+          return;
+        }
+        $('filebrowser-tbody').innerHTML = entries.map((e, i) => `
+          <tr>
+            <td><input type="checkbox" class="fb-check" value="${e.path}" /></td>
+            <td class="text-small"><code>${e.path}</code></td>
+            <td>${e.kind}</td>
+            <td>${e.kind === 'file' ? fmtBytes(e.size) : '—'}</td>
+            <td class="muted text-small">${e.mtime ? new Date(e.mtime).toLocaleString() : '—'}</td>
+          </tr>
+        `).join('');
+      }
+
+      $('filebrowser-select-all').addEventListener('change', e => {
+        document.querySelectorAll('.fb-check').forEach(cb => { cb.checked = e.target.checked; });
+      });
+
+      $('filebrowser-close').addEventListener('click', () => {
+        $('backup-filebrowser-panel').classList.add('hidden');
+      });
+
+      async function doRestore(includeAll) {
+        const targetDir = $('filebrowser-target-dir').value.trim();
+        if (!targetDir) {
+          $('filebrowser-message').textContent = 'Please enter a restore target directory.';
+          return;
+        }
+        const selectedPaths = includeAll ? [] : Array.from(document.querySelectorAll('.fb-check:checked')).map(cb => cb.value);
+        if (!includeAll && !selectedPaths.length) {
+          $('filebrowser-message').textContent = 'Select at least one file, or use "Restore all".';
+          return;
+        }
+        $('filebrowser-message').textContent = 'Queuing restore job…';
+        const body = {target_dir: targetDir, include_paths: includeAll ? null : selectedPaths};
+        try {
+          let url;
+          if (currentSnapshotKind === 'raw_dataset' && currentEntityId) {
+            url = `/backup/raw-datasets/${currentEntityId}/snapshots/${currentSnapshotId}/restore`;
+          } else if (currentSnapshotKind === 'project' && currentEntityId) {
+            url = `/backup/projects/${currentEntityId}/snapshots/${currentSnapshotId}/restore`;
+          } else {
+            $('filebrowser-message').textContent = 'Cannot restore from a global snapshot without entity context. Use the dataset or project page.';
+            return;
+          }
+          const r = await apiFetch(url, {method: 'POST', body: JSON.stringify(body)});
+          $('filebrowser-message').textContent = `Restore job queued: ${r.job_id}`;
+        } catch (err) {
+          $('filebrowser-message').textContent = 'Restore failed: ' + err.message;
+        }
+      }
+
+      $('filebrowser-restore-selected').addEventListener('click', () => doRestore(false));
+      $('filebrowser-restore-all').addEventListener('click', () => doRestore(true));
+
+      // ---- Boot ----
+      // Wait for app.js to authenticate, then load backup data.
+      // app.js triggers a custom 'hub:ready' event after session check.
+      function onHubReady() {
+        const adminContent = $('backup-content');
+        const deniedPanel = $('admin-denied-panel');
+        // Check role from app.js globals if available
+        const isAdmin = window._hubCurrentUser && ['admin','service'].includes(window._hubCurrentUser.role);
+        if (isAdmin === false) {
+          if (deniedPanel) deniedPanel.classList.remove('hidden');
+          return;
+        }
+        if (adminContent) adminContent.classList.remove('hidden');
+        loadSettings();
+        loadRuns();
+      }
+
+      document.addEventListener('hub:ready', onHubReady);
+      // Fallback if app.js doesn't emit the event
+      setTimeout(() => {
+        if ($('backup-content').classList.contains('hidden')) onHubReady();
+      }, 2000);
+    });
+    </script>
+  </body>
+</html>
