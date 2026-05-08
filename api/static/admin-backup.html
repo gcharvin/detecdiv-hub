@@ -106,7 +106,6 @@
           </div>
           <div class="toolbar">
             <button id="backup-save-settings" class="primary">Save settings</button>
-            <button id="backup-init-repo">Initialize repo</button>
             <button id="backup-run-now">Run backup now</button>
           </div>
           <div id="backup-settings-message" class="muted" style="margin-top:0.5rem;min-height:1.4em;"></div>
@@ -317,16 +316,6 @@
         }
       });
 
-      $('backup-init-repo').addEventListener('click', async () => {
-        setStatus('Initializing repo…');
-        try {
-          const r = await apiFetch('/backup/init-repo', {method: 'POST'});
-          setStatus(r.detail || 'Repo initialized.');
-          await loadSettings();
-        } catch (err) {
-          setStatus('Init failed: ' + err.message, true);
-        }
-      });
 
       $('backup-run-now').addEventListener('click', async () => {
         setStatus('Triggering backup run…');
