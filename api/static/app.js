@@ -28,6 +28,8 @@ const state = {
   selectedRawDatasetIds: [],
   pendingRawBulkDelete: null,
   rawBulkDeletePreviewToken: 0,
+  pendingRawBulkArchive: null,
+  pendingRawBulkRestore: null,
   pendingRawPositionDelete: null,
   rawPositionDeletePreviewToken: 0,
   rawPreviewQualityStatus: null,
@@ -148,6 +150,14 @@ const els = {
   rawBulkDeleteConfirmText: document.querySelector("#raw-bulk-delete-confirm-text"),
   rawBulkDeleteCancelButton: document.querySelector("#raw-bulk-delete-cancel-button"),
   rawBulkDeleteConfirmButton: document.querySelector("#raw-bulk-delete-confirm-button"),
+  rawBulkArchiveSelectedButton: document.querySelector("#raw-bulk-archive-selected-button"),
+  rawBulkArchiveVisibleButton: document.querySelector("#raw-bulk-archive-visible-button"),
+  rawBulkRestoreSelectedButton: document.querySelector("#raw-bulk-restore-selected-button"),
+  rawBulkRestoreVisibleButton: document.querySelector("#raw-bulk-restore-visible-button"),
+  rawBulkRestorePanel: document.querySelector("#raw-bulk-restore-panel"),
+  rawBulkRestoreSummary: document.querySelector("#raw-bulk-restore-summary"),
+  rawBulkRestoreCancelButton: document.querySelector("#raw-bulk-restore-cancel-button"),
+  rawBulkRestoreConfirmButton: document.querySelector("#raw-bulk-restore-confirm-button"),
   rawPositionSelectAll: document.querySelector("#raw-position-select-all"),
   rawPositionSelectionSummary: document.querySelector("#raw-position-selection-summary"),
   rawPositionClearSelectionButton: document.querySelector("#raw-position-clear-selection-button"),
@@ -3103,6 +3113,18 @@ function renderRawSelectionControls() {
   if (els.rawBulkDeleteVisibleButton) {
     els.rawBulkDeleteVisibleButton.disabled = visibleCount === 0;
   }
+  if (els.rawBulkArchiveSelectedButton) {
+    els.rawBulkArchiveSelectedButton.disabled = selectedCount === 0;
+  }
+  if (els.rawBulkArchiveVisibleButton) {
+    els.rawBulkArchiveVisibleButton.disabled = visibleCount === 0;
+  }
+  if (els.rawBulkRestoreSelectedButton) {
+    els.rawBulkRestoreSelectedButton.disabled = selectedCount === 0;
+  }
+  if (els.rawBulkRestoreVisibleButton) {
+    els.rawBulkRestoreVisibleButton.disabled = visibleCount === 0;
+  }
 }
 
 function renderRawPositionSelectionControls(positions) {
@@ -5598,6 +5620,96 @@ async function executeRawBulkDelete() {
   }
 }
 
+async function requestRawBulkArchive(scope) {
+  const rawDatasetIds = scope === "selected" ? selectedRawDatasetIds() : visibleRawDatasetIds();
+  if (!rawDatasetIds.length) {
+    throw new Error(scope === "selected" ? "Select at least one raw dataset first." : "No visible raw datasets to archive.");
+  }
+  if (!state.archiveSettingsStatus && isAdmin()) {
+    await refreshArchiveSettingsStatus();
+  }
+  const config = state.archiveSettingsStatus?.config || {};
+  const archiveRoot = String(config.archive_root || "").trim();
+  if (!archiveRoot) {
+    throw new Error("No archive root configured. Set it in Raw datasets Ops > Archive Defaults.");
+  }
+  const archiveCompression = String(config.archive_compression || "zip");
+  const markArchived = Boolean(config.delete_hot_source);
+  const action = markArchived ? "archive and delete hot source" : "archive";
+  const datasetCount = rawDatasetIds.length;
+  const ok = window.confirm(
+    `Request bulk ${action} for ${datasetCount} dataset(s)?\nRoot: ${archiveRoot}\nCompression: ${archiveCompression}`
+  );
+  if (!ok) {
+    return;
+  }
+  setStatus("Queuing archive requests...");
+  try {
+    const result = await apiPost("/raw-datasets/archive-bulk", {
+      raw_dataset_ids: rawDatasetIds,
+      archive_uri: archiveRoot,
+      archive_compression: archiveCompression,
+      mark_archived: markArchived,
+    });
+    await refreshRawDatasets();
+    const suffix = result.skipped_count > 0 ? ` Skipped: ${result.skipped_count}.` : "";
+    setStatus(`Archive requests queued: ${result.queued_count}/${datasetCount}.${suffix}`);
+  } catch (error) {
+    throw new Error(`Failed to queue archive requests: ${String(error)}`);
+  }
+}
+
+async function openRawBulkRestorePanel(scope) {
+  const rawDatasetIds = scope === "selected" ? selectedRawDatasetIds() : visibleRawDatasetIds();
+  if (!rawDatasetIds.length) {
+    throw new Error(scope === "selected" ? "Select at least one raw dataset first." : "No visible raw datasets to restore.");
+  }
+  state.pendingRawBulkRestore = {
+    scope,
+    rawDatasetIds,
+  };
+  renderRawBulkRestorePanel();
+}
+
+function closeRawBulkRestorePanel() {
+  state.pendingRawBulkRestore = null;
+  renderRawBulkRestorePanel();
+}
+
+async function executeRawBulkRestore() {
+  if (!state.pendingRawBulkRestore?.rawDatasetIds?.length) {
+    return;
+  }
+  const rawDatasetIds = [...state.pendingRawBulkRestore.rawDatasetIds];
+
+  setStatus("Queuing restore requests...");
+  try {
+    const result = await apiPost("/raw-datasets/restore-bulk", {
+      raw_dataset_ids: rawDatasetIds,
+    });
+    closeRawBulkRestorePanel();
+    await refreshRawDatasets();
+    const suffix = result.skipped_count > 0 ? ` Skipped: ${result.skipped_count}.` : "";
+    setStatus(`Restore requests queued: ${result.queued_count}/${rawDatasetIds.length}.${suffix}`);
+  } catch (error) {
+    throw new Error(`Failed to queue restore requests: ${String(error)}`);
+  }
+}
+
+function renderRawBulkRestorePanel() {
+  if (!els.rawBulkRestorePanel) {
+    return;
+  }
+  if (!state.pendingRawBulkRestore) {
+    els.rawBulkRestorePanel.classList.add("hidden");
+    return;
+  }
+  els.rawBulkRestorePanel.classList.remove("hidden");
+  if (els.rawBulkRestoreSummary) {
+    els.rawBulkRestoreSummary.textContent = `${state.pendingRawBulkRestore.rawDatasetIds.length} raw dataset(s) ready to restore.`;
+  }
+}
+
 async function refreshRawPositionDeletePreview() {
   if (!state.pendingRawPositionDelete?.positionIds?.length || !state.selectedRawDatasetDetail) {
     return;
@@ -6393,6 +6505,21 @@ if (els.rawBulkDeleteConfirmButton) els.rawBulkDeleteConfirmButton.addEventListe
   setStatus(String(error));
   window.alert(String(error));
 }));
+if (els.rawBulkArchiveSelectedButton) els.rawBulkArchiveSelectedButton.addEventListener("click", () => requestRawBulkArchive("selected").catch((error) => {
+  setStatus(String(error));
+  window.alert(String(error));
+}));
+if (els.rawBulkArchiveVisibleButton) els.rawBulkArchiveVisibleButton.addEventListener("click", () => requestRawBulkArchive("visible").catch((error) => {
+  setStatus(String(error));
+  window.alert(String(error));
+}));
+if (els.rawBulkRestoreSelectedButton) els.rawBulkRestoreSelectedButton.addEventListener("click", () => openRawBulkRestorePanel("selected").catch((error) => setStatus(String(error))));
+if (els.rawBulkRestoreVisibleButton) els.rawBulkRestoreVisibleButton.addEventListener("click", () => openRawBulkRestorePanel("visible").catch((error) => setStatus(String(error))));
+if (els.rawBulkRestoreCancelButton) els.rawBulkRestoreCancelButton.addEventListener("click", () => closeRawBulkRestorePanel());
+if (els.rawBulkRestoreConfirmButton) els.rawBulkRestoreConfirmButton.addEventListener("click", () => executeRawBulkRestore().catch((error) => {
+  setStatus(String(error));
+  window.alert(String(error));
+}));
 if (els.rawPositionSelectAll) els.rawPositionSelectAll.addEventListener("change", () => setSelectedRawPositionIds(els.rawPositionSelectAll.checked ? visibleRawPositionIds() : []));
 if (els.rawPositionClearSelectionButton) els.rawPositionClearSelectionButton.addEventListener("click", () => setSelectedRawPositionIds([]));
 if (els.rawPositionDeleteSelectedButton) els.rawPositionDeleteSelectedButton.addEventListener("click", () => openRawPositionDeletePanel().catch((error) => setStatus(String(error))));
@@ -6413,13 +6540,7 @@ if (els.editProjectButton) els.editProjectButton.addEventListener("click", () =>
     openSelectedProjectPage();
   }
 });
-if (els.updateProjectButton) els.updateProjectButton.addEventListener("click", () => editProject().catch((error) => setStatus(String(error))));if (els.rawBulkArchiveSelectedButton) els.rawBulkArchiveSelectedButton.addEventListener("click", () => openRawBulkArchivePanel("selected").catch((error) => setStatus(String(error))));
-if (els.rawBulkArchiveVisibleButton) els.rawBulkArchiveVisibleButton.addEventListener("click", () => openRawBulkArchivePanel("visible").catch((error) => setStatus(String(error))));
-if (els.rawBulkArchiveCancelButton) els.rawBulkArchiveCancelButton.addEventListener("click", () => closeRawBulkArchivePanel());
-if (els.rawBulkArchiveConfirmButton) els.rawBulkArchiveConfirmButton.addEventListener("click", () => executeRawBulkArchive().catch((error) => {
-  setStatus(String(error));
-  window.alert(String(error));
-}));
+if (els.updateProjectButton) els.updateProjectButton.addEventListener("click", () => editProject().catch((error) => setStatus(String(error))));
 if (els.rawBulkRestoreSelectedButton) els.rawBulkRestoreSelectedButton.addEventListener("click", () => openRawBulkRestorePanel("selected").catch((error) => setStatus(String(error))));
 if (els.rawBulkRestoreVisibleButton) els.rawBulkRestoreVisibleButton.addEventListener("click", () => openRawBulkRestorePanel("visible").catch((error) => setStatus(String(error))));
 if (els.rawBulkRestoreCancelButton) els.rawBulkRestoreCancelButton.addEventListener("click", () => closeRawBulkRestorePanel());

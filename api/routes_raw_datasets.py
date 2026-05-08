@@ -19,6 +19,8 @@ from api.schemas import (
     RawArchiveSettingsUpdate,
     RawDatasetArchiveBulkDeleteRequest,
     RawDatasetArchiveBulkDeleteResult,
+    RawDatasetArchiveBulkRequest,
+    RawDatasetArchiveBulkResult,
     RawDatasetArchiveDeleteResult,
     RawDatasetArchivePolicyPreview,
     RawDatasetArchivePolicyQueueResult,
@@ -34,6 +36,8 @@ from api.schemas import (
     RawDatasetPositionDeletionPreview,
     RawDatasetPositionDeletionRequest,
     RawDatasetPositionDeletionResult,
+    RawDatasetRestoreBulkRequest,
+    RawDatasetRestoreBulkResult,
     RawPreviewVideoQueueRequest,
     RawPreviewVideoQueueResult,
     RawPreviewVideoBulkQueueRequest,
@@ -902,6 +906,107 @@ def request_raw_dataset_restore(
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(exc)) from exc
     db.commit()
     return get_raw_dataset(raw_dataset_id=raw_dataset_id, db=db, current_user=current_user)
+
+
+@router.post("/archive-bulk", response_model=RawDatasetArchiveBulkResult)
+def bulk_archive_raw_datasets(
+    payload: RawDatasetArchiveBulkRequest,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> RawDatasetArchiveBulkResult:
+    if not payload.raw_dataset_ids:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="raw_dataset_ids is required")
+    unique_raw_dataset_ids = list(dict.fromkeys(payload.raw_dataset_ids))
+    queued_raw_dataset_ids: list[UUID] = []
+    skipped_raw_dataset_ids: list[UUID] = []
+    for raw_dataset_id in unique_raw_dataset_ids:
+        raw_dataset = db.scalars(
+            select(RawDataset)
+            .options(
+                joinedload(RawDataset.owner),
+                joinedload(RawDataset.locations).joinedload(RawDatasetLocation.storage_root),
+                joinedload(RawDataset.positions).joinedload(RawDatasetPosition.preview_artifact).joinedload(Artifact.job),
+                joinedload(RawDataset.experiment_links),
+                joinedload(RawDataset.project_links).joinedload(ProjectRawLink.project).joinedload(Project.owner),
+                joinedload(RawDataset.lifecycle_events).joinedload(StorageLifecycleEvent.requested_by),
+            )
+            .where(RawDataset.id == raw_dataset_id)
+        ).unique().first()
+        if raw_dataset is None:
+            skipped_raw_dataset_ids.append(raw_dataset_id)
+            continue
+        try:
+            raw_dataset = ensure_raw_dataset_readable(raw_dataset, current_user)
+            if not user_can_edit_raw_dataset(raw_dataset, current_user):
+                skipped_raw_dataset_ids.append(raw_dataset_id)
+                continue
+            transition_raw_dataset_to_archive(
+                db,
+                raw_dataset=raw_dataset,
+                requested_by_user=current_user,
+                archive_uri=payload.archive_uri,
+                archive_compression=payload.archive_compression,
+                mark_archived=payload.mark_archived,
+            )
+            queued_raw_dataset_ids.append(raw_dataset_id)
+        except RawDatasetLifecycleConflictError:
+            skipped_raw_dataset_ids.append(raw_dataset_id)
+    db.commit()
+    return RawDatasetArchiveBulkResult(
+        requested_count=len(unique_raw_dataset_ids),
+        queued_count=len(queued_raw_dataset_ids),
+        skipped_count=len(skipped_raw_dataset_ids),
+        queued_raw_dataset_ids=queued_raw_dataset_ids,
+        skipped_raw_dataset_ids=skipped_raw_dataset_ids,
+        message=f"Queued {len(queued_raw_dataset_ids)} archive request(s).",
+    )
+
+
+@router.post("/restore-bulk", response_model=RawDatasetRestoreBulkResult)
+def bulk_restore_raw_datasets(
+    payload: RawDatasetRestoreBulkRequest,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> RawDatasetRestoreBulkResult:
+    if not payload.raw_dataset_ids:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="raw_dataset_ids is required")
+    unique_raw_dataset_ids = list(dict.fromkeys(payload.raw_dataset_ids))
+    queued_raw_dataset_ids: list[UUID] = []
+    skipped_raw_dataset_ids: list[UUID] = []
+    for raw_dataset_id in unique_raw_dataset_ids:
+        raw_dataset = db.scalars(
+            select(RawDataset)
+            .options(
+                joinedload(RawDataset.owner),
+                joinedload(RawDataset.locations).joinedload(RawDatasetLocation.storage_root),
+                joinedload(RawDataset.positions).joinedload(RawDatasetPosition.preview_artifact).joinedload(Artifact.job),
+                joinedload(RawDataset.experiment_links),
+                joinedload(RawDataset.project_links).joinedload(ProjectRawLink.project).joinedload(Project.owner),
+                joinedload(RawDataset.lifecycle_events).joinedload(StorageLifecycleEvent.requested_by),
+            )
+            .where(RawDataset.id == raw_dataset_id)
+        ).unique().first()
+        if raw_dataset is None:
+            skipped_raw_dataset_ids.append(raw_dataset_id)
+            continue
+        try:
+            raw_dataset = ensure_raw_dataset_readable(raw_dataset, current_user)
+            if not user_can_edit_raw_dataset(raw_dataset, current_user):
+                skipped_raw_dataset_ids.append(raw_dataset_id)
+                continue
+            transition_raw_dataset_to_restore(db, raw_dataset=raw_dataset, requested_by_user=current_user)
+            queued_raw_dataset_ids.append(raw_dataset_id)
+        except RawDatasetLifecycleConflictError:
+            skipped_raw_dataset_ids.append(raw_dataset_id)
+    db.commit()
+    return RawDatasetRestoreBulkResult(
+        requested_count=len(unique_raw_dataset_ids),
+        queued_count=len(queued_raw_dataset_ids),
+        skipped_count=len(skipped_raw_dataset_ids),
+        queued_raw_dataset_ids=queued_raw_dataset_ids,
+        skipped_raw_dataset_ids=skipped_raw_dataset_ids,
+        message=f"Queued {len(queued_raw_dataset_ids)} restore request(s).",
+    )
 
 
 @router.post("/{raw_dataset_id}/preview-videos/queue", response_model=RawPreviewVideoQueueResult, status_code=status.HTTP_201_CREATED)

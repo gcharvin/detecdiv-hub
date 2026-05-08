@@ -165,6 +165,7 @@ def load_raw_dataset_for_job(session: Session, *, job: Job) -> RawDataset:
     stmt = (
         select(RawDataset)
         .options(
+            joinedload(RawDataset.owner),
             joinedload(RawDataset.locations).joinedload(RawDatasetLocation.storage_root),
             joinedload(RawDataset.lifecycle_events).joinedload(StorageLifecycleEvent.requested_by),
         )
@@ -196,17 +197,19 @@ def resolve_archive_path(
     safe_label = slugify(raw_dataset.external_key or raw_dataset.acquisition_label or source_path.name)
     default_name = f"{safe_label}-{raw_dataset.id}{extension}"
 
+    owner_key = raw_dataset.owner.user_key if raw_dataset.owner else "unknown"
+
     if archive_uri:
         candidate = Path(archive_uri)
         if archive_uri.endswith(extension):
             return candidate
         if archive_uri.endswith(".zip") or archive_uri.endswith(".tar.gz"):
             return candidate
-        return candidate / default_name
+        return candidate / owner_key / default_name
 
     if not default_archive_root:
         raise ValueError("No archive destination configured; set archive_uri or DETECDIV_HUB_DEFAULT_ARCHIVE_ROOT")
-    return Path(default_archive_root) / default_name
+    return Path(default_archive_root) / owner_key / default_name
 
 
 def archive_extension(compression: str) -> str:

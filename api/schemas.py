@@ -444,6 +444,35 @@ class RawDatasetArchiveBulkDeleteResult(HubBaseModel):
     message: str
 
 
+class RawDatasetArchiveBulkRequest(HubBaseModel):
+    raw_dataset_ids: list[UUID] = Field(default_factory=list)
+    archive_uri: str | None = None
+    archive_compression: str | None = None
+    mark_archived: bool | None = None
+
+
+class RawDatasetArchiveBulkResult(HubBaseModel):
+    requested_count: int = 0
+    queued_count: int = 0
+    skipped_count: int = 0
+    queued_raw_dataset_ids: list[UUID] = Field(default_factory=list)
+    skipped_raw_dataset_ids: list[UUID] = Field(default_factory=list)
+    message: str
+
+
+class RawDatasetRestoreBulkRequest(HubBaseModel):
+    raw_dataset_ids: list[UUID] = Field(default_factory=list)
+
+
+class RawDatasetRestoreBulkResult(HubBaseModel):
+    requested_count: int = 0
+    queued_count: int = 0
+    skipped_count: int = 0
+    queued_raw_dataset_ids: list[UUID] = Field(default_factory=list)
+    skipped_raw_dataset_ids: list[UUID] = Field(default_factory=list)
+    message: str
+
+
 class RawDatasetArchivePreview(HubBaseModel):
     raw_dataset_id: UUID
     acquisition_label: str
