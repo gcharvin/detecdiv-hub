@@ -1191,6 +1191,9 @@ def raw_dataset_summary_view(raw_dataset: RawDataset) -> RawDatasetSummary:
             "owner": raw_dataset.owner,
             "created_at": raw_dataset.created_at,
             "updated_at": raw_dataset.updated_at,
+            "backup_status": raw_dataset.backup_status,
+            "backup_excluded": raw_dataset.backup_excluded,
+            "last_backup_at": raw_dataset.last_backup_at,
         }
     )
 
@@ -1217,6 +1220,9 @@ def raw_dataset_catalog_summary_view(raw_dataset: RawDataset) -> RawDatasetSumma
             "owner": raw_dataset.owner,
             "created_at": raw_dataset.created_at,
             "updated_at": raw_dataset.updated_at,
+            "backup_status": raw_dataset.backup_status,
+            "backup_excluded": raw_dataset.backup_excluded,
+            "last_backup_at": raw_dataset.last_backup_at,
         }
     )
 

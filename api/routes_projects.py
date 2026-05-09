@@ -953,6 +953,9 @@ def project_summary_view(project: Project) -> ProjectSummary:
             "owner": project.owner,
             "created_at": project.created_at,
             "updated_at": project.updated_at,
+            "backup_status": project.backup_status,
+            "backup_excluded": project.backup_excluded,
+            "last_backup_at": project.last_backup_at,
         }
     )
 
