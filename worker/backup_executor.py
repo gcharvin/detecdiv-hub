@@ -148,20 +148,33 @@ def _execute_backup_project(session: Session, *, job: Job) -> dict:
     if not source_path.exists():
         raise FileNotFoundError(f"Project path does not exist: {source_path}")
 
-    # If we know the specific .mat file, only backup that file + adjacent dir.
+    # Scope the backup to only project-specific files.
     include_patterns: list[str] | None = None
+    exclude_patterns: list[str] | None = None
     if location.project_file_name:
         stem = Path(location.project_file_name).stem
-        include_patterns = [location.project_file_name, stem]
+        if (source_path / stem).is_dir():
+            # Modern project: source_path is the projects container.
+            # Include only the .mat file and its adjacent directory.
+            include_patterns = [location.project_file_name, stem]
+        else:
+            # Legacy project: source_path IS the project directory.
+            # Exclude posN subdirs (raw datasets stored alongside project files).
+            project_name = source_path.name
+            exclude_patterns = [f"{project_name}-pos*"]
 
     tags = project_tags(str(project.id))
-    LOGGER.info("Backing up project %s from %s (includes: %s)", project.id, source_path, include_patterns or "all")
+    LOGGER.info(
+        "Backing up project %s from %s (include: %s, exclude: %s)",
+        project.id, source_path, include_patterns or "all", exclude_patterns or "none",
+    )
     summary = backup(
         repo=config.backup_repo,
         passphrase=config.backup_passphrase,
         source_path=str(source_path),
         tags=tags,
         include_patterns=include_patterns,
+        exclude_patterns=exclude_patterns,
     )
 
     snapshot_id = summary.get("snapshot_id", "")

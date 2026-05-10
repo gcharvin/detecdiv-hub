@@ -74,6 +74,7 @@ def backup(
     source_path: str,
     tags: list[str],
     include_patterns: list[str] | None = None,
+    exclude_patterns: list[str] | None = None,
     timeout: int = 7200,
 ) -> dict:
     """Run a backup and return the summary dict from restic JSON output."""
@@ -83,8 +84,11 @@ def backup(
     include_args = []
     for p in (include_patterns or []):
         include_args += ["--include", p]
+    exclude_args = []
+    for p in (exclude_patterns or []):
+        exclude_args += ["--exclude", p]
     stdout = _run_restic(
-        ["backup", source_path, "--json"] + tag_args + include_args,
+        ["backup", source_path, "--json"] + tag_args + include_args + exclude_args,
         repo=repo,
         passphrase=passphrase,
         timeout=timeout,
