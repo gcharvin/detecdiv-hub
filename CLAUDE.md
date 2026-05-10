@@ -47,6 +47,13 @@ sudo systemctl restart detecdiv-worker@{1,2,3}
 ### Services
 - `api/services/project_indexing.py` — Raw dataset discovery, MM parent detection
 - `api/services/archival.py` — Archive/restore job orchestration
+- `api/services/backup.py` — restic wrapper (backup, restore, repo init)
+- `api/services/backup_settings.py` — Backup config read/write (`system_settings` table)
+
+### Backup & Restore
+- `api/routes_backup.py` — HTTP endpoints (backup-now, snapshots, restore, file browser)
+- `worker/backup_executor.py` — Job executors (backup, restore, list_snapshot_dir)
+- `worker/backup_scheduler.py` — Periodic backup trigger
 
 ### Frontend
 - `api/static/app.js` — Main application logic (browser/UI)
@@ -85,6 +92,68 @@ Then:
 3. Update `api/static/styles.css` if needed
 4. Bump cache-buster version in HTML file
 5. Deploy: `/detecdiv-hub-ops`
+
+## Backup System
+
+### Architecture
+
+- **restic** est le moteur de backup (déduplication, snapshots).
+- Le **repo** (`/archive/detecdiv-backup`) est sur un stockage accessible depuis `detecdiv-server`.
+- Le **FUSE mount** (`/mnt/restic-mount`) expose les snapshots comme un filesystem navigable.
+  Service systemd : `detecdiv-restic-mount.service` sur `detecdiv-server`.
+
+### Configuration
+
+Via **Admin → Backup** dans l'UI (stocké dans `system_settings` sur chaque DB) :
+- `backup_repo` — chemin du repo restic (ex. `/archive/detecdiv-backup`)
+- `backup_passphrase` — passphrase restic
+- `backup_mount_path` — point de montage FUSE (ex. `/mnt/restic-mount`)
+- `backup_enabled` — active le scheduler automatique
+
+> ⚠️ Les deux bases PostgreSQL (webserver-labo et detecdiv-server) sont **indépendantes**.
+> Toute modification via l'UI met à jour webserver-labo. Pour que les workers voient les
+> changements, il faut également les appliquer sur detecdiv-server (INSERT/UPDATE dans
+> `system_settings` en SQL ou via une session psql locale).
+
+### Scope du backup par type de projet
+
+| Type | Détection | Contenu sauvegardé |
+|------|-----------|-------------------|
+| **Modern** | `{stem}/` existe à côté du `.mat` | `.mat` + `{stem}/` uniquement (multi-path restic) |
+| **Legacy** | `.mat` = `{name}-project.mat` dans le dir projet | tout le dir projet sauf `{name}-pos*` (raw datasets) |
+| **Raw dataset** | — | dossier complet de l'acquisition |
+
+### Snapshots en DB
+
+Après chaque backup réussi, le worker insère dans `backup_snapshots` (avec FK vers le projet
+ou raw dataset). L'API liste les snapshots depuis cette table sans appeler restic.
+
+### File browser
+
+Le bouton **Browse** sur un snapshot ouvre un file browser qui :
+1. Soumet un job `list_snapshot_dir` au worker
+2. Le worker fait `os.listdir()` sur `{mount_path}/ids/{snapshot_id[:8]}/{source_path}/`
+3. L'UI poll le job et affiche l'arborescence avec navigation ↑ Up et restore sélectif
+
+### Restauration
+
+- **Full restore** → target `/` restaure en place (recrée les chemins d'origine).
+- **Restore sélectif** → cocher des fichiers/dossiers dans le file browser, puis target `/`.
+- restic recrée le chemin absolu complet sous le target dir.
+
+### Opérations manuelles utiles
+
+```bash
+# Vérifier le service FUSE mount
+systemctl status detecdiv-restic-mount.service
+ls /mnt/restic-mount/ids/
+
+# Lister les snapshots restic
+restic -r /archive/detecdiv-backup snapshots
+
+# Initialiser le repo manuellement (si pas fait via l'UI)
+restic -r /archive/detecdiv-backup init
+```
 
 ## Deployment Status
 
