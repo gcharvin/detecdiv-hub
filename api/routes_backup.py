@@ -8,7 +8,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session, joinedload
 
 from api.db import get_db
-from api.models import BackupRun, Job, Project, ProjectLocation, RawDataset, RawDatasetLocation, User
+from api.models import BackupRun, BackupSnapshot, Job, Project, ProjectLocation, RawDataset, RawDatasetLocation, User
 from api.services.backup import (
     ResticError,
     list_files,
@@ -253,20 +253,18 @@ def get_all_snapshots(
     current_user: User = Depends(get_current_user),
 ):
     _require_admin(current_user)
-    config = _load_config_and_repo(db)
-    try:
-        snaps = snapshots(repo=config.backup_repo, passphrase=config.backup_passphrase)
-    except ResticError as exc:
-        raise HTTPException(status_code=500, detail=str(exc)) from exc
+    rows = db.execute(
+        select(BackupSnapshot).order_by(BackupSnapshot.time.desc()).limit(200)
+    ).scalars().all()
     return [
         SnapshotResponse(
-            snapshot_id=s.snapshot_id,
-            time=s.time,
-            hostname=s.hostname,
-            tags=s.tags,
-            paths=s.paths,
+            snapshot_id=r.snapshot_id,
+            time=r.time.isoformat(),
+            hostname=r.hostname,
+            tags=r.tags,
+            paths=r.paths,
         )
-        for s in snaps
+        for r in rows
     ]
 
 
@@ -299,18 +297,14 @@ def get_raw_dataset_snapshots(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    config = _load_config_and_repo(db)
-    try:
-        snaps = snapshots(
-            repo=config.backup_repo,
-            passphrase=config.backup_passphrase,
-            tags=raw_dataset_tags(str(raw_dataset_id)),
-        )
-    except ResticError as exc:
-        raise HTTPException(status_code=500, detail=str(exc)) from exc
+    rows = db.execute(
+        select(BackupSnapshot)
+        .where(BackupSnapshot.raw_dataset_id == raw_dataset_id)
+        .order_by(BackupSnapshot.time.desc())
+    ).scalars().all()
     return [
-        SnapshotResponse(snapshot_id=s.snapshot_id, time=s.time, hostname=s.hostname, tags=s.tags, paths=s.paths)
-        for s in snaps
+        SnapshotResponse(snapshot_id=r.snapshot_id, time=r.time.isoformat(), hostname=r.hostname, tags=r.tags, paths=r.paths)
+        for r in rows
     ]
 
 
@@ -411,18 +405,14 @@ def get_project_snapshots(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    config = _load_config_and_repo(db)
-    try:
-        snaps = snapshots(
-            repo=config.backup_repo,
-            passphrase=config.backup_passphrase,
-            tags=project_tags(str(project_id)),
-        )
-    except ResticError as exc:
-        raise HTTPException(status_code=500, detail=str(exc)) from exc
+    rows = db.execute(
+        select(BackupSnapshot)
+        .where(BackupSnapshot.project_id == project_id)
+        .order_by(BackupSnapshot.time.desc())
+    ).scalars().all()
     return [
-        SnapshotResponse(snapshot_id=s.snapshot_id, time=s.time, hostname=s.hostname, tags=s.tags, paths=s.paths)
-        for s in snaps
+        SnapshotResponse(snapshot_id=r.snapshot_id, time=r.time.isoformat(), hostname=r.hostname, tags=r.tags, paths=r.paths)
+        for r in rows
     ]
 
 

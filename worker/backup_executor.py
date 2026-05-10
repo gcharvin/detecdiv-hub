@@ -8,7 +8,7 @@ from pathlib import Path
 from sqlalchemy import select
 from sqlalchemy.orm import Session, joinedload
 
-from api.models import Job, Project, ProjectLocation, RawDataset, RawDatasetLocation
+from api.models import BackupSnapshot, Job, Project, ProjectLocation, RawDataset, RawDatasetLocation
 from api.services.backup import (
     ResticError,
     backup,
@@ -104,6 +104,14 @@ def _execute_backup_raw_dataset(session: Session, *, job: Job) -> dict:
     raw_dataset.backup_status = "backed_up"
     raw_dataset.last_backup_at = now
     raw_dataset.backup_snapshot_id = snapshot_id
+    session.add(BackupSnapshot(
+        snapshot_id=snapshot_id,
+        time=now,
+        hostname=socket.gethostname(),
+        tags=tags,
+        paths=[str(source_path)],
+        raw_dataset_id=raw_dataset.id,
+    ))
     session.flush()
 
     return {
@@ -150,6 +158,14 @@ def _execute_backup_project(session: Session, *, job: Job) -> dict:
     project.backup_status = "backed_up"
     project.last_backup_at = now
     project.backup_snapshot_id = snapshot_id
+    session.add(BackupSnapshot(
+        snapshot_id=snapshot_id,
+        time=now,
+        hostname=socket.gethostname(),
+        tags=tags,
+        paths=[str(source_path)],
+        project_id=project.id,
+    ))
     session.flush()
 
     return {
