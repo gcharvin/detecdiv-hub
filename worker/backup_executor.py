@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import logging
+import os
 import socket
 from datetime import datetime, timezone
 from pathlib import Path
@@ -28,6 +29,7 @@ BACKUP_JOB_KINDS = {
     "backup_project",
     "restore_raw_dataset_from_backup",
     "restore_project_from_backup",
+    "list_snapshot_dir",
 }
 
 
@@ -43,6 +45,8 @@ def execute_backup_job(session: Session, *, job: Job) -> dict:
         return _execute_restore_raw_dataset(session, job=job)
     if job_kind == "restore_project_from_backup":
         return _execute_restore_project(session, job=job)
+    if job_kind == "list_snapshot_dir":
+        return _execute_list_snapshot_dir(session, job=job)
     raise ValueError(f"Unknown backup job kind: {job_kind}")
 
 
@@ -246,6 +250,53 @@ def _execute_restore_project(session: Session, *, job: Job) -> dict:
         "include_paths": include_paths,
         "worker_host": socket.gethostname(),
         "restic_output": output[:2000] if output else "",
+    }
+
+
+# ---------------------------------------------------------------------------
+# Snapshot directory listing via FUSE mount
+# ---------------------------------------------------------------------------
+
+def _execute_list_snapshot_dir(session: Session, *, job: Job) -> dict:
+    params = job.params_json or {}
+    mount_path = params.get("mount_path", "").rstrip("/")
+    snapshot_id = params.get("snapshot_id", "")
+    source_path = params.get("source_path", "").lstrip("/")   # e.g. "data/projects/Foo"
+    browse_path = params.get("browse_path", "").strip("/")     # relative, e.g. "Results"
+
+    if not mount_path:
+        raise ValueError("list_snapshot_dir: mount_path not configured")
+    if not snapshot_id:
+        raise ValueError("list_snapshot_dir: snapshot_id missing")
+
+    # restic mount exposes snapshots at: {mount}/ids/{snapshot_id}/{original_abs_path}
+    full_path = os.path.join(mount_path, "ids", snapshot_id, source_path, browse_path)
+    LOGGER.info("Listing snapshot dir: %s", full_path)
+
+    if not os.path.isdir(full_path):
+        raise FileNotFoundError(f"Directory not found in mount: {full_path}")
+
+    entries = []
+    for name in sorted(os.listdir(full_path), key=lambda n: (not os.path.isdir(os.path.join(full_path, n)), n.lower())):
+        entry_path = os.path.join(full_path, name)
+        try:
+            st = os.stat(entry_path)
+            is_dir = os.path.isdir(entry_path)
+            entries.append({
+                "name": name,
+                "type": "dir" if is_dir else "file",
+                "size": 0 if is_dir else st.st_size,
+                "mtime": datetime.fromtimestamp(st.st_mtime, tz=timezone.utc).isoformat(),
+            })
+        except OSError:
+            continue
+
+    return {
+        "job_kind": "list_snapshot_dir",
+        "browse_path": browse_path,
+        "source_path": "/" + source_path,
+        "entries": entries,
+        "worker_host": socket.gethostname(),
     }
 
 

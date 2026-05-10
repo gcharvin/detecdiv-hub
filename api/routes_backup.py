@@ -41,6 +41,7 @@ def _config_to_response(config) -> BackupSettingsResponse:
         backup_run_as_user_key=config.backup_run_as_user_key,
         backup_include_raw_datasets=config.backup_include_raw_datasets,
         backup_include_projects=config.backup_include_projects,
+        backup_mount_path=config.backup_mount_path,
     )
 
 router = APIRouter(prefix="/backup", tags=["backup"])
@@ -60,6 +61,7 @@ class BackupSettingsResponse(BaseModel):
     backup_run_as_user_key: str
     backup_include_raw_datasets: bool
     backup_include_projects: bool
+    backup_mount_path: str
 
 
 class BackupSettingsUpdate(BaseModel):
@@ -72,6 +74,7 @@ class BackupSettingsUpdate(BaseModel):
     backup_run_as_user_key: str | None = None
     backup_include_raw_datasets: bool | None = None
     backup_include_projects: bool | None = None
+    backup_mount_path: str | None = None
 
 
 class BackupRunResponse(BaseModel):
@@ -101,6 +104,7 @@ class BackupRunTriggerResponse(BaseModel):
 
 
 class SnapshotResponse(BaseModel):
+    id: str = ""
     snapshot_id: str
     time: str
     hostname: str
@@ -303,7 +307,7 @@ def get_raw_dataset_snapshots(
         .order_by(BackupSnapshot.time.desc())
     ).scalars().all()
     return [
-        SnapshotResponse(snapshot_id=r.snapshot_id, time=r.time.isoformat(), hostname=r.hostname, tags=r.tags, paths=r.paths)
+        SnapshotResponse(id=str(r.id), snapshot_id=r.snapshot_id, time=r.time.isoformat(), hostname=r.hostname, tags=r.tags, paths=r.paths)
         for r in rows
     ]
 
@@ -411,7 +415,7 @@ def get_project_snapshots(
         .order_by(BackupSnapshot.time.desc())
     ).scalars().all()
     return [
-        SnapshotResponse(snapshot_id=r.snapshot_id, time=r.time.isoformat(), hostname=r.hostname, tags=r.tags, paths=r.paths)
+        SnapshotResponse(id=str(r.id), snapshot_id=r.snapshot_id, time=r.time.isoformat(), hostname=r.hostname, tags=r.tags, paths=r.paths)
         for r in rows
     ]
 
@@ -501,3 +505,42 @@ def update_project_backup_settings(
     project.backup_excluded = body.backup_excluded
     db.commit()
     return {"backup_excluded": project.backup_excluded}
+
+
+# ---------------------------------------------------------------------------
+# Project snapshot file browser
+# ---------------------------------------------------------------------------
+
+class DirBrowseRequest(BaseModel):
+    browse_path: str = ""
+
+
+@router.post("/project-snapshots/{snapshot_db_id}/browse-dir", status_code=202)
+def browse_project_snapshot_dir(
+    snapshot_db_id: UUID,
+    body: DirBrowseRequest,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    snap = db.get(BackupSnapshot, snapshot_db_id)
+    if snap is None:
+        raise HTTPException(status_code=404, detail="Snapshot not found")
+    config = resolve_backup_runtime_config(db)
+    if not config.backup_mount_path:
+        raise HTTPException(status_code=400, detail="backup_mount_path not configured in backup settings.")
+    job = Job(
+        project_id=snap.project_id,
+        status="queued",
+        priority=200,
+        requested_by=current_user.user_key,
+        params_json={
+            "job_kind": "list_snapshot_dir",
+            "snapshot_id": snap.snapshot_id,
+            "source_path": (snap.paths or [""])[0],
+            "browse_path": body.browse_path,
+            "mount_path": config.backup_mount_path,
+        },
+    )
+    db.add(job)
+    db.commit()
+    return {"job_id": str(job.id)}

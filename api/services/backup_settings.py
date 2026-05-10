@@ -27,6 +27,7 @@ class BackupRuntimeConfig:
     backup_run_as_user_key: str
     backup_include_raw_datasets: bool
     backup_include_projects: bool
+    backup_mount_path: str
 
     def to_json(self) -> dict:
         return {
@@ -39,6 +40,7 @@ class BackupRuntimeConfig:
             "backup_run_as_user_key": self.backup_run_as_user_key,
             "backup_include_raw_datasets": self.backup_include_raw_datasets,
             "backup_include_projects": self.backup_include_projects,
+            "backup_mount_path": self.backup_mount_path,
         }
 
     def to_json_safe(self) -> dict:
@@ -60,6 +62,7 @@ def resolve_backup_runtime_config(session: Session, *, settings: Settings | None
         backup_run_as_user_key=settings.backup_run_as_user_key,
         backup_include_raw_datasets=settings.backup_include_raw_datasets,
         backup_include_projects=settings.backup_include_projects,
+        backup_mount_path="",
     )
     entry = session.get(SystemSetting, BACKUP_SETTING_KEY)
     if entry is None:
@@ -83,6 +86,7 @@ def resolve_backup_runtime_config(session: Session, *, settings: Settings | None
         backup_run_as_user_key=_clean_text(payload.get("backup_run_as_user_key")) or base.backup_run_as_user_key,
         backup_include_raw_datasets=_bool_or_default(payload.get("backup_include_raw_datasets"), base.backup_include_raw_datasets),
         backup_include_projects=_bool_or_default(payload.get("backup_include_projects"), base.backup_include_projects),
+        backup_mount_path=_clean_text(payload.get("backup_mount_path")) or base.backup_mount_path,
     )
 
 
@@ -95,6 +99,7 @@ def update_backup_runtime_config(session: Session, *, updates: dict) -> BackupRu
         "backup_scheduler_interval_minutes", "backup_raw_interval_minutes",
         "backup_project_interval_minutes", "backup_run_as_user_key",
         "backup_include_raw_datasets", "backup_include_projects",
+        "backup_mount_path",
     }
     for key in allowed_keys:
         if key in updates:

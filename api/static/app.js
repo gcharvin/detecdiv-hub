@@ -113,6 +113,15 @@ const els = {
   projectRestoreSnapshotLabel: document.querySelector("#project-restore-snapshot-label"),
   projectRestoreTargetDir: document.querySelector("#project-restore-target-dir"),
   projectRestoreConfirmButton: document.querySelector("#project-restore-confirm-button"),
+  projectFileBrowser: document.querySelector("#project-file-browser"),
+  projectBrowserBreadcrumb: document.querySelector("#project-browser-breadcrumb"),
+  projectBrowserStatus: document.querySelector("#project-browser-status"),
+  projectBrowserList: document.querySelector("#project-browser-list"),
+  projectBrowserRestorePanel: document.querySelector("#project-browser-restore-panel"),
+  projectBrowserTargetDir: document.querySelector("#project-browser-target-dir"),
+  projectBrowserRestoreButton: document.querySelector("#project-browser-restore-button"),
+  projectBrowserRestoreCancelButton: document.querySelector("#project-browser-restore-cancel-button"),
+  projectBrowserCloseButton: document.querySelector("#project-browser-close-button"),
   projectRestoreCancelButton: document.querySelector("#project-restore-cancel-button"),
   addToGroupButton: document.querySelector("#add-to-group-button"),
   previewDeleteButton: document.querySelector("#preview-delete-button"),
@@ -6216,15 +6225,174 @@ async function loadProjectSnapshots() {
     snaps.forEach(s => {
       const item = document.createElement("div");
       item.className = "stack-item";
-      item.innerHTML = `<span>${new Date(s.time).toLocaleString()} &mdash; <code>${s.snapshot_id.slice(0, 8)}</code></span>`;
-      const btn = document.createElement("button");
-      btn.textContent = "Restore…";
-      btn.addEventListener("click", () => openProjectRestorePanel(s));
-      item.appendChild(btn);
+      item.innerHTML = `<span>${new Date(s.time).toLocaleString()} &mdash; <code>${s.snapshot_id.slice(0, 8)}</code> &mdash; ${(s.paths || []).join(", ")}</span>`;
+      const btnFull = document.createElement("button");
+      btnFull.textContent = "Full restore…";
+      btnFull.addEventListener("click", () => openProjectRestorePanel(s));
+      item.appendChild(btnFull);
+      if (s.id) {
+        const btnBrowse = document.createElement("button");
+        btnBrowse.textContent = "Browse…";
+        btnBrowse.style.marginLeft = "0.5rem";
+        btnBrowse.addEventListener("click", () => openProjectFileBrowser(s).catch(err => setStatus(String(err))));
+        item.appendChild(btnBrowse);
+      }
       list.appendChild(item);
     });
   }
   list.classList.remove("hidden");
+}
+
+// ---------------------------------------------------------------------------
+// Project snapshot file browser
+// ---------------------------------------------------------------------------
+
+const _projectBrowser = {
+  snapshotDbId: null,
+  snapshotId: null,
+  sourcePath: null,
+  pathStack: [],    // array of folder names navigated into
+  selected: new Set(),  // Set of entry names in current dir
+};
+
+async function _pollJob(jobId, maxMs = 30000) {
+  const deadline = Date.now() + maxMs;
+  while (Date.now() < deadline) {
+    const job = await apiGet(`/jobs/${jobId}`);
+    if (job.status === "done") return job.result_json;
+    if (job.status === "failed" || job.status === "cancelled") throw new Error(job.error_text || "Job failed");
+    await new Promise(r => setTimeout(r, 1200));
+  }
+  throw new Error("Timeout waiting for directory listing");
+}
+
+async function openProjectFileBrowser(snapshot) {
+  _projectBrowser.snapshotDbId = snapshot.id;
+  _projectBrowser.snapshotId = snapshot.snapshot_id;
+  _projectBrowser.sourcePath = (snapshot.paths || [""])[0];
+  _projectBrowser.pathStack = [];
+  _projectBrowser.selected = new Set();
+  if (els.projectFileBrowser) els.projectFileBrowser.classList.remove("hidden");
+  if (els.projectRestorePanel) els.projectRestorePanel.classList.add("hidden");
+  if (els.projectBrowserRestorePanel) els.projectBrowserRestorePanel.classList.add("hidden");
+  await _loadProjectBrowserDir();
+}
+
+async function _loadProjectBrowserDir() {
+  const browsePath = _projectBrowser.pathStack.join("/");
+  if (els.projectBrowserStatus) els.projectBrowserStatus.textContent = "Loading…";
+  if (els.projectBrowserList) els.projectBrowserList.innerHTML = "";
+  if (els.projectBrowserBreadcrumb) {
+    els.projectBrowserBreadcrumb.innerHTML = "";
+    const rootSpan = document.createElement("span");
+    rootSpan.textContent = "/";
+    rootSpan.style.cursor = "pointer";
+    rootSpan.style.textDecoration = "underline";
+    rootSpan.addEventListener("click", () => { _projectBrowser.pathStack = []; _loadProjectBrowserDir().catch(e => setStatus(String(e))); });
+    els.projectBrowserBreadcrumb.appendChild(rootSpan);
+    _projectBrowser.pathStack.forEach((part, i) => {
+      const sep = document.createTextNode(" / ");
+      els.projectBrowserBreadcrumb.appendChild(sep);
+      const span = document.createElement("span");
+      span.textContent = part;
+      span.style.cursor = "pointer";
+      span.style.textDecoration = "underline";
+      const depth = i + 1;
+      span.addEventListener("click", () => { _projectBrowser.pathStack = _projectBrowser.pathStack.slice(0, depth); _loadProjectBrowserDir().catch(e => setStatus(String(e))); });
+      els.projectBrowserBreadcrumb.appendChild(span);
+    });
+  }
+
+  try {
+    const r = await apiPost(`/backup/project-snapshots/${_projectBrowser.snapshotDbId}/browse-dir`, { browse_path: browsePath });
+    if (els.projectBrowserStatus) els.projectBrowserStatus.textContent = "Queued, loading…";
+    const result = await _pollJob(r.job_id);
+    _renderProjectBrowserEntries(result.entries || []);
+    if (els.projectBrowserStatus) els.projectBrowserStatus.textContent = `${(result.entries || []).length} items`;
+  } catch (err) {
+    if (els.projectBrowserStatus) els.projectBrowserStatus.textContent = `Error: ${err.message}`;
+  }
+}
+
+function _renderProjectBrowserEntries(entries) {
+  const list = els.projectBrowserList;
+  if (!list) return;
+  list.innerHTML = "";
+  _projectBrowser.selected = new Set();
+  if (!entries.length) {
+    list.innerHTML = '<p class="muted" style="padding:0.5rem">Empty directory.</p>';
+    return;
+  }
+  entries.forEach(e => {
+    const row = document.createElement("div");
+    row.className = "stack-item";
+    row.style.gap = "0.5rem";
+
+    const cb = document.createElement("input");
+    cb.type = "checkbox";
+    cb.addEventListener("change", () => {
+      if (cb.checked) _projectBrowser.selected.add(e.name);
+      else _projectBrowser.selected.delete(e.name);
+      if (els.projectBrowserRestorePanel) {
+        els.projectBrowserRestorePanel.classList.toggle("hidden", _projectBrowser.selected.size === 0);
+      }
+    });
+
+    const icon = document.createElement("span");
+    icon.textContent = e.type === "dir" ? "📁" : "📄";
+    icon.style.fontFamily = "monospace";
+
+    const label = document.createElement("span");
+    label.style.flex = "1";
+    label.style.fontFamily = "monospace";
+    label.style.fontSize = "0.9em";
+    label.textContent = e.name + (e.type === "dir" ? "/" : "");
+
+    if (e.type === "file") {
+      const size = document.createElement("span");
+      size.className = "muted";
+      size.style.fontSize = "0.8em";
+      size.textContent = _fmtBytes(e.size);
+      row.append(cb, icon, label, size);
+    } else {
+      const navBtn = document.createElement("button");
+      navBtn.textContent = "Open";
+      navBtn.style.marginLeft = "auto";
+      navBtn.addEventListener("click", () => {
+        _projectBrowser.pathStack.push(e.name);
+        _loadProjectBrowserDir().catch(err => setStatus(String(err)));
+      });
+      row.append(cb, icon, label, navBtn);
+    }
+    list.appendChild(row);
+  });
+}
+
+function _fmtBytes(n) {
+  if (!n) return "0 B";
+  const units = ["B", "KB", "MB", "GB", "TB"];
+  let i = 0;
+  while (n >= 1024 && i < units.length - 1) { n /= 1024; i++; }
+  return n.toFixed(1) + " " + units[i];
+}
+
+async function confirmProjectSelectiveRestore() {
+  if (!_projectBrowser.snapshotDbId || !_projectBrowser.selected.size) return;
+  const targetDir = els.projectBrowserTargetDir ? els.projectBrowserTargetDir.value.trim() : "";
+  if (!targetDir) { setStatus("Enter a restore target directory."); return; }
+
+  const browsePath = _projectBrowser.pathStack.join("/");
+  const includePaths = Array.from(_projectBrowser.selected).map(name => {
+    const rel = browsePath ? `${browsePath}/${name}` : name;
+    return `${_projectBrowser.sourcePath}/${rel}`;
+  });
+
+  const r = await apiPost(
+    `/backup/projects/${state.selectedProjectDetail.id}/snapshots/${_projectBrowser.snapshotId}/restore`,
+    { target_dir: targetDir, include_paths: includePaths }
+  );
+  setStatus(`Selective restore job queued: ${r.job_id}`);
+  if (els.projectFileBrowser) els.projectFileBrowser.classList.add("hidden");
 }
 
 function openProjectRestorePanel(snapshot) {
@@ -6785,6 +6953,9 @@ if (els.projectBackupExcluded) els.projectBackupExcluded.addEventListener("chang
 if (els.projectSnapshotsLoadButton) els.projectSnapshotsLoadButton.addEventListener("click", () => loadProjectSnapshots().catch((error) => setStatus(String(error))));
 if (els.projectRestoreConfirmButton) els.projectRestoreConfirmButton.addEventListener("click", () => confirmProjectRestore().catch((error) => setStatus(String(error))));
 if (els.projectRestoreCancelButton) els.projectRestoreCancelButton.addEventListener("click", () => { if (els.projectRestorePanel) els.projectRestorePanel.classList.add("hidden"); });
+if (els.projectBrowserCloseButton) els.projectBrowserCloseButton.addEventListener("click", () => { if (els.projectFileBrowser) els.projectFileBrowser.classList.add("hidden"); });
+if (els.projectBrowserRestoreButton) els.projectBrowserRestoreButton.addEventListener("click", () => confirmProjectSelectiveRestore().catch((error) => setStatus(String(error))));
+if (els.projectBrowserRestoreCancelButton) els.projectBrowserRestoreCancelButton.addEventListener("click", () => { if (els.projectBrowserRestorePanel) els.projectBrowserRestorePanel.classList.add("hidden"); _projectBrowser.selected = new Set(); });
 if (els.archiveSettingsRefreshButton) els.archiveSettingsRefreshButton.addEventListener("click", () => refreshArchiveSettingsStatus().catch((error) => setStatus(String(error))));
 if (els.archiveSettingsSaveButton) els.archiveSettingsSaveButton.addEventListener("click", () => saveArchiveSettings().catch((error) => setStatus(String(error))));
 if (els.automaticArchivePolicyRefreshButton) els.automaticArchivePolicyRefreshButton.addEventListener("click", () => refreshAutomaticArchivePolicyStatus().catch((error) => setStatus(String(error))));

@@ -78,6 +78,10 @@
               <input id="backup-repo-path" type="text" placeholder="/archive/detecdiv-backup" style="min-width:300px" />
             </label>
             <label class="field compact">
+              <span>Mount path</span>
+              <input id="backup-mount-path" type="text" placeholder="/mnt/restic-mount" style="min-width:220px" title="FUSE mount point for restic mount (used by the file browser)" />
+            </label>
+            <label class="field compact">
               <span>Passphrase</span>
               <input id="backup-passphrase" type="password" placeholder="Leave blank to keep current" style="min-width:200px" />
             </label>
@@ -240,7 +244,7 @@
       </footer>
     </div>
 
-    <script src="/web/app.js?v=20260510-ui2" defer></script>
+    <script src="/web/app.js?v=20260510-ui3" defer></script>
     <script defer>
     // -----------------------------------------------------------------------
     // Backup admin page logic
@@ -296,6 +300,7 @@
           $('backup-include-raw').checked = !!cfg.backup_include_raw_datasets;
           $('backup-include-projects').checked = !!cfg.backup_include_projects;
 
+          $('backup-mount-path').value = cfg.backup_mount_path || '';
           $('backup-summary-repo').textContent = cfg.backup_repo || '(not set)';
           $('backup-summary-enabled').textContent = cfg.backup_enabled ? 'Yes' : 'No';
           $('backup-summary-repo-status').textContent = cfg.backup_passphrase_set ? '✓ Passphrase set' : '✗ No passphrase';
@@ -316,6 +321,7 @@
           backup_run_as_user_key: $('backup-run-as').value.trim() || undefined,
           backup_include_raw_datasets: $('backup-include-raw').checked,
           backup_include_projects: $('backup-include-projects').checked,
+          backup_mount_path: $('backup-mount-path').value.trim() || undefined,
         };
         const pw = $('backup-passphrase').value;
         if (pw) body.backup_passphrase = pw;

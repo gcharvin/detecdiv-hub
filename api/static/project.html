@@ -127,6 +127,28 @@
                   <button id="project-restore-cancel-button">Cancel</button>
                 </div>
               </div>
+
+              <div id="project-file-browser" class="hidden" style="margin-top:0.75rem">
+                <div class="subpanel-header" style="margin-bottom:0.5rem">
+                  <div>
+                    <span class="muted" style="font-size:0.85em">File browser —</span>
+                    <span id="project-browser-breadcrumb" style="font-size:0.85em;font-family:monospace">/</span>
+                  </div>
+                  <button id="project-browser-close-button">Close</button>
+                </div>
+                <p id="project-browser-status" class="muted" style="font-size:0.85em;margin:0 0 0.5rem"></p>
+                <div id="project-browser-list" class="stack-list" style="max-height:320px;overflow-y:auto"></div>
+                <div id="project-browser-restore-panel" class="hidden" style="margin-top:0.75rem">
+                  <div class="toolbar">
+                    <label class="field">
+                      <span>Restore target directory</span>
+                      <input id="project-browser-target-dir" type="text" placeholder="/data/projects/project_name" style="min-width:360px" />
+                    </label>
+                    <button id="project-browser-restore-button" class="primary">Restore selected</button>
+                    <button id="project-browser-restore-cancel-button">Cancel</button>
+                  </div>
+                </div>
+              </div>
             </section>
           </div>
         </main>
@@ -320,7 +342,7 @@
       </div>
     </div>
 
-    <script src="/web/app.js?v=20260510-ui2" defer></script>
+    <script src="/web/app.js?v=20260510-ui3" defer></script>
   </body>
 </html>
 
