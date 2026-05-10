@@ -82,8 +82,16 @@
               <input id="backup-passphrase" type="password" placeholder="Leave blank to keep current" style="min-width:200px" />
             </label>
             <label class="field compact">
-              <span>Interval (min)</span>
-              <input id="backup-interval" type="number" min="1" value="1440" style="width:90px" />
+              <span>Scheduler interval (min)</span>
+              <input id="backup-scheduler-interval" type="number" min="1" value="60" style="width:80px" title="How often the scheduler checks for due backups" />
+            </label>
+            <label class="field compact">
+              <span>Raw dataset interval (min)</span>
+              <input id="backup-raw-interval" type="number" min="1" value="10080" style="width:90px" title="1 week = 10080 min" />
+            </label>
+            <label class="field compact">
+              <span>Project interval (min)</span>
+              <input id="backup-project-interval" type="number" min="1" value="1440" style="width:90px" title="1 day = 1440 min" />
             </label>
           </div>
           <div class="toolbar">
@@ -232,7 +240,7 @@
       </footer>
     </div>
 
-    <script src="/web/app.js?v=20260508-ui3" defer></script>
+    <script src="/web/app.js?v=20260510-ui1" defer></script>
     <script defer>
     // -----------------------------------------------------------------------
     // Backup admin page logic
@@ -280,7 +288,9 @@
         try {
           const cfg = await apiFetch('/backup/settings');
           $('backup-repo-path').value = cfg.backup_repo || '';
-          $('backup-interval').value = cfg.backup_interval_minutes || 1440;
+          $('backup-scheduler-interval').value = cfg.backup_scheduler_interval_minutes || 60;
+          $('backup-raw-interval').value = cfg.backup_raw_interval_minutes || 10080;
+          $('backup-project-interval').value = cfg.backup_project_interval_minutes || 1440;
           $('backup-run-as').value = cfg.backup_run_as_user_key || 'backup-bot';
           $('backup-enabled').checked = !!cfg.backup_enabled;
           $('backup-include-raw').checked = !!cfg.backup_include_raw_datasets;
@@ -300,7 +310,9 @@
         const body = {
           backup_repo: $('backup-repo-path').value.trim() || undefined,
           backup_enabled: $('backup-enabled').checked,
-          backup_interval_minutes: parseInt($('backup-interval').value) || 1440,
+          backup_scheduler_interval_minutes: parseInt($('backup-scheduler-interval').value) || 60,
+          backup_raw_interval_minutes: parseInt($('backup-raw-interval').value) || 10080,
+          backup_project_interval_minutes: parseInt($('backup-project-interval').value) || 1440,
           backup_run_as_user_key: $('backup-run-as').value.trim() || undefined,
           backup_include_raw_datasets: $('backup-include-raw').checked,
           backup_include_projects: $('backup-include-projects').checked,

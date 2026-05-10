@@ -29,7 +29,7 @@ def run_backup_if_due(session: Session, *, last_run_at: datetime | None) -> date
     now = datetime.now(timezone.utc)
     reference = last_run_at or latest_backup_run_timestamp(session)
     if reference is not None:
-        interval = timedelta(minutes=max(1, config.backup_interval_minutes))
+        interval = timedelta(minutes=max(1, config.backup_scheduler_interval_minutes))
         if now - reference < interval:
             return reference
 

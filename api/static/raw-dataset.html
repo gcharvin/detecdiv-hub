@@ -87,6 +87,7 @@
           <section class="subpanel" id="raw-backup-subpanel">
             <div class="subpanel-header">
               <h3>Backup</h3>
+              <button id="raw-snapshots-load-button">Show snapshots</button>
             </div>
             <dl class="detail-list">
               <dt>Status</dt><dd id="raw-backup-status">—</dd>
@@ -100,6 +101,18 @@
               </label>
             </div>
             <div id="raw-backup-feedback" class="muted" style="min-height:1.2em;margin-top:0.25rem;font-size:0.85em;"></div>
+            <div id="raw-snapshots-list" class="stack-list hidden"></div>
+            <div id="raw-restore-panel" class="hidden" style="margin-top:0.75rem">
+              <p class="muted" id="raw-restore-snapshot-label"></p>
+              <div class="toolbar">
+                <label class="field">
+                  <span>Restore target directory</span>
+                  <input id="raw-restore-target-dir" type="text" placeholder="/data/restored/dataset_name" style="min-width:360px" />
+                </label>
+                <button id="raw-restore-confirm-button" class="primary">Restore</button>
+                <button id="raw-restore-cancel-button">Cancel</button>
+              </div>
+            </div>
           </section>
 
           <section class="subpanel">
@@ -213,7 +226,7 @@
       </div>
     </div>
 
-    <script src="/web/app.js?v=20260508-ui3" defer></script>
+    <script src="/web/app.js?v=20260510-ui1" defer></script>
   </body>
 </html>
 

@@ -29,6 +29,20 @@ def _require_admin(current_user: User) -> None:
     if current_user.role not in {"admin", "service"}:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Admin role required.")
 
+
+def _config_to_response(config) -> BackupSettingsResponse:
+    return BackupSettingsResponse(
+        backup_repo=config.backup_repo,
+        backup_passphrase_set=bool(config.backup_passphrase),
+        backup_enabled=config.backup_enabled,
+        backup_scheduler_interval_minutes=config.backup_scheduler_interval_minutes,
+        backup_raw_interval_minutes=config.backup_raw_interval_minutes,
+        backup_project_interval_minutes=config.backup_project_interval_minutes,
+        backup_run_as_user_key=config.backup_run_as_user_key,
+        backup_include_raw_datasets=config.backup_include_raw_datasets,
+        backup_include_projects=config.backup_include_projects,
+    )
+
 router = APIRouter(prefix="/backup", tags=["backup"])
 
 
@@ -40,7 +54,9 @@ class BackupSettingsResponse(BaseModel):
     backup_repo: str
     backup_passphrase_set: bool
     backup_enabled: bool
-    backup_interval_minutes: int
+    backup_scheduler_interval_minutes: int
+    backup_raw_interval_minutes: int
+    backup_project_interval_minutes: int
     backup_run_as_user_key: str
     backup_include_raw_datasets: bool
     backup_include_projects: bool
@@ -50,7 +66,9 @@ class BackupSettingsUpdate(BaseModel):
     backup_repo: str | None = None
     backup_passphrase: str | None = None
     backup_enabled: bool | None = None
-    backup_interval_minutes: int | None = None
+    backup_scheduler_interval_minutes: int | None = None
+    backup_raw_interval_minutes: int | None = None
+    backup_project_interval_minutes: int | None = None
     backup_run_as_user_key: str | None = None
     backup_include_raw_datasets: bool | None = None
     backup_include_projects: bool | None = None
@@ -152,15 +170,7 @@ def get_backup_settings(
 ):
     _require_admin(current_user)
     config = resolve_backup_runtime_config(db)
-    return BackupSettingsResponse(
-        backup_repo=config.backup_repo,
-        backup_passphrase_set=bool(config.backup_passphrase),
-        backup_enabled=config.backup_enabled,
-        backup_interval_minutes=config.backup_interval_minutes,
-        backup_run_as_user_key=config.backup_run_as_user_key,
-        backup_include_raw_datasets=config.backup_include_raw_datasets,
-        backup_include_projects=config.backup_include_projects,
-    )
+    return _config_to_response(config)
 
 
 @router.patch("/settings", response_model=BackupSettingsResponse)
@@ -173,15 +183,7 @@ def update_backup_settings(
     updates = {k: v for k, v in body.model_dump().items() if v is not None}
     config = update_backup_runtime_config(db, updates=updates)
     db.commit()
-    return BackupSettingsResponse(
-        backup_repo=config.backup_repo,
-        backup_passphrase_set=bool(config.backup_passphrase),
-        backup_enabled=config.backup_enabled,
-        backup_interval_minutes=config.backup_interval_minutes,
-        backup_run_as_user_key=config.backup_run_as_user_key,
-        backup_include_raw_datasets=config.backup_include_raw_datasets,
-        backup_include_projects=config.backup_include_projects,
-    )
+    return _config_to_response(config)
 
 
 @router.post("/init-repo", status_code=202)

@@ -105,6 +105,13 @@ const els = {
   projectBackupStatus: document.querySelector("#project-backup-status"),
   projectLastBackupAt: document.querySelector("#project-last-backup-at"),
   projectBackupExcluded: document.querySelector("#project-backup-excluded"),
+  projectSnapshotsLoadButton: document.querySelector("#project-snapshots-load-button"),
+  projectSnapshotsList: document.querySelector("#project-snapshots-list"),
+  projectRestorePanel: document.querySelector("#project-restore-panel"),
+  projectRestoreSnapshotLabel: document.querySelector("#project-restore-snapshot-label"),
+  projectRestoreTargetDir: document.querySelector("#project-restore-target-dir"),
+  projectRestoreConfirmButton: document.querySelector("#project-restore-confirm-button"),
+  projectRestoreCancelButton: document.querySelector("#project-restore-cancel-button"),
   addToGroupButton: document.querySelector("#add-to-group-button"),
   previewDeleteButton: document.querySelector("#preview-delete-button"),
   bulkDeletePanel: document.querySelector("#bulk-delete-panel"),
@@ -203,6 +210,13 @@ const els = {
   rawBackupExcluded: document.querySelector("#raw-backup-excluded"),
   rawBackupNowButton: document.querySelector("#raw-backup-now-button"),
   rawBackupFeedback: document.querySelector("#raw-backup-feedback"),
+  rawSnapshotsLoadButton: document.querySelector("#raw-snapshots-load-button"),
+  rawSnapshotsList: document.querySelector("#raw-snapshots-list"),
+  rawRestorePanel: document.querySelector("#raw-restore-panel"),
+  rawRestoreSnapshotLabel: document.querySelector("#raw-restore-snapshot-label"),
+  rawRestoreTargetDir: document.querySelector("#raw-restore-target-dir"),
+  rawRestoreConfirmButton: document.querySelector("#raw-restore-confirm-button"),
+  rawRestoreCancelButton: document.querySelector("#raw-restore-cancel-button"),
   rawActionFeedback: document.querySelector("#raw-action-feedback"),
   rawDatasetPageTitle: document.querySelector("#raw-dataset-page-title"),
   rawPreviewQualityRefreshButton: document.querySelector("#raw-preview-quality-refresh-button"),
@@ -6132,6 +6146,96 @@ async function backupRawDatasetNow() {
   setStatus("Backup job queued for this dataset.");
 }
 
+async function loadRawDatasetSnapshots() {
+  if (!state.selectedRawDatasetDetail) return;
+  const snaps = await apiGet(`/backup/raw-datasets/${state.selectedRawDatasetDetail.id}/snapshots`);
+  const list = els.rawSnapshotsList;
+  if (!list) return;
+  list.innerHTML = "";
+  if (!snaps.length) {
+    list.innerHTML = '<p class="muted" style="padding:0.5rem">No snapshots found.</p>';
+  } else {
+    snaps.forEach(s => {
+      const item = document.createElement("div");
+      item.className = "stack-item";
+      item.innerHTML = `<span>${new Date(s.time).toLocaleString()} &mdash; <code>${s.snapshot_id.slice(0, 8)}</code></span>`;
+      const btn = document.createElement("button");
+      btn.textContent = "Restore…";
+      btn.addEventListener("click", () => openRawRestorePanel(s));
+      item.appendChild(btn);
+      list.appendChild(item);
+    });
+  }
+  list.classList.remove("hidden");
+}
+
+function openRawRestorePanel(snapshot) {
+  if (!els.rawRestorePanel) return;
+  state._pendingRawRestoreSnapshot = snapshot;
+  if (els.rawRestoreSnapshotLabel) els.rawRestoreSnapshotLabel.textContent = `Restore snapshot ${snapshot.snapshot_id.slice(0, 8)} (${new Date(snapshot.time).toLocaleString()})`;
+  const loc = state.selectedRawDatasetDetail?.locations?.[0];
+  if (els.rawRestoreTargetDir) els.rawRestoreTargetDir.value = loc?.path || "";
+  els.rawRestorePanel.classList.remove("hidden");
+}
+
+async function confirmRawRestore() {
+  const snap = state._pendingRawRestoreSnapshot;
+  if (!snap || !state.selectedRawDatasetDetail) return;
+  const targetDir = els.rawRestoreTargetDir?.value.trim();
+  if (!targetDir) { setStatus("Enter a target directory."); return; }
+  const r = await apiPost(
+    `/backup/raw-datasets/${state.selectedRawDatasetDetail.id}/snapshots/${snap.snapshot_id}/restore`,
+    { target_dir: targetDir }
+  );
+  if (els.rawRestorePanel) els.rawRestorePanel.classList.add("hidden");
+  if (els.rawBackupFeedback) els.rawBackupFeedback.textContent = `Restore job queued: ${r.job_id}`;
+  setStatus("Restore job queued.");
+}
+
+async function loadProjectSnapshots() {
+  if (!state.selectedProjectDetail) return;
+  const snaps = await apiGet(`/backup/projects/${state.selectedProjectDetail.id}/snapshots`);
+  const list = els.projectSnapshotsList;
+  if (!list) return;
+  list.innerHTML = "";
+  if (!snaps.length) {
+    list.innerHTML = '<p class="muted" style="padding:0.5rem">No snapshots found.</p>';
+  } else {
+    snaps.forEach(s => {
+      const item = document.createElement("div");
+      item.className = "stack-item";
+      item.innerHTML = `<span>${new Date(s.time).toLocaleString()} &mdash; <code>${s.snapshot_id.slice(0, 8)}</code></span>`;
+      const btn = document.createElement("button");
+      btn.textContent = "Restore…";
+      btn.addEventListener("click", () => openProjectRestorePanel(s));
+      item.appendChild(btn);
+      list.appendChild(item);
+    });
+  }
+  list.classList.remove("hidden");
+}
+
+function openProjectRestorePanel(snapshot) {
+  if (!els.projectRestorePanel) return;
+  state._pendingProjectRestoreSnapshot = snapshot;
+  if (els.projectRestoreSnapshotLabel) els.projectRestoreSnapshotLabel.textContent = `Restore snapshot ${snapshot.snapshot_id.slice(0, 8)} (${new Date(snapshot.time).toLocaleString()})`;
+  if (els.projectRestoreTargetDir) els.projectRestoreTargetDir.value = state.selectedProjectDetail?.storage_root_path || "";
+  els.projectRestorePanel.classList.remove("hidden");
+}
+
+async function confirmProjectRestore() {
+  const snap = state._pendingProjectRestoreSnapshot;
+  if (!snap || !state.selectedProjectDetail) return;
+  const targetDir = els.projectRestoreTargetDir?.value.trim();
+  if (!targetDir) { setStatus("Enter a target directory."); return; }
+  const r = await apiPost(
+    `/backup/projects/${state.selectedProjectDetail.id}/snapshots/${snap.snapshot_id}/restore`,
+    { target_dir: targetDir }
+  );
+  if (els.projectRestorePanel) els.projectRestorePanel.classList.add("hidden");
+  setStatus(`Restore job queued: ${r.job_id}`);
+}
+
 async function createMigrationPlan() {
   if (!els.migrationSourcePath || !els.migrationBatchName) {
     return;
@@ -6661,7 +6765,13 @@ if (els.rawDeleteArchiveButton) els.rawDeleteArchiveButton.addEventListener("cli
 if (els.rawRestoreButton) els.rawRestoreButton.addEventListener("click", () => requestRawRestore().catch((error) => setStatus(String(error))));
 if (els.rawBackupExcluded) els.rawBackupExcluded.addEventListener("change", () => toggleRawBackupExclude().catch((error) => setStatus(String(error))));
 if (els.rawBackupNowButton) els.rawBackupNowButton.addEventListener("click", () => backupRawDatasetNow().catch((error) => { if (els.rawBackupFeedback) els.rawBackupFeedback.textContent = String(error); setStatus(String(error)); }));
+if (els.rawSnapshotsLoadButton) els.rawSnapshotsLoadButton.addEventListener("click", () => loadRawDatasetSnapshots().catch((error) => setStatus(String(error))));
+if (els.rawRestoreConfirmButton) els.rawRestoreConfirmButton.addEventListener("click", () => confirmRawRestore().catch((error) => setStatus(String(error))));
+if (els.rawRestoreCancelButton) els.rawRestoreCancelButton.addEventListener("click", () => { if (els.rawRestorePanel) els.rawRestorePanel.classList.add("hidden"); });
 if (els.projectBackupExcluded) els.projectBackupExcluded.addEventListener("change", () => toggleProjectBackupExclude().catch((error) => setStatus(String(error))));
+if (els.projectSnapshotsLoadButton) els.projectSnapshotsLoadButton.addEventListener("click", () => loadProjectSnapshots().catch((error) => setStatus(String(error))));
+if (els.projectRestoreConfirmButton) els.projectRestoreConfirmButton.addEventListener("click", () => confirmProjectRestore().catch((error) => setStatus(String(error))));
+if (els.projectRestoreCancelButton) els.projectRestoreCancelButton.addEventListener("click", () => { if (els.projectRestorePanel) els.projectRestorePanel.classList.add("hidden"); });
 if (els.archiveSettingsRefreshButton) els.archiveSettingsRefreshButton.addEventListener("click", () => refreshArchiveSettingsStatus().catch((error) => setStatus(String(error))));
 if (els.archiveSettingsSaveButton) els.archiveSettingsSaveButton.addEventListener("click", () => saveArchiveSettings().catch((error) => setStatus(String(error))));
 if (els.automaticArchivePolicyRefreshButton) els.automaticArchivePolicyRefreshButton.addEventListener("click", () => refreshAutomaticArchivePolicyStatus().catch((error) => setStatus(String(error))));

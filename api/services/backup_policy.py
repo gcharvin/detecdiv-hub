@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import logging
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 
 from sqlalchemy import select, text
 from sqlalchemy.orm import Session, joinedload
@@ -20,24 +20,28 @@ BACKUP_POLICY_LOCK_KEY = 2026050801
 # Skip predicates
 # ---------------------------------------------------------------------------
 
-def _should_skip_raw_dataset(raw_dataset: RawDataset) -> str | None:
+def _should_skip_raw_dataset(raw_dataset: RawDataset, config: BackupRuntimeConfig) -> str | None:
     """Return skip reason string, or None if the dataset should be backed up."""
     if raw_dataset.backup_excluded:
         return "excluded"
-    # Already cold-archived (data is in local archive file — no need to restic-backup)
     if raw_dataset.lifecycle_tier == "cold" and raw_dataset.archive_status == "archived":
         return "cold_archived"
-    # Frozen + already backed up → nothing will have changed
-    if raw_dataset.backup_status == "backed_up":
-        return "already_backed_up"
+    if raw_dataset.last_backup_at is not None:
+        interval = timedelta(minutes=max(1, config.backup_raw_interval_minutes))
+        if datetime.now(timezone.utc) - raw_dataset.last_backup_at < interval:
+            return "recent_backup"
     return None
 
 
-def _should_skip_project(project: Project) -> str | None:
+def _should_skip_project(project: Project, config: BackupRuntimeConfig) -> str | None:
     if project.backup_excluded:
         return "excluded"
     if project.status == "deleted":
         return "deleted"
+    if project.last_backup_at is not None:
+        interval = timedelta(minutes=max(1, config.backup_project_interval_minutes))
+        if datetime.now(timezone.utc) - project.last_backup_at < interval:
+            return "recent_backup"
     return None
 
 
@@ -130,7 +134,7 @@ def execute_backup_policy_run(
             )
             raw_datasets = list(session.scalars(stmt).unique())
             for rd in raw_datasets:
-                skip_reason = _should_skip_raw_dataset(rd)
+                skip_reason = _should_skip_raw_dataset(rd, config)
                 if skip_reason:
                     raw_skipped += 1
                     continue
@@ -154,7 +158,7 @@ def execute_backup_policy_run(
             )
             projects = list(session.scalars(stmt).unique())
             for proj in projects:
-                skip_reason = _should_skip_project(proj)
+                skip_reason = _should_skip_project(proj, config)
                 if skip_reason:
                     proj_skipped += 1
                     continue

@@ -101,6 +101,7 @@
             <section class="subpanel" id="project-backup-subpanel">
               <div class="subpanel-header">
                 <h3>Backup</h3>
+                <button id="project-snapshots-load-button">Show snapshots</button>
               </div>
               <dl class="detail-list">
                 <dt>Status</dt><dd id="project-backup-status">—</dd>
@@ -111,6 +112,18 @@
                   <input type="checkbox" id="project-backup-excluded" />
                   <span>Exclude from backup</span>
                 </label>
+              </div>
+              <div id="project-snapshots-list" class="stack-list hidden"></div>
+              <div id="project-restore-panel" class="hidden" style="margin-top:0.75rem">
+                <p class="muted" id="project-restore-snapshot-label"></p>
+                <div class="toolbar">
+                  <label class="field">
+                    <span>Restore target directory</span>
+                    <input id="project-restore-target-dir" type="text" placeholder="/data/projects/project_name" style="min-width:360px" />
+                  </label>
+                  <button id="project-restore-confirm-button" class="primary">Restore</button>
+                  <button id="project-restore-cancel-button">Cancel</button>
+                </div>
               </div>
             </section>
           </div>
@@ -305,7 +318,7 @@
       </div>
     </div>
 
-    <script src="/web/app.js?v=20260508-ui3" defer></script>
+    <script src="/web/app.js?v=20260510-ui1" defer></script>
   </body>
 </html>
 
