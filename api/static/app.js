@@ -105,6 +105,8 @@ const els = {
   projectBackupStatus: document.querySelector("#project-backup-status"),
   projectLastBackupAt: document.querySelector("#project-last-backup-at"),
   projectBackupExcluded: document.querySelector("#project-backup-excluded"),
+  projectBackupNowButton: document.querySelector("#project-backup-now-button"),
+  projectBackupFeedback: document.querySelector("#project-backup-feedback"),
   projectSnapshotsLoadButton: document.querySelector("#project-snapshots-load-button"),
   projectSnapshotsList: document.querySelector("#project-snapshots-list"),
   projectRestorePanel: document.querySelector("#project-restore-panel"),
@@ -6128,6 +6130,16 @@ async function toggleRawBackupExclude() {
   setStatus(`Dataset ${excluded ? "excluded from" : "included in"} backup.`);
 }
 
+async function backupProjectNow() {
+  if (!state.selectedProjectDetail) return;
+  if (els.projectBackupFeedback) els.projectBackupFeedback.textContent = "Queuing backup job…";
+  const r = await apiPost(`/backup/projects/${state.selectedProjectDetail.id}/backup-now`, {});
+  if (els.projectBackupFeedback) els.projectBackupFeedback.textContent = `Job queued: ${r.job_id}`;
+  state.selectedProjectDetail.backup_status = "queued";
+  if (els.projectBackupStatus) els.projectBackupStatus.textContent = "queued";
+  setStatus("Backup job queued for this project.");
+}
+
 async function toggleProjectBackupExclude() {
   if (!state.selectedProjectDetail) return;
   const excluded = els.projectBackupExcluded.checked;
@@ -6768,6 +6780,7 @@ if (els.rawBackupNowButton) els.rawBackupNowButton.addEventListener("click", () 
 if (els.rawSnapshotsLoadButton) els.rawSnapshotsLoadButton.addEventListener("click", () => loadRawDatasetSnapshots().catch((error) => setStatus(String(error))));
 if (els.rawRestoreConfirmButton) els.rawRestoreConfirmButton.addEventListener("click", () => confirmRawRestore().catch((error) => setStatus(String(error))));
 if (els.rawRestoreCancelButton) els.rawRestoreCancelButton.addEventListener("click", () => { if (els.rawRestorePanel) els.rawRestorePanel.classList.add("hidden"); });
+if (els.projectBackupNowButton) els.projectBackupNowButton.addEventListener("click", () => backupProjectNow().catch((error) => { if (els.projectBackupFeedback) els.projectBackupFeedback.textContent = String(error); setStatus(String(error)); }));
 if (els.projectBackupExcluded) els.projectBackupExcluded.addEventListener("change", () => toggleProjectBackupExclude().catch((error) => setStatus(String(error))));
 if (els.projectSnapshotsLoadButton) els.projectSnapshotsLoadButton.addEventListener("click", () => loadProjectSnapshots().catch((error) => setStatus(String(error))));
 if (els.projectRestoreConfirmButton) els.projectRestoreConfirmButton.addEventListener("click", () => confirmProjectRestore().catch((error) => setStatus(String(error))));

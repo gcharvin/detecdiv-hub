@@ -108,11 +108,13 @@
                 <dt>Last backup</dt><dd id="project-last-backup-at">—</dd>
               </dl>
               <div class="action-stack" style="margin-top:0.5rem">
+                <button id="project-backup-now-button">Backup now</button>
                 <label class="field compact checkbox-field">
                   <input type="checkbox" id="project-backup-excluded" />
                   <span>Exclude from backup</span>
                 </label>
               </div>
+              <div id="project-backup-feedback" class="muted" style="min-height:1.2em;margin-top:0.25rem;font-size:0.85em;"></div>
               <div id="project-snapshots-list" class="stack-list hidden"></div>
               <div id="project-restore-panel" class="hidden" style="margin-top:0.75rem">
                 <p class="muted" id="project-restore-snapshot-label"></p>
@@ -318,7 +320,7 @@
       </div>
     </div>
 
-    <script src="/web/app.js?v=20260510-ui1" defer></script>
+    <script src="/web/app.js?v=20260510-ui2" defer></script>
   </body>
 </html>
 

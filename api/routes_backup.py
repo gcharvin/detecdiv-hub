@@ -468,6 +468,35 @@ def restore_project_from_snapshot(
     return {"job_id": str(job.id), "detail": "Restore job queued."}
 
 
+@router.post("/projects/{project_id}/backup-now", status_code=202)
+def backup_project_now(
+    project_id: UUID,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    _require_admin(current_user)
+    project = db.get(Project, project_id)
+    if project is None:
+        raise HTTPException(status_code=404, detail="Project not found")
+    config = _load_config_and_repo(db)
+    job = Job(
+        project_id=project_id,
+        status="queued",
+        priority=200,
+        requested_by=current_user.user_key,
+        params_json={
+            "job_kind": "backup_project",
+            "project_id": str(project_id),
+            "backup_repo": config.backup_repo,
+            "force": True,
+        },
+    )
+    db.add(job)
+    project.backup_status = "queued"
+    db.commit()
+    return {"job_id": str(job.id), "detail": "Backup job queued."}
+
+
 @router.patch("/projects/{project_id}/backup-settings")
 def update_project_backup_settings(
     project_id: UUID,
