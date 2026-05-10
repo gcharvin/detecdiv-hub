@@ -6400,7 +6400,7 @@ function openProjectRestorePanel(snapshot) {
   if (!els.projectRestorePanel) return;
   state._pendingProjectRestoreSnapshot = snapshot;
   if (els.projectRestoreSnapshotLabel) els.projectRestoreSnapshotLabel.textContent = `Restore snapshot ${snapshot.snapshot_id.slice(0, 8)} (${new Date(snapshot.time).toLocaleString()})`;
-  if (els.projectRestoreTargetDir) els.projectRestoreTargetDir.value = state.selectedProjectDetail?.storage_root_path || "";
+  if (els.projectRestoreTargetDir) els.projectRestoreTargetDir.value = "/";
   els.projectRestorePanel.classList.remove("hidden");
 }
 
