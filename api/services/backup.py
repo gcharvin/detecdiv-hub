@@ -71,9 +71,8 @@ def backup(
     *,
     repo: str,
     passphrase: str,
-    source_path: str,
+    source_paths: list[str],
     tags: list[str],
-    include_patterns: list[str] | None = None,
     exclude_patterns: list[str] | None = None,
     timeout: int = 7200,
 ) -> dict:
@@ -81,14 +80,11 @@ def backup(
     tag_args = []
     for t in tags:
         tag_args += ["--tag", t]
-    include_args = []
-    for p in (include_patterns or []):
-        include_args += ["--include", p]
     exclude_args = []
     for p in (exclude_patterns or []):
         exclude_args += ["--exclude", p]
     stdout = _run_restic(
-        ["backup", source_path, "--json"] + tag_args + include_args + exclude_args,
+        ["backup"] + source_paths + ["--json"] + tag_args + exclude_args,
         repo=repo,
         passphrase=passphrase,
         timeout=timeout,

@@ -99,7 +99,7 @@ def _execute_backup_raw_dataset(session: Session, *, job: Job) -> dict:
     summary = backup(
         repo=config.backup_repo,
         passphrase=config.backup_passphrase,
-        source_path=str(source_path),
+        source_paths=[str(source_path)],
         tags=tags,
     )
 
@@ -149,31 +149,37 @@ def _execute_backup_project(session: Session, *, job: Job) -> dict:
         raise FileNotFoundError(f"Project path does not exist: {source_path}")
 
     # Scope the backup to only project-specific files.
-    include_patterns: list[str] | None = None
+    # source_path is stored in the snapshot for file-browser browsing.
+    # backup_paths are the actual paths passed to restic.
     exclude_patterns: list[str] | None = None
     if location.project_file_name:
         stem = Path(location.project_file_name).stem
         if (source_path / stem).is_dir():
             # Modern project: source_path is the projects container.
-            # Include only the .mat file and its adjacent directory.
-            include_patterns = [location.project_file_name, stem]
+            # Back up only the .mat file and its adjacent directory.
+            backup_paths = [
+                str(source_path / location.project_file_name),
+                str(source_path / stem),
+            ]
         else:
             # Legacy project: source_path IS the project directory.
-            # Exclude posN subdirs (raw datasets stored alongside project files).
+            # Back up the whole dir but exclude posN subdirs (raw datasets).
+            backup_paths = [str(source_path)]
             project_name = source_path.name
             exclude_patterns = [f"{project_name}-pos*"]
+    else:
+        backup_paths = [str(source_path)]
 
     tags = project_tags(str(project.id))
     LOGGER.info(
-        "Backing up project %s from %s (include: %s, exclude: %s)",
-        project.id, source_path, include_patterns or "all", exclude_patterns or "none",
+        "Backing up project %s: paths=%s exclude=%s",
+        project.id, backup_paths, exclude_patterns or "none",
     )
     summary = backup(
         repo=config.backup_repo,
         passphrase=config.backup_passphrase,
-        source_path=str(source_path),
+        source_paths=backup_paths,
         tags=tags,
-        include_patterns=include_patterns,
         exclude_patterns=exclude_patterns,
     )
 
