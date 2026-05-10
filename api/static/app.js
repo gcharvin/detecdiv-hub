@@ -121,6 +121,7 @@ const els = {
   projectBrowserTargetDir: document.querySelector("#project-browser-target-dir"),
   projectBrowserRestoreButton: document.querySelector("#project-browser-restore-button"),
   projectBrowserRestoreCancelButton: document.querySelector("#project-browser-restore-cancel-button"),
+  projectBrowserUpButton: document.querySelector("#project-browser-up-button"),
   projectBrowserCloseButton: document.querySelector("#project-browser-close-button"),
   projectRestoreCancelButton: document.querySelector("#project-restore-cancel-button"),
   addToGroupButton: document.querySelector("#add-to-group-button"),
@@ -6954,8 +6955,18 @@ if (els.projectSnapshotsLoadButton) els.projectSnapshotsLoadButton.addEventListe
 if (els.projectRestoreConfirmButton) els.projectRestoreConfirmButton.addEventListener("click", () => confirmProjectRestore().catch((error) => setStatus(String(error))));
 if (els.projectRestoreCancelButton) els.projectRestoreCancelButton.addEventListener("click", () => { if (els.projectRestorePanel) els.projectRestorePanel.classList.add("hidden"); });
 if (els.projectBrowserCloseButton) els.projectBrowserCloseButton.addEventListener("click", () => { if (els.projectFileBrowser) els.projectFileBrowser.classList.add("hidden"); });
+if (els.projectBrowserUpButton) els.projectBrowserUpButton.addEventListener("click", () => {
+  if (_projectBrowser.pathStack.length > 0) {
+    _projectBrowser.pathStack.pop();
+    _loadProjectBrowserDir().catch(err => setStatus(String(err)));
+  }
+});
 if (els.projectBrowserRestoreButton) els.projectBrowserRestoreButton.addEventListener("click", () => confirmProjectSelectiveRestore().catch((error) => setStatus(String(error))));
-if (els.projectBrowserRestoreCancelButton) els.projectBrowserRestoreCancelButton.addEventListener("click", () => { if (els.projectBrowserRestorePanel) els.projectBrowserRestorePanel.classList.add("hidden"); _projectBrowser.selected = new Set(); });
+if (els.projectBrowserRestoreCancelButton) els.projectBrowserRestoreCancelButton.addEventListener("click", () => {
+  if (els.projectBrowserRestorePanel) els.projectBrowserRestorePanel.classList.add("hidden");
+  if (els.projectFileBrowser) els.projectFileBrowser.classList.add("hidden");
+  _projectBrowser.selected = new Set();
+});
 if (els.archiveSettingsRefreshButton) els.archiveSettingsRefreshButton.addEventListener("click", () => refreshArchiveSettingsStatus().catch((error) => setStatus(String(error))));
 if (els.archiveSettingsSaveButton) els.archiveSettingsSaveButton.addEventListener("click", () => saveArchiveSettings().catch((error) => setStatus(String(error))));
 if (els.automaticArchivePolicyRefreshButton) els.automaticArchivePolicyRefreshButton.addEventListener("click", () => refreshAutomaticArchivePolicyStatus().catch((error) => setStatus(String(error))));

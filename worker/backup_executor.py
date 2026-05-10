@@ -148,13 +148,20 @@ def _execute_backup_project(session: Session, *, job: Job) -> dict:
     if not source_path.exists():
         raise FileNotFoundError(f"Project path does not exist: {source_path}")
 
+    # If we know the specific .mat file, only backup that file + adjacent dir.
+    include_patterns: list[str] | None = None
+    if location.project_file_name:
+        stem = Path(location.project_file_name).stem
+        include_patterns = [location.project_file_name, stem]
+
     tags = project_tags(str(project.id))
-    LOGGER.info("Backing up project %s from %s", project.id, source_path)
+    LOGGER.info("Backing up project %s from %s (includes: %s)", project.id, source_path, include_patterns or "all")
     summary = backup(
         repo=config.backup_repo,
         passphrase=config.backup_passphrase,
         source_path=str(source_path),
         tags=tags,
+        include_patterns=include_patterns,
     )
 
     snapshot_id = summary.get("snapshot_id", "")
@@ -269,8 +276,9 @@ def _execute_list_snapshot_dir(session: Session, *, job: Job) -> dict:
     if not snapshot_id:
         raise ValueError("list_snapshot_dir: snapshot_id missing")
 
-    # restic mount exposes snapshots at: {mount}/ids/{snapshot_id}/{original_abs_path}
-    full_path = os.path.join(mount_path, "ids", snapshot_id, source_path, browse_path)
+    # restic FUSE mount exposes short IDs (8 chars) under ids/
+    short_id = snapshot_id[:8]
+    full_path = os.path.join(mount_path, "ids", short_id, source_path, browse_path)
     LOGGER.info("Listing snapshot dir: %s", full_path)
 
     if not os.path.isdir(full_path):
