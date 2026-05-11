@@ -294,6 +294,18 @@ These metrics are intentionally lightweight and server-computable without
 MATLAB. Richer FOV/ROI/raw linkage can still be imported from the MATLAB-side
 catalog when available.
 
+### User home storage
+
+The target direction for per-user storage is documented in
+`docs/user_home_storage_provider.md`.
+
+The short version is that DetecDiv Hub should model storage providers and user
+storage accounts generically, keep canonical locations as `storage_roots` plus
+relative paths, and treat Synology DSM as an optional provisioning/quota adapter
+rather than as a hard dependency. New users can use `/homes/<username>/DetecDiv`
+while legacy `/data` locations continue to coexist until audited migration
+workflows move them.
+
 ### Deletion workflow
 
 Project deletion should not begin as a bare `DELETE FROM` operation. The target

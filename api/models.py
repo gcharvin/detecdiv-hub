@@ -43,6 +43,7 @@ class User(Base):
         back_populates="owner", foreign_keys="IndexingJob.owner_user_id"
     )
     storage_migration_batches: Mapped[list["StorageMigrationBatch"]] = relationship(back_populates="owner")
+    storage_accounts: Mapped[list["UserStorageAccount"]] = relationship(back_populates="user")
     sessions: Mapped[list["UserSession"]] = relationship(back_populates="user")
     requested_lifecycle_events: Mapped[list["StorageLifecycleEvent"]] = relationship(back_populates="requested_by")
     archive_policy_runs: Mapped[list["ArchivePolicyRun"]] = relationship(back_populates="triggered_by")
@@ -67,6 +68,114 @@ class StorageRoot(Base):
     project_locations: Mapped[list["ProjectLocation"]] = relationship(back_populates="storage_root")
     raw_dataset_locations: Mapped[list["RawDatasetLocation"]] = relationship(back_populates="storage_root")
     acquisition_sessions: Mapped[list["AcquisitionSession"]] = relationship(back_populates="landing_storage_root")
+    user_storage_accounts: Mapped[list["UserStorageAccount"]] = relationship(back_populates="home_storage_root")
+
+
+class StorageProvider(Base):
+    __tablename__ = "storage_providers"
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    provider_key: Mapped[str] = mapped_column(String, nullable=False, unique=True)
+    display_name: Mapped[str] = mapped_column(String, nullable=False)
+    provider_kind: Mapped[str] = mapped_column(String, nullable=False, default="posix_mount")
+    mount_root: Mapped[str | None] = mapped_column(Text)
+    quota_mode: Mapped[str] = mapped_column(String, nullable=False, default="measured_only")
+    is_active: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
+    capabilities_json: Mapped[dict] = mapped_column(JSONB, nullable=False, default=dict)
+    config_json: Mapped[dict] = mapped_column(JSONB, nullable=False, default=dict)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
+    )
+
+    user_accounts: Mapped[list["UserStorageAccount"]] = relationship(back_populates="provider")
+    quota_snapshots: Mapped[list["StorageQuotaSnapshot"]] = relationship(back_populates="provider")
+    provisioning_events: Mapped[list["StorageProvisioningEvent"]] = relationship(back_populates="provider")
+
+
+class UserStorageAccount(Base):
+    __tablename__ = "user_storage_accounts"
+    __table_args__ = (
+        UniqueConstraint("user_id", "provider_id", name="uq_user_storage_accounts_user_provider"),
+        UniqueConstraint("provider_id", "provider_user_key", name="uq_user_storage_accounts_provider_user"),
+    )
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    user_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False
+    )
+    provider_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("storage_providers.id", ondelete="CASCADE"), nullable=False
+    )
+    provider_user_key: Mapped[str] = mapped_column(String, nullable=False)
+    home_storage_root_id: Mapped[int | None] = mapped_column(ForeignKey("storage_roots.id", ondelete="SET NULL"))
+    home_relative_path: Mapped[str | None] = mapped_column(Text)
+    quota_bytes: Mapped[int | None] = mapped_column(BIGINT)
+    quota_status: Mapped[str] = mapped_column(String, nullable=False, default="unknown")
+    provisioning_status: Mapped[str] = mapped_column(String, nullable=False, default="planned")
+    last_synced_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    metadata_json: Mapped[dict] = mapped_column(JSONB, nullable=False, default=dict)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
+    )
+
+    user: Mapped[User] = relationship(back_populates="storage_accounts")
+    provider: Mapped[StorageProvider] = relationship(back_populates="user_accounts")
+    home_storage_root: Mapped[StorageRoot | None] = relationship(back_populates="user_storage_accounts")
+    quota_snapshots: Mapped[list["StorageQuotaSnapshot"]] = relationship(back_populates="storage_account")
+    provisioning_events: Mapped[list["StorageProvisioningEvent"]] = relationship(back_populates="storage_account")
+
+
+class StorageQuotaSnapshot(Base):
+    __tablename__ = "storage_quota_snapshots"
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    user_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False
+    )
+    provider_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("storage_providers.id", ondelete="CASCADE"), nullable=False
+    )
+    storage_account_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("user_storage_accounts.id", ondelete="SET NULL")
+    )
+    provider_user_key: Mapped[str] = mapped_column(String, nullable=False)
+    quota_bytes: Mapped[int | None] = mapped_column(BIGINT)
+    provider_used_bytes: Mapped[int | None] = mapped_column(BIGINT)
+    hub_project_bytes: Mapped[int] = mapped_column(BIGINT, nullable=False, default=0)
+    hub_raw_bytes: Mapped[int] = mapped_column(BIGINT, nullable=False, default=0)
+    hub_artifact_bytes: Mapped[int] = mapped_column(BIGINT, nullable=False, default=0)
+    measured_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    metadata_json: Mapped[dict] = mapped_column(JSONB, nullable=False, default=dict)
+
+    user: Mapped[User] = relationship()
+    provider: Mapped[StorageProvider] = relationship(back_populates="quota_snapshots")
+    storage_account: Mapped[UserStorageAccount | None] = relationship(back_populates="quota_snapshots")
+
+
+class StorageProvisioningEvent(Base):
+    __tablename__ = "storage_provisioning_events"
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    user_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("users.id", ondelete="SET NULL")
+    )
+    provider_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("storage_providers.id", ondelete="SET NULL")
+    )
+    storage_account_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("user_storage_accounts.id", ondelete="SET NULL")
+    )
+    event_kind: Mapped[str] = mapped_column(String, nullable=False)
+    status: Mapped[str] = mapped_column(String, nullable=False, default="recorded")
+    message: Mapped[str | None] = mapped_column(Text)
+    metadata_json: Mapped[dict] = mapped_column(JSONB, nullable=False, default=dict)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+    user: Mapped[User | None] = relationship()
+    provider: Mapped[StorageProvider | None] = relationship(back_populates="provisioning_events")
+    storage_account: Mapped[UserStorageAccount | None] = relationship(back_populates="provisioning_events")
 
 
 class UserSession(Base):

@@ -140,6 +140,115 @@ class StorageRootBrowseResponse(HubBaseModel):
     directories: list[StorageRootBrowseEntry] = Field(default_factory=list)
 
 
+class StorageProviderSummary(HubBaseModel):
+    id: UUID
+    provider_key: str
+    display_name: str
+    provider_kind: str
+    mount_root: str | None = None
+    quota_mode: str
+    is_active: bool
+    capabilities_json: dict[str, Any] = Field(default_factory=dict)
+    config_json: dict[str, Any] = Field(default_factory=dict)
+    created_at: datetime | None = None
+    updated_at: datetime | None = None
+
+
+class StorageProviderCreate(HubBaseModel):
+    provider_key: str
+    display_name: str
+    provider_kind: str = "posix_mount"
+    mount_root: str | None = None
+    quota_mode: str = "measured_only"
+    is_active: bool = True
+    capabilities_json: dict[str, Any] = Field(default_factory=dict)
+    config_json: dict[str, Any] = Field(default_factory=dict)
+
+
+class StorageProviderUpdate(HubBaseModel):
+    display_name: str | None = None
+    provider_kind: str | None = None
+    mount_root: str | None = None
+    quota_mode: str | None = None
+    is_active: bool | None = None
+    capabilities_json: dict[str, Any] | None = None
+    config_json: dict[str, Any] | None = None
+
+
+class UserStorageAccountSummary(HubBaseModel):
+    id: UUID
+    user: UserSummary
+    provider: StorageProviderSummary
+    provider_user_key: str
+    home_storage_root: StorageRootSummary | None = None
+    home_relative_path: str | None = None
+    quota_bytes: int | None = None
+    quota_status: str
+    provisioning_status: str
+    last_synced_at: datetime | None = None
+    metadata_json: dict[str, Any] = Field(default_factory=dict)
+    created_at: datetime | None = None
+    updated_at: datetime | None = None
+
+
+class UserStorageAccountCreate(HubBaseModel):
+    user_id: UUID
+    provider_key: str
+    provider_user_key: str | None = None
+    home_storage_root_id: int | None = None
+    home_relative_path: str | None = None
+    quota_bytes: int | None = None
+    quota_status: str = "unknown"
+    provisioning_status: str = "planned"
+    metadata_json: dict[str, Any] = Field(default_factory=dict)
+
+
+class UserStorageAccountUpdate(HubBaseModel):
+    provider_user_key: str | None = None
+    home_storage_root_id: int | None = None
+    home_relative_path: str | None = None
+    quota_bytes: int | None = None
+    quota_status: str | None = None
+    provisioning_status: str | None = None
+    metadata_json: dict[str, Any] | None = None
+
+
+class UserHomeProvisionRequest(HubBaseModel):
+    provider_key: str
+    provider_user_key: str | None = None
+    home_storage_root_id: int | None = None
+    home_relative_path: str | None = None
+    quota_bytes: int | None = None
+    create_missing_provider: bool = False
+
+
+class StorageQuotaSnapshotSummary(HubBaseModel):
+    id: UUID
+    user: UserSummary
+    provider: StorageProviderSummary
+    storage_account: UserStorageAccountSummary | None = None
+    provider_user_key: str
+    quota_bytes: int | None = None
+    provider_used_bytes: int | None = None
+    hub_project_bytes: int = 0
+    hub_raw_bytes: int = 0
+    hub_artifact_bytes: int = 0
+    measured_at: datetime | None = None
+    metadata_json: dict[str, Any] = Field(default_factory=dict)
+
+
+class StorageProvisioningEventSummary(HubBaseModel):
+    id: UUID
+    event_kind: str
+    status: str
+    message: str | None = None
+    metadata_json: dict[str, Any] = Field(default_factory=dict)
+    created_at: datetime | None = None
+    user: UserSummary | None = None
+    provider: StorageProviderSummary | None = None
+    storage_account: UserStorageAccountSummary | None = None
+
+
 class RawDatasetSummary(HubBaseModel):
     id: UUID
     external_key: str | None = None
