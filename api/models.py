@@ -49,6 +49,9 @@ class User(Base):
     micromanager_ingest_runs: Mapped[list["MicroManagerIngestRun"]] = relationship(back_populates="triggered_by")
     acquisition_sessions: Mapped[list["AcquisitionSession"]] = relationship(back_populates="owner")
     external_user_records: Mapped[list["ExternalUserRecord"]] = relationship(back_populates="matched_user")
+    reviewed_external_match_candidates: Mapped[list["ExternalMatchCandidate"]] = relationship(
+        back_populates="reviewed_by"
+    )
 
 
 class StorageRoot(Base):
@@ -141,6 +144,7 @@ class RawDataset(Base):
     project_links: Mapped[list["ProjectRawLink"]] = relationship(back_populates="raw_dataset")
     experiment_links: Mapped[list["ExperimentRawLink"]] = relationship(back_populates="raw_dataset")
     lifecycle_events: Mapped[list["StorageLifecycleEvent"]] = relationship(back_populates="raw_dataset")
+    external_match_candidates: Mapped[list["ExternalMatchCandidate"]] = relationship(back_populates="raw_dataset")
 
 
 class RawDatasetLocation(Base):
@@ -768,6 +772,8 @@ class ExternalExperimentRecord(Base):
         DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
     )
 
+    match_candidates: Mapped[list["ExternalMatchCandidate"]] = relationship(back_populates="external_experiment_record")
+
 
 class ExternalUserRecord(Base):
     __tablename__ = "external_user_records"
@@ -792,6 +798,45 @@ class ExternalUserRecord(Base):
     )
 
     matched_user: Mapped[User | None] = relationship(back_populates="external_user_records")
+
+
+class ExternalMatchCandidate(Base):
+    __tablename__ = "external_match_candidates"
+    __table_args__ = (
+        UniqueConstraint(
+            "raw_dataset_id",
+            "system_key",
+            "external_experiment_record_id",
+            name="uq_external_match_candidates_raw_system_experiment",
+        ),
+    )
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    raw_dataset_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("raw_datasets.id", ondelete="CASCADE"), nullable=False
+    )
+    system_key: Mapped[str] = mapped_column(String, nullable=False)
+    external_experiment_record_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("external_experiment_records.id", ondelete="CASCADE"), nullable=False
+    )
+    external_id: Mapped[str] = mapped_column(String, nullable=False)
+    score: Mapped[float] = mapped_column(Float, nullable=False, default=0.0)
+    candidate_rank: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    status: Mapped[str] = mapped_column(String, nullable=False, default="proposed")
+    match_method: Mapped[str] = mapped_column(String, nullable=False, default="deterministic_v1")
+    evidence_json: Mapped[dict] = mapped_column(JSONB, nullable=False, default=dict)
+    reviewed_by_user_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("users.id", ondelete="SET NULL")
+    )
+    reviewed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
+    )
+
+    raw_dataset: Mapped[RawDataset] = relationship(back_populates="external_match_candidates")
+    external_experiment_record: Mapped[ExternalExperimentRecord] = relationship(back_populates="match_candidates")
+    reviewed_by: Mapped[User | None] = relationship(back_populates="reviewed_external_match_candidates")
 
 
 class StorageLifecycleEvent(Base):

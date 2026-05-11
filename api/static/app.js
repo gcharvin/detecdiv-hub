@@ -34,6 +34,8 @@ const state = {
   rawPositionDeletePreviewToken: 0,
   rawPreviewQualityStatus: null,
   rawLabguruResults: [],
+  externalMatchStatus: null,
+  externalMatchCandidates: [],
   archiveSettingsStatus: null,
   archivePolicyPreview: null,
   automaticArchivePolicyStatus: null,
@@ -252,6 +254,19 @@ const els = {
   rawPreviewQualityConfig: document.querySelector("#raw-preview-quality-config"),
   rawPreviewQualitySummary: document.querySelector("#raw-preview-quality-summary"),
   rawPreviewQualityTableBody: document.querySelector("#raw-preview-quality-table tbody"),
+  externalMatchCacheCount: document.querySelector("#external-match-cache-count"),
+  externalMatchLinkedCount: document.querySelector("#external-match-linked-count"),
+  externalMatchCandidateCount: document.querySelector("#external-match-candidate-count"),
+  externalMatchLatestSync: document.querySelector("#external-match-latest-sync"),
+  externalMatchGenerationSummary: document.querySelector("#external-match-generation-summary"),
+  externalMatchMinScore: document.querySelector("#external-match-min-score"),
+  externalMatchMaxCandidates: document.querySelector("#external-match-max-candidates"),
+  externalMatchRawLimit: document.querySelector("#external-match-raw-limit"),
+  externalMatchIncludeLinked: document.querySelector("#external-match-include-linked"),
+  externalMatchGenerateButton: document.querySelector("#external-match-generate-button"),
+  externalMatchRefreshButton: document.querySelector("#external-match-refresh-button"),
+  externalMatchStatusFilter: document.querySelector("#external-match-status-filter"),
+  externalMatchCandidatesTableBody: document.querySelector("#external-match-candidates-table tbody"),
   deploymentAwarenessSummary: document.querySelector("#deployment-awareness-summary"),
   deploymentApiStatus: document.querySelector("#deployment-api-status"),
   deploymentDbStatus: document.querySelector("#deployment-db-status"),
@@ -399,6 +414,7 @@ const pageFlags = {
   hasExecutionTargetsView: pageKind === "admin-execution-targets" && Boolean(els.executionTargetsTableBody),
   hasUsersView: pageKind === "admin-users" && Boolean(els.usersTableBody),
   hasSessionsView: pageKind === "admin-sessions" && Boolean(els.sessionsTableBody),
+  hasExternalElnAdminView: pageKind === "admin-external-eln" && Boolean(els.externalMatchCandidatesTableBody),
   hasIndexingView: Boolean(els.indexJobsTableBody || els.activeIndexJob),
   hasRawDatasetsView: Boolean(els.rawDatasetsTableBody),
   hasRawDatasetPage: pageKind === "raw-dataset",
@@ -430,6 +446,9 @@ function getSidebarActiveRoute() {
   }
   if (pageKind === "admin-backup") {
     return "admin-backup";
+  }
+  if (pageKind === "admin-external-eln") {
+    return "admin-external-eln";
   }
   if (pageKind === "indexing") {
     return "projects-settings";
@@ -597,6 +616,7 @@ function initializeAppLayout() {
       { label: "Execution Targets", href: "/web/admin-execution-targets.html", route: "admin-execution-targets" },
       { label: "User Accounts", href: "/web/admin-users.html", route: "admin-users" },
       { label: "Sessions", href: "/web/admin-sessions.html", route: "admin-sessions" },
+      { label: "External ELN", href: "/web/admin-external-eln.html", route: "admin-external-eln" },
       { label: "Backup", href: "/web/admin-backup.html", route: "admin-backup" },
     ];
     for (const item of adminItems) {
@@ -4329,6 +4349,8 @@ function renderProjectRawDatasets() {
     `;
     els.projectRawDatasetsList.appendChild(div);
   }
+}
+
 function externalLinkLabel(link) {
   const system = String(link?.system_key || "external").toUpperCase();
   const title = link?.title || link?.external_id || "linked record";
@@ -4408,6 +4430,79 @@ function renderRawLabguruResults() {
   }
 }
 
+function renderExternalElnMatching() {
+  const status = state.externalMatchStatus || {};
+  if (els.externalMatchCacheCount) els.externalMatchCacheCount.textContent = `${status.experiment_count ?? "-"}`;
+  if (els.externalMatchLinkedCount) els.externalMatchLinkedCount.textContent = `${status.linked_experiment_count ?? "-"}`;
+  if (els.externalMatchCandidateCount) els.externalMatchCandidateCount.textContent = `${state.externalMatchCandidates.length}`;
+  if (els.externalMatchLatestSync) {
+    els.externalMatchLatestSync.textContent = status.latest_sync_at ? formatTimestamp(status.latest_sync_at) : "-";
+  }
+  renderExternalMatchCandidatesTable();
+}
+
+function renderExternalMatchCandidatesTable() {
+  if (!els.externalMatchCandidatesTableBody) {
+    return;
+  }
+  els.externalMatchCandidatesTableBody.innerHTML = "";
+  if (!state.externalMatchCandidates.length) {
+    els.externalMatchCandidatesTableBody.innerHTML = `<tr><td colspan="6" class="muted">No candidates loaded.</td></tr>`;
+    return;
+  }
+  for (const candidate of state.externalMatchCandidates) {
+    const raw = candidate.raw_dataset || {};
+    const external = candidate.external_experiment || {};
+    const evidence = candidate.evidence_json || {};
+    const tr = document.createElement("tr");
+    const evidenceText = [
+      evidence.label_signal || "",
+      evidence.date_match ? `date ${evidence.raw_date}` : "",
+      evidence.owner_match ? "owner" : "",
+    ].filter(Boolean).join(" | ");
+    const rawHref = `/web/raw-dataset.html?id=${encodeURIComponent(raw.id || "")}`;
+    const labguruLink = external.external_url
+      ? `<a href="${escapeHtml(external.external_url)}" target="_blank" rel="noreferrer">${escapeHtml(external.title || external.external_id || "")}</a>`
+      : escapeHtml(external.title || external.external_id || "");
+    tr.innerHTML = `
+      <td>${Math.round(Number(candidate.score || 0) * 100)}%</td>
+      <td>
+        <a href="${escapeHtml(rawHref)}">${escapeHtml(raw.acquisition_label || "")}</a>
+        <div class="stack-item-meta">${escapeHtml(raw.owner?.display_name || "")} ${raw.microscope_name ? `| ${escapeHtml(raw.microscope_name)}` : ""}</div>
+      </td>
+      <td>
+        ${labguruLink}
+        <div class="stack-item-meta">${escapeHtml(external.external_id || "")} ${external.owner_name ? `| ${escapeHtml(external.owner_name)}` : ""}</div>
+      </td>
+      <td>
+        <div>${escapeHtml(evidenceText || candidate.match_method || "")}</div>
+        <div class="stack-item-meta">tokens ${escapeHtml(String(evidence.token_overlap ?? ""))} | seq ${escapeHtml(String(evidence.sequence_ratio ?? ""))}</div>
+      </td>
+      <td>${escapeHtml(candidate.status || "")}</td>
+      <td><div class="action-stack"></div></td>
+    `;
+    const actions = tr.querySelector(".action-stack");
+    if (actions && candidate.status !== "accepted") {
+      const acceptButton = document.createElement("button");
+      acceptButton.className = "primary";
+      acceptButton.textContent = "Accept";
+      acceptButton.addEventListener("click", () => reviewExternalMatchCandidate(candidate.id, "accept").catch((error) => {
+        setStatus(String(error));
+        window.alert(String(error));
+      }));
+      actions.appendChild(acceptButton);
+    }
+    if (actions && candidate.status !== "rejected") {
+      const rejectButton = document.createElement("button");
+      rejectButton.textContent = "Reject";
+      rejectButton.addEventListener("click", () => reviewExternalMatchCandidate(candidate.id, "reject").catch((error) => {
+        setStatus(String(error));
+        window.alert(String(error));
+      }));
+      actions.appendChild(rejectButton);
+    }
+    els.externalMatchCandidatesTableBody.appendChild(tr);
+  }
 }
 
 function renderUsers() {
@@ -4680,6 +4775,9 @@ async function refreshDashboard() {
   }
   if (pageFlags.hasSessionsView && isAdmin()) {
     refreshTasks.push(refreshSessions());
+  }
+  if (pageFlags.hasExternalElnAdminView && isAdmin()) {
+    refreshTasks.push(refreshExternalElnMatching());
   }
   if (pageFlags.hasIndexingView) {
     refreshTasks.push(refreshIndexingJobs());
@@ -5223,6 +5321,10 @@ async function saveRawDatasetNotes() {
   state.selectedRawDataset = saved;
   state.rawDatasets = state.rawDatasets.map((raw) => (raw.id === saved.id ? saved : raw));
   renderRawDatasets();
+  renderRawDatasetDetail();
+  setStatus("Raw dataset notes saved.");
+}
+
 async function searchLabguruForSelectedRawDataset() {
   if (!state.selectedRawDatasetDetail) {
     throw new Error("Load a raw dataset before searching Labguru.");
@@ -5251,8 +5353,58 @@ async function linkSelectedRawDatasetToLabguru(externalExperimentId) {
   setStatus(`Linked Labguru experiment ${result.external_link.external_id}.`);
 }
 
-  renderRawDatasetDetail();
-  setStatus("Raw dataset notes saved.");
+async function refreshExternalElnMatching() {
+  if (!pageFlags.hasExternalElnAdminView) {
+    return;
+  }
+  const statusFilter = els.externalMatchStatusFilter?.value || "proposed";
+  const params = new URLSearchParams();
+  if (statusFilter) {
+    params.set("status_filter", statusFilter);
+  }
+  params.set("limit", "250");
+  const [status, candidates] = await Promise.all([
+    apiGet("/external-systems/labguru/status"),
+    apiGet(`/external-systems/labguru/match-candidates?${params.toString()}`),
+  ]);
+  state.externalMatchStatus = status;
+  state.externalMatchCandidates = candidates;
+  renderExternalElnMatching();
+}
+
+async function generateExternalMatchCandidates() {
+  const payload = {
+    min_score: Number(els.externalMatchMinScore?.value || 0.45),
+    max_candidates_per_dataset: Number(els.externalMatchMaxCandidates?.value || 5),
+    include_linked: Boolean(els.externalMatchIncludeLinked?.checked),
+    reset_proposed: true,
+  };
+  const rawLimit = Number(els.externalMatchRawLimit?.value || 0);
+  if (rawLimit > 0) {
+    payload.limit_raw_datasets = rawLimit;
+  }
+  if (els.externalMatchGenerationSummary) {
+    els.externalMatchGenerationSummary.textContent = "Generating...";
+  }
+  const result = await apiPost("/external-systems/labguru/match-candidates/generate", payload);
+  if (els.externalMatchGenerationSummary) {
+    els.externalMatchGenerationSummary.textContent = `${result.candidate_count} candidates, ${result.created_count} created, ${result.updated_count} updated.`;
+  }
+  await refreshExternalElnMatching();
+}
+
+async function reviewExternalMatchCandidate(candidateId, action) {
+  if (action === "accept") {
+    const candidate = state.externalMatchCandidates.find((item) => item.id === candidateId);
+    const rawLabel = candidate?.raw_dataset?.acquisition_label || "this raw dataset";
+    const externalTitle = candidate?.external_experiment?.title || candidate?.external_id || "this Labguru experiment";
+    if (!window.confirm(`Write this Labguru link?\n\n${rawLabel}\n${externalTitle}`)) {
+      return;
+    }
+  }
+  const result = await apiPost(`/external-systems/labguru/match-candidates/${candidateId}/review`, { action });
+  await refreshExternalElnMatching();
+  setStatus(action === "accept" && result.linked ? "Labguru link accepted and written." : `Candidate ${action}ed.`);
 }
 
 async function changeRawDatasetOwner() {
@@ -6928,6 +7080,7 @@ async function forceRefreshCurrentPage() {
     pageFlags.hasPipelinesView ||
     pageFlags.hasUsersView ||
     pageFlags.hasSessionsView ||
+    pageFlags.hasExternalElnAdminView ||
     pageFlags.hasProjectPage
   ) {
     await refreshDashboard();
@@ -7018,6 +7171,12 @@ if (els.rawLabguruSearch) els.rawLabguruSearch.addEventListener("keydown", (even
     searchLabguruForSelectedRawDataset().catch((error) => setStatus(String(error)));
   }
 });
+if (els.externalMatchGenerateButton) els.externalMatchGenerateButton.addEventListener("click", () => generateExternalMatchCandidates().catch((error) => {
+  setStatus(String(error));
+  window.alert(String(error));
+}));
+if (els.externalMatchRefreshButton) els.externalMatchRefreshButton.addEventListener("click", () => refreshExternalElnMatching().catch((error) => setStatus(String(error))));
+if (els.externalMatchStatusFilter) els.externalMatchStatusFilter.addEventListener("change", () => refreshExternalElnMatching().catch((error) => setStatus(String(error))));
 if (els.newGroupButton) els.newGroupButton.addEventListener("click", () => createGroup().catch((error) => setStatus(String(error))));
 if (els.projectNotesSaveButton) els.projectNotesSaveButton.addEventListener("click", () => saveProjectNotes().catch((error) => setStatus(String(error))));
 if (els.rawDatasetNotesSaveButton) els.rawDatasetNotesSaveButton.addEventListener("click", () => saveRawDatasetNotes().catch((error) => setStatus(String(error))));

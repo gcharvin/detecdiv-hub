@@ -461,6 +461,53 @@ class RawDatasetExternalLinkResult(HubBaseModel):
     external_link: ExternalLinkSummary
 
 
+class ExternalMatchCandidateSummary(HubBaseModel):
+    id: UUID
+    system_key: str
+    external_id: str
+    score: float
+    candidate_rank: int = 0
+    status: str
+    match_method: str
+    evidence_json: dict[str, Any] = Field(default_factory=dict)
+    raw_dataset: RawDatasetSummary
+    external_experiment: ExternalExperimentRecordSummary
+    reviewed_by: UserSummary | None = None
+    reviewed_at: datetime | None = None
+    created_at: datetime | None = None
+    updated_at: datetime | None = None
+
+
+class ExternalMatchCandidateGenerateRequest(HubBaseModel):
+    max_candidates_per_dataset: int = Field(default=5, ge=1, le=25)
+    min_score: float = Field(default=0.45, ge=0, le=1)
+    limit_raw_datasets: int | None = Field(default=None, ge=1, le=5000)
+    include_linked: bool = False
+    reset_proposed: bool = True
+
+
+class ExternalMatchCandidateGenerateResult(HubBaseModel):
+    system_key: str
+    raw_dataset_count: int = 0
+    external_experiment_count: int = 0
+    candidate_count: int = 0
+    created_count: int = 0
+    updated_count: int = 0
+    preserved_reviewed_count: int = 0
+
+
+class ExternalMatchCandidateReviewRequest(HubBaseModel):
+    action: str
+    note: str | None = None
+
+
+class ExternalMatchCandidateReviewResult(HubBaseModel):
+    candidate: ExternalMatchCandidateSummary
+    linked: bool = False
+    external_link: ExternalLinkSummary | None = None
+    experiment_project: LinkedExperimentSummary | None = None
+
+
 class StorageLifecycleEventSummary(HubBaseModel):
     id: UUID
     event_kind: str
