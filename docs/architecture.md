@@ -83,6 +83,9 @@ Future entity extensions that should be planned now:
   - durable history of automatic or manual archive-policy evaluations
 - `micromanager_ingest_runs`
   - durable history of Micro-Manager landing-zone scans and ingests
+- `acquisition_sessions`
+  - live coordination state created by a microscope acquisition widget before
+    worker-side raw dataset indexing
 - `deletion_requests` and `deletion_artifacts`
   - auditable cleanup workflows
 
@@ -212,6 +215,24 @@ The first Micro-Manager ingestion path is also worker-driven:
 5. Each run is recorded in `micromanager_ingest_runs`.
 
 This keeps acquisition ingestion aligned with the same catalog model already used for legacy raw-data migration.
+
+## Acquisition widget path
+
+The future `pymmcore-plus` widget is a client of the hub, not part of the hub
+runtime. Its shared contract is documented in
+`docs/acquisition_widget_contract.md`.
+
+The hub-side API records `acquisition_sessions` so acquisition machines can:
+
+1. reserve a stable session identity before acquisition starts;
+2. attach user-entered metadata and microscope parameters;
+3. report progress and transfer state;
+4. mark the acquisition complete, failed, or cancelled.
+
+The session is intentionally separate from `raw_datasets`: files become a
+canonical raw dataset only after worker-side indexing verifies the landing-zone
+content. Large image data should move through storage, not through the FastAPI
+API.
 
 Archive destination resolution:
 

@@ -47,6 +47,7 @@ class User(Base):
     requested_lifecycle_events: Mapped[list["StorageLifecycleEvent"]] = relationship(back_populates="requested_by")
     archive_policy_runs: Mapped[list["ArchivePolicyRun"]] = relationship(back_populates="triggered_by")
     micromanager_ingest_runs: Mapped[list["MicroManagerIngestRun"]] = relationship(back_populates="triggered_by")
+    acquisition_sessions: Mapped[list["AcquisitionSession"]] = relationship(back_populates="owner")
     external_user_records: Mapped[list["ExternalUserRecord"]] = relationship(back_populates="matched_user")
 
 
@@ -65,6 +66,7 @@ class StorageRoot(Base):
 
     project_locations: Mapped[list["ProjectLocation"]] = relationship(back_populates="storage_root")
     raw_dataset_locations: Mapped[list["RawDatasetLocation"]] = relationship(back_populates="storage_root")
+    acquisition_sessions: Mapped[list["AcquisitionSession"]] = relationship(back_populates="landing_storage_root")
 
 
 class UserSession(Base):
@@ -232,6 +234,46 @@ class ExperimentRawLink(Base):
 
     experiment_project: Mapped[ExperimentProject] = relationship(back_populates="raw_links")
     raw_dataset: Mapped[RawDataset] = relationship(back_populates="experiment_links")
+
+
+class AcquisitionSession(Base):
+    __tablename__ = "acquisition_sessions"
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    owner_user_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("users.id", ondelete="SET NULL")
+    )
+    raw_dataset_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("raw_datasets.id", ondelete="SET NULL")
+    )
+    experiment_project_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("experiment_projects.id", ondelete="SET NULL")
+    )
+    session_key: Mapped[str] = mapped_column(String, nullable=False, unique=True)
+    acquisition_label: Mapped[str] = mapped_column(String, nullable=False)
+    microscope_name: Mapped[str | None] = mapped_column(String)
+    status: Mapped[str] = mapped_column(String, nullable=False, default="draft")
+    landing_storage_root_id: Mapped[int | None] = mapped_column(ForeignKey("storage_roots.id", ondelete="SET NULL"))
+    landing_relative_path: Mapped[str | None] = mapped_column(Text)
+    local_spool_path: Mapped[str | None] = mapped_column(Text)
+    transfer_status: Mapped[str] = mapped_column(String, nullable=False, default="not_started")
+    progress_percent: Mapped[float | None] = mapped_column(Float)
+    metadata_json: Mapped[dict] = mapped_column(JSONB, nullable=False, default=dict)
+    acquisition_params_json: Mapped[dict] = mapped_column(JSONB, nullable=False, default=dict)
+    result_json: Mapped[dict] = mapped_column(JSONB, nullable=False, default=dict)
+    error_text: Mapped[str | None] = mapped_column(Text)
+    started_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    completed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    last_seen_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
+    )
+
+    owner: Mapped[User | None] = relationship(back_populates="acquisition_sessions")
+    raw_dataset: Mapped[RawDataset | None] = relationship()
+    experiment_project: Mapped[ExperimentProject | None] = relationship()
+    landing_storage_root: Mapped[StorageRoot | None] = relationship(back_populates="acquisition_sessions")
 
 
 class Project(Base):

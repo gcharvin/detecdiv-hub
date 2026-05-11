@@ -8,6 +8,7 @@ from sqlalchemy import text
 
 from api.db import SessionLocal
 from api.config import get_settings
+from api.routes_acquisition_sessions import router as acquisition_sessions_router
 from api.routes_experiments import router as experiments_router
 from api.routes_auth import router as auth_router
 from api.routes_dashboard import router as dashboard_router
@@ -30,6 +31,7 @@ settings = get_settings()
 app = FastAPI(title=settings.app_name, version="0.1.0")
 app.include_router(auth_router)
 app.include_router(backup_router)
+app.include_router(acquisition_sessions_router)
 app.include_router(experiments_router)
 app.include_router(migrations_router)
 app.include_router(micromanager_ingest_router)
