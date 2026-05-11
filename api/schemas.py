@@ -642,6 +642,78 @@ class MicroManagerIngestRunRequest(HubBaseModel):
     storage_root_name_override: str | None = None
 
 
+class AcquisitionSessionSummary(HubBaseModel):
+    id: UUID
+    owner: UserSummary | None = None
+    raw_dataset_id: UUID | None = None
+    experiment_project_id: UUID | None = None
+    session_key: str
+    acquisition_label: str
+    microscope_name: str | None = None
+    status: str
+    landing_storage_root: StorageRootSummary | None = None
+    landing_relative_path: str | None = None
+    local_spool_path: str | None = None
+    transfer_status: str
+    progress_percent: float | None = None
+    metadata_json: dict[str, Any] = Field(default_factory=dict)
+    acquisition_params_json: dict[str, Any] = Field(default_factory=dict)
+    result_json: dict[str, Any] = Field(default_factory=dict)
+    error_text: str | None = None
+    started_at: datetime | None = None
+    completed_at: datetime | None = None
+    last_seen_at: datetime | None = None
+    created_at: datetime | None = None
+    updated_at: datetime | None = None
+
+
+class AcquisitionSessionCreate(HubBaseModel):
+    session_key: str | None = None
+    acquisition_label: str
+    microscope_name: str | None = None
+    status: str = "draft"
+    landing_storage_root_name: str | None = None
+    landing_relative_path: str | None = None
+    local_spool_path: str | None = None
+    experiment_project_id: UUID | None = None
+    metadata_json: dict[str, Any] = Field(default_factory=dict)
+    acquisition_params_json: dict[str, Any] = Field(default_factory=dict)
+
+
+class AcquisitionSessionUpdate(HubBaseModel):
+    acquisition_label: str | None = None
+    microscope_name: str | None = None
+    status: str | None = None
+    landing_storage_root_name: str | None = None
+    landing_relative_path: str | None = None
+    local_spool_path: str | None = None
+    experiment_project_id: UUID | None = None
+    raw_dataset_id: UUID | None = None
+    metadata_json: dict[str, Any] | None = None
+    acquisition_params_json: dict[str, Any] | None = None
+
+
+class AcquisitionSessionHeartbeat(HubBaseModel):
+    status: str = "acquiring"
+    progress_percent: float | None = Field(default=None, ge=0, le=100)
+    transfer_status: str | None = None
+    metadata_json: dict[str, Any] | None = None
+    acquisition_params_json: dict[str, Any] | None = None
+    result_json: dict[str, Any] | None = None
+
+
+class AcquisitionSessionComplete(HubBaseModel):
+    status: str = "completed"
+    progress_percent: float | None = Field(default=100, ge=0, le=100)
+    transfer_status: str | None = "completed"
+    raw_dataset_id: UUID | None = None
+    experiment_project_id: UUID | None = None
+    metadata_json: dict[str, Any] | None = None
+    acquisition_params_json: dict[str, Any] | None = None
+    result_json: dict[str, Any] | None = None
+    error_text: str | None = None
+
+
 class ExperimentProjectCreate(HubBaseModel):
     experiment_key: str | None = None
     title: str
