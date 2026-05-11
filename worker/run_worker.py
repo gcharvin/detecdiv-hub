@@ -13,6 +13,7 @@ from sqlalchemy import func, select
 from api.config import get_settings
 from api.db import SessionLocal
 from api.models import ExecutionTarget, IndexingJob, Job, RawDatasetPosition
+from api.services.external_eln import sync_external_eln_system
 from api.services.indexing_jobs import execute_indexing_job
 from api.services.project_locks import heartbeat_project_locks_for_job, release_project_locks_for_job
 from api.services.worker_instances import (
@@ -379,6 +380,16 @@ def execute_job(job: Job) -> dict:
             result_json["requested_mode"] = job.requested_mode
             result_json["resolved_mode"] = job.resolved_mode
             return result_json
+    if job_kind == "external_eln_sync":
+        system_key = (job.params_json or {}).get("system_key")
+        if not system_key:
+            raise ValueError(f"External ELN sync job {job.id} is missing system_key")
+        with session_scope() as session:
+            result = sync_external_eln_system(session, system_key=system_key)
+            payload = result.model_dump(mode="json")
+            payload["worker_host"] = socket.gethostname()
+            payload["worker_instance"] = get_worker_instance_id()
+            return payload
 
     return {
         "worker_host": socket.gethostname(),

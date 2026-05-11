@@ -17,6 +17,7 @@ from api.schemas import (
     RawDatasetSummary,
 )
 from api.services.external_publications import ensure_publication_records
+from api.services.external_eln import external_link_summary_from_publication
 from api.services.users import (
     ensure_experiment_readable,
     ensure_project_readable,
@@ -284,6 +285,10 @@ def experiment_detail_view(experiment: ExperimentProject) -> ExperimentProjectDe
             experiment.publication_records or [],
             key=lambda value: (value.system_key.lower(), value.created_at or datetime.min.replace(tzinfo=timezone.utc)),
         )
+    ]
+    detail.external_links = [
+        external_link_summary_from_publication(record)
+        for record in detail.publication_records
     ]
     return detail
 

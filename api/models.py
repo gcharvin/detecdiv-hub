@@ -47,6 +47,7 @@ class User(Base):
     requested_lifecycle_events: Mapped[list["StorageLifecycleEvent"]] = relationship(back_populates="requested_by")
     archive_policy_runs: Mapped[list["ArchivePolicyRun"]] = relationship(back_populates="triggered_by")
     micromanager_ingest_runs: Mapped[list["MicroManagerIngestRun"]] = relationship(back_populates="triggered_by")
+    external_user_records: Mapped[list["ExternalUserRecord"]] = relationship(back_populates="matched_user")
 
 
 class StorageRoot(Base):
@@ -677,6 +678,13 @@ class StorageMigrationItem(Base):
 
 class ExternalPublicationRecord(Base):
     __tablename__ = "external_publication_records"
+    __table_args__ = (
+        UniqueConstraint(
+            "experiment_project_id",
+            "system_key",
+            name="uq_external_publication_records_experiment_system",
+        ),
+    )
 
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     experiment_project_id: Mapped[uuid.UUID] = mapped_column(
@@ -695,6 +703,53 @@ class ExternalPublicationRecord(Base):
     )
 
     experiment_project: Mapped[ExperimentProject] = relationship(back_populates="publication_records")
+
+
+class ExternalExperimentRecord(Base):
+    __tablename__ = "external_experiment_records"
+    __table_args__ = (
+        UniqueConstraint("system_key", "external_id", name="uq_external_experiment_records_system_id"),
+    )
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    system_key: Mapped[str] = mapped_column(String, nullable=False)
+    external_id: Mapped[str] = mapped_column(String, nullable=False)
+    title: Mapped[str] = mapped_column(String, nullable=False)
+    external_url: Mapped[str | None] = mapped_column(Text)
+    owner_name: Mapped[str | None] = mapped_column(String)
+    started_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    updated_external_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    payload_json: Mapped[dict] = mapped_column(JSONB, nullable=False, default=dict)
+    last_synced_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
+    )
+
+
+class ExternalUserRecord(Base):
+    __tablename__ = "external_user_records"
+    __table_args__ = (
+        UniqueConstraint("system_key", "external_id", name="uq_external_user_records_system_id"),
+    )
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    system_key: Mapped[str] = mapped_column(String, nullable=False)
+    external_id: Mapped[str] = mapped_column(String, nullable=False)
+    display_name: Mapped[str] = mapped_column(String, nullable=False)
+    email: Mapped[str | None] = mapped_column(String)
+    payload_json: Mapped[dict] = mapped_column(JSONB, nullable=False, default=dict)
+    matched_user_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("users.id", ondelete="SET NULL")
+    )
+    match_status: Mapped[str] = mapped_column(String, nullable=False, default="pending")
+    last_synced_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
+    )
+
+    matched_user: Mapped[User | None] = relationship(back_populates="external_user_records")
 
 
 class StorageLifecycleEvent(Base):

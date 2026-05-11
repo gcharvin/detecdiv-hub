@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from datetime import datetime
 from typing import Any
 from uuid import UUID
@@ -237,6 +239,8 @@ class ProjectDetail(ProjectSummary):
     notes: str | None = None
     locations: list[ProjectLocationSummary] = Field(default_factory=list)
     raw_datasets: list[RawDatasetSummary] = Field(default_factory=list)
+    experiment: LinkedExperimentSummary | None = None
+    external_links: list[ExternalLinkSummary] = Field(default_factory=list)
 
 
 class ProjectUpdate(HubBaseModel):
@@ -375,6 +379,88 @@ class PublicationRecordSummary(HubBaseModel):
     updated_at: datetime | None = None
 
 
+class ExternalLinkSummary(HubBaseModel):
+    system_key: str
+    status: str
+    external_id: str | None = None
+    external_url: str | None = None
+    title: str | None = None
+
+
+class LinkedExperimentSummary(ExperimentProjectSummary):
+    publication_records: list[PublicationRecordSummary] = Field(default_factory=list)
+    external_links: list[ExternalLinkSummary] = Field(default_factory=list)
+
+
+class ExternalExperimentRecordSummary(HubBaseModel):
+    id: UUID
+    system_key: str
+    external_id: str
+    title: str
+    external_url: str | None = None
+    owner_name: str | None = None
+    started_at: datetime | None = None
+    updated_external_at: datetime | None = None
+    payload_json: dict[str, Any] = Field(default_factory=dict)
+    last_synced_at: datetime | None = None
+    created_at: datetime | None = None
+    updated_at: datetime | None = None
+
+
+class ExternalUserRecordSummary(HubBaseModel):
+    id: UUID
+    system_key: str
+    external_id: str
+    display_name: str
+    email: str | None = None
+    payload_json: dict[str, Any] = Field(default_factory=dict)
+    matched_user: UserSummary | None = None
+    match_status: str
+    last_synced_at: datetime | None = None
+    created_at: datetime | None = None
+    updated_at: datetime | None = None
+
+
+class ExternalSystemStatus(HubBaseModel):
+    system_key: str
+    enabled: bool
+    configured: bool
+    experiment_count: int = 0
+    user_count: int = 0
+    linked_experiment_count: int = 0
+    latest_sync_at: datetime | None = None
+
+
+class ExternalSystemSyncRequest(HubBaseModel):
+    priority: int = 100
+
+
+class ExternalSystemSyncQueueResult(HubBaseModel):
+    system_key: str
+    job_id: UUID
+    status: str
+    message: str
+
+
+class ExternalSystemSyncResult(HubBaseModel):
+    system_key: str
+    experiment_count: int = 0
+    user_count: int = 0
+    matched_user_count: int = 0
+    pending_user_count: int = 0
+
+
+class RawDatasetExternalLinkRequest(HubBaseModel):
+    system_key: str
+    external_experiment_id: str
+
+
+class RawDatasetExternalLinkResult(HubBaseModel):
+    raw_dataset_id: UUID
+    experiment_project: LinkedExperimentSummary
+    external_link: ExternalLinkSummary
+
+
 class StorageLifecycleEventSummary(HubBaseModel):
     id: UUID
     event_kind: str
@@ -391,6 +477,7 @@ class ExperimentProjectDetail(ExperimentProjectSummary):
     raw_datasets: list[RawDatasetSummary] = Field(default_factory=list)
     analysis_projects: list[ProjectSummary] = Field(default_factory=list)
     publication_records: list[PublicationRecordSummary] = Field(default_factory=list)
+    external_links: list[ExternalLinkSummary] = Field(default_factory=list)
 
 
 class RawDatasetLocationSummary(HubBaseModel):
@@ -406,6 +493,7 @@ class RawDatasetDetail(RawDatasetSummary):
     notes: str | None = None
     locations: list[RawDatasetLocationSummary] = Field(default_factory=list)
     experiment_ids: list[UUID] = Field(default_factory=list)
+    experiments: list[LinkedExperimentSummary] = Field(default_factory=list)
     analysis_project_ids: list[UUID] = Field(default_factory=list)
     analysis_projects: list[ProjectSummary] = Field(default_factory=list)
     positions: list[RawDatasetPositionSummary] = Field(default_factory=list)

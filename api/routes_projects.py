@@ -51,6 +51,7 @@ from api.schemas import (
     UserUpdate,
 )
 from api.services.auth import set_user_password
+from api.services.external_eln import linked_experiment_summary_view
 from api.services.path_resolution import compose_storage_path
 from api.services.project_deletion import build_deletion_preview, execute_project_deletion, record_deletion_preview
 from api.services.project_locks import (
@@ -134,6 +135,7 @@ def get_project(
         .options(
             joinedload(Project.owner),
             joinedload(Project.acl_entries),
+            joinedload(Project.experiment_project),
             joinedload(Project.locations).joinedload(ProjectLocation.storage_root),
             joinedload(Project.raw_links).joinedload(ProjectRawLink.raw_dataset).joinedload(RawDataset.owner),
         )
@@ -155,6 +157,7 @@ def update_project(
         .options(
             joinedload(Project.owner),
             joinedload(Project.acl_entries),
+            joinedload(Project.experiment_project),
             joinedload(Project.locations).joinedload(ProjectLocation.storage_root),
             joinedload(Project.raw_links).joinedload(ProjectRawLink.raw_dataset).joinedload(RawDataset.owner),
         )
@@ -1057,6 +1060,9 @@ def project_detail_view(project: Project) -> ProjectDetail:
         for link in sorted(project.raw_links or [], key=lambda value: value.created_at or project.created_at)
         if link.raw_dataset is not None
     ]
+    if project.experiment_project is not None:
+        detail.experiment = linked_experiment_summary_view(project.experiment_project)
+        detail.external_links = detail.experiment.external_links
     return detail
 
 

@@ -28,6 +28,8 @@ from api.schemas import (
     RawDatasetArchivePreview,
     RawDatasetArchiveRequest,
     RawDatasetDetail,
+    RawDatasetExternalLinkRequest,
+    RawDatasetExternalLinkResult,
     RawDatasetLocationSummary,
     RawDatasetPositionSummary,
     RawDatasetDeletionPreview,
@@ -51,6 +53,12 @@ from api.schemas import (
     RawDatasetUpdate,
     ProjectSummary,
     StorageLifecycleEventSummary,
+)
+from api.services.external_eln import (
+    external_link_summary_from_publication,
+    linked_experiment_summary_view,
+    link_raw_dataset_to_external_experiment,
+    load_raw_dataset_for_external_link,
 )
 from api.services.archive_settings import resolve_raw_archive_runtime_config, update_raw_archive_runtime_config
 from api.services.raw_archive_delete import (
@@ -432,6 +440,38 @@ def update_raw_dataset(
 
     db.commit()
     return get_raw_dataset(raw_dataset_id=raw_dataset_id, db=db, current_user=current_user)
+
+
+@router.post("/{raw_dataset_id}/external-link", response_model=RawDatasetExternalLinkResult)
+def link_raw_dataset_to_external_system(
+    raw_dataset_id: UUID,
+    payload: RawDatasetExternalLinkRequest,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> RawDatasetExternalLinkResult:
+    raw_dataset = load_raw_dataset_for_external_link(db, raw_dataset_id)
+    raw_dataset = ensure_raw_dataset_readable(raw_dataset, current_user)
+    if not user_can_edit_raw_dataset(raw_dataset, current_user):
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Raw dataset is not editable")
+    try:
+        experiment, publication = link_raw_dataset_to_external_experiment(
+            db,
+            raw_dataset=raw_dataset,
+            system_key=payload.system_key,
+            external_experiment_id=payload.external_experiment_id,
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc
+    except LookupError as exc:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
+    db.commit()
+    db.refresh(experiment)
+    db.refresh(publication)
+    return RawDatasetExternalLinkResult(
+        raw_dataset_id=raw_dataset.id,
+        experiment_project=linked_experiment_summary_view(experiment),
+        external_link=external_link_summary_from_publication(publication),
+    )
 
 
 @router.post("/{raw_dataset_id}/deletion-preview", response_model=RawDatasetDeletionPreview)
@@ -1246,6 +1286,11 @@ def raw_dataset_detail_view(raw_dataset: RawDataset) -> RawDatasetDetail:
         for location in raw_dataset.locations or []
     ]
     detail.experiment_ids = [link.experiment_project_id for link in raw_dataset.experiment_links or []]
+    detail.experiments = [
+        linked_experiment_summary_view(link.experiment_project)
+        for link in sorted(raw_dataset.experiment_links or [], key=lambda value: value.created_at or raw_dataset.created_at)
+        if link.experiment_project is not None
+    ]
     detail.analysis_project_ids = [link.project_id for link in raw_dataset.project_links or []]
     detail.analysis_projects = [
         project_summary_view(link.project)

@@ -12,6 +12,7 @@ from api.routes_experiments import router as experiments_router
 from api.routes_auth import router as auth_router
 from api.routes_dashboard import router as dashboard_router
 from api.routes_execution_targets import router as execution_targets_router
+from api.routes_external_systems import router as external_systems_router
 from api.routes_indexing import router as indexing_router
 from api.routes_jobs import router as jobs_router
 from api.routes_migrations import router as migrations_router
@@ -37,6 +38,7 @@ app.include_router(raw_datasets_router)
 app.include_router(groups_router)
 app.include_router(users_router)
 app.include_router(storage_roots_router)
+app.include_router(external_systems_router)
 app.include_router(execution_targets_router)
 app.include_router(jobs_router)
 app.include_router(pipeline_runs_router)

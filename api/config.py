@@ -30,6 +30,12 @@ class Settings(BaseSettings):
     session_cookie_name: str = "detecdiv_hub_session"
     indexing_stale_after_minutes: int = 15
     default_publication_targets: str = "labguru,elabftw"
+    labguru_enabled: bool = False
+    labguru_base_url: str = "https://my.labguru.com"
+    labguru_token: str = ""
+    elabftw_enabled: bool = False
+    elabftw_base_url: str = ""
+    elabftw_token: str = ""
     default_archive_root: str = ""
     default_archive_compression: str = "zip"
     archive_policy_enabled: bool = False

@@ -64,16 +64,16 @@ def summarize_worker_instances(
     )
     deployment_versions = sorted(
         {
-            str(worker.deployment_version).strip()
+            str(getattr(worker, "deployment_version", None)).strip()
             for worker in workers
-            if str(worker.deployment_version or "").strip()
+            if str(getattr(worker, "deployment_version", None) or "").strip()
         }
     )
     code_fingerprints = sorted(
         {
-            str(worker.code_fingerprint).strip()
+            str(getattr(worker, "code_fingerprint", None)).strip()
             for worker in workers
-            if str(worker.code_fingerprint or "").strip()
+            if str(getattr(worker, "code_fingerprint", None) or "").strip()
         }
     )
 
