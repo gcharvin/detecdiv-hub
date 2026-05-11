@@ -163,12 +163,22 @@ def build_compact_micromanager_metadata(
     data_format: str,
     source_metadata: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
+    dimensions = extract_acquisition_dimensions(parsed_metadata)
+    if not dimensions.get("channel_names"):
+        channel_names = compact_display_settings_channel_names(parsed_metadata)
+        if channel_names:
+            dimensions["channel_names"] = channel_names
+            dimensions["channel_count"] = len(channel_names)
+    if not dimensions.get("channel_settings"):
+        channel_settings = compact_display_settings_channel_details(parsed_metadata)
+        if channel_settings:
+            dimensions["channel_settings"] = channel_settings
     metadata: dict[str, Any] = {
         "source": source_label,
         "dataset_dir_abs": str(dataset_dir),
         "dataset_rel_from_root": relative_path,
         "data_format": data_format,
-        "dimensions": extract_acquisition_dimensions(parsed_metadata),
+        "dimensions": dimensions,
     }
 
     if source_metadata:
@@ -181,6 +191,38 @@ def build_compact_micromanager_metadata(
             metadata["ingest"] = ingest_trace
 
     return metadata
+
+
+def compact_display_settings_channel_names(parsed_metadata: dict[str, Any]) -> list[str]:
+    return [
+        str(item.get("channel") or "").strip()
+        for item in compact_display_settings_channel_details(parsed_metadata)
+        if str(item.get("channel") or "").strip()
+    ]
+
+
+def compact_display_settings_channel_details(parsed_metadata: dict[str, Any]) -> list[dict[str, Any]]:
+    display_settings = parsed_metadata.get("DisplaySettings")
+    if not isinstance(display_settings, dict):
+        return []
+    channel_settings = display_settings.get("ChannelSettings")
+    if not isinstance(channel_settings, list):
+        return []
+    details: list[dict[str, Any]] = []
+    for item in channel_settings:
+        if not isinstance(item, dict):
+            continue
+        channel_name = str(item.get("Channel") or item.get("channel") or "").strip()
+        detail = {"channel": channel_name} if channel_name else {}
+        exposure_ms = item.get("Exposure-ms") or item.get("exposure_ms")
+        led_power = item.get("LED power") or item.get("led_power")
+        if exposure_ms not in (None, ""):
+            detail["exposure_ms"] = exposure_ms
+        if led_power not in (None, ""):
+            detail["led_power"] = led_power
+        if detail:
+            details.append(detail)
+    return details
 
 
 def parse_legacy_timelapse_id_text(text_value: str) -> dict[str, Any]:

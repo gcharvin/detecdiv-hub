@@ -31,6 +31,7 @@ const state = {
   pendingRawPositionDelete: null,
   rawPositionDeletePreviewToken: 0,
   rawPreviewQualityStatus: null,
+  rawLabguruResults: [],
   archiveSettingsStatus: null,
   archivePolicyPreview: null,
   automaticArchivePolicyStatus: null,
@@ -95,6 +96,7 @@ const els = {
   projectNotesSaveButton: document.querySelector("#project-notes-save-button"),
   aclList: document.querySelector("#acl-list"),
   projectRawDatasetsList: document.querySelector("#project-raw-datasets-list"),
+  projectExternalElnList: document.querySelector("#project-external-eln-list"),
   projectQueueRawPreviewsButton: document.querySelector("#project-queue-raw-previews-button"),
   shareButton: document.querySelector("#share-button"),
   editProjectButton: document.querySelector("#edit-project-button"),
@@ -169,6 +171,10 @@ const els = {
   rawLocationsList: document.querySelector("#raw-locations-list"),
   rawAnalysisProjectsList: document.querySelector("#raw-analysis-projects-list"),
   rawPositionsTableBody: document.querySelector("#raw-positions-table tbody"),
+  rawExternalElnList: document.querySelector("#raw-external-eln-list"),
+  rawLabguruSearch: document.querySelector("#raw-labguru-search"),
+  rawLabguruSearchButton: document.querySelector("#raw-labguru-search-button"),
+  rawLabguruResults: document.querySelector("#raw-labguru-results"),
   rawQueuePreviewButton: document.querySelector("#raw-queue-preview-button"),
   rawRegeneratePreviewButton: document.querySelector("#raw-regenerate-preview-button"),
   rawPreviewProgress: document.querySelector("#raw-preview-progress"),
@@ -3315,6 +3321,7 @@ function renderRawDatasetDetail() {
     if (els.rawLifecycleEvents) {
       els.rawLifecycleEvents.innerHTML = "";
     }
+    renderRawExternalEln();
     renderRawLocations([]);
     renderRawAnalysisProjects([]);
     renderRawPositions([]);
@@ -3398,6 +3405,7 @@ function renderRawDatasetDetail() {
       : null;
   }
 
+  renderRawExternalEln();
   renderRawLocations(isDedicatedRawPage ? (raw.locations || []) : []);
   renderRawDatasetNotes();
   renderRawAnalysisProjects(isDedicatedRawPage ? linkedProjects : []);
@@ -4141,6 +4149,7 @@ function renderDetail() {
     if (els.changeProjectOwnerButton) {
       els.changeProjectOwnerButton.classList.add("hidden");
       els.changeProjectOwnerButton.disabled = true;
+    renderProjectExternalEln();
     }
     renderProjectRawDatasets();
     return;
@@ -4189,6 +4198,7 @@ function renderDetail() {
     els.changeProjectOwnerButton.disabled = !canChangeOwner;
   }
 
+  renderProjectExternalEln();
   renderProjectNotes();
   renderAcl();
   renderProjectRawDatasets();
@@ -4220,6 +4230,85 @@ function renderProjectRawDatasets() {
     `;
     els.projectRawDatasetsList.appendChild(div);
   }
+function externalLinkLabel(link) {
+  const system = String(link?.system_key || "external").toUpperCase();
+  const title = link?.title || link?.external_id || "linked record";
+  return `${system}: ${title}`;
+}
+
+function renderExternalLinkList(container, links, emptyText) {
+  if (!container) {
+    return;
+  }
+  container.innerHTML = "";
+  const linked = (links || []).filter((link) => link.status === "linked" && link.external_url);
+  if (!linked.length) {
+    container.innerHTML = `<div class="stack-item">${escapeHtml(emptyText)}</div>`;
+    return;
+  }
+  for (const link of linked) {
+    const div = document.createElement("div");
+    div.className = "stack-item";
+    div.innerHTML = `
+      <div class="stack-item-meta">${escapeHtml(link.system_key)} | ${escapeHtml(link.status)}</div>
+      <a href="${escapeHtml(link.external_url)}" target="_blank" rel="noreferrer">${escapeHtml(externalLinkLabel(link))}</a>
+      <div class="stack-item-meta">${escapeHtml(link.external_id || "")}</div>
+    `;
+    container.appendChild(div);
+  }
+}
+
+function rawExternalLinks() {
+  const links = [];
+  for (const experiment of state.selectedRawDatasetDetail?.experiments || []) {
+    for (const link of experiment.external_links || []) {
+      links.push({
+        ...link,
+        title: link.title || experiment.title,
+      });
+    }
+  }
+  return links;
+}
+
+function renderRawExternalEln() {
+  renderExternalLinkList(els.rawExternalElnList, rawExternalLinks(), "No external ELN link yet.");
+  renderRawLabguruResults();
+}
+
+function renderProjectExternalEln() {
+  const links = state.selectedProjectDetail?.external_links || [];
+  renderExternalLinkList(els.projectExternalElnList, links, "No external ELN link inherited from the linked experiment.");
+}
+
+function renderRawLabguruResults() {
+  if (!els.rawLabguruResults) {
+    return;
+  }
+  els.rawLabguruResults.innerHTML = "";
+  if (!state.rawLabguruResults.length) {
+    els.rawLabguruResults.innerHTML = `<div class="stack-item">No Labguru cache result loaded.</div>`;
+    return;
+  }
+  for (const record of state.rawLabguruResults) {
+    const div = document.createElement("div");
+    div.className = "stack-item";
+    div.innerHTML = `
+      <div class="stack-item-meta">${escapeHtml(record.external_id)} | ${escapeHtml(record.owner_name || "")}</div>
+      <div>${escapeHtml(record.title)}</div>
+      <div class="action-stack">
+        ${record.external_url ? `<a class="button-link" href="${escapeHtml(record.external_url)}" target="_blank" rel="noreferrer">Open</a>` : ""}
+        <button data-external-id="${escapeHtml(record.external_id)}">Link to this dataset</button>
+      </div>
+    `;
+    div.querySelector("button")?.addEventListener("click", () => linkSelectedRawDatasetToLabguru(record.external_id).catch((error) => {
+      setStatus(String(error));
+      window.alert(String(error));
+    }));
+    els.rawLabguruResults.appendChild(div);
+  }
+}
+
 }
 
 function renderUsers() {
@@ -5035,6 +5124,34 @@ async function saveRawDatasetNotes() {
   state.selectedRawDataset = saved;
   state.rawDatasets = state.rawDatasets.map((raw) => (raw.id === saved.id ? saved : raw));
   renderRawDatasets();
+async function searchLabguruForSelectedRawDataset() {
+  if (!state.selectedRawDatasetDetail) {
+    throw new Error("Load a raw dataset before searching Labguru.");
+  }
+  const query = (els.rawLabguruSearch?.value || state.selectedRawDatasetDetail.acquisition_label || "").trim();
+  const params = new URLSearchParams();
+  if (query) {
+    params.set("search", query);
+  }
+  params.set("limit", "25");
+  state.rawLabguruResults = await apiGet(`/external-systems/labguru/experiments?${params.toString()}`);
+  renderRawLabguruResults();
+  setStatus(`Loaded ${state.rawLabguruResults.length} Labguru cache result(s).`);
+}
+
+async function linkSelectedRawDatasetToLabguru(externalExperimentId) {
+  if (!state.selectedRawDatasetDetail) {
+    throw new Error("Load a raw dataset before linking Labguru.");
+  }
+  const result = await apiPost(`/raw-datasets/${state.selectedRawDatasetDetail.id}/external-link`, {
+    system_key: "labguru",
+    external_experiment_id: externalExperimentId,
+  });
+  state.selectedRawDatasetDetail = await apiGet(`/raw-datasets/${state.selectedRawDatasetDetail.id}`);
+  renderRawDatasetDetail();
+  setStatus(`Linked Labguru experiment ${result.external_link.external_id}.`);
+}
+
   renderRawDatasetDetail();
   setStatus("Raw dataset notes saved.");
 }
@@ -6402,6 +6519,16 @@ if (els.rawPositionDeleteConfirmButton) els.rawPositionDeleteConfirmButton.addEv
   window.alert(String(error));
 }));
 if (els.rawPositionDeleteConfirmText) els.rawPositionDeleteConfirmText.addEventListener("input", () => renderRawPositionDeletePanel());
+if (els.rawLabguruSearchButton) els.rawLabguruSearchButton.addEventListener("click", () => searchLabguruForSelectedRawDataset().catch((error) => {
+  setStatus(String(error));
+  window.alert(String(error));
+}));
+if (els.rawLabguruSearch) els.rawLabguruSearch.addEventListener("keydown", (event) => {
+  if (event.key === "Enter") {
+    event.preventDefault();
+    searchLabguruForSelectedRawDataset().catch((error) => setStatus(String(error)));
+  }
+});
 if (els.newGroupButton) els.newGroupButton.addEventListener("click", () => createGroup().catch((error) => setStatus(String(error))));
 if (els.projectNotesSaveButton) els.projectNotesSaveButton.addEventListener("click", () => saveProjectNotes().catch((error) => setStatus(String(error))));
 if (els.rawDatasetNotesSaveButton) els.rawDatasetNotesSaveButton.addEventListener("click", () => saveRawDatasetNotes().catch((error) => setStatus(String(error))));

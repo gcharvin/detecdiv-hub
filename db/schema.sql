@@ -412,6 +412,37 @@ CREATE TABLE IF NOT EXISTS external_publication_records (
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
+CREATE TABLE IF NOT EXISTS external_experiment_records (
+    id UUID PRIMARY KEY,
+    system_key TEXT NOT NULL,
+    external_id TEXT NOT NULL,
+    title TEXT NOT NULL,
+    external_url TEXT,
+    owner_name TEXT,
+    started_at TIMESTAMPTZ,
+    updated_external_at TIMESTAMPTZ,
+    payload_json JSONB NOT NULL DEFAULT '{}'::jsonb,
+    last_synced_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    UNIQUE(system_key, external_id)
+);
+
+CREATE TABLE IF NOT EXISTS external_user_records (
+    id UUID PRIMARY KEY,
+    system_key TEXT NOT NULL,
+    external_id TEXT NOT NULL,
+    display_name TEXT NOT NULL,
+    email TEXT,
+    payload_json JSONB NOT NULL DEFAULT '{}'::jsonb,
+    matched_user_id UUID REFERENCES users(id) ON DELETE SET NULL,
+    match_status TEXT NOT NULL DEFAULT 'pending',
+    last_synced_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    UNIQUE(system_key, external_id)
+);
+
 CREATE TABLE IF NOT EXISTS storage_lifecycle_events (
     id UUID PRIMARY KEY,
     raw_dataset_id UUID NOT NULL REFERENCES raw_datasets(id) ON DELETE CASCADE,
@@ -540,6 +571,11 @@ CREATE INDEX IF NOT EXISTS idx_storage_migration_items_batch_id ON storage_migra
 CREATE INDEX IF NOT EXISTS idx_storage_migration_items_status ON storage_migration_items(status);
 CREATE INDEX IF NOT EXISTS idx_external_publication_records_experiment_project_id ON external_publication_records(experiment_project_id);
 CREATE INDEX IF NOT EXISTS idx_external_publication_records_system_key ON external_publication_records(system_key, status);
+CREATE UNIQUE INDEX IF NOT EXISTS uq_external_publication_records_experiment_system ON external_publication_records(experiment_project_id, system_key);
+CREATE INDEX IF NOT EXISTS idx_external_experiment_records_system_title ON external_experiment_records(system_key, title);
+CREATE INDEX IF NOT EXISTS idx_external_experiment_records_synced_at ON external_experiment_records(system_key, last_synced_at DESC);
+CREATE INDEX IF NOT EXISTS idx_external_user_records_system_name ON external_user_records(system_key, display_name);
+CREATE INDEX IF NOT EXISTS idx_external_user_records_matched_user_id ON external_user_records(matched_user_id);
 CREATE INDEX IF NOT EXISTS idx_storage_lifecycle_events_raw_dataset_id ON storage_lifecycle_events(raw_dataset_id, created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_archive_policy_runs_created_at ON archive_policy_runs(created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_archive_policy_runs_status ON archive_policy_runs(status, trigger_mode, created_at DESC);
