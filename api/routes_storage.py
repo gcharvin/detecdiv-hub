@@ -56,6 +56,7 @@ from api.services.storage_providers.synology_dsm import (
     parse_user_quota_payload,
     summarize_discovered_capabilities,
 )
+from api.services.storage_providers.synology_ssh import SynologySshClient, SynologySshError
 from api.services.users import get_current_user
 
 
@@ -413,6 +414,8 @@ def ensure_synology_user_for_account(
 
     exists_before = raw_user is not None
     created = False
+    creation_method = None
+    dsm_api_create_error_code = None
     if raw_user is None:
         if not payload.create_missing:
             now = datetime.now(timezone.utc)
@@ -455,37 +458,88 @@ def ensure_synology_user_for_account(
             )
             raw_user = client.get_user(account.provider_user_key)
             created = True
+            creation_method = "dsm_api"
         except SynologyDsmError as exc:
-            now = datetime.now(timezone.utc)
-            account.last_synced_at = now
-            account.provisioning_status = "provider_user_failed"
-            account.metadata_json = {
-                **dict(account.metadata_json or {}),
-                "synology_user_exists": False,
-                "synology_user_last_checked_at": now.isoformat(),
-                "synology_user_create_error_code": exc.code,
-            }
-            record_provisioning_event(
-                db,
-                user=account.user,
-                provider=account.provider,
-                storage_account=account,
-                event_kind="synology_user_create_failed",
-                status_text="failed",
-                message=str(exc),
-            )
-            db.commit()
-            return SynologyDsmEnsureUserResponse(
-                provider=StorageProviderSummary.model_validate(account.provider),
-                account=UserStorageAccountSummary.model_validate(load_account(db, account.id)),
-                configured=client.is_configured(),
-                success=False,
-                provider_user_key=account.provider_user_key,
-                exists_before=False,
-                created=False,
-                exists_after=False,
-                message=str(exc),
-            )
+            dsm_api_create_error_code = exc.code
+            ssh_client = SynologySshClient()
+            if not ssh_client.is_configured():
+                now = datetime.now(timezone.utc)
+                account.last_synced_at = now
+                account.provisioning_status = "provider_user_failed"
+                account.metadata_json = {
+                    **dict(account.metadata_json or {}),
+                    "synology_user_exists": False,
+                    "synology_user_last_checked_at": now.isoformat(),
+                    "synology_user_create_error_code": exc.code,
+                    "synology_user_create_method": "dsm_api",
+                    "synology_ssh_fallback_configured": False,
+                }
+                record_provisioning_event(
+                    db,
+                    user=account.user,
+                    provider=account.provider,
+                    storage_account=account,
+                    event_kind="synology_user_create_failed",
+                    status_text="failed",
+                    message=f"{exc}; Synology SSH fallback is not configured.",
+                )
+                db.commit()
+                return SynologyDsmEnsureUserResponse(
+                    provider=StorageProviderSummary.model_validate(account.provider),
+                    account=UserStorageAccountSummary.model_validate(load_account(db, account.id)),
+                    configured=client.is_configured(),
+                    success=False,
+                    provider_user_key=account.provider_user_key,
+                    exists_before=False,
+                    created=False,
+                    exists_after=False,
+                    message=f"{exc}; Synology SSH fallback is not configured.",
+                )
+            try:
+                ssh_client.create_user(
+                    user_name=account.provider_user_key,
+                    initial_password=payload.initial_password,
+                    display_name=payload.display_name or account.user.display_name,
+                    email=payload.email or account.user.email,
+                )
+                raw_user = client.get_user(account.provider_user_key)
+                created = raw_user is not None
+                creation_method = "ssh_synouser"
+                if raw_user is None:
+                    raise SynologySshError("Synology SSH command completed but DSM API did not verify the new user")
+            except SynologySshError as ssh_exc:
+                now = datetime.now(timezone.utc)
+                account.last_synced_at = now
+                account.provisioning_status = "provider_user_failed"
+                account.metadata_json = {
+                    **dict(account.metadata_json or {}),
+                    "synology_user_exists": False,
+                    "synology_user_last_checked_at": now.isoformat(),
+                    "synology_user_create_error_code": exc.code,
+                    "synology_user_create_method": "ssh_synouser",
+                    "synology_ssh_fallback_configured": True,
+                }
+                record_provisioning_event(
+                    db,
+                    user=account.user,
+                    provider=account.provider,
+                    storage_account=account,
+                    event_kind="synology_user_create_failed",
+                    status_text="failed",
+                    message=f"DSM API failed: {exc}; SSH fallback failed: {ssh_exc}",
+                )
+                db.commit()
+                return SynologyDsmEnsureUserResponse(
+                    provider=StorageProviderSummary.model_validate(account.provider),
+                    account=UserStorageAccountSummary.model_validate(load_account(db, account.id)),
+                    configured=client.is_configured(),
+                    success=False,
+                    provider_user_key=account.provider_user_key,
+                    exists_before=False,
+                    created=False,
+                    exists_after=False,
+                    message=f"DSM API failed: {exc}; SSH fallback failed: {ssh_exc}",
+                )
 
     exists_after = raw_user is not None
     now = datetime.now(timezone.utc)
@@ -496,6 +550,9 @@ def ensure_synology_user_for_account(
         "synology_user_exists": exists_after,
         "synology_user_last_checked_at": now.isoformat(),
         "synology_user_created_by_hub": bool(created or (account.metadata_json or {}).get("synology_user_created_by_hub")),
+        "synology_user_create_method": creation_method or (account.metadata_json or {}).get("synology_user_create_method"),
+        "synology_dsm_api_create_error_code": dsm_api_create_error_code,
+        "synology_user_create_error_code": None,
     }
     record_provisioning_event(
         db,
@@ -504,8 +561,8 @@ def ensure_synology_user_for_account(
         storage_account=account,
         event_kind="synology_user_created" if created else "synology_user_verified",
         status_text="ready" if exists_after else "missing",
-        message="Synology user was created by the hub." if created else "Synology user exists.",
-        metadata_json={"provider_user_key": account.provider_user_key},
+        message=f"Synology user was created by the hub via {creation_method}." if created else "Synology user exists.",
+        metadata_json={"provider_user_key": account.provider_user_key, "creation_method": creation_method},
     )
     db.commit()
     account = load_account(db, account.id)
@@ -517,9 +574,10 @@ def ensure_synology_user_for_account(
         provider_user_key=account.provider_user_key,
         exists_before=exists_before,
         created=created,
+        creation_method=creation_method,
         exists_after=exists_after,
         raw_user=raw_user or {},
-        message="Synology user was created." if created else "Synology user exists.",
+        message=f"Synology user was created via {creation_method}." if created else "Synology user exists.",
     )
 
 

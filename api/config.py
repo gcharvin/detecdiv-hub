@@ -87,6 +87,15 @@ class Settings(BaseSettings):
     synology_dsm_session: str = "DetecDivHub"
     synology_dsm_verify_tls: bool = True
     synology_dsm_timeout_sec: float = 10.0
+    synology_ssh_enabled: bool = False
+    synology_ssh_host: str = ""
+    synology_ssh_port: int = 22
+    synology_ssh_username: str = ""
+    synology_ssh_password: str = ""
+    synology_ssh_key_path: str = ""
+    synology_ssh_timeout_sec: float = 10.0
+    synology_ssh_synouser_command: str = "synouser"
+    synology_ssh_use_sudo: bool = True
 
     model_config = SettingsConfigDict(
         env_prefix="DETECDIV_HUB_",

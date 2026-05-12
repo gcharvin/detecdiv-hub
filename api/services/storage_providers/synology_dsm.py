@@ -198,7 +198,12 @@ class SynologyDsmClient:
             raise SynologyDsmError("DSM user creation requires an initial password")
         params: dict[str, Any] = {
             "name": user_name,
-            "passwd": initial_password,
+            "password": initial_password,
+            "expire": "never",
+            "cannot_chg_passwd": False,
+            "passwd_never_expire": True,
+            "notify_by_email": False,
+            "send_password": False,
         }
         if display_name:
             params["description"] = display_name
@@ -214,6 +219,7 @@ class SynologyDsmClient:
                 method="create",
                 params=params,
                 login=True,
+                http_method="post",
             )
             return payload.get("data") if isinstance(payload.get("data"), dict) else {}
         finally:
@@ -256,6 +262,7 @@ class SynologyDsmClient:
         params: dict[str, Any] | None = None,
         version: int | None = None,
         login: bool = True,
+        http_method: str = "get",
     ) -> dict[str, Any]:
         api_info = self.api_info(api_name)
         selected_version = version or choose_max_version(api_info)
@@ -268,7 +275,7 @@ class SynologyDsmClient:
             "method": method,
             **(params or {}),
         }
-        return self._request(path, request_params, include_sid=login, require_config=login)
+        return self._request(path, request_params, include_sid=login, require_config=login, http_method=http_method)
 
     def api_info(self, api_name: str) -> dict[str, Any]:
         if self._api_info is None:
@@ -287,6 +294,7 @@ class SynologyDsmClient:
         *,
         include_sid: bool,
         require_config: bool,
+        http_method: str = "get",
     ) -> dict[str, Any]:
         if require_config:
             self.config.validate_for_network_call()
@@ -299,12 +307,20 @@ class SynologyDsmClient:
             request_params["_sid"] = self.sid
         url = f"{self.config.base_url.rstrip('/')}/webapi/{path.lstrip('/')}"
         try:
-            response = requests.get(
-                url,
-                params=request_params,
-                timeout=self.config.timeout_sec,
-                verify=self.config.verify_tls,
-            )
+            if http_method.lower() == "post":
+                response = requests.post(
+                    url,
+                    data=request_params,
+                    timeout=self.config.timeout_sec,
+                    verify=self.config.verify_tls,
+                )
+            else:
+                response = requests.get(
+                    url,
+                    params=request_params,
+                    timeout=self.config.timeout_sec,
+                    verify=self.config.verify_tls,
+                )
             response.raise_for_status()
             payload = response.json()
         except requests.RequestException as exc:

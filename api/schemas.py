@@ -266,6 +266,7 @@ class SynologyDsmEnsureUserResponse(HubBaseModel):
     provider_user_key: str
     exists_before: bool = False
     created: bool = False
+    creation_method: str | None = None
     exists_after: bool = False
     raw_user: dict[str, Any] = Field(default_factory=dict)
     message: str | None = None

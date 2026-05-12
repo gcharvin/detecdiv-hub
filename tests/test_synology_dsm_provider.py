@@ -6,6 +6,7 @@ from api.services.storage_providers.synology_dsm import (
     parse_user_quota_payload,
     summarize_discovered_capabilities,
 )
+from api.services.storage_providers.synology_ssh import build_synouser_add_command
 from api.schemas import SynologyDsmUserQuotaResponse, StorageProviderSummary
 
 
@@ -148,10 +149,28 @@ def test_synology_create_user_sends_password_without_storing(monkeypatch) -> Non
     assert result == {"created": True}
     assert captured["api_name"] == "SYNO.Core.User"
     assert captured["method"] == "create"
+    assert captured["http_method"] == "post"
     assert captured["params"] == {
         "name": "new_user",
-        "passwd": "temporary-password",
+        "password": "temporary-password",
+        "expire": "never",
+        "cannot_chg_passwd": False,
+        "passwd_never_expire": True,
+        "notify_by_email": False,
+        "send_password": False,
         "description": "New User",
         "email": "new@example.test",
         "groups": '["users"]',
     }
+
+
+def test_build_synouser_add_command_quotes_user_fields() -> None:
+    command = build_synouser_add_command(
+        synouser_command="/usr/syno/sbin/synouser",
+        user_name="alice.smith",
+        initial_password="temporary password",
+        display_name="Alice Smith",
+        email="alice@example.test",
+    )
+
+    assert command == "/usr/syno/sbin/synouser --add alice.smith 'temporary password' 'Alice Smith' 0 alice@example.test 0"
