@@ -356,15 +356,30 @@ def get_synology_user_quota_for_account(
             message=str(exc),
         )
     parsed = parse_user_quota_payload(payload)
+    provider_quota_bytes = parsed.get("quota_bytes")
+    provider_reported = provider_quota_bytes is not None
+    effective_quota_bytes = provider_quota_bytes if provider_reported else account.quota_bytes
+    quota_source = "provider" if provider_reported else "hub_desired"
+    message = None
+    if not provider_reported and account.quota_bytes is not None:
+        message = (
+            "Synology DSM accepted the quota lookup but did not return a quota entry. "
+            "Using the hub desired quota for the effective value."
+        )
     return SynologyDsmUserQuotaResponse(
         provider=StorageProviderSummary.model_validate(account.provider),
         configured=client.is_configured(),
         success=True,
         provider_user_key=account.provider_user_key,
-        quota_bytes=parsed.get("quota_bytes"),
+        quota_bytes=provider_quota_bytes,
         used_bytes=parsed.get("used_bytes"),
+        desired_quota_bytes=account.quota_bytes,
+        effective_quota_bytes=effective_quota_bytes,
+        provider_reported=provider_reported,
+        quota_source=quota_source,
         entry_count=int(parsed.get("entry_count") or 0),
         raw_quota=payload,
+        message=message,
     )
 
 

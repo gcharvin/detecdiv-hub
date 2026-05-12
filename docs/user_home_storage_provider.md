@@ -307,6 +307,14 @@ For a user without an explicit quota, `SYNO.Core.Quota.get` may return an empty
 `user_quota` list. That is treated as a successful read with unknown quota bytes,
 not as a transport or authentication failure.
 
+On DSM 7.2, the user edit screen can show a user quota for the `homes` shared
+folder while `SYNO.Core.Quota.get name=<provider_user_key>` still returns an
+empty `user_quota` list. In that case the hub response keeps the provider quota
+as `null`, marks `provider_reported=false`, and exposes the cataloged desired
+quota as `effective_quota_bytes` with `quota_source=hub_desired`. This prevents
+callers from mistaking "DSM did not report a quota entry" for "no quota should
+exist".
+
 ## Provisioning Flow For New Users
 
 Initial rollout should target new users first:

@@ -4,6 +4,7 @@ from api.services.storage_providers.synology_dsm import (
     parse_user_quota_payload,
     summarize_discovered_capabilities,
 )
+from api.schemas import SynologyDsmUserQuotaResponse, StorageProviderSummary
 
 
 def test_choose_auth_version_caps_at_recommended_version() -> None:
@@ -60,3 +61,34 @@ def test_parse_user_quota_payload_handles_empty_and_known_shapes() -> None:
     assert parsed["entry_count"] == 1
     assert parsed["quota_bytes"] == 1000
     assert parsed["used_bytes"] == 125
+
+
+def test_synology_quota_response_can_mark_hub_desired_fallback() -> None:
+    response = SynologyDsmUserQuotaResponse(
+        provider=StorageProviderSummary(
+            id="1802bbf7-b5a9-4b6a-841b-d698a5801046",
+            provider_key="synology-main",
+            display_name="Synology main NAS",
+            provider_kind="synology_dsm",
+            mount_root="/homes",
+            quota_mode="provider_enforced",
+            is_active=True,
+            capabilities_json={},
+            config_json={},
+        ),
+        configured=True,
+        success=True,
+        provider_user_key="test_user",
+        quota_bytes=None,
+        desired_quota_bytes=107374182400,
+        effective_quota_bytes=107374182400,
+        provider_reported=False,
+        quota_source="hub_desired",
+        entry_count=0,
+        message="Synology DSM did not return a quota entry.",
+    )
+
+    assert response.quota_bytes is None
+    assert response.effective_quota_bytes == 107374182400
+    assert response.provider_reported is False
+    assert response.quota_source == "hub_desired"

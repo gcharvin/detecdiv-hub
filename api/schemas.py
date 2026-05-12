@@ -241,6 +241,10 @@ class SynologyDsmUserQuotaResponse(HubBaseModel):
     provider_user_key: str
     quota_bytes: int | None = None
     used_bytes: int | None = None
+    desired_quota_bytes: int | None = None
+    effective_quota_bytes: int | None = None
+    provider_reported: bool = False
+    quota_source: str = "provider"
     entry_count: int = 0
     raw_quota: dict[str, Any] = Field(default_factory=dict)
     message: str | None = None
