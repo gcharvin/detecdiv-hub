@@ -1110,6 +1110,14 @@ function openFormDialog({ title, description = "", fields = [], submitLabel = "S
           </label>
         `;
       }
+      if (field.type === "checkbox") {
+        return `
+          <label class="field dialog-field">
+            <span>${escapeHtml(field.label)}</span>
+            <input name="${field.name}" type="checkbox" ${field.value ? "checked" : ""} />
+          </label>
+        `;
+      }
       return `
         <label class="field dialog-field">
           <span>${escapeHtml(field.label)}</span>
@@ -6717,27 +6725,100 @@ async function createUser() {
   if (!isAdmin()) {
     throw new Error("Admin role required.");
   }
-  const userKey = window.prompt("User key");
-  if (!userKey) {
+  const homeRoot = state.storageRoots.find((root) => root.name === "user-homes")
+    || state.storageRoots.find((root) => root.root_type === "user_home_root" && root.path_prefix === "/homes");
+  const values = await openFormDialog({
+    title: "New account",
+    fields: [
+      { name: "userKey", label: "User key", required: true },
+      { name: "displayName", label: "Display name" },
+      {
+        name: "role",
+        label: "Role",
+        type: "select",
+        value: "user",
+        options: [
+          { value: "user", label: "user" },
+          { value: "admin", label: "admin" },
+          { value: "service", label: "service" },
+        ],
+      },
+      {
+        name: "labStatus",
+        label: "Lab status",
+        type: "select",
+        value: "yes",
+        options: [
+          { value: "yes", label: "yes" },
+          { value: "alumni", label: "alumni" },
+        ],
+      },
+      { name: "defaultPath", label: "Default path" },
+      { name: "adminPortalAccess", label: "Admin portal access", type: "checkbox", value: false },
+      { name: "password", label: "Hub temporary password", type: "password" },
+      { name: "provisionSynology", label: "Provision Synology storage", type: "checkbox", value: true },
+      { name: "synologyUserKey", label: "Synology user key" },
+      { name: "synologyInitialPassword", label: "Synology initial password", type: "password" },
+      { name: "quotaGb", label: "Synology quota GB", type: "number", value: "100" },
+    ],
+    submitLabel: "Create account",
+  });
+  if (!values) {
     return;
   }
-  const displayName = window.prompt("Display name", userKey) || userKey;
-  const role = window.prompt("Role (user/admin/service)", "user") || "user";
-  const labStatus = window.prompt("Lab status (yes/alumni)", "yes") || "yes";
-  const defaultPath = window.prompt("Default path", "") || null;
-  const adminPortalAccess = window.confirm("Allow admin portal access for this account?");
-  const password = window.prompt("Temporary password", "");
-  await apiPost("/users", {
+  const userKey = String(values.userKey || "").trim();
+  if (!userKey) {
+    throw new Error("User key is required.");
+  }
+  const providerUserKey = String(values.synologyUserKey || userKey).trim();
+  const provisionSynology = Boolean(values.provisionSynology);
+  if (provisionSynology && !homeRoot) {
+    throw new Error("Storage root user-homes (/homes) is not configured.");
+  }
+  if (provisionSynology && !String(values.synologyInitialPassword || "").trim()) {
+    throw new Error("Synology initial password is required when provisioning Synology storage.");
+  }
+  const quotaGb = Number(values.quotaGb || 0);
+  const quotaBytes = Number.isFinite(quotaGb) && quotaGb > 0 ? Math.round(quotaGb * 1024 * 1024 * 1024) : null;
+  const defaultPath = String(values.defaultPath || "").trim()
+    || (provisionSynology ? `/homes/${providerUserKey}/DetecDiv` : "");
+  const createdUser = await apiPost("/users", {
     user_key: userKey,
-    display_name: displayName,
-    role,
+    display_name: String(values.displayName || userKey).trim() || userKey,
+    role: String(values.role || "user").trim() || "user",
     is_active: true,
-    admin_portal_access: adminPortalAccess,
-    lab_status: labStatus,
-    default_path: defaultPath,
-    password: password || null,
+    admin_portal_access: Boolean(values.adminPortalAccess),
+    lab_status: String(values.labStatus || "yes").trim() || "yes",
+    default_path: defaultPath || null,
+    password: String(values.password || "").trim() || null,
     metadata_json: {},
   });
+  if (provisionSynology) {
+    const account = await apiPost(`/storage/users/${createdUser.id}/home-account`, {
+      provider_key: "synology-main",
+      provider_user_key: providerUserKey,
+      home_storage_root_id: homeRoot.id,
+      home_relative_path: `${providerUserKey}/DetecDiv`,
+      quota_bytes: quotaBytes,
+      create_missing_provider: false,
+    });
+    const ensured = await apiPost(`/storage/user-accounts/${account.id}/synology/ensure-user`, {
+      create_missing: true,
+      initial_password: String(values.synologyInitialPassword || "").trim(),
+      display_name: createdUser.display_name,
+      email: createdUser.email || null,
+      groups: [],
+    });
+    const prepared = await apiPost(`/storage/user-accounts/${account.id}/prepare`, {
+      create_directories: true,
+      subdirectories: ["projects", "raw", "artifacts", "exports"],
+      requested_mode: "server",
+      priority: 80,
+    });
+    await refreshUsers();
+    setStatus(`Created user ${userKey}. Synology ${ensured.created ? "created" : "verified"}; home preparation job ${prepared.job_id} queued.`);
+    return;
+  }
   await refreshUsers();
   setStatus(`Created user ${userKey}.`);
 }
