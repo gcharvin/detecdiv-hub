@@ -4351,6 +4351,14 @@ function renderProjectRawDatasets() {
   }
 }
 
+function reportUiError(context, error) {
+  const detail = error instanceof Error ? (error.stack || error.message) : String(error);
+  const message = `${context}: ${detail}`;
+  console.error(message);
+  setStatus(message);
+  window.alert(message);
+}
+
 function externalLinkLabel(link) {
   const system = String(link?.system_key || "external").toUpperCase();
   const title = link?.title || link?.external_id || "linked record";
@@ -5150,32 +5158,37 @@ async function selectMigrationPlan(planId) {
 }
 
 async function selectRawDataset(rawDatasetId, options = {}) {
-  const hydrateDetail = options.hydrateDetail ?? pageFlags.hasRawDatasetPage;
-  if (!state.selectedRawDatasetDetail || `${state.selectedRawDatasetDetail.id}` !== `${rawDatasetId}`) {
-    state.selectedRawPositionIds = [];
-    closeRawPositionDeletePanel();
-  }
-  const raw = state.rawDatasets.find((item) => item.id === rawDatasetId);
-  if (!hydrateDetail) {
-    if (!raw) {
+  try {
+    const hydrateDetail = options.hydrateDetail ?? pageFlags.hasRawDatasetPage;
+    if (!state.selectedRawDatasetDetail || `${state.selectedRawDatasetDetail.id}` !== `${rawDatasetId}`) {
+      state.selectedRawPositionIds = [];
+      closeRawPositionDeletePanel();
+    }
+    const raw = state.rawDatasets.find((item) => item.id === rawDatasetId);
+    if (!hydrateDetail) {
+      if (!raw) {
+        return;
+      }
+      state.selectedRawDatasetDetail = raw;
+      state.selectedRawDataset = raw;
+      if ((rawDatasetId === getRawDatasetPageId() || pageFlags.hasRawDatasetPage) && els.rawDetailSubtitle) {
+        document.title = `Detecdiv server - ${raw.acquisition_label}`;
+      }
+      renderRawDatasets();
+      renderRawDatasetDetail();
       return;
     }
-    state.selectedRawDatasetDetail = raw;
-    state.selectedRawDataset = raw;
+    state.selectedRawDatasetDetail = await apiGet(`/raw-datasets/${rawDatasetId}`);
+    state.selectedRawDataset = raw || state.selectedRawDatasetDetail;
     if ((rawDatasetId === getRawDatasetPageId() || pageFlags.hasRawDatasetPage) && els.rawDetailSubtitle) {
-      document.title = `Detecdiv server - ${raw.acquisition_label}`;
+      document.title = `Detecdiv server - ${state.selectedRawDatasetDetail.acquisition_label}`;
     }
     renderRawDatasets();
     renderRawDatasetDetail();
-    return;
+  } catch (error) {
+    reportUiError(`Raw dataset selection failed (${rawDatasetId})`, error);
+    throw error;
   }
-  state.selectedRawDatasetDetail = await apiGet(`/raw-datasets/${rawDatasetId}`);
-  state.selectedRawDataset = raw || state.selectedRawDatasetDetail;
-  if ((rawDatasetId === getRawDatasetPageId() || pageFlags.hasRawDatasetPage) && els.rawDetailSubtitle) {
-    document.title = `Detecdiv server - ${state.selectedRawDatasetDetail.acquisition_label}`;
-  }
-  renderRawDatasets();
-  renderRawDatasetDetail();
 }
 
 async function refreshPipelines() {
@@ -5249,20 +5262,25 @@ async function refreshSessions() {
 }
 
 async function selectProject(projectId) {
-  const project = state.projects.find((item) => item.id === projectId);
-  if (!project) {
-    return;
+  try {
+    const project = state.projects.find((item) => item.id === projectId);
+    if (!project) {
+      return;
+    }
+    state.selectedProject = project;
+    const [detail, acl] = await Promise.all([
+      apiGet(`/projects/${projectId}`),
+      apiGet(`/projects/${projectId}/acl`),
+    ]);
+    state.selectedProjectDetail = detail;
+    state.acl = acl;
+    renderProjects();
+    renderDetail();
+    renderPipelineRunBuilder();
+  } catch (error) {
+    reportUiError(`Project selection failed (${projectId})`, error);
+    throw error;
   }
-  state.selectedProject = project;
-  const [detail, acl] = await Promise.all([
-    apiGet(`/projects/${projectId}`),
-    apiGet(`/projects/${projectId}/acl`),
-  ]);
-  state.selectedProjectDetail = detail;
-  state.acl = acl;
-  renderProjects();
-  renderDetail();
-  renderPipelineRunBuilder();
 }
 
 async function createGroup() {
