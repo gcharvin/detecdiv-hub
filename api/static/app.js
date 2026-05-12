@@ -6822,6 +6822,9 @@ async function createUser() {
       email: createdUser.email || null,
       groups: [],
     });
+    if (!ensured.success) {
+      throw new Error(ensured.message || "Synology user provisioning failed.");
+    }
     const prepared = await apiPost(`/storage/user-accounts/${account.id}/prepare`, {
       create_directories: true,
       subdirectories: ["projects", "raw", "artifacts", "exports"],
@@ -6829,7 +6832,7 @@ async function createUser() {
       priority: 80,
     });
     await refreshUsers();
-    setStatus(`Created user ${userKey}. Synology ${ensured.created ? "created" : "verified"}; home preparation job ${prepared.job_id} queued.`);
+    setStatus(`Created user ${userKey}. Synology user ${ensured.provider_user_key} ${ensured.created ? "created" : "verified"}; home preparation job ${prepared.job_id} queued.`);
     return;
   }
   await refreshUsers();

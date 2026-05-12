@@ -1,5 +1,6 @@
 from api.services.storage_providers.synology_dsm import (
     SynologyDsmClient,
+    SynologyDsmError,
     choose_auth_version,
     choose_max_version,
     parse_user_quota_payload,
@@ -109,6 +110,19 @@ def test_synology_get_user_matches_requested_name(monkeypatch) -> None:
     monkeypatch.setattr(client, "call_discovered_api", fake_call)
 
     assert client.get_user("test_user") == {"name": "test_user", "uid": 1045}
+
+
+def test_synology_get_user_treats_missing_user_code_as_absent(monkeypatch) -> None:
+    client = SynologyDsmClient()
+    monkeypatch.setattr(client, "login", lambda: "sid")
+    monkeypatch.setattr(client, "logout", lambda: None)
+
+    def fake_call(**kwargs):
+        raise SynologyDsmError("missing", code=3106, payload={"error": {"code": 3106}})
+
+    monkeypatch.setattr(client, "call_discovered_api", fake_call)
+
+    assert client.get_user("missing_user") is None
 
 
 def test_synology_create_user_sends_password_without_storing(monkeypatch) -> None:

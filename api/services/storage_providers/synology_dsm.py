@@ -159,12 +159,17 @@ class SynologyDsmClient:
             raise SynologyDsmError("DSM user lookup requires a user name")
         self.login()
         try:
-            payload = self.call_discovered_api(
-                api_name="SYNO.Core.User",
-                method="get",
-                params={"name": user_name},
-                login=True,
-            )
+            try:
+                payload = self.call_discovered_api(
+                    api_name="SYNO.Core.User",
+                    method="get",
+                    params={"name": user_name},
+                    login=True,
+                )
+            except SynologyDsmError as exc:
+                if exc.code == 3106:
+                    return None
+                raise
             users = ((payload.get("data") or {}).get("users") or [])
             if not isinstance(users, list):
                 raise SynologyDsmError("Unexpected DSM user get response", payload=payload)
