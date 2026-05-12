@@ -81,6 +81,12 @@ class Settings(BaseSettings):
     backup_run_as_user_key: str = "backup-bot"
     backup_include_raw_datasets: bool = True
     backup_include_projects: bool = True
+    synology_dsm_base_url: str = ""
+    synology_dsm_account: str = ""
+    synology_dsm_password: str = ""
+    synology_dsm_session: str = "DetecDivHub"
+    synology_dsm_verify_tls: bool = True
+    synology_dsm_timeout_sec: float = 10.0
 
     model_config = SettingsConfigDict(
         env_prefix="DETECDIV_HUB_",

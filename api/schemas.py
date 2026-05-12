@@ -175,6 +175,77 @@ class StorageProviderUpdate(HubBaseModel):
     config_json: dict[str, Any] | None = None
 
 
+class SynologyDsmDiscoveryResponse(HubBaseModel):
+    provider: StorageProviderSummary
+    configured: bool
+    success: bool
+    api_info: dict[str, Any] = Field(default_factory=dict)
+    capabilities_json: dict[str, Any] = Field(default_factory=dict)
+    message: str | None = None
+
+
+class SynologyDsmLoginCheckResponse(HubBaseModel):
+    provider: StorageProviderSummary
+    configured: bool
+    success: bool
+    session: str | None = None
+    sid_received: bool = False
+    discovered_apis: list[str] = Field(default_factory=list)
+    message: str | None = None
+
+
+class SynologyDsmApiProbeRequest(HubBaseModel):
+    api_name: str
+    method: str
+    version: int | None = None
+    params: dict[str, Any] = Field(default_factory=dict)
+    login: bool = True
+
+
+class SynologyDsmApiProbeResponse(HubBaseModel):
+    provider: StorageProviderSummary
+    configured: bool
+    success: bool
+    payload: dict[str, Any] = Field(default_factory=dict)
+    message: str | None = None
+
+
+class SynologyDsmUserSummary(HubBaseModel):
+    name: str
+    raw_keys: list[str] = Field(default_factory=list)
+
+
+class SynologyDsmUserListResponse(HubBaseModel):
+    provider: StorageProviderSummary
+    configured: bool
+    success: bool
+    users: list[SynologyDsmUserSummary] = Field(default_factory=list)
+    total: int = 0
+    message: str | None = None
+
+
+class SynologyDsmUserHomeResponse(HubBaseModel):
+    provider: StorageProviderSummary
+    configured: bool
+    success: bool
+    enable: bool | None = None
+    location: str | None = None
+    raw_settings: dict[str, Any] = Field(default_factory=dict)
+    message: str | None = None
+
+
+class SynologyDsmUserQuotaResponse(HubBaseModel):
+    provider: StorageProviderSummary
+    configured: bool
+    success: bool
+    provider_user_key: str
+    quota_bytes: int | None = None
+    used_bytes: int | None = None
+    entry_count: int = 0
+    raw_quota: dict[str, Any] = Field(default_factory=dict)
+    message: str | None = None
+
+
 class UserStorageAccountSummary(HubBaseModel):
     id: UUID
     user: UserSummary
@@ -220,6 +291,19 @@ class UserHomeProvisionRequest(HubBaseModel):
     home_relative_path: str | None = None
     quota_bytes: int | None = None
     create_missing_provider: bool = False
+
+
+class UserHomePrepareRequest(HubBaseModel):
+    create_directories: bool = True
+    subdirectories: list[str] = Field(default_factory=lambda: ["projects", "raw", "artifacts", "exports"])
+    requested_mode: str = "server"
+    priority: int = 80
+
+
+class UserHomePrepareResponse(HubBaseModel):
+    job_id: UUID
+    account: UserStorageAccountSummary
+    detail: str
 
 
 class StorageQuotaSnapshotSummary(HubBaseModel):

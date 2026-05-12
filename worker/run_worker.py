@@ -27,6 +27,7 @@ from worker.backup_scheduler import run_backup_if_due
 from worker.micromanager_ingest_scheduler import run_micromanager_ingest_if_due
 from worker.pipeline_run_executor import PipelineRunCancelled, execute_pipeline_run_job
 from worker.storage_lifecycle import execute_storage_lifecycle_job, finalize_storage_lifecycle_failure
+from worker.user_home_storage import execute_user_home_storage_job, finalize_user_home_storage_failure
 
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
@@ -390,6 +391,15 @@ def execute_job(job: Job) -> dict:
             payload["worker_host"] = socket.gethostname()
             payload["worker_instance"] = get_worker_instance_id()
             return payload
+    if job_kind == "prepare_user_home_storage":
+        with session_scope() as session:
+            job_record = session.get(Job, job.id)
+            if job_record is None:
+                raise ValueError(f"Job {job.id} disappeared before execution")
+            result_json = execute_user_home_storage_job(session, job=job_record)
+            result_json["worker_host"] = socket.gethostname()
+            result_json["worker_instance"] = get_worker_instance_id()
+            return result_json
 
     return {
         "worker_host": socket.gethostname(),
@@ -510,6 +520,7 @@ def run_forever() -> None:
                 if job_record is not None:
                     finalize_storage_lifecycle_failure(session, job=job_record, error_text=str(exc))
                     finalize_backup_failure(session, job=job_record, error_text=str(exc))
+                    finalize_user_home_storage_failure(session, job=job_record, error_text=str(exc))
             mark_job_failed(job.id, str(exc))
             LOGGER.exception("Job %s failed", job.id)
 

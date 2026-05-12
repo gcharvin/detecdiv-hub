@@ -8,6 +8,7 @@ from sqlalchemy.orm import Session, joinedload
 
 from api.db import get_db
 from api.models import (
+    Job,
     StorageProvider,
     StorageProvisioningEvent,
     StorageQuotaSnapshot,
@@ -20,6 +21,16 @@ from api.schemas import (
     StorageProviderUpdate,
     StorageProvisioningEventSummary,
     StorageQuotaSnapshotSummary,
+    SynologyDsmApiProbeRequest,
+    SynologyDsmApiProbeResponse,
+    SynologyDsmDiscoveryResponse,
+    SynologyDsmLoginCheckResponse,
+    SynologyDsmUserHomeResponse,
+    SynologyDsmUserListResponse,
+    SynologyDsmUserQuotaResponse,
+    SynologyDsmUserSummary,
+    UserHomePrepareRequest,
+    UserHomePrepareResponse,
     UserHomeProvisionRequest,
     UserStorageAccountCreate,
     UserStorageAccountSummary,
@@ -35,6 +46,12 @@ from api.services.user_home_storage import (
     record_provisioning_event,
     resolve_provider,
     upsert_user_storage_account,
+)
+from api.services.storage_providers.synology_dsm import (
+    SynologyDsmClient,
+    SynologyDsmError,
+    parse_user_quota_payload,
+    summarize_discovered_capabilities,
 )
 from api.services.users import get_current_user
 
@@ -144,6 +161,211 @@ def update_provider(
     db.commit()
     db.refresh(provider)
     return provider
+
+
+@router.post("/providers/{provider_key}/synology/discover", response_model=SynologyDsmDiscoveryResponse)
+def discover_synology_provider(
+    provider_key: str,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> SynologyDsmDiscoveryResponse:
+    require_storage_admin(current_user)
+    provider = resolve_provider(db, provider_key)
+    if provider.provider_kind != "synology_dsm":
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Provider is not a Synology DSM provider")
+    client = SynologyDsmClient()
+    try:
+        api_info = client.discover()
+    except SynologyDsmError as exc:
+        return SynologyDsmDiscoveryResponse(
+            provider=StorageProviderSummary.model_validate(provider),
+            configured=client.is_configured(),
+            success=False,
+            message=str(exc),
+        )
+    capabilities = summarize_discovered_capabilities(api_info)
+    provider.capabilities_json = capabilities
+    provider.config_json = {
+        **dict(provider.config_json or {}),
+        "discovery_source": "synology_dsm",
+    }
+    db.commit()
+    db.refresh(provider)
+    return SynologyDsmDiscoveryResponse(
+        provider=StorageProviderSummary.model_validate(provider),
+        configured=client.is_configured(),
+        success=True,
+        api_info=api_info,
+        capabilities_json=capabilities,
+    )
+
+
+@router.post("/providers/{provider_key}/synology/login-check", response_model=SynologyDsmLoginCheckResponse)
+def check_synology_login(
+    provider_key: str,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> SynologyDsmLoginCheckResponse:
+    require_storage_admin(current_user)
+    provider = resolve_provider(db, provider_key)
+    if provider.provider_kind != "synology_dsm":
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Provider is not a Synology DSM provider")
+    client = SynologyDsmClient()
+    try:
+        result = client.login_check()
+    except SynologyDsmError as exc:
+        return SynologyDsmLoginCheckResponse(
+            provider=StorageProviderSummary.model_validate(provider),
+            configured=client.is_configured(),
+            success=False,
+            message=str(exc),
+        )
+    return SynologyDsmLoginCheckResponse(
+        provider=StorageProviderSummary.model_validate(provider),
+        configured=client.is_configured(),
+        success=True,
+        session=result.get("session"),
+        sid_received=bool(result.get("sid_received")),
+        discovered_apis=list(result.get("discovered_apis") or []),
+    )
+
+
+@router.post("/providers/{provider_key}/synology/probe", response_model=SynologyDsmApiProbeResponse)
+def probe_synology_api(
+    provider_key: str,
+    payload: SynologyDsmApiProbeRequest,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> SynologyDsmApiProbeResponse:
+    require_storage_admin(current_user)
+    provider = resolve_provider(db, provider_key)
+    if provider.provider_kind != "synology_dsm":
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Provider is not a Synology DSM provider")
+    client = SynologyDsmClient()
+    try:
+        result = client.call_discovered_api(
+            api_name=payload.api_name,
+            method=payload.method,
+            params=payload.params,
+            version=payload.version,
+            login=payload.login,
+        )
+    except SynologyDsmError as exc:
+        return SynologyDsmApiProbeResponse(
+            provider=StorageProviderSummary.model_validate(provider),
+            configured=client.is_configured(),
+            success=False,
+            message=str(exc),
+        )
+    finally:
+        client.logout()
+    return SynologyDsmApiProbeResponse(
+        provider=StorageProviderSummary.model_validate(provider),
+        configured=client.is_configured(),
+        success=True,
+        payload=result,
+    )
+
+
+@router.get("/providers/{provider_key}/synology/users", response_model=SynologyDsmUserListResponse)
+def list_synology_users(
+    provider_key: str,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> SynologyDsmUserListResponse:
+    require_storage_admin(current_user)
+    provider = resolve_provider(db, provider_key)
+    if provider.provider_kind != "synology_dsm":
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Provider is not a Synology DSM provider")
+    client = SynologyDsmClient()
+    try:
+        users = client.list_users()
+    except SynologyDsmError as exc:
+        return SynologyDsmUserListResponse(
+            provider=StorageProviderSummary.model_validate(provider),
+            configured=client.is_configured(),
+            success=False,
+            message=str(exc),
+        )
+    summaries = [
+        SynologyDsmUserSummary(
+            name=str(user.get("name") or ""),
+            raw_keys=sorted(str(key) for key in user.keys()),
+        )
+        for user in users
+        if user.get("name")
+    ]
+    return SynologyDsmUserListResponse(
+        provider=StorageProviderSummary.model_validate(provider),
+        configured=client.is_configured(),
+        success=True,
+        users=summaries,
+        total=len(summaries),
+    )
+
+
+@router.get("/providers/{provider_key}/synology/user-home", response_model=SynologyDsmUserHomeResponse)
+def get_synology_user_home_settings(
+    provider_key: str,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> SynologyDsmUserHomeResponse:
+    require_storage_admin(current_user)
+    provider = resolve_provider(db, provider_key)
+    if provider.provider_kind != "synology_dsm":
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Provider is not a Synology DSM provider")
+    client = SynologyDsmClient()
+    try:
+        settings = client.get_user_home_settings()
+    except SynologyDsmError as exc:
+        return SynologyDsmUserHomeResponse(
+            provider=StorageProviderSummary.model_validate(provider),
+            configured=client.is_configured(),
+            success=False,
+            message=str(exc),
+        )
+    return SynologyDsmUserHomeResponse(
+        provider=StorageProviderSummary.model_validate(provider),
+        configured=client.is_configured(),
+        success=True,
+        enable=settings.get("enable") if isinstance(settings.get("enable"), bool) else None,
+        location=str(settings.get("location") or "") or None,
+        raw_settings=settings,
+    )
+
+
+@router.get("/user-accounts/{account_id}/synology/quota", response_model=SynologyDsmUserQuotaResponse)
+def get_synology_user_quota_for_account(
+    account_id: UUID,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> SynologyDsmUserQuotaResponse:
+    require_storage_admin(current_user)
+    account = load_account(db, account_id)
+    if account.provider.provider_kind != "synology_dsm":
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Storage account is not linked to a Synology DSM provider")
+    client = SynologyDsmClient()
+    try:
+        payload = client.get_user_quota(account.provider_user_key)
+    except SynologyDsmError as exc:
+        return SynologyDsmUserQuotaResponse(
+            provider=StorageProviderSummary.model_validate(account.provider),
+            configured=client.is_configured(),
+            success=False,
+            provider_user_key=account.provider_user_key,
+            message=str(exc),
+        )
+    parsed = parse_user_quota_payload(payload)
+    return SynologyDsmUserQuotaResponse(
+        provider=StorageProviderSummary.model_validate(account.provider),
+        configured=client.is_configured(),
+        success=True,
+        provider_user_key=account.provider_user_key,
+        quota_bytes=parsed.get("quota_bytes"),
+        used_bytes=parsed.get("used_bytes"),
+        entry_count=int(parsed.get("entry_count") or 0),
+        raw_quota=payload,
+    )
 
 
 @router.get("/user-accounts", response_model=list[UserStorageAccountSummary])
@@ -276,6 +498,48 @@ def provision_user_home_storage(
     )
     db.commit()
     return load_account(db, account.id)
+
+
+@router.post("/user-accounts/{account_id}/prepare", response_model=UserHomePrepareResponse, status_code=status.HTTP_201_CREATED)
+def queue_user_home_prepare_job(
+    account_id: UUID,
+    payload: UserHomePrepareRequest,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> UserHomePrepareResponse:
+    require_storage_admin(current_user)
+    account = load_account(db, account_id)
+    job = Job(
+        requested_mode=payload.requested_mode,
+        priority=payload.priority,
+        requested_by=current_user.user_key,
+        params_json={
+            "job_kind": "prepare_user_home_storage",
+            "storage_account_id": str(account.id),
+            "create_directories": payload.create_directories,
+            "subdirectories": payload.subdirectories,
+        },
+        status="queued",
+    )
+    account.provisioning_status = "queued"
+    db.add(job)
+    record_provisioning_event(
+        db,
+        user=account.user,
+        provider=account.provider,
+        storage_account=account,
+        event_kind="home_prepare_queued",
+        status_text="queued",
+        message="User home preparation job queued for worker execution.",
+        metadata_json={"job_kind": "prepare_user_home_storage"},
+    )
+    db.commit()
+    account = load_account(db, account.id)
+    return UserHomePrepareResponse(
+        job_id=job.id,
+        account=UserStorageAccountSummary.model_validate(account),
+        detail="User home preparation job queued.",
+    )
 
 
 @router.post("/user-accounts/{account_id}/quota-snapshots", response_model=StorageQuotaSnapshotSummary, status_code=status.HTTP_201_CREATED)

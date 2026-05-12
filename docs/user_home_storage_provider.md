@@ -215,6 +215,26 @@ Provider-changing and filesystem-changing operations should be job-backed:
 The worker on `detecdiv-server` should perform physical filesystem operations,
 because that host has direct storage visibility.
 
+The first worker-backed operation is:
+
+```text
+job_kind = prepare_user_home_storage
+```
+
+It is queued through `POST /storage/user-accounts/{account_id}/prepare` and
+creates or validates the mounted home layout:
+
+```text
+<storage_root>/<home_relative_path>/
+  projects/
+  raw/
+  artifacts/
+  exports/
+```
+
+This keeps the FastAPI VM out of direct filesystem mutation while still giving
+admins a concrete way to prepare new users on the storage-visible worker host.
+
 ## Synology Adapter
 
 For Synology deployments, implement a provider adapter that can:
@@ -238,6 +258,54 @@ api/services/storage_providers/synology_dsm.py
 
 Callers should depend on provider capabilities rather than Synology method
 names.
+
+The first DSM adapter layer is intentionally limited to login, API discovery,
+and admin-only probing:
+
+```text
+POST /storage/providers/{provider_key}/synology/discover
+POST /storage/providers/{provider_key}/synology/login-check
+POST /storage/providers/{provider_key}/synology/probe
+GET  /storage/providers/{provider_key}/synology/users
+GET  /storage/providers/{provider_key}/synology/user-home
+GET  /storage/user-accounts/{account_id}/synology/quota
+```
+
+The required deployment settings are:
+
+```text
+DETECDIV_HUB_SYNOLOGY_DSM_BASE_URL=https://nas.example.org:5001
+DETECDIV_HUB_SYNOLOGY_DSM_ACCOUNT=<service-account>
+DETECDIV_HUB_SYNOLOGY_DSM_PASSWORD=<secret>
+DETECDIV_HUB_SYNOLOGY_DSM_SESSION=DetecDivHub
+DETECDIV_HUB_SYNOLOGY_DSM_VERIFY_TLS=true
+```
+
+The probe endpoint exists to validate the exact DSM API surface on the live NAS
+before hardcoding quota or user-management calls. The DSM login guide documents
+`SYNO.API.Info` discovery and `SYNO.API.Auth` login, but DSM core APIs such as
+quota and user home management vary enough across versions that the hub should
+discover capabilities first and only then promote confirmed methods into stable
+service functions.
+
+On the current NAS, the server is visible in DSM as `SRV-DATA-GS01` at
+`10.20.11.250:5000`, but that short name does not currently resolve from the
+Windows development machine. Using `https://10.20.11.250:5001` works with
+`DETECDIV_HUB_SYNOLOGY_DSM_VERIFY_TLS=false`; with TLS verification enabled,
+the certificate is rejected because it is not valid for the IP address. A DNS
+name matching the DSM certificate should be preferred before production use.
+
+The current NAS accepts:
+
+```text
+SYNO.Core.User.list
+SYNO.Core.User.Home.get
+SYNO.Core.Quota.get with name=<provider_user_key>
+```
+
+For a user without an explicit quota, `SYNO.Core.Quota.get` may return an empty
+`user_quota` list. That is treated as a successful read with unknown quota bytes,
+not as a transport or authentication failure.
 
 ## Provisioning Flow For New Users
 

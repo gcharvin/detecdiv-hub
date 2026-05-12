@@ -7,6 +7,8 @@ from api.services.user_home_storage import (
     normalize_quota_mode,
     storage_safe_user_key,
 )
+from api.models import StorageRoot
+from worker.user_home_storage import normalize_subdirectories, resolve_storage_root_relative_path
 
 
 def test_normalize_provider_key_is_stable() -> None:
@@ -43,3 +45,34 @@ def test_quota_mode_guard() -> None:
         assert exc.status_code == 400
     else:
         raise AssertionError("Expected invalid quota mode to be rejected")
+
+
+def test_resolve_storage_root_relative_path_stays_under_root(tmp_path) -> None:
+    root = StorageRoot(name="user-homes", root_type="user_home_root", host_scope="test", path_prefix=str(tmp_path))
+
+    resolved = resolve_storage_root_relative_path(root, "alice/DetecDiv")
+
+    assert resolved == (tmp_path / "alice" / "DetecDiv").resolve()
+
+
+def test_resolve_storage_root_relative_path_requires_existing_root(tmp_path) -> None:
+    missing = tmp_path / "missing"
+    root = StorageRoot(name="user-homes", root_type="user_home_root", host_scope="test", path_prefix=str(missing))
+
+    try:
+        resolve_storage_root_relative_path(root, "alice/DetecDiv")
+    except FileNotFoundError:
+        pass
+    else:
+        raise AssertionError("Expected missing storage root to be rejected")
+
+
+def test_normalize_subdirectories_rejects_nested_or_unsafe_values() -> None:
+    assert normalize_subdirectories(["projects", "raw", "raw"]) == ["projects", "raw"]
+    for value in (["../outside"], ["nested/path"]):
+        try:
+            normalize_subdirectories(value)
+        except (HTTPException, ValueError):
+            pass
+        else:
+            raise AssertionError(f"Expected {value!r} to be rejected")
