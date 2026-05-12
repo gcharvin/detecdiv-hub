@@ -1073,6 +1073,19 @@ function labStatusLabel(user) {
   return String(user?.lab_status || "yes");
 }
 
+async function ensureStorageRootsLoaded() {
+  if (!state.storageRoots.length) {
+    state.storageRoots = await apiGet("/storage-roots");
+  }
+  return state.storageRoots;
+}
+
+function findUserHomeStorageRoot() {
+  return state.storageRoots.find((root) => root.name === "user-homes")
+    || state.storageRoots.find((root) => root.root_type === "user_home_root" && root.path_prefix === "/homes")
+    || state.storageRoots.find((root) => root.path_prefix === "/homes");
+}
+
 function fieldValueFromForm(form, name) {
   const field = form.elements.namedItem(name);
   if (!field) {
@@ -4616,7 +4629,7 @@ async function refreshDashboard() {
   } else {
     bootstrapTasks.push(Promise.resolve([]));
   }
-  if (pageFlags.hasStorageRootFilter || pageFlags.hasIndexForm) {
+  if (pageFlags.hasStorageRootFilter || pageFlags.hasIndexForm || pageFlags.hasUsersView) {
     bootstrapTasks.push(apiGet("/storage-roots"));
   } else {
     bootstrapTasks.push(Promise.resolve([]));
@@ -6725,8 +6738,7 @@ async function createUser() {
   if (!isAdmin()) {
     throw new Error("Admin role required.");
   }
-  const homeRoot = state.storageRoots.find((root) => root.name === "user-homes")
-    || state.storageRoots.find((root) => root.root_type === "user_home_root" && root.path_prefix === "/homes");
+  await ensureStorageRootsLoaded();
   const values = await openFormDialog({
     title: "New account",
     fields: [
@@ -6772,8 +6784,9 @@ async function createUser() {
   }
   const providerUserKey = String(values.synologyUserKey || userKey).trim();
   const provisionSynology = Boolean(values.provisionSynology);
+  const homeRoot = findUserHomeStorageRoot();
   if (provisionSynology && !homeRoot) {
-    throw new Error("Storage root user-homes (/homes) is not configured.");
+    throw new Error("No /homes storage root is configured in the hub.");
   }
   if (provisionSynology && !String(values.synologyInitialPassword || "").trim()) {
     throw new Error("Synology initial password is required when provisioning Synology storage.");
