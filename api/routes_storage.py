@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from datetime import datetime, timezone
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, status
@@ -24,6 +25,8 @@ from api.schemas import (
     SynologyDsmApiProbeRequest,
     SynologyDsmApiProbeResponse,
     SynologyDsmDiscoveryResponse,
+    SynologyDsmEnsureUserRequest,
+    SynologyDsmEnsureUserResponse,
     SynologyDsmLoginCheckResponse,
     SynologyDsmUserHomeResponse,
     SynologyDsmUserListResponse,
@@ -380,6 +383,126 @@ def get_synology_user_quota_for_account(
         entry_count=int(parsed.get("entry_count") or 0),
         raw_quota=payload,
         message=message,
+    )
+
+
+@router.post("/user-accounts/{account_id}/synology/ensure-user", response_model=SynologyDsmEnsureUserResponse)
+def ensure_synology_user_for_account(
+    account_id: UUID,
+    payload: SynologyDsmEnsureUserRequest,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> SynologyDsmEnsureUserResponse:
+    require_storage_admin(current_user)
+    account = load_account(db, account_id)
+    if account.provider.provider_kind != "synology_dsm":
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Storage account is not linked to a Synology DSM provider")
+
+    client = SynologyDsmClient()
+    try:
+        raw_user = client.get_user(account.provider_user_key)
+    except SynologyDsmError as exc:
+        return SynologyDsmEnsureUserResponse(
+            provider=StorageProviderSummary.model_validate(account.provider),
+            account=UserStorageAccountSummary.model_validate(account),
+            configured=client.is_configured(),
+            success=False,
+            provider_user_key=account.provider_user_key,
+            message=str(exc),
+        )
+
+    exists_before = raw_user is not None
+    created = False
+    if raw_user is None:
+        if not payload.create_missing:
+            record_provisioning_event(
+                db,
+                user=account.user,
+                provider=account.provider,
+                storage_account=account,
+                event_kind="synology_user_missing",
+                status_text="missing",
+                message="Synology user does not exist and create_missing was false.",
+            )
+            db.commit()
+            return SynologyDsmEnsureUserResponse(
+                provider=StorageProviderSummary.model_validate(account.provider),
+                account=UserStorageAccountSummary.model_validate(load_account(db, account.id)),
+                configured=client.is_configured(),
+                success=False,
+                provider_user_key=account.provider_user_key,
+                exists_before=False,
+                exists_after=False,
+                message="Synology user does not exist. Retry with create_missing=true and an initial password to create it.",
+            )
+        if not payload.initial_password:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Initial password is required to create a Synology user")
+        try:
+            client.create_user(
+                user_name=account.provider_user_key,
+                initial_password=payload.initial_password,
+                display_name=payload.display_name or account.user.display_name,
+                email=payload.email or account.user.email,
+                groups=payload.groups or None,
+            )
+            raw_user = client.get_user(account.provider_user_key)
+            created = True
+        except SynologyDsmError as exc:
+            record_provisioning_event(
+                db,
+                user=account.user,
+                provider=account.provider,
+                storage_account=account,
+                event_kind="synology_user_create_failed",
+                status_text="failed",
+                message=str(exc),
+            )
+            db.commit()
+            return SynologyDsmEnsureUserResponse(
+                provider=StorageProviderSummary.model_validate(account.provider),
+                account=UserStorageAccountSummary.model_validate(load_account(db, account.id)),
+                configured=client.is_configured(),
+                success=False,
+                provider_user_key=account.provider_user_key,
+                exists_before=False,
+                created=False,
+                exists_after=False,
+                message=str(exc),
+            )
+
+    exists_after = raw_user is not None
+    now = datetime.now(timezone.utc)
+    account.last_synced_at = now
+    account.provisioning_status = "provider_user_ready" if account.provisioning_status != "ready" else account.provisioning_status
+    account.metadata_json = {
+        **dict(account.metadata_json or {}),
+        "synology_user_exists": exists_after,
+        "synology_user_last_checked_at": now.isoformat(),
+        "synology_user_created_by_hub": bool(created or (account.metadata_json or {}).get("synology_user_created_by_hub")),
+    }
+    record_provisioning_event(
+        db,
+        user=account.user,
+        provider=account.provider,
+        storage_account=account,
+        event_kind="synology_user_created" if created else "synology_user_verified",
+        status_text="ready" if exists_after else "missing",
+        message="Synology user was created by the hub." if created else "Synology user exists.",
+        metadata_json={"provider_user_key": account.provider_user_key},
+    )
+    db.commit()
+    account = load_account(db, account.id)
+    return SynologyDsmEnsureUserResponse(
+        provider=StorageProviderSummary.model_validate(account.provider),
+        account=UserStorageAccountSummary.model_validate(account),
+        configured=client.is_configured(),
+        success=exists_after,
+        provider_user_key=account.provider_user_key,
+        exists_before=exists_before,
+        created=created,
+        exists_after=exists_after,
+        raw_user=raw_user or {},
+        message="Synology user was created." if created else "Synology user exists.",
     )
 
 

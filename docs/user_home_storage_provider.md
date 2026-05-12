@@ -323,6 +323,12 @@ Initial rollout should target new users first:
 2. Create or sync `user_storage_accounts`.
 3. If provider kind is `synology_dsm`, verify or create the DSM user according
    to the lab policy.
+   - `POST /storage/user-accounts/{account_id}/synology/ensure-user`
+     checks whether the DSM account exists.
+   - The endpoint only creates a DSM account when `create_missing=true` and an
+     `initial_password` is provided.
+   - The initial password is sent to DSM for that one call and is not stored in
+     the hub database.
 4. Set or verify quota if the provider supports it.
 5. Ensure `/homes/<username>/DetecDiv` and expected subdirectories exist.
 6. Set new project/raw default placement to the user home root.

@@ -250,6 +250,27 @@ class SynologyDsmUserQuotaResponse(HubBaseModel):
     message: str | None = None
 
 
+class SynologyDsmEnsureUserRequest(HubBaseModel):
+    create_missing: bool = False
+    initial_password: str | None = None
+    display_name: str | None = None
+    email: str | None = None
+    groups: list[str] = Field(default_factory=list)
+
+
+class SynologyDsmEnsureUserResponse(HubBaseModel):
+    provider: StorageProviderSummary
+    account: "UserStorageAccountSummary"
+    configured: bool
+    success: bool
+    provider_user_key: str
+    exists_before: bool = False
+    created: bool = False
+    exists_after: bool = False
+    raw_user: dict[str, Any] = Field(default_factory=dict)
+    message: str | None = None
+
+
 class UserStorageAccountSummary(HubBaseModel):
     id: UUID
     user: UserSummary

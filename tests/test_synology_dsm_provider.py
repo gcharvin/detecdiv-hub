@@ -1,4 +1,5 @@
 from api.services.storage_providers.synology_dsm import (
+    SynologyDsmClient,
     choose_auth_version,
     choose_max_version,
     parse_user_quota_payload,
@@ -92,3 +93,51 @@ def test_synology_quota_response_can_mark_hub_desired_fallback() -> None:
     assert response.effective_quota_bytes == 107374182400
     assert response.provider_reported is False
     assert response.quota_source == "hub_desired"
+
+
+def test_synology_get_user_matches_requested_name(monkeypatch) -> None:
+    client = SynologyDsmClient()
+    monkeypatch.setattr(client, "login", lambda: "sid")
+    monkeypatch.setattr(client, "logout", lambda: None)
+
+    def fake_call(**kwargs):
+        assert kwargs["api_name"] == "SYNO.Core.User"
+        assert kwargs["method"] == "get"
+        assert kwargs["params"] == {"name": "test_user"}
+        return {"data": {"users": [{"name": "other"}, {"name": "test_user", "uid": 1045}]}}
+
+    monkeypatch.setattr(client, "call_discovered_api", fake_call)
+
+    assert client.get_user("test_user") == {"name": "test_user", "uid": 1045}
+
+
+def test_synology_create_user_sends_password_without_storing(monkeypatch) -> None:
+    client = SynologyDsmClient()
+    monkeypatch.setattr(client, "login", lambda: "sid")
+    monkeypatch.setattr(client, "logout", lambda: None)
+    captured = {}
+
+    def fake_call(**kwargs):
+        captured.update(kwargs)
+        return {"data": {"created": True}}
+
+    monkeypatch.setattr(client, "call_discovered_api", fake_call)
+
+    result = client.create_user(
+        user_name="new_user",
+        initial_password="temporary-password",
+        display_name="New User",
+        email="new@example.test",
+        groups=["users"],
+    )
+
+    assert result == {"created": True}
+    assert captured["api_name"] == "SYNO.Core.User"
+    assert captured["method"] == "create"
+    assert captured["params"] == {
+        "name": "new_user",
+        "passwd": "temporary-password",
+        "description": "New User",
+        "email": "new@example.test",
+        "groups": '["users"]',
+    }

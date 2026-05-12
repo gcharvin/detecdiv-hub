@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+import json
 from typing import Any
 
 import requests
@@ -150,6 +151,66 @@ class SynologyDsmClient:
             if not isinstance(users, list):
                 raise SynologyDsmError("Unexpected DSM user list response", payload=payload)
             return [user for user in users if isinstance(user, dict)]
+        finally:
+            self.logout()
+
+    def get_user(self, user_name: str) -> dict[str, Any] | None:
+        if not str(user_name or "").strip():
+            raise SynologyDsmError("DSM user lookup requires a user name")
+        self.login()
+        try:
+            payload = self.call_discovered_api(
+                api_name="SYNO.Core.User",
+                method="get",
+                params={"name": user_name},
+                login=True,
+            )
+            users = ((payload.get("data") or {}).get("users") or [])
+            if not isinstance(users, list):
+                raise SynologyDsmError("Unexpected DSM user get response", payload=payload)
+            for user in users:
+                if isinstance(user, dict) and user.get("name") == user_name:
+                    return user
+            return None
+        finally:
+            self.logout()
+
+    def user_exists(self, user_name: str) -> bool:
+        return self.get_user(user_name) is not None
+
+    def create_user(
+        self,
+        *,
+        user_name: str,
+        initial_password: str,
+        display_name: str | None = None,
+        email: str | None = None,
+        groups: list[str] | None = None,
+    ) -> dict[str, Any]:
+        if not str(user_name or "").strip():
+            raise SynologyDsmError("DSM user creation requires a user name")
+        if not str(initial_password or "").strip():
+            raise SynologyDsmError("DSM user creation requires an initial password")
+        params: dict[str, Any] = {
+            "name": user_name,
+            "passwd": initial_password,
+        }
+        if display_name:
+            params["description"] = display_name
+        if email:
+            params["email"] = email
+        if groups:
+            params["groups"] = json.dumps(groups)
+
+        self.login()
+        try:
+            payload = self.call_discovered_api(
+                api_name="SYNO.Core.User",
+                method="create",
+                params=params,
+                login=True,
+            )
+            return payload.get("data") if isinstance(payload.get("data"), dict) else {}
         finally:
             self.logout()
 
