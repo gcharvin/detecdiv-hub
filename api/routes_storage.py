@@ -415,6 +415,14 @@ def ensure_synology_user_for_account(
     created = False
     if raw_user is None:
         if not payload.create_missing:
+            now = datetime.now(timezone.utc)
+            account.last_synced_at = now
+            account.provisioning_status = "provider_user_missing"
+            account.metadata_json = {
+                **dict(account.metadata_json or {}),
+                "synology_user_exists": False,
+                "synology_user_last_checked_at": now.isoformat(),
+            }
             record_provisioning_event(
                 db,
                 user=account.user,
@@ -448,6 +456,15 @@ def ensure_synology_user_for_account(
             raw_user = client.get_user(account.provider_user_key)
             created = True
         except SynologyDsmError as exc:
+            now = datetime.now(timezone.utc)
+            account.last_synced_at = now
+            account.provisioning_status = "provider_user_failed"
+            account.metadata_json = {
+                **dict(account.metadata_json or {}),
+                "synology_user_exists": False,
+                "synology_user_last_checked_at": now.isoformat(),
+                "synology_user_create_error_code": exc.code,
+            }
             record_provisioning_event(
                 db,
                 user=account.user,
