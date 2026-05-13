@@ -228,29 +228,28 @@ def link_raw_dataset_to_external_experiment(
 
     experiment = first_experiment_for_raw_dataset(raw_dataset)
     if experiment is None:
-        experiment = ExperimentProject(
-            owner_user_id=raw_dataset.owner_user_id,
-            experiment_key=f"{normalized}:{external_id}",
-            title=external_record.title,
-            visibility=raw_dataset.visibility,
-            status="indexed",
-            summary=None,
-            started_at=external_record.started_at,
-            metadata_json={
-                "external_source": normalized,
-                "external_id": external_id,
-                "source_mode": "external_eln_link",
-            },
-        )
-        session.add(experiment)
-        session.flush()
-        session.add(
-            ExperimentRawLink(
-                experiment_project_id=experiment.id,
-                raw_dataset_id=raw_dataset.id,
-                link_type="acquisition",
+        experiment_key = f"{normalized}:{external_id}"
+        experiment = session.scalars(
+            select(ExperimentProject).where(ExperimentProject.experiment_key == experiment_key)
+        ).first()
+        if experiment is None:
+            experiment = ExperimentProject(
+                owner_user_id=raw_dataset.owner_user_id,
+                experiment_key=experiment_key,
+                title=external_record.title,
+                visibility=raw_dataset.visibility,
+                status="indexed",
+                summary=None,
+                started_at=external_record.started_at,
+                metadata_json={
+                    "external_source": normalized,
+                    "external_id": external_id,
+                    "source_mode": "external_eln_link",
+                },
             )
-        )
+            session.add(experiment)
+            session.flush()
+        attach_raw_dataset_to_experiment(session, raw_dataset=raw_dataset, experiment=experiment)
     publication = upsert_external_publication_link(
         session,
         experiment=experiment,
@@ -259,6 +258,25 @@ def link_raw_dataset_to_external_experiment(
     )
     session.flush()
     return experiment, publication
+
+
+def attach_raw_dataset_to_experiment(
+    session: Session,
+    *,
+    raw_dataset: RawDataset,
+    experiment: ExperimentProject,
+) -> ExperimentRawLink:
+    for link in raw_dataset.experiment_links or []:
+        if link.experiment_project_id == experiment.id:
+            return link
+    link = ExperimentRawLink(
+        experiment_project_id=experiment.id,
+        raw_dataset_id=raw_dataset.id,
+        link_type="acquisition",
+    )
+    session.add(link)
+    session.flush()
+    return link
 
 
 def first_experiment_for_raw_dataset(raw_dataset: RawDataset) -> ExperimentProject | None:
