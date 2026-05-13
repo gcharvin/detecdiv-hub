@@ -1093,6 +1093,19 @@ function labStatusLabel(user) {
   return String(user?.lab_status || "yes");
 }
 
+async function ensureStorageRootsLoaded() {
+  if (!state.storageRoots.length) {
+    state.storageRoots = await apiGet("/storage-roots");
+  }
+  return state.storageRoots;
+}
+
+function findUserHomeStorageRoot() {
+  return state.storageRoots.find((root) => root.name === "user-homes")
+    || state.storageRoots.find((root) => root.root_type === "user_home_root" && root.path_prefix === "/homes")
+    || state.storageRoots.find((root) => root.path_prefix === "/homes");
+}
+
 function fieldValueFromForm(form, name) {
   const field = form.elements.namedItem(name);
   if (!field) {
@@ -1127,6 +1140,14 @@ function openFormDialog({ title, description = "", fields = [], submitLabel = "S
           <label class="field dialog-field">
             <span>${escapeHtml(field.label)}</span>
             <select name="${field.name}" ${required}>${options}</select>
+          </label>
+        `;
+      }
+      if (field.type === "checkbox") {
+        return `
+          <label class="field dialog-field">
+            <span>${escapeHtml(field.label)}</span>
+            <input name="${field.name}" type="checkbox" ${field.value ? "checked" : ""} />
           </label>
         `;
       }
@@ -4358,7 +4379,6 @@ function reportUiError(context, error) {
   setStatus(message);
   window.alert(message);
 }
-
 function externalLinkLabel(link) {
   const system = String(link?.system_key || "external").toUpperCase();
   const title = link?.title || link?.external_id || "linked record";
@@ -4528,16 +4548,24 @@ function renderUsers() {
       <td>${escapeHtml(labStatusLabel(user))}</td>
       <td>${user.admin_portal_access ? "yes" : "no"}</td>
       <td title="${escapeHtml(user.default_path || "")}">${escapeHtml(user.default_path || "")}</td>
+      <td>${user.storage_quota_bytes ? humanBytes(user.storage_quota_bytes) : ""}</td>
       <td>${user.is_active ? "yes" : "no"}</td>
       <td>${humanBytes(user.project_bytes || 0)}</td>
       <td>${humanBytes(user.raw_dataset_bytes || 0)}</td>
       <td>${humanBytes((user.project_bytes || 0) + (user.raw_dataset_bytes || 0))}</td>
-      <td><button type="button" class="user-edit-button">Settings</button></td>
+      <td>
+        <button type="button" class="user-edit-button">Settings</button>
+        ${hasAdminPrivileges() ? `<button type="button" class="user-delete-button">Delete</button>` : ""}
+      </td>
     `;
     tr.addEventListener("click", () => editUser(user));
     tr.querySelector(".user-edit-button")?.addEventListener("click", (event) => {
       event.stopPropagation();
       editUser(user).catch((error) => setStatus(String(error)));
+    });
+    tr.querySelector(".user-delete-button")?.addEventListener("click", (event) => {
+      event.stopPropagation();
+      deleteUser(user).catch((error) => setStatus(String(error)));
     });
     els.usersTableBody.appendChild(tr);
   }
@@ -4704,7 +4732,7 @@ async function refreshDashboard() {
   } else {
     bootstrapTasks.push(Promise.resolve([]));
   }
-  if (pageFlags.hasStorageRootFilter || pageFlags.hasIndexForm) {
+  if (pageFlags.hasStorageRootFilter || pageFlags.hasIndexForm || pageFlags.hasUsersView) {
     bootstrapTasks.push(apiGet("/storage-roots"));
   } else {
     bootstrapTasks.push(Promise.resolve([]));
@@ -6870,27 +6898,108 @@ async function createUser() {
   if (!isAdmin()) {
     throw new Error("Admin role required.");
   }
-  const userKey = window.prompt("User key");
-  if (!userKey) {
+  await ensureStorageRootsLoaded();
+  const values = await openFormDialog({
+    title: "New account",
+    fields: [
+      { name: "userKey", label: "User key", required: true },
+      { name: "displayName", label: "Display name" },
+      {
+        name: "role",
+        label: "Role",
+        type: "select",
+        value: "user",
+        options: [
+          { value: "user", label: "user" },
+          { value: "admin", label: "admin" },
+          { value: "service", label: "service" },
+        ],
+      },
+      {
+        name: "labStatus",
+        label: "Lab status",
+        type: "select",
+        value: "yes",
+        options: [
+          { value: "yes", label: "yes" },
+          { value: "alumni", label: "alumni" },
+        ],
+      },
+      { name: "defaultPath", label: "Default path" },
+      { name: "adminPortalAccess", label: "Admin portal access", type: "checkbox", value: false },
+      { name: "password", label: "Hub temporary password", type: "password" },
+      { name: "provisionSynology", label: "Provision Synology storage", type: "checkbox", value: true },
+      { name: "synologyUserKey", label: "Synology user key" },
+      { name: "synologyInitialPassword", label: "Synology initial password", type: "password" },
+      { name: "quotaGb", label: "Synology quota GB", type: "number", value: "100" },
+    ],
+    submitLabel: "Create account",
+  });
+  if (!values) {
     return;
   }
-  const displayName = window.prompt("Display name", userKey) || userKey;
-  const role = window.prompt("Role (user/admin/service)", "user") || "user";
-  const labStatus = window.prompt("Lab status (yes/alumni)", "yes") || "yes";
-  const defaultPath = window.prompt("Default path", "") || null;
-  const adminPortalAccess = window.confirm("Allow admin portal access for this account?");
-  const password = window.prompt("Temporary password", "");
-  await apiPost("/users", {
+  const userKey = String(values.userKey || "").trim();
+  if (!userKey) {
+    throw new Error("User key is required.");
+  }
+  const providerUserKey = String(values.synologyUserKey || userKey).trim();
+  const provisionSynology = Boolean(values.provisionSynology);
+  const homeRoot = findUserHomeStorageRoot();
+  if (provisionSynology && !homeRoot) {
+    throw new Error("No /homes storage root is configured in the hub.");
+  }
+  if (provisionSynology && !String(values.synologyInitialPassword || "").trim()) {
+    throw new Error("Synology initial password is required when provisioning Synology storage.");
+  }
+  const quotaGb = Number(values.quotaGb || 0);
+  const quotaBytes = Number.isFinite(quotaGb) && quotaGb > 0 ? Math.round(quotaGb * 1024 * 1024 * 1024) : null;
+  const defaultPath = String(values.defaultPath || "").trim()
+    || (provisionSynology ? `/homes/${providerUserKey}/DetecDiv` : "");
+  const createdUser = await apiPost("/users", {
     user_key: userKey,
-    display_name: displayName,
-    role,
+    display_name: String(values.displayName || userKey).trim() || userKey,
+    role: String(values.role || "user").trim() || "user",
     is_active: true,
-    admin_portal_access: adminPortalAccess,
-    lab_status: labStatus,
-    default_path: defaultPath,
-    password: password || null,
+    admin_portal_access: Boolean(values.adminPortalAccess),
+    lab_status: String(values.labStatus || "yes").trim() || "yes",
+    default_path: defaultPath || null,
+    password: String(values.password || "").trim() || null,
     metadata_json: {},
   });
+  if (provisionSynology) {
+    const account = await apiPost(`/storage/users/${createdUser.id}/home-account`, {
+      provider_key: "synology-main",
+      provider_user_key: providerUserKey,
+      home_storage_root_id: homeRoot.id,
+      home_relative_path: `${providerUserKey}/DetecDiv`,
+      quota_bytes: quotaBytes,
+      create_missing_provider: false,
+    });
+    const ensured = await apiPost(`/storage/user-accounts/${account.id}/synology/ensure-user`, {
+      create_missing: true,
+      initial_password: String(values.synologyInitialPassword || "").trim(),
+      display_name: createdUser.display_name,
+      email: createdUser.email || null,
+      groups: [],
+    });
+    if (!ensured.success) {
+      throw new Error(ensured.message || "Synology user provisioning failed.");
+    }
+    if (quotaBytes) {
+      await apiPost(`/storage/user-accounts/${account.id}/synology/quota`, {
+        quota_bytes: quotaBytes,
+      });
+    }
+    const prepared = await apiPost(`/storage/user-accounts/${account.id}/prepare`, {
+      create_directories: true,
+      subdirectories: ["projects", "raw", "artifacts", "exports"],
+      requested_mode: "server",
+      priority: 80,
+    });
+    await refreshUsers();
+    setStatus(`Created user ${userKey}. Synology user ${ensured.provider_user_key} ${ensured.created ? "created" : "verified"}; home preparation job ${prepared.job_id} queued.`);
+    return;
+  }
   await refreshUsers();
   setStatus(`Created user ${userKey}.`);
 }
@@ -6949,6 +7058,12 @@ async function editUser(user) {
           label: "Reset password",
           type: "password",
         },
+        {
+          name: "quotaGb",
+          label: "Synology quota GB",
+          type: "number",
+          value: user.storage_quota_bytes ? String(Math.round(Number(user.storage_quota_bytes) / (1024 * 1024 * 1024))) : "",
+        },
       ]
     : [];
   const values = await openFormDialog({
@@ -6980,8 +7095,40 @@ async function editUser(user) {
     payload.password = values.password.trim();
   }
   await apiPatch(`/users/${user.id}`, payload);
+  let quotaMessage = "";
+  if (hasAdminPrivileges() && user.storage_account_id) {
+    const quotaText = String(values.quotaGb || "").trim();
+    if (quotaText) {
+      const quotaGb = Number(quotaText);
+      if (!Number.isFinite(quotaGb) || quotaGb <= 0) {
+        throw new Error("Synology quota must be greater than zero.");
+      }
+      const quotaResult = await apiPost(`/storage/user-accounts/${user.storage_account_id}/synology/quota`, {
+        quota_bytes: Math.round(quotaGb * 1024 * 1024 * 1024),
+      });
+      quotaMessage = quotaResult.message ? ` ${quotaResult.message}` : "";
+    }
+  }
   await refreshUsers();
-  setStatus(`Updated user ${user.user_key}.`);
+  setStatus(`Updated user ${user.user_key}.${quotaMessage}`);
+}
+
+async function deleteUser(user) {
+  if (!hasAdminPrivileges()) {
+    throw new Error("Admin role required.");
+  }
+  if (state.currentUser?.id === user.id) {
+    throw new Error("Cannot delete the current session user.");
+  }
+  const deleteSynology = Boolean(user.storage_account_id)
+    && window.confirm(`Also delete Synology user ${user.storage_provider_user_key || user.user_key}? Home data will not be deleted by the hub.`);
+  const ok = window.confirm(`Deactivate hub user ${user.user_key}? This hides the account from active user lists.`);
+  if (!ok) {
+    return;
+  }
+  const result = await apiDelete(`/users/${user.id}?confirm=true&delete_synology_user=${deleteSynology ? "true" : "false"}`);
+  await refreshUsers();
+  setStatus(result.message || `Deleted user ${user.user_key}.`);
 }
 
 async function changeMyPassword() {

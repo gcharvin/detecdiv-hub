@@ -19,6 +19,7 @@ from api.models import (
     RawDataset,
     StorageRoot,
     User,
+    UserStorageAccount,
 )
 from api.schemas import (
     UserCreate,
@@ -47,6 +48,7 @@ from api.schemas import (
     StorageRootSummary,
     UserBulkUpsertRequest,
     UserBulkUpsertResponse,
+    UserDeleteResult,
     UserSummary,
     UserUpdate,
 )
@@ -62,6 +64,7 @@ from api.services.project_locks import (
     utcnow,
 )
 from api.services.users import ensure_project_readable, get_current_user, get_or_create_user, project_access_filter, user_can_edit_project
+from api.services.storage_providers.synology_ssh import SynologySshClient, SynologySshError
 
 
 router = APIRouter(prefix="/projects", tags=["projects"])
@@ -692,11 +695,30 @@ def list_users(
         ).all()
     )
 
+    home_accounts = {
+        row.user_id: row
+        for row in db.scalars(
+            select(UserStorageAccount)
+            .join(UserStorageAccount.provider)
+            .options(joinedload(UserStorageAccount.provider))
+            .where(UserStorageAccount.user_id.in_([user.id for user in users]))
+            .order_by(UserStorageAccount.created_at.desc())
+        ).unique()
+    }
+
     result = []
     for user in users:
         d = {c.name: getattr(user, c.name) for c in user.__table__.columns}
         d["project_bytes"] = int(project_bytes_by_user.get(user.id) or 0)
         d["raw_dataset_bytes"] = int(raw_bytes_by_user.get(user.id) or 0)
+        account = home_accounts.get(user.id)
+        if account is not None:
+            d["storage_account_id"] = account.id
+            d["storage_provider_key"] = account.provider.provider_key
+            d["storage_provider_user_key"] = account.provider_user_key
+            d["storage_quota_bytes"] = account.quota_bytes
+            d["storage_quota_status"] = account.quota_status
+            d["storage_provisioning_status"] = account.provisioning_status
         result.append(d)
     return result
 
@@ -850,6 +872,74 @@ def update_user(
     db.commit()
     db.refresh(user)
     return user
+
+
+@users_router.delete("/{user_id}", response_model=UserDeleteResult)
+def delete_user(
+    user_id: UUID,
+    confirm: bool = False,
+    delete_synology_user: bool = False,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> UserDeleteResult:
+    if current_user.role not in {"admin", "service"}:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="User admin required")
+    if current_user.id == user_id:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Cannot delete the current session user")
+    if not confirm:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Deletion requires confirm=true")
+    user = db.get(User, user_id)
+    if user is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+
+    account = db.scalars(
+        select(UserStorageAccount)
+        .join(UserStorageAccount.provider)
+        .options(joinedload(UserStorageAccount.provider))
+        .where(UserStorageAccount.user_id == user.id)
+        .where(UserStorageAccount.provider.has(provider_kind="synology_dsm"))
+    ).first()
+
+    synology_deleted = False
+    provider_user_key = account.provider_user_key if account is not None else None
+    message = "Hub user was deactivated."
+    if delete_synology_user and account is not None:
+        try:
+            SynologySshClient().delete_user(user_name=account.provider_user_key)
+            synology_deleted = True
+            account.provisioning_status = "provider_user_deleted"
+            account.metadata_json = {
+                **dict(account.metadata_json or {}),
+                "synology_user_exists": False,
+                "synology_user_deleted_by_hub": True,
+                "synology_user_deleted_at": utcnow().isoformat(),
+            }
+            message = "Hub user was deactivated and Synology user was deleted. Home data was not deleted by the hub."
+        except SynologySshError as exc:
+            account.provisioning_status = "provider_user_delete_failed"
+            account.metadata_json = {
+                **dict(account.metadata_json or {}),
+                "synology_user_delete_error": str(exc),
+                "synology_user_deleted_by_hub": False,
+            }
+            message = f"Hub user was deactivated; Synology user deletion failed: {exc}"
+
+    user.is_active = False
+    user.lab_status = "alumni"
+    metadata = dict(user.metadata_json or {})
+    metadata["deleted_by_hub"] = True
+    metadata["deleted_at"] = utcnow().isoformat()
+    user.metadata_json = metadata
+    db.commit()
+    return UserDeleteResult(
+        user_id=user.id,
+        user_key=user.user_key,
+        hub_deactivated=True,
+        synology_delete_requested=delete_synology_user,
+        synology_deleted=synology_deleted,
+        provider_user_key=provider_user_key,
+        message=message,
+    )
 
 
 @storage_roots_router.get("", response_model=list[StorageRootSummary])

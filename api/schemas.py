@@ -34,6 +34,12 @@ class UserSummary(HubBaseModel):
     default_path: str | None = None
     project_bytes: int = 0
     raw_dataset_bytes: int = 0
+    storage_account_id: UUID | None = None
+    storage_provider_key: str | None = None
+    storage_provider_user_key: str | None = None
+    storage_quota_bytes: int | None = None
+    storage_quota_status: str | None = None
+    storage_provisioning_status: str | None = None
 
 
 class UserCreate(HubBaseModel):
@@ -82,6 +88,16 @@ class UserUpdate(HubBaseModel):
     default_path: str | None = None
     password: str | None = None
     metadata_json: dict[str, Any] | None = None
+
+
+class UserDeleteResult(HubBaseModel):
+    user_id: UUID
+    user_key: str
+    hub_deactivated: bool
+    synology_delete_requested: bool = False
+    synology_deleted: bool = False
+    provider_user_key: str | None = None
+    message: str
 
 
 class UserPasswordChangeRequest(HubBaseModel):
@@ -138,6 +154,238 @@ class StorageRootBrowseResponse(HubBaseModel):
     current_absolute_path: str
     parent_relative_path: str | None = None
     directories: list[StorageRootBrowseEntry] = Field(default_factory=list)
+
+
+class StorageProviderSummary(HubBaseModel):
+    id: UUID
+    provider_key: str
+    display_name: str
+    provider_kind: str
+    mount_root: str | None = None
+    quota_mode: str
+    is_active: bool
+    capabilities_json: dict[str, Any] = Field(default_factory=dict)
+    config_json: dict[str, Any] = Field(default_factory=dict)
+    created_at: datetime | None = None
+    updated_at: datetime | None = None
+
+
+class StorageProviderCreate(HubBaseModel):
+    provider_key: str
+    display_name: str
+    provider_kind: str = "posix_mount"
+    mount_root: str | None = None
+    quota_mode: str = "measured_only"
+    is_active: bool = True
+    capabilities_json: dict[str, Any] = Field(default_factory=dict)
+    config_json: dict[str, Any] = Field(default_factory=dict)
+
+
+class StorageProviderUpdate(HubBaseModel):
+    display_name: str | None = None
+    provider_kind: str | None = None
+    mount_root: str | None = None
+    quota_mode: str | None = None
+    is_active: bool | None = None
+    capabilities_json: dict[str, Any] | None = None
+    config_json: dict[str, Any] | None = None
+
+
+class SynologyDsmDiscoveryResponse(HubBaseModel):
+    provider: StorageProviderSummary
+    configured: bool
+    success: bool
+    api_info: dict[str, Any] = Field(default_factory=dict)
+    capabilities_json: dict[str, Any] = Field(default_factory=dict)
+    message: str | None = None
+
+
+class SynologyDsmLoginCheckResponse(HubBaseModel):
+    provider: StorageProviderSummary
+    configured: bool
+    success: bool
+    session: str | None = None
+    sid_received: bool = False
+    discovered_apis: list[str] = Field(default_factory=list)
+    message: str | None = None
+
+
+class SynologyDsmApiProbeRequest(HubBaseModel):
+    api_name: str
+    method: str
+    version: int | None = None
+    params: dict[str, Any] = Field(default_factory=dict)
+    login: bool = True
+
+
+class SynologyDsmApiProbeResponse(HubBaseModel):
+    provider: StorageProviderSummary
+    configured: bool
+    success: bool
+    payload: dict[str, Any] = Field(default_factory=dict)
+    message: str | None = None
+
+
+class SynologyDsmUserSummary(HubBaseModel):
+    name: str
+    raw_keys: list[str] = Field(default_factory=list)
+
+
+class SynologyDsmUserListResponse(HubBaseModel):
+    provider: StorageProviderSummary
+    configured: bool
+    success: bool
+    users: list[SynologyDsmUserSummary] = Field(default_factory=list)
+    total: int = 0
+    message: str | None = None
+
+
+class SynologyDsmUserHomeResponse(HubBaseModel):
+    provider: StorageProviderSummary
+    configured: bool
+    success: bool
+    enable: bool | None = None
+    location: str | None = None
+    raw_settings: dict[str, Any] = Field(default_factory=dict)
+    message: str | None = None
+
+
+class SynologyDsmUserQuotaResponse(HubBaseModel):
+    provider: StorageProviderSummary
+    configured: bool
+    success: bool
+    provider_user_key: str
+    quota_bytes: int | None = None
+    used_bytes: int | None = None
+    desired_quota_bytes: int | None = None
+    effective_quota_bytes: int | None = None
+    provider_reported: bool = False
+    quota_source: str = "provider"
+    entry_count: int = 0
+    raw_quota: dict[str, Any] = Field(default_factory=dict)
+    message: str | None = None
+
+
+class SynologyDsmEnsureUserRequest(HubBaseModel):
+    create_missing: bool = False
+    initial_password: str | None = None
+    display_name: str | None = None
+    email: str | None = None
+    groups: list[str] = Field(default_factory=list)
+
+
+class SynologyQuotaUpdateRequest(HubBaseModel):
+    quota_bytes: int | None = None
+
+
+class SynologyQuotaUpdateResponse(HubBaseModel):
+    account: "UserStorageAccountSummary"
+    provider_user_key: str
+    requested_quota_bytes: int | None = None
+    provider_applied: bool = False
+    method: str | None = None
+    message: str | None = None
+
+
+class SynologyDsmEnsureUserResponse(HubBaseModel):
+    provider: StorageProviderSummary
+    account: "UserStorageAccountSummary"
+    configured: bool
+    success: bool
+    provider_user_key: str
+    exists_before: bool = False
+    created: bool = False
+    creation_method: str | None = None
+    exists_after: bool = False
+    raw_user: dict[str, Any] = Field(default_factory=dict)
+    message: str | None = None
+
+
+class UserStorageAccountSummary(HubBaseModel):
+    id: UUID
+    user: UserSummary
+    provider: StorageProviderSummary
+    provider_user_key: str
+    home_storage_root: StorageRootSummary | None = None
+    home_relative_path: str | None = None
+    quota_bytes: int | None = None
+    quota_status: str
+    provisioning_status: str
+    last_synced_at: datetime | None = None
+    metadata_json: dict[str, Any] = Field(default_factory=dict)
+    created_at: datetime | None = None
+    updated_at: datetime | None = None
+
+
+class UserStorageAccountCreate(HubBaseModel):
+    user_id: UUID
+    provider_key: str
+    provider_user_key: str | None = None
+    home_storage_root_id: int | None = None
+    home_relative_path: str | None = None
+    quota_bytes: int | None = None
+    quota_status: str = "unknown"
+    provisioning_status: str = "planned"
+    metadata_json: dict[str, Any] = Field(default_factory=dict)
+
+
+class UserStorageAccountUpdate(HubBaseModel):
+    provider_user_key: str | None = None
+    home_storage_root_id: int | None = None
+    home_relative_path: str | None = None
+    quota_bytes: int | None = None
+    quota_status: str | None = None
+    provisioning_status: str | None = None
+    metadata_json: dict[str, Any] | None = None
+
+
+class UserHomeProvisionRequest(HubBaseModel):
+    provider_key: str
+    provider_user_key: str | None = None
+    home_storage_root_id: int | None = None
+    home_relative_path: str | None = None
+    quota_bytes: int | None = None
+    create_missing_provider: bool = False
+
+
+class UserHomePrepareRequest(HubBaseModel):
+    create_directories: bool = True
+    subdirectories: list[str] = Field(default_factory=lambda: ["projects", "raw", "artifacts", "exports"])
+    requested_mode: str = "server"
+    priority: int = 80
+
+
+class UserHomePrepareResponse(HubBaseModel):
+    job_id: UUID
+    account: UserStorageAccountSummary
+    detail: str
+
+
+class StorageQuotaSnapshotSummary(HubBaseModel):
+    id: UUID
+    user: UserSummary
+    provider: StorageProviderSummary
+    storage_account: UserStorageAccountSummary | None = None
+    provider_user_key: str
+    quota_bytes: int | None = None
+    provider_used_bytes: int | None = None
+    hub_project_bytes: int = 0
+    hub_raw_bytes: int = 0
+    hub_artifact_bytes: int = 0
+    measured_at: datetime | None = None
+    metadata_json: dict[str, Any] = Field(default_factory=dict)
+
+
+class StorageProvisioningEventSummary(HubBaseModel):
+    id: UUID
+    event_kind: str
+    status: str
+    message: str | None = None
+    metadata_json: dict[str, Any] = Field(default_factory=dict)
+    created_at: datetime | None = None
+    user: UserSummary | None = None
+    provider: StorageProviderSummary | None = None
+    storage_account: UserStorageAccountSummary | None = None
 
 
 class RawDatasetSummary(HubBaseModel):
