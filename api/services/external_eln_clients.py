@@ -182,12 +182,22 @@ def labguru_experiment_from_payload(payload: dict[str, Any], *, base_url: str) -
     return ExternalElnExperiment(
         external_id=external_id,
         title=title,
-        external_url=str(payload.get("url") or "").strip() or urljoin(base_url, f"/knowledge/experiments/{external_id}"),
+        external_url=normalize_external_url(
+            str(payload.get("url") or "").strip() or f"/knowledge/experiments/{external_id}",
+            base_url=base_url,
+        ),
         owner_name=labguru_owner_name(payload),
         started_at=parse_datetime(payload.get("start_date") or payload.get("started_at")),
         updated_external_at=parse_datetime(payload.get("updated_at")),
         payload_json=payload,
     )
+
+
+def normalize_external_url(value: str, *, base_url: str) -> str:
+    text = str(value or "").strip()
+    if not text:
+        return normalize_base_url(base_url)
+    return urljoin(normalize_base_url(base_url), text)
 
 
 def labguru_observed_users_from_payload(payload: dict[str, Any]) -> list[ExternalElnUser]:

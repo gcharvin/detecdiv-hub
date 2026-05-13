@@ -693,6 +693,40 @@ CREATE INDEX IF NOT EXISTS idx_external_user_records_matched_user_id ON external
 CREATE INDEX IF NOT EXISTS idx_external_match_candidates_status_score ON external_match_candidates(system_key, status, score DESC);
 CREATE INDEX IF NOT EXISTS idx_external_match_candidates_raw_dataset_id ON external_match_candidates(raw_dataset_id);
 CREATE INDEX IF NOT EXISTS idx_external_match_candidates_external_record_id ON external_match_candidates(external_experiment_record_id);
+CREATE OR REPLACE FUNCTION normalize_labguru_external_url()
+RETURNS trigger AS $$
+BEGIN
+    IF NEW.system_key = 'labguru' AND NEW.external_url IS NOT NULL THEN
+        IF NEW.external_url LIKE '/%' THEN
+            NEW.external_url := 'https://cle.inserm.fr' || NEW.external_url;
+        ELSIF NEW.external_url ~ '^https?://[^/]+/knowledge/experiments/'
+            AND NEW.external_url NOT LIKE 'https://cle.inserm.fr/%' THEN
+            NEW.external_url := regexp_replace(
+                NEW.external_url,
+                '^https?://[^/]+/knowledge/experiments/',
+                'https://cle.inserm.fr/knowledge/experiments/'
+            );
+        END IF;
+    END IF;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+DROP TRIGGER IF EXISTS trg_external_experiment_records_labguru_url
+    ON external_experiment_records;
+CREATE TRIGGER trg_external_experiment_records_labguru_url
+    BEFORE INSERT OR UPDATE OF system_key, external_url
+    ON external_experiment_records
+    FOR EACH ROW
+    EXECUTE FUNCTION normalize_labguru_external_url();
+
+DROP TRIGGER IF EXISTS trg_external_publication_records_labguru_url
+    ON external_publication_records;
+CREATE TRIGGER trg_external_publication_records_labguru_url
+    BEFORE INSERT OR UPDATE OF system_key, external_url
+    ON external_publication_records
+    FOR EACH ROW
+    EXECUTE FUNCTION normalize_labguru_external_url();
 CREATE INDEX IF NOT EXISTS idx_storage_lifecycle_events_raw_dataset_id ON storage_lifecycle_events(raw_dataset_id, created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_archive_policy_runs_created_at ON archive_policy_runs(created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_archive_policy_runs_status ON archive_policy_runs(status, trigger_mode, created_at DESC);

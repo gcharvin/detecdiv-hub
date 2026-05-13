@@ -6,6 +6,7 @@ from api.services.external_eln_clients import (
     extract_list_payload,
     labguru_experiment_from_payload,
     labguru_observed_users_from_payload,
+    normalize_external_url,
     normalize_system_key,
 )
 from api.services.external_eln_matching import (
@@ -30,6 +31,22 @@ def test_labguru_experiment_payload_builds_stable_record() -> None:
     assert record.external_url == "https://cle.inserm.fr/knowledge/experiments/277"
     assert record.owner_name == "Aleksandr Maliavko"
     assert record.payload_json == payload
+
+
+def test_labguru_experiment_payload_absolutizes_relative_url() -> None:
+    record = labguru_experiment_from_payload(
+        {"id": 697, "title": "Example", "url": "/knowledge/experiments/697"},
+        base_url="https://cle.inserm.fr",
+    )
+
+    assert record.external_url == "https://cle.inserm.fr/knowledge/experiments/697"
+
+
+def test_normalize_external_url_keeps_absolute_url() -> None:
+    assert (
+        normalize_external_url("https://cle.inserm.fr/knowledge/experiments/697", base_url="https://cle.inserm.fr")
+        == "https://cle.inserm.fr/knowledge/experiments/697"
+    )
 
 
 def test_labguru_observed_users_extracts_member_payloads() -> None:
