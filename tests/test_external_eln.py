@@ -10,6 +10,7 @@ from api.services.external_eln_clients import (
 )
 from api.services.external_eln_matching import (
     extract_date_key,
+    raw_dataset_match_sort_key,
     score_external_record_for_raw_dataset,
 )
 
@@ -110,4 +111,30 @@ def test_external_matching_scores_partial_date_candidate_below_exact() -> None:
 
 def test_external_matching_extracts_labguru_legacy_date_shapes() -> None:
     assert extract_date_key("2026_04_28_Scerev") == "2026-04-28"
+    assert extract_date_key("200702_Gln1_uNS_5") == "2020-07-02"
+    assert extract_date_key("01092023_m_array_1") == "2023-09-01"
     assert extract_date_key("280224_dhytnl_12rdnars") == "2024-02-28"
+    assert extract_date_key("2025_30_10_ClassifDivDaughters_training") is None
+
+
+def test_external_matching_sorts_raw_datasets_by_label_date_before_index_time() -> None:
+    older_biology_recent_index = RawDataset(
+        acquisition_label="200702_Gln1_uNS_5",
+        visibility="private",
+        started_at=datetime(2026, 5, 10, tzinfo=timezone.utc),
+        created_at=datetime(2026, 5, 10, tzinfo=timezone.utc),
+    )
+    newer_biology_older_index = RawDataset(
+        acquisition_label="2026_03_17_BUD4-NG-3xmAID_YAL18",
+        visibility="private",
+        started_at=datetime(2026, 3, 17, tzinfo=timezone.utc),
+        created_at=datetime(2026, 3, 17, tzinfo=timezone.utc),
+    )
+
+    sorted_raw = sorted(
+        [older_biology_recent_index, newer_biology_older_index],
+        key=raw_dataset_match_sort_key,
+        reverse=True,
+    )
+
+    assert sorted_raw[0] is newer_biology_older_index

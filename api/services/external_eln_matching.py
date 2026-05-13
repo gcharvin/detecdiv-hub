@@ -3,7 +3,7 @@ from __future__ import annotations
 import re
 import unicodedata
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import date, datetime, timezone
 from difflib import SequenceMatcher
 from uuid import UUID
 
@@ -69,11 +69,14 @@ def generate_external_match_candidates(
             .joinedload(ExperimentRawLink.experiment_project)
             .joinedload(ExperimentProject.publication_records),
         )
-        .order_by(RawDataset.started_at.desc().nullslast(), RawDataset.created_at.desc())
+    )
+    raw_datasets = sorted(
+        session.scalars(raw_stmt).unique(),
+        key=raw_dataset_match_sort_key,
+        reverse=True,
     )
     if limit_raw_datasets is not None:
-        raw_stmt = raw_stmt.limit(min(max(int(limit_raw_datasets), 1), 5000))
-    raw_datasets = list(session.scalars(raw_stmt).unique())
+        raw_datasets = raw_datasets[: min(max(int(limit_raw_datasets), 1), 5000)]
     external_records = list(
         session.scalars(
             select(ExternalExperimentRecord)
@@ -406,6 +409,19 @@ def raw_dataset_has_external_link(raw_dataset: RawDataset, system_key: str) -> b
     return False
 
 
+def raw_dataset_match_sort_key(raw_dataset: RawDataset) -> tuple[datetime, datetime, datetime]:
+    label_date = extract_date_key(raw_dataset.acquisition_label)
+    if label_date:
+        parsed_date = datetime.fromisoformat(label_date).replace(tzinfo=timezone.utc)
+    else:
+        parsed_date = datetime.min.replace(tzinfo=timezone.utc)
+    return (
+        parsed_date,
+        raw_dataset.started_at or datetime.min.replace(tzinfo=timezone.utc),
+        raw_dataset.created_at or datetime.min.replace(tzinfo=timezone.utc),
+    )
+
+
 def compact_match_text(value: object) -> str:
     text = normalize_ascii(value)
     return re.sub(r"[^a-z0-9]+", "", text.lower())
@@ -432,12 +448,31 @@ def extract_date_key(value: object) -> str | None:
     text = str(value or "")
     match = re.search(r"(20\d{2}|19\d{2})[-_ ]?([01]\d)[-_ ]?([0-3]\d)", text)
     if match:
-        return f"{match.group(1)}-{match.group(2)}-{match.group(3)}"
+        return build_date_key(match.group(1), match.group(2), match.group(3))
+    match = re.search(r"(?<!\d)([0-3]\d)[-_ ]?([01]\d)[-_ ]?((?:20|19)\d{2})(?!\d)", text)
+    if match:
+        day, month, year = match.groups()
+        return build_date_key(year, month, day)
+    match = re.search(r"(?<!\d)(\d{2})([01]\d)([0-3]\d)(?!\d)", text)
+    if match:
+        year, month, day = match.groups()
+        if 19 <= int(year) <= datetime.now(timezone.utc).year % 100 + 1:
+            parsed = build_date_key(f"20{year}", month, day)
+            if parsed:
+                return parsed
     match = re.search(r"(?<!\d)([0-3]\d)[-_ ]?([01]\d)[-_ ]?(\d{2})(?!\d)", text)
     if match:
         day, month, year = match.groups()
-        return f"20{year}-{month}-{day}"
+        return build_date_key(f"20{year}", month, day)
     return None
+
+
+def build_date_key(year: str, month: str, day: str) -> str | None:
+    try:
+        parsed = date(int(year), int(month), int(day))
+    except ValueError:
+        return None
+    return parsed.isoformat()
 
 
 def external_payload_text(external_record: ExternalExperimentRecord) -> str:
