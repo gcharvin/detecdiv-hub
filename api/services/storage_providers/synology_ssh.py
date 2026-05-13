@@ -25,6 +25,8 @@ class SynologySshConfig:
     use_sudo: bool = True
     quota_command: str = "/usr/syno/sbin/synoquota"
     quota_volume_id: str = "1"
+    share_quota_command: str = "/usr/syno/sbin/synosharequota"
+    quota_share: str = "homes"
 
     @classmethod
     def from_settings(cls) -> "SynologySshConfig":
@@ -44,6 +46,8 @@ class SynologySshConfig:
             use_sudo=settings.synology_ssh_use_sudo,
             quota_command=settings.synology_ssh_quota_command,
             quota_volume_id=settings.synology_ssh_quota_volume_id,
+            share_quota_command=settings.synology_ssh_share_quota_command,
+            quota_share=settings.synology_ssh_quota_share,
         )
 
     def validate_for_create_user(self) -> None:
@@ -110,6 +114,25 @@ def build_synoquota_set_command(
     return " ".join(shlex.quote(str(part)) for part in parts)
 
 
+def build_synosharequota_set_user_command(
+    *,
+    share_quota_command: str,
+    share_name: str,
+    user_name: str,
+    quota_bytes: int,
+) -> str:
+    command = str(share_quota_command or "/usr/syno/sbin/synosharequota").strip()
+    if any(char.isspace() for char in command):
+        raise SynologySshError("Synology share quota command must be a single executable path")
+    if not str(share_name or "").strip():
+        raise SynologySshError("Synology share quota update requires a share name")
+    if quota_bytes <= 0:
+        raise SynologySshError("Synology quota must be greater than zero")
+    quota_mb = max(1, round(quota_bytes / (1024 * 1024)))
+    parts = [command, "set-user", share_name, user_name, str(quota_mb)]
+    return " ".join(shlex.quote(str(part)) for part in parts)
+
+
 class SynologySshClient:
     def __init__(self, config: SynologySshConfig | None = None) -> None:
         self.config = config or SynologySshConfig.from_settings()
@@ -158,6 +181,14 @@ class SynologySshClient:
         if not str(user_name or "").strip():
             raise SynologySshError("Synology SSH quota update requires a user name")
         self.config.validate_for_create_user()
+        if self.config.quota_share:
+            command = build_synosharequota_set_user_command(
+                share_quota_command=self.config.share_quota_command,
+                share_name=self.config.quota_share,
+                user_name=user_name,
+                quota_bytes=quota_bytes,
+            )
+            return self._run(command)
         command = build_synoquota_set_command(
             quota_command=self.config.quota_command,
             user_name=user_name,

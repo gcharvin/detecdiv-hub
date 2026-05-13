@@ -98,6 +98,8 @@ class Settings(BaseSettings):
     synology_ssh_use_sudo: bool = True
     synology_ssh_quota_command: str = "/usr/syno/sbin/synoquota"
     synology_ssh_quota_volume_id: str = "1"
+    synology_ssh_share_quota_command: str = "/usr/syno/sbin/synosharequota"
+    synology_ssh_quota_share: str = "homes"
 
     model_config = SettingsConfigDict(
         env_prefix="DETECDIV_HUB_",
