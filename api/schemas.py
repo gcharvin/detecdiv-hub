@@ -633,6 +633,7 @@ class ExternalLinkSummary(HubBaseModel):
     external_id: str | None = None
     external_url: str | None = None
     title: str | None = None
+    payload_json: dict[str, Any] = Field(default_factory=dict)
 
 
 class LinkedExperimentSummary(ExperimentProjectSummary):

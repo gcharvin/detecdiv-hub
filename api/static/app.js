@@ -4403,9 +4403,35 @@ function renderExternalLinkList(container, links, emptyText) {
       <div class="stack-item-meta">${escapeHtml(link.system_key)} | ${escapeHtml(link.status)}</div>
       <a href="${escapeHtml(link.external_url)}" target="_blank" rel="noreferrer">${escapeHtml(externalLinkLabel(link))}</a>
       <div class="stack-item-meta">${escapeHtml(link.external_id || "")}</div>
+      ${externalLinkTextHtml(link)}
     `;
     container.appendChild(div);
   }
+}
+
+function externalLinkTextHtml(link) {
+  const sections = link?.payload_json?.labguru_text || {};
+  const sectionOrder = [
+    ["description", "Description"],
+    ["procedure", "Procedure"],
+    ["results", "Results"],
+  ];
+  const rendered = sectionOrder
+    .map(([key, label]) => {
+      const value = sections[key];
+      if (!value) {
+        return "";
+      }
+      return `
+        <details class="external-text-section">
+          <summary>${escapeHtml(label)}</summary>
+          <div class="notes-block">${escapeHtml(value)}</div>
+        </details>
+      `;
+    })
+    .filter(Boolean)
+    .join("");
+  return rendered ? `<div class="external-text-sections">${rendered}</div>` : "";
 }
 
 function rawExternalLinks() {

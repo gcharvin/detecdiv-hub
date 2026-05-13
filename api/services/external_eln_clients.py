@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import html
+import re
 from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Any, Protocol
@@ -68,6 +70,7 @@ class LabguruClient:
 
     def get_experiment(self, external_id: str) -> ExternalElnExperiment:
         payload = self._request_json(f"/api/v2/experiments/{external_id}", fallback_endpoint=f"/api/v1/experiments/{external_id}.json")
+        self._hydrate_experiment_text_elements(payload)
         experiment = labguru_experiment_from_payload(payload, base_url=self.base_url)
         for user in labguru_observed_users_from_payload(payload):
             self._observed_users[user.external_id] = user
@@ -112,6 +115,31 @@ class LabguruClient:
         )
         response.raise_for_status()
         return response.json()
+
+    def _hydrate_experiment_text_elements(self, payload: dict[str, Any]) -> None:
+        for procedure in labguru_experiment_procedures(payload):
+            elements = procedure.get("elements")
+            if not isinstance(elements, list):
+                continue
+            for element in elements:
+                if not isinstance(element, dict) or element.get("element_type") != "text":
+                    continue
+                element_id = str(element.get("id") or "").strip()
+                if not element_id or element.get("data"):
+                    continue
+                try:
+                    element_payload = self._request_json(
+                        f"/api/v2/elements/{element_id}",
+                        fallback_endpoint=f"/api/v1/elements/{element_id}.json",
+                    )
+                except requests.HTTPError:
+                    continue
+                if not isinstance(element_payload, dict):
+                    continue
+                for key in ("data", "description", "field_name", "updated_at", "created_at"):
+                    if key in element_payload:
+                        element[key] = element_payload.get(key)
+                element["element_payload"] = element_payload
 
 
 class ElabftwClient:
@@ -191,6 +219,54 @@ def labguru_experiment_from_payload(payload: dict[str, Any], *, base_url: str) -
         updated_external_at=parse_datetime(payload.get("updated_at")),
         payload_json=payload,
     )
+
+
+def labguru_experiment_procedures(payload: dict[str, Any]) -> list[dict[str, Any]]:
+    procedures: list[dict[str, Any]] = []
+    raw_procedures = payload.get("experiment_procedures")
+    if not isinstance(raw_procedures, list):
+        return procedures
+    for item in raw_procedures:
+        if not isinstance(item, dict):
+            continue
+        procedure = item.get("experiment_procedure", item)
+        if isinstance(procedure, dict):
+            procedures.append(procedure)
+    return procedures
+
+
+def extract_labguru_text_sections(payload: dict[str, Any]) -> dict[str, str]:
+    sections: dict[str, list[str]] = {}
+    for procedure in labguru_experiment_procedures(payload):
+        section_key = normalize_labguru_section_key(procedure)
+        elements = procedure.get("elements")
+        if not isinstance(elements, list):
+            continue
+        for element in elements:
+            if not isinstance(element, dict):
+                continue
+            text = html_to_text(element.get("data") or element.get("description") or "")
+            if text:
+                sections.setdefault(section_key, []).append(text)
+    return {key: "\n\n".join(values) for key, values in sections.items() if values}
+
+
+def normalize_labguru_section_key(procedure: dict[str, Any]) -> str:
+    raw = str(procedure.get("section_type") or procedure.get("name") or "section").strip().lower()
+    normalized = re.sub(r"[^a-z0-9]+", "_", raw).strip("_")
+    return normalized or "section"
+
+
+def html_to_text(value: object) -> str:
+    text = str(value or "")
+    if not text.strip():
+        return ""
+    text = re.sub(r"(?i)<br\s*/?>", "\n", text)
+    text = re.sub(r"(?i)</p\s*>", "\n", text)
+    text = re.sub(r"<[^>]+>", "", text)
+    text = html.unescape(text)
+    lines = [" ".join(line.split()) for line in text.splitlines()]
+    return "\n".join(line for line in lines if line).strip()
 
 
 def normalize_external_url(value: str, *, base_url: str) -> str:

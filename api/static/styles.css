@@ -741,6 +741,25 @@ tbody tr.selected {
   margin-bottom: 6px;
 }
 
+.external-text-sections {
+  margin-top: 0.75rem;
+}
+
+.external-text-section {
+  margin-top: 0.45rem;
+}
+
+.external-text-section summary {
+  cursor: pointer;
+  color: var(--text);
+  font-weight: 600;
+}
+
+.notes-block {
+  margin-top: 0.45rem;
+  white-space: pre-wrap;
+}
+
 #raw-preview-progress.status-running {
   color: #7be0a0;
 }

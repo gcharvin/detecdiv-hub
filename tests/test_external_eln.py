@@ -4,6 +4,8 @@ from api.models import ExternalExperimentRecord, RawDataset, User
 from api.services.external_eln import select_unique_user_match
 from api.services.external_eln_clients import (
     extract_list_payload,
+    extract_labguru_text_sections,
+    html_to_text,
     labguru_experiment_from_payload,
     labguru_observed_users_from_payload,
     normalize_external_url,
@@ -47,6 +49,40 @@ def test_normalize_external_url_keeps_absolute_url() -> None:
         normalize_external_url("https://cle.inserm.fr/knowledge/experiments/697", base_url="https://cle.inserm.fr")
         == "https://cle.inserm.fr/knowledge/experiments/697"
     )
+
+
+def test_labguru_text_sections_extract_text_element_html() -> None:
+    payload = {
+        "experiment_procedures": [
+            {
+                "experiment_procedure": {
+                    "name": "Description",
+                    "section_type": "description",
+                    "elements": [
+                        {"element_type": "text", "data": "<p>strain A<br>condition B</p>"},
+                    ],
+                }
+            },
+            {
+                "experiment_procedure": {
+                    "name": "Procedure",
+                    "section_type": "procedure",
+                    "elements": [
+                        {"element_type": "text", "data": "<p>37C incubation</p>"},
+                    ],
+                }
+            },
+        ]
+    }
+
+    assert extract_labguru_text_sections(payload) == {
+        "description": "strain A\ncondition B",
+        "procedure": "37C incubation",
+    }
+
+
+def test_html_to_text_removes_basic_markup() -> None:
+    assert html_to_text("<p>A&nbsp;B</p><p>C</p>") == "A B\nC"
 
 
 def test_labguru_observed_users_extracts_member_payloads() -> None:

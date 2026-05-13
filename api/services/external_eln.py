@@ -27,6 +27,7 @@ from api.services.external_eln_clients import (
     ExternalElnExperiment,
     ExternalElnUser,
     build_external_eln_client,
+    extract_labguru_text_sections,
     normalize_name,
     normalize_system_key,
 )
@@ -223,6 +224,7 @@ def link_raw_dataset_to_external_experiment(
     ).first()
     if external_record is None:
         raise LookupError(f"{normalized} experiment {external_id} is not in the local sync cache")
+    external_record = refresh_external_record_detail(session, system_key=normalized, external_record=external_record)
 
     experiment = first_experiment_for_raw_dataset(raw_dataset)
     if experiment is None:
@@ -292,10 +294,12 @@ def upsert_external_publication_link(
     publication.status = "linked"
     publication.external_id = external_record.external_id
     publication.external_url = external_record.external_url
+    text_sections = external_record_text_sections(external_record)
     publication.payload_json = {
         "link_mode": "external_eln_cache",
         "external_title": external_record.title,
         "owner_name": external_record.owner_name,
+        "labguru_text": text_sections,
         "last_synced_at": external_record.last_synced_at.isoformat()
         if external_record.last_synced_at is not None
         else None,
@@ -304,6 +308,33 @@ def upsert_external_publication_link(
     publication.updated_at = datetime.now(timezone.utc)
     session.flush()
     return publication
+
+
+def refresh_external_record_detail(
+    session: Session,
+    *,
+    system_key: str,
+    external_record: ExternalExperimentRecord,
+) -> ExternalExperimentRecord:
+    if system_key != "labguru":
+        return external_record
+    try:
+        client = build_external_eln_client(system_key)
+        detailed = client.get_experiment(external_record.external_id)
+    except Exception:
+        return external_record
+    return upsert_external_experiment_record(
+        session,
+        system_key=system_key,
+        experiment=detailed,
+        synced_at=datetime.now(timezone.utc),
+    )
+
+
+def external_record_text_sections(external_record: ExternalExperimentRecord) -> dict[str, str]:
+    if external_record.system_key == "labguru":
+        return extract_labguru_text_sections(external_record.payload_json or {})
+    return {}
 
 
 def linked_experiment_summary_view(experiment: ExperimentProject) -> LinkedExperimentSummary:
@@ -366,6 +397,7 @@ def external_link_summary_from_publication(record: PublicationRecordSummary | Ex
         external_id=record.external_id,
         external_url=record.external_url,
         title=payload.get("external_title") if isinstance(payload, dict) else None,
+        payload_json=payload if isinstance(payload, dict) else {},
     )
 
 
