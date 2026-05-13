@@ -6,7 +6,7 @@ from api.services.storage_providers.synology_dsm import (
     parse_user_quota_payload,
     summarize_discovered_capabilities,
 )
-from api.services.storage_providers.synology_ssh import build_synouser_add_command
+from api.services.storage_providers.synology_ssh import build_synoquota_set_command, build_synouser_add_command, build_synouser_delete_command
 from api.schemas import SynologyDsmUserQuotaResponse, StorageProviderSummary
 
 
@@ -174,3 +174,23 @@ def test_build_synouser_add_command_quotes_user_fields() -> None:
     )
 
     assert command == "/usr/syno/sbin/synouser --add alice.smith 'temporary password' 'Alice Smith' 0 alice@example.test 0"
+
+
+def test_build_synouser_delete_command_quotes_user_name() -> None:
+    command = build_synouser_delete_command(
+        synouser_command="/usr/syno/sbin/synouser",
+        user_name="alice.smith",
+    )
+
+    assert command == "/usr/syno/sbin/synouser --del alice.smith"
+
+
+def test_build_synoquota_set_command_uses_gigabyte_units() -> None:
+    command = build_synoquota_set_command(
+        quota_command="/usr/syno/sbin/synoquota",
+        user_name="alice.smith",
+        volume_id="1",
+        quota_bytes=50 * 1024 * 1024 * 1024,
+    )
+
+    assert command == "/usr/syno/sbin/synoquota --set alice.smith 1 50G"

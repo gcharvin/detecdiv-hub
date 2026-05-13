@@ -34,6 +34,12 @@ class UserSummary(HubBaseModel):
     default_path: str | None = None
     project_bytes: int = 0
     raw_dataset_bytes: int = 0
+    storage_account_id: UUID | None = None
+    storage_provider_key: str | None = None
+    storage_provider_user_key: str | None = None
+    storage_quota_bytes: int | None = None
+    storage_quota_status: str | None = None
+    storage_provisioning_status: str | None = None
 
 
 class UserCreate(HubBaseModel):
@@ -82,6 +88,16 @@ class UserUpdate(HubBaseModel):
     default_path: str | None = None
     password: str | None = None
     metadata_json: dict[str, Any] | None = None
+
+
+class UserDeleteResult(HubBaseModel):
+    user_id: UUID
+    user_key: str
+    hub_deactivated: bool
+    synology_delete_requested: bool = False
+    synology_deleted: bool = False
+    provider_user_key: str | None = None
+    message: str
 
 
 class UserPasswordChangeRequest(HubBaseModel):
@@ -256,6 +272,19 @@ class SynologyDsmEnsureUserRequest(HubBaseModel):
     display_name: str | None = None
     email: str | None = None
     groups: list[str] = Field(default_factory=list)
+
+
+class SynologyQuotaUpdateRequest(HubBaseModel):
+    quota_bytes: int | None = None
+
+
+class SynologyQuotaUpdateResponse(HubBaseModel):
+    account: "UserStorageAccountSummary"
+    provider_user_key: str
+    requested_quota_bytes: int | None = None
+    provider_applied: bool = False
+    method: str | None = None
+    message: str | None = None
 
 
 class SynologyDsmEnsureUserResponse(HubBaseModel):

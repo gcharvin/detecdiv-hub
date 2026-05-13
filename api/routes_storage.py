@@ -28,6 +28,8 @@ from api.schemas import (
     SynologyDsmEnsureUserRequest,
     SynologyDsmEnsureUserResponse,
     SynologyDsmLoginCheckResponse,
+    SynologyQuotaUpdateRequest,
+    SynologyQuotaUpdateResponse,
     SynologyDsmUserHomeResponse,
     SynologyDsmUserListResponse,
     SynologyDsmUserQuotaResponse,
@@ -383,6 +385,62 @@ def get_synology_user_quota_for_account(
         quota_source=quota_source,
         entry_count=int(parsed.get("entry_count") or 0),
         raw_quota=payload,
+        message=message,
+    )
+
+
+@router.post("/user-accounts/{account_id}/synology/quota", response_model=SynologyQuotaUpdateResponse)
+def update_synology_user_quota_for_account(
+    account_id: UUID,
+    payload: SynologyQuotaUpdateRequest,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> SynologyQuotaUpdateResponse:
+    require_storage_admin(current_user)
+    account = load_account(db, account_id)
+    if account.provider.provider_kind != "synology_dsm":
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Storage account is not linked to a Synology DSM provider")
+
+    quota_bytes = payload.quota_bytes
+    if quota_bytes is not None and quota_bytes <= 0:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Quota must be greater than zero")
+
+    account.quota_bytes = quota_bytes
+    account.quota_status = "desired" if quota_bytes is not None else "unknown"
+    provider_applied = False
+    method = None
+    message = "Quota target recorded in the hub."
+    if quota_bytes is not None:
+        try:
+            SynologySshClient().set_user_quota(
+                user_name=account.provider_user_key,
+                quota_bytes=quota_bytes,
+            )
+            provider_applied = True
+            method = "ssh_synoquota"
+            account.quota_status = "applied"
+            message = "Quota target recorded in the hub and applied on Synology via SSH."
+        except SynologySshError as exc:
+            account.quota_status = "apply_failed"
+            message = f"Quota target recorded in the hub; Synology apply failed: {exc}"
+    record_provisioning_event(
+        db,
+        user=account.user,
+        provider=account.provider,
+        storage_account=account,
+        event_kind="synology_quota_updated",
+        status_text=account.quota_status,
+        message=message,
+        metadata_json={"quota_bytes": quota_bytes, "provider_applied": provider_applied, "method": method},
+    )
+    db.commit()
+    account = load_account(db, account.id)
+    return SynologyQuotaUpdateResponse(
+        account=UserStorageAccountSummary.model_validate(account),
+        provider_user_key=account.provider_user_key,
+        requested_quota_bytes=quota_bytes,
+        provider_applied=provider_applied,
+        method=method,
         message=message,
     )
 

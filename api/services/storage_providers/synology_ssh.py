@@ -23,6 +23,8 @@ class SynologySshConfig:
     timeout_sec: float = 10.0
     synouser_command: str = "synouser"
     use_sudo: bool = True
+    quota_command: str = "/usr/syno/sbin/synoquota"
+    quota_volume_id: str = "1"
 
     @classmethod
     def from_settings(cls) -> "SynologySshConfig":
@@ -40,6 +42,8 @@ class SynologySshConfig:
             timeout_sec=settings.synology_ssh_timeout_sec,
             synouser_command=settings.synology_ssh_synouser_command,
             use_sudo=settings.synology_ssh_use_sudo,
+            quota_command=settings.synology_ssh_quota_command,
+            quota_volume_id=settings.synology_ssh_quota_volume_id,
         )
 
     def validate_for_create_user(self) -> None:
@@ -82,6 +86,30 @@ def build_synouser_add_command(
     return " ".join(shlex.quote(str(part)) for part in parts)
 
 
+def build_synouser_delete_command(*, synouser_command: str, user_name: str) -> str:
+    command = str(synouser_command or "synouser").strip() or "synouser"
+    if any(char.isspace() for char in command):
+        raise SynologySshError("Synology synouser command must be a single executable path")
+    return " ".join(shlex.quote(str(part)) for part in [command, "--del", user_name])
+
+
+def build_synoquota_set_command(
+    *,
+    quota_command: str,
+    user_name: str,
+    volume_id: str,
+    quota_bytes: int,
+) -> str:
+    command = str(quota_command or "/usr/syno/sbin/synoquota").strip()
+    if any(char.isspace() for char in command):
+        raise SynologySshError("Synology quota command must be a single executable path")
+    if quota_bytes <= 0:
+        raise SynologySshError("Synology quota must be greater than zero")
+    quota_gb = max(1, round(quota_bytes / (1024 * 1024 * 1024)))
+    parts = [command, "--set", user_name, str(volume_id or "1"), f"{quota_gb}G"]
+    return " ".join(shlex.quote(str(part)) for part in parts)
+
+
 class SynologySshClient:
     def __init__(self, config: SynologySshConfig | None = None) -> None:
         self.config = config or SynologySshConfig.from_settings()
@@ -113,6 +141,28 @@ class SynologySshClient:
             initial_password=initial_password,
             display_name=display_name,
             email=email,
+        )
+        return self._run(command)
+
+    def delete_user(self, *, user_name: str) -> dict[str, Any]:
+        if not str(user_name or "").strip():
+            raise SynologySshError("Synology SSH user deletion requires a user name")
+        self.config.validate_for_create_user()
+        command = build_synouser_delete_command(
+            synouser_command=self.config.synouser_command,
+            user_name=user_name,
+        )
+        return self._run(command)
+
+    def set_user_quota(self, *, user_name: str, quota_bytes: int) -> dict[str, Any]:
+        if not str(user_name or "").strip():
+            raise SynologySshError("Synology SSH quota update requires a user name")
+        self.config.validate_for_create_user()
+        command = build_synoquota_set_command(
+            quota_command=self.config.quota_command,
+            user_name=user_name,
+            volume_id=self.config.quota_volume_id,
+            quota_bytes=quota_bytes,
         )
         return self._run(command)
 
@@ -159,5 +209,5 @@ class SynologySshClient:
 
         if exit_status != 0:
             detail = stderr_text or stdout_text or f"exit status {exit_status}"
-            raise SynologySshError(f"Synology SSH user creation failed: {detail}")
+            raise SynologySshError(f"Synology SSH command failed: {detail}")
         return {"exit_status": exit_status, "stdout": stdout_text, "stderr": stderr_text}

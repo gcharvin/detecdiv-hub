@@ -96,6 +96,8 @@ class Settings(BaseSettings):
     synology_ssh_timeout_sec: float = 10.0
     synology_ssh_synouser_command: str = "synouser"
     synology_ssh_use_sudo: bool = True
+    synology_ssh_quota_command: str = "/usr/syno/sbin/synoquota"
+    synology_ssh_quota_volume_id: str = "1"
 
     model_config = SettingsConfigDict(
         env_prefix="DETECDIV_HUB_",

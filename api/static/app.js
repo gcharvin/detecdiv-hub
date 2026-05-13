@@ -4453,16 +4453,24 @@ function renderUsers() {
       <td>${escapeHtml(labStatusLabel(user))}</td>
       <td>${user.admin_portal_access ? "yes" : "no"}</td>
       <td title="${escapeHtml(user.default_path || "")}">${escapeHtml(user.default_path || "")}</td>
+      <td>${user.storage_quota_bytes ? humanBytes(user.storage_quota_bytes) : ""}</td>
       <td>${user.is_active ? "yes" : "no"}</td>
       <td>${humanBytes(user.project_bytes || 0)}</td>
       <td>${humanBytes(user.raw_dataset_bytes || 0)}</td>
       <td>${humanBytes((user.project_bytes || 0) + (user.raw_dataset_bytes || 0))}</td>
-      <td><button type="button" class="user-edit-button">Settings</button></td>
+      <td>
+        <button type="button" class="user-edit-button">Settings</button>
+        ${hasAdminPrivileges() ? `<button type="button" class="user-delete-button">Delete</button>` : ""}
+      </td>
     `;
     tr.addEventListener("click", () => editUser(user));
     tr.querySelector(".user-edit-button")?.addEventListener("click", (event) => {
       event.stopPropagation();
       editUser(user).catch((error) => setStatus(String(error)));
+    });
+    tr.querySelector(".user-delete-button")?.addEventListener("click", (event) => {
+      event.stopPropagation();
+      deleteUser(user).catch((error) => setStatus(String(error)));
     });
     els.usersTableBody.appendChild(tr);
   }
@@ -6825,6 +6833,11 @@ async function createUser() {
     if (!ensured.success) {
       throw new Error(ensured.message || "Synology user provisioning failed.");
     }
+    if (quotaBytes) {
+      await apiPost(`/storage/user-accounts/${account.id}/synology/quota`, {
+        quota_bytes: quotaBytes,
+      });
+    }
     const prepared = await apiPost(`/storage/user-accounts/${account.id}/prepare`, {
       create_directories: true,
       subdirectories: ["projects", "raw", "artifacts", "exports"],
@@ -6893,6 +6906,12 @@ async function editUser(user) {
           label: "Reset password",
           type: "password",
         },
+        {
+          name: "quotaGb",
+          label: "Synology quota GB",
+          type: "number",
+          value: user.storage_quota_bytes ? String(Math.round(Number(user.storage_quota_bytes) / (1024 * 1024 * 1024))) : "",
+        },
       ]
     : [];
   const values = await openFormDialog({
@@ -6924,8 +6943,40 @@ async function editUser(user) {
     payload.password = values.password.trim();
   }
   await apiPatch(`/users/${user.id}`, payload);
+  let quotaMessage = "";
+  if (hasAdminPrivileges() && user.storage_account_id) {
+    const quotaText = String(values.quotaGb || "").trim();
+    if (quotaText) {
+      const quotaGb = Number(quotaText);
+      if (!Number.isFinite(quotaGb) || quotaGb <= 0) {
+        throw new Error("Synology quota must be greater than zero.");
+      }
+      const quotaResult = await apiPost(`/storage/user-accounts/${user.storage_account_id}/synology/quota`, {
+        quota_bytes: Math.round(quotaGb * 1024 * 1024 * 1024),
+      });
+      quotaMessage = quotaResult.message ? ` ${quotaResult.message}` : "";
+    }
+  }
   await refreshUsers();
-  setStatus(`Updated user ${user.user_key}.`);
+  setStatus(`Updated user ${user.user_key}.${quotaMessage}`);
+}
+
+async function deleteUser(user) {
+  if (!hasAdminPrivileges()) {
+    throw new Error("Admin role required.");
+  }
+  if (state.currentUser?.id === user.id) {
+    throw new Error("Cannot delete the current session user.");
+  }
+  const deleteSynology = Boolean(user.storage_account_id)
+    && window.confirm(`Also delete Synology user ${user.storage_provider_user_key || user.user_key}? Home data will not be deleted by the hub.`);
+  const ok = window.confirm(`Deactivate hub user ${user.user_key}? This hides the account from active user lists.`);
+  if (!ok) {
+    return;
+  }
+  const result = await apiDelete(`/users/${user.id}?confirm=true&delete_synology_user=${deleteSynology ? "true" : "false"}`);
+  await refreshUsers();
+  setStatus(result.message || `Deleted user ${user.user_key}.`);
 }
 
 async function changeMyPassword() {
