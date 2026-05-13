@@ -264,6 +264,7 @@ const els = {
   externalMatchRawLimit: document.querySelector("#external-match-raw-limit"),
   externalMatchIncludeLinked: document.querySelector("#external-match-include-linked"),
   externalMatchGenerateButton: document.querySelector("#external-match-generate-button"),
+  externalMatchSyncButton: document.querySelector("#external-match-sync-button"),
   externalMatchRefreshButton: document.querySelector("#external-match-refresh-button"),
   externalMatchStatusFilter: document.querySelector("#external-match-status-filter"),
   externalMatchCandidatesTableBody: document.querySelector("#external-match-candidates-table tbody"),
@@ -5439,6 +5440,18 @@ async function generateExternalMatchCandidates() {
   await refreshExternalElnMatching();
 }
 
+async function queueExternalElnSync() {
+  if (els.externalMatchGenerationSummary) {
+    els.externalMatchGenerationSummary.textContent = "Queueing Labguru sync...";
+  }
+  const result = await apiPost("/external-systems/labguru/sync", { priority: 100 });
+  if (els.externalMatchGenerationSummary) {
+    els.externalMatchGenerationSummary.textContent = `${result.message} Job ${result.job_id}.`;
+  }
+  setStatus(result.message || "Labguru sync queued.");
+  await refreshExternalElnMatching();
+}
+
 async function reviewExternalMatchCandidate(candidateId, action) {
   if (action === "accept") {
     const candidate = state.externalMatchCandidates.find((item) => item.id === candidateId);
@@ -7337,6 +7350,10 @@ if (els.rawLabguruSearch) els.rawLabguruSearch.addEventListener("keydown", (even
   }
 });
 if (els.externalMatchGenerateButton) els.externalMatchGenerateButton.addEventListener("click", () => generateExternalMatchCandidates().catch((error) => {
+  setStatus(String(error));
+  window.alert(String(error));
+}));
+if (els.externalMatchSyncButton) els.externalMatchSyncButton.addEventListener("click", () => queueExternalElnSync().catch((error) => {
   setStatus(String(error));
   window.alert(String(error));
 }));
