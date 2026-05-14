@@ -207,6 +207,15 @@ def build_compact_micromanager_metadata(
             metadata["mda_settings_json"] = mda_settings
         if isinstance(mda_summary, dict) and mda_summary:
             metadata["mda_summary"] = mda_summary
+        positions = source_metadata.get("positions")
+        if isinstance(positions, list) and positions:
+            metadata["positions"] = positions
+        position_annotations = source_metadata.get("position_annotations")
+        if isinstance(position_annotations, list) and position_annotations:
+            metadata["position_annotations"] = position_annotations
+        labguru = source_metadata.get("labguru")
+        if isinstance(labguru, dict) and labguru:
+            metadata["labguru"] = labguru
 
     return metadata
 

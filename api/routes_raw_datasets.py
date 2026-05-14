@@ -17,6 +17,7 @@ from api.schemas import (
     RawArchiveSettingsConfig,
     RawArchiveSettingsStatus,
     RawArchiveSettingsUpdate,
+    RawDatasetAcquisitionTemplateSummary,
     RawDatasetArchiveBulkDeleteRequest,
     RawDatasetArchiveBulkDeleteResult,
     RawDatasetArchiveBulkRequest,
@@ -345,6 +346,26 @@ def list_raw_datasets(
         stmt = stmt.where(RawDataset.archive_status == archive_status)
     stmt = stmt.limit(min(max(limit, 1), 5000))
     return [raw_dataset_catalog_summary_view(raw_dataset) for raw_dataset in db.scalars(stmt).unique()]
+
+
+@router.get("/recent/acquisition-templates", response_model=list[RawDatasetAcquisitionTemplateSummary])
+def list_recent_acquisition_templates(
+    limit: int = 10,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> list[RawDatasetAcquisitionTemplateSummary]:
+    stmt = (
+        select(RawDataset)
+        .options(
+            joinedload(RawDataset.owner),
+            joinedload(RawDataset.positions),
+        )
+        .where(raw_dataset_access_filter(current_user))
+        .where(RawDataset.owner_user_id == current_user.id)
+        .order_by(RawDataset.updated_at.desc(), RawDataset.created_at.desc())
+        .limit(min(max(limit, 1), 50))
+    )
+    return [raw_dataset_acquisition_template_view(raw_dataset) for raw_dataset in db.scalars(stmt).unique()]
 
 
 @router.get("/{raw_dataset_id}", response_model=RawDatasetDetail)
@@ -1267,6 +1288,47 @@ def raw_dataset_catalog_summary_view(raw_dataset: RawDataset) -> RawDatasetSumma
     )
 
 
+def raw_dataset_acquisition_template_view(raw_dataset: RawDataset) -> RawDatasetAcquisitionTemplateSummary:
+    metadata = dict(raw_dataset.metadata_json or {})
+    mda_summary = metadata.get("mda_summary") if isinstance(metadata.get("mda_summary"), dict) else {}
+    mda_settings = metadata.get("mda_settings_json") if isinstance(metadata.get("mda_settings_json"), dict) else {}
+    labguru = metadata.get("labguru") if isinstance(metadata.get("labguru"), dict) else {}
+    position_annotations = metadata.get("position_annotations")
+    if not isinstance(position_annotations, list) or not position_annotations:
+        position_annotations = [
+            {
+                "position_key": position.position_key,
+                "display_name": position.display_name,
+                "description": position.description,
+                "position_index": position.position_index,
+                **(position.metadata_json or {}),
+            }
+            for position in sorted(
+                raw_dataset.positions,
+                key=lambda item: (
+                    item.position_index if item.position_index is not None else 10**9,
+                    item.position_key,
+                ),
+            )
+        ]
+    return RawDatasetAcquisitionTemplateSummary.model_validate(
+        {
+            "id": raw_dataset.id,
+            "acquisition_label": raw_dataset.acquisition_label,
+            "microscope_name": raw_dataset.microscope_name,
+            "data_format": raw_dataset.data_format,
+            "mda_summary": mda_summary,
+            "mda_settings_json": mda_settings,
+            "position_annotations": position_annotations,
+            "labguru": labguru,
+            "metadata_json": metadata,
+            "owner": raw_dataset.owner,
+            "created_at": raw_dataset.created_at,
+            "updated_at": raw_dataset.updated_at,
+        }
+    )
+
+
 def raw_dataset_detail_view(raw_dataset: RawDataset) -> RawDatasetDetail:
     detail = RawDatasetDetail.model_validate(raw_dataset_summary_view(raw_dataset).model_dump())
     detail.notes = raw_dataset.notes
@@ -1382,7 +1444,7 @@ def raw_dataset_position_summary_view(position: RawDatasetPosition) -> RawDatase
             "raw_dataset_id": position.raw_dataset_id,
             "position_key": position.position_key,
             "display_name": position.display_name,
-            "description": position.description,
+            "description": getattr(position, "description", None),
             "position_index": position.position_index,
             "status": position.status,
             "preview_status": position.preview_status,

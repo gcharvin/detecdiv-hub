@@ -415,6 +415,21 @@ class RawDatasetSummary(HubBaseModel):
     last_backup_at: datetime | None = None
 
 
+class RawDatasetAcquisitionTemplateSummary(HubBaseModel):
+    id: UUID
+    acquisition_label: str
+    microscope_name: str | None = None
+    data_format: str = "unknown"
+    mda_summary: dict[str, Any] = Field(default_factory=dict)
+    mda_settings_json: dict[str, Any] = Field(default_factory=dict)
+    position_annotations: list[dict[str, Any]] = Field(default_factory=list)
+    labguru: dict[str, Any] = Field(default_factory=dict)
+    metadata_json: dict[str, Any] = Field(default_factory=dict)
+    owner: UserSummary | None = None
+    created_at: datetime | None = None
+    updated_at: datetime | None = None
+
+
 class ProjectLocationSummary(HubBaseModel):
     id: int
     relative_path: str

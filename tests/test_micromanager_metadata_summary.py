@@ -44,6 +44,8 @@ def test_build_compact_micromanager_metadata_keeps_only_summary_fields(tmp_path:
             },
             "mda_summary": {"channel_count": 2, "position_count": 8},
             "mda_settings_json": {"sequence": {"axis_order": ["t", "p", "c"]}},
+            "position_annotations": [{"position_key": "Pos0", "description": "control colony"}],
+            "labguru": {"enabled": True, "request": {"title": "Experiment 1"}},
         },
     )
 
@@ -60,6 +62,8 @@ def test_build_compact_micromanager_metadata_keeps_only_summary_fields(tmp_path:
     assert summary["detecdiv_acquisition"]["acquisition_session_id"] == "session-1"
     assert summary["mda_summary"]["position_count"] == 8
     assert summary["mda_settings_json"]["sequence"]["axis_order"] == ["t", "p", "c"]
+    assert summary["position_annotations"][0]["description"] == "control colony"
+    assert summary["labguru"]["request"]["title"] == "Experiment 1"
     assert "Summary" not in summary
     assert "DisplaySettings" not in summary
     assert "LargePayload" not in summary

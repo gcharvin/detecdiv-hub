@@ -211,6 +211,8 @@ def discover_micromanager_candidates(
         metadata_json = read_micromanager_metadata(dataset_dir)
         manifest_json = read_detecdiv_acquisition_manifest(dataset_dir, landing_root=landing_root)
         manifest_positions = manifest_json.get("positions") if isinstance(manifest_json, dict) else None
+        manifest_position_annotations = manifest_json.get("position_annotations") if isinstance(manifest_json, dict) else None
+        manifest_labguru = manifest_json.get("labguru") if isinstance(manifest_json, dict) else None
         manifest_mda_settings = manifest_json.get("mda_settings_json") if isinstance(manifest_json, dict) else None
         manifest_mda_summary = manifest_json.get("mda_summary") if isinstance(manifest_json, dict) else None
         microscope_name = extract_microscope_name(metadata_json)
@@ -258,6 +260,10 @@ def discover_micromanager_candidates(
                     "mda_settings_json": manifest_mda_settings if isinstance(manifest_mda_settings, dict) else {},
                     "mda_summary": manifest_mda_summary if isinstance(manifest_mda_summary, dict) else {},
                     "positions": manifest_positions if isinstance(manifest_positions, list) else [],
+                    "position_annotations": (
+                        manifest_position_annotations if isinstance(manifest_position_annotations, list) else []
+                    ),
+                    "labguru": manifest_labguru if isinstance(manifest_labguru, dict) else {},
                 },
                 completeness_status=completeness_status,
                 owner_user_key=manifest_string(manifest_json, "user_key"),
