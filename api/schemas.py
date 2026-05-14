@@ -1077,6 +1077,20 @@ class AcquisitionSessionSummary(HubBaseModel):
     updated_at: datetime | None = None
 
 
+class AcquisitionSessionLabguruExperimentRequest(HubBaseModel):
+    title: str
+    description: str | None = None
+    procedure: str | None = None
+    notes: str | None = None
+    metadata_json: dict[str, Any] = Field(default_factory=dict)
+
+
+class AcquisitionSessionLabguruExperimentResult(HubBaseModel):
+    acquisition_session: AcquisitionSessionSummary
+    experiment_project: LinkedExperimentSummary
+    external_link: ExternalLinkSummary
+
+
 class AcquisitionSessionCreate(HubBaseModel):
     session_key: str | None = None
     acquisition_label: str

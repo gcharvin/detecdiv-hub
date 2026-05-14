@@ -5,6 +5,7 @@ from api.models import ExternalExperimentRecord, ExternalUserCredential, RawData
 from api.services.external_credentials import credential_status, decrypt_external_token, encrypt_external_token
 from api.services.external_eln import select_unique_user_match
 from api.services.external_eln_clients import (
+    LabguruClient,
     extract_list_payload,
     extract_labguru_text_sections,
     html_to_text,
@@ -147,6 +148,67 @@ def test_extract_list_payload_accepts_common_labguru_shapes() -> None:
     assert extract_list_payload([{"id": 1}]) == [{"id": 1}]
     assert extract_list_payload({"data": [{"id": 2}]}) == [{"id": 2}]
     assert extract_list_payload({"experiments": [{"id": 3}]}) == [{"id": 3}]
+
+
+def test_labguru_client_creates_experiment_with_widget_fields(monkeypatch) -> None:
+    calls = []
+
+    class FakeResponse:
+        def raise_for_status(self) -> None:
+            return None
+
+        def json(self) -> dict:
+            return {
+                "experiment": {
+                    "id": 731,
+                    "title": "2026_05_14_test",
+                    "url": "/knowledge/experiments/731",
+                }
+            }
+
+    def fake_post(url, *, json, params, timeout):
+        calls.append({"url": url, "json": json, "params": params, "timeout": timeout})
+        return FakeResponse()
+
+    monkeypatch.setattr("api.services.external_eln_clients.requests.post", fake_post)
+    client = LabguruClient(base_url="https://labguru.example.org", token="token-123")
+
+    experiment = client.create_experiment(
+        title="2026_05_14_test",
+        description="Acquisition confirmed",
+        procedure="1. Start MDA\n2. Confirm transfer",
+    )
+
+    assert experiment.external_id == "731"
+    assert experiment.title == "2026_05_14_test"
+    assert experiment.external_url == "https://labguru.example.org/knowledge/experiments/731"
+    assert experiment.payload_json["detecdiv_widget_request"]["description"] == "Acquisition confirmed"
+    assert calls == [
+        {
+            "url": "https://labguru.example.org/api/v2/experiments",
+            "json": {
+                "experiment": {
+                    "title": "2026_05_14_test",
+                    "name": "2026_05_14_test",
+                    "description": "Acquisition confirmed",
+                    "experiment_procedures_attributes": [
+                        {
+                            "name": "DetecDiv acquisition procedure",
+                            "description": "1. Start MDA\n2. Confirm transfer",
+                            "elements_attributes": [
+                                {
+                                    "element_type": "text",
+                                    "data": "1. Start MDA<br>2. Confirm transfer",
+                                }
+                            ],
+                        }
+                    ],
+                }
+            },
+            "params": {"token": "token-123"},
+            "timeout": 30.0,
+        }
+    ]
 
 
 def test_external_matching_scores_exact_dataset_label() -> None:
