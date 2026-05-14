@@ -51,7 +51,7 @@ def sync_external_eln_system(
     pending_user_count = 0
     for user in users:
         record = upsert_external_user_record(session, system_key=normalized, user=user, synced_at=synced_at)
-        if record.match_status == "matched":
+        if record.match_status in {"matched", "matched_auto", "matched_manual"}:
             matched_user_count += 1
         else:
             pending_user_count += 1
@@ -118,9 +118,10 @@ def upsert_external_user_record(
     record.display_name = user.display_name
     record.email = user.email
     record.payload_json = user.payload_json
-    matched_user, status = match_external_user_by_name(session, user.display_name)
-    record.matched_user_id = matched_user.id if matched_user is not None else None
-    record.match_status = status
+    if record.match_status not in {"matched_manual", "ignored"}:
+        matched_user, status = match_external_user_by_name(session, user.display_name)
+        record.matched_user_id = matched_user.id if matched_user is not None else None
+        record.match_status = status
     record.last_synced_at = synced_at
     record.updated_at = synced_at
     session.flush()
@@ -142,7 +143,7 @@ def select_unique_user_match(users: list[User], display_name: str) -> tuple[User
         if normalize_name(user.display_name) == normalized or normalize_name(user.user_key) == normalized
     ]
     if len(candidates) == 1:
-        return candidates[0], "matched"
+        return candidates[0], "matched_auto"
     if len(candidates) > 1:
         return None, "ambiguous"
     return None, "pending"

@@ -202,6 +202,7 @@ def review_match_candidate(
 def update_external_user_match(
     system_key: str,
     external_user_record_id: UUID,
+    action: str = "match",
     matched_user_id: UUID | None = None,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
@@ -216,15 +217,23 @@ def update_external_user_match(
     ).first()
     if record is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="External user record not found")
-    if matched_user_id is None:
+    normalized_action = str(action or "").strip().lower()
+    if normalized_action in {"clear", "reset", "pending"}:
         record.matched_user_id = None
         record.match_status = "pending"
-    else:
+    elif normalized_action == "ignore":
+        record.matched_user_id = None
+        record.match_status = "ignored"
+    elif normalized_action in {"match", "matched"}:
+        if matched_user_id is None:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="matched_user_id is required")
         user = db.get(User, matched_user_id)
         if user is None:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Hub user not found")
         record.matched_user_id = user.id
-        record.match_status = "matched"
+        record.match_status = "matched_manual"
+    else:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="action must be match, clear, or ignore")
     db.commit()
     db.refresh(record)
     return record

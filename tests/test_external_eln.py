@@ -106,7 +106,7 @@ def test_user_matching_is_name_first_and_detects_ambiguity() -> None:
 
     matched, status = select_unique_user_match([first, other], " Aleksandr   Maliavko ")
     assert matched is first
-    assert status == "matched"
+    assert status == "matched_auto"
 
     matched, status = select_unique_user_match([first, second, other], "Aleksandr Maliavko")
     assert matched is None

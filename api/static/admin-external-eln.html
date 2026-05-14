@@ -143,6 +143,43 @@
             </table>
           </div>
         </section>
+
+        <section class="panel">
+          <div class="panel-header">
+            <div>
+              <h2>Labguru Users</h2>
+              <p class="muted">Review Labguru user matches against DetecDiv Hub accounts. Manual choices are preserved across syncs.</p>
+            </div>
+            <label class="field compact">
+              <span>Status</span>
+              <select id="external-user-status-filter">
+                <option value="">all</option>
+                <option value="pending">pending</option>
+                <option value="ambiguous">ambiguous</option>
+                <option value="matched_auto">matched_auto</option>
+                <option value="matched_manual">matched_manual</option>
+                <option value="matched">matched legacy</option>
+                <option value="ignored">ignored</option>
+              </select>
+            </label>
+          </div>
+          <div class="table-wrapper">
+            <table id="external-users-table">
+              <thead>
+                <tr>
+                  <th>Labguru user</th>
+                  <th>Email</th>
+                  <th>Hub user</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td colspan="5" class="muted">No users loaded.</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
       </main>
 
       <footer class="footer">
@@ -150,6 +187,6 @@
       </footer>
     </div>
 
-    <script src="/web/app.js?v=20260512-ui2" defer></script>
+    <script src="/web/app.js?v=20260514-eln-users1" defer></script>
   </body>
 </html>

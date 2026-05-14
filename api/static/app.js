@@ -36,6 +36,7 @@ const state = {
   rawLabguruResults: [],
   externalMatchStatus: null,
   externalMatchCandidates: [],
+  externalUsers: [],
   archiveSettingsStatus: null,
   archivePolicyPreview: null,
   automaticArchivePolicyStatus: null,
@@ -268,6 +269,8 @@ const els = {
   externalMatchRefreshButton: document.querySelector("#external-match-refresh-button"),
   externalMatchStatusFilter: document.querySelector("#external-match-status-filter"),
   externalMatchCandidatesTableBody: document.querySelector("#external-match-candidates-table tbody"),
+  externalUserStatusFilter: document.querySelector("#external-user-status-filter"),
+  externalUsersTableBody: document.querySelector("#external-users-table tbody"),
   deploymentAwarenessSummary: document.querySelector("#deployment-awareness-summary"),
   deploymentApiStatus: document.querySelector("#deployment-api-status"),
   deploymentDbStatus: document.querySelector("#deployment-db-status"),
@@ -4494,6 +4497,7 @@ function renderExternalElnMatching() {
     els.externalMatchLatestSync.textContent = status.latest_sync_at ? formatTimestamp(status.latest_sync_at) : "-";
   }
   renderExternalMatchCandidatesTable();
+  renderExternalUsersTable();
 }
 
 function renderExternalMatchCandidatesTable() {
@@ -4557,6 +4561,63 @@ function renderExternalMatchCandidatesTable() {
       actions.appendChild(rejectButton);
     }
     els.externalMatchCandidatesTableBody.appendChild(tr);
+  }
+}
+
+function renderExternalUsersTable() {
+  if (!els.externalUsersTableBody) {
+    return;
+  }
+  els.externalUsersTableBody.innerHTML = "";
+  if (!state.externalUsers.length) {
+    els.externalUsersTableBody.innerHTML = `<tr><td colspan="5" class="muted">No users loaded.</td></tr>`;
+    return;
+  }
+  for (const record of state.externalUsers) {
+    const matched = record.matched_user || null;
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>
+        <div>${escapeHtml(record.display_name || "")}</div>
+        <div class="stack-item-meta">${escapeHtml(record.external_id || "")}</div>
+      </td>
+      <td>${escapeHtml(record.email || "")}</td>
+      <td>${matched ? `${escapeHtml(matched.display_name)}<div class="stack-item-meta">${escapeHtml(matched.user_key || "")}</div>` : `<span class="muted">Unmatched</span>`}</td>
+      <td>${escapeHtml(record.match_status || "")}</td>
+      <td><div class="action-stack"></div></td>
+    `;
+    const actions = tr.querySelector(".action-stack");
+    if (actions) {
+      const matchButton = document.createElement("button");
+      matchButton.className = "primary";
+      matchButton.textContent = matched ? "Change" : "Match";
+      matchButton.addEventListener("click", () => matchExternalUser(record.id).catch((error) => {
+        setStatus(String(error));
+        window.alert(String(error));
+      }));
+      actions.appendChild(matchButton);
+
+      if (matched || record.match_status === "ignored") {
+        const clearButton = document.createElement("button");
+        clearButton.textContent = "Clear";
+        clearButton.addEventListener("click", () => updateExternalUserMatch(record.id, "clear").catch((error) => {
+          setStatus(String(error));
+          window.alert(String(error));
+        }));
+        actions.appendChild(clearButton);
+      }
+
+      if (record.match_status !== "ignored") {
+        const ignoreButton = document.createElement("button");
+        ignoreButton.textContent = "Ignore";
+        ignoreButton.addEventListener("click", () => updateExternalUserMatch(record.id, "ignore").catch((error) => {
+          setStatus(String(error));
+          window.alert(String(error));
+        }));
+        actions.appendChild(ignoreButton);
+      }
+    }
+    els.externalUsersTableBody.appendChild(tr);
   }
 }
 
@@ -5436,12 +5497,22 @@ async function refreshExternalElnMatching() {
     params.set("status_filter", statusFilter);
   }
   params.set("limit", "250");
-  const [status, candidates] = await Promise.all([
+  const userParams = new URLSearchParams();
+  const userStatusFilter = els.externalUserStatusFilter?.value || "";
+  if (userStatusFilter) {
+    userParams.set("match_status", userStatusFilter);
+  }
+  userParams.set("limit", "1000");
+  const [status, candidates, externalUsers, hubUsers] = await Promise.all([
     apiGet("/external-systems/labguru/status"),
     apiGet(`/external-systems/labguru/match-candidates?${params.toString()}`),
+    apiGet(`/external-systems/labguru/users?${userParams.toString()}`),
+    apiGet("/users?all_users=true"),
   ]);
   state.externalMatchStatus = status;
   state.externalMatchCandidates = candidates;
+  state.externalUsers = externalUsers;
+  state.users = hubUsers;
   renderExternalElnMatching();
 }
 
@@ -5490,6 +5561,45 @@ async function reviewExternalMatchCandidate(candidateId, action) {
   const result = await apiPost(`/external-systems/labguru/match-candidates/${candidateId}/review`, { action });
   await refreshExternalElnMatching();
   setStatus(action === "accept" && result.linked ? "Labguru link accepted and written." : `Candidate ${action}ed.`);
+}
+
+async function matchExternalUser(externalUserRecordId) {
+  const record = state.externalUsers.find((item) => item.id === externalUserRecordId);
+  const users = state.users.length ? state.users : await apiGet("/users?all_users=true");
+  state.users = users;
+  const options = users
+    .filter((user) => user.is_active)
+    .map((user) => ({ value: user.id, label: userOptionLabel(user) }));
+  const values = await openFormDialog({
+    title: "Match Labguru user",
+    description: record?.display_name || "",
+    submitLabel: "Save match",
+    fields: [
+      {
+        name: "matchedUserId",
+        label: "DetecDiv Hub user",
+        type: options.length ? "select" : "text",
+        value: record?.matched_user?.id || "",
+        options,
+        required: true,
+      },
+    ],
+  });
+  const matchedUserId = values?.matchedUserId?.trim();
+  if (!matchedUserId) {
+    return;
+  }
+  await updateExternalUserMatch(externalUserRecordId, "match", matchedUserId);
+}
+
+async function updateExternalUserMatch(externalUserRecordId, action, matchedUserId = "") {
+  const params = new URLSearchParams({ action });
+  if (matchedUserId) {
+    params.set("matched_user_id", matchedUserId);
+  }
+  await apiPatch(`/external-systems/labguru/users/${externalUserRecordId}?${params.toString()}`, {});
+  await refreshExternalElnMatching();
+  setStatus(action === "match" ? "Labguru user match saved." : `Labguru user ${action}ed.`);
 }
 
 async function changeRawDatasetOwner() {
@@ -7385,6 +7495,7 @@ if (els.externalMatchSyncButton) els.externalMatchSyncButton.addEventListener("c
 }));
 if (els.externalMatchRefreshButton) els.externalMatchRefreshButton.addEventListener("click", () => refreshExternalElnMatching().catch((error) => setStatus(String(error))));
 if (els.externalMatchStatusFilter) els.externalMatchStatusFilter.addEventListener("change", () => refreshExternalElnMatching().catch((error) => setStatus(String(error))));
+if (els.externalUserStatusFilter) els.externalUserStatusFilter.addEventListener("change", () => refreshExternalElnMatching().catch((error) => setStatus(String(error))));
 if (els.newGroupButton) els.newGroupButton.addEventListener("click", () => createGroup().catch((error) => setStatus(String(error))));
 if (els.projectNotesSaveButton) els.projectNotesSaveButton.addEventListener("click", () => saveProjectNotes().catch((error) => setStatus(String(error))));
 if (els.rawDatasetNotesSaveButton) els.rawDatasetNotesSaveButton.addEventListener("click", () => saveRawDatasetNotes().catch((error) => setStatus(String(error))));
