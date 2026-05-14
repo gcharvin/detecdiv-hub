@@ -281,6 +281,7 @@ def upsert_raw_dataset_positions(
                 raw_dataset_id=raw_dataset.id,
                 position_key=position_key,
                 display_name=position["display_name"],
+                description=position.get("description"),
                 position_index=position.get("position_index", position_index),
                 status="indexed",
                 preview_status="missing",
@@ -289,6 +290,8 @@ def upsert_raw_dataset_positions(
             session.add(existing)
         else:
             existing.display_name = position["display_name"]
+            if "description" in position:
+                existing.description = position.get("description")
             existing.position_index = position.get("position_index", position_index)
             existing.status = "indexed"
             merged_metadata = dict(existing.metadata_json or {})
@@ -305,10 +308,12 @@ def discover_raw_dataset_positions(dataset_dir: Path, source_metadata: dict) -> 
             if isinstance(item, dict):
                 raw_key = item.get("position_key") or item.get("key") or item.get("name") or f"position_{index + 1}"
                 display_name = item.get("display_name") or item.get("name") or str(raw_key)
+                description = item.get("description")
                 positions.append(
                     {
                         "position_key": slugify(str(raw_key)),
                         "display_name": str(display_name),
+                        "description": str(description) if description else None,
                         "position_index": item.get("position_index", index),
                         "metadata_json": item,
                     }

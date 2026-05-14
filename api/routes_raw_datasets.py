@@ -1382,6 +1382,7 @@ def raw_dataset_position_summary_view(position: RawDatasetPosition) -> RawDatase
             "raw_dataset_id": position.raw_dataset_id,
             "position_key": position.position_key,
             "display_name": position.display_name,
+            "description": position.description,
             "position_index": position.position_index,
             "status": position.status,
             "preview_status": position.preview_status,

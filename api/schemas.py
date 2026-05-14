@@ -441,6 +441,7 @@ class RawDatasetPositionSummary(HubBaseModel):
     raw_dataset_id: UUID
     position_key: str
     display_name: str
+    description: str | None = None
     position_index: int | None = None
     status: str
     preview_status: str

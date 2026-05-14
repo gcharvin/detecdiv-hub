@@ -9,6 +9,7 @@ from api.services.micromanager_ingest import (
     classify_micromanager_dataset_dir,
     discover_micromanager_candidates,
 )
+from api.services.raw_dataset_ingest import discover_raw_dataset_positions
 
 
 def test_classify_micromanager_dataset_dir_accepts_zarr_root(tmp_path):
@@ -91,3 +92,39 @@ def test_discover_micromanager_candidates_reads_detecdiv_manifest(tmp_path):
     assert candidate.metadata_json["detecdiv_acquisition_manifest"]["acquisition_session_id"] == "session-1"
     assert candidate.metadata_json["mda_summary"]["channel_count"] == 2
     assert candidate.metadata_json["positions"][0]["display_name"] == "Position 0"
+
+
+def test_discover_raw_dataset_positions_keeps_widget_descriptions(tmp_path):
+    dataset_dir = tmp_path / "test.ome.zarr"
+    dataset_dir.mkdir()
+
+    positions = discover_raw_dataset_positions(
+        dataset_dir,
+        {
+            "positions": [
+                {
+                    "position_key": "Pos0",
+                    "display_name": "Position 0",
+                    "description": "control colony",
+                    "strain": "BY4741",
+                    "medium": "SC",
+                }
+            ]
+        },
+    )
+
+    assert positions == [
+        {
+            "position_key": "pos0",
+            "display_name": "Position 0",
+            "description": "control colony",
+            "position_index": 0,
+            "metadata_json": {
+                "position_key": "Pos0",
+                "display_name": "Position 0",
+                "description": "control colony",
+                "strain": "BY4741",
+                "medium": "SC",
+            },
+        }
+    ]
