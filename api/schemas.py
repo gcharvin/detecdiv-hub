@@ -670,6 +670,32 @@ class ExternalUserRecordSummary(HubBaseModel):
     updated_at: datetime | None = None
 
 
+class ExternalUserCredentialSummary(HubBaseModel):
+    id: UUID | None = None
+    system_key: str
+    credential_kind: str = "api_token"
+    status: str = "missing"
+    expires_at: datetime | None = None
+    last_verified_at: datetime | None = None
+    last_error: str | None = None
+    days_until_expiry: int | None = None
+    created_at: datetime | None = None
+    updated_at: datetime | None = None
+
+
+class ExternalUserCredentialUpsertRequest(HubBaseModel):
+    token: str
+    expires_in_days: int = Field(default=30, ge=1, le=365)
+
+
+class ExternalUserCredentialTestResult(HubBaseModel):
+    system_key: str
+    status: str
+    message: str
+    expires_at: datetime | None = None
+    last_verified_at: datetime | None = None
+
+
 class ExternalSystemStatus(HubBaseModel):
     system_key: str
     enabled: bool

@@ -37,6 +37,7 @@ const state = {
   externalMatchStatus: null,
   externalMatchCandidates: [],
   externalUsers: [],
+  externalCredential: null,
   archiveSettingsStatus: null,
   archivePolicyPreview: null,
   automaticArchivePolicyStatus: null,
@@ -271,6 +272,14 @@ const els = {
   externalMatchCandidatesTableBody: document.querySelector("#external-match-candidates-table tbody"),
   externalUserStatusFilter: document.querySelector("#external-user-status-filter"),
   externalUsersTableBody: document.querySelector("#external-users-table tbody"),
+  externalCredentialStatus: document.querySelector("#external-credential-status"),
+  externalCredentialExpires: document.querySelector("#external-credential-expires"),
+  externalCredentialVerified: document.querySelector("#external-credential-verified"),
+  externalCredentialError: document.querySelector("#external-credential-error"),
+  externalCredentialToken: document.querySelector("#external-credential-token"),
+  externalCredentialSaveButton: document.querySelector("#external-credential-save-button"),
+  externalCredentialTestButton: document.querySelector("#external-credential-test-button"),
+  externalCredentialDeleteButton: document.querySelector("#external-credential-delete-button"),
   deploymentAwarenessSummary: document.querySelector("#deployment-awareness-summary"),
   deploymentApiStatus: document.querySelector("#deployment-api-status"),
   deploymentDbStatus: document.querySelector("#deployment-db-status"),
@@ -419,6 +428,7 @@ const pageFlags = {
   hasUsersView: pageKind === "admin-users" && Boolean(els.usersTableBody),
   hasSessionsView: pageKind === "admin-sessions" && Boolean(els.sessionsTableBody),
   hasExternalElnAdminView: pageKind === "admin-external-eln" && Boolean(els.externalMatchCandidatesTableBody),
+  hasExternalSystemsView: pageKind === "external-systems" && Boolean(els.externalCredentialStatus),
   hasIndexingView: Boolean(els.indexJobsTableBody || els.activeIndexJob),
   hasRawDatasetsView: Boolean(els.rawDatasetsTableBody),
   hasRawDatasetPage: pageKind === "raw-dataset",
@@ -453,6 +463,9 @@ function getSidebarActiveRoute() {
   }
   if (pageKind === "admin-external-eln") {
     return "admin-external-eln";
+  }
+  if (pageKind === "external-systems") {
+    return "external-systems";
   }
   if (pageKind === "indexing") {
     return "projects-settings";
@@ -568,6 +581,12 @@ function initializeAppLayout() {
         items: [
           { label: "Catalog", href: "/web/raw-datasets.html", route: "datasets-catalog" },
           { label: "Settings", href: "/web/raw-ops.html", route: "datasets-settings" },
+        ],
+      },
+      {
+        label: "Account",
+        items: [
+          { label: "External Systems", href: "/web/external-systems.html", route: "external-systems" },
         ],
       },
     ];
@@ -797,6 +816,14 @@ function apiGet(path) {
 function apiPost(path, payload) {
   return apiJson(path, {
     method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload || {}),
+  });
+}
+
+function apiPut(path, payload) {
+  return apiJson(path, {
+    method: "PUT",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload || {}),
   });
@@ -1279,6 +1306,8 @@ function updateSessionUi() {
     if (els.adminDeniedPanel) {
       els.adminDeniedPanel.classList.toggle("hidden", allowed || !authenticated);
     }
+  } else if (pageFlags.hasExternalSystemsView && els.adminContent) {
+    els.adminContent.classList.toggle("hidden", !authenticated);
   }
 }
 
@@ -4621,6 +4650,25 @@ function renderExternalUsersTable() {
   }
 }
 
+function renderExternalCredential() {
+  const credential = state.externalCredential || { status: "missing" };
+  if (els.externalCredentialStatus) {
+    els.externalCredentialStatus.textContent = credential.status || "missing";
+  }
+  if (els.externalCredentialExpires) {
+    const expiry = credential.expires_at ? formatTimestamp(credential.expires_at) : "-";
+    const days = credential.days_until_expiry == null ? "" : ` (${credential.days_until_expiry} days)`;
+    els.externalCredentialExpires.textContent = `${expiry}${days}`;
+  }
+  if (els.externalCredentialVerified) {
+    els.externalCredentialVerified.textContent = credential.last_verified_at ? formatTimestamp(credential.last_verified_at) : "-";
+  }
+  if (els.externalCredentialError) {
+    els.externalCredentialError.textContent = credential.last_error || "";
+    els.externalCredentialError.classList.toggle("hidden", !credential.last_error);
+  }
+}
+
 function renderUsers() {
   if (!els.usersTableBody) {
     return;
@@ -4902,6 +4950,9 @@ async function refreshDashboard() {
   }
   if (pageFlags.hasExternalElnAdminView && isAdmin()) {
     refreshTasks.push(refreshExternalElnMatching());
+  }
+  if (pageFlags.hasExternalSystemsView) {
+    refreshTasks.push(refreshExternalCredential());
   }
   if (pageFlags.hasIndexingView) {
     refreshTasks.push(refreshIndexingJobs());
@@ -5514,6 +5565,46 @@ async function refreshExternalElnMatching() {
   state.externalUsers = externalUsers;
   state.users = hubUsers;
   renderExternalElnMatching();
+}
+
+async function refreshExternalCredential() {
+  if (!pageFlags.hasExternalSystemsView) {
+    return;
+  }
+  state.externalCredential = await apiGet("/external-systems/labguru/credentials/me");
+  renderExternalCredential();
+}
+
+async function saveExternalCredential() {
+  const token = (els.externalCredentialToken?.value || "").trim();
+  if (!token) {
+    throw new Error("Labguru token is required.");
+  }
+  state.externalCredential = await apiPut("/external-systems/labguru/credentials/me", {
+    token,
+    expires_in_days: 30,
+  });
+  if (els.externalCredentialToken) {
+    els.externalCredentialToken.value = "";
+  }
+  renderExternalCredential();
+  setStatus("Labguru token stored.");
+}
+
+async function testExternalCredential() {
+  const result = await apiPost("/external-systems/labguru/credentials/me/test", {});
+  await refreshExternalCredential();
+  setStatus(result.message || `Labguru token ${result.status}.`);
+}
+
+async function deleteExternalCredential() {
+  if (!window.confirm("Remove your stored Labguru token?")) {
+    return;
+  }
+  await apiDelete("/external-systems/labguru/credentials/me");
+  state.externalCredential = { system_key: "labguru", status: "missing" };
+  renderExternalCredential();
+  setStatus("Labguru token removed.");
 }
 
 async function generateExternalMatchCandidates() {
@@ -7395,6 +7486,7 @@ async function forceRefreshCurrentPage() {
     pageFlags.hasUsersView ||
     pageFlags.hasSessionsView ||
     pageFlags.hasExternalElnAdminView ||
+    pageFlags.hasExternalSystemsView ||
     pageFlags.hasProjectPage
   ) {
     await refreshDashboard();
@@ -7496,6 +7588,18 @@ if (els.externalMatchSyncButton) els.externalMatchSyncButton.addEventListener("c
 if (els.externalMatchRefreshButton) els.externalMatchRefreshButton.addEventListener("click", () => refreshExternalElnMatching().catch((error) => setStatus(String(error))));
 if (els.externalMatchStatusFilter) els.externalMatchStatusFilter.addEventListener("change", () => refreshExternalElnMatching().catch((error) => setStatus(String(error))));
 if (els.externalUserStatusFilter) els.externalUserStatusFilter.addEventListener("change", () => refreshExternalElnMatching().catch((error) => setStatus(String(error))));
+if (els.externalCredentialSaveButton) els.externalCredentialSaveButton.addEventListener("click", () => saveExternalCredential().catch((error) => {
+  setStatus(String(error));
+  window.alert(String(error));
+}));
+if (els.externalCredentialTestButton) els.externalCredentialTestButton.addEventListener("click", () => testExternalCredential().catch((error) => {
+  setStatus(String(error));
+  window.alert(String(error));
+}));
+if (els.externalCredentialDeleteButton) els.externalCredentialDeleteButton.addEventListener("click", () => deleteExternalCredential().catch((error) => {
+  setStatus(String(error));
+  window.alert(String(error));
+}));
 if (els.newGroupButton) els.newGroupButton.addEventListener("click", () => createGroup().catch((error) => setStatus(String(error))));
 if (els.projectNotesSaveButton) els.projectNotesSaveButton.addEventListener("click", () => saveProjectNotes().catch((error) => setStatus(String(error))));
 if (els.rawDatasetNotesSaveButton) els.rawDatasetNotesSaveButton.addEventListener("click", () => saveRawDatasetNotes().catch((error) => setStatus(String(error))));

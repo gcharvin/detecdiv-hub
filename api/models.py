@@ -50,6 +50,7 @@ class User(Base):
     micromanager_ingest_runs: Mapped[list["MicroManagerIngestRun"]] = relationship(back_populates="triggered_by")
     acquisition_sessions: Mapped[list["AcquisitionSession"]] = relationship(back_populates="owner")
     external_user_records: Mapped[list["ExternalUserRecord"]] = relationship(back_populates="matched_user")
+    external_credentials: Mapped[list["ExternalUserCredential"]] = relationship(back_populates="user")
     reviewed_external_match_candidates: Mapped[list["ExternalMatchCandidate"]] = relationship(
         back_populates="reviewed_by"
     )
@@ -907,6 +908,32 @@ class ExternalUserRecord(Base):
     )
 
     matched_user: Mapped[User | None] = relationship(back_populates="external_user_records")
+
+
+class ExternalUserCredential(Base):
+    __tablename__ = "external_user_credentials"
+    __table_args__ = (
+        UniqueConstraint("user_id", "system_key", name="uq_external_user_credentials_user_system"),
+    )
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    user_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False
+    )
+    system_key: Mapped[str] = mapped_column(String, nullable=False)
+    credential_kind: Mapped[str] = mapped_column(String, nullable=False, default="api_token")
+    encrypted_token: Mapped[str] = mapped_column(Text, nullable=False)
+    status: Mapped[str] = mapped_column(String, nullable=False, default="stored")
+    expires_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    last_verified_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    last_error: Mapped[str | None] = mapped_column(Text)
+    metadata_json: Mapped[dict] = mapped_column(JSONB, nullable=False, default=dict)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
+    )
+
+    user: Mapped[User] = relationship(back_populates="external_credentials")
 
 
 class ExternalMatchCandidate(Base):

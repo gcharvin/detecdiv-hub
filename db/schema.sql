@@ -527,6 +527,22 @@ CREATE TABLE IF NOT EXISTS external_user_records (
     UNIQUE(system_key, external_id)
 );
 
+CREATE TABLE IF NOT EXISTS external_user_credentials (
+    id UUID PRIMARY KEY,
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    system_key TEXT NOT NULL,
+    credential_kind TEXT NOT NULL DEFAULT 'api_token',
+    encrypted_token TEXT NOT NULL,
+    status TEXT NOT NULL DEFAULT 'stored',
+    expires_at TIMESTAMPTZ,
+    last_verified_at TIMESTAMPTZ,
+    last_error TEXT,
+    metadata_json JSONB NOT NULL DEFAULT '{}'::jsonb,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    UNIQUE(user_id, system_key)
+);
+
 CREATE TABLE IF NOT EXISTS external_match_candidates (
     id UUID PRIMARY KEY,
     raw_dataset_id UUID NOT NULL REFERENCES raw_datasets(id) ON DELETE CASCADE,
@@ -690,6 +706,8 @@ CREATE INDEX IF NOT EXISTS idx_external_experiment_records_system_title ON exter
 CREATE INDEX IF NOT EXISTS idx_external_experiment_records_synced_at ON external_experiment_records(system_key, last_synced_at DESC);
 CREATE INDEX IF NOT EXISTS idx_external_user_records_system_name ON external_user_records(system_key, display_name);
 CREATE INDEX IF NOT EXISTS idx_external_user_records_matched_user_id ON external_user_records(matched_user_id);
+CREATE INDEX IF NOT EXISTS idx_external_user_credentials_user_system ON external_user_credentials(user_id, system_key);
+CREATE INDEX IF NOT EXISTS idx_external_user_credentials_status ON external_user_credentials(system_key, status, expires_at);
 CREATE INDEX IF NOT EXISTS idx_external_match_candidates_status_score ON external_match_candidates(system_key, status, score DESC);
 CREATE INDEX IF NOT EXISTS idx_external_match_candidates_raw_dataset_id ON external_match_candidates(raw_dataset_id);
 CREATE INDEX IF NOT EXISTS idx_external_match_candidates_external_record_id ON external_match_candidates(external_experiment_record_id);

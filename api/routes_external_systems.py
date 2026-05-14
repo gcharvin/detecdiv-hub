@@ -19,7 +19,17 @@ from api.schemas import (
     ExternalSystemStatus,
     ExternalSystemSyncQueueResult,
     ExternalSystemSyncRequest,
+    ExternalUserCredentialSummary,
+    ExternalUserCredentialTestResult,
+    ExternalUserCredentialUpsertRequest,
     ExternalUserRecordSummary,
+)
+from api.services.external_credentials import (
+    delete_user_credential,
+    external_credential_summary,
+    get_user_credential,
+    test_user_credential,
+    upsert_user_credential,
 )
 from api.services.external_eln import (
     external_link_summary_from_publication,
@@ -94,6 +104,67 @@ def list_external_experiments(
     _ = current_user
     normalized = normalize_or_400(system_key)
     return search_external_experiments(db, system_key=normalized, search=search, limit=limit)
+
+
+@router.get("/{system_key}/credentials/me", response_model=ExternalUserCredentialSummary)
+def get_my_external_credential(
+    system_key: str,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> ExternalUserCredentialSummary:
+    normalized = normalize_or_400(system_key)
+    credential = get_user_credential(db, user=current_user, system_key=normalized)
+    return external_credential_summary(credential, system_key=normalized)
+
+
+@router.put("/{system_key}/credentials/me", response_model=ExternalUserCredentialSummary)
+def upsert_my_external_credential(
+    system_key: str,
+    payload: ExternalUserCredentialUpsertRequest,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> ExternalUserCredentialSummary:
+    normalized = normalize_or_400(system_key)
+    try:
+        credential = upsert_user_credential(
+            db,
+            user=current_user,
+            system_key=normalized,
+            token=payload.token,
+            expires_in_days=payload.expires_in_days,
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc
+    db.commit()
+    db.refresh(credential)
+    return external_credential_summary(credential, system_key=normalized)
+
+
+@router.post("/{system_key}/credentials/me/test", response_model=ExternalUserCredentialTestResult)
+def test_my_external_credential(
+    system_key: str,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> ExternalUserCredentialTestResult:
+    normalized = normalize_or_400(system_key)
+    try:
+        result = test_user_credential(db, user=current_user, system_key=normalized)
+    except LookupError as exc:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
+    db.commit()
+    return result
+
+
+@router.delete("/{system_key}/credentials/me")
+def delete_my_external_credential(
+    system_key: str,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> dict:
+    normalized = normalize_or_400(system_key)
+    deleted = delete_user_credential(db, user=current_user, system_key=normalized)
+    db.commit()
+    return {"status": "deleted" if deleted else "missing", "system_key": normalized}
 
 
 @router.get("/{system_key}/users", response_model=list[ExternalUserRecordSummary])

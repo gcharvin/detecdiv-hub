@@ -33,6 +33,7 @@ class Settings(BaseSettings):
     labguru_enabled: bool = False
     labguru_base_url: str = "https://my.labguru.com"
     labguru_token: str = ""
+    external_credentials_secret: str = ""
     elabftw_enabled: bool = False
     elabftw_base_url: str = ""
     elabftw_token: str = ""

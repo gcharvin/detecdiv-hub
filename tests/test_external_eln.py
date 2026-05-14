@@ -1,6 +1,8 @@
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
+from uuid import UUID
 
-from api.models import ExternalExperimentRecord, RawDataset, User
+from api.models import ExternalExperimentRecord, ExternalUserCredential, RawDataset, User
+from api.services.external_credentials import credential_status, decrypt_external_token, encrypt_external_token
 from api.services.external_eln import select_unique_user_match
 from api.services.external_eln_clients import (
     extract_list_payload,
@@ -97,6 +99,25 @@ def test_labguru_observed_users_extracts_member_payloads() -> None:
     assert by_id["29"].display_name == "Aleksandr Maliavko"
     assert by_id["29"].email == "alek@example.org"
     assert by_id["name:aleksandr maliavko"].display_name == "Aleksandr Maliavko"
+
+
+def test_external_credential_token_round_trips_encrypted() -> None:
+    encrypted = encrypt_external_token("secret-token")
+
+    assert encrypted != "secret-token"
+    assert decrypt_external_token(encrypted) == "secret-token"
+
+
+def test_external_credential_status_reports_expired() -> None:
+    credential = ExternalUserCredential(
+        system_key="labguru",
+        user_id=UUID("00000000-0000-0000-0000-000000000000"),
+        encrypted_token="x",
+        status="connected",
+        expires_at=datetime.now(timezone.utc) - timedelta(seconds=1),
+    )
+
+    assert credential_status(credential) == "expired"
 
 
 def test_user_matching_is_name_first_and_detects_ambiguity() -> None:
