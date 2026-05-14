@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import hashlib
+import json
 import re
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
@@ -23,6 +24,7 @@ from api.services.users import get_or_create_user
 
 
 MICROMANAGER_INGEST_LOCK_KEY = 2026031102
+DETECDIV_ACQUISITION_MANIFEST_FILE = "detecdiv_acquisition_manifest.json"
 MICROMANAGER_METADATA_FILES = {
     "metadata.txt",
     "acquisitionmetadata.txt",
@@ -93,6 +95,7 @@ class MicroManagerDatasetCandidate:
     file_count: int
     metadata_json: dict
     completeness_status: str
+    owner_user_key: str | None = None
 
 
 @dataclass
@@ -206,8 +209,14 @@ def discover_micromanager_candidates(
             continue
 
         metadata_json = read_micromanager_metadata(dataset_dir)
+        manifest_json = read_detecdiv_acquisition_manifest(dataset_dir, landing_root=landing_root)
         microscope_name = extract_microscope_name(metadata_json)
+        if not microscope_name:
+            microscope_name = manifest_string(manifest_json, "microscope_name")
         acquisition_label = extract_acquisition_label(dataset_dir, metadata_json)
+        manifest_acquisition_label = manifest_string(manifest_json, "acquisition_label")
+        if manifest_acquisition_label:
+            acquisition_label = manifest_acquisition_label
         session_label = extract_session_label(dataset_dir, metadata_json, acquisition_label=acquisition_label)
         session_date = extract_session_datetime(metadata_json) or last_modified_at
         dimensions = extract_acquisition_dimensions(metadata_json)
@@ -242,8 +251,10 @@ def discover_micromanager_candidates(
                     "group_label": group_label,
                     "dimensions": dimensions,
                     "display_settings_uri": str(display_settings_path) if display_settings_path is not None else None,
+                    "detecdiv_acquisition_manifest": manifest_json,
                 },
                 completeness_status=completeness_status,
+                owner_user_key=manifest_string(manifest_json, "user_key"),
             )
         )
     return candidates
@@ -287,6 +298,32 @@ def classify_micromanager_dataset_dir(path: Path) -> Path | None:
 def has_micromanager_data_suffix(file_name: str) -> bool:
     lower = file_name.lower()
     return any(lower.endswith(suffix) for suffix in MICROMANAGER_DATA_SUFFIXES)
+
+
+def read_detecdiv_acquisition_manifest(dataset_dir: Path, *, landing_root: Path) -> dict:
+    for path in [dataset_dir, *dataset_dir.parents]:
+        manifest_path = path / DETECDIV_ACQUISITION_MANIFEST_FILE
+        if manifest_path.is_file():
+            try:
+                payload = json.loads(manifest_path.read_text(encoding="utf-8"))
+            except (OSError, json.JSONDecodeError):
+                return {}
+            if isinstance(payload, dict):
+                return {
+                    **payload,
+                    "manifest_path": str(manifest_path),
+                }
+            return {}
+        if path == landing_root:
+            break
+    return {}
+
+
+def manifest_string(manifest_json: dict, key: str) -> str | None:
+    value = manifest_json.get(key) if isinstance(manifest_json, dict) else None
+    if isinstance(value, str) and value.strip():
+        return value.strip()
+    return None
 
 
 def latest_dataset_activity(dataset_dir: Path) -> tuple[datetime | None, int]:
@@ -577,15 +614,24 @@ def execute_micromanager_ingest_run(
         if not report_only:
             for candidate in candidates:
                 candidate_paths.append(str(candidate.dataset_dir))
+                candidate_owner = (
+                    get_or_create_user(
+                        session,
+                        user_key=candidate.owner_user_key,
+                        display_name=candidate.owner_user_key,
+                    )
+                    if candidate.owner_user_key
+                    else triggered_by_user
+                )
                 experiment, experiment_created = ensure_micromanager_experiment(
                     session,
-                    owner=triggered_by_user,
+                    owner=candidate_owner,
                     visibility=config.visibility,
                     candidate=candidate,
                 )
                 raw_dataset = ingest_raw_dataset_from_directory(
                     session,
-                    owner=triggered_by_user,
+                    owner=candidate_owner,
                     visibility=config.visibility,
                     storage_root_name=config.storage_root_name,
                     host_scope=config.host_scope,
