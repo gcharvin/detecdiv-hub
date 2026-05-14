@@ -33,6 +33,7 @@ class Settings(BaseSettings):
     labguru_enabled: bool = False
     labguru_base_url: str = "https://my.labguru.com"
     labguru_token: str = ""
+    external_credentials_secret: str = ""
     elabftw_enabled: bool = False
     elabftw_base_url: str = ""
     elabftw_token: str = ""
@@ -81,6 +82,25 @@ class Settings(BaseSettings):
     backup_run_as_user_key: str = "backup-bot"
     backup_include_raw_datasets: bool = True
     backup_include_projects: bool = True
+    synology_dsm_base_url: str = ""
+    synology_dsm_account: str = ""
+    synology_dsm_password: str = ""
+    synology_dsm_session: str = "DetecDivHub"
+    synology_dsm_verify_tls: bool = True
+    synology_dsm_timeout_sec: float = 10.0
+    synology_ssh_enabled: bool = False
+    synology_ssh_host: str = ""
+    synology_ssh_port: int = 22
+    synology_ssh_username: str = ""
+    synology_ssh_password: str = ""
+    synology_ssh_key_path: str = ""
+    synology_ssh_timeout_sec: float = 10.0
+    synology_ssh_synouser_command: str = "synouser"
+    synology_ssh_use_sudo: bool = True
+    synology_ssh_quota_command: str = "/usr/syno/sbin/synoquota"
+    synology_ssh_quota_volume_id: str = "1"
+    synology_ssh_share_quota_command: str = "/usr/syno/sbin/synosharequota"
+    synology_ssh_quota_share: str = "homes"
 
     model_config = SettingsConfigDict(
         env_prefix="DETECDIV_HUB_",

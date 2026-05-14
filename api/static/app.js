@@ -34,6 +34,10 @@ const state = {
   rawPositionDeletePreviewToken: 0,
   rawPreviewQualityStatus: null,
   rawLabguruResults: [],
+  externalMatchStatus: null,
+  externalMatchCandidates: [],
+  externalUsers: [],
+  externalCredential: null,
   archiveSettingsStatus: null,
   archivePolicyPreview: null,
   automaticArchivePolicyStatus: null,
@@ -252,6 +256,30 @@ const els = {
   rawPreviewQualityConfig: document.querySelector("#raw-preview-quality-config"),
   rawPreviewQualitySummary: document.querySelector("#raw-preview-quality-summary"),
   rawPreviewQualityTableBody: document.querySelector("#raw-preview-quality-table tbody"),
+  externalMatchCacheCount: document.querySelector("#external-match-cache-count"),
+  externalMatchLinkedCount: document.querySelector("#external-match-linked-count"),
+  externalMatchCandidateCount: document.querySelector("#external-match-candidate-count"),
+  externalMatchLatestSync: document.querySelector("#external-match-latest-sync"),
+  externalMatchGenerationSummary: document.querySelector("#external-match-generation-summary"),
+  externalMatchMinScore: document.querySelector("#external-match-min-score"),
+  externalMatchMaxCandidates: document.querySelector("#external-match-max-candidates"),
+  externalMatchRawLimit: document.querySelector("#external-match-raw-limit"),
+  externalMatchIncludeLinked: document.querySelector("#external-match-include-linked"),
+  externalMatchGenerateButton: document.querySelector("#external-match-generate-button"),
+  externalMatchSyncButton: document.querySelector("#external-match-sync-button"),
+  externalMatchRefreshButton: document.querySelector("#external-match-refresh-button"),
+  externalMatchStatusFilter: document.querySelector("#external-match-status-filter"),
+  externalMatchCandidatesTableBody: document.querySelector("#external-match-candidates-table tbody"),
+  externalUserStatusFilter: document.querySelector("#external-user-status-filter"),
+  externalUsersTableBody: document.querySelector("#external-users-table tbody"),
+  externalCredentialStatus: document.querySelector("#external-credential-status"),
+  externalCredentialExpires: document.querySelector("#external-credential-expires"),
+  externalCredentialVerified: document.querySelector("#external-credential-verified"),
+  externalCredentialError: document.querySelector("#external-credential-error"),
+  externalCredentialToken: document.querySelector("#external-credential-token"),
+  externalCredentialSaveButton: document.querySelector("#external-credential-save-button"),
+  externalCredentialTestButton: document.querySelector("#external-credential-test-button"),
+  externalCredentialDeleteButton: document.querySelector("#external-credential-delete-button"),
   deploymentAwarenessSummary: document.querySelector("#deployment-awareness-summary"),
   deploymentApiStatus: document.querySelector("#deployment-api-status"),
   deploymentDbStatus: document.querySelector("#deployment-db-status"),
@@ -399,6 +427,8 @@ const pageFlags = {
   hasExecutionTargetsView: pageKind === "admin-execution-targets" && Boolean(els.executionTargetsTableBody),
   hasUsersView: pageKind === "admin-users" && Boolean(els.usersTableBody),
   hasSessionsView: pageKind === "admin-sessions" && Boolean(els.sessionsTableBody),
+  hasExternalElnAdminView: pageKind === "admin-external-eln" && Boolean(els.externalMatchCandidatesTableBody),
+  hasExternalSystemsView: pageKind === "external-systems" && Boolean(els.externalCredentialStatus),
   hasIndexingView: Boolean(els.indexJobsTableBody || els.activeIndexJob),
   hasRawDatasetsView: Boolean(els.rawDatasetsTableBody),
   hasRawDatasetPage: pageKind === "raw-dataset",
@@ -430,6 +460,12 @@ function getSidebarActiveRoute() {
   }
   if (pageKind === "admin-backup") {
     return "admin-backup";
+  }
+  if (pageKind === "admin-external-eln") {
+    return "admin-external-eln";
+  }
+  if (pageKind === "external-systems") {
+    return "external-systems";
   }
   if (pageKind === "indexing") {
     return "projects-settings";
@@ -547,6 +583,12 @@ function initializeAppLayout() {
           { label: "Settings", href: "/web/raw-ops.html", route: "datasets-settings" },
         ],
       },
+      {
+        label: "Account",
+        items: [
+          { label: "External Systems", href: "/web/external-systems.html", route: "external-systems" },
+        ],
+      },
     ];
 
     const fragments = [];
@@ -597,6 +639,7 @@ function initializeAppLayout() {
       { label: "Execution Targets", href: "/web/admin-execution-targets.html", route: "admin-execution-targets" },
       { label: "User Accounts", href: "/web/admin-users.html", route: "admin-users" },
       { label: "Sessions", href: "/web/admin-sessions.html", route: "admin-sessions" },
+      { label: "External ELN", href: "/web/admin-external-eln.html", route: "admin-external-eln" },
       { label: "Backup", href: "/web/admin-backup.html", route: "admin-backup" },
     ];
     for (const item of adminItems) {
@@ -773,6 +816,14 @@ function apiGet(path) {
 function apiPost(path, payload) {
   return apiJson(path, {
     method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload || {}),
+  });
+}
+
+function apiPut(path, payload) {
+  return apiJson(path, {
+    method: "PUT",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload || {}),
   });
@@ -1073,6 +1124,19 @@ function labStatusLabel(user) {
   return String(user?.lab_status || "yes");
 }
 
+async function ensureStorageRootsLoaded() {
+  if (!state.storageRoots.length) {
+    state.storageRoots = await apiGet("/storage-roots");
+  }
+  return state.storageRoots;
+}
+
+function findUserHomeStorageRoot() {
+  return state.storageRoots.find((root) => root.name === "user-homes")
+    || state.storageRoots.find((root) => root.root_type === "user_home_root" && root.path_prefix === "/homes")
+    || state.storageRoots.find((root) => root.path_prefix === "/homes");
+}
+
 function fieldValueFromForm(form, name) {
   const field = form.elements.namedItem(name);
   if (!field) {
@@ -1107,6 +1171,14 @@ function openFormDialog({ title, description = "", fields = [], submitLabel = "S
           <label class="field dialog-field">
             <span>${escapeHtml(field.label)}</span>
             <select name="${field.name}" ${required}>${options}</select>
+          </label>
+        `;
+      }
+      if (field.type === "checkbox") {
+        return `
+          <label class="field dialog-field">
+            <span>${escapeHtml(field.label)}</span>
+            <input name="${field.name}" type="checkbox" ${field.value ? "checked" : ""} />
           </label>
         `;
       }
@@ -1234,6 +1306,8 @@ function updateSessionUi() {
     if (els.adminDeniedPanel) {
       els.adminDeniedPanel.classList.toggle("hidden", allowed || !authenticated);
     }
+  } else if (pageFlags.hasExternalSystemsView && els.adminContent) {
+    els.adminContent.classList.toggle("hidden", !authenticated);
   }
 }
 
@@ -4329,6 +4403,15 @@ function renderProjectRawDatasets() {
     `;
     els.projectRawDatasetsList.appendChild(div);
   }
+}
+
+function reportUiError(context, error) {
+  const detail = error instanceof Error ? (error.stack || error.message) : String(error);
+  const message = `${context}: ${detail}`;
+  console.error(message);
+  setStatus(message);
+  window.alert(message);
+}
 function externalLinkLabel(link) {
   const system = String(link?.system_key || "external").toUpperCase();
   const title = link?.title || link?.external_id || "linked record";
@@ -4352,9 +4435,35 @@ function renderExternalLinkList(container, links, emptyText) {
       <div class="stack-item-meta">${escapeHtml(link.system_key)} | ${escapeHtml(link.status)}</div>
       <a href="${escapeHtml(link.external_url)}" target="_blank" rel="noreferrer">${escapeHtml(externalLinkLabel(link))}</a>
       <div class="stack-item-meta">${escapeHtml(link.external_id || "")}</div>
+      ${externalLinkTextHtml(link)}
     `;
     container.appendChild(div);
   }
+}
+
+function externalLinkTextHtml(link) {
+  const sections = link?.payload_json?.labguru_text || {};
+  const sectionOrder = [
+    ["description", "Description"],
+    ["procedure", "Procedure"],
+    ["results", "Results"],
+  ];
+  const rendered = sectionOrder
+    .map(([key, label]) => {
+      const value = sections[key];
+      if (!value) {
+        return "";
+      }
+      return `
+        <details class="external-text-section">
+          <summary>${escapeHtml(label)}</summary>
+          <div class="notes-block">${escapeHtml(value)}</div>
+        </details>
+      `;
+    })
+    .filter(Boolean)
+    .join("");
+  return rendered ? `<div class="external-text-sections">${rendered}</div>` : "";
 }
 
 function rawExternalLinks() {
@@ -4408,6 +4517,156 @@ function renderRawLabguruResults() {
   }
 }
 
+function renderExternalElnMatching() {
+  const status = state.externalMatchStatus || {};
+  if (els.externalMatchCacheCount) els.externalMatchCacheCount.textContent = `${status.experiment_count ?? "-"}`;
+  if (els.externalMatchLinkedCount) els.externalMatchLinkedCount.textContent = `${status.linked_experiment_count ?? "-"}`;
+  if (els.externalMatchCandidateCount) els.externalMatchCandidateCount.textContent = `${state.externalMatchCandidates.length}`;
+  if (els.externalMatchLatestSync) {
+    els.externalMatchLatestSync.textContent = status.latest_sync_at ? formatTimestamp(status.latest_sync_at) : "-";
+  }
+  renderExternalMatchCandidatesTable();
+  renderExternalUsersTable();
+}
+
+function renderExternalMatchCandidatesTable() {
+  if (!els.externalMatchCandidatesTableBody) {
+    return;
+  }
+  els.externalMatchCandidatesTableBody.innerHTML = "";
+  if (!state.externalMatchCandidates.length) {
+    els.externalMatchCandidatesTableBody.innerHTML = `<tr><td colspan="6" class="muted">No candidates loaded.</td></tr>`;
+    return;
+  }
+  for (const candidate of state.externalMatchCandidates) {
+    const raw = candidate.raw_dataset || {};
+    const external = candidate.external_experiment || {};
+    const evidence = candidate.evidence_json || {};
+    const tr = document.createElement("tr");
+    const evidenceText = [
+      evidence.label_signal || "",
+      evidence.date_match ? `date ${evidence.raw_date}` : "",
+      evidence.owner_match ? "owner" : "",
+    ].filter(Boolean).join(" | ");
+    const rawHref = `/web/raw-dataset.html?id=${encodeURIComponent(raw.id || "")}`;
+    const labguruLink = external.external_url
+      ? `<a href="${escapeHtml(external.external_url)}" target="_blank" rel="noreferrer">${escapeHtml(external.title || external.external_id || "")}</a>`
+      : escapeHtml(external.title || external.external_id || "");
+    tr.innerHTML = `
+      <td>${Math.round(Number(candidate.score || 0) * 100)}%</td>
+      <td>
+        <a href="${escapeHtml(rawHref)}">${escapeHtml(raw.acquisition_label || "")}</a>
+        <div class="stack-item-meta">${escapeHtml(raw.owner?.display_name || "")} ${raw.microscope_name ? `| ${escapeHtml(raw.microscope_name)}` : ""}</div>
+      </td>
+      <td>
+        ${labguruLink}
+        <div class="stack-item-meta">${escapeHtml(external.external_id || "")} ${external.owner_name ? `| ${escapeHtml(external.owner_name)}` : ""}</div>
+      </td>
+      <td>
+        <div>${escapeHtml(evidenceText || candidate.match_method || "")}</div>
+        <div class="stack-item-meta">tokens ${escapeHtml(String(evidence.token_overlap ?? ""))} | seq ${escapeHtml(String(evidence.sequence_ratio ?? ""))}</div>
+      </td>
+      <td>${escapeHtml(candidate.status || "")}</td>
+      <td><div class="action-stack"></div></td>
+    `;
+    const actions = tr.querySelector(".action-stack");
+    if (actions && candidate.status !== "accepted") {
+      const acceptButton = document.createElement("button");
+      acceptButton.className = "primary";
+      acceptButton.textContent = "Accept";
+      acceptButton.addEventListener("click", () => reviewExternalMatchCandidate(candidate.id, "accept").catch((error) => {
+        setStatus(String(error));
+        window.alert(String(error));
+      }));
+      actions.appendChild(acceptButton);
+    }
+    if (actions && candidate.status !== "rejected") {
+      const rejectButton = document.createElement("button");
+      rejectButton.textContent = "Reject";
+      rejectButton.addEventListener("click", () => reviewExternalMatchCandidate(candidate.id, "reject").catch((error) => {
+        setStatus(String(error));
+        window.alert(String(error));
+      }));
+      actions.appendChild(rejectButton);
+    }
+    els.externalMatchCandidatesTableBody.appendChild(tr);
+  }
+}
+
+function renderExternalUsersTable() {
+  if (!els.externalUsersTableBody) {
+    return;
+  }
+  els.externalUsersTableBody.innerHTML = "";
+  if (!state.externalUsers.length) {
+    els.externalUsersTableBody.innerHTML = `<tr><td colspan="5" class="muted">No users loaded.</td></tr>`;
+    return;
+  }
+  for (const record of state.externalUsers) {
+    const matched = record.matched_user || null;
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>
+        <div>${escapeHtml(record.display_name || "")}</div>
+        <div class="stack-item-meta">${escapeHtml(record.external_id || "")}</div>
+      </td>
+      <td>${escapeHtml(record.email || "")}</td>
+      <td>${matched ? `${escapeHtml(matched.display_name)}<div class="stack-item-meta">${escapeHtml(matched.user_key || "")}</div>` : `<span class="muted">Unmatched</span>`}</td>
+      <td>${escapeHtml(record.match_status || "")}</td>
+      <td><div class="action-stack"></div></td>
+    `;
+    const actions = tr.querySelector(".action-stack");
+    if (actions) {
+      const matchButton = document.createElement("button");
+      matchButton.className = "primary";
+      matchButton.textContent = matched ? "Change" : "Match";
+      matchButton.addEventListener("click", () => matchExternalUser(record.id).catch((error) => {
+        setStatus(String(error));
+        window.alert(String(error));
+      }));
+      actions.appendChild(matchButton);
+
+      if (matched || record.match_status === "ignored") {
+        const clearButton = document.createElement("button");
+        clearButton.textContent = "Clear";
+        clearButton.addEventListener("click", () => updateExternalUserMatch(record.id, "clear").catch((error) => {
+          setStatus(String(error));
+          window.alert(String(error));
+        }));
+        actions.appendChild(clearButton);
+      }
+
+      if (record.match_status !== "ignored") {
+        const ignoreButton = document.createElement("button");
+        ignoreButton.textContent = "Ignore";
+        ignoreButton.addEventListener("click", () => updateExternalUserMatch(record.id, "ignore").catch((error) => {
+          setStatus(String(error));
+          window.alert(String(error));
+        }));
+        actions.appendChild(ignoreButton);
+      }
+    }
+    els.externalUsersTableBody.appendChild(tr);
+  }
+}
+
+function renderExternalCredential() {
+  const credential = state.externalCredential || { status: "missing" };
+  if (els.externalCredentialStatus) {
+    els.externalCredentialStatus.textContent = credential.status || "missing";
+  }
+  if (els.externalCredentialExpires) {
+    const expiry = credential.expires_at ? formatTimestamp(credential.expires_at) : "-";
+    const days = credential.days_until_expiry == null ? "" : ` (${credential.days_until_expiry} days)`;
+    els.externalCredentialExpires.textContent = `${expiry}${days}`;
+  }
+  if (els.externalCredentialVerified) {
+    els.externalCredentialVerified.textContent = credential.last_verified_at ? formatTimestamp(credential.last_verified_at) : "-";
+  }
+  if (els.externalCredentialError) {
+    els.externalCredentialError.textContent = credential.last_error || "";
+    els.externalCredentialError.classList.toggle("hidden", !credential.last_error);
+  }
 }
 
 function renderUsers() {
@@ -4425,16 +4684,24 @@ function renderUsers() {
       <td>${escapeHtml(labStatusLabel(user))}</td>
       <td>${user.admin_portal_access ? "yes" : "no"}</td>
       <td title="${escapeHtml(user.default_path || "")}">${escapeHtml(user.default_path || "")}</td>
+      <td>${user.storage_quota_bytes ? humanBytes(user.storage_quota_bytes) : ""}</td>
       <td>${user.is_active ? "yes" : "no"}</td>
       <td>${humanBytes(user.project_bytes || 0)}</td>
       <td>${humanBytes(user.raw_dataset_bytes || 0)}</td>
       <td>${humanBytes((user.project_bytes || 0) + (user.raw_dataset_bytes || 0))}</td>
-      <td><button type="button" class="user-edit-button">Settings</button></td>
+      <td>
+        <button type="button" class="user-edit-button">Settings</button>
+        ${hasAdminPrivileges() ? `<button type="button" class="user-delete-button">Delete</button>` : ""}
+      </td>
     `;
     tr.addEventListener("click", () => editUser(user));
     tr.querySelector(".user-edit-button")?.addEventListener("click", (event) => {
       event.stopPropagation();
       editUser(user).catch((error) => setStatus(String(error)));
+    });
+    tr.querySelector(".user-delete-button")?.addEventListener("click", (event) => {
+      event.stopPropagation();
+      deleteUser(user).catch((error) => setStatus(String(error)));
     });
     els.usersTableBody.appendChild(tr);
   }
@@ -4601,7 +4868,7 @@ async function refreshDashboard() {
   } else {
     bootstrapTasks.push(Promise.resolve([]));
   }
-  if (pageFlags.hasStorageRootFilter || pageFlags.hasIndexForm) {
+  if (pageFlags.hasStorageRootFilter || pageFlags.hasIndexForm || pageFlags.hasUsersView) {
     bootstrapTasks.push(apiGet("/storage-roots"));
   } else {
     bootstrapTasks.push(Promise.resolve([]));
@@ -4680,6 +4947,12 @@ async function refreshDashboard() {
   }
   if (pageFlags.hasSessionsView && isAdmin()) {
     refreshTasks.push(refreshSessions());
+  }
+  if (pageFlags.hasExternalElnAdminView && isAdmin()) {
+    refreshTasks.push(refreshExternalElnMatching());
+  }
+  if (pageFlags.hasExternalSystemsView) {
+    refreshTasks.push(refreshExternalCredential());
   }
   if (pageFlags.hasIndexingView) {
     refreshTasks.push(refreshIndexingJobs());
@@ -5052,32 +5325,37 @@ async function selectMigrationPlan(planId) {
 }
 
 async function selectRawDataset(rawDatasetId, options = {}) {
-  const hydrateDetail = options.hydrateDetail ?? pageFlags.hasRawDatasetPage;
-  if (!state.selectedRawDatasetDetail || `${state.selectedRawDatasetDetail.id}` !== `${rawDatasetId}`) {
-    state.selectedRawPositionIds = [];
-    closeRawPositionDeletePanel();
-  }
-  const raw = state.rawDatasets.find((item) => item.id === rawDatasetId);
-  if (!hydrateDetail) {
-    if (!raw) {
+  try {
+    const hydrateDetail = options.hydrateDetail ?? pageFlags.hasRawDatasetPage;
+    if (!state.selectedRawDatasetDetail || `${state.selectedRawDatasetDetail.id}` !== `${rawDatasetId}`) {
+      state.selectedRawPositionIds = [];
+      closeRawPositionDeletePanel();
+    }
+    const raw = state.rawDatasets.find((item) => item.id === rawDatasetId);
+    if (!hydrateDetail) {
+      if (!raw) {
+        return;
+      }
+      state.selectedRawDatasetDetail = raw;
+      state.selectedRawDataset = raw;
+      if ((rawDatasetId === getRawDatasetPageId() || pageFlags.hasRawDatasetPage) && els.rawDetailSubtitle) {
+        document.title = `Detecdiv server - ${raw.acquisition_label}`;
+      }
+      renderRawDatasets();
+      renderRawDatasetDetail();
       return;
     }
-    state.selectedRawDatasetDetail = raw;
-    state.selectedRawDataset = raw;
+    state.selectedRawDatasetDetail = await apiGet(`/raw-datasets/${rawDatasetId}`);
+    state.selectedRawDataset = raw || state.selectedRawDatasetDetail;
     if ((rawDatasetId === getRawDatasetPageId() || pageFlags.hasRawDatasetPage) && els.rawDetailSubtitle) {
-      document.title = `Detecdiv server - ${raw.acquisition_label}`;
+      document.title = `Detecdiv server - ${state.selectedRawDatasetDetail.acquisition_label}`;
     }
     renderRawDatasets();
     renderRawDatasetDetail();
-    return;
+  } catch (error) {
+    reportUiError(`Raw dataset selection failed (${rawDatasetId})`, error);
+    throw error;
   }
-  state.selectedRawDatasetDetail = await apiGet(`/raw-datasets/${rawDatasetId}`);
-  state.selectedRawDataset = raw || state.selectedRawDatasetDetail;
-  if ((rawDatasetId === getRawDatasetPageId() || pageFlags.hasRawDatasetPage) && els.rawDetailSubtitle) {
-    document.title = `Detecdiv server - ${state.selectedRawDatasetDetail.acquisition_label}`;
-  }
-  renderRawDatasets();
-  renderRawDatasetDetail();
 }
 
 async function refreshPipelines() {
@@ -5151,20 +5429,25 @@ async function refreshSessions() {
 }
 
 async function selectProject(projectId) {
-  const project = state.projects.find((item) => item.id === projectId);
-  if (!project) {
-    return;
+  try {
+    const project = state.projects.find((item) => item.id === projectId);
+    if (!project) {
+      return;
+    }
+    state.selectedProject = project;
+    const [detail, acl] = await Promise.all([
+      apiGet(`/projects/${projectId}`),
+      apiGet(`/projects/${projectId}/acl`),
+    ]);
+    state.selectedProjectDetail = detail;
+    state.acl = acl;
+    renderProjects();
+    renderDetail();
+    renderPipelineRunBuilder();
+  } catch (error) {
+    reportUiError(`Project selection failed (${projectId})`, error);
+    throw error;
   }
-  state.selectedProject = project;
-  const [detail, acl] = await Promise.all([
-    apiGet(`/projects/${projectId}`),
-    apiGet(`/projects/${projectId}/acl`),
-  ]);
-  state.selectedProjectDetail = detail;
-  state.acl = acl;
-  renderProjects();
-  renderDetail();
-  renderPipelineRunBuilder();
 }
 
 async function createGroup() {
@@ -5223,6 +5506,10 @@ async function saveRawDatasetNotes() {
   state.selectedRawDataset = saved;
   state.rawDatasets = state.rawDatasets.map((raw) => (raw.id === saved.id ? saved : raw));
   renderRawDatasets();
+  renderRawDatasetDetail();
+  setStatus("Raw dataset notes saved.");
+}
+
 async function searchLabguruForSelectedRawDataset() {
   if (!state.selectedRawDatasetDetail) {
     throw new Error("Load a raw dataset before searching Labguru.");
@@ -5251,8 +5538,159 @@ async function linkSelectedRawDatasetToLabguru(externalExperimentId) {
   setStatus(`Linked Labguru experiment ${result.external_link.external_id}.`);
 }
 
-  renderRawDatasetDetail();
-  setStatus("Raw dataset notes saved.");
+async function refreshExternalElnMatching() {
+  if (!pageFlags.hasExternalElnAdminView) {
+    return;
+  }
+  const statusFilter = els.externalMatchStatusFilter?.value || "proposed";
+  const params = new URLSearchParams();
+  if (statusFilter) {
+    params.set("status_filter", statusFilter);
+  }
+  params.set("limit", "250");
+  const userParams = new URLSearchParams();
+  const userStatusFilter = els.externalUserStatusFilter?.value || "";
+  if (userStatusFilter) {
+    userParams.set("match_status", userStatusFilter);
+  }
+  userParams.set("limit", "1000");
+  const [status, candidates, externalUsers, hubUsers] = await Promise.all([
+    apiGet("/external-systems/labguru/status"),
+    apiGet(`/external-systems/labguru/match-candidates?${params.toString()}`),
+    apiGet(`/external-systems/labguru/users?${userParams.toString()}`),
+    apiGet("/users?all_users=true"),
+  ]);
+  state.externalMatchStatus = status;
+  state.externalMatchCandidates = candidates;
+  state.externalUsers = externalUsers;
+  state.users = hubUsers;
+  renderExternalElnMatching();
+}
+
+async function refreshExternalCredential() {
+  if (!pageFlags.hasExternalSystemsView) {
+    return;
+  }
+  state.externalCredential = await apiGet("/external-systems/labguru/credentials/me");
+  renderExternalCredential();
+}
+
+async function saveExternalCredential() {
+  const token = (els.externalCredentialToken?.value || "").trim();
+  if (!token) {
+    throw new Error("Labguru token is required.");
+  }
+  state.externalCredential = await apiPut("/external-systems/labguru/credentials/me", {
+    token,
+    expires_in_days: 30,
+  });
+  if (els.externalCredentialToken) {
+    els.externalCredentialToken.value = "";
+  }
+  renderExternalCredential();
+  setStatus("Labguru token stored.");
+}
+
+async function testExternalCredential() {
+  const result = await apiPost("/external-systems/labguru/credentials/me/test", {});
+  await refreshExternalCredential();
+  setStatus(result.message || `Labguru token ${result.status}.`);
+}
+
+async function deleteExternalCredential() {
+  if (!window.confirm("Remove your stored Labguru token?")) {
+    return;
+  }
+  await apiDelete("/external-systems/labguru/credentials/me");
+  state.externalCredential = { system_key: "labguru", status: "missing" };
+  renderExternalCredential();
+  setStatus("Labguru token removed.");
+}
+
+async function generateExternalMatchCandidates() {
+  const payload = {
+    min_score: Number(els.externalMatchMinScore?.value || 0.45),
+    max_candidates_per_dataset: Number(els.externalMatchMaxCandidates?.value || 5),
+    include_linked: Boolean(els.externalMatchIncludeLinked?.checked),
+    reset_proposed: true,
+  };
+  const rawLimit = Number(els.externalMatchRawLimit?.value || 0);
+  if (rawLimit > 0) {
+    payload.limit_raw_datasets = rawLimit;
+  }
+  if (els.externalMatchGenerationSummary) {
+    els.externalMatchGenerationSummary.textContent = "Generating...";
+  }
+  const result = await apiPost("/external-systems/labguru/match-candidates/generate", payload);
+  if (els.externalMatchGenerationSummary) {
+    els.externalMatchGenerationSummary.textContent = `${result.candidate_count} candidates, ${result.created_count} created, ${result.updated_count} updated.`;
+  }
+  await refreshExternalElnMatching();
+}
+
+async function queueExternalElnSync() {
+  if (els.externalMatchGenerationSummary) {
+    els.externalMatchGenerationSummary.textContent = "Queueing Labguru sync...";
+  }
+  const result = await apiPost("/external-systems/labguru/sync", { priority: 100 });
+  if (els.externalMatchGenerationSummary) {
+    els.externalMatchGenerationSummary.textContent = `${result.message} Job ${result.job_id}.`;
+  }
+  setStatus(result.message || "Labguru sync queued.");
+  await refreshExternalElnMatching();
+}
+
+async function reviewExternalMatchCandidate(candidateId, action) {
+  if (action === "accept") {
+    const candidate = state.externalMatchCandidates.find((item) => item.id === candidateId);
+    const rawLabel = candidate?.raw_dataset?.acquisition_label || "this raw dataset";
+    const externalTitle = candidate?.external_experiment?.title || candidate?.external_id || "this Labguru experiment";
+    if (!window.confirm(`Write this Labguru link?\n\n${rawLabel}\n${externalTitle}`)) {
+      return;
+    }
+  }
+  const result = await apiPost(`/external-systems/labguru/match-candidates/${candidateId}/review`, { action });
+  await refreshExternalElnMatching();
+  setStatus(action === "accept" && result.linked ? "Labguru link accepted and written." : `Candidate ${action}ed.`);
+}
+
+async function matchExternalUser(externalUserRecordId) {
+  const record = state.externalUsers.find((item) => item.id === externalUserRecordId);
+  const users = state.users.length ? state.users : await apiGet("/users?all_users=true");
+  state.users = users;
+  const options = users
+    .filter((user) => user.is_active)
+    .map((user) => ({ value: user.id, label: userOptionLabel(user) }));
+  const values = await openFormDialog({
+    title: "Match Labguru user",
+    description: record?.display_name || "",
+    submitLabel: "Save match",
+    fields: [
+      {
+        name: "matchedUserId",
+        label: "DetecDiv Hub user",
+        type: options.length ? "select" : "text",
+        value: record?.matched_user?.id || "",
+        options,
+        required: true,
+      },
+    ],
+  });
+  const matchedUserId = values?.matchedUserId?.trim();
+  if (!matchedUserId) {
+    return;
+  }
+  await updateExternalUserMatch(externalUserRecordId, "match", matchedUserId);
+}
+
+async function updateExternalUserMatch(externalUserRecordId, action, matchedUserId = "") {
+  const params = new URLSearchParams({ action });
+  if (matchedUserId) {
+    params.set("matched_user_id", matchedUserId);
+  }
+  await apiPatch(`/external-systems/labguru/users/${externalUserRecordId}?${params.toString()}`, {});
+  await refreshExternalElnMatching();
+  setStatus(action === "match" ? "Labguru user match saved." : `Labguru user ${action}ed.`);
 }
 
 async function changeRawDatasetOwner() {
@@ -6700,27 +7138,108 @@ async function createUser() {
   if (!isAdmin()) {
     throw new Error("Admin role required.");
   }
-  const userKey = window.prompt("User key");
-  if (!userKey) {
+  await ensureStorageRootsLoaded();
+  const values = await openFormDialog({
+    title: "New account",
+    fields: [
+      { name: "userKey", label: "User key", required: true },
+      { name: "displayName", label: "Display name" },
+      {
+        name: "role",
+        label: "Role",
+        type: "select",
+        value: "user",
+        options: [
+          { value: "user", label: "user" },
+          { value: "admin", label: "admin" },
+          { value: "service", label: "service" },
+        ],
+      },
+      {
+        name: "labStatus",
+        label: "Lab status",
+        type: "select",
+        value: "yes",
+        options: [
+          { value: "yes", label: "yes" },
+          { value: "alumni", label: "alumni" },
+        ],
+      },
+      { name: "defaultPath", label: "Default path" },
+      { name: "adminPortalAccess", label: "Admin portal access", type: "checkbox", value: false },
+      { name: "password", label: "Hub temporary password", type: "password" },
+      { name: "provisionSynology", label: "Provision Synology storage", type: "checkbox", value: true },
+      { name: "synologyUserKey", label: "Synology user key" },
+      { name: "synologyInitialPassword", label: "Synology initial password", type: "password" },
+      { name: "quotaGb", label: "Synology quota GB", type: "number", value: "100" },
+    ],
+    submitLabel: "Create account",
+  });
+  if (!values) {
     return;
   }
-  const displayName = window.prompt("Display name", userKey) || userKey;
-  const role = window.prompt("Role (user/admin/service)", "user") || "user";
-  const labStatus = window.prompt("Lab status (yes/alumni)", "yes") || "yes";
-  const defaultPath = window.prompt("Default path", "") || null;
-  const adminPortalAccess = window.confirm("Allow admin portal access for this account?");
-  const password = window.prompt("Temporary password", "");
-  await apiPost("/users", {
+  const userKey = String(values.userKey || "").trim();
+  if (!userKey) {
+    throw new Error("User key is required.");
+  }
+  const providerUserKey = String(values.synologyUserKey || userKey).trim();
+  const provisionSynology = Boolean(values.provisionSynology);
+  const homeRoot = findUserHomeStorageRoot();
+  if (provisionSynology && !homeRoot) {
+    throw new Error("No /homes storage root is configured in the hub.");
+  }
+  if (provisionSynology && !String(values.synologyInitialPassword || "").trim()) {
+    throw new Error("Synology initial password is required when provisioning Synology storage.");
+  }
+  const quotaGb = Number(values.quotaGb || 0);
+  const quotaBytes = Number.isFinite(quotaGb) && quotaGb > 0 ? Math.round(quotaGb * 1024 * 1024 * 1024) : null;
+  const defaultPath = String(values.defaultPath || "").trim()
+    || (provisionSynology ? `/homes/${providerUserKey}/DetecDiv` : "");
+  const createdUser = await apiPost("/users", {
     user_key: userKey,
-    display_name: displayName,
-    role,
+    display_name: String(values.displayName || userKey).trim() || userKey,
+    role: String(values.role || "user").trim() || "user",
     is_active: true,
-    admin_portal_access: adminPortalAccess,
-    lab_status: labStatus,
-    default_path: defaultPath,
-    password: password || null,
+    admin_portal_access: Boolean(values.adminPortalAccess),
+    lab_status: String(values.labStatus || "yes").trim() || "yes",
+    default_path: defaultPath || null,
+    password: String(values.password || "").trim() || null,
     metadata_json: {},
   });
+  if (provisionSynology) {
+    const account = await apiPost(`/storage/users/${createdUser.id}/home-account`, {
+      provider_key: "synology-main",
+      provider_user_key: providerUserKey,
+      home_storage_root_id: homeRoot.id,
+      home_relative_path: `${providerUserKey}/DetecDiv`,
+      quota_bytes: quotaBytes,
+      create_missing_provider: false,
+    });
+    const ensured = await apiPost(`/storage/user-accounts/${account.id}/synology/ensure-user`, {
+      create_missing: true,
+      initial_password: String(values.synologyInitialPassword || "").trim(),
+      display_name: createdUser.display_name,
+      email: createdUser.email || null,
+      groups: [],
+    });
+    if (!ensured.success) {
+      throw new Error(ensured.message || "Synology user provisioning failed.");
+    }
+    if (quotaBytes) {
+      await apiPost(`/storage/user-accounts/${account.id}/synology/quota`, {
+        quota_bytes: quotaBytes,
+      });
+    }
+    const prepared = await apiPost(`/storage/user-accounts/${account.id}/prepare`, {
+      create_directories: true,
+      subdirectories: ["projects", "raw", "artifacts", "exports"],
+      requested_mode: "server",
+      priority: 80,
+    });
+    await refreshUsers();
+    setStatus(`Created user ${userKey}. Synology user ${ensured.provider_user_key} ${ensured.created ? "created" : "verified"}; home preparation job ${prepared.job_id} queued.`);
+    return;
+  }
   await refreshUsers();
   setStatus(`Created user ${userKey}.`);
 }
@@ -6779,6 +7298,12 @@ async function editUser(user) {
           label: "Reset password",
           type: "password",
         },
+        {
+          name: "quotaGb",
+          label: "Synology quota GB",
+          type: "number",
+          value: user.storage_quota_bytes ? String(Math.round(Number(user.storage_quota_bytes) / (1024 * 1024 * 1024))) : "",
+        },
       ]
     : [];
   const values = await openFormDialog({
@@ -6810,8 +7335,40 @@ async function editUser(user) {
     payload.password = values.password.trim();
   }
   await apiPatch(`/users/${user.id}`, payload);
+  let quotaMessage = "";
+  if (hasAdminPrivileges() && user.storage_account_id) {
+    const quotaText = String(values.quotaGb || "").trim();
+    if (quotaText) {
+      const quotaGb = Number(quotaText);
+      if (!Number.isFinite(quotaGb) || quotaGb <= 0) {
+        throw new Error("Synology quota must be greater than zero.");
+      }
+      const quotaResult = await apiPost(`/storage/user-accounts/${user.storage_account_id}/synology/quota`, {
+        quota_bytes: Math.round(quotaGb * 1024 * 1024 * 1024),
+      });
+      quotaMessage = quotaResult.message ? ` ${quotaResult.message}` : "";
+    }
+  }
   await refreshUsers();
-  setStatus(`Updated user ${user.user_key}.`);
+  setStatus(`Updated user ${user.user_key}.${quotaMessage}`);
+}
+
+async function deleteUser(user) {
+  if (!hasAdminPrivileges()) {
+    throw new Error("Admin role required.");
+  }
+  if (state.currentUser?.id === user.id) {
+    throw new Error("Cannot delete the current session user.");
+  }
+  const deleteSynology = Boolean(user.storage_account_id)
+    && window.confirm(`Also delete Synology user ${user.storage_provider_user_key || user.user_key}? Home data will not be deleted by the hub.`);
+  const ok = window.confirm(`Deactivate hub user ${user.user_key}? This hides the account from active user lists.`);
+  if (!ok) {
+    return;
+  }
+  const result = await apiDelete(`/users/${user.id}?confirm=true&delete_synology_user=${deleteSynology ? "true" : "false"}`);
+  await refreshUsers();
+  setStatus(result.message || `Deleted user ${user.user_key}.`);
 }
 
 async function changeMyPassword() {
@@ -6928,6 +7485,8 @@ async function forceRefreshCurrentPage() {
     pageFlags.hasPipelinesView ||
     pageFlags.hasUsersView ||
     pageFlags.hasSessionsView ||
+    pageFlags.hasExternalElnAdminView ||
+    pageFlags.hasExternalSystemsView ||
     pageFlags.hasProjectPage
   ) {
     await refreshDashboard();
@@ -7018,6 +7577,29 @@ if (els.rawLabguruSearch) els.rawLabguruSearch.addEventListener("keydown", (even
     searchLabguruForSelectedRawDataset().catch((error) => setStatus(String(error)));
   }
 });
+if (els.externalMatchGenerateButton) els.externalMatchGenerateButton.addEventListener("click", () => generateExternalMatchCandidates().catch((error) => {
+  setStatus(String(error));
+  window.alert(String(error));
+}));
+if (els.externalMatchSyncButton) els.externalMatchSyncButton.addEventListener("click", () => queueExternalElnSync().catch((error) => {
+  setStatus(String(error));
+  window.alert(String(error));
+}));
+if (els.externalMatchRefreshButton) els.externalMatchRefreshButton.addEventListener("click", () => refreshExternalElnMatching().catch((error) => setStatus(String(error))));
+if (els.externalMatchStatusFilter) els.externalMatchStatusFilter.addEventListener("change", () => refreshExternalElnMatching().catch((error) => setStatus(String(error))));
+if (els.externalUserStatusFilter) els.externalUserStatusFilter.addEventListener("change", () => refreshExternalElnMatching().catch((error) => setStatus(String(error))));
+if (els.externalCredentialSaveButton) els.externalCredentialSaveButton.addEventListener("click", () => saveExternalCredential().catch((error) => {
+  setStatus(String(error));
+  window.alert(String(error));
+}));
+if (els.externalCredentialTestButton) els.externalCredentialTestButton.addEventListener("click", () => testExternalCredential().catch((error) => {
+  setStatus(String(error));
+  window.alert(String(error));
+}));
+if (els.externalCredentialDeleteButton) els.externalCredentialDeleteButton.addEventListener("click", () => deleteExternalCredential().catch((error) => {
+  setStatus(String(error));
+  window.alert(String(error));
+}));
 if (els.newGroupButton) els.newGroupButton.addEventListener("click", () => createGroup().catch((error) => setStatus(String(error))));
 if (els.projectNotesSaveButton) els.projectNotesSaveButton.addEventListener("click", () => saveProjectNotes().catch((error) => setStatus(String(error))));
 if (els.rawDatasetNotesSaveButton) els.rawDatasetNotesSaveButton.addEventListener("click", () => saveRawDatasetNotes().catch((error) => setStatus(String(error))));

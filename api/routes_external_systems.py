@@ -11,13 +11,39 @@ from api.db import get_db
 from api.models import ExternalExperimentRecord, ExternalUserRecord, Job, User
 from api.schemas import (
     ExternalExperimentRecordSummary,
+    ExternalMatchCandidateGenerateRequest,
+    ExternalMatchCandidateGenerateResult,
+    ExternalMatchCandidateReviewRequest,
+    ExternalMatchCandidateReviewResult,
+    ExternalMatchCandidateSummary,
     ExternalSystemStatus,
     ExternalSystemSyncQueueResult,
     ExternalSystemSyncRequest,
+    ExternalUserCredentialSummary,
+    ExternalUserCredentialTestResult,
+    ExternalUserCredentialUpsertRequest,
     ExternalUserRecordSummary,
 )
-from api.services.external_eln import external_system_status, search_external_experiments
+from api.services.external_credentials import (
+    delete_user_credential,
+    external_credential_summary,
+    get_user_credential,
+    test_user_credential,
+    upsert_user_credential,
+)
+from api.services.external_eln import (
+    external_link_summary_from_publication,
+    external_system_status,
+    linked_experiment_summary_view,
+    search_external_experiments,
+)
 from api.services.external_eln_clients import normalize_system_key
+from api.services.external_eln_matching import (
+    external_match_candidate_summary,
+    generate_external_match_candidates,
+    list_external_match_candidates,
+    review_external_match_candidate,
+)
 from api.services.users import get_current_user
 
 
@@ -80,6 +106,67 @@ def list_external_experiments(
     return search_external_experiments(db, system_key=normalized, search=search, limit=limit)
 
 
+@router.get("/{system_key}/credentials/me", response_model=ExternalUserCredentialSummary)
+def get_my_external_credential(
+    system_key: str,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> ExternalUserCredentialSummary:
+    normalized = normalize_or_400(system_key)
+    credential = get_user_credential(db, user=current_user, system_key=normalized)
+    return external_credential_summary(credential, system_key=normalized)
+
+
+@router.put("/{system_key}/credentials/me", response_model=ExternalUserCredentialSummary)
+def upsert_my_external_credential(
+    system_key: str,
+    payload: ExternalUserCredentialUpsertRequest,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> ExternalUserCredentialSummary:
+    normalized = normalize_or_400(system_key)
+    try:
+        credential = upsert_user_credential(
+            db,
+            user=current_user,
+            system_key=normalized,
+            token=payload.token,
+            expires_in_days=payload.expires_in_days,
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc
+    db.commit()
+    db.refresh(credential)
+    return external_credential_summary(credential, system_key=normalized)
+
+
+@router.post("/{system_key}/credentials/me/test", response_model=ExternalUserCredentialTestResult)
+def test_my_external_credential(
+    system_key: str,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> ExternalUserCredentialTestResult:
+    normalized = normalize_or_400(system_key)
+    try:
+        result = test_user_credential(db, user=current_user, system_key=normalized)
+    except LookupError as exc:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
+    db.commit()
+    return result
+
+
+@router.delete("/{system_key}/credentials/me")
+def delete_my_external_credential(
+    system_key: str,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> dict:
+    normalized = normalize_or_400(system_key)
+    deleted = delete_user_credential(db, user=current_user, system_key=normalized)
+    db.commit()
+    return {"status": "deleted" if deleted else "missing", "system_key": normalized}
+
+
 @router.get("/{system_key}/users", response_model=list[ExternalUserRecordSummary])
 def list_external_users(
     system_key: str,
@@ -103,10 +190,90 @@ def list_external_users(
     return list(db.scalars(stmt))
 
 
+@router.post("/{system_key}/match-candidates/generate", response_model=ExternalMatchCandidateGenerateResult)
+def generate_match_candidates(
+    system_key: str,
+    payload: ExternalMatchCandidateGenerateRequest,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> ExternalMatchCandidateGenerateResult:
+    if current_user.role not in {"admin", "service"}:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="External matching requires admin role")
+    normalized = normalize_or_400(system_key)
+    result = generate_external_match_candidates(
+        db,
+        system_key=normalized,
+        max_candidates_per_dataset=payload.max_candidates_per_dataset,
+        min_score=payload.min_score,
+        limit_raw_datasets=payload.limit_raw_datasets,
+        include_linked=payload.include_linked,
+        reset_proposed=payload.reset_proposed,
+    )
+    db.commit()
+    return result
+
+
+@router.get("/{system_key}/match-candidates", response_model=list[ExternalMatchCandidateSummary])
+def get_match_candidates(
+    system_key: str,
+    status_filter: str | None = None,
+    limit: int = 100,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> list[ExternalMatchCandidateSummary]:
+    if current_user.role not in {"admin", "service"}:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="External matching requires admin role")
+    normalized = normalize_or_400(system_key)
+    candidates = list_external_match_candidates(db, system_key=normalized, status=status_filter, limit=limit)
+    return [external_match_candidate_summary(candidate) for candidate in candidates]
+
+
+@router.post(
+    "/{system_key}/match-candidates/{candidate_id}/review",
+    response_model=ExternalMatchCandidateReviewResult,
+)
+def review_match_candidate(
+    system_key: str,
+    candidate_id: UUID,
+    payload: ExternalMatchCandidateReviewRequest,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> ExternalMatchCandidateReviewResult:
+    if current_user.role not in {"admin", "service"}:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="External matching requires admin role")
+    normalized = normalize_or_400(system_key)
+    try:
+        candidate, linked, experiment, publication = review_external_match_candidate(
+            db,
+            candidate_id=candidate_id,
+            system_key=normalized,
+            action=payload.action,
+            reviewed_by=current_user,
+            note=payload.note,
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc
+    except LookupError as exc:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
+    db.commit()
+    db.refresh(candidate)
+    result = ExternalMatchCandidateReviewResult(
+        candidate=external_match_candidate_summary(candidate),
+        linked=linked,
+    )
+    if linked and experiment is not None and publication is not None:
+        db.refresh(experiment)
+        db.refresh(publication)
+        result.experiment_project = linked_experiment_summary_view(experiment)
+        result.external_link = external_link_summary_from_publication(publication)
+    return result
+
+
 @router.patch("/{system_key}/users/{external_user_record_id}", response_model=ExternalUserRecordSummary)
 def update_external_user_match(
     system_key: str,
     external_user_record_id: UUID,
+    action: str = "match",
     matched_user_id: UUID | None = None,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
@@ -121,15 +288,23 @@ def update_external_user_match(
     ).first()
     if record is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="External user record not found")
-    if matched_user_id is None:
+    normalized_action = str(action or "").strip().lower()
+    if normalized_action in {"clear", "reset", "pending"}:
         record.matched_user_id = None
         record.match_status = "pending"
-    else:
+    elif normalized_action == "ignore":
+        record.matched_user_id = None
+        record.match_status = "ignored"
+    elif normalized_action in {"match", "matched"}:
+        if matched_user_id is None:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="matched_user_id is required")
         user = db.get(User, matched_user_id)
         if user is None:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Hub user not found")
         record.matched_user_id = user.id
-        record.match_status = "matched"
+        record.match_status = "matched_manual"
+    else:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="action must be match, clear, or ignore")
     db.commit()
     db.refresh(record)
     return record

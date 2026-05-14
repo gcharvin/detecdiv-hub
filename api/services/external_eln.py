@@ -27,6 +27,7 @@ from api.services.external_eln_clients import (
     ExternalElnExperiment,
     ExternalElnUser,
     build_external_eln_client,
+    extract_labguru_text_sections,
     normalize_name,
     normalize_system_key,
 )
@@ -50,7 +51,7 @@ def sync_external_eln_system(
     pending_user_count = 0
     for user in users:
         record = upsert_external_user_record(session, system_key=normalized, user=user, synced_at=synced_at)
-        if record.match_status == "matched":
+        if record.match_status in {"matched", "matched_auto", "matched_manual"}:
             matched_user_count += 1
         else:
             pending_user_count += 1
@@ -117,9 +118,10 @@ def upsert_external_user_record(
     record.display_name = user.display_name
     record.email = user.email
     record.payload_json = user.payload_json
-    matched_user, status = match_external_user_by_name(session, user.display_name)
-    record.matched_user_id = matched_user.id if matched_user is not None else None
-    record.match_status = status
+    if record.match_status not in {"matched_manual", "ignored"}:
+        matched_user, status = match_external_user_by_name(session, user.display_name)
+        record.matched_user_id = matched_user.id if matched_user is not None else None
+        record.match_status = status
     record.last_synced_at = synced_at
     record.updated_at = synced_at
     session.flush()
@@ -141,7 +143,7 @@ def select_unique_user_match(users: list[User], display_name: str) -> tuple[User
         if normalize_name(user.display_name) == normalized or normalize_name(user.user_key) == normalized
     ]
     if len(candidates) == 1:
-        return candidates[0], "matched"
+        return candidates[0], "matched_auto"
     if len(candidates) > 1:
         return None, "ambiguous"
     return None, "pending"
@@ -223,32 +225,32 @@ def link_raw_dataset_to_external_experiment(
     ).first()
     if external_record is None:
         raise LookupError(f"{normalized} experiment {external_id} is not in the local sync cache")
+    external_record = refresh_external_record_detail(session, system_key=normalized, external_record=external_record)
 
     experiment = first_experiment_for_raw_dataset(raw_dataset)
     if experiment is None:
-        experiment = ExperimentProject(
-            owner_user_id=raw_dataset.owner_user_id,
-            experiment_key=f"{normalized}:{external_id}",
-            title=external_record.title,
-            visibility=raw_dataset.visibility,
-            status="indexed",
-            summary=None,
-            started_at=external_record.started_at,
-            metadata_json={
-                "external_source": normalized,
-                "external_id": external_id,
-                "source_mode": "external_eln_link",
-            },
-        )
-        session.add(experiment)
-        session.flush()
-        session.add(
-            ExperimentRawLink(
-                experiment_project_id=experiment.id,
-                raw_dataset_id=raw_dataset.id,
-                link_type="acquisition",
+        experiment_key = f"{normalized}:{external_id}"
+        experiment = session.scalars(
+            select(ExperimentProject).where(ExperimentProject.experiment_key == experiment_key)
+        ).first()
+        if experiment is None:
+            experiment = ExperimentProject(
+                owner_user_id=raw_dataset.owner_user_id,
+                experiment_key=experiment_key,
+                title=external_record.title,
+                visibility=raw_dataset.visibility,
+                status="indexed",
+                summary=None,
+                started_at=external_record.started_at,
+                metadata_json={
+                    "external_source": normalized,
+                    "external_id": external_id,
+                    "source_mode": "external_eln_link",
+                },
             )
-        )
+            session.add(experiment)
+            session.flush()
+        attach_raw_dataset_to_experiment(session, raw_dataset=raw_dataset, experiment=experiment)
     publication = upsert_external_publication_link(
         session,
         experiment=experiment,
@@ -257,6 +259,25 @@ def link_raw_dataset_to_external_experiment(
     )
     session.flush()
     return experiment, publication
+
+
+def attach_raw_dataset_to_experiment(
+    session: Session,
+    *,
+    raw_dataset: RawDataset,
+    experiment: ExperimentProject,
+) -> ExperimentRawLink:
+    for link in raw_dataset.experiment_links or []:
+        if link.experiment_project_id == experiment.id:
+            return link
+    link = ExperimentRawLink(
+        experiment_project_id=experiment.id,
+        raw_dataset_id=raw_dataset.id,
+        link_type="acquisition",
+    )
+    session.add(link)
+    session.flush()
+    return link
 
 
 def first_experiment_for_raw_dataset(raw_dataset: RawDataset) -> ExperimentProject | None:
@@ -292,10 +313,12 @@ def upsert_external_publication_link(
     publication.status = "linked"
     publication.external_id = external_record.external_id
     publication.external_url = external_record.external_url
+    text_sections = external_record_text_sections(external_record)
     publication.payload_json = {
         "link_mode": "external_eln_cache",
         "external_title": external_record.title,
         "owner_name": external_record.owner_name,
+        "labguru_text": text_sections,
         "last_synced_at": external_record.last_synced_at.isoformat()
         if external_record.last_synced_at is not None
         else None,
@@ -304,6 +327,33 @@ def upsert_external_publication_link(
     publication.updated_at = datetime.now(timezone.utc)
     session.flush()
     return publication
+
+
+def refresh_external_record_detail(
+    session: Session,
+    *,
+    system_key: str,
+    external_record: ExternalExperimentRecord,
+) -> ExternalExperimentRecord:
+    if system_key != "labguru":
+        return external_record
+    try:
+        client = build_external_eln_client(system_key)
+        detailed = client.get_experiment(external_record.external_id)
+    except Exception:
+        return external_record
+    return upsert_external_experiment_record(
+        session,
+        system_key=system_key,
+        experiment=detailed,
+        synced_at=datetime.now(timezone.utc),
+    )
+
+
+def external_record_text_sections(external_record: ExternalExperimentRecord) -> dict[str, str]:
+    if external_record.system_key == "labguru":
+        return extract_labguru_text_sections(external_record.payload_json or {})
+    return {}
 
 
 def linked_experiment_summary_view(experiment: ExperimentProject) -> LinkedExperimentSummary:
@@ -366,6 +416,7 @@ def external_link_summary_from_publication(record: PublicationRecordSummary | Ex
         external_id=record.external_id,
         external_url=record.external_url,
         title=payload.get("external_title") if isinstance(payload, dict) else None,
+        payload_json=payload if isinstance(payload, dict) else {},
     )
 
 

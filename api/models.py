@@ -43,12 +43,17 @@ class User(Base):
         back_populates="owner", foreign_keys="IndexingJob.owner_user_id"
     )
     storage_migration_batches: Mapped[list["StorageMigrationBatch"]] = relationship(back_populates="owner")
+    storage_accounts: Mapped[list["UserStorageAccount"]] = relationship(back_populates="user")
     sessions: Mapped[list["UserSession"]] = relationship(back_populates="user")
     requested_lifecycle_events: Mapped[list["StorageLifecycleEvent"]] = relationship(back_populates="requested_by")
     archive_policy_runs: Mapped[list["ArchivePolicyRun"]] = relationship(back_populates="triggered_by")
     micromanager_ingest_runs: Mapped[list["MicroManagerIngestRun"]] = relationship(back_populates="triggered_by")
     acquisition_sessions: Mapped[list["AcquisitionSession"]] = relationship(back_populates="owner")
     external_user_records: Mapped[list["ExternalUserRecord"]] = relationship(back_populates="matched_user")
+    external_credentials: Mapped[list["ExternalUserCredential"]] = relationship(back_populates="user")
+    reviewed_external_match_candidates: Mapped[list["ExternalMatchCandidate"]] = relationship(
+        back_populates="reviewed_by"
+    )
 
 
 class StorageRoot(Base):
@@ -67,6 +72,114 @@ class StorageRoot(Base):
     project_locations: Mapped[list["ProjectLocation"]] = relationship(back_populates="storage_root")
     raw_dataset_locations: Mapped[list["RawDatasetLocation"]] = relationship(back_populates="storage_root")
     acquisition_sessions: Mapped[list["AcquisitionSession"]] = relationship(back_populates="landing_storage_root")
+    user_storage_accounts: Mapped[list["UserStorageAccount"]] = relationship(back_populates="home_storage_root")
+
+
+class StorageProvider(Base):
+    __tablename__ = "storage_providers"
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    provider_key: Mapped[str] = mapped_column(String, nullable=False, unique=True)
+    display_name: Mapped[str] = mapped_column(String, nullable=False)
+    provider_kind: Mapped[str] = mapped_column(String, nullable=False, default="posix_mount")
+    mount_root: Mapped[str | None] = mapped_column(Text)
+    quota_mode: Mapped[str] = mapped_column(String, nullable=False, default="measured_only")
+    is_active: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
+    capabilities_json: Mapped[dict] = mapped_column(JSONB, nullable=False, default=dict)
+    config_json: Mapped[dict] = mapped_column(JSONB, nullable=False, default=dict)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
+    )
+
+    user_accounts: Mapped[list["UserStorageAccount"]] = relationship(back_populates="provider")
+    quota_snapshots: Mapped[list["StorageQuotaSnapshot"]] = relationship(back_populates="provider")
+    provisioning_events: Mapped[list["StorageProvisioningEvent"]] = relationship(back_populates="provider")
+
+
+class UserStorageAccount(Base):
+    __tablename__ = "user_storage_accounts"
+    __table_args__ = (
+        UniqueConstraint("user_id", "provider_id", name="uq_user_storage_accounts_user_provider"),
+        UniqueConstraint("provider_id", "provider_user_key", name="uq_user_storage_accounts_provider_user"),
+    )
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    user_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False
+    )
+    provider_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("storage_providers.id", ondelete="CASCADE"), nullable=False
+    )
+    provider_user_key: Mapped[str] = mapped_column(String, nullable=False)
+    home_storage_root_id: Mapped[int | None] = mapped_column(ForeignKey("storage_roots.id", ondelete="SET NULL"))
+    home_relative_path: Mapped[str | None] = mapped_column(Text)
+    quota_bytes: Mapped[int | None] = mapped_column(BIGINT)
+    quota_status: Mapped[str] = mapped_column(String, nullable=False, default="unknown")
+    provisioning_status: Mapped[str] = mapped_column(String, nullable=False, default="planned")
+    last_synced_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    metadata_json: Mapped[dict] = mapped_column(JSONB, nullable=False, default=dict)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
+    )
+
+    user: Mapped[User] = relationship(back_populates="storage_accounts")
+    provider: Mapped[StorageProvider] = relationship(back_populates="user_accounts")
+    home_storage_root: Mapped[StorageRoot | None] = relationship(back_populates="user_storage_accounts")
+    quota_snapshots: Mapped[list["StorageQuotaSnapshot"]] = relationship(back_populates="storage_account")
+    provisioning_events: Mapped[list["StorageProvisioningEvent"]] = relationship(back_populates="storage_account")
+
+
+class StorageQuotaSnapshot(Base):
+    __tablename__ = "storage_quota_snapshots"
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    user_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False
+    )
+    provider_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("storage_providers.id", ondelete="CASCADE"), nullable=False
+    )
+    storage_account_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("user_storage_accounts.id", ondelete="SET NULL")
+    )
+    provider_user_key: Mapped[str] = mapped_column(String, nullable=False)
+    quota_bytes: Mapped[int | None] = mapped_column(BIGINT)
+    provider_used_bytes: Mapped[int | None] = mapped_column(BIGINT)
+    hub_project_bytes: Mapped[int] = mapped_column(BIGINT, nullable=False, default=0)
+    hub_raw_bytes: Mapped[int] = mapped_column(BIGINT, nullable=False, default=0)
+    hub_artifact_bytes: Mapped[int] = mapped_column(BIGINT, nullable=False, default=0)
+    measured_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    metadata_json: Mapped[dict] = mapped_column(JSONB, nullable=False, default=dict)
+
+    user: Mapped[User] = relationship()
+    provider: Mapped[StorageProvider] = relationship(back_populates="quota_snapshots")
+    storage_account: Mapped[UserStorageAccount | None] = relationship(back_populates="quota_snapshots")
+
+
+class StorageProvisioningEvent(Base):
+    __tablename__ = "storage_provisioning_events"
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    user_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("users.id", ondelete="SET NULL")
+    )
+    provider_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("storage_providers.id", ondelete="SET NULL")
+    )
+    storage_account_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("user_storage_accounts.id", ondelete="SET NULL")
+    )
+    event_kind: Mapped[str] = mapped_column(String, nullable=False)
+    status: Mapped[str] = mapped_column(String, nullable=False, default="recorded")
+    message: Mapped[str | None] = mapped_column(Text)
+    metadata_json: Mapped[dict] = mapped_column(JSONB, nullable=False, default=dict)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+    user: Mapped[User | None] = relationship()
+    provider: Mapped[StorageProvider | None] = relationship(back_populates="provisioning_events")
+    storage_account: Mapped[UserStorageAccount | None] = relationship(back_populates="provisioning_events")
 
 
 class UserSession(Base):
@@ -141,6 +254,7 @@ class RawDataset(Base):
     project_links: Mapped[list["ProjectRawLink"]] = relationship(back_populates="raw_dataset")
     experiment_links: Mapped[list["ExperimentRawLink"]] = relationship(back_populates="raw_dataset")
     lifecycle_events: Mapped[list["StorageLifecycleEvent"]] = relationship(back_populates="raw_dataset")
+    external_match_candidates: Mapped[list["ExternalMatchCandidate"]] = relationship(back_populates="raw_dataset")
 
 
 class RawDatasetLocation(Base):
@@ -768,6 +882,8 @@ class ExternalExperimentRecord(Base):
         DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
     )
 
+    match_candidates: Mapped[list["ExternalMatchCandidate"]] = relationship(back_populates="external_experiment_record")
+
 
 class ExternalUserRecord(Base):
     __tablename__ = "external_user_records"
@@ -792,6 +908,71 @@ class ExternalUserRecord(Base):
     )
 
     matched_user: Mapped[User | None] = relationship(back_populates="external_user_records")
+
+
+class ExternalUserCredential(Base):
+    __tablename__ = "external_user_credentials"
+    __table_args__ = (
+        UniqueConstraint("user_id", "system_key", name="uq_external_user_credentials_user_system"),
+    )
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    user_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False
+    )
+    system_key: Mapped[str] = mapped_column(String, nullable=False)
+    credential_kind: Mapped[str] = mapped_column(String, nullable=False, default="api_token")
+    encrypted_token: Mapped[str] = mapped_column(Text, nullable=False)
+    status: Mapped[str] = mapped_column(String, nullable=False, default="stored")
+    expires_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    last_verified_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    last_error: Mapped[str | None] = mapped_column(Text)
+    metadata_json: Mapped[dict] = mapped_column(JSONB, nullable=False, default=dict)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
+    )
+
+    user: Mapped[User] = relationship(back_populates="external_credentials")
+
+
+class ExternalMatchCandidate(Base):
+    __tablename__ = "external_match_candidates"
+    __table_args__ = (
+        UniqueConstraint(
+            "raw_dataset_id",
+            "system_key",
+            "external_experiment_record_id",
+            name="uq_external_match_candidates_raw_system_experiment",
+        ),
+    )
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    raw_dataset_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("raw_datasets.id", ondelete="CASCADE"), nullable=False
+    )
+    system_key: Mapped[str] = mapped_column(String, nullable=False)
+    external_experiment_record_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("external_experiment_records.id", ondelete="CASCADE"), nullable=False
+    )
+    external_id: Mapped[str] = mapped_column(String, nullable=False)
+    score: Mapped[float] = mapped_column(Float, nullable=False, default=0.0)
+    candidate_rank: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    status: Mapped[str] = mapped_column(String, nullable=False, default="proposed")
+    match_method: Mapped[str] = mapped_column(String, nullable=False, default="deterministic_v1")
+    evidence_json: Mapped[dict] = mapped_column(JSONB, nullable=False, default=dict)
+    reviewed_by_user_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("users.id", ondelete="SET NULL")
+    )
+    reviewed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
+    )
+
+    raw_dataset: Mapped[RawDataset] = relationship(back_populates="external_match_candidates")
+    external_experiment_record: Mapped[ExternalExperimentRecord] = relationship(back_populates="match_candidates")
+    reviewed_by: Mapped[User | None] = relationship(back_populates="reviewed_external_match_candidates")
 
 
 class StorageLifecycleEvent(Base):
