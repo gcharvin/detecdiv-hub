@@ -17,7 +17,7 @@ from api.services.micromanager_metadata import (
     read_micromanager_metadata,
 )
 from api.services.external_publications import ensure_publication_records
-from api.services.project_indexing import slugify
+from api.services.project_indexing import iter_orphan_raw_candidates, looks_like_raw_dataset_dir, slugify
 from api.services.raw_dataset_ingest import ingest_raw_dataset_from_directory
 from api.services.users import get_or_create_user
 
@@ -182,11 +182,16 @@ def discover_micromanager_candidates(
     candidates: list[MicroManagerDatasetCandidate] = []
     seen_paths: set[Path] = set()
 
-    roots_to_scan = [landing_root, *[path for path in landing_root.iterdir() if path.is_dir()]]
-    for path in roots_to_scan:
+    paths_to_scan = []
+    root_dataset = classify_micromanager_dataset_dir(landing_root)
+    if root_dataset is not None:
+        paths_to_scan.append(root_dataset)
+    paths_to_scan.extend(iter_orphan_raw_candidates(landing_root, project_dirs=[]))
+
+    for path in paths_to_scan:
         if len(candidates) >= max_datasets:
             break
-        dataset_dir = classify_micromanager_dataset_dir(path)
+        dataset_dir = classify_micromanager_dataset_dir(path) or path
         if dataset_dir is None:
             continue
         dataset_dir = dataset_dir.resolve()
@@ -248,6 +253,9 @@ def classify_micromanager_dataset_dir(path: Path) -> Path | None:
     if not path.exists() or not path.is_dir():
         return None
 
+    if looks_like_raw_dataset_dir(path):
+        return path
+
     try:
         entries = list(path.iterdir())
     except OSError:
@@ -262,6 +270,8 @@ def classify_micromanager_dataset_dir(path: Path) -> Path | None:
     for child in entries:
         if not child.is_dir():
             continue
+        if looks_like_raw_dataset_dir(child):
+            return child
         try:
             child_entries = list(child.iterdir())
         except OSError:
