@@ -4,7 +4,11 @@ import json
 import os
 import time
 
-from api.services.micromanager_ingest import classify_micromanager_dataset_dir, discover_micromanager_candidates
+from api.services.micromanager_ingest import (
+    DETECDIV_ACQUISITION_MANIFEST_FILE,
+    classify_micromanager_dataset_dir,
+    discover_micromanager_candidates,
+)
 
 
 def test_classify_micromanager_dataset_dir_accepts_zarr_root(tmp_path):
@@ -46,3 +50,39 @@ def test_discover_micromanager_candidates_finds_orphan_zarr_child(tmp_path):
 
     assert [candidate.dataset_dir for candidate in candidates] == [dataset_dir.resolve()]
     assert candidates[0].relative_path == "test.ome.zarr"
+
+
+def test_discover_micromanager_candidates_reads_detecdiv_manifest(tmp_path):
+    session_dir = tmp_path / "session"
+    dataset_dir = session_dir / "test.ome.zarr"
+    dataset_dir.mkdir(parents=True)
+    (session_dir / DETECDIV_ACQUISITION_MANIFEST_FILE).write_text(
+        json.dumps(
+            {
+                "manifest_version": 1,
+                "user_key": "antoine",
+                "acquisition_label": "widget acquisition",
+                "microscope_name": "TiEclipse",
+                "acquisition_session_id": "session-1",
+            }
+        ),
+        encoding="utf-8",
+    )
+    (dataset_dir / "zarr.json").write_text(json.dumps({"zarr_format": 3}), encoding="utf-8")
+    past_timestamp = time.time() - 10
+    for file_path in session_dir.rglob("*"):
+        os.utime(file_path, (past_timestamp, past_timestamp))
+
+    candidates = discover_micromanager_candidates(
+        landing_root=session_dir,
+        settle_seconds=0,
+        grouping_window_hours=12,
+        max_datasets=25,
+    )
+
+    assert len(candidates) == 1
+    candidate = candidates[0]
+    assert candidate.owner_user_key == "antoine"
+    assert candidate.acquisition_label == "widget acquisition"
+    assert candidate.microscope_name == "TiEclipse"
+    assert candidate.metadata_json["detecdiv_acquisition_manifest"]["acquisition_session_id"] == "session-1"
