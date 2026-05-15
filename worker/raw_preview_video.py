@@ -1149,7 +1149,7 @@ class V3FrameMetadataArrayView:
 
     def __post_init__(self) -> None:
         shape = tuple(int(value) for value in self.array_metadata.get("shape") or [])
-        if len(shape) != 5:
+        if len(shape) < 3:
             raise ValueError(f"Unsupported Zarr v3 preview shape for {self.array_path}: {shape}")
         chunk_grid = self.array_metadata.get("chunk_grid")
         if not isinstance(chunk_grid, dict):
@@ -1182,13 +1182,14 @@ class V3FrameMetadataArrayView:
     def read_frame(self, storage_index: list[Any]) -> np.ndarray:
         if self.chunk_shape[-2:] != self.shape[-2:]:
             raise NotImplementedError(f"Spatial chunking is not supported for {self.array_path}")
-        if len(storage_index) < 3:
+        leading_dims = len(self.shape) - 2
+        if len(storage_index) != leading_dims:
             raise ValueError(f"Invalid storage_index for {self.array_path}: {storage_index}")
         chunk_path = self.array_path / "c"
-        for index, chunk_size in zip(storage_index[:3], self.chunk_shape[:3]):
+        for index, chunk_size in zip(storage_index, self.chunk_shape[:leading_dims]):
             chunk_path /= str(int(index) // int(chunk_size))
-        chunk_path /= "0"
-        chunk_path /= "0"
+        for _ in range(2):
+            chunk_path /= "0"
         raw = chunk_path.read_bytes()
         frame = np.frombuffer(raw, dtype=self.dtype).reshape(self.shape[-2:])
         return frame
@@ -1282,9 +1283,28 @@ def find_first_zarr_array_dir(path: Path) -> Path | None:
     except OSError:
         return None
     for child in children:
-        if (child / "zarr.json").is_file() or (child / ".zarray").is_file():
+        if is_zarr_array_dir(child):
             return child
+    for child in children:
+        nested = find_first_zarr_array_dir(child)
+        if nested is not None:
+            return nested
     return None
+
+
+def is_zarr_array_dir(path: Path) -> bool:
+    if (path / ".zarray").is_file():
+        return True
+    metadata_path = path / "zarr.json"
+    if not metadata_path.is_file():
+        return False
+    try:
+        metadata = json.loads(metadata_path.read_text(encoding="utf-8"))
+    except Exception:
+        return False
+    if not isinstance(metadata, dict):
+        return False
+    return str(metadata.get("node_type") or "").strip().lower() == "array"
 
 
 def select_best_zarr_array(node):

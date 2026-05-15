@@ -4,12 +4,19 @@ import json
 import os
 import time
 
+import numpy as np
+
 from api.services.micromanager_ingest import (
     DETECDIV_ACQUISITION_MANIFEST_FILE,
     classify_micromanager_dataset_dir,
     discover_micromanager_candidates,
 )
+from api.services.raw_preview_settings import RawPreviewRuntimeConfig
 from api.services.raw_dataset_ingest import discover_raw_dataset_positions
+from worker.raw_preview_video import (
+    find_first_zarr_array_dir,
+    try_read_v3_ome_writers_preview_frames,
+)
 
 
 def test_classify_micromanager_dataset_dir_accepts_zarr_root(tmp_path):
@@ -132,3 +139,80 @@ def test_discover_raw_dataset_positions_keeps_widget_descriptions(tmp_path):
             },
         }
     ]
+
+
+def test_preview_reader_accepts_ome_writers_tcyx_layout(tmp_path):
+    series_dir = tmp_path / "test.ome.zarr" / "0"
+    array_dir = series_dir / "0"
+    chunk_path = array_dir / "c" / "0" / "0" / "0" / "0"
+    chunk_path.parent.mkdir(parents=True)
+    frame = (np.arange(16, dtype="<u2").reshape(4, 4))
+    chunk_path.write_bytes(frame.tobytes())
+    (series_dir / "zarr.json").write_text(
+        json.dumps(
+            {
+                "zarr_format": 3,
+                "node_type": "group",
+                "attributes": {
+                    "ome": {
+                        "version": "0.5",
+                        "multiscales": [
+                            {
+                                "axes": [
+                                    {"name": "t", "type": "time"},
+                                    {"name": "c", "type": "channel"},
+                                    {"name": "y", "type": "space"},
+                                    {"name": "x", "type": "space"},
+                                ],
+                                "datasets": [{"path": "0"}],
+                            }
+                        ],
+                        "omero": {"channels": [{"label": "GFP"}]},
+                    },
+                    "ome_writers": {
+                        "frame_metadata": [
+                            {"storage_index": [0, 0]},
+                        ]
+                    },
+                },
+            }
+        ),
+        encoding="utf-8",
+    )
+    (array_dir / "zarr.json").write_text(
+        json.dumps(
+            {
+                "zarr_format": 3,
+                "node_type": "array",
+                "shape": [1, 1, 4, 4],
+                "data_type": "uint16",
+                "chunk_grid": {
+                    "name": "regular",
+                    "configuration": {"chunk_shape": [1, 1, 4, 4]},
+                },
+                "codecs": [{"name": "bytes", "configuration": {"endian": "little"}}],
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    assert find_first_zarr_array_dir(series_dir) == array_dir
+    sequence = try_read_v3_ome_writers_preview_frames(
+        series_dir,
+        runtime_config=RawPreviewRuntimeConfig(
+            fps=6,
+            frame_mode="full",
+            max_frames=0,
+            max_dimension=768,
+            binning_factor=1,
+            crf=24,
+            preset="medium",
+            include_existing=False,
+            artifact_root=None,
+            ffmpeg_command=None,
+        ),
+    )
+
+    assert sequence is not None
+    assert len(sequence.frames) == 1
+    assert sequence.channel_labels == ["GFP"]
