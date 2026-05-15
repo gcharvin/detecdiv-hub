@@ -58,6 +58,8 @@ const state = {
 };
 
 const RAW_DATASETS_POLL_INTERVAL_MS = 15_000;
+const MICROMANAGER_INGEST_REPORT_ONLY_STORAGE_KEY = "detecdivHub.micromanagerIngest.reportOnly";
+const MICROMANAGER_INGEST_ROOT_MODE_STORAGE_KEY = "detecdivHub.micromanagerIngest.rootMode";
 
 const els = {
   loginPanel: document.querySelector("#login-panel"),
@@ -5161,8 +5163,12 @@ async function runMicroManagerIngest() {
     ? String(els.micromanagerIngestRootPath?.value || "").trim()
     : "";
   const storageRootNameOverride = String(els.micromanagerIngestStorageRootName?.value || "").trim();
+  const configuredLandingRoot = String(state.micromanagerIngestStatus?.config?.landing_root || "").trim();
   if (rootMode === "manual" && !landingRootOverride) {
     throw new Error("Manual raw root is required in manual mode.");
+  }
+  if (rootMode !== "manual" && !configuredLandingRoot) {
+    throw new Error("Configured landing root is empty. Select manual folder and enter the landing path before running ingestion.");
   }
   const action = reportOnly ? "run a detection-only report" : "ingest datasets now";
   const ok = window.confirm(`Run Micro-Manager ingestion now and ${action}?`);
@@ -6063,6 +6069,40 @@ function updateMicroManagerIngestModeUi() {
   if (els.micromanagerIngestRootPath) {
     els.micromanagerIngestRootPath.disabled = !manualMode;
   }
+}
+
+function restoreMicroManagerIngestControls() {
+  const savedRootMode = localStorage.getItem(MICROMANAGER_INGEST_ROOT_MODE_STORAGE_KEY);
+  if (els.micromanagerIngestRootMode && savedRootMode) {
+    els.micromanagerIngestRootMode.value = savedRootMode;
+  }
+  if (els.micromanagerIngestReportOnly) {
+    const savedReportOnly = localStorage.getItem(MICROMANAGER_INGEST_REPORT_ONLY_STORAGE_KEY);
+    if (savedReportOnly !== null) {
+      els.micromanagerIngestReportOnly.checked = savedReportOnly === "true";
+    }
+  }
+  updateMicroManagerIngestModeUi();
+}
+
+function saveMicroManagerIngestRootModePreference() {
+  if (!els.micromanagerIngestRootMode) {
+    return;
+  }
+  localStorage.setItem(
+    MICROMANAGER_INGEST_ROOT_MODE_STORAGE_KEY,
+    String(els.micromanagerIngestRootMode.value || "auto")
+  );
+}
+
+function saveMicroManagerIngestReportOnlyPreference() {
+  if (!els.micromanagerIngestReportOnly) {
+    return;
+  }
+  localStorage.setItem(
+    MICROMANAGER_INGEST_REPORT_ONLY_STORAGE_KEY,
+    String(Boolean(els.micromanagerIngestReportOnly.checked))
+  );
 }
 
 async function queueRawPreviewVideosForSelectedProjects() {
@@ -7681,8 +7721,15 @@ if (els.archiveSettingsSaveButton) els.archiveSettingsSaveButton.addEventListene
 if (els.automaticArchivePolicyRefreshButton) els.automaticArchivePolicyRefreshButton.addEventListener("click", () => refreshAutomaticArchivePolicyStatus().catch((error) => setStatus(String(error))));
 if (els.automaticArchivePolicyRunButton) els.automaticArchivePolicyRunButton.addEventListener("click", () => runAutomaticArchivePolicy().catch((error) => setStatus(String(error))));
 if (els.micromanagerIngestRefreshButton) els.micromanagerIngestRefreshButton.addEventListener("click", () => refreshMicroManagerIngestStatus().catch((error) => setStatus(String(error))));
-if (els.micromanagerIngestRunButton) els.micromanagerIngestRunButton.addEventListener("click", () => runMicroManagerIngest().catch((error) => setStatus(String(error))));
-if (els.micromanagerIngestRootMode) els.micromanagerIngestRootMode.addEventListener("change", updateMicroManagerIngestModeUi);
+if (els.micromanagerIngestRunButton) els.micromanagerIngestRunButton.addEventListener("click", () => runMicroManagerIngest().catch((error) => {
+  setStatus(String(error));
+  window.alert(String(error));
+}));
+if (els.micromanagerIngestRootMode) els.micromanagerIngestRootMode.addEventListener("change", () => {
+  saveMicroManagerIngestRootModePreference();
+  updateMicroManagerIngestModeUi();
+});
+if (els.micromanagerIngestReportOnly) els.micromanagerIngestReportOnly.addEventListener("change", saveMicroManagerIngestReportOnlyPreference);
 if (els.archivePolicyPreviewButton) els.archivePolicyPreviewButton.addEventListener("click", () => previewArchivePolicy().catch((error) => setStatus(String(error))));
 if (els.archivePolicyQueueButton) els.archivePolicyQueueButton.addEventListener("click", () => queueArchivePolicy().catch((error) => setStatus(String(error))));
 if (els.archivedRawSelectAll) els.archivedRawSelectAll.addEventListener("change", () => setSelectedRawDatasetIds(els.archivedRawSelectAll.checked ? visibleArchivedRawDatasetIds() : []));
@@ -7745,5 +7792,6 @@ if (els.refreshSessionsButton) els.refreshSessionsButton.addEventListener("click
 
 ensureDashboardPolling();
 initializeAppLayout();
+restoreMicroManagerIngestControls();
 updateSessionUi();
 restoreSession().catch((error) => setStatus(String(error)));

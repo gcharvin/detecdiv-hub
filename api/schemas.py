@@ -415,6 +415,21 @@ class RawDatasetSummary(HubBaseModel):
     last_backup_at: datetime | None = None
 
 
+class RawDatasetAcquisitionTemplateSummary(HubBaseModel):
+    id: UUID
+    acquisition_label: str
+    microscope_name: str | None = None
+    data_format: str = "unknown"
+    mda_summary: dict[str, Any] = Field(default_factory=dict)
+    mda_settings_json: dict[str, Any] = Field(default_factory=dict)
+    position_annotations: list[dict[str, Any]] = Field(default_factory=list)
+    labguru: dict[str, Any] = Field(default_factory=dict)
+    metadata_json: dict[str, Any] = Field(default_factory=dict)
+    owner: UserSummary | None = None
+    created_at: datetime | None = None
+    updated_at: datetime | None = None
+
+
 class ProjectLocationSummary(HubBaseModel):
     id: int
     relative_path: str
@@ -441,6 +456,7 @@ class RawDatasetPositionSummary(HubBaseModel):
     raw_dataset_id: UUID
     position_key: str
     display_name: str
+    description: str | None = None
     position_index: int | None = None
     status: str
     preview_status: str
@@ -1075,6 +1091,20 @@ class AcquisitionSessionSummary(HubBaseModel):
     last_seen_at: datetime | None = None
     created_at: datetime | None = None
     updated_at: datetime | None = None
+
+
+class AcquisitionSessionLabguruExperimentRequest(HubBaseModel):
+    title: str
+    description: str | None = None
+    procedure: str | None = None
+    notes: str | None = None
+    metadata_json: dict[str, Any] = Field(default_factory=dict)
+
+
+class AcquisitionSessionLabguruExperimentResult(HubBaseModel):
+    acquisition_session: AcquisitionSessionSummary
+    experiment_project: LinkedExperimentSummary
+    external_link: ExternalLinkSummary
 
 
 class AcquisitionSessionCreate(HubBaseModel):

@@ -55,7 +55,7 @@ class Settings(BaseSettings):
     micromanager_ingest_enabled: bool = False
     micromanager_ingest_interval_minutes: int = 15
     micromanager_ingest_run_as_user_key: str = "micromanager-bot"
-    micromanager_ingest_root: str = ""
+    micromanager_ingest_root: str = "/data/microscope/landing"
     micromanager_ingest_storage_root_name: str = ""
     micromanager_ingest_host_scope: str = "server"
     micromanager_ingest_visibility: str = "private"

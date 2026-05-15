@@ -7,15 +7,30 @@ from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy import select
 from sqlalchemy.orm import Session, joinedload
 
+from api.config import get_settings
 from api.db import get_db
-from api.models import AcquisitionSession, User
+from api.models import AcquisitionSession, ExperimentProject, User
 from api.schemas import (
     AcquisitionSessionComplete,
     AcquisitionSessionCreate,
     AcquisitionSessionHeartbeat,
+    AcquisitionSessionLabguruExperimentRequest,
+    AcquisitionSessionLabguruExperimentResult,
     AcquisitionSessionSummary,
     AcquisitionSessionUpdate,
 )
+from api.services.external_credentials import (
+    decrypt_user_credential_token,
+    get_user_credential,
+    test_user_credential,
+)
+from api.services.external_eln import (
+    external_link_summary_from_publication,
+    linked_experiment_summary_view,
+    upsert_external_experiment_record,
+    upsert_external_publication_link,
+)
+from api.services.external_eln_clients import LabguruClient
 from api.services.acquisition_sessions import (
     build_session_key,
     ensure_acquisition_session_editable,
@@ -225,6 +240,130 @@ def complete_acquisition_session(
     acquisition_session.error_text = payload.error_text
     db.commit()
     return get_acquisition_session(acquisition_session_id, db=db, current_user=current_user)
+
+
+@router.post(
+    "/{acquisition_session_id}/labguru-experiment",
+    response_model=AcquisitionSessionLabguruExperimentResult,
+    status_code=status.HTTP_201_CREATED,
+)
+def create_labguru_experiment_for_acquisition_session(
+    acquisition_session_id: UUID,
+    payload: AcquisitionSessionLabguruExperimentRequest,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> AcquisitionSessionLabguruExperimentResult:
+    acquisition_session = ensure_acquisition_session_readable(
+        load_acquisition_session(db, acquisition_session_id),
+        current_user,
+    )
+    ensure_acquisition_session_editable(acquisition_session, current_user)
+    title = payload.title.strip()
+    if not title:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Labguru experiment title is required")
+
+    credential = get_user_credential(db, user=current_user, system_key="labguru")
+    if credential is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No Labguru token stored for this user")
+    credential_test = test_user_credential(db, user=current_user, system_key="labguru")
+    if credential_test.status != "connected":
+        db.commit()
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Labguru token is not valid: {credential_test.message}",
+        )
+    token = decrypt_user_credential_token(credential)
+    settings = get_settings()
+    client = LabguruClient(base_url=settings.labguru_base_url, token=token, timeout_seconds=30)
+    try:
+        external_experiment = client.create_experiment(
+            title=title,
+            description=payload.description,
+            procedure=payload.procedure,
+        )
+    except Exception as exc:
+        db.commit()
+        raise HTTPException(
+            status_code=status.HTTP_502_BAD_GATEWAY,
+            detail=f"Labguru experiment creation failed: {exc}",
+        ) from exc
+
+    synced_at = datetime.now(timezone.utc)
+    external_record = upsert_external_experiment_record(
+        db,
+        system_key="labguru",
+        experiment=external_experiment,
+        synced_at=synced_at,
+    )
+
+    experiment = None
+    if acquisition_session.experiment_project_id is not None:
+        experiment = db.get(ExperimentProject, acquisition_session.experiment_project_id)
+    if experiment is None:
+        experiment = db.scalars(
+            select(ExperimentProject).where(ExperimentProject.experiment_key == f"labguru:{external_record.external_id}")
+        ).first()
+    if experiment is None:
+        experiment = ExperimentProject(
+            owner_user_id=current_user.id,
+            experiment_key=f"labguru:{external_record.external_id}",
+            title=external_record.title,
+            visibility="private",
+            status="indexed",
+            summary=payload.description,
+            started_at=synced_at,
+            last_indexed_at=synced_at,
+            metadata_json={
+                "source": "detecdiv_acquisition_widget",
+                "external_source": "labguru",
+                "external_id": external_record.external_id,
+            },
+        )
+        db.add(experiment)
+        db.flush()
+
+    acquisition_session.experiment_project_id = experiment.id
+    metadata = merge_json(
+        acquisition_session.metadata_json,
+        {
+            "labguru": {
+                "enabled": True,
+                "title": title,
+                "description": payload.description,
+                "procedure": payload.procedure,
+                "notes": payload.notes,
+                "metadata_json": payload.metadata_json,
+                "external_id": external_record.external_id,
+                "external_url": external_record.external_url,
+            }
+        },
+    )
+    acquisition_session.metadata_json = metadata
+    acquisition_session.result_json = merge_json(
+        acquisition_session.result_json,
+        {
+            "labguru": {
+                "created": True,
+                "external_id": external_record.external_id,
+                "external_url": external_record.external_url,
+            }
+        },
+    )
+    publication = upsert_external_publication_link(
+        db,
+        experiment=experiment,
+        system_key="labguru",
+        external_record=external_record,
+    )
+    db.commit()
+    db.refresh(acquisition_session)
+    db.refresh(experiment)
+    db.refresh(publication)
+    return AcquisitionSessionLabguruExperimentResult(
+        acquisition_session=acquisition_session_view(acquisition_session),
+        experiment_project=linked_experiment_summary_view(experiment),
+        external_link=external_link_summary_from_publication(publication),
+    )
 
 
 def acquisition_session_view(acquisition_session: AcquisitionSession) -> AcquisitionSessionSummary:

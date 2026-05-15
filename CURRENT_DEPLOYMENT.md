@@ -93,6 +93,19 @@ The VM guest also mounts `/data` read-only through `detecdiv-server` so the API
 container can serve raw-dataset preview MP4s and the project ops browser can
 inspect storage-backed folders without logging into the storage host directly.
 
+## Pending Live Schema Migrations
+
+Before deploying the Micro-Manager acquisition-widget position-description
+changes from commit `a05b313`, apply the migration:
+
+```bash
+psql "$DETECDIV_HUB_DATABASE_URL" -f db/migrations/20260514_raw_dataset_position_description.sql
+```
+
+It adds `raw_dataset_positions.description`, used to persist per-position
+annotations entered in the acquisition widget and exposed on raw dataset
+details.
+
 ## Agent Rules
 
 Future agents should assume:

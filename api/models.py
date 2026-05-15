@@ -288,6 +288,7 @@ class RawDatasetPosition(Base):
     )
     position_key: Mapped[str] = mapped_column(String, nullable=False)
     display_name: Mapped[str] = mapped_column(String, nullable=False)
+    description: Mapped[str | None] = mapped_column(Text)
     position_index: Mapped[int | None] = mapped_column(Integer)
     status: Mapped[str] = mapped_column(String, nullable=False, default="indexed")
     preview_status: Mapped[str] = mapped_column(String, nullable=False, default="missing")

@@ -146,6 +146,7 @@ CREATE TABLE IF NOT EXISTS raw_dataset_positions (
     raw_dataset_id UUID NOT NULL REFERENCES raw_datasets(id) ON DELETE CASCADE,
     position_key TEXT NOT NULL,
     display_name TEXT NOT NULL,
+    description TEXT,
     position_index INTEGER,
     status TEXT NOT NULL DEFAULT 'indexed',
     preview_status TEXT NOT NULL DEFAULT 'missing',
@@ -447,6 +448,7 @@ CREATE TABLE IF NOT EXISTS artifacts (
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
+ALTER TABLE raw_dataset_positions ADD COLUMN IF NOT EXISTS description TEXT;
 ALTER TABLE raw_dataset_positions ADD COLUMN IF NOT EXISTS preview_artifact_id UUID REFERENCES artifacts(id) ON DELETE SET NULL;
 
 CREATE TABLE IF NOT EXISTS storage_migration_batches (

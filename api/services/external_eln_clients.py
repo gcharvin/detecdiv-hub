@@ -43,6 +43,9 @@ class ExternalElnClient(Protocol):
     def get_experiment(self, external_id: str) -> ExternalElnExperiment:
         ...
 
+    def create_experiment(self, *, title: str, description: str | None = None, procedure: str | None = None) -> ExternalElnExperiment:
+        ...
+
     def list_users_or_observed_members(self) -> list[ExternalElnUser]:
         ...
 
@@ -75,6 +78,51 @@ class LabguruClient:
         for user in labguru_observed_users_from_payload(payload):
             self._observed_users[user.external_id] = user
         return experiment
+
+    def create_experiment(
+        self,
+        *,
+        title: str,
+        description: str | None = None,
+        procedure: str | None = None,
+    ) -> ExternalElnExperiment:
+        clean_title = str(title or "").strip()
+        if not clean_title:
+            raise ValueError("Labguru experiment title is required.")
+        experiment_payload: dict[str, Any] = {
+            "title": clean_title,
+            "name": clean_title,
+        }
+        if description:
+            experiment_payload["description"] = str(description)
+        if procedure:
+            experiment_payload["experiment_procedures_attributes"] = [
+                {
+                    "name": "DetecDiv acquisition procedure",
+                    "description": str(procedure),
+                    "elements_attributes": [
+                        {
+                            "element_type": "text",
+                            "data": html.escape(str(procedure)).replace("\n", "<br>"),
+                        }
+                    ],
+                }
+            ]
+        payload = self._post_json(
+            "/api/v2/experiments",
+            fallback_endpoint="/api/v1/experiments.json",
+            json_payload={"experiment": experiment_payload},
+        )
+        if isinstance(payload, dict):
+            created_payload = payload.get("experiment") if isinstance(payload.get("experiment"), dict) else payload
+            experiment = labguru_experiment_from_payload(created_payload, base_url=self.base_url)
+            if description or procedure:
+                experiment.payload_json.setdefault(
+                    "detecdiv_widget_request",
+                    {"description": description, "procedure": procedure},
+                )
+            return experiment
+        raise ValueError("Labguru create experiment response was not a JSON object.")
 
     def list_users_or_observed_members(self) -> list[ExternalElnUser]:
         return sorted(self._observed_users.values(), key=lambda user: user.display_name.lower())
@@ -111,6 +159,32 @@ class LabguruClient:
             urljoin(self.base_url, endpoint),
             json=data,
             params=data,
+            timeout=self.timeout_seconds,
+        )
+        response.raise_for_status()
+        return response.json()
+
+    def _post_json(
+        self,
+        endpoint: str,
+        *,
+        fallback_endpoint: str | None = None,
+        json_payload: dict[str, Any] | None = None,
+    ) -> Any:
+        try:
+            return self._post_json_once(endpoint, json_payload=json_payload)
+        except requests.HTTPError:
+            if not fallback_endpoint:
+                raise
+            return self._post_json_once(fallback_endpoint, json_payload=json_payload)
+
+    def _post_json_once(self, endpoint: str, *, json_payload: dict[str, Any] | None = None) -> Any:
+        params = {"token": self.token}
+        payload = dict(json_payload or {})
+        response = requests.post(
+            urljoin(self.base_url, endpoint),
+            json=payload,
+            params=params,
             timeout=self.timeout_seconds,
         )
         response.raise_for_status()
@@ -153,6 +227,16 @@ class ElabftwClient:
         raise NotImplementedError("eLabFTW connector is planned but not implemented in V1.")
 
     def get_experiment(self, external_id: str) -> ExternalElnExperiment:
+        raise NotImplementedError("eLabFTW connector is planned but not implemented in V1.")
+
+    def create_experiment(
+        self,
+        *,
+        title: str,
+        description: str | None = None,
+        procedure: str | None = None,
+    ) -> ExternalElnExperiment:
+        _ = (title, description, procedure)
         raise NotImplementedError("eLabFTW connector is planned but not implemented in V1.")
 
     def list_users_or_observed_members(self) -> list[ExternalElnUser]:

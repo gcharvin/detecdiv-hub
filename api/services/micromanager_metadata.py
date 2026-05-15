@@ -189,6 +189,33 @@ def build_compact_micromanager_metadata(
                 ingest_trace[key] = value
         if ingest_trace:
             metadata["ingest"] = ingest_trace
+        manifest = source_metadata.get("detecdiv_acquisition_manifest")
+        if isinstance(manifest, dict) and manifest:
+            metadata["detecdiv_acquisition"] = {
+                "manifest_path": manifest.get("manifest_path"),
+                "acquisition_session_id": manifest.get("acquisition_session_id"),
+                "acquisition_session_key": manifest.get("acquisition_session_key"),
+                "acquisition_label": manifest.get("acquisition_label"),
+                "microscope_name": manifest.get("microscope_name"),
+                "local_spool_path": manifest.get("local_spool_path"),
+                "hub_destination_path": manifest.get("hub_destination_path"),
+                "windows_destination_path": manifest.get("windows_destination_path"),
+            }
+        mda_settings = source_metadata.get("mda_settings_json")
+        mda_summary = source_metadata.get("mda_summary")
+        if isinstance(mda_settings, dict) and mda_settings:
+            metadata["mda_settings_json"] = mda_settings
+        if isinstance(mda_summary, dict) and mda_summary:
+            metadata["mda_summary"] = mda_summary
+        positions = source_metadata.get("positions")
+        if isinstance(positions, list) and positions:
+            metadata["positions"] = positions
+        position_annotations = source_metadata.get("position_annotations")
+        if isinstance(position_annotations, list) and position_annotations:
+            metadata["position_annotations"] = position_annotations
+        labguru = source_metadata.get("labguru")
+        if isinstance(labguru, dict) and labguru:
+            metadata["labguru"] = labguru
 
     return metadata
 
