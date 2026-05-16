@@ -712,6 +712,12 @@ class ExternalUserCredentialTestResult(HubBaseModel):
     last_verified_at: datetime | None = None
 
 
+class ExternalContainerSummary(HubBaseModel):
+    external_id: str
+    name: str
+    payload_json: dict[str, Any] = Field(default_factory=dict)
+
+
 class ExternalSystemStatus(HubBaseModel):
     system_key: str
     enabled: bool
@@ -1097,6 +1103,11 @@ class AcquisitionSessionLabguruExperimentRequest(HubBaseModel):
     title: str
     description: str | None = None
     procedure: str | None = None
+    conditions: str | None = None
+    project_id: str | None = None
+    project_name: str | None = None
+    folder_id: str | None = None
+    folder_name: str | None = None
     notes: str | None = None
     metadata_json: dict[str, Any] = Field(default_factory=dict)
 

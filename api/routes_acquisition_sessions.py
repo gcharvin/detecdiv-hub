@@ -280,6 +280,9 @@ def create_labguru_experiment_for_acquisition_session(
             title=title,
             description=payload.description,
             procedure=payload.procedure,
+            conditions=payload.conditions,
+            project_id=payload.project_id,
+            folder_id=payload.folder_id,
         )
     except Exception as exc:
         db.commit()
@@ -331,6 +334,11 @@ def create_labguru_experiment_for_acquisition_session(
                 "title": title,
                 "description": payload.description,
                 "procedure": payload.procedure,
+                "conditions": payload.conditions,
+                "project_id": payload.project_id,
+                "project_name": payload.project_name,
+                "folder_id": payload.folder_id,
+                "folder_name": payload.folder_name,
                 "notes": payload.notes,
                 "metadata_json": payload.metadata_json,
                 "external_id": external_record.external_id,

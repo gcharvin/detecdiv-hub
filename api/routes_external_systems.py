@@ -11,6 +11,7 @@ from api.db import get_db
 from api.models import ExternalExperimentRecord, ExternalUserRecord, Job, User
 from api.schemas import (
     ExternalExperimentRecordSummary,
+    ExternalContainerSummary,
     ExternalMatchCandidateGenerateRequest,
     ExternalMatchCandidateGenerateResult,
     ExternalMatchCandidateReviewRequest,
@@ -25,6 +26,7 @@ from api.schemas import (
     ExternalUserRecordSummary,
 )
 from api.services.external_credentials import (
+    decrypt_user_credential_token,
     delete_user_credential,
     external_credential_summary,
     get_user_credential,
@@ -37,7 +39,7 @@ from api.services.external_eln import (
     linked_experiment_summary_view,
     search_external_experiments,
 )
-from api.services.external_eln_clients import normalize_system_key
+from api.services.external_eln_clients import ExternalElnContainer, LabguruClient, normalize_system_key
 from api.services.external_eln_matching import (
     external_match_candidate_summary,
     generate_external_match_candidates,
@@ -165,6 +167,53 @@ def delete_my_external_credential(
     deleted = delete_user_credential(db, user=current_user, system_key=normalized)
     db.commit()
     return {"status": "deleted" if deleted else "missing", "system_key": normalized}
+
+
+@router.get("/{system_key}/projects", response_model=list[ExternalContainerSummary])
+def list_my_external_projects(
+    system_key: str,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> list[ExternalContainerSummary]:
+    normalized = normalize_or_400(system_key)
+    client = labguru_client_for_user(normalized, db=db, current_user=current_user)
+    return [external_container_summary(project) for project in client.list_projects()]
+
+
+@router.get("/{system_key}/folders", response_model=list[ExternalContainerSummary])
+def list_my_external_folders(
+    system_key: str,
+    project_id: str | None = None,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> list[ExternalContainerSummary]:
+    normalized = normalize_or_400(system_key)
+    client = labguru_client_for_user(normalized, db=db, current_user=current_user)
+    return [external_container_summary(folder) for folder in client.list_folders(project_id=project_id)]
+
+
+@router.post("/{system_key}/default-location")
+def ensure_my_external_default_location(
+    system_key: str,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> dict:
+    normalized = normalize_or_400(system_key)
+    client = labguru_client_for_user(normalized, db=db, current_user=current_user)
+    try:
+        result = client.ensure_default_project_folder(
+            project_name="DetecDiv",
+            folder_name=current_user.display_name or current_user.user_key,
+        )
+    except Exception as exc:
+        raise HTTPException(
+            status_code=status.HTTP_502_BAD_GATEWAY,
+            detail=f"Labguru default project/folder setup failed: {exc}",
+        ) from exc
+    return {
+        "project": external_container_summary(result["project"]).model_dump(),
+        "folder": external_container_summary(result["folder"]).model_dump(),
+    }
 
 
 @router.get("/{system_key}/users", response_model=list[ExternalUserRecordSummary])
@@ -324,3 +373,32 @@ def external_system_config_state(system_key: str) -> tuple[bool, bool]:
     if system_key == "elabftw":
         return settings.elabftw_enabled, bool(settings.elabftw_base_url.strip() and settings.elabftw_token.strip())
     return False, False
+
+
+def labguru_client_for_user(system_key: str, *, db: Session, current_user: User) -> LabguruClient:
+    if system_key != "labguru":
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Only Labguru supports project/folder listing")
+    credential = get_user_credential(db, user=current_user, system_key="labguru")
+    if credential is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No token stored for this external system")
+    credential_test = test_user_credential(db, user=current_user, system_key="labguru")
+    if credential_test.status != "connected":
+        db.commit()
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Labguru token is not valid: {credential_test.message}",
+        )
+    settings = get_settings()
+    return LabguruClient(
+        base_url=settings.labguru_base_url,
+        token=decrypt_user_credential_token(credential),
+        timeout_seconds=30,
+    )
+
+
+def external_container_summary(container: ExternalElnContainer) -> ExternalContainerSummary:
+    return ExternalContainerSummary(
+        external_id=container.external_id,
+        name=container.name,
+        payload_json=container.payload_json,
+    )

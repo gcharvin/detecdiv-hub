@@ -34,6 +34,13 @@ class ExternalElnUser:
     payload_json: dict[str, Any] = field(default_factory=dict)
 
 
+@dataclass(slots=True)
+class ExternalElnContainer:
+    external_id: str
+    name: str
+    payload_json: dict[str, Any] = field(default_factory=dict)
+
+
 class ExternalElnClient(Protocol):
     system_key: str
 
@@ -43,7 +50,16 @@ class ExternalElnClient(Protocol):
     def get_experiment(self, external_id: str) -> ExternalElnExperiment:
         ...
 
-    def create_experiment(self, *, title: str, description: str | None = None, procedure: str | None = None) -> ExternalElnExperiment:
+    def create_experiment(
+        self,
+        *,
+        title: str,
+        description: str | None = None,
+        procedure: str | None = None,
+        conditions: str | None = None,
+        project_id: str | None = None,
+        folder_id: str | None = None,
+    ) -> ExternalElnExperiment:
         ...
 
     def list_users_or_observed_members(self) -> list[ExternalElnUser]:
@@ -85,6 +101,9 @@ class LabguruClient:
         title: str,
         description: str | None = None,
         procedure: str | None = None,
+        conditions: str | None = None,
+        project_id: str | None = None,
+        folder_id: str | None = None,
     ) -> ExternalElnExperiment:
         clean_title = str(title or "").strip()
         if not clean_title:
@@ -93,20 +112,30 @@ class LabguruClient:
             "title": clean_title,
             "name": clean_title,
         }
+        if project_id:
+            experiment_payload["project_id"] = str(project_id)
+        if folder_id:
+            experiment_payload["folder_id"] = str(folder_id)
         if description:
             experiment_payload["description"] = str(description)
+        procedure_sections = []
         if procedure:
+            procedure_sections.append(("Procedure", procedure))
+        if conditions:
+            procedure_sections.append(("Conditions", conditions))
+        if procedure_sections:
             experiment_payload["experiment_procedures_attributes"] = [
                 {
-                    "name": "DetecDiv acquisition procedure",
-                    "description": str(procedure),
+                    "name": f"DetecDiv acquisition {section_name.lower()}",
+                    "description": str(section_text),
                     "elements_attributes": [
                         {
                             "element_type": "text",
-                            "data": html.escape(str(procedure)).replace("\n", "<br>"),
+                            "data": html.escape(str(section_text)).replace("\n", "<br>"),
                         }
                     ],
                 }
+                for section_name, section_text in procedure_sections
             ]
         payload = self._post_json(
             "/api/v2/experiments",
@@ -116,13 +145,75 @@ class LabguruClient:
         if isinstance(payload, dict):
             created_payload = payload.get("experiment") if isinstance(payload.get("experiment"), dict) else payload
             experiment = labguru_experiment_from_payload(created_payload, base_url=self.base_url)
-            if description or procedure:
+            if description or procedure or conditions or project_id or folder_id:
                 experiment.payload_json.setdefault(
                     "detecdiv_widget_request",
-                    {"description": description, "procedure": procedure},
+                    {
+                        "description": description,
+                        "procedure": procedure,
+                        "conditions": conditions,
+                        "project_id": project_id,
+                        "folder_id": folder_id,
+                    },
                 )
             return experiment
         raise ValueError("Labguru create experiment response was not a JSON object.")
+
+    def list_projects(self) -> list[ExternalElnContainer]:
+        return [
+            labguru_container_from_payload(item)
+            for item in self._list_paginated("/api/v2/projects", fallback_endpoint="/api/v1/projects.json")
+        ]
+
+    def list_folders(self, *, project_id: str | None = None) -> list[ExternalElnContainer]:
+        params = {"project_id": project_id} if project_id else {}
+        try:
+            payloads = self._list_paginated_with_params(
+                "/api/v2/folders",
+                fallback_endpoint="/api/v1/folders.json",
+                **params,
+            )
+        except requests.HTTPError:
+            if not project_id:
+                raise
+            payloads = self._list_paginated_with_params(f"/api/v2/projects/{project_id}/folders")
+        return [labguru_container_from_payload(item) for item in payloads]
+
+    def create_project(self, *, name: str) -> ExternalElnContainer:
+        payload = self._post_json(
+            "/api/v2/projects",
+            fallback_endpoint="/api/v1/projects.json",
+            json_payload={"project": {"name": name, "title": name}},
+        )
+        created = payload.get("project") if isinstance(payload, dict) and isinstance(payload.get("project"), dict) else payload
+        if not isinstance(created, dict):
+            raise ValueError("Labguru create project response was not a JSON object.")
+        return labguru_container_from_payload(created)
+
+    def create_folder(self, *, name: str, project_id: str | None = None) -> ExternalElnContainer:
+        folder_payload: dict[str, Any] = {"name": name, "title": name}
+        if project_id:
+            folder_payload["project_id"] = project_id
+        payload = self._post_json(
+            "/api/v2/folders",
+            fallback_endpoint="/api/v1/folders.json",
+            json_payload={"folder": folder_payload},
+        )
+        created = payload.get("folder") if isinstance(payload, dict) and isinstance(payload.get("folder"), dict) else payload
+        if not isinstance(created, dict):
+            raise ValueError("Labguru create folder response was not a JSON object.")
+        return labguru_container_from_payload(created)
+
+    def ensure_default_project_folder(self, *, project_name: str, folder_name: str) -> dict[str, ExternalElnContainer]:
+        projects = self.list_projects()
+        project = next((item for item in projects if item.name.casefold() == project_name.casefold()), None)
+        if project is None:
+            project = self.create_project(name=project_name)
+        folders = self.list_folders(project_id=project.external_id)
+        folder = next((item for item in folders if item.name.casefold() == folder_name.casefold()), None)
+        if folder is None:
+            folder = self.create_folder(name=folder_name, project_id=project.external_id)
+        return {"project": project, "folder": folder}
 
     def list_users_or_observed_members(self) -> list[ExternalElnUser]:
         return sorted(self._observed_users.values(), key=lambda user: user.display_name.lower())
@@ -131,10 +222,25 @@ class LabguruClient:
         return urljoin(self.base_url, f"/knowledge/experiments/{external_id}")
 
     def _list_paginated(self, endpoint: str, *, fallback_endpoint: str | None = None) -> list[dict[str, Any]]:
+        return self._list_paginated_with_params(endpoint, fallback_endpoint=fallback_endpoint)
+
+    def _list_paginated_with_params(
+        self,
+        endpoint: str,
+        *,
+        fallback_endpoint: str | None = None,
+        **params: Any,
+    ) -> list[dict[str, Any]]:
         items: list[dict[str, Any]] = []
         page = 1
         while True:
-            payload = self._request_json(endpoint, fallback_endpoint=fallback_endpoint, page=page, page_size=200)
+            payload = self._request_json(
+                endpoint,
+                fallback_endpoint=fallback_endpoint,
+                page=page,
+                page_size=200,
+                **params,
+            )
             page_items = extract_list_payload(payload)
             if not page_items:
                 break
@@ -235,8 +341,11 @@ class ElabftwClient:
         title: str,
         description: str | None = None,
         procedure: str | None = None,
+        conditions: str | None = None,
+        project_id: str | None = None,
+        folder_id: str | None = None,
     ) -> ExternalElnExperiment:
-        _ = (title, description, procedure)
+        _ = (title, description, procedure, conditions, project_id, folder_id)
         raise NotImplementedError("eLabFTW connector is planned but not implemented in V1.")
 
     def list_users_or_observed_members(self) -> list[ExternalElnUser]:
@@ -284,6 +393,14 @@ def extract_list_payload(payload: Any) -> list[dict[str, Any]]:
         if isinstance(value, list):
             return [item for item in value if isinstance(item, dict)]
     return []
+
+
+def labguru_container_from_payload(payload: dict[str, Any]) -> ExternalElnContainer:
+    external_id = str(payload.get("id") or payload.get("external_id") or "").strip()
+    if not external_id:
+        raise ValueError("Labguru container payload is missing id.")
+    name = str(payload.get("name") or payload.get("title") or payload.get("display_name") or external_id).strip()
+    return ExternalElnContainer(external_id=external_id, name=name, payload_json=payload)
 
 
 def labguru_experiment_from_payload(payload: dict[str, Any], *, base_url: str) -> ExternalElnExperiment:
