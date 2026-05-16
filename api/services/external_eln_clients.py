@@ -116,6 +116,7 @@ class LabguruClient:
             experiment_payload["project_id"] = str(project_id)
         if folder_id:
             experiment_payload["folder_id"] = str(folder_id)
+            experiment_payload["milestone_id"] = str(folder_id)
         if description:
             experiment_payload["description"] = str(description)
         procedure_sections = []
@@ -166,17 +167,13 @@ class LabguruClient:
         ]
 
     def list_folders(self, *, project_id: str | None = None) -> list[ExternalElnContainer]:
-        params = {"project_id": project_id} if project_id else {}
-        try:
-            payloads = self._list_paginated_with_params(
-                "/api/v2/folders",
-                fallback_endpoint="/api/v1/folders.json",
-                **params,
+        if project_id:
+            payloads = self._folder_payloads_from_project(project_id)
+        else:
+            payloads = self._list_paginated(
+                "/api/v1/milestones.json",
+                fallback_endpoint="/api/v2/folders",
             )
-        except requests.HTTPError:
-            if not project_id:
-                raise
-            payloads = self._list_paginated_with_params(f"/api/v2/projects/{project_id}/folders")
         return [labguru_container_from_payload(item) for item in payloads]
 
     def create_project(self, *, name: str) -> ExternalElnContainer:
@@ -195,11 +192,16 @@ class LabguruClient:
         if project_id:
             folder_payload["project_id"] = project_id
         payload = self._post_json(
-            "/api/v2/folders",
-            fallback_endpoint="/api/v1/folders.json",
-            json_payload={"folder": folder_payload},
+            "/api/v1/milestones.json",
+            fallback_endpoint="/api/v2/folders",
+            json_payload={"milestone": folder_payload, "folder": folder_payload},
         )
-        created = payload.get("folder") if isinstance(payload, dict) and isinstance(payload.get("folder"), dict) else payload
+        if isinstance(payload, dict) and isinstance(payload.get("milestone"), dict):
+            created = payload.get("milestone")
+        elif isinstance(payload, dict) and isinstance(payload.get("folder"), dict):
+            created = payload.get("folder")
+        else:
+            created = payload
         if not isinstance(created, dict):
             raise ValueError("Labguru create folder response was not a JSON object.")
         return labguru_container_from_payload(created)
@@ -214,6 +216,30 @@ class LabguruClient:
         if folder is None:
             folder = self.create_folder(name=folder_name, project_id=project.external_id)
         return {"project": project, "folder": folder}
+
+    def _folder_payloads_from_project(self, project_id: str) -> list[dict[str, Any]]:
+        try:
+            project_payload = self._request_json(
+                f"/api/v1/projects/{project_id}.json",
+                fallback_endpoint=f"/api/v2/projects/{project_id}",
+                meta=True,
+            )
+        except requests.HTTPError:
+            project_payload = {}
+        for key in ("milestones", "folders", "current_milestones", "future_milestones", "last_milestones"):
+            value = project_payload.get(key) if isinstance(project_payload, dict) else None
+            if isinstance(value, list):
+                return [item for item in value if isinstance(item, dict)]
+        try:
+            return self._list_paginated_with_params(
+                "/api/v1/milestones.json",
+                project_id=project_id,
+            )
+        except requests.HTTPError:
+            try:
+                return self._list_paginated_with_params("/api/v2/folders", project_id=project_id)
+            except requests.HTTPError:
+                return []
 
     def list_users_or_observed_members(self) -> list[ExternalElnUser]:
         return sorted(self._observed_users.values(), key=lambda user: user.display_name.lower())
