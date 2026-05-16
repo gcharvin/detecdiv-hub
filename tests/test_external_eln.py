@@ -13,6 +13,7 @@ from api.services.external_eln_clients import (
     labguru_observed_users_from_payload,
     normalize_external_url,
     normalize_system_key,
+    sanitize_http_error_message,
 )
 from api.services.external_eln_matching import (
     extract_date_key,
@@ -209,6 +210,78 @@ def test_labguru_client_creates_experiment_with_widget_fields(monkeypatch) -> No
             "timeout": 30.0,
         }
     ]
+
+
+def test_labguru_client_falls_back_to_legacy_flat_experiment_payload(monkeypatch) -> None:
+    calls = []
+
+    class FakeResponse:
+        def __init__(self, status_code: int, payload: dict | None = None, text: str = "") -> None:
+            self.status_code = status_code
+            self.reason = "Bad Request" if status_code >= 400 else "OK"
+            self._payload = payload or {}
+            self.text = text
+            self.url = "https://labguru.example.org/api/v1/experiments.json?token=secret-token"
+
+        def raise_for_status(self) -> None:
+            if self.status_code >= 400:
+                import requests
+
+                raise requests.HTTPError("bad request", response=self)
+
+        def json(self) -> dict:
+            return self._payload
+
+    def fake_post(url, *, json, params, timeout):
+        calls.append({"url": url, "json": json, "params": params, "timeout": timeout})
+        if url.endswith("/api/v2/experiments"):
+            return FakeResponse(400, text="unsupported payload")
+        return FakeResponse(
+            200,
+            {
+                "id": 732,
+                "title": json["title"],
+                "url": "/knowledge/experiments/732",
+            },
+        )
+
+    monkeypatch.setattr("api.services.external_eln_clients.requests.post", fake_post)
+    client = LabguruClient(base_url="https://labguru.example.org", token="secret-token")
+
+    experiment = client.create_experiment(
+        title="2026_05_16_test",
+        description="Acquisition confirmed",
+        procedure="Run MDA",
+        conditions="YPD",
+        project_id="47",
+        folder_id="235",
+    )
+
+    assert experiment.external_id == "732"
+    assert calls[1]["url"] == "https://labguru.example.org/api/v1/experiments.json"
+    assert calls[1]["params"] == {}
+    assert calls[1]["json"]["token"] == "secret-token"
+    assert calls[1]["json"]["project_id"] == "47"
+    assert calls[1]["json"]["milestone_id"] == "235"
+    assert "Acquisition confirmed" in calls[1]["json"]["description"]
+    assert "Run MDA" in calls[1]["json"]["description"]
+    assert "YPD" in calls[1]["json"]["description"]
+
+
+def test_labguru_http_error_sanitizer_redacts_token() -> None:
+    import requests
+
+    response = requests.Response()
+    response.status_code = 400
+    response.reason = "Bad Request"
+    response.url = "https://cle.inserm.fr/api/v1/experiments.json?token=secret-token"
+    response._content = b"token=secret-token invalid payload"
+    exc = requests.HTTPError("bad", response=response)
+
+    message = sanitize_http_error_message(exc)
+
+    assert "secret-token" not in message
+    assert "<redacted>" in message
 
 
 def test_labguru_client_lists_project_milestones_as_folders(monkeypatch) -> None:

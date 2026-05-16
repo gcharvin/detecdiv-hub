@@ -30,7 +30,7 @@ from api.services.external_eln import (
     upsert_external_experiment_record,
     upsert_external_publication_link,
 )
-from api.services.external_eln_clients import LabguruClient
+from api.services.external_eln_clients import LabguruClient, sanitize_http_error_message
 from api.services.acquisition_sessions import (
     build_session_key,
     ensure_acquisition_session_editable,
@@ -288,7 +288,7 @@ def create_labguru_experiment_for_acquisition_session(
         db.commit()
         raise HTTPException(
             status_code=status.HTTP_502_BAD_GATEWAY,
-            detail=f"Labguru experiment creation failed: {exc}",
+            detail=f"Labguru experiment creation failed: {sanitize_http_error_message(exc)}",
         ) from exc
 
     synced_at = datetime.now(timezone.utc)

@@ -5,7 +5,7 @@ import re
 from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Any, Protocol
-from urllib.parse import urljoin
+from urllib.parse import parse_qsl, urlencode, urljoin, urlsplit, urlunsplit
 
 import requests
 
@@ -138,11 +138,7 @@ class LabguruClient:
                 }
                 for section_name, section_text in procedure_sections
             ]
-        payload = self._post_json(
-            "/api/v2/experiments",
-            fallback_endpoint="/api/v1/experiments.json",
-            json_payload={"experiment": experiment_payload},
-        )
+        payload = self._create_experiment_payload(experiment_payload)
         if isinstance(payload, dict):
             created_payload = payload.get("experiment") if isinstance(payload.get("experiment"), dict) else payload
             experiment = labguru_experiment_from_payload(created_payload, base_url=self.base_url)
@@ -159,6 +155,35 @@ class LabguruClient:
                 )
             return experiment
         raise ValueError("Labguru create experiment response was not a JSON object.")
+
+    def _create_experiment_payload(self, experiment_payload: dict[str, Any]) -> Any:
+        try:
+            return self._post_json_once(
+                "/api/v2/experiments",
+                json_payload={"experiment": experiment_payload},
+            )
+        except requests.HTTPError:
+            legacy_payload = {
+                key: value
+                for key, value in experiment_payload.items()
+                if key
+                in {
+                    "title",
+                    "name",
+                    "description",
+                    "project_id",
+                    "milestone_id",
+                    "folder_id",
+                }
+            }
+            legacy_description = legacy_experiment_description(experiment_payload)
+            if legacy_description:
+                legacy_payload["description"] = legacy_description
+            return self._post_json_once(
+                "/api/v1/experiments.json",
+                json_payload=legacy_payload,
+                token_in_payload=True,
+            )
 
     def list_projects(self) -> list[ExternalElnContainer]:
         return [
@@ -310,9 +335,17 @@ class LabguruClient:
                 raise
             return self._post_json_once(fallback_endpoint, json_payload=json_payload)
 
-    def _post_json_once(self, endpoint: str, *, json_payload: dict[str, Any] | None = None) -> Any:
-        params = {"token": self.token}
+    def _post_json_once(
+        self,
+        endpoint: str,
+        *,
+        json_payload: dict[str, Any] | None = None,
+        token_in_payload: bool = False,
+    ) -> Any:
+        params = {} if token_in_payload else {"token": self.token}
         payload = dict(json_payload or {})
+        if token_in_payload:
+            payload["token"] = self.token
         response = requests.post(
             urljoin(self.base_url, endpoint),
             json=payload,
@@ -429,6 +462,23 @@ def labguru_container_from_payload(payload: dict[str, Any]) -> ExternalElnContai
     return ExternalElnContainer(external_id=external_id, name=name, payload_json=payload)
 
 
+def legacy_experiment_description(experiment_payload: dict[str, Any]) -> str | None:
+    sections: list[str] = []
+    description = str(experiment_payload.get("description") or "").strip()
+    if description:
+        sections.append(description)
+    procedure_payloads = experiment_payload.get("experiment_procedures_attributes")
+    if isinstance(procedure_payloads, list):
+        for procedure in procedure_payloads:
+            if not isinstance(procedure, dict):
+                continue
+            name = str(procedure.get("name") or "Section").strip()
+            text = str(procedure.get("description") or "").strip()
+            if text:
+                sections.append(f"{name}\n{text}")
+    return "\n\n".join(sections) or None
+
+
 def labguru_experiment_from_payload(payload: dict[str, Any], *, base_url: str) -> ExternalElnExperiment:
     external_id = str(payload.get("id") or payload.get("external_id") or "").strip()
     if not external_id:
@@ -501,6 +551,29 @@ def normalize_external_url(value: str, *, base_url: str) -> str:
     if not text:
         return normalize_base_url(base_url)
     return urljoin(normalize_base_url(base_url), text)
+
+
+def sanitize_http_error_message(exc: Exception) -> str:
+    message = str(exc)
+    if isinstance(exc, requests.HTTPError) and exc.response is not None:
+        url = redact_url_token(exc.response.url)
+        body = exc.response.text.strip()
+        message = f"{exc.response.status_code} {exc.response.reason} for {url}"
+        if body:
+            message = f"{message}: {body[:500]}"
+    return redact_token_values(message)
+
+
+def redact_url_token(url: str) -> str:
+    parts = urlsplit(str(url or ""))
+    query = []
+    for key, value in parse_qsl(parts.query, keep_blank_values=True):
+        query.append((key, "<redacted>" if key.lower() == "token" else value))
+    return urlunsplit((parts.scheme, parts.netloc, parts.path, urlencode(query), parts.fragment))
+
+
+def redact_token_values(text: str) -> str:
+    return re.sub(r"(?i)(token=)[^&\s:]+", r"\1<redacted>", str(text))
 
 
 def labguru_observed_users_from_payload(payload: dict[str, Any]) -> list[ExternalElnUser]:
