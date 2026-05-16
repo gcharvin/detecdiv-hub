@@ -169,11 +169,9 @@ class LabguruClient:
                 if key
                 in {
                     "title",
-                    "name",
                     "description",
                     "project_id",
                     "milestone_id",
-                    "folder_id",
                 }
             }
             legacy_description = legacy_experiment_description(experiment_payload)
@@ -181,7 +179,7 @@ class LabguruClient:
                 legacy_payload["description"] = legacy_description
             return self._post_json_once(
                 "/api/v1/experiments.json",
-                json_payload=legacy_payload,
+                json_payload={"item": legacy_payload},
                 token_in_payload=True,
             )
 

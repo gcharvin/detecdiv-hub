@@ -240,7 +240,7 @@ def test_labguru_client_falls_back_to_legacy_flat_experiment_payload(monkeypatch
             200,
             {
                 "id": 732,
-                "title": json["title"],
+                "title": json["item"]["title"],
                 "url": "/knowledge/experiments/732",
             },
         )
@@ -261,11 +261,15 @@ def test_labguru_client_falls_back_to_legacy_flat_experiment_payload(monkeypatch
     assert calls[1]["url"] == "https://labguru.example.org/api/v1/experiments.json"
     assert calls[1]["params"] == {}
     assert calls[1]["json"]["token"] == "secret-token"
-    assert calls[1]["json"]["project_id"] == "47"
-    assert calls[1]["json"]["milestone_id"] == "235"
-    assert "Acquisition confirmed" in calls[1]["json"]["description"]
-    assert "Run MDA" in calls[1]["json"]["description"]
-    assert "YPD" in calls[1]["json"]["description"]
+    item = calls[1]["json"]["item"]
+    assert item["title"] == "2026_05_16_test"
+    assert item["project_id"] == "47"
+    assert item["milestone_id"] == "235"
+    assert "name" not in item
+    assert "folder_id" not in item
+    assert "Acquisition confirmed" in item["description"]
+    assert "Run MDA" in item["description"]
+    assert "YPD" in item["description"]
 
 
 def test_labguru_http_error_sanitizer_redacts_token() -> None:
