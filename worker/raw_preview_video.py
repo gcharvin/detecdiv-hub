@@ -1304,7 +1304,15 @@ def is_zarr_array_dir(path: Path) -> bool:
         return False
     if not isinstance(metadata, dict):
         return False
-    return str(metadata.get("node_type") or "").strip().lower() == "array"
+    node_type = str(metadata.get("node_type") or "").strip().lower()
+    if node_type:
+        return node_type == "array"
+    attributes = metadata.get("attributes")
+    if isinstance(attributes, dict) and any(key in attributes for key in ("ome", "multiscales", "omero")):
+        return False
+    if "shape" in metadata or "chunk_grid" in metadata or "data_type" in metadata:
+        return True
+    return not metadata
 
 
 def select_best_zarr_array(node):
