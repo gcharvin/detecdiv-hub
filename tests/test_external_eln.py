@@ -211,6 +211,45 @@ def test_labguru_client_creates_experiment_with_widget_fields(monkeypatch) -> No
     ]
 
 
+def test_labguru_client_lists_project_milestones_as_folders(monkeypatch) -> None:
+    calls = []
+
+    class FakeResponse:
+        def __init__(self, payload: dict) -> None:
+            self._payload = payload
+
+        def raise_for_status(self) -> None:
+            return None
+
+        def json(self) -> dict:
+            return self._payload
+
+    def fake_get(url, *, json, params, timeout):
+        calls.append({"url": url, "json": json, "params": params, "timeout": timeout})
+        return FakeResponse(
+            {
+                "id": 3,
+                "title": "C.albicans preliminary work",
+                "milestones": [
+                    {"id": 41, "title": "pilot movies"},
+                    {"id": 42, "name": "segmentation checks"},
+                ],
+            }
+        )
+
+    monkeypatch.setattr("api.services.external_eln_clients.requests.get", fake_get)
+    client = LabguruClient(base_url="https://labguru.example.org", token="token-123")
+
+    folders = client.list_folders(project_id="3")
+
+    assert [(folder.external_id, folder.name) for folder in folders] == [
+        ("41", "pilot movies"),
+        ("42", "segmentation checks"),
+    ]
+    assert calls[0]["url"] == "https://labguru.example.org/api/v1/projects/3.json"
+    assert calls[0]["params"]["meta"] is True
+
+
 def test_external_matching_scores_exact_dataset_label() -> None:
     raw = RawDataset(acquisition_label="2026_03_17_BUD4-NG-3xmAID_YAL18", visibility="private")
     raw.locations = []
