@@ -212,7 +212,7 @@ def test_labguru_client_creates_experiment_with_widget_fields(monkeypatch) -> No
     ]
 
 
-def test_labguru_client_falls_back_to_legacy_flat_experiment_payload(monkeypatch) -> None:
+def test_labguru_client_falls_back_to_legacy_item_experiment_payload(monkeypatch) -> None:
     calls = []
 
     class FakeResponse:
@@ -233,19 +233,71 @@ def test_labguru_client_falls_back_to_legacy_flat_experiment_payload(monkeypatch
             return self._payload
 
     def fake_post(url, *, json, params, timeout):
-        calls.append({"url": url, "json": json, "params": params, "timeout": timeout})
+        calls.append({"method": "POST", "url": url, "json": json, "params": params, "timeout": timeout})
         if url.endswith("/api/v2/experiments"):
             return FakeResponse(400, text="unsupported payload")
+        if url.endswith("/api/v1/sections.json"):
+            return FakeResponse(
+                200,
+                {
+                    "id": 331,
+                    "name": json["item"]["name"],
+                    "container_id": json["item"]["container_id"],
+                    "container_type": json["item"]["container_type"],
+                },
+            )
+        if url.endswith("/api/v1/elements.json"):
+            return FakeResponse(
+                200,
+                {
+                    "id": 881,
+                    "element_type": json["item"]["element_type"],
+                    "data": json["item"]["data"],
+                },
+            )
         return FakeResponse(
             200,
             {
                 "id": 732,
                 "title": json["item"]["title"],
                 "url": "/knowledge/experiments/732",
+                "experiment_procedures": [
+                    {
+                        "experiment_procedure": {
+                            "name": "Description",
+                            "elements": [{"id": 771, "element_type": "text"}],
+                        }
+                    },
+                    {
+                        "experiment_procedure": {
+                            "name": "Procedure",
+                            "elements": [{"id": 772, "element_type": "text"}],
+                        }
+                    },
+                    {
+                        "experiment_procedure": {
+                            "name": "Results",
+                            "elements": [{"id": 773, "element_type": "text"}],
+                        }
+                    },
+                ],
+            },
+        )
+
+    def fake_put(url, *, json, params, timeout):
+        calls.append({"method": "PUT", "url": url, "json": json, "params": params, "timeout": timeout})
+        return FakeResponse(
+            200,
+            {
+                "id": int(url.rsplit("/", 1)[-1].split(".", 1)[0]),
+                "element_type": "text",
+                "name": json["element"]["name"],
+                "data": json["element"]["data"],
             },
         )
 
     monkeypatch.setattr("api.services.external_eln_clients.requests.post", fake_post)
+    monkeypatch.setattr("api.services.external_eln_clients.requests.put", fake_put)
     client = LabguruClient(base_url="https://labguru.example.org", token="secret-token")
 
     experiment = client.create_experiment(
@@ -270,6 +322,15 @@ def test_labguru_client_falls_back_to_legacy_flat_experiment_payload(monkeypatch
     assert "Acquisition confirmed" in item["description"]
     assert "Run MDA" in item["description"]
     assert "YPD" in item["description"]
+    put_calls = [call for call in calls if call["method"] == "PUT"]
+    assert [call["json"]["element"]["name"] for call in put_calls] == ["Description", "Procedure"]
+    assert "Acquisition confirmed" in put_calls[0]["json"]["element"]["data"]
+    assert "Run MDA" in put_calls[1]["json"]["element"]["data"]
+    conditions_section = next(call for call in calls if call["url"].endswith("/api/v1/sections.json"))
+    assert conditions_section["json"]["item"]["name"] == "Conditions"
+    conditions_element = next(call for call in calls if call["url"].endswith("/api/v1/elements.json"))
+    assert "YPD" in conditions_element["json"]["item"]["data"]
+    assert experiment.payload_json["experiment_procedures"][-1]["experiment_procedure"]["name"] == "Conditions"
 
 
 def test_labguru_http_error_sanitizer_redacts_token() -> None:

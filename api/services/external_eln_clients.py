@@ -138,7 +138,12 @@ class LabguruClient:
                 }
                 for section_name, section_text in procedure_sections
             ]
-        payload = self._create_experiment_payload(experiment_payload)
+        text_sections = {
+            "Description": description,
+            "Procedure": procedure,
+            "Conditions": conditions,
+        }
+        payload = self._create_experiment_payload(experiment_payload, text_sections=text_sections)
         if isinstance(payload, dict):
             created_payload = payload.get("experiment") if isinstance(payload.get("experiment"), dict) else payload
             experiment = labguru_experiment_from_payload(created_payload, base_url=self.base_url)
@@ -156,7 +161,12 @@ class LabguruClient:
             return experiment
         raise ValueError("Labguru create experiment response was not a JSON object.")
 
-    def _create_experiment_payload(self, experiment_payload: dict[str, Any]) -> Any:
+    def _create_experiment_payload(
+        self,
+        experiment_payload: dict[str, Any],
+        *,
+        text_sections: dict[str, str | None] | None = None,
+    ) -> Any:
         try:
             return self._post_json_once(
                 "/api/v2/experiments",
@@ -177,11 +187,14 @@ class LabguruClient:
             legacy_description = legacy_experiment_description(experiment_payload)
             if legacy_description:
                 legacy_payload["description"] = legacy_description
-            return self._post_json_once(
+            created_payload = self._post_json_once(
                 "/api/v1/experiments.json",
                 json_payload={"item": legacy_payload},
                 token_in_payload=True,
             )
+            if isinstance(created_payload, dict):
+                self._populate_legacy_experiment_text_sections(created_payload, text_sections or {})
+            return created_payload
 
     def list_projects(self) -> list[ExternalElnContainer]:
         return [
@@ -353,6 +366,103 @@ class LabguruClient:
         response.raise_for_status()
         return response.json()
 
+    def _put_json_once(
+        self,
+        endpoint: str,
+        *,
+        json_payload: dict[str, Any] | None = None,
+        token_in_payload: bool = False,
+    ) -> Any:
+        params = {} if token_in_payload else {"token": self.token}
+        payload = dict(json_payload or {})
+        if token_in_payload:
+            payload["token"] = self.token
+        response = requests.put(
+            urljoin(self.base_url, endpoint),
+            json=payload,
+            params=params,
+            timeout=self.timeout_seconds,
+        )
+        response.raise_for_status()
+        return response.json()
+
+    def _populate_legacy_experiment_text_sections(
+        self,
+        created_payload: dict[str, Any],
+        text_sections: dict[str, str | None],
+    ) -> None:
+        clean_sections = {
+            section_name: str(section_text).strip()
+            for section_name, section_text in text_sections.items()
+            if str(section_text or "").strip()
+        }
+        if not clean_sections:
+            return
+
+        section_by_name = {
+            normalize_labguru_section_key(procedure): procedure
+            for procedure in labguru_experiment_procedures(created_payload)
+        }
+        for section_name in ("Description", "Procedure"):
+            section_text = clean_sections.get(section_name)
+            if not section_text:
+                continue
+            procedure = section_by_name.get(section_name.lower())
+            if procedure is None:
+                continue
+            element = first_labguru_text_element(procedure)
+            if element is None:
+                continue
+            updated = self._put_json_once(
+                f"/api/v1/elements/{element['id']}.json",
+                json_payload={
+                    "element": {
+                        "name": section_name,
+                        "data": html_text(section_text),
+                    }
+                },
+                token_in_payload=True,
+            )
+            if isinstance(updated, dict):
+                element.update(updated)
+
+        conditions = clean_sections.get("Conditions")
+        experiment_id = str(created_payload.get("id") or "").strip()
+        if conditions and experiment_id:
+            section = self._post_json_once(
+                "/api/v1/sections.json",
+                json_payload={
+                    "item": {
+                        "container_id": experiment_id,
+                        "container_type": "Projects::Experiment",
+                        "name": "Conditions",
+                        "section_type": "text",
+                    }
+                },
+                token_in_payload=True,
+            )
+            if isinstance(section, dict):
+                section_id = str(section.get("id") or "").strip()
+                element = None
+                if section_id:
+                    element = self._post_json_once(
+                        "/api/v1/elements.json",
+                        json_payload={
+                            "item": {
+                                "container_id": section_id,
+                                "container_type": "ExperimentProcedure",
+                                "element_type": "text",
+                                "data": html_text(conditions),
+                            }
+                        },
+                        token_in_payload=True,
+                    )
+                if isinstance(element, dict):
+                    section["elements"] = [element]
+                created_payload.setdefault("experiment_procedures", []).append(
+                    {"experiment_procedure": section}
+                )
+
     def _hydrate_experiment_text_elements(self, payload: dict[str, Any]) -> None:
         for procedure in labguru_experiment_procedures(payload):
             elements = procedure.get("elements")
@@ -477,6 +587,10 @@ def legacy_experiment_description(experiment_payload: dict[str, Any]) -> str | N
     return "\n\n".join(sections) or None
 
 
+def html_text(value: str) -> str:
+    return f"<p>{html.escape(str(value)).replace(chr(10), '<br>')}</p>"
+
+
 def labguru_experiment_from_payload(payload: dict[str, Any], *, base_url: str) -> ExternalElnExperiment:
     external_id = str(payload.get("id") or payload.get("external_id") or "").strip()
     if not external_id:
@@ -508,6 +622,18 @@ def labguru_experiment_procedures(payload: dict[str, Any]) -> list[dict[str, Any
         if isinstance(procedure, dict):
             procedures.append(procedure)
     return procedures
+
+
+def first_labguru_text_element(procedure: dict[str, Any]) -> dict[str, Any] | None:
+    elements = procedure.get("elements")
+    if not isinstance(elements, list):
+        return None
+    for element in elements:
+        if not isinstance(element, dict):
+            continue
+        if element.get("element_type") == "text" and str(element.get("id") or "").strip():
+            return element
+    return None
 
 
 def extract_labguru_text_sections(payload: dict[str, Any]) -> dict[str, str]:

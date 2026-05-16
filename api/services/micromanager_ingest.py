@@ -6,12 +6,14 @@ import re
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
+from uuid import UUID
 
 from sqlalchemy import select, text
 from sqlalchemy.orm import Session, joinedload
 
 from api.config import Settings, get_settings
-from api.models import ExperimentProject, Job, MicroManagerIngestRun, Pipeline, RawDataset, User
+from api.models import AcquisitionSession, ExperimentProject, Job, MicroManagerIngestRun, Pipeline, RawDataset, User
+from api.services.acquisition_sessions import merge_json
 from api.services.micromanager_metadata import (
     extract_acquisition_dimensions,
     find_micromanager_display_settings_path,
@@ -532,6 +534,74 @@ def ensure_micromanager_experiment(
     return experiment, created
 
 
+def acquisition_session_for_candidate(
+    session: Session,
+    candidate: MicroManagerDatasetCandidate,
+) -> AcquisitionSession | None:
+    manifest = candidate.metadata_json.get("detecdiv_acquisition_manifest")
+    if not isinstance(manifest, dict):
+        return None
+
+    acquisition_session_id = manifest_string(manifest, "acquisition_session_id")
+    if acquisition_session_id:
+        try:
+            acquisition_session = session.scalars(
+                select(AcquisitionSession)
+                .options(joinedload(AcquisitionSession.experiment_project))
+                .where(AcquisitionSession.id == UUID(acquisition_session_id))
+            ).first()
+        except ValueError:
+            acquisition_session = None
+        if acquisition_session is not None:
+            return acquisition_session
+
+    acquisition_session_key = manifest_string(manifest, "acquisition_session_key")
+    if acquisition_session_key:
+        acquisition_session = session.scalars(
+            select(AcquisitionSession)
+            .options(joinedload(AcquisitionSession.experiment_project))
+            .where(AcquisitionSession.session_key == acquisition_session_key)
+        ).first()
+        if acquisition_session is not None:
+            return acquisition_session
+
+    landing_relative_path = manifest_string(manifest, "landing_relative_path")
+    if landing_relative_path:
+        normalized_landing_path = landing_relative_path.strip().strip("/").replace("\\", "/")
+        return session.scalars(
+            select(AcquisitionSession)
+            .options(joinedload(AcquisitionSession.experiment_project))
+            .where(AcquisitionSession.landing_relative_path == normalized_landing_path)
+            .order_by(AcquisitionSession.created_at.desc())
+        ).first()
+    return None
+
+
+def mark_acquisition_session_ingested(
+    acquisition_session: AcquisitionSession | None,
+    *,
+    raw_dataset: RawDataset,
+    experiment: ExperimentProject,
+    candidate: MicroManagerDatasetCandidate,
+) -> None:
+    if acquisition_session is None:
+        return
+    acquisition_session.raw_dataset_id = raw_dataset.id
+    acquisition_session.experiment_project_id = experiment.id
+    acquisition_session.result_json = merge_json(
+        acquisition_session.result_json,
+        {
+            "raw_dataset_id": str(raw_dataset.id),
+            "experiment_project_id": str(experiment.id),
+            "micromanager_ingest": {
+                "linked": True,
+                "relative_path": candidate.relative_path,
+                "raw_dataset_external_key": raw_dataset.external_key,
+            },
+        },
+    )
+
+
 def queue_post_ingest_pipeline_job(
     session: Session,
     *,
@@ -635,12 +705,17 @@ def execute_micromanager_ingest_run(
                     if candidate.owner_user_key
                     else triggered_by_user
                 )
-                experiment, experiment_created = ensure_micromanager_experiment(
-                    session,
-                    owner=candidate_owner,
-                    visibility=config.visibility,
-                    candidate=candidate,
-                )
+                acquisition_session = acquisition_session_for_candidate(session, candidate)
+                if acquisition_session is not None and acquisition_session.experiment_project is not None:
+                    experiment = acquisition_session.experiment_project
+                    experiment_created = False
+                else:
+                    experiment, experiment_created = ensure_micromanager_experiment(
+                        session,
+                        owner=candidate_owner,
+                        visibility=config.visibility,
+                        candidate=candidate,
+                    )
                 raw_dataset = ingest_raw_dataset_from_directory(
                     session,
                     owner=candidate_owner,
@@ -660,6 +735,12 @@ def execute_micromanager_ingest_run(
                     completeness_status=candidate.completeness_status,
                     started_at=candidate.session_date or candidate.last_modified_at,
                     ended_at=candidate.last_modified_at,
+                )
+                mark_acquisition_session_ingested(
+                    acquisition_session,
+                    raw_dataset=raw_dataset,
+                    experiment=experiment,
+                    candidate=candidate,
                 )
                 queued_job_id = queue_post_ingest_pipeline_job(
                     session,
