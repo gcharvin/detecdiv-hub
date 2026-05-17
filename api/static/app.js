@@ -3669,7 +3669,7 @@ function renderRawPositions(positions) {
   }
   if (!positions.length) {
     const tr = document.createElement("tr");
-    tr.innerHTML = `<td colspan="5">No positions indexed yet.</td>`;
+    tr.innerHTML = `<td colspan="8">No positions indexed yet.</td>`;
     els.rawPositionsTableBody.appendChild(tr);
     renderRawPositionSelectionControls(positions);
     renderRawPositionDeletePanel();
@@ -3685,6 +3685,7 @@ function renderRawPositions(positions) {
   });
   for (const position of sortedPositions) {
     const artifact = position.preview_artifact;
+    const metadata = position.metadata_json || {};
     const tr = document.createElement("tr");
     if (state.selectedRawPositionId === position.id) {
       tr.classList.add("selected");
@@ -3692,9 +3693,12 @@ function renderRawPositions(positions) {
     const actionLabel = artifact?.uri ? "Regenerate MP4" : "Queue MP4";
     tr.innerHTML = `
       <td><input class="raw-position-select-checkbox" type="checkbox" ${isRawPositionSelected(position.id) ? "checked" : ""} /></td>
-      <td>${position.display_name || position.position_key}</td>
-      <td>${position.status}</td>
-      <td>${position.preview_status}</td>
+      <td>${escapeHtml(position.display_name || position.position_key)}</td>
+      <td>${escapeHtml(metadata.strain || "")}</td>
+      <td>${escapeHtml(metadata.medium || "")}</td>
+      <td>${escapeHtml(position.description || metadata.description || metadata.notes || "")}</td>
+      <td>${escapeHtml(position.status)}</td>
+      <td>${escapeHtml(position.preview_status)}</td>
       <td><button data-position-id="${position.id}" class="queue-position-preview">${actionLabel}</button></td>
     `;
     tr.addEventListener("click", () => {
@@ -4459,13 +4463,74 @@ function externalLinkTextHtml(link) {
       return `
         <details class="external-text-section">
           <summary>${escapeHtml(label)}</summary>
-          <div class="notes-block">${escapeHtml(value)}</div>
+          <div class="notes-block">${externalTextValueHtml(value)}</div>
         </details>
       `;
     })
     .filter(Boolean)
     .join("");
   return rendered ? `<div class="external-text-sections">${rendered}</div>` : "";
+}
+
+function externalTextValueHtml(value) {
+  const text = String(value || "").trim();
+  const marker = "Position annotations:";
+  const markerIndex = text.indexOf(marker);
+  if (markerIndex < 0) {
+    return escapeHtml(text);
+  }
+  const intro = text.slice(0, markerIndex).trim();
+  const annotationText = text.slice(markerIndex + marker.length).trim();
+  const parts = [];
+  if (intro) {
+    parts.push(`<div>${escapeHtml(intro)}</div>`);
+  }
+  const table = positionAnnotationsTextTableHtml(annotationText);
+  if (table) {
+    parts.push(table);
+  }
+  return parts.join("");
+}
+
+function positionAnnotationsTextTableHtml(value) {
+  const blocks = String(value || "")
+    .split(/\n\s*\n/)
+    .map((block) => block.trim())
+    .filter(Boolean);
+  if (!blocks.length) {
+    return "";
+  }
+  const rows = blocks.map((block) => {
+    const lines = block.split(/\n/).map((line) => line.trim()).filter(Boolean);
+    const row = { position: lines[0] || "", strain: "", medium: "", description: "", notes: "" };
+    for (const line of lines.slice(1)) {
+      const index = line.indexOf(":");
+      if (index < 0) continue;
+      const key = line.slice(0, index).trim().toLowerCase();
+      if (Object.prototype.hasOwnProperty.call(row, key)) {
+        row[key] = line.slice(index + 1).trim();
+      }
+    }
+    return row;
+  });
+  return `
+    <table class="annotation-table">
+      <thead>
+        <tr><th>Position</th><th>Strain</th><th>Medium</th><th>Description</th><th>Notes</th></tr>
+      </thead>
+      <tbody>
+        ${rows.map((row) => `
+          <tr>
+            <td>${escapeHtml(row.position)}</td>
+            <td>${escapeHtml(row.strain)}</td>
+            <td>${escapeHtml(row.medium)}</td>
+            <td>${escapeHtml(row.description)}</td>
+            <td>${escapeHtml(row.notes)}</td>
+          </tr>
+        `).join("")}
+      </tbody>
+    </table>
+  `;
 }
 
 function rawExternalLinks() {

@@ -760,6 +760,26 @@ tbody tr.selected {
   white-space: pre-wrap;
 }
 
+.annotation-table {
+  width: 100%;
+  margin-top: 0.55rem;
+  border-collapse: collapse;
+  white-space: normal;
+}
+
+.annotation-table th,
+.annotation-table td {
+  padding: 6px 8px;
+  border: 1px solid var(--line);
+  vertical-align: top;
+  text-align: left;
+}
+
+.annotation-table th {
+  font-weight: 700;
+  background: var(--panel-strong);
+}
+
 #raw-preview-progress.status-running {
   color: #7be0a0;
 }

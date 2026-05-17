@@ -132,7 +132,7 @@ class LabguruClient:
                     "elements_attributes": [
                         {
                             "element_type": "text",
-                            "data": html.escape(str(section_text)).replace("\n", "<br>"),
+                            "data": html_text(str(section_text)),
                         }
                     ],
                 }
@@ -588,7 +588,62 @@ def legacy_experiment_description(experiment_payload: dict[str, Any]) -> str | N
 
 
 def html_text(value: str) -> str:
-    return f"<p>{html.escape(str(value)).replace(chr(10), '<br>')}</p>"
+    text = str(value or "").strip()
+    if not text:
+        return ""
+    marker_match = re.search(r"(?im)^Position annotations:\s*$", text)
+    if not marker_match:
+        return f"<p>{html.escape(text).replace(chr(10), '<br>')}</p>"
+
+    intro = text[: marker_match.start()].strip()
+    annotations = text[marker_match.end() :].strip()
+    fragments: list[str] = []
+    if intro:
+        fragments.append(f"<p>{html.escape(intro).replace(chr(10), '<br>')}</p>")
+    fragments.append(position_annotations_html(annotations))
+    return "".join(fragment for fragment in fragments if fragment)
+
+
+def position_annotations_html(value: str) -> str:
+    blocks = [block.strip() for block in re.split(r"\n\s*\n", str(value or "").strip()) if block.strip()]
+    rows: list[dict[str, str]] = []
+    for block in blocks:
+        lines = [line.strip() for line in block.splitlines() if line.strip()]
+        if not lines:
+            continue
+        row = {"position": lines[0], "strain": "", "medium": "", "description": "", "notes": ""}
+        for line in lines[1:]:
+            if ":" not in line:
+                continue
+            key, raw_value = line.split(":", 1)
+            normalized = key.strip().lower()
+            if normalized in row:
+                row[normalized] = raw_value.strip()
+        rows.append(row)
+    if not rows:
+        return ""
+
+    header_cells = "".join(
+        f"<th>{html.escape(label)}</th>"
+        for label in ("Position", "Strain", "Medium", "Description", "Notes")
+    )
+    body_rows = []
+    for row in rows:
+        body_rows.append(
+            "<tr>"
+            + "".join(
+                f"<td>{html.escape(row.get(key, ''))}</td>"
+                for key in ("position", "strain", "medium", "description", "notes")
+            )
+            + "</tr>"
+        )
+    return (
+        "<h3>Position annotations</h3>"
+        "<table style=\"border-collapse:collapse;width:100%;\">"
+        f"<thead><tr>{header_cells}</tr></thead>"
+        f"<tbody>{''.join(body_rows)}</tbody>"
+        "</table>"
+    )
 
 
 def labguru_experiment_from_payload(payload: dict[str, Any], *, base_url: str) -> ExternalElnExperiment:

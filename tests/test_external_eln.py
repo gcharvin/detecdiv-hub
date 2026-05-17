@@ -8,6 +8,7 @@ from api.services.external_eln_clients import (
     LabguruClient,
     extract_list_payload,
     extract_labguru_text_sections,
+    html_text,
     html_to_text,
     labguru_experiment_from_payload,
     labguru_observed_users_from_payload,
@@ -199,7 +200,7 @@ def test_labguru_client_creates_experiment_with_widget_fields(monkeypatch) -> No
                             "elements_attributes": [
                                 {
                                     "element_type": "text",
-                                    "data": "1. Start MDA<br>2. Confirm transfer",
+                                    "data": "<p>1. Start MDA<br>2. Confirm transfer</p>",
                                 }
                             ],
                         }
@@ -331,6 +332,24 @@ def test_labguru_client_falls_back_to_legacy_item_experiment_payload(monkeypatch
     conditions_element = next(call for call in calls if call["url"].endswith("/api/v1/elements.json"))
     assert "YPD" in conditions_element["json"]["item"]["data"]
     assert experiment.payload_json["experiment_procedures"][-1]["experiment_procedure"]["name"] == "Conditions"
+
+
+def test_html_text_formats_position_annotations_as_table() -> None:
+    html = html_text(
+        "Acquisition looked good.\n\n"
+        "Position annotations:\n\n"
+        "Position 0 - Pos0\n"
+        "Strain: BY4741\n"
+        "Medium: SC\n\n"
+        "Position 1 - Pos1\n"
+        "Description: drug condition"
+    )
+
+    assert "<h3>Position annotations</h3>" in html
+    assert "<table" in html
+    assert "<td>Position 0 - Pos0</td>" in html
+    assert "<td>BY4741</td>" in html
+    assert "<td>drug condition</td>" in html
 
 
 def test_labguru_http_error_sanitizer_redacts_token() -> None:
