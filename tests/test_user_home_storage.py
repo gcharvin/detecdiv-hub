@@ -17,9 +17,9 @@ def test_normalize_provider_key_is_stable() -> None:
 
 
 def test_normalize_home_relative_path_accepts_safe_paths() -> None:
-    assert normalize_home_relative_path("florian/DetecDiv") == "florian/DetecDiv"
-    assert normalize_home_relative_path(r"florian\DetecDiv\projects") == "florian/DetecDiv/projects"
-    assert normalize_home_relative_path(" florian/DetecDiv/ ") == "florian/DetecDiv"
+    assert normalize_home_relative_path("florian/DetecdivHub") == "florian/DetecdivHub"
+    assert normalize_home_relative_path(r"florian\DetecdivHub\projects") == "florian/DetecdivHub/projects"
+    assert normalize_home_relative_path(" florian/DetecdivHub/ ") == "florian/DetecdivHub"
 
 
 def test_normalize_home_relative_path_rejects_unsafe_paths() -> None:
@@ -34,7 +34,7 @@ def test_normalize_home_relative_path_rejects_unsafe_paths() -> None:
 
 def test_default_home_relative_path_uses_storage_safe_user_key() -> None:
     assert storage_safe_user_key("Alice Smith") == "Alice_Smith"
-    assert default_home_relative_path("Alice Smith") == "Alice_Smith/DetecDiv"
+    assert default_home_relative_path("Alice Smith") == "Alice_Smith/DetecdivHub"
 
 
 def test_quota_mode_guard() -> None:
@@ -50,9 +50,9 @@ def test_quota_mode_guard() -> None:
 def test_resolve_storage_root_relative_path_stays_under_root(tmp_path) -> None:
     root = StorageRoot(name="user-homes", root_type="user_home_root", host_scope="test", path_prefix=str(tmp_path))
 
-    resolved = resolve_storage_root_relative_path(root, "alice/DetecDiv")
+    resolved = resolve_storage_root_relative_path(root, "alice/DetecdivHub")
 
-    assert resolved == (tmp_path / "alice" / "DetecDiv").resolve()
+    assert resolved == (tmp_path / "alice" / "DetecdivHub").resolve()
 
 
 def test_resolve_storage_root_relative_path_requires_existing_root(tmp_path) -> None:
@@ -60,7 +60,7 @@ def test_resolve_storage_root_relative_path_requires_existing_root(tmp_path) -> 
     root = StorageRoot(name="user-homes", root_type="user_home_root", host_scope="test", path_prefix=str(missing))
 
     try:
-        resolve_storage_root_relative_path(root, "alice/DetecDiv")
+        resolve_storage_root_relative_path(root, "alice/DetecdivHub")
     except FileNotFoundError:
         pass
     else:

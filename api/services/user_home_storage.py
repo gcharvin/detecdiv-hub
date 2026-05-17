@@ -69,7 +69,7 @@ def normalize_home_relative_path(value: str) -> str:
 
 
 def default_home_relative_path(provider_user_key: str) -> str:
-    return normalize_home_relative_path(f"{storage_safe_user_key(provider_user_key)}/DetecDiv")
+    return normalize_home_relative_path(f"{storage_safe_user_key(provider_user_key)}/DetecdivHub")
 
 
 def resolve_provider(session: Session, provider_key: str) -> StorageProvider:
