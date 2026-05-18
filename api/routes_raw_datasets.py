@@ -67,7 +67,11 @@ from api.services.raw_archive_delete import (
     archive_file_size_bytes,
     delete_raw_dataset_archive_file,
 )
-from api.services.raw_dataset_deletion import build_raw_dataset_deletion_preview, execute_raw_dataset_deletion
+from api.services.raw_dataset_deletion import (
+    build_raw_dataset_deletion_preview,
+    execute_raw_dataset_deletion,
+    queue_raw_dataset_deletion,
+)
 from api.services.raw_dataset_position_deletion import (
     build_raw_dataset_position_deletion_preview,
     execute_raw_dataset_position_deletion,
@@ -648,6 +652,19 @@ def delete_raw_dataset(
         delete_linked_projects=delete_linked_projects,
         delete_linked_project_files=delete_linked_project_files,
     )
+    if delete_source_files or delete_linked_project_files:
+        job = queue_raw_dataset_deletion(db, preview=preview, requested_by_user=current_user)
+        db.commit()
+        return RawDatasetDeletionResult(
+            raw_dataset_id=raw_dataset_id,
+            status="queued",
+            reclaimable_bytes=preview.reclaimable_bytes,
+            result_json={
+                "job_id": str(job.id),
+                "message": "Raw dataset deletion queued for worker execution.",
+            },
+        )
+
     result = execute_raw_dataset_deletion(db, preview=preview, requested_by_user=current_user)
     db.commit()
     return RawDatasetDeletionResult(

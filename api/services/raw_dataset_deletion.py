@@ -6,10 +6,10 @@ from datetime import datetime, timezone
 from pathlib import Path
 from uuid import UUID
 
-from sqlalchemy import func, select
+from sqlalchemy import delete, func, select
 from sqlalchemy.orm import Session, joinedload
 
-from api.models import Project, ProjectLocation, ProjectRawLink, RawDataset
+from api.models import ExperimentRawLink, Job, Project, ProjectLocation, ProjectRawLink, RawDataset, RawDatasetLocation
 from api.services.project_deletion import build_deletion_preview, execute_project_deletion
 
 
@@ -122,9 +122,9 @@ def execute_raw_dataset_deletion(
 
     raw_dataset_id = str(preview.raw_dataset.id)
     try:
-        raw_obj = session.get(RawDataset, preview.raw_dataset.id)
-        if raw_obj is not None:
-            session.delete(raw_obj)
+        session.execute(delete(ExperimentRawLink).where(ExperimentRawLink.raw_dataset_id == preview.raw_dataset.id))
+        session.execute(delete(ProjectRawLink).where(ProjectRawLink.raw_dataset_id == preview.raw_dataset.id))
+        session.execute(delete(RawDataset).where(RawDataset.id == preview.raw_dataset.id))
     except Exception as exc:  # pragma: no cover - defensive
         errors.append(f"Failed to delete raw dataset row {raw_dataset_id}: {exc}")
 
@@ -142,6 +142,60 @@ def execute_raw_dataset_deletion(
         "reclaimable_bytes": int(preview.reclaimable_bytes or 0),
         "result_json": result_json,
     }
+
+
+def queue_raw_dataset_deletion(
+    session: Session,
+    *,
+    preview: RawDatasetDeletionPreviewData,
+    requested_by_user,
+) -> Job:
+    job = Job(
+        raw_dataset_id=preview.raw_dataset.id,
+        requested_mode="server",
+        priority=20,
+        requested_by=requested_by_user.user_key,
+        requested_from_host="api",
+        params_json={
+            "job_kind": "raw_dataset_deletion",
+            "delete_source_files": preview.delete_source_files,
+            "delete_linked_projects": preview.delete_linked_projects,
+            "delete_linked_project_files": preview.delete_linked_project_files,
+        },
+        status="queued",
+    )
+    session.add(job)
+    session.flush()
+    return job
+
+
+def execute_raw_dataset_deletion_job(session: Session, *, job: Job) -> dict:
+    if job.raw_dataset_id is None:
+        raise ValueError(f"Raw dataset deletion job {job.id} is missing raw_dataset_id")
+    raw_dataset = session.scalars(
+        select(RawDataset)
+        .options(
+            joinedload(RawDataset.locations).joinedload(RawDatasetLocation.storage_root),
+            joinedload(RawDataset.project_links).joinedload(ProjectRawLink.project),
+        )
+        .where(RawDataset.id == job.raw_dataset_id)
+    ).unique().first()
+    if raw_dataset is None:
+        return {
+            "raw_dataset_id": str(job.raw_dataset_id),
+            "status": "failed",
+            "reclaimable_bytes": 0,
+            "result_json": {"errors": [f"Raw dataset {job.raw_dataset_id} does not exist."]},
+        }
+    params = job.params_json or {}
+    preview = build_raw_dataset_deletion_preview(
+        session,
+        raw_dataset=raw_dataset,
+        delete_source_files=bool(params.get("delete_source_files")),
+        delete_linked_projects=bool(params.get("delete_linked_projects")),
+        delete_linked_project_files=bool(params.get("delete_linked_project_files")),
+    )
+    return execute_raw_dataset_deletion(session, preview=preview, requested_by_user=None)
 
 
 def list_raw_source_locations(raw_dataset: RawDataset) -> list[str]:

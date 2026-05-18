@@ -55,7 +55,13 @@ from api.schemas import (
 from api.services.auth import set_user_password
 from api.services.external_eln import linked_experiment_summary_view
 from api.services.path_resolution import compose_storage_path
-from api.services.project_deletion import build_deletion_preview, execute_project_deletion, record_deletion_preview
+from api.services.project_deletion import (
+    ProjectDeletionBlockedError,
+    build_deletion_preview,
+    execute_project_deletion,
+    queue_project_deletion,
+    record_deletion_preview,
+)
 from api.services.project_locks import (
     ProjectLockConflict,
     acquire_client_edit_lease,
@@ -390,7 +396,25 @@ def delete_project(
         delete_project_files=delete_project_files,
         delete_linked_raw_data=delete_linked_raw_data,
     )
-    event = execute_project_deletion(db, preview=preview, requested_by_user=current_user)
+    if delete_project_files or delete_linked_raw_data:
+        event, job = queue_project_deletion(db, preview=preview, requested_by_user=current_user)
+        db.commit()
+        return ProjectDeletionResult(
+            event_id=event.id,
+            project_id=project_id,
+            status=event.status,
+            reclaimable_bytes=event.reclaimable_bytes,
+            result_json={
+                **(event.result_json or {}),
+                "job_id": str(job.id),
+                "message": "Deletion queued for worker execution.",
+            },
+        )
+
+    try:
+        event = execute_project_deletion(db, preview=preview, requested_by_user=current_user)
+    except ProjectDeletionBlockedError as exc:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(exc)) from exc
     db.commit()
     return ProjectDeletionResult(
         event_id=event.id,

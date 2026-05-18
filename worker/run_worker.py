@@ -15,7 +15,9 @@ from api.db import SessionLocal
 from api.models import ExecutionTarget, IndexingJob, Job, RawDatasetPosition
 from api.services.external_eln import sync_external_eln_system
 from api.services.indexing_jobs import execute_indexing_job
+from api.services.project_deletion import execute_project_deletion_job, finalize_project_deletion_failure
 from api.services.project_locks import heartbeat_project_locks_for_job, release_project_locks_for_job
+from api.services.raw_dataset_deletion import execute_raw_dataset_deletion_job
 from api.services.worker_instances import (
     active_worker_current_job_ids,
     execution_target_worker_metadata,
@@ -356,6 +358,24 @@ def execute_job(job: Job) -> dict:
             result_json = execute_storage_lifecycle_job(session, job=job_record)
             result_json["worker_instance"] = get_worker_instance_id()
             return result_json
+    if job_kind == "project_deletion":
+        with session_scope() as session:
+            job_record = session.get(Job, job.id)
+            if job_record is None:
+                raise ValueError(f"Job {job.id} disappeared before execution")
+            result_json = execute_project_deletion_job(session, job=job_record)
+            result_json["worker_host"] = socket.gethostname()
+            result_json["worker_instance"] = get_worker_instance_id()
+            return result_json
+    if job_kind == "raw_dataset_deletion":
+        with session_scope() as session:
+            job_record = session.get(Job, job.id)
+            if job_record is None:
+                raise ValueError(f"Job {job.id} disappeared before execution")
+            result_json = execute_raw_dataset_deletion_job(session, job=job_record)
+            result_json["worker_host"] = socket.gethostname()
+            result_json["worker_instance"] = get_worker_instance_id()
+            return result_json
     if job_kind in BACKUP_JOB_KINDS:
         with session_scope() as session:
             job_record = session.get(Job, job.id)
@@ -521,6 +541,7 @@ def run_forever() -> None:
                     finalize_storage_lifecycle_failure(session, job=job_record, error_text=str(exc))
                     finalize_backup_failure(session, job=job_record, error_text=str(exc))
                     finalize_user_home_storage_failure(session, job=job_record, error_text=str(exc))
+                    finalize_project_deletion_failure(session, job=job_record, error_text=str(exc))
             mark_job_failed(job.id, str(exc))
             LOGGER.exception("Job %s failed", job.id)
 

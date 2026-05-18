@@ -88,7 +88,6 @@ const els = {
   clearSelectionButton: document.querySelector("#clear-selection-button"),
   bulkQueuePreviewsSelectedButton: document.querySelector("#bulk-queue-previews-selected-button"),
   bulkDeleteSelectedButton: document.querySelector("#bulk-delete-selected-button"),
-  bulkDeleteVisibleButton: document.querySelector("#bulk-delete-visible-button"),
   projectsTableBody: document.querySelector("#projects-table tbody"),
   projectCountLabel: document.querySelector("#project-count-label"),
   userLabel: document.querySelector("#user-label"),
@@ -171,7 +170,6 @@ const els = {
   rawClearSelectionButton: document.querySelector("#raw-clear-selection-button"),
   rawBulkQueuePreviewsSelectedButton: document.querySelector("#raw-bulk-queue-previews-selected-button"),
   rawBulkDeleteSelectedButton: document.querySelector("#raw-bulk-delete-selected-button"),
-  rawBulkDeleteVisibleButton: document.querySelector("#raw-bulk-delete-visible-button"),
   rawBulkDeletePanel: document.querySelector("#raw-bulk-delete-panel"),
   rawBulkDeleteSummary: document.querySelector("#raw-bulk-delete-summary"),
   rawBulkDeleteMode: document.querySelector("#raw-bulk-delete-mode"),
@@ -181,7 +179,6 @@ const els = {
   rawBulkDeleteCancelButton: document.querySelector("#raw-bulk-delete-cancel-button"),
   rawBulkDeleteConfirmButton: document.querySelector("#raw-bulk-delete-confirm-button"),
   rawBulkArchiveSelectedButton: document.querySelector("#raw-bulk-archive-selected-button"),
-  rawBulkArchiveVisibleButton: document.querySelector("#raw-bulk-archive-visible-button"),
   rawBulkRestoreSelectedButton: document.querySelector("#raw-bulk-restore-selected-button"),
   rawBulkRestoreVisibleButton: document.querySelector("#raw-bulk-restore-visible-button"),
   rawBulkRestorePanel: document.querySelector("#raw-bulk-restore-panel"),
@@ -856,6 +853,41 @@ function humanBytes(value) {
     idx += 1;
   }
   return `${num.toFixed(idx === 0 ? 0 : 2)} ${units[idx]}`;
+}
+
+function deletionPreviewLines(preview) {
+  const plan = preview?.preview_json?.deletion_plan || {};
+  const projectPaths = preview?.preview_json?.project?.paths || {};
+  const blockers = Array.isArray(plan.filesystem_blockers) ? plan.filesystem_blockers : [];
+  const lines = [
+    `Project: ${preview.project_name}`,
+    `Catalog row: will be marked deleted`,
+    `Project files: ${plan.project_file_count || 0} file(s)`,
+    `Project folders: ${plan.project_dir_count || 0} folder(s)`,
+    `Linked raw datasets: ${plan.linked_raw_dataset_count || 0} dataset(s)`,
+    `Linked raw locations: ${plan.linked_raw_location_count || 0} location(s)`,
+    `Skipped linked raw datasets: ${plan.skipped_linked_raw_dataset_count || 0}`,
+    `Potential reclaim: ${humanBytes(preview.reclaimable_bytes || 0)}`,
+  ];
+  const paths = [
+    ...(projectPaths.project_files || []),
+    ...(projectPaths.project_dirs || []),
+  ];
+  if (paths.length) {
+    lines.push("Targets:");
+    paths.slice(0, 8).forEach((path) => lines.push(`- ${path}`));
+    if (paths.length > 8) lines.push(`- ... ${paths.length - 8} more`);
+  }
+  if (blockers.length) {
+    lines.push("Blocked filesystem targets:");
+    blockers.slice(0, 8).forEach((item) => {
+      const reason = item.reason || "not_writable";
+      const mount = item.mount_point ? ` on ${item.mount_point}` : "";
+      lines.push(`- ${item.path} (${reason}${mount})`);
+    });
+    if (blockers.length > 8) lines.push(`- ... ${blockers.length - 8} more`);
+  }
+  return lines;
 }
 
 function formatTimestamp(value) {
@@ -1716,9 +1748,6 @@ function renderProjectSelectionControls() {
   if (els.bulkDeleteSelectedButton) {
     els.bulkDeleteSelectedButton.disabled = selectedCount === 0;
   }
-  if (els.bulkDeleteVisibleButton) {
-    els.bulkDeleteVisibleButton.disabled = visibleCount === 0;
-  }
   if (els.bulkQueuePreviewsSelectedButton) {
     els.bulkQueuePreviewsSelectedButton.disabled = selectedCount === 0;
   }
@@ -1749,6 +1778,12 @@ function renderBulkDeletePanel() {
   const parts = [`${pending.projectIds.length} ${scopeLabel} project(s)`];
   if (mode === "project_files") {
     parts.push(`project files reclaimable ${humanBytes(preview.reclaimableBytes || 0)}`);
+    if (preview.blockedCount) {
+      parts.push(`${preview.blockedCount} filesystem target(s) blocked`);
+    }
+    if (preview.targetCount != null) {
+      parts.push(`${preview.targetCount} filesystem target(s) previewed`);
+    }
   } else {
     parts.push("catalog entries only, files on disk will be kept");
   }
@@ -3265,14 +3300,8 @@ function renderRawSelectionControls() {
   if (els.rawBulkDeleteSelectedButton) {
     els.rawBulkDeleteSelectedButton.disabled = selectedCount === 0;
   }
-  if (els.rawBulkDeleteVisibleButton) {
-    els.rawBulkDeleteVisibleButton.disabled = visibleCount === 0;
-  }
   if (els.rawBulkArchiveSelectedButton) {
     els.rawBulkArchiveSelectedButton.disabled = selectedCount === 0;
-  }
-  if (els.rawBulkArchiveVisibleButton) {
-    els.rawBulkArchiveVisibleButton.disabled = visibleCount === 0;
   }
   if (els.rawBulkRestoreSelectedButton) {
     els.rawBulkRestoreSelectedButton.disabled = selectedCount === 0;
@@ -6089,14 +6118,19 @@ async function refreshBulkDeletePreview() {
 
   let reclaimableBytes = 0;
   let errorCount = 0;
+  let blockedCount = 0;
+  let targetCount = 0;
   for (const result of previews) {
     if (result.status === "fulfilled") {
       reclaimableBytes += Number(result.value.reclaimable_bytes || 0);
+      const plan = result.value.preview_json?.deletion_plan || {};
+      blockedCount += Number(plan.filesystem_blockers?.length || 0);
+      targetCount += Number(plan.project_file_count || 0) + Number(plan.project_dir_count || 0);
     } else {
       errorCount += 1;
     }
   }
-  state.pendingBulkDelete.preview = { reclaimableBytes, errorCount };
+  state.pendingBulkDelete.preview = { reclaimableBytes, errorCount, blockedCount, targetCount };
   renderBulkDeletePanel();
 }
 
@@ -6152,10 +6186,13 @@ async function executeBulkDelete() {
     const projectName = projectNames[index];
     setStatus(`Deleting ${index + 1}/${projectIds.length}: ${projectName}`);
     try {
-      await apiDelete(
+      const result = await apiDelete(
         `/projects/${projectId}?delete_project_files=${deleteFiles ? "true" : "false"}&delete_linked_raw_data=false&confirm=true`
       );
       resultSummary.deleted += 1;
+      if (result.status === "queued") {
+        resultSummary.queued = (resultSummary.queued || 0) + 1;
+      }
     } catch (error) {
       resultSummary.failed.push(`${projectName}: ${String(error)}`);
     }
@@ -6172,7 +6209,8 @@ async function executeBulkDelete() {
   const suffix = resultSummary.failed.length
     ? ` Failed: ${resultSummary.failed.length}.`
     : "";
-  setStatus(`Bulk delete finished. Deleted ${resultSummary.deleted}/${projectIds.length}.${suffix}`);
+  const actionLabel = resultSummary.queued ? "Submitted" : "Deleted";
+  setStatus(`Bulk delete finished. ${actionLabel} ${resultSummary.deleted}/${projectIds.length}.${suffix}`);
   if (resultSummary.failed.length) {
     window.alert(`Bulk delete completed with failures:\n${resultSummary.failed.join("\n")}`);
   }
@@ -6609,19 +6647,22 @@ async function deleteProject() {
     delete_linked_raw_data: false,
     confirm: false,
   });
-  const ok = window.confirm(
-    `Project: ${preview.project_name}\nRecoverable: ${humanBytes(preview.reclaimable_bytes)}\nDelete now?`
-  );
+  const lines = deletionPreviewLines(preview);
+  if (preview.preview_json?.deletion_plan?.filesystem_blocked) {
+    lines.push("The API container cannot write these filesystem targets; confirmed file deletion will be queued on a storage-visible worker.");
+  }
+  lines.push("Delete now?");
+  const ok = window.confirm(lines.join("\n"));
   if (!ok) {
     return;
   }
-  await apiDelete(
+  const result = await apiDelete(
     `/projects/${state.selectedProject.id}?delete_project_files=${deleteFiles ? "true" : "false"}&delete_linked_raw_data=false&confirm=true`
   );
   state.selectedProject = null;
   state.selectedProjectDetail = null;
   await refreshDashboard();
-  setStatus("Project deleted.");
+  setStatus(result.result_json?.message || "Project deleted.");
 }
 
 async function openIndexBrowserPath(relativePath = "") {
@@ -7688,7 +7729,6 @@ if (els.selectVisibleButton) els.selectVisibleButton.addEventListener("click", (
 if (els.clearSelectionButton) els.clearSelectionButton.addEventListener("click", () => setSelectedProjectIds([]));
 if (els.bulkQueuePreviewsSelectedButton) els.bulkQueuePreviewsSelectedButton.addEventListener("click", () => queueRawPreviewVideosForSelectedProjects().catch((error) => setStatus(String(error))));
 if (els.bulkDeleteSelectedButton) els.bulkDeleteSelectedButton.addEventListener("click", () => openBulkDeletePanel("selected").catch((error) => setStatus(String(error))));
-if (els.bulkDeleteVisibleButton) els.bulkDeleteVisibleButton.addEventListener("click", () => openBulkDeletePanel("visible").catch((error) => setStatus(String(error))));
 if (els.bulkDeleteMode) els.bulkDeleteMode.addEventListener("change", () => refreshBulkDeletePreview().catch((error) => setStatus(String(error))));
 if (els.bulkDeleteCancelButton) els.bulkDeleteCancelButton.addEventListener("click", () => closeBulkDeletePanel());
 if (els.bulkDeleteConfirmButton) els.bulkDeleteConfirmButton.addEventListener("click", () => executeBulkDelete().catch((error) => {
@@ -7706,7 +7746,6 @@ if (els.rawSelectAll) els.rawSelectAll.addEventListener("change", () => setSelec
 if (els.rawSelectVisibleButton) els.rawSelectVisibleButton.addEventListener("click", () => setSelectedRawDatasetIds(visibleRawDatasetIds()));
 if (els.rawClearSelectionButton) els.rawClearSelectionButton.addEventListener("click", () => setSelectedRawDatasetIds([]));
 if (els.rawBulkDeleteSelectedButton) els.rawBulkDeleteSelectedButton.addEventListener("click", () => openRawBulkDeletePanel("selected").catch((error) => setStatus(String(error))));
-if (els.rawBulkDeleteVisibleButton) els.rawBulkDeleteVisibleButton.addEventListener("click", () => openRawBulkDeletePanel("visible").catch((error) => setStatus(String(error))));
 if (els.rawBulkDeleteMode) els.rawBulkDeleteMode.addEventListener("change", () => refreshRawBulkDeletePreview().catch((error) => setStatus(String(error))));
 if (els.rawBulkDeleteLinkedProjects) els.rawBulkDeleteLinkedProjects.addEventListener("change", () => refreshRawBulkDeletePreview().catch((error) => setStatus(String(error))));
 if (els.rawBulkDeleteLinkedProjectFiles) els.rawBulkDeleteLinkedProjectFiles.addEventListener("change", () => refreshRawBulkDeletePreview().catch((error) => setStatus(String(error))));
@@ -7716,10 +7755,6 @@ if (els.rawBulkDeleteConfirmButton) els.rawBulkDeleteConfirmButton.addEventListe
   window.alert(String(error));
 }));
 if (els.rawBulkArchiveSelectedButton) els.rawBulkArchiveSelectedButton.addEventListener("click", () => requestRawBulkArchive("selected").catch((error) => {
-  setStatus(String(error));
-  window.alert(String(error));
-}));
-if (els.rawBulkArchiveVisibleButton) els.rawBulkArchiveVisibleButton.addEventListener("click", () => requestRawBulkArchive("visible").catch((error) => {
   setStatus(String(error));
   window.alert(String(error));
 }));
