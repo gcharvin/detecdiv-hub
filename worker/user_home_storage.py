@@ -11,7 +11,7 @@ from api.models import Job, StorageProvider, StorageRoot, UserStorageAccount
 from api.services.user_home_storage import normalize_home_relative_path, record_provisioning_event
 
 
-DEFAULT_USER_HOME_SUBDIRECTORIES = ["projects", "raw", "artifacts", "exports"]
+DEFAULT_USER_HOME_SUBDIRECTORIES = ["landing", "projects", "raw", "artifacts", "exports"]
 
 
 def execute_user_home_storage_job(session: Session, *, job: Job) -> dict:
