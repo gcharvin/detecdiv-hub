@@ -65,7 +65,22 @@ The microscope widget should stop hard-coding `/data/microscope/landing` for
 new acquisitions. Instead, after the operator is identified, it should ask the
 hub for the current user's landing root and write the acquisition session there.
 
-For now, the widget can read the default root from:
+The widget can read the default root from the user-scoped endpoint:
+
+```http
+GET /micromanager-ingest/my-landing-root
+```
+
+The response is a single landing-root object:
+
+```json
+{
+  "root_key": "user:gilles",
+  "path": "/homes/Gilles/DetecdivHub/landing"
+}
+```
+
+Admin tooling can also read the same default root from:
 
 ```http
 GET /micromanager-ingest/status

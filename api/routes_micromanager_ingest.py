@@ -70,6 +70,20 @@ def get_micromanager_ingest_status(
     )
 
 
+@router.get("/my-landing-root", response_model=MicroManagerLandingRootSummary)
+def get_my_micromanager_landing_root(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> MicroManagerLandingRootSummary:
+    config = automatic_micromanager_ingest_config()
+    landing_roots = micromanager_landing_roots_for_user(db, config=config, current_user=current_user)
+    root_summaries = [micromanager_landing_root_summary(root) for root in landing_roots]
+    default_root = next((root for root in root_summaries if root.is_default), root_summaries[0] if root_summaries else None)
+    if default_root is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No Micro-Manager landing root is available")
+    return default_root
+
+
 @router.post("/run", response_model=MicroManagerIngestRunSummary)
 def run_micromanager_ingest_now(
     payload: MicroManagerIngestRunRequest,
