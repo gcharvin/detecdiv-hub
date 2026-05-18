@@ -13,8 +13,8 @@ Examples from the live layout:
 ```text
 /data/Antoine/DetecdivHub/landing
 /data/Antoine/DetecdivHub/raw
-/homes/Gilles/DetecdivHub/landing
-/homes/Gilles/DetecdivHub/raw
+/data/Gilles/DetecdivHub/landing
+/data/Gilles/DetecdivHub/raw
 ```
 
 The important invariant is that `landing` and `raw` are siblings inside the
@@ -76,7 +76,7 @@ The response is a single landing-root object:
 ```json
 {
   "root_key": "user:gilles",
-  "path": "/homes/Gilles/DetecdivHub/landing",
+  "path": "/data/Gilles/DetecdivHub/landing",
   "status": "ready",
   "accessible": true
 }
@@ -100,7 +100,7 @@ Use:
 {
   "default_landing_root": {
     "root_key": "user:gilles",
-    "path": "/homes/Gilles/DetecdivHub/landing"
+    "path": "/data/Gilles/DetecdivHub/landing"
   }
 }
 ```

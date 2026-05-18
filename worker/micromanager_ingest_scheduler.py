@@ -34,9 +34,12 @@ def should_run_micromanager_ingest(*, last_run_at: datetime | None, now: datetim
 
 
 def effective_last_run_at(session: Session, *, last_run_at: datetime | None) -> datetime | None:
+    latest_run_at = latest_micromanager_ingest_run_timestamp(session)
     if last_run_at is None:
-        return latest_micromanager_ingest_run_timestamp(session)
-    return last_run_at
+        return latest_run_at
+    if latest_run_at is None:
+        return last_run_at
+    return max(last_run_at, latest_run_at)
 
 
 def run_micromanager_ingest_if_due(session: Session, *, last_run_at: datetime | None) -> datetime | None:
@@ -45,6 +48,7 @@ def run_micromanager_ingest_if_due(session: Session, *, last_run_at: datetime | 
         return reference_run_at
 
     if not try_acquire_micromanager_ingest_lock(session):
+        session.rollback()
         LOGGER.info("Micro-Manager ingest skipped because another worker holds the lock")
         return reference_run_at
 
@@ -77,6 +81,8 @@ def run_micromanager_ingest_if_due(session: Session, *, last_run_at: datetime | 
             result.experiment_count,
             result.skipped_count,
         )
-        return result.run.finished_at or datetime.now(timezone.utc)
+        finished_at = result.run.finished_at or datetime.now(timezone.utc)
+        session.commit()
+        return finished_at
     finally:
         release_micromanager_ingest_lock(session)
