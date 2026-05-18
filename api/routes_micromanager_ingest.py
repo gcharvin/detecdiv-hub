@@ -1,4 +1,5 @@
 from dataclasses import replace
+from datetime import datetime, timezone
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
@@ -44,6 +45,7 @@ def get_micromanager_ingest_status(
     recent_runs = list_micromanager_ingest_runs(db, limit=10)
     return MicroManagerIngestAutomaticStatus(
         config=MicroManagerIngestAutomaticConfig.model_validate(config.to_json()),
+        checked_at=datetime.now(timezone.utc),
         last_run=micromanager_ingest_run_summary_view(last_run) if last_run is not None else None,
         recent_runs=[micromanager_ingest_run_summary_view(run) for run in recent_runs],
     )

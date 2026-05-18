@@ -1064,6 +1064,7 @@ class MicroManagerIngestRunSummary(HubBaseModel):
 
 class MicroManagerIngestAutomaticStatus(HubBaseModel):
     config: MicroManagerIngestAutomaticConfig
+    checked_at: datetime
     last_run: MicroManagerIngestRunSummary | None = None
     recent_runs: list[MicroManagerIngestRunSummary] = Field(default_factory=list)
 

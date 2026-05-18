@@ -4024,6 +4024,7 @@ function renderMicroManagerIngestStatus() {
     `every ${config.interval_minutes || 0} min`,
     `settle ${config.settle_seconds || 0}s`,
     `limit ${config.max_datasets || 0}`,
+    `status checked ${formatTimestamp(status.checked_at)}`,
   ];
   if (lastRun) {
     summaryBits.push(
@@ -4038,6 +4039,7 @@ function renderMicroManagerIngestStatus() {
 
   if (els.micromanagerIngestConfig) {
     const fields = [
+      ["Status checked", formatTimestamp(status.checked_at)],
       ["Enabled", config.enabled ? "yes" : "no"],
       ["Interval", `${config.interval_minutes || 0} min`],
       ["Run as", config.run_as_user_key || ""],
@@ -5170,6 +5172,9 @@ async function refreshMicroManagerIngestStatus() {
   try {
     state.micromanagerIngestStatus = await apiGet("/micromanager-ingest/status");
     renderMicroManagerIngestStatus();
+    if (state.micromanagerIngestStatus?.checked_at) {
+      setStatus(`Micro-Manager ingestion status refreshed at ${formatTimestamp(state.micromanagerIngestStatus.checked_at)}.`);
+    }
   } catch (error) {
     if (`${error}`.includes("403")) {
       state.micromanagerIngestStatus = null;
