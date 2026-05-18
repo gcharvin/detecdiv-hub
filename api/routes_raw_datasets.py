@@ -325,7 +325,7 @@ def list_raw_datasets(
             joinedload(RawDataset.owner),
         )
         .where(raw_dataset_access_filter(current_user))
-        .order_by(RawDataset.updated_at.desc(), RawDataset.acquisition_label.asc())
+        .order_by(RawDataset.created_at.desc(), RawDataset.updated_at.desc(), RawDataset.acquisition_label.asc())
     )
     if owned_only:
         stmt = stmt.where(RawDataset.owner_user_id == current_user.id)
