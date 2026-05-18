@@ -1,15 +1,18 @@
 from __future__ import annotations
 
 import logging
+from dataclasses import replace
 from datetime import datetime, timedelta, timezone
 
 from sqlalchemy.orm import Session
 
 from api.config import get_settings
 from api.services.micromanager_ingest import (
+    MicroManagerLandingRootData,
     automatic_micromanager_ingest_config,
     execute_micromanager_ingest_run,
     latest_micromanager_ingest_run_timestamp,
+    list_user_micromanager_landing_roots,
     release_micromanager_ingest_lock,
     resolve_micromanager_ingest_user,
     try_acquire_micromanager_ingest_lock,
@@ -47,6 +50,18 @@ def run_micromanager_ingest_if_due(session: Session, *, last_run_at: datetime | 
 
     try:
         config = automatic_micromanager_ingest_config(get_settings())
+        landing_roots = list_user_micromanager_landing_roots(session)
+        if config.landing_root:
+            landing_roots.append(
+                MicroManagerLandingRootData(
+                    root_key="configured",
+                    label="Legacy configured landing root",
+                    path=config.landing_root,
+                    source="configured",
+                )
+            )
+        if landing_roots:
+            config = replace(config, landing_roots=landing_roots)
         current_user = resolve_micromanager_ingest_user(session, user_key=config.run_as_user_key)
         result = execute_micromanager_ingest_run(
             session,

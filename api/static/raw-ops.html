@@ -250,7 +250,9 @@
           <label class="field compact">
             <span>Root mode</span>
             <select id="micromanager-ingest-root-mode">
-              <option value="auto" selected>configured landing root</option>
+              <option value="auto" selected>my landing zone</option>
+              <option value="all_user">all user landing zones</option>
+              <option value="configured">legacy configured root</option>
               <option value="manual">manual folder</option>
             </select>
           </label>
@@ -271,6 +273,33 @@
         </div>
         <div id="micromanager-ingest-summary" class="muted">Raw dataset indexing is unavailable.</div>
         <dl id="micromanager-ingest-config" class="detail-list"></dl>
+        <div class="table-wrap">
+          <table id="micromanager-ingest-roots-table">
+            <thead>
+              <tr>
+                <th>Landing root</th>
+                <th>User</th>
+                <th>Status</th>
+                <th>Path</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <div class="table-wrap">
+          <table id="micromanager-ingest-candidates-table">
+            <thead>
+              <tr>
+                <th>Dataset</th>
+                <th>User</th>
+                <th>Status</th>
+                <th>Last modified</th>
+                <th>Landing root</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
         <div class="table-wrap">
           <table id="micromanager-ingest-runs-table">
             <thead>

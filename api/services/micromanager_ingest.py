@@ -73,6 +73,7 @@ class MicroManagerIngestConfigData:
     post_ingest_pipeline_key: str | None
     post_ingest_requested_mode: str
     post_ingest_priority: int
+    landing_roots: list["MicroManagerLandingRootData"] | None = None
 
     def to_json(self) -> dict:
         return {
@@ -89,6 +90,7 @@ class MicroManagerIngestConfigData:
             "post_ingest_pipeline_key": self.post_ingest_pipeline_key,
             "post_ingest_requested_mode": self.post_ingest_requested_mode,
             "post_ingest_priority": self.post_ingest_priority,
+            "landing_roots": [root.to_json() for root in self.landing_roots or []],
         }
 
 
@@ -107,6 +109,8 @@ class MicroManagerDatasetCandidate:
     metadata_json: dict
     completeness_status: str
     owner_user_key: str | None = None
+    landing_root: str | None = None
+    landing_root_key: str | None = None
 
 
 @dataclass
@@ -129,6 +133,26 @@ class PromotedDatasetPath:
     metadata_json: dict
 
 
+@dataclass
+class MicroManagerLandingRootData:
+    root_key: str
+    label: str
+    path: str
+    source: str
+    user_key: str | None = None
+    is_default: bool = False
+
+    def to_json(self) -> dict:
+        return {
+            "root_key": self.root_key,
+            "label": self.label,
+            "path": self.path,
+            "source": self.source,
+            "user_key": self.user_key,
+            "is_default": self.is_default,
+        }
+
+
 def automatic_micromanager_ingest_config(settings: Settings | None = None) -> MicroManagerIngestConfigData:
     settings = settings or get_settings()
     return MicroManagerIngestConfigData(
@@ -146,6 +170,67 @@ def automatic_micromanager_ingest_config(settings: Settings | None = None) -> Mi
         post_ingest_requested_mode=settings.micromanager_post_ingest_requested_mode,
         post_ingest_priority=max(1, settings.micromanager_post_ingest_priority),
     )
+
+
+def account_landing_root_path(account: UserStorageAccount) -> Path | None:
+    if account.home_storage_root is None or not account.home_relative_path:
+        return None
+    home_root = Path(account.home_storage_root.path_prefix).expanduser()
+    return home_root / str(account.home_relative_path).strip("/") / "landing"
+
+
+def list_user_micromanager_landing_roots(
+    session: Session,
+    *,
+    default_user_key: str | None = None,
+    include_inactive_users: bool = False,
+) -> list[MicroManagerLandingRootData]:
+    stmt = (
+        select(UserStorageAccount)
+        .join(UserStorageAccount.user)
+        .options(
+            joinedload(UserStorageAccount.user),
+            joinedload(UserStorageAccount.home_storage_root),
+            joinedload(UserStorageAccount.provider),
+        )
+        .order_by(User.user_key.asc(), UserStorageAccount.updated_at.desc())
+    )
+    if not include_inactive_users:
+        stmt = stmt.where(User.is_active.is_(True))
+    accounts = list(session.scalars(stmt).unique())
+    roots: list[MicroManagerLandingRootData] = []
+    seen_users: set[str] = set()
+    normalized_default = slugify(default_user_key or "")
+    for account in accounts:
+        user = account.user
+        if user is None:
+            continue
+        user_key = str(user.user_key or "").strip()
+        if not user_key:
+            continue
+        normalized_user = slugify(user_key)
+        if normalized_user in seen_users:
+            continue
+        if str(account.provisioning_status or "").strip().lower() not in {"ready", "provider_user_ready"}:
+            continue
+        provider_kind = str(getattr(account.provider, "provider_kind", "") or "").strip().lower()
+        if provider_kind not in {"posix_mount", "synology_dsm"}:
+            continue
+        path = account_landing_root_path(account)
+        if path is None:
+            continue
+        seen_users.add(normalized_user)
+        roots.append(
+            MicroManagerLandingRootData(
+                root_key=f"user:{normalized_user}",
+                label=f"{user.display_name or user_key} landing",
+                path=str(path),
+                source="user_home",
+                user_key=user_key,
+                is_default=normalized_user == normalized_default,
+            )
+        )
+    return roots
 
 
 def try_acquire_micromanager_ingest_lock(session: Session) -> bool:
@@ -199,6 +284,8 @@ def discover_micromanager_candidates(
     settle_seconds: int,
     grouping_window_hours: int,
     max_datasets: int,
+    owner_user_key: str | None = None,
+    landing_root_key: str | None = None,
 ) -> list[MicroManagerDatasetCandidate]:
     now = datetime.now(timezone.utc)
     candidates: list[MicroManagerDatasetCandidate] = []
@@ -252,10 +339,12 @@ def discover_micromanager_candidates(
             grouping_window_hours=grouping_window_hours,
         )
         completeness_status = "complete"
+        relative_path = str(dataset_dir.relative_to(landing_root))
+        inferred_owner_user_key = owner_user_key or manifest_string(manifest_json, "user_key") or infer_owner_user_key_from_landing_relative_path(relative_path)
         candidates.append(
             MicroManagerDatasetCandidate(
                 dataset_dir=dataset_dir,
-                relative_path=str(dataset_dir.relative_to(landing_root)),
+                relative_path=relative_path,
                 acquisition_label=acquisition_label,
                 microscope_name=microscope_name,
                 session_label=session_label,
@@ -266,13 +355,15 @@ def discover_micromanager_candidates(
                 file_count=file_count,
                 metadata_json={
                     "source": "micromanager_ingest",
-                    "relative_path": str(dataset_dir.relative_to(landing_root)),
+                    "relative_path": relative_path,
                     "file_count": file_count,
                     "last_modified_at": last_modified_at.isoformat(),
                     "session_label": session_label,
                     "session_date": session_date.isoformat() if session_date else None,
                     "group_key": group_key,
                     "group_label": group_label,
+                    "landing_root": str(landing_root),
+                    "landing_root_key": landing_root_key,
                     "dimensions": dimensions,
                     "display_settings_uri": str(display_settings_path) if display_settings_path is not None else None,
                     "detecdiv_acquisition_manifest": manifest_json,
@@ -285,8 +376,9 @@ def discover_micromanager_candidates(
                     "labguru": manifest_labguru if isinstance(manifest_labguru, dict) else {},
                 },
                 completeness_status=completeness_status,
-                owner_user_key=manifest_string(manifest_json, "user_key")
-                or infer_owner_user_key_from_landing_relative_path(str(dataset_dir.relative_to(landing_root))),
+                owner_user_key=inferred_owner_user_key,
+                landing_root=str(landing_root),
+                landing_root_key=landing_root_key,
             )
         )
     return candidates
@@ -928,19 +1020,44 @@ def execute_micromanager_ingest_run(
     session.flush()
 
     try:
-        if not config.landing_root:
+        landing_roots = list(config.landing_roots or [])
+        if not landing_roots and config.landing_root:
+            landing_roots.append(
+                MicroManagerLandingRootData(
+                    root_key="configured",
+                    label="Configured landing root",
+                    path=config.landing_root,
+                    source="configured",
+                )
+            )
+        if not landing_roots:
             raise ValueError("Micro-Manager ingest root is not configured")
 
-        landing_root = Path(config.landing_root).expanduser().resolve()
-        if not landing_root.exists() or not landing_root.is_dir():
-            raise ValueError(f"Micro-Manager ingest root does not exist or is not a directory: {landing_root}")
-
-        candidates = discover_micromanager_candidates(
-            landing_root=landing_root,
-            settle_seconds=config.settle_seconds,
-            grouping_window_hours=config.grouping_window_hours,
-            max_datasets=config.max_datasets,
-        )
+        candidates: list[tuple[MicroManagerDatasetCandidate, Path, str | None]] = []
+        scanned_roots: list[dict] = []
+        for landing_root_config in landing_roots:
+            if len(candidates) >= config.max_datasets:
+                break
+            landing_root = Path(landing_root_config.path).expanduser().resolve()
+            root_record = landing_root_config.to_json()
+            root_record["resolved_path"] = str(landing_root)
+            if not landing_root.exists() or not landing_root.is_dir():
+                root_record["status"] = "inaccessible"
+                scanned_roots.append(root_record)
+                continue
+            root_record["status"] = "scanned"
+            remaining_limit = max(1, config.max_datasets - len(candidates))
+            root_candidates = discover_micromanager_candidates(
+                landing_root=landing_root,
+                settle_seconds=config.settle_seconds,
+                grouping_window_hours=config.grouping_window_hours,
+                max_datasets=remaining_limit,
+                owner_user_key=landing_root_config.user_key,
+                landing_root_key=landing_root_config.root_key,
+            )
+            root_record["candidate_count"] = len(root_candidates)
+            scanned_roots.append(root_record)
+            candidates.extend((candidate, landing_root, landing_root_config.root_key) for candidate in root_candidates)
 
         ingested_count = 0
         experiment_count = 0
@@ -951,7 +1068,7 @@ def execute_micromanager_ingest_run(
         queued_job_ids: list[str] = []
 
         if not report_only:
-            for candidate in candidates:
+            for candidate, landing_root, _landing_root_key in candidates:
                 candidate_paths.append(str(candidate.dataset_dir))
                 candidate_owner = (
                     get_or_create_user(
@@ -1022,7 +1139,7 @@ def execute_micromanager_ingest_run(
                 if queued_job_id:
                     queued_job_ids.append(queued_job_id)
         else:
-            candidate_paths = [str(candidate.dataset_dir) for candidate in candidates]
+            candidate_paths = [str(candidate.dataset_dir) for candidate, _landing_root, _landing_root_key in candidates]
             queued_job_ids = []
 
         run.status = "done"
@@ -1039,6 +1156,7 @@ def execute_micromanager_ingest_run(
             "experiment_count": experiment_count,
             "skipped_count": skipped_count,
             "queued_job_ids": queued_job_ids,
+            "scanned_roots": scanned_roots,
         }
         run.finished_at = datetime.now(timezone.utc)
         session.flush()

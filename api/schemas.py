@@ -1044,6 +1044,32 @@ class MicroManagerIngestAutomaticConfig(HubBaseModel):
     post_ingest_priority: int | None = None
 
 
+class MicroManagerLandingRootSummary(HubBaseModel):
+    root_key: str
+    label: str
+    path: str
+    source: str
+    user_key: str | None = None
+    is_default: bool = False
+    exists: bool = False
+    accessible: bool = False
+    status: str = "unknown"
+
+
+class MicroManagerIngestCandidateSummary(HubBaseModel):
+    landing_root_key: str | None = None
+    landing_root: str
+    relative_path: str
+    dataset_path: str
+    acquisition_label: str
+    owner_user_key: str | None = None
+    last_modified_at: datetime | None = None
+    file_count: int = 0
+    completeness_status: str
+    is_ingested: bool = False
+    raw_dataset_id: UUID | None = None
+
+
 class MicroManagerIngestRunSummary(HubBaseModel):
     id: UUID
     trigger_mode: str
@@ -1065,6 +1091,9 @@ class MicroManagerIngestRunSummary(HubBaseModel):
 class MicroManagerIngestAutomaticStatus(HubBaseModel):
     config: MicroManagerIngestAutomaticConfig
     checked_at: datetime
+    default_landing_root: MicroManagerLandingRootSummary | None = None
+    landing_roots: list[MicroManagerLandingRootSummary] = Field(default_factory=list)
+    candidate_preview: list[MicroManagerIngestCandidateSummary] = Field(default_factory=list)
     last_run: MicroManagerIngestRunSummary | None = None
     recent_runs: list[MicroManagerIngestRunSummary] = Field(default_factory=list)
 
@@ -1073,6 +1102,7 @@ class MicroManagerIngestRunRequest(HubBaseModel):
     report_only: bool = True
     landing_root_override: str | None = None
     storage_root_name_override: str | None = None
+    landing_root_key: str | None = None
 
 
 class AcquisitionSessionSummary(HubBaseModel):

@@ -311,6 +311,8 @@ const els = {
   micromanagerIngestRunButton: document.querySelector("#micromanager-ingest-run-button"),
   micromanagerIngestSummary: document.querySelector("#micromanager-ingest-summary"),
   micromanagerIngestConfig: document.querySelector("#micromanager-ingest-config"),
+  micromanagerIngestRootsTableBody: document.querySelector("#micromanager-ingest-roots-table tbody"),
+  micromanagerIngestCandidatesTableBody: document.querySelector("#micromanager-ingest-candidates-table tbody"),
   micromanagerIngestRunsTableBody: document.querySelector("#micromanager-ingest-runs-table tbody"),
   archivePolicyOlderDays: document.querySelector("#archive-policy-older-days"),
   archivePolicyMinGb: document.querySelector("#archive-policy-min-gb"),
@@ -4004,6 +4006,12 @@ function renderMicroManagerIngestStatus() {
     if (els.micromanagerIngestRunsTableBody) {
       els.micromanagerIngestRunsTableBody.innerHTML = "";
     }
+    if (els.micromanagerIngestRootsTableBody) {
+      els.micromanagerIngestRootsTableBody.innerHTML = "";
+    }
+    if (els.micromanagerIngestCandidatesTableBody) {
+      els.micromanagerIngestCandidatesTableBody.innerHTML = "";
+    }
     return;
   }
 
@@ -4012,7 +4020,7 @@ function renderMicroManagerIngestStatus() {
     els.micromanagerIngestRootMode.value = "auto";
   }
   if (els.micromanagerIngestRootPath && !els.micromanagerIngestRootPath.value && config.landing_root) {
-    els.micromanagerIngestRootPath.placeholder = config.landing_root;
+    els.micromanagerIngestRootPath.placeholder = status.default_landing_root?.path || config.landing_root;
   }
   if (els.micromanagerIngestStorageRootName && !els.micromanagerIngestStorageRootName.value && config.storage_root_name) {
     els.micromanagerIngestStorageRootName.placeholder = config.storage_root_name;
@@ -4043,7 +4051,8 @@ function renderMicroManagerIngestStatus() {
       ["Enabled", config.enabled ? "yes" : "no"],
       ["Interval", `${config.interval_minutes || 0} min`],
       ["Run as", config.run_as_user_key || ""],
-      ["Configured landing root", config.landing_root || ""],
+      ["Default landing root", status.default_landing_root?.path || ""],
+      ["Legacy landing root", config.landing_root || ""],
       ["Storage root name", config.storage_root_name || ""],
       ["Host scope", config.host_scope || ""],
       ["Visibility", config.visibility || ""],
@@ -4060,6 +4069,46 @@ function renderMicroManagerIngestStatus() {
       const dd = document.createElement("dd");
       dd.textContent = value;
       els.micromanagerIngestConfig.append(dt, dd);
+    }
+  }
+
+  if (els.micromanagerIngestRootsTableBody) {
+    els.micromanagerIngestRootsTableBody.innerHTML = "";
+    const roots = status.landing_roots || [];
+    if (!roots.length) {
+      els.micromanagerIngestRootsTableBody.innerHTML = `<tr><td colspan="4">No landing roots configured.</td></tr>`;
+    }
+    for (const root of roots) {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${escapeHtml(root.label || root.root_key || "")}${root.is_default ? " *" : ""}</td>
+        <td>${escapeHtml(root.user_key || "")}</td>
+        <td>${escapeHtml(root.status || "")}</td>
+        <td title="${escapeHtml(root.path || "")}">${escapeHtml(root.path || "")}</td>
+      `;
+      els.micromanagerIngestRootsTableBody.appendChild(tr);
+    }
+  }
+
+  if (els.micromanagerIngestCandidatesTableBody) {
+    els.micromanagerIngestCandidatesTableBody.innerHTML = "";
+    const candidates = status.candidate_preview || [];
+    if (!candidates.length) {
+      els.micromanagerIngestCandidatesTableBody.innerHTML = `<tr><td colspan="5">No stable candidate datasets visible from this host.</td></tr>`;
+    }
+    for (const candidate of candidates) {
+      const tr = document.createElement("tr");
+      const datasetLabel = candidate.raw_dataset_id
+        ? `<a href="/web/raw-dataset.html?id=${encodeURIComponent(candidate.raw_dataset_id)}">${escapeHtml(candidate.acquisition_label || candidate.relative_path || "")}</a>`
+        : escapeHtml(candidate.acquisition_label || candidate.relative_path || "");
+      tr.innerHTML = `
+        <td title="${escapeHtml(candidate.dataset_path || "")}">${datasetLabel}</td>
+        <td>${escapeHtml(candidate.owner_user_key || "")}</td>
+        <td>${candidate.is_ingested ? "indexed" : "new"}</td>
+        <td>${formatTimestamp(candidate.last_modified_at)}</td>
+        <td>${escapeHtml(candidate.landing_root_key || candidate.landing_root || "")}</td>
+      `;
+      els.micromanagerIngestCandidatesTableBody.appendChild(tr);
     }
   }
 
@@ -5240,12 +5289,16 @@ async function runMicroManagerIngest() {
   const landingRootOverride = rootMode === "manual"
     ? String(els.micromanagerIngestRootPath?.value || "").trim()
     : "";
+  const defaultLandingRootKey = String(state.micromanagerIngestStatus?.default_landing_root?.root_key || "").trim();
+  const landingRootKey = rootMode === "all_user"
+    ? "all_user"
+    : (rootMode === "configured" ? "configured" : defaultLandingRootKey);
   const storageRootNameOverride = String(els.micromanagerIngestStorageRootName?.value || "").trim();
-  const configuredLandingRoot = String(state.micromanagerIngestStatus?.config?.landing_root || "").trim();
+  const configuredLandingRoot = String(state.micromanagerIngestStatus?.default_landing_root?.path || state.micromanagerIngestStatus?.config?.landing_root || "").trim();
   if (rootMode === "manual" && !landingRootOverride) {
     throw new Error("Manual raw root is required in manual mode.");
   }
-  if (rootMode !== "manual" && !configuredLandingRoot) {
+  if (rootMode !== "manual" && !configuredLandingRoot && rootMode !== "all_user") {
     throw new Error("Configured landing root is empty. Select manual folder and enter the landing path before running ingestion.");
   }
   const action = reportOnly ? "run a detection-only report" : "ingest datasets now";
@@ -5256,6 +5309,7 @@ async function runMicroManagerIngest() {
   const run = await apiPost("/micromanager-ingest/run", {
     report_only: reportOnly,
     landing_root_override: landingRootOverride || null,
+    landing_root_key: landingRootOverride ? null : landingRootKey || null,
     storage_root_name_override: storageRootNameOverride || null,
   });
   await refreshMicroManagerIngestStatus();
