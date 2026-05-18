@@ -127,6 +127,11 @@ def ingest_raw_dataset_from_directory(
         raw_dataset.metadata_json = metadata
         session.flush()
 
+    for existing_location in session.scalars(
+        select(RawDatasetLocation).where(RawDatasetLocation.raw_dataset_id == raw_dataset.id)
+    ).all():
+        existing_location.is_preferred = False
+
     location = session.scalars(
         select(RawDatasetLocation).where(
             RawDatasetLocation.raw_dataset_id == raw_dataset.id,

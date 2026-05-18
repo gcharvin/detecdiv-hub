@@ -64,6 +64,26 @@ def test_discover_micromanager_candidates_finds_orphan_zarr_child(tmp_path):
     assert candidates[0].relative_path == "test.ome.zarr"
 
 
+def test_discover_micromanager_candidates_infers_owner_from_acquisitions_path(tmp_path):
+    landing_root = tmp_path / "landing"
+    dataset_dir = landing_root / "acquisitions" / "antoine" / "20260518" / "session" / "test.ome.zarr"
+    dataset_dir.mkdir(parents=True)
+    (dataset_dir / "zarr.json").write_text(json.dumps({"zarr_format": 3}), encoding="utf-8")
+    past_timestamp = time.time() - 10
+    for file_path in dataset_dir.rglob("*"):
+        os.utime(file_path, (past_timestamp, past_timestamp))
+
+    candidates = discover_micromanager_candidates(
+        landing_root=landing_root,
+        settle_seconds=0,
+        grouping_window_hours=12,
+        max_datasets=25,
+    )
+
+    assert len(candidates) == 1
+    assert candidates[0].owner_user_key == "antoine"
+
+
 def test_discover_micromanager_candidates_reads_detecdiv_manifest(tmp_path):
     session_dir = tmp_path / "session"
     dataset_dir = session_dir / "test.ome.zarr"

@@ -285,10 +285,19 @@ def discover_micromanager_candidates(
                     "labguru": manifest_labguru if isinstance(manifest_labguru, dict) else {},
                 },
                 completeness_status=completeness_status,
-                owner_user_key=manifest_string(manifest_json, "user_key"),
+                owner_user_key=manifest_string(manifest_json, "user_key")
+                or infer_owner_user_key_from_landing_relative_path(str(dataset_dir.relative_to(landing_root))),
             )
         )
     return candidates
+
+
+def infer_owner_user_key_from_landing_relative_path(relative_path: str) -> str | None:
+    normalized = relative_path.replace("\\", "/").strip("/")
+    parts = [part for part in normalized.split("/") if part]
+    if len(parts) >= 2 and parts[0].lower() == "acquisitions":
+        return slugify(parts[1])
+    return None
 
 
 def classify_micromanager_dataset_dir(path: Path) -> Path | None:

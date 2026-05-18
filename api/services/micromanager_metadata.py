@@ -216,6 +216,9 @@ def build_compact_micromanager_metadata(
         labguru = source_metadata.get("labguru")
         if isinstance(labguru, dict) and labguru:
             metadata["labguru"] = labguru
+        landing_zone_promotion = source_metadata.get("landing_zone_promotion")
+        if isinstance(landing_zone_promotion, dict) and landing_zone_promotion:
+            metadata["landing_zone_promotion"] = landing_zone_promotion
 
     return metadata
 
