@@ -11,10 +11,12 @@ import numpy as np
 from api.services.micromanager_ingest import (
     DETECDIV_ACQUISITION_MANIFEST_FILE,
     MicroManagerDatasetCandidate,
+    MicroManagerLandingRootData,
     classify_micromanager_dataset_dir,
     discover_micromanager_candidates,
     promote_micromanager_candidate_to_user_home,
 )
+from api.routes_micromanager_ingest import micromanager_landing_root_summary
 from api.services.raw_preview_settings import RawPreviewRuntimeConfig
 from api.services.raw_dataset_ingest import discover_raw_dataset_positions
 from worker.raw_preview_video import (
@@ -82,6 +84,23 @@ def test_discover_micromanager_candidates_infers_owner_from_acquisitions_path(tm
 
     assert len(candidates) == 1
     assert candidates[0].owner_user_key == "antoine"
+
+
+def test_user_home_landing_root_summary_does_not_require_api_filesystem_visibility():
+    summary = micromanager_landing_root_summary(
+        MicroManagerLandingRootData(
+            root_key="user:gilles",
+            label="Gilles landing",
+            path="/homes/Gilles/DetecdivHub/landing",
+            source="user_home",
+            user_key="gilles",
+            is_default=True,
+        )
+    )
+
+    assert summary.status == "ready"
+    assert summary.exists is True
+    assert summary.accessible is True
 
 
 def test_discover_micromanager_candidates_reads_detecdiv_manifest(tmp_path):

@@ -163,6 +163,15 @@ def micromanager_landing_roots_for_user(
 
 
 def micromanager_landing_root_summary(root: MicroManagerLandingRootData) -> MicroManagerLandingRootSummary:
+    if root.source == "user_home":
+        return MicroManagerLandingRootSummary.model_validate(
+            {
+                **root.to_json(),
+                "exists": True,
+                "accessible": True,
+                "status": "ready",
+            }
+        )
     path = Path(root.path).expanduser()
     exists = path.exists()
     accessible = exists and path.is_dir()

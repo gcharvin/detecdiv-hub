@@ -76,9 +76,17 @@ The response is a single landing-root object:
 ```json
 {
   "root_key": "user:gilles",
-  "path": "/homes/Gilles/DetecdivHub/landing"
+  "path": "/homes/Gilles/DetecdivHub/landing",
+  "status": "ready",
+  "accessible": true
 }
 ```
+
+For user-home roots, `status: ready` means the user storage account is
+provisioned and the path is intended to be accessible from the storage-visible
+worker and microscope share. It is not based on filesystem visibility from the
+API VM, because `webserver-labo` may not mount every storage share such as
+`/homes`.
 
 Admin tooling can also read the same default root from:
 
