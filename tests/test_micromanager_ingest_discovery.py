@@ -3,13 +3,17 @@ from __future__ import annotations
 import json
 import os
 import time
+from datetime import datetime, timezone
+from types import SimpleNamespace
 
 import numpy as np
 
 from api.services.micromanager_ingest import (
     DETECDIV_ACQUISITION_MANIFEST_FILE,
+    MicroManagerDatasetCandidate,
     classify_micromanager_dataset_dir,
     discover_micromanager_candidates,
+    promote_micromanager_candidate_to_user_home,
 )
 from api.services.raw_preview_settings import RawPreviewRuntimeConfig
 from api.services.raw_dataset_ingest import discover_raw_dataset_positions
@@ -139,6 +143,67 @@ def test_discover_raw_dataset_positions_keeps_widget_descriptions(tmp_path):
             },
         }
     ]
+
+
+def test_promote_micromanager_candidate_renames_into_user_raw_home(tmp_path):
+    landing_root = tmp_path / "landing"
+    dataset_dir = landing_root / "acquisitions" / "antoine" / "test.ome.zarr"
+    dataset_dir.mkdir(parents=True)
+    (dataset_dir / "zarr.json").write_text("{}", encoding="utf-8")
+    home_root = tmp_path / "homes"
+    (home_root / "Antoine" / "DetecdivHub").mkdir(parents=True)
+    owner = SimpleNamespace(id="user-1", user_key="antoine")
+    account = SimpleNamespace(
+        id="account-1",
+        provisioning_status="ready",
+        home_relative_path="Antoine/DetecdivHub",
+        home_storage_root=SimpleNamespace(name="user-homes", path_prefix=str(home_root)),
+        provider=SimpleNamespace(provider_kind="posix_mount"),
+        updated_at=datetime(2026, 5, 18, tzinfo=timezone.utc),
+    )
+
+    class ScalarResult:
+        def first(self):
+            return account
+
+    class FakeSession:
+        def scalars(self, _stmt):
+            return ScalarResult()
+
+    candidate = MicroManagerDatasetCandidate(
+        dataset_dir=dataset_dir,
+        relative_path="acquisitions/antoine/test.ome.zarr",
+        acquisition_label="test",
+        microscope_name="scope",
+        session_label="test",
+        session_date=datetime(2026, 5, 18, 10, tzinfo=timezone.utc),
+        group_key="group",
+        group_label="group",
+        last_modified_at=datetime(2026, 5, 18, 11, tzinfo=timezone.utc),
+        file_count=1,
+        metadata_json={"source": "micromanager_ingest"},
+        completeness_status="complete",
+        owner_user_key="antoine",
+    )
+
+    promoted = promote_micromanager_candidate_to_user_home(
+        FakeSession(),
+        owner=owner,
+        candidate=candidate,
+        landing_root=landing_root,
+        fallback_storage_root_name="landing",
+    )
+
+    expected_dir = home_root / "Antoine" / "DetecdivHub" / "raw" / "20260518" / "test.ome.zarr"
+    assert promoted.dataset_dir == expected_dir
+    assert promoted.root_path == home_root / "Antoine" / "DetecdivHub" / "raw"
+    assert promoted.storage_root_name == "raw-antoine"
+    assert expected_dir.is_dir()
+    assert not dataset_dir.exists()
+    assert promoted.metadata_json["landing_zone_promotion"]["status"] == "promoted"
+    assert promoted.metadata_json["landing_zone_promotion"]["original_landing_relative_path"] == (
+        "acquisitions/antoine/test.ome.zarr"
+    )
 
 
 def test_preview_reader_accepts_ome_writers_tcyx_layout(tmp_path):

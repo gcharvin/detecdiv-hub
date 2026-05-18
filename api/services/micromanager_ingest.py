@@ -12,7 +12,16 @@ from sqlalchemy import select, text
 from sqlalchemy.orm import Session, joinedload
 
 from api.config import Settings, get_settings
-from api.models import AcquisitionSession, ExperimentProject, Job, MicroManagerIngestRun, Pipeline, RawDataset, User
+from api.models import (
+    AcquisitionSession,
+    ExperimentProject,
+    Job,
+    MicroManagerIngestRun,
+    Pipeline,
+    RawDataset,
+    User,
+    UserStorageAccount,
+)
 from api.services.acquisition_sessions import merge_json
 from api.services.micromanager_metadata import (
     extract_acquisition_dimensions,
@@ -110,6 +119,14 @@ class MicroManagerIngestRunExecutionData:
     candidate_paths: list[str]
     queued_job_ids: list[str]
     report_only: bool
+
+
+@dataclass
+class PromotedDatasetPath:
+    dataset_dir: Path
+    root_path: Path
+    storage_root_name: str | None
+    metadata_json: dict
 
 
 def automatic_micromanager_ingest_config(settings: Settings | None = None) -> MicroManagerIngestConfigData:
@@ -468,6 +485,237 @@ def build_micromanager_raw_key(dataset_dir: Path, relative_path: str) -> str:
     return f"mm_{slugify(dataset_dir.name)}_{suffix}"
 
 
+def promote_micromanager_candidate_to_user_home(
+    session: Session,
+    *,
+    owner: User,
+    candidate: MicroManagerDatasetCandidate,
+    landing_root: Path,
+    fallback_storage_root_name: str | None,
+) -> PromotedDatasetPath:
+    landing_dataset_dir = candidate.dataset_dir
+    source_metadata = dict(candidate.metadata_json or {})
+    promotion_metadata: dict[str, object] = {
+        "source": "landing_zone_promotion",
+        "original_dataset_path": str(landing_dataset_dir),
+        "original_landing_root": str(landing_root),
+        "original_landing_relative_path": candidate.relative_path,
+    }
+
+    account = session.scalars(
+        select(UserStorageAccount)
+        .options(
+            joinedload(UserStorageAccount.home_storage_root),
+            joinedload(UserStorageAccount.provider),
+        )
+        .where(UserStorageAccount.user_id == owner.id)
+        .order_by(UserStorageAccount.updated_at.desc())
+    ).first()
+    if account is None:
+        return PromotedDatasetPath(
+            dataset_dir=landing_dataset_dir,
+            root_path=landing_root,
+            storage_root_name=fallback_storage_root_name,
+            metadata_json={
+                **source_metadata,
+                "landing_zone_promotion": {
+                    **promotion_metadata,
+                    "status": "skipped",
+                    "reason": "owner_has_no_storage_account",
+                },
+            },
+        )
+    if account.home_storage_root is None or not account.home_relative_path:
+        return PromotedDatasetPath(
+            dataset_dir=landing_dataset_dir,
+            root_path=landing_root,
+            storage_root_name=fallback_storage_root_name,
+            metadata_json={
+                **source_metadata,
+                "landing_zone_promotion": {
+                    **promotion_metadata,
+                    "status": "skipped",
+                    "reason": "owner_storage_account_has_no_home_path",
+                    "storage_account_id": str(account.id),
+                },
+            },
+        )
+    provider_kind = str(getattr(account.provider, "provider_kind", "") or "").strip().lower()
+    if provider_kind not in {"posix_mount", "synology_dsm"}:
+        return PromotedDatasetPath(
+            dataset_dir=landing_dataset_dir,
+            root_path=landing_root,
+            storage_root_name=fallback_storage_root_name,
+            metadata_json={
+                **source_metadata,
+                "landing_zone_promotion": {
+                    **promotion_metadata,
+                    "status": "skipped",
+                    "reason": "owner_storage_provider_is_not_mount_backed",
+                    "storage_account_id": str(account.id),
+                    "provider_kind": provider_kind,
+                },
+            },
+        )
+    if str(account.provisioning_status or "").strip().lower() not in {"ready", "provider_user_ready"}:
+        return PromotedDatasetPath(
+            dataset_dir=landing_dataset_dir,
+            root_path=landing_root,
+            storage_root_name=fallback_storage_root_name,
+            metadata_json={
+                **source_metadata,
+                "landing_zone_promotion": {
+                    **promotion_metadata,
+                    "status": "skipped",
+                    "reason": "owner_storage_account_not_ready",
+                    "storage_account_id": str(account.id),
+                    "provisioning_status": account.provisioning_status,
+                },
+            },
+        )
+
+    home_root = Path(account.home_storage_root.path_prefix).expanduser().resolve()
+    home_path = (home_root / str(account.home_relative_path).strip("/")).resolve()
+    if not home_path.exists() or not home_path.is_dir():
+        return PromotedDatasetPath(
+            dataset_dir=landing_dataset_dir,
+            root_path=landing_root,
+            storage_root_name=fallback_storage_root_name,
+            metadata_json={
+                **source_metadata,
+                "landing_zone_promotion": {
+                    **promotion_metadata,
+                    "status": "skipped",
+                    "reason": "owner_home_path_not_accessible",
+                    "storage_account_id": str(account.id),
+                    "home_path": str(home_path),
+                },
+            },
+        )
+    try:
+        home_path.relative_to(home_root)
+    except ValueError:
+        return PromotedDatasetPath(
+            dataset_dir=landing_dataset_dir,
+            root_path=landing_root,
+            storage_root_name=fallback_storage_root_name,
+            metadata_json={
+                **source_metadata,
+                "landing_zone_promotion": {
+                    **promotion_metadata,
+                    "status": "skipped",
+                    "reason": "owner_home_path_escapes_storage_root",
+                    "storage_account_id": str(account.id),
+                },
+            },
+        )
+
+    dataset_date = candidate.session_date or candidate.last_modified_at
+    date_bucket = dataset_date.strftime("%Y%m%d") if dataset_date is not None else "undated"
+    raw_root = home_path / "raw"
+    destination_parent = raw_root / date_bucket
+    destination_dir = destination_parent / landing_dataset_dir.name
+
+    try:
+        raw_root.mkdir(parents=True, exist_ok=True)
+        destination_parent.mkdir(parents=True, exist_ok=True)
+    except OSError as exc:
+        return PromotedDatasetPath(
+            dataset_dir=landing_dataset_dir,
+            root_path=landing_root,
+            storage_root_name=fallback_storage_root_name,
+            metadata_json={
+                **source_metadata,
+                "landing_zone_promotion": {
+                    **promotion_metadata,
+                    "status": "skipped",
+                    "reason": "destination_parent_not_writable",
+                    "error": str(exc),
+                    "storage_account_id": str(account.id),
+                    "destination_parent": str(destination_parent),
+                },
+            },
+        )
+
+    if destination_dir.exists():
+        if destination_dir.resolve() == landing_dataset_dir.resolve():
+            status = "already_promoted"
+        else:
+            return PromotedDatasetPath(
+                dataset_dir=landing_dataset_dir,
+                root_path=landing_root,
+                storage_root_name=fallback_storage_root_name,
+                metadata_json={
+                    **source_metadata,
+                    "landing_zone_promotion": {
+                        **promotion_metadata,
+                        "status": "skipped",
+                        "reason": "destination_exists",
+                        "storage_account_id": str(account.id),
+                        "destination_path": str(destination_dir),
+                    },
+                },
+            )
+    else:
+        try:
+            same_device = landing_dataset_dir.stat().st_dev == destination_parent.stat().st_dev
+        except OSError as exc:
+            return PromotedDatasetPath(
+                dataset_dir=landing_dataset_dir,
+                root_path=landing_root,
+                storage_root_name=fallback_storage_root_name,
+                metadata_json={
+                    **source_metadata,
+                    "landing_zone_promotion": {
+                        **promotion_metadata,
+                        "status": "skipped",
+                        "reason": "device_check_failed",
+                        "error": str(exc),
+                        "storage_account_id": str(account.id),
+                        "destination_path": str(destination_dir),
+                    },
+                },
+            )
+        if not same_device:
+            return PromotedDatasetPath(
+                dataset_dir=landing_dataset_dir,
+                root_path=landing_root,
+                storage_root_name=fallback_storage_root_name,
+                metadata_json={
+                    **source_metadata,
+                    "landing_zone_promotion": {
+                        **promotion_metadata,
+                        "status": "skipped",
+                        "reason": "different_filesystem",
+                        "storage_account_id": str(account.id),
+                        "destination_path": str(destination_dir),
+                    },
+                },
+            )
+        landing_dataset_dir.rename(destination_dir)
+        status = "promoted"
+
+    promoted_metadata = {
+        **source_metadata,
+        "landing_zone_promotion": {
+            **promotion_metadata,
+            "status": status,
+            "storage_account_id": str(account.id),
+            "home_storage_root_name": account.home_storage_root.name,
+            "home_relative_path": account.home_relative_path,
+            "destination_path": str(destination_dir),
+            "destination_root": str(raw_root),
+            "destination_relative_path": str(destination_dir.relative_to(raw_root)),
+        },
+    }
+    return PromotedDatasetPath(
+        dataset_dir=destination_dir,
+        root_path=raw_root,
+        storage_root_name=f"raw-{slugify(owner.user_key)}",
+        metadata_json=promoted_metadata,
+    )
+
+
 def build_micromanager_experiment_key(group_key: str, group_label: str) -> str:
     suffix = hashlib.sha1(group_key.encode("utf-8")).hexdigest()[:10]
     return f"exp_mm_{slugify(group_label)}_{suffix}"
@@ -716,18 +964,25 @@ def execute_micromanager_ingest_run(
                         visibility=config.visibility,
                         candidate=candidate,
                     )
+                promoted_path = promote_micromanager_candidate_to_user_home(
+                    session,
+                    owner=candidate_owner,
+                    candidate=candidate,
+                    landing_root=landing_root,
+                    fallback_storage_root_name=config.storage_root_name,
+                )
                 raw_dataset = ingest_raw_dataset_from_directory(
                     session,
                     owner=candidate_owner,
                     visibility=config.visibility,
-                    storage_root_name=config.storage_root_name,
+                    storage_root_name=promoted_path.storage_root_name,
                     host_scope=config.host_scope,
                     root_type="raw_root",
-                    root_path=landing_root,
-                    dataset_dir=candidate.dataset_dir,
+                    root_path=promoted_path.root_path,
+                    dataset_dir=promoted_path.dataset_dir,
                     preferred_experiment=experiment,
                     source_label="micromanager_ingest",
-                    source_metadata=candidate.metadata_json,
+                    source_metadata=promoted_path.metadata_json,
                     acquisition_label=candidate.acquisition_label,
                     microscope_name=candidate.microscope_name,
                     external_key=build_micromanager_raw_key(candidate.dataset_dir, candidate.relative_path),
