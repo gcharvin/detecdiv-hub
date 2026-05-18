@@ -605,27 +605,37 @@ def html_text(value: str) -> str:
 
 
 def position_annotations_html(value: str) -> str:
-    blocks = [block.strip() for block in re.split(r"\n\s*\n", str(value or "").strip()) if block.strip()]
+    raw_text = str(value or "").strip()
+    blocks = [block.strip() for block in re.split(r"\n\s*\n", raw_text) if block.strip()]
+    if len(blocks) == 1 and "\n" in blocks[0]:
+        lines = [line.strip() for line in blocks[0].splitlines() if line.strip()]
+        if lines and all(":" not in line for line in lines):
+            blocks = lines
     rows: list[dict[str, str]] = []
     for block in blocks:
         lines = [line.strip() for line in block.splitlines() if line.strip()]
         if not lines:
             continue
-        row = {"position": lines[0], "strain": "", "medium": "", "description": "", "notes": ""}
+        row = {"position": lines[0], "strain_medium": ""}
+        if " - " in lines[0]:
+            position_label, strain_medium = lines[0].split(" - ", 1)
+            row["position"] = position_label.strip()
+            row["strain_medium"] = strain_medium.strip()
         for line in lines[1:]:
             if ":" not in line:
                 continue
             key, raw_value = line.split(":", 1)
             normalized = key.strip().lower()
-            if normalized in row:
-                row[normalized] = raw_value.strip()
+            if normalized in {"strain", "medium"}:
+                existing = row["strain_medium"]
+                row["strain_medium"] = " / ".join(part for part in (existing, raw_value.strip()) if part)
         rows.append(row)
     if not rows:
         return ""
 
     header_cells = "".join(
         f"<th>{html.escape(label)}</th>"
-        for label in ("Position", "Strain", "Medium", "Description", "Notes")
+        for label in ("Position", "Strain / Medium")
     )
     body_rows = []
     for row in rows:
@@ -633,7 +643,7 @@ def position_annotations_html(value: str) -> str:
             "<tr>"
             + "".join(
                 f"<td>{html.escape(row.get(key, ''))}</td>"
-                for key in ("position", "strain", "medium", "description", "notes")
+                for key in ("position", "strain_medium")
             )
             + "</tr>"
         )

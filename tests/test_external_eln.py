@@ -338,17 +338,14 @@ def test_html_text_formats_position_annotations_as_table() -> None:
     html = html_text(
         "Acquisition looked good.\n\n"
         "Position annotations:\n\n"
-        "Position 0 - Pos0\n"
-        "Strain: BY4741\n"
-        "Medium: SC\n\n"
-        "Position 1 - Pos1\n"
-        "Description: drug condition"
+        "Position 0 - BY4741 / SC\n"
+        "Position 1 - drug condition"
     )
 
     assert "<h3>Position annotations</h3>" in html
     assert "<table" in html
-    assert "<td>Position 0 - Pos0</td>" in html
-    assert "<td>BY4741</td>" in html
+    assert "<td>Position 0</td>" in html
+    assert "<td>BY4741 / SC</td>" in html
     assert "<td>drug condition</td>" in html
 
 

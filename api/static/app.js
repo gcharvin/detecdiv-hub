@@ -4493,22 +4493,33 @@ function externalTextValueHtml(value) {
 }
 
 function positionAnnotationsTextTableHtml(value) {
-  const blocks = String(value || "")
+  let blocks = String(value || "")
     .split(/\n\s*\n/)
     .map((block) => block.trim())
     .filter(Boolean);
+  if (blocks.length === 1 && blocks[0].includes("\n")) {
+    const lines = blocks[0].split(/\n/).map((line) => line.trim()).filter(Boolean);
+    if (lines.length && lines.every((line) => !line.includes(":"))) {
+      blocks = lines;
+    }
+  }
   if (!blocks.length) {
     return "";
   }
   const rows = blocks.map((block) => {
     const lines = block.split(/\n/).map((line) => line.trim()).filter(Boolean);
-    const row = { position: lines[0] || "", strain: "", medium: "", description: "", notes: "" };
+    const row = { position: lines[0] || "", strainMedium: "" };
+    if (row.position.includes(" - ")) {
+      const [position, ...rest] = row.position.split(" - ");
+      row.position = position.trim();
+      row.strainMedium = rest.join(" - ").trim();
+    }
     for (const line of lines.slice(1)) {
       const index = line.indexOf(":");
       if (index < 0) continue;
       const key = line.slice(0, index).trim().toLowerCase();
-      if (Object.prototype.hasOwnProperty.call(row, key)) {
-        row[key] = line.slice(index + 1).trim();
+      if (key === "strain" || key === "medium") {
+        row.strainMedium = [row.strainMedium, line.slice(index + 1).trim()].filter(Boolean).join(" / ");
       }
     }
     return row;
@@ -4516,16 +4527,13 @@ function positionAnnotationsTextTableHtml(value) {
   return `
     <table class="annotation-table">
       <thead>
-        <tr><th>Position</th><th>Strain</th><th>Medium</th><th>Description</th><th>Notes</th></tr>
+        <tr><th>Position</th><th>Strain / Medium</th></tr>
       </thead>
       <tbody>
         ${rows.map((row) => `
           <tr>
             <td>${escapeHtml(row.position)}</td>
-            <td>${escapeHtml(row.strain)}</td>
-            <td>${escapeHtml(row.medium)}</td>
-            <td>${escapeHtml(row.description)}</td>
-            <td>${escapeHtml(row.notes)}</td>
+            <td>${escapeHtml(row.strainMedium)}</td>
           </tr>
         `).join("")}
       </tbody>
