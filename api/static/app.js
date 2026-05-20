@@ -27,6 +27,7 @@ const state = {
   selectedRawPositionIds: [],
   selectedRawDatasetIds: [],
   pendingRawBulkDelete: null,
+  rawDatasetDeletionStatusById: {},
   rawBulkDeletePreviewToken: 0,
   pendingRawBulkArchive: null,
   pendingRawBulkRestore: null,
@@ -3437,6 +3438,7 @@ function renderRawDatasets() {
 
   for (const raw of pageDatasets) {
     const tr = document.createElement("tr");
+    const displayStatus = state.rawDatasetDeletionStatusById?.[String(raw.id)] || raw.status;
     if (state.selectedRawDataset && state.selectedRawDataset.id === raw.id) {
       tr.classList.add("selected");
     }
@@ -3447,7 +3449,7 @@ function renderRawDatasets() {
       <td>${raw.owner ? userOptionLabel(raw.owner) : ""}</td>
       <td>${raw.lifecycle_tier}</td>
       <td>${raw.archive_status}</td>
-      <td>${raw.status}</td>
+      <td>${displayStatus}</td>
       <td>${humanBytes(raw.total_bytes)}</td>
     `;
     tr.querySelector(".raw-select-checkbox")?.addEventListener("click", (event) => {
@@ -5172,6 +5174,11 @@ async function refreshRawDatasets() {
   state.rawDatasetsLastRefreshAt = Date.now();
   state.rawDatasetCurrentPage = 0;
   const visibleIds = new Set(state.rawDatasets.map((raw) => `${raw.id}`));
+  for (const rawDatasetId of Object.keys(state.rawDatasetDeletionStatusById || {})) {
+    if (!visibleIds.has(rawDatasetId)) {
+      delete state.rawDatasetDeletionStatusById[rawDatasetId];
+    }
+  }
   state.selectedRawDatasetIds = state.selectedRawDatasetIds.filter((rawDatasetId) => visibleIds.has(`${rawDatasetId}`));
   if (state.pendingRawBulkDelete?.scope === "selected" && !selectedRawDatasetIds().length) {
     closeRawBulkDeletePanel();
@@ -6399,6 +6406,37 @@ async function openRawBulkDeletePanel(scope) {
   await refreshRawBulkDeletePreview();
 }
 
+async function waitForRawDeletionJobs(jobIds, maxMs = 90000) {
+  const pending = new Set(jobIds.filter(Boolean).map(String));
+  const deadline = Date.now() + maxMs;
+  const completed = [];
+  const failed = [];
+
+  while (pending.size && Date.now() < deadline) {
+    await Promise.all(
+      [...pending].map(async (jobId) => {
+        const job = await apiGet(`/jobs/${jobId}`);
+        if (job.status === "done") {
+          pending.delete(jobId);
+          completed.push(job);
+        } else if (job.status === "failed" || job.status === "cancelled") {
+          pending.delete(jobId);
+          failed.push(job);
+        }
+      })
+    );
+    if (pending.size) {
+      await new Promise((resolve) => setTimeout(resolve, 1200));
+    }
+  }
+
+  return {
+    completed,
+    failed,
+    pending: [...pending],
+  };
+}
+
 function closeRawBulkDeletePanel() {
   state.pendingRawBulkDelete = null;
   state.rawBulkDeletePreviewToken += 1;
@@ -6427,20 +6465,45 @@ async function executeRawBulkDelete() {
   );
   const resultSummary = {
     deleted: 0,
+    queued: 0,
     failed: [],
   };
+  const queuedJobIds = [];
 
   for (let index = 0; index < rawDatasetIds.length; index += 1) {
     const rawDatasetId = rawDatasetIds[index];
     const label = rawDatasetLabels[index];
     setStatus(`Deleting ${index + 1}/${rawDatasetIds.length}: ${label}`);
     try {
-      await apiDelete(
+      const result = await apiDelete(
         `/raw-datasets/${rawDatasetId}?delete_source_files=${deleteSourceFiles ? "true" : "false"}&delete_linked_projects=${deleteLinkedProjects ? "true" : "false"}&delete_linked_project_files=${deleteLinkedProjectFiles ? "true" : "false"}&confirm=true`
       );
-      resultSummary.deleted += 1;
+      if (result.status === "queued") {
+        resultSummary.queued += 1;
+        state.rawDatasetDeletionStatusById[String(rawDatasetId)] = "deletion queued";
+        renderRawDatasets();
+        if (result.result_json?.job_id) {
+          queuedJobIds.push(result.result_json.job_id);
+        }
+      } else {
+        resultSummary.deleted += 1;
+      }
     } catch (error) {
       resultSummary.failed.push(`${label}: ${String(error)}`);
+    }
+  }
+
+  if (queuedJobIds.length) {
+    setStatus(`Waiting for ${queuedJobIds.length} worker deletion job(s)...`);
+    const workerResult = await waitForRawDeletionJobs(queuedJobIds);
+    resultSummary.deleted += workerResult.completed.length;
+    resultSummary.failed.push(
+      ...workerResult.failed.map((job) => `${job.id}: ${job.error_text || "worker deletion failed"}`)
+    );
+    if (workerResult.pending.length) {
+      resultSummary.failed.push(
+        `${workerResult.pending.length} deletion job(s) still running; refresh jobs to follow progress.`
+      );
     }
   }
 
@@ -6456,7 +6519,8 @@ async function executeRawBulkDelete() {
   const suffix = resultSummary.failed.length
     ? ` Failed: ${resultSummary.failed.length}.`
     : "";
-  setStatus(`Raw bulk delete finished. Deleted ${resultSummary.deleted}/${rawDatasetIds.length}.${suffix}`);
+  const queuedSuffix = resultSummary.queued ? ` Queued via workers: ${resultSummary.queued}.` : "";
+  setStatus(`Raw bulk delete finished. Deleted ${resultSummary.deleted}/${rawDatasetIds.length}.${queuedSuffix}${suffix}`);
   if (resultSummary.failed.length) {
     window.alert(`Raw bulk delete completed with failures:\n${resultSummary.failed.join("\n")}`);
   }
