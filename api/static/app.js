@@ -3702,7 +3702,7 @@ function renderRawPositions(positions) {
   }
   if (!positions.length) {
     const tr = document.createElement("tr");
-    tr.innerHTML = `<td colspan="8">No positions indexed yet.</td>`;
+    tr.innerHTML = `<td colspan="6">No positions indexed yet.</td>`;
     els.rawPositionsTableBody.appendChild(tr);
     renderRawPositionSelectionControls(positions);
     renderRawPositionDeletePanel();
@@ -3724,12 +3724,11 @@ function renderRawPositions(positions) {
       tr.classList.add("selected");
     }
     const actionLabel = artifact?.uri ? "Regenerate MP4" : "Queue MP4";
+    const positionDescription = rawPositionDescription(position, metadata);
     tr.innerHTML = `
       <td><input class="raw-position-select-checkbox" type="checkbox" ${isRawPositionSelected(position.id) ? "checked" : ""} /></td>
       <td>${escapeHtml(position.display_name || position.position_key)}</td>
-      <td>${escapeHtml(metadata.strain || "")}</td>
-      <td>${escapeHtml(metadata.medium || "")}</td>
-      <td>${escapeHtml(position.description || metadata.description || metadata.notes || "")}</td>
+      <td>${escapeHtml(positionDescription)}</td>
       <td>${escapeHtml(position.status)}</td>
       <td>${escapeHtml(position.preview_status)}</td>
       <td><button data-position-id="${position.id}" class="queue-position-preview">${actionLabel}</button></td>
@@ -3764,6 +3763,17 @@ function renderRawPositions(positions) {
       queueRawPreviewVideo(positionId, Boolean(selectedPosition?.preview_artifact?.uri)).catch((error) => setStatus(String(error)));
     });
   });
+}
+
+function rawPositionDescription(position, metadata = {}) {
+  const parts = [];
+  const strain = String(metadata.strain || metadata.strains || "").trim();
+  const medium = String(metadata.medium || "").trim();
+  const description = String(position.description || metadata.description || metadata.notes || "").trim();
+  if (strain) parts.push(strain);
+  if (medium) parts.push(medium);
+  if (description) parts.push(description);
+  return parts.join(" | ");
 }
 
 function renderRawPreviewProgress(positions) {
