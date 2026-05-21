@@ -14,6 +14,9 @@ from api.services.path_resolution import compose_storage_path
 from api.services.project_deletion import resolve_raw_location_path
 from api.services.storage_metrics import safe_dir_size, safe_file_size
 
+POSITION_STATUS_DELETION_QUEUED = "deletion_queued"
+POSITION_STATUS_DELETION_FAILED = "deletion_failed"
+
 
 @dataclass
 class RawDatasetPositionDeletionPreviewData:
@@ -130,6 +133,7 @@ def execute_raw_dataset_position_deletion(
         if position is None:
             continue
 
+        position_errors: list[str] = []
         relative_path = resolve_position_relative_path(position)
         source_paths = resolve_position_source_paths(preview.raw_dataset, relative_path)
         for source_path in source_paths:
@@ -143,7 +147,7 @@ def execute_raw_dataset_position_deletion(
                 else:
                     missing_source_paths.append(str(source_path))
             except OSError as exc:
-                errors.append(f"Failed to delete source path {source_path}: {exc}")
+                position_errors.append(f"Failed to delete source path {source_path}: {exc}")
 
         preview_artifact = position.preview_artifact
         if preview_artifact is not None:
@@ -158,7 +162,12 @@ def execute_raw_dataset_position_deletion(
                         deleted_preview_artifacts.append(str(artifact_path))
                 session.delete(preview_artifact)
             except OSError as exc:
-                errors.append(f"Failed to delete preview artifact {artifact_path}: {exc}")
+                position_errors.append(f"Failed to delete preview artifact {artifact_path}: {exc}")
+        if position_errors:
+            errors.extend(position_errors)
+            position.status = POSITION_STATUS_DELETION_FAILED
+            position.updated_at = datetime.now(timezone.utc)
+            continue
         session.delete(position)
         deleted_positions.append(str(position.id))
 
@@ -202,6 +211,7 @@ def queue_raw_dataset_position_deletion(
     preview: RawDatasetPositionDeletionPreviewData,
     requested_by_user,
 ) -> Job:
+    mark_positions_deletion_queued(session, preview=preview)
     job = Job(
         raw_dataset_id=preview.raw_dataset.id,
         requested_mode="server",
@@ -219,6 +229,25 @@ def queue_raw_dataset_position_deletion(
     session.add(job)
     session.flush()
     return job
+
+
+def mark_positions_deletion_queued(
+    session: Session,
+    *,
+    preview: RawDatasetPositionDeletionPreviewData,
+) -> None:
+    positions = list(
+        session.scalars(
+            select(RawDatasetPosition).where(
+                RawDatasetPosition.raw_dataset_id == preview.raw_dataset.id,
+                RawDatasetPosition.id.in_(preview.position_ids),
+            )
+        )
+    )
+    now = datetime.now(timezone.utc)
+    for position in positions:
+        position.status = POSITION_STATUS_DELETION_QUEUED
+        position.updated_at = now
 
 
 def execute_raw_dataset_position_deletion_job(session: Session, *, job: Job) -> dict:

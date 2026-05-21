@@ -1,7 +1,8 @@
 from uuid import uuid4
 
-from api.models import RawDataset, RawDatasetLocation, StorageRoot
+from api.models import RawDataset, RawDatasetLocation, RawDatasetPosition, StorageRoot
 from api.services.raw_dataset_position_deletion import (
+    POSITION_STATUS_DELETION_QUEUED,
     RawDatasetPositionDeletionPreviewData,
     parse_position_ids,
     queue_raw_dataset_position_deletion,
@@ -10,16 +11,28 @@ from api.services.raw_dataset_position_deletion import (
 )
 
 
+class FakeScalarResult:
+    def __init__(self, values):
+        self.values = values
+
+    def __iter__(self):
+        return iter(self.values)
+
+
 class FakeSession:
-    def __init__(self):
+    def __init__(self, scalars_result=None):
         self.added = []
         self.flushed = False
+        self.scalars_result = scalars_result or []
 
     def add(self, item):
         self.added.append(item)
 
     def flush(self):
         self.flushed = True
+
+    def scalars(self, _stmt):
+        return FakeScalarResult(self.scalars_result)
 
 
 def test_position_deletion_catalog_refresh_updates_size_and_metadata_count(tmp_path):
@@ -68,6 +81,16 @@ def test_position_deletion_queue_uses_worker_job_contract():
     raw_dataset = RawDataset(acquisition_label="W80_BY_W303_Q10_1", data_format="tiff_sequence")
     raw_dataset.id = uuid4()
     position_ids = [uuid4(), uuid4()]
+    positions = [
+        RawDatasetPosition(
+            id=position_id,
+            raw_dataset_id=raw_dataset.id,
+            position_key=f"pos{index}",
+            display_name=f"Pos{index}",
+            status="indexed",
+        )
+        for index, position_id in enumerate(position_ids, start=1)
+    ]
     preview = RawDatasetPositionDeletionPreviewData(
         raw_dataset=raw_dataset,
         position_ids=position_ids,
@@ -75,7 +98,7 @@ def test_position_deletion_queue_uses_worker_job_contract():
         preview_json={},
     )
     requested_by = type("User", (), {"user_key": "guillaume"})()
-    session = FakeSession()
+    session = FakeSession(scalars_result=positions)
 
     job = queue_raw_dataset_position_deletion(
         session,
@@ -91,6 +114,11 @@ def test_position_deletion_queue_uses_worker_job_contract():
     assert job.params_json["position_ids"] == [str(position_id) for position_id in position_ids]
     assert job.params_json["position_count"] == 2
     assert job.params_json["reclaimable_bytes"] == 1234
+    assert [position.status for position in positions] == [
+        POSITION_STATUS_DELETION_QUEUED,
+        POSITION_STATUS_DELETION_QUEUED,
+    ]
+    assert [position.display_name for position in positions] == ["Pos1", "Pos2"]
 
 
 def test_parse_position_ids_ignores_invalid_values():
