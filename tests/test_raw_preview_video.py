@@ -231,6 +231,31 @@ def test_should_use_legacy_matlab_jpg_preview_detects_legacy_root(tmp_path):
     )
 
 
+def test_tiff_sequence_ignores_legacy_jpeg_preview_fallback(tmp_path):
+    dataset_path = tmp_path / "mixed_dataset"
+    tiff_position_dir = dataset_path / "Pos0"
+    legacy_jpeg_dir = dataset_path / "mixed_dataset-pos1" / "mixed_dataset-pos1-ch1-Ph"
+    tiff_position_dir.mkdir(parents=True)
+    legacy_jpeg_dir.mkdir(parents=True)
+    (dataset_path / "mixed_dataset-project.mat").write_text("mat", encoding="utf-8")
+    (dataset_path / "mixed_dataset-ID.txt").write_text("Time-Lapse Assay ID File", encoding="utf-8")
+    (legacy_jpeg_dir / "mixed_dataset-pos1-ch1-Ph-001.jpg").write_bytes(b"jpeg-fixture")
+
+    raw_dataset = SimpleNamespace(data_format="tiff_sequence")
+    position = SimpleNamespace(
+        position_index=0,
+        position_key="pos0",
+        display_name="Pos0",
+        metadata_json={"relative_path": "Pos0"},
+    )
+
+    assert not should_use_legacy_matlab_jpg_preview(
+        dataset_path=dataset_path,
+        raw_dataset=raw_dataset,
+        position=position,
+    )
+
+
 def test_read_preview_frames_does_not_guess_jpegs_for_non_legacy_dataset(tmp_path):
     dataset_path = tmp_path / "plain_jpegs"
     dataset_path.mkdir()

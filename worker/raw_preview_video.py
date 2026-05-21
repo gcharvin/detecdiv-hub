@@ -497,6 +497,8 @@ def should_use_legacy_matlab_jpg_preview(
     data_format = str(raw_dataset.data_format or "").strip().lower()
     if data_format in LEGACY_IMAGE_FORMATS:
         return True
+    if data_format in TIFF_LIKE_FORMATS:
+        return False
 
     candidate_path = resolve_position_source_path(dataset_path=dataset_path, position=position)
     if not has_legacy_matlab_timelapse_marker(candidate_path):
