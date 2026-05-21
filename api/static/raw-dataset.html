@@ -85,6 +85,23 @@
                 <button id="raw-open-display-settings-button">Open display settings</button>
               </div>
             </div>
+            <section id="raw-position-delete-panel" class="subpanel danger-panel hidden">
+              <div class="subpanel-header">
+                <h3>Delete Selected Positions</h3>
+                <button id="raw-position-delete-cancel-button">Cancel</button>
+              </div>
+              <p id="raw-position-delete-summary" class="danger-copy">No positions queued for deletion.</p>
+              <div class="toolbar">
+                <label class="field compact">
+                  <span>Type DELETE to confirm</span>
+                  <input id="raw-position-delete-confirm-text" type="text" placeholder="DELETE" />
+                </label>
+                <button id="raw-position-delete-confirm-button" class="danger">Delete selected positions</button>
+              </div>
+              <p class="danger-copy">
+                Warning: deleting selected positions removes the source folders and preview MP4s on disk. Linked projects are only warned about, not modified.
+              </p>
+            </section>
             <div class="raw-positions-layout">
               <div class="raw-positions-table-panel">
                 <p id="raw-preview-progress" class="muted">No preview job running.</p>
@@ -129,23 +146,6 @@
                 </div>
               </div>
             </div>
-            <section id="raw-position-delete-panel" class="subpanel danger-panel hidden">
-              <div class="subpanel-header">
-                <h3>Delete Selected Positions</h3>
-                <button id="raw-position-delete-cancel-button">Cancel</button>
-              </div>
-              <p id="raw-position-delete-summary" class="danger-copy">No positions queued for deletion.</p>
-              <div class="toolbar">
-                <label class="field compact">
-                  <span>Type DELETE to confirm</span>
-                  <input id="raw-position-delete-confirm-text" type="text" placeholder="DELETE" />
-                </label>
-                <button id="raw-position-delete-confirm-button" class="danger">Delete selected positions</button>
-              </div>
-              <p class="danger-copy">
-                Warning: deleting selected positions removes the source folders and preview MP4s on disk. Linked projects are only warned about, not modified.
-              </p>
-            </section>
           </section>
 
           <section class="subpanel" id="raw-backup-subpanel">

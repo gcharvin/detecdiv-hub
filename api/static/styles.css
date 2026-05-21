@@ -684,6 +684,10 @@ tbody tr.selected {
   background: rgba(155, 44, 44, 0.05);
 }
 
+#raw-position-delete-panel {
+  margin-bottom: 14px;
+}
+
 .danger-copy {
   color: var(--danger);
 }
