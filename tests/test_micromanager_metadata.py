@@ -70,6 +70,48 @@ def test_read_micromanager_metadata_falls_back_to_nested_metadata_file(tmp_path)
     assert metadata["dimensions"]["frame_count"] == 288
 
 
+def test_read_micromanager_metadata_corrects_tiff_sequence_dimensions_from_files(tmp_path):
+    display_payload = {
+        "map": {
+            "ChannelSettings": {
+                "array": [
+                    {"Channel": {"scalar": "DIC"}},
+                    {"Channel": {"scalar": "GFP"}},
+                    {"Channel": {"scalar": "roGFP"}},
+                ]
+            }
+        }
+    }
+    metadata_payload = {
+        "Summary": {
+            "ChNames": ["DIC", "GFP", "roGFP"],
+            "Channels": 3,
+            "Positions": 8,
+            "Frames": 500,
+            "Slices": 1,
+        }
+    }
+    (tmp_path / "DisplaySettings.json").write_text(json.dumps(display_payload), encoding="utf-8")
+    (tmp_path / "metadata.txt").write_text(json.dumps(metadata_payload), encoding="utf-8")
+    for position_index in range(8):
+        position_dir = tmp_path / f"Pos{position_index}"
+        position_dir.mkdir()
+        for channel_index in range(3):
+            for time_index in range(15):
+                file_name = f"img_channel{channel_index:03d}_position{position_index:03d}_time{time_index:09d}_z000.tif"
+                (position_dir / file_name).write_bytes(b"fake")
+
+    metadata = read_micromanager_metadata(tmp_path)
+
+    dimensions = metadata["dimensions"]
+    assert dimensions["frame_count"] == 15
+    assert dimensions["position_count"] == 8
+    assert dimensions["channel_count"] == 3
+    assert dimensions["slice_count"] == 1
+    assert dimensions["file_backed_corrections"]["frame_count"] == {"metadata": 500, "files": 15}
+    assert metadata["tiff_sequence_summary"]["file_count"] == 360
+
+
 def test_extract_acquisition_dimensions_preserves_display_settings_channels():
     metadata = {
         "dimensions": {

@@ -38,6 +38,13 @@ def read_micromanager_metadata(dataset_dir: Path) -> dict[str, Any]:
             },
         )
     metadata["dimensions"] = extract_acquisition_dimensions(metadata)
+    file_dimensions = summarize_tiff_sequence_dimensions(dataset_dir)
+    if file_dimensions:
+        metadata["dimensions"] = reconcile_dimensions_with_tiff_files(
+            metadata.get("dimensions") if isinstance(metadata.get("dimensions"), dict) else {},
+            file_dimensions,
+        )
+        metadata["tiff_sequence_summary"] = file_dimensions
     return metadata
 
 
@@ -620,6 +627,132 @@ def extract_acquisition_dimensions(metadata_json: dict[str, Any]) -> dict[str, A
     )
     if merged_channel_settings:
         dimensions["channel_settings"] = merged_channel_settings
+    return {key: value for key, value in dimensions.items() if value not in (None, [], {})}
+
+
+TIFF_SUFFIXES = (".tif", ".tiff")
+POSITION_DIR_PREFIXES = ("pos", "position", "xy")
+TIFF_AXIS_PATTERNS = {
+    "channel": (
+        re.compile(r"(?:^|[_\-.])(channel|ch)[_\- ]*(\d+)(?=[_\-.]|$)", flags=re.IGNORECASE),
+        re.compile(r"(?:^|[_\-.])w(\d+)(?=[_\-.]|$)", flags=re.IGNORECASE),
+    ),
+    "time": (
+        re.compile(r"(?:^|[_\-.])(time|frame|tp|t)[_\- ]*(\d+)(?=[_\-.]|$)", flags=re.IGNORECASE),
+        re.compile(r"(?:^|[_\-.])img[_\- ]*(\d+)(?=[_\-.]|$)", flags=re.IGNORECASE),
+    ),
+    "z": (
+        re.compile(r"(?:^|[_\-.])(z|slice)[_\- ]*(\d+)(?=[_\-.]|$)", flags=re.IGNORECASE),
+    ),
+}
+
+
+def summarize_tiff_sequence_dimensions(dataset_dir: Path) -> dict[str, Any]:
+    """Infer dimensions from the TIFF files directly present in a raw dataset.
+
+    Micro-Manager DisplaySettings can outlive file moves or partial exports. For
+    TIFF sequences, the files under Pos*/Position*/XY* directories are the source
+    of truth for previewable timepoints.
+    """
+    if not dataset_dir.is_dir():
+        return {}
+
+    position_file_groups: list[tuple[str, list[Path]]] = []
+    root_files = direct_tiff_files(dataset_dir)
+    if root_files:
+        position_file_groups.append((dataset_dir.name, root_files))
+
+    try:
+        child_dirs = sorted((entry for entry in dataset_dir.iterdir() if entry.is_dir()), key=lambda entry: entry.name.lower())
+    except OSError:
+        child_dirs = []
+    for child in child_dirs:
+        if not child.name.lower().startswith(POSITION_DIR_PREFIXES):
+            continue
+        files = direct_tiff_files(child)
+        if files:
+            position_file_groups.append((child.name, files))
+
+    if not position_file_groups:
+        return {}
+
+    time_counts: list[int] = []
+    channel_counts: list[int] = []
+    z_counts: list[int] = []
+    file_count = 0
+    for _, files in position_file_groups:
+        file_count += len(files)
+        times = parsed_axis_values(files, "time")
+        channels = parsed_axis_values(files, "channel")
+        z_values = parsed_axis_values(files, "z")
+        if times:
+            time_counts.append(len(times))
+        if channels:
+            channel_counts.append(len(channels))
+        if z_values:
+            z_counts.append(len(z_values))
+
+    summary: dict[str, Any] = {
+        "file_count": file_count,
+        "position_count": len(position_file_groups),
+        "positions": [name for name, _ in position_file_groups],
+        "source": "tiff_files",
+    }
+    if time_counts:
+        summary["frame_count"] = max(time_counts)
+    if channel_counts:
+        summary["channel_count"] = max(channel_counts)
+    if z_counts:
+        summary["slice_count"] = max(z_counts)
+    return {key: value for key, value in summary.items() if value not in (None, [], {})}
+
+
+def direct_tiff_files(path: Path) -> list[Path]:
+    try:
+        return sorted(
+            (entry for entry in path.iterdir() if entry.is_file() and entry.suffix.lower() in TIFF_SUFFIXES),
+            key=lambda entry: entry.name.lower(),
+        )
+    except OSError:
+        return []
+
+
+def parsed_axis_values(files: list[Path], axis: str) -> set[int]:
+    values: set[int] = set()
+    for path in files:
+        value = infer_tiff_axis_index(path.name, axis)
+        if value is not None:
+            values.add(value)
+    return values
+
+
+def infer_tiff_axis_index(file_name: str, axis: str) -> int | None:
+    for pattern in TIFF_AXIS_PATTERNS.get(axis, ()):
+        match = pattern.search(file_name)
+        if not match:
+            continue
+        raw_value = match.group(match.lastindex or 1)
+        try:
+            return int(raw_value)
+        except (TypeError, ValueError):
+            continue
+    return None
+
+
+def reconcile_dimensions_with_tiff_files(metadata_dimensions: dict[str, Any], file_dimensions: dict[str, Any]) -> dict[str, Any]:
+    dimensions = dict(metadata_dimensions or {})
+    corrections: dict[str, dict[str, int]] = {}
+    for key in ("frame_count", "position_count", "channel_count", "slice_count"):
+        file_value = safe_int(file_dimensions.get(key))
+        if file_value is None or file_value <= 0:
+            continue
+        metadata_value = safe_int(dimensions.get(key))
+        if metadata_value != file_value:
+            if metadata_value is not None:
+                corrections[key] = {"metadata": metadata_value, "files": file_value}
+            dimensions[key] = file_value
+    if corrections:
+        dimensions["file_backed_corrections"] = corrections
     return {key: value for key, value in dimensions.items() if value not in (None, [], {})}
 
 
