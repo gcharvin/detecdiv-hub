@@ -9,7 +9,7 @@ from uuid import UUID
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session, joinedload
 
-from api.models import Project, ProjectRawLink, RawDataset, RawDatasetPosition
+from api.models import Job, Project, ProjectRawLink, RawDataset, RawDatasetLocation, RawDatasetPosition
 from api.services.path_resolution import compose_storage_path
 from api.services.project_deletion import resolve_raw_location_path
 from api.services.storage_metrics import safe_dir_size, safe_file_size
@@ -194,6 +194,77 @@ def execute_raw_dataset_position_deletion(
         "remaining_position_count": remaining_position_count,
         "result_json": result_json,
     }
+
+
+def queue_raw_dataset_position_deletion(
+    session: Session,
+    *,
+    preview: RawDatasetPositionDeletionPreviewData,
+    requested_by_user,
+) -> Job:
+    job = Job(
+        raw_dataset_id=preview.raw_dataset.id,
+        requested_mode="server",
+        priority=20,
+        requested_by=requested_by_user.user_key,
+        requested_from_host="api",
+        params_json={
+            "job_kind": "raw_dataset_position_deletion",
+            "position_ids": [str(position_id) for position_id in preview.position_ids],
+            "position_count": len(preview.position_ids),
+            "reclaimable_bytes": int(preview.reclaimable_bytes or 0),
+        },
+        status="queued",
+    )
+    session.add(job)
+    session.flush()
+    return job
+
+
+def execute_raw_dataset_position_deletion_job(session: Session, *, job: Job) -> dict:
+    if job.raw_dataset_id is None:
+        raise ValueError(f"Raw dataset position deletion job {job.id} is missing raw_dataset_id")
+
+    position_ids = parse_position_ids((job.params_json or {}).get("position_ids"))
+    if not position_ids:
+        raise ValueError(f"Raw dataset position deletion job {job.id} has no position_ids")
+
+    raw_dataset = session.scalars(
+        select(RawDataset)
+        .options(
+            joinedload(RawDataset.locations).joinedload(RawDatasetLocation.storage_root),
+            joinedload(RawDataset.positions).joinedload(RawDatasetPosition.preview_artifact),
+            joinedload(RawDataset.project_links).joinedload(ProjectRawLink.project).joinedload(Project.owner),
+        )
+        .where(RawDataset.id == job.raw_dataset_id)
+    ).unique().first()
+    if raw_dataset is None:
+        return {
+            "raw_dataset_id": str(job.raw_dataset_id),
+            "status": "failed",
+            "position_count": 0,
+            "reclaimable_bytes": 0,
+            "result_json": {"errors": [f"Raw dataset {job.raw_dataset_id} does not exist."]},
+        }
+
+    preview = build_raw_dataset_position_deletion_preview(
+        session,
+        raw_dataset=raw_dataset,
+        position_ids=position_ids,
+    )
+    return execute_raw_dataset_position_deletion(session, preview=preview, requested_by_user=None)
+
+
+def parse_position_ids(values: object) -> list[UUID]:
+    if not isinstance(values, list):
+        return []
+    position_ids: list[UUID] = []
+    for value in values:
+        try:
+            position_ids.append(UUID(str(value)))
+        except (TypeError, ValueError):
+            continue
+    return position_ids
 
 
 def recalculate_raw_dataset_total_bytes(raw_dataset: RawDataset) -> int:

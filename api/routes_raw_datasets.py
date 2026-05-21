@@ -74,7 +74,7 @@ from api.services.raw_dataset_deletion import (
 )
 from api.services.raw_dataset_position_deletion import (
     build_raw_dataset_position_deletion_preview,
-    execute_raw_dataset_position_deletion,
+    queue_raw_dataset_position_deletion,
 )
 from api.services.archive_policy import (
     automatic_archive_policy_config,
@@ -180,6 +180,7 @@ def get_raw_preview_quality_status(
         duration = _as_float(metadata.get("duration_seconds"))
         file_size = _as_int(metadata.get("file_size_bytes"))
         bitrate = _as_float(metadata.get("bitrate_kbps"))
+        generated_at = _as_datetime(metadata.get("generated_at")) or _job.finished_at or artifact.created_at
         if file_size is None:
             absolute_path = str(metadata.get("absolute_path") or "").strip()
             if absolute_path:
@@ -201,7 +202,7 @@ def get_raw_preview_quality_status(
         samples.append(
             RawPreviewQualitySample(
                 artifact_id=artifact.id,
-                created_at=_job.finished_at or artifact.created_at,
+                created_at=generated_at,
                 raw_dataset_id=raw_dataset.id if raw_dataset is not None else None,
                 acquisition_label=raw_dataset.acquisition_label if raw_dataset is not None else None,
                 position_key=position.position_key if position is not None else str(metadata.get("position_key") or ""),
@@ -616,14 +617,17 @@ def delete_raw_dataset_positions(
         )
     except ValueError as exc:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc
-    result = execute_raw_dataset_position_deletion(db, preview=preview, requested_by_user=current_user)
+    job = queue_raw_dataset_position_deletion(db, preview=preview, requested_by_user=current_user)
     db.commit()
     return RawDatasetPositionDeletionResult(
         raw_dataset_id=raw_dataset_id,
-        status=result["status"],
-        position_count=result["position_count"],
-        reclaimable_bytes=result["reclaimable_bytes"],
-        result_json=result["result_json"],
+        status="queued",
+        position_count=len(preview.position_ids),
+        reclaimable_bytes=preview.reclaimable_bytes,
+        result_json={
+            "job_id": str(job.id),
+            "message": "Raw dataset position deletion queued for worker execution.",
+        },
     )
 
 
@@ -1250,6 +1254,18 @@ def _as_float(value: object) -> float | None:
             return None
         return float(value)
     except (TypeError, ValueError):
+        return None
+
+
+def _as_datetime(value: object) -> datetime | None:
+    if isinstance(value, datetime):
+        return value
+    text = str(value or "").strip()
+    if not text:
+        return None
+    try:
+        return datetime.fromisoformat(text.replace("Z", "+00:00"))
+    except ValueError:
         return None
 
 

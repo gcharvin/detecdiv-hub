@@ -6822,6 +6822,18 @@ async function executeRawPositionDelete() {
     confirm: true,
   });
 
+  if (result.status === "queued") {
+    state.selectedRawPositionIds = state.selectedRawPositionIds.filter((positionId) => !positionIds.includes(`${positionId}`));
+    if (state.selectedRawPositionId && positionIds.includes(`${state.selectedRawPositionId}`)) {
+      state.selectedRawPositionId = null;
+    }
+    closeRawPositionDeletePanel();
+    await selectRawDataset(state.selectedRawDatasetDetail.id);
+    const jobLabel = result.result_json?.job_id ? ` Job ${result.result_json.job_id}.` : "";
+    setStatus(`Queued deletion of ${result.position_count || positionIds.length} position(s).${jobLabel}`);
+    return;
+  }
+
   state.selectedRawPositionIds = state.selectedRawPositionIds.filter((positionId) => !positionIds.includes(`${positionId}`));
   if (state.selectedRawPositionId && positionIds.includes(`${state.selectedRawPositionId}`)) {
     state.selectedRawPositionId = null;
@@ -7851,6 +7863,9 @@ async function pollDashboard() {
     }
     if (pageFlags.hasExecutionTargetsView && isAdmin()) {
       pollTasks.push(refreshExecutionTargets());
+    }
+    if (pageFlags.hasRawPreviewQualityView && isAdmin()) {
+      pollTasks.push(refreshRawPreviewQualityStatus());
     }
     if (pageFlags.hasPipelineRunsView) {
       pollTasks.push(refreshPipelineRuns());

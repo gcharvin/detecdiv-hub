@@ -1,8 +1,25 @@
+from uuid import uuid4
+
 from api.models import RawDataset, RawDatasetLocation, StorageRoot
 from api.services.raw_dataset_position_deletion import (
+    RawDatasetPositionDeletionPreviewData,
+    parse_position_ids,
+    queue_raw_dataset_position_deletion,
     recalculate_raw_dataset_total_bytes,
     update_raw_dataset_after_position_deletion,
 )
+
+
+class FakeSession:
+    def __init__(self):
+        self.added = []
+        self.flushed = False
+
+    def add(self, item):
+        self.added.append(item)
+
+    def flush(self):
+        self.flushed = True
 
 
 def test_position_deletion_catalog_refresh_updates_size_and_metadata_count(tmp_path):
@@ -45,3 +62,39 @@ def test_position_deletion_catalog_refresh_updates_size_and_metadata_count(tmp_p
     assert raw_dataset.metadata_json["dimensions"]["frame_count"] == 1000
     assert raw_dataset.metadata_json["Summary"]["Positions"] == 6
     assert raw_dataset.last_size_scan_at is not None
+
+
+def test_position_deletion_queue_uses_worker_job_contract():
+    raw_dataset = RawDataset(acquisition_label="W80_BY_W303_Q10_1", data_format="tiff_sequence")
+    raw_dataset.id = uuid4()
+    position_ids = [uuid4(), uuid4()]
+    preview = RawDatasetPositionDeletionPreviewData(
+        raw_dataset=raw_dataset,
+        position_ids=position_ids,
+        reclaimable_bytes=1234,
+        preview_json={},
+    )
+    requested_by = type("User", (), {"user_key": "guillaume"})()
+    session = FakeSession()
+
+    job = queue_raw_dataset_position_deletion(
+        session,
+        preview=preview,
+        requested_by_user=requested_by,
+    )
+
+    assert session.added == [job]
+    assert session.flushed is True
+    assert job.raw_dataset_id == raw_dataset.id
+    assert job.requested_mode == "server"
+    assert job.params_json["job_kind"] == "raw_dataset_position_deletion"
+    assert job.params_json["position_ids"] == [str(position_id) for position_id in position_ids]
+    assert job.params_json["position_count"] == 2
+    assert job.params_json["reclaimable_bytes"] == 1234
+
+
+def test_parse_position_ids_ignores_invalid_values():
+    valid_id = uuid4()
+
+    assert parse_position_ids([str(valid_id), "not-a-uuid", None]) == [valid_id]
+    assert parse_position_ids("not-a-list") == []
