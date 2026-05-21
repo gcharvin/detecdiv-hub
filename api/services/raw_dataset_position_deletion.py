@@ -6,7 +6,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from uuid import UUID
 
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.orm import Session, joinedload
 
 from api.models import Project, ProjectRawLink, RawDataset, RawDatasetPosition
@@ -162,15 +162,16 @@ def execute_raw_dataset_position_deletion(
         session.delete(position)
         deleted_positions.append(str(position.id))
 
-    total_bytes = 0
-    for location in preview.raw_dataset.locations or []:
-        if location.storage_root is None:
-            continue
-        dataset_root = resolve_raw_location_path(location)
-        total_bytes += safe_dir_size(dataset_root)
-    preview.raw_dataset.total_bytes = total_bytes
-    preview.raw_dataset.last_size_scan_at = datetime.now(timezone.utc)
-    preview.raw_dataset.updated_at = datetime.now(timezone.utc)
+    session.flush()
+
+    previous_total_bytes = int(preview.raw_dataset.total_bytes or 0)
+    total_bytes = recalculate_raw_dataset_total_bytes(preview.raw_dataset)
+    remaining_position_count = count_remaining_positions(session, raw_dataset=preview.raw_dataset)
+    update_raw_dataset_after_position_deletion(
+        preview.raw_dataset,
+        total_bytes=total_bytes,
+        remaining_position_count=remaining_position_count,
+    )
 
     status = "deleted" if not errors else "partial_failed"
     result_json = {
@@ -178,6 +179,9 @@ def execute_raw_dataset_position_deletion(
         "deleted_source_paths": deleted_source_paths,
         "deleted_preview_artifacts": deleted_preview_artifacts,
         "missing_source_paths": missing_source_paths,
+        "previous_total_bytes": previous_total_bytes,
+        "total_bytes": total_bytes,
+        "remaining_position_count": remaining_position_count,
         "errors": errors,
         "deleted_at": datetime.now(timezone.utc).isoformat(),
     }
@@ -186,8 +190,61 @@ def execute_raw_dataset_position_deletion(
         "status": status,
         "position_count": len(deleted_positions),
         "reclaimable_bytes": int(preview.reclaimable_bytes or 0),
+        "total_bytes": total_bytes,
+        "remaining_position_count": remaining_position_count,
         "result_json": result_json,
     }
+
+
+def recalculate_raw_dataset_total_bytes(raw_dataset: RawDataset) -> int:
+    total_bytes = 0
+    for location in raw_dataset.locations or []:
+        if location.storage_root is None:
+            continue
+        dataset_root = resolve_raw_location_path(location)
+        total_bytes += safe_dir_size(dataset_root)
+    return total_bytes
+
+
+def count_remaining_positions(session: Session, *, raw_dataset: RawDataset) -> int:
+    return int(
+        session.scalar(
+            select(func.count(RawDatasetPosition.id)).where(
+                RawDatasetPosition.raw_dataset_id == raw_dataset.id
+            )
+        )
+        or 0
+    )
+
+
+def update_raw_dataset_after_position_deletion(
+    raw_dataset: RawDataset,
+    *,
+    total_bytes: int,
+    remaining_position_count: int,
+) -> None:
+    metadata = dict(raw_dataset.metadata_json or {})
+    dimensions = metadata.get("dimensions")
+    if not isinstance(dimensions, dict):
+        dimensions = {}
+    else:
+        dimensions = dict(dimensions)
+    dimensions["position_count"] = remaining_position_count
+    metadata["dimensions"] = dimensions
+
+    for summary_key in ("summary", "Summary"):
+        summary = metadata.get(summary_key)
+        if isinstance(summary, dict):
+            summary = dict(summary)
+            summary["Positions"] = remaining_position_count
+            metadata[summary_key] = summary
+    if "Positions" in metadata:
+        metadata["Positions"] = remaining_position_count
+    now = datetime.now(timezone.utc)
+    raw_dataset.metadata_json = metadata
+    raw_dataset.total_bytes = int(total_bytes or 0)
+    raw_dataset.last_size_scan_at = now
+    raw_dataset.updated_at = now
 
 
 def resolve_position_relative_path(position: RawDatasetPosition) -> str:
