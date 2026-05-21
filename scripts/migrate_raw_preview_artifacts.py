@@ -13,7 +13,7 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
-from api.models import Artifact, Job, RawDataset, RawDatasetLocation
+from api.models import Artifact, Job, RawDataset, RawDatasetLocation, RawDatasetPosition
 from api.services.path_resolution import compose_storage_path
 from api.services.project_indexing import slugify
 
@@ -31,6 +31,22 @@ def parse_args() -> argparse.Namespace:
         "--apply",
         action="store_true",
         help="Apply file moves and database updates. Without this flag, the script only reports changes.",
+    )
+    parser.add_argument(
+        "--move-files",
+        action="store_true",
+        help="Move existing MP4 files into the dataset-local preview folder. Use only on a writable storage host.",
+    )
+    parser.add_argument(
+        "--filesystem-view",
+        choices=("auto", "server", "windows"),
+        default="auto",
+        help="How to resolve /data paths for existence checks. Defaults to server paths on Linux and X: mapping on Windows.",
+    )
+    parser.add_argument(
+        "--mark-missing",
+        action="store_true",
+        help="When no preview file can be found, clear the position's ready preview state.",
     )
     return parser.parse_args()
 
@@ -64,7 +80,12 @@ def local_dataset_preview_path(current_uri: str, acquisition_label: str) -> Path
     return prefix / acquisition_label / suffix
 
 
-def server_preview_to_local_windows(server_path: str) -> Path:
+def server_preview_to_local_path(server_path: str, *, filesystem_view: str) -> Path:
+    if filesystem_view == "auto":
+        filesystem_view = "windows" if os.name == "nt" else "server"
+    if filesystem_view == "server":
+        return Path(server_path)
+
     text = str(server_path or "").strip().replace("/", "\\")
     if text.startswith("\\data\\"):
         return Path("X:\\" + text[len("\\data\\"):].lstrip("\\"))
@@ -102,6 +123,19 @@ def expected_server_preview_path(raw_dataset: RawDataset, artifact: Artifact) ->
     return f"{dataset_path}/.detecdiv-previews/{leaf}/{filename}"
 
 
+def candidate_preview_paths(raw_dataset: RawDataset, position: RawDatasetPosition, artifact: Artifact) -> list[str]:
+    location = preferred_dataset_location(raw_dataset)
+    if location is None:
+        return []
+    dataset_path = compose_storage_path(location.storage_root.path_prefix, location.relative_path)
+    leaf = slugify(raw_dataset.external_key or raw_dataset.acquisition_label) or str(raw_dataset.id)
+    filename = Path(str(artifact.uri)).name or f"{position.position_key}.mp4"
+    return [
+        f"{dataset_path}/.detecdiv-previews/{leaf}/{filename}",
+        f"{dataset_path}/.detecdiv-previews/{leaf}/{position.position_key}.mp4",
+    ]
+
+
 def update_job_result_paths(job: Job, artifact_id: str, new_path: str) -> bool:
     result_json = dict(job.result_json or {})
     generated = list(result_json.get("generated") or [])
@@ -124,16 +158,18 @@ def main() -> None:
     engine = create_engine(args.database_url, future=True, pool_pre_ping=True)
 
     with Session(engine) as session:
-        artifacts = list(
-            session.scalars(
-                select(Artifact)
+        rows = list(
+            session.execute(
+                select(RawDatasetPosition, Artifact)
+                .join(Artifact, RawDatasetPosition.preview_artifact_id == Artifact.id)
                 .options(
-                    joinedload(Artifact.job)
-                    .joinedload(Job.raw_dataset)
+                    joinedload(RawDatasetPosition.raw_dataset)
                     .joinedload(RawDataset.locations)
+                    .joinedload(RawDatasetLocation.storage_root),
+                    joinedload(RawDatasetPosition.preview_artifact).joinedload(Artifact.job),
                 )
                 .where(Artifact.artifact_kind == "raw_position_preview_mp4")
-                .order_by(Artifact.created_at.asc())
+                .order_by(RawDatasetPosition.updated_at.asc(), Artifact.created_at.asc())
             ).unique()
         )
 
@@ -141,18 +177,21 @@ def main() -> None:
         moved = 0
         updated = 0
         job_updates = 0
+        missing = 0
+        marked_missing = 0
+        already_ok = 0
         skipped = 0
 
-        for artifact in artifacts:
+        for position, artifact in rows:
             current_uri = str(artifact.uri or "").strip()
             if not current_uri:
                 skipped += 1
                 continue
 
             job = artifact.job
-            raw_dataset = job.raw_dataset if job is not None else None
-            if job is None or raw_dataset is None:
-                print(f"skip artifact {artifact.id}: missing job/raw dataset")
+            raw_dataset = position.raw_dataset
+            if raw_dataset is None:
+                print(f"skip artifact {artifact.id}: missing raw dataset for position {position.id}")
                 skipped += 1
                 continue
 
@@ -163,27 +202,54 @@ def main() -> None:
                 continue
 
             scanned += 1
-            local_expected_path = server_preview_to_local_windows(expected_server_path)
+            local_expected_path = server_preview_to_local_path(expected_server_path, filesystem_view=args.filesystem_view)
             legacy_local_path = legacy_local_preview_path(local_expected_path, raw_dataset.acquisition_label)
 
-            physical_path = local_expected_path
-            source_path = server_preview_to_local_windows(current_uri)
-            if source_path.exists() and source_path != local_expected_path:
+            physical_path: Path | None = None
+            source_path = server_preview_to_local_path(current_uri, filesystem_view=args.filesystem_view)
+            if local_expected_path.exists():
+                physical_path = local_expected_path
+                already_ok += 1
+            elif source_path.exists() and source_path != local_expected_path and args.move_files:
                 print(f"move {source_path} -> {local_expected_path}")
                 if args.apply:
                     local_expected_path.parent.mkdir(parents=True, exist_ok=True)
                     shutil.move(str(source_path), str(local_expected_path))
                 physical_path = local_expected_path
                 moved += 1
-            elif not local_expected_path.exists() and legacy_local_path is not None and legacy_local_path.exists():
+            elif source_path.exists():
+                physical_path = source_path
+                expected_server_path = current_uri
+                already_ok += 1
+            elif legacy_local_path is not None and legacy_local_path.exists() and args.move_files:
                 print(f"move {legacy_local_path} -> {local_expected_path}")
                 if args.apply:
                     local_expected_path.parent.mkdir(parents=True, exist_ok=True)
                     shutil.move(str(legacy_local_path), str(local_expected_path))
                 physical_path = local_expected_path
                 moved += 1
+            else:
+                for candidate in candidate_preview_paths(raw_dataset, position, artifact):
+                    candidate_path = server_preview_to_local_path(candidate, filesystem_view=args.filesystem_view)
+                    if candidate_path.exists():
+                        physical_path = candidate_path
+                        expected_server_path = candidate
+                        local_expected_path = candidate_path
+                        break
 
-            if str(physical_path) != expected_server_path:
+            if physical_path is None:
+                missing += 1
+                print(
+                    f"missing artifact {artifact.id} "
+                    f"dataset={raw_dataset.acquisition_label} position={position.position_key} path={expected_server_path}"
+                )
+                if args.mark_missing:
+                    position.preview_status = "missing"
+                    position.preview_artifact_id = None
+                    marked_missing += 1
+                continue
+
+            if current_uri != expected_server_path or str(physical_path) != expected_server_path:
                 print(f"db {artifact.id}: {current_uri} -> {expected_server_path}")
                 artifact.uri = expected_server_path
                 metadata = dict(artifact.metadata_json or {})
@@ -198,7 +264,9 @@ def main() -> None:
             session.commit()
 
         print(
-            f"scanned={scanned} moved={moved} updated={updated} job_updates={job_updates} skipped={skipped}"
+            "scanned="
+            f"{scanned} moved={moved} updated={updated} job_updates={job_updates} "
+            f"already_ok={already_ok} missing={missing} marked_missing={marked_missing} skipped={skipped}"
         )
 
 
