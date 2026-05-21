@@ -65,95 +65,16 @@
         </div>
 
         <div id="raw-detail-content" class="detail-content hidden">
-          <dl class="detail-list" id="raw-detail-list"></dl>
-
           <div class="action-stack detail-actions">
             <button id="change-raw-owner-button" class="hidden">Change owner</button>
+            <button id="raw-preview-archive-button">Preview archive</button>
+            <button id="raw-archive-button">Request archive</button>
+            <button id="raw-delete-archive-button">Delete archive</button>
+            <button id="raw-restore-button">Request restore</button>
+            <a class="button-link" href="/web/raw-datasets.html">Back to datasets</a>
           </div>
 
-          <section class="subpanel">
-            <div class="subpanel-header">
-              <h3>Actions</h3>
-            </div>
-            <div class="action-stack">
-              <button id="raw-preview-archive-button">Preview archive</button>
-              <button id="raw-archive-button">Request archive</button>
-              <button id="raw-delete-archive-button">Delete archive</button>
-              <button id="raw-restore-button">Request restore</button>
-              <a class="button-link" href="/web/raw-datasets.html">Back to datasets</a>
-            </div>
-          </section>
-
-          <section class="subpanel" id="raw-backup-subpanel">
-            <div class="subpanel-header">
-              <h3>Backup</h3>
-              <button id="raw-snapshots-load-button">Show snapshots</button>
-            </div>
-            <dl class="detail-list">
-              <dt>Status</dt><dd id="raw-backup-status">—</dd>
-              <dt>Last backup</dt><dd id="raw-last-backup-at">—</dd>
-            </dl>
-            <div class="action-stack" style="margin-top:0.5rem">
-              <button id="raw-backup-now-button">Backup now</button>
-              <label class="field compact checkbox-field">
-                <input type="checkbox" id="raw-backup-excluded" />
-                <span>Exclude from backup</span>
-              </label>
-            </div>
-            <div id="raw-backup-feedback" class="muted" style="min-height:1.2em;margin-top:0.25rem;font-size:0.85em;"></div>
-            <div id="raw-snapshots-list" class="stack-list hidden"></div>
-            <div id="raw-restore-panel" class="hidden" style="margin-top:0.75rem">
-              <p class="muted" id="raw-restore-snapshot-label"></p>
-              <div class="toolbar">
-                <label class="field">
-                  <span>Restore target directory</span>
-                  <input id="raw-restore-target-dir" type="text" placeholder="/data/restored/dataset_name" style="min-width:360px" />
-                </label>
-                <button id="raw-restore-confirm-button" class="primary">Restore</button>
-                <button id="raw-restore-cancel-button">Cancel</button>
-              </div>
-            </div>
-          </section>
-
-          <section class="subpanel">
-            <div class="subpanel-header">
-              <h3>Notes</h3>
-              <button id="raw-dataset-notes-save-button" class="primary">Save</button>
-            </div>
-            <label class="field">
-              <span>Notes</span>
-              <textarea id="raw-dataset-notes" rows="6" placeholder="Enter raw dataset notes here..."></textarea>
-            </label>
-          </section>
-
-          <section class="subpanel">
-            <div class="subpanel-header">
-              <h3>Locations</h3>
-            </div>
-            <div id="raw-locations-list" class="stack-list"></div>
-          </section>
-
-          <section class="subpanel">
-            <div class="subpanel-header">
-              <h3>Analysis Projects</h3>
-            </div>
-            <div id="raw-analysis-projects-list" class="stack-list"></div>
-          </section>
-
-          <section class="subpanel">
-            <div class="subpanel-header">
-              <h3>External ELN</h3>
-            </div>
-            <div id="raw-external-eln-list" class="stack-list"></div>
-            <div class="toolbar">
-              <label class="field">
-                <span>Labguru search</span>
-                <input id="raw-labguru-search" type="text" placeholder="experiment title, ID, owner..." />
-              </label>
-              <button id="raw-labguru-search-button">Search Labguru cache</button>
-            </div>
-            <div id="raw-labguru-results" class="stack-list"></div>
-          </section>
+          <dl class="detail-list" id="raw-detail-list"></dl>
 
           <section class="subpanel raw-positions-panel">
             <div class="subpanel-header">
@@ -226,6 +147,79 @@
               </p>
             </section>
           </section>
+
+          <section class="subpanel" id="raw-backup-subpanel">
+            <div class="subpanel-header">
+              <h3>Backup</h3>
+              <button id="raw-snapshots-load-button">Show snapshots</button>
+            </div>
+            <dl class="detail-list">
+              <dt>Status</dt><dd id="raw-backup-status">—</dd>
+              <dt>Last backup</dt><dd id="raw-last-backup-at">—</dd>
+            </dl>
+            <div class="action-stack" style="margin-top:0.5rem">
+              <button id="raw-backup-now-button">Backup now</button>
+              <label class="field compact checkbox-field">
+                <input type="checkbox" id="raw-backup-excluded" />
+                <span>Exclude from backup</span>
+              </label>
+            </div>
+            <div id="raw-backup-feedback" class="muted" style="min-height:1.2em;margin-top:0.25rem;font-size:0.85em;"></div>
+            <div id="raw-snapshots-list" class="stack-list hidden"></div>
+            <div id="raw-restore-panel" class="hidden" style="margin-top:0.75rem">
+              <p class="muted" id="raw-restore-snapshot-label"></p>
+              <div class="toolbar">
+                <label class="field">
+                  <span>Restore target directory</span>
+                  <input id="raw-restore-target-dir" type="text" placeholder="/data/restored/dataset_name" style="min-width:360px" />
+                </label>
+                <button id="raw-restore-confirm-button" class="primary">Restore</button>
+                <button id="raw-restore-cancel-button">Cancel</button>
+              </div>
+            </div>
+          </section>
+
+          <section class="subpanel">
+            <div class="subpanel-header">
+              <h3>Notes</h3>
+              <button id="raw-dataset-notes-save-button" class="primary">Save</button>
+            </div>
+            <label class="field">
+              <span>Notes</span>
+              <textarea id="raw-dataset-notes" rows="6" placeholder="Enter raw dataset notes here..."></textarea>
+            </label>
+          </section>
+
+          <section class="subpanel">
+            <div class="subpanel-header">
+              <h3>Locations</h3>
+            </div>
+            <div id="raw-locations-list" class="stack-list"></div>
+          </section>
+
+          <div class="linked-records-grid">
+            <section class="subpanel linked-records-narrow">
+              <div class="subpanel-header">
+                <h3>Analysis Projects</h3>
+              </div>
+              <div id="raw-analysis-projects-list" class="stack-list"></div>
+            </section>
+
+            <section class="subpanel">
+              <div class="subpanel-header">
+                <h3>External ELN</h3>
+              </div>
+              <div id="raw-external-eln-list" class="stack-list"></div>
+              <div class="toolbar">
+                <label class="field">
+                  <span>Labguru search</span>
+                  <input id="raw-labguru-search" type="text" placeholder="experiment title, ID, owner..." />
+                </label>
+                <button id="raw-labguru-search-button">Search Labguru cache</button>
+              </div>
+              <div id="raw-labguru-results" class="stack-list"></div>
+            </section>
+          </div>
 
           <section class="subpanel">
             <div class="subpanel-header">

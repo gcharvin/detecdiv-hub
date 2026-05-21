@@ -740,6 +740,25 @@ tbody tr.selected {
   border-top: 1px solid var(--line);
 }
 
+.detail-actions {
+  margin-bottom: 16px;
+}
+
+.linked-records-grid {
+  display: grid;
+  grid-template-columns: minmax(260px, 0.72fr) minmax(0, 1.28fr);
+  gap: 14px;
+  align-items: start;
+}
+
+.linked-records-grid > .subpanel {
+  min-width: 0;
+}
+
+.linked-records-narrow .stack-item {
+  overflow-wrap: anywhere;
+}
+
 .browser-current {
   margin-top: 12px;
 }
@@ -899,7 +918,8 @@ tbody tr.selected {
 }
 
 @media (max-width: 1180px) {
-  .raw-positions-layout {
+  .raw-positions-layout,
+  .linked-records-grid {
     grid-template-columns: 1fr;
   }
 

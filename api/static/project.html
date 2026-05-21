@@ -63,13 +63,14 @@
           <div id="detail-empty" class="empty-state">Project not loaded.</div>
 
           <div id="detail-content" class="detail-content hidden">
-            <dl class="detail-list" id="detail-list"></dl>
             <div class="action-stack detail-actions">
               <button id="update-project-button">Update project</button>
               <button id="add-to-group-button">Add to group</button>
               <button id="preview-delete-button" class="danger">Delete</button>
               <button id="change-project-owner-button" class="hidden">Change owner</button>
             </div>
+
+            <dl class="detail-list" id="detail-list"></dl>
 
             <section class="subpanel">
               <div class="subpanel-header">
@@ -90,13 +91,22 @@
               <div id="acl-list" class="stack-list"></div>
             </section>
 
-            <section class="subpanel">
-              <div class="subpanel-header">
-                <h3>Raw Datasets</h3>
-                <button id="project-queue-raw-previews-button">Queue missing previews</button>
-              </div>
-              <div id="project-raw-datasets-list" class="stack-list"></div>
-            </section>
+            <div class="linked-records-grid">
+              <section class="subpanel linked-records-narrow">
+                <div class="subpanel-header">
+                  <h3>Raw Datasets</h3>
+                  <button id="project-queue-raw-previews-button">Queue missing previews</button>
+                </div>
+                <div id="project-raw-datasets-list" class="stack-list"></div>
+              </section>
+
+              <section class="subpanel">
+                <div class="subpanel-header">
+                  <h3>External ELN</h3>
+                </div>
+                <div id="project-external-eln-list" class="stack-list"></div>
+              </section>
+            </div>
 
             <section class="subpanel" id="project-backup-subpanel">
               <div class="subpanel-header">
@@ -152,13 +162,6 @@
                   </div>
                 </div>
               </div>
-            </section>
-
-            <section class="subpanel">
-              <div class="subpanel-header">
-                <h3>External ELN</h3>
-              </div>
-              <div id="project-external-eln-list" class="stack-list"></div>
             </section>
           </div>
         </main>
