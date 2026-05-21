@@ -226,6 +226,9 @@ def build_compact_micromanager_metadata(
         landing_zone_promotion = source_metadata.get("landing_zone_promotion")
         if isinstance(landing_zone_promotion, dict) and landing_zone_promotion:
             metadata["landing_zone_promotion"] = landing_zone_promotion
+    tiff_sequence_summary = parsed_metadata.get("tiff_sequence_summary")
+    if isinstance(tiff_sequence_summary, dict) and tiff_sequence_summary:
+        metadata["tiff_sequence_summary"] = tiff_sequence_summary
 
     return metadata
 
@@ -604,9 +607,9 @@ def extract_acquisition_dimensions(metadata_json: dict[str, Any]) -> dict[str, A
             dimensions["channel_count"] = len(channel_names)
         elif "channel_count" not in dimensions:
             dimensions["channel_count"] = safe_int(summary.get("Channels")) or 0
-        dimensions["position_count"] = safe_int(summary.get("Positions")) or int(dimensions.get("position_count") or 0)
-        dimensions["slice_count"] = safe_int(summary.get("Slices")) or int(dimensions.get("slice_count") or 0)
-        dimensions["frame_count"] = safe_int(summary.get("Frames")) or int(dimensions.get("frame_count") or 0)
+        dimensions["position_count"] = int(dimensions.get("position_count") or 0) or safe_int(summary.get("Positions")) or 0
+        dimensions["slice_count"] = int(dimensions.get("slice_count") or 0) or safe_int(summary.get("Slices")) or 0
+        dimensions["frame_count"] = int(dimensions.get("frame_count") or 0) or safe_int(summary.get("Frames")) or 0
         interval_ms = first_numeric_text(
             summary.get("Interval-ms"),
             summary.get("IntervalMs"),
@@ -617,8 +620,8 @@ def extract_acquisition_dimensions(metadata_json: dict[str, Any]) -> dict[str, A
         if interval_ms is not None:
             dimensions["interval_ms"] = interval_ms
             dimensions["interval_seconds"] = round(float(interval_ms) / 1000.0, 6)
-        dimensions["width_px"] = safe_int(summary.get("Width")) or int(dimensions.get("width_px") or 0)
-        dimensions["height_px"] = safe_int(summary.get("Height")) or int(dimensions.get("height_px") or 0)
+        dimensions["width_px"] = int(dimensions.get("width_px") or 0) or safe_int(summary.get("Width")) or 0
+        dimensions["height_px"] = int(dimensions.get("height_px") or 0) or safe_int(summary.get("Height")) or 0
         dimensions["pixel_type"] = summary.get("PixelType") or dimensions.get("pixel_type")
     merged_channel_settings = merge_channel_settings(
         base_settings=channel_settings,

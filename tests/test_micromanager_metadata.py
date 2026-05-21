@@ -1,6 +1,10 @@
 import json
 
-from api.services.micromanager_metadata import extract_acquisition_dimensions, read_micromanager_metadata
+from api.services.micromanager_metadata import (
+    build_compact_micromanager_metadata,
+    extract_acquisition_dimensions,
+    read_micromanager_metadata,
+)
 
 
 def test_read_micromanager_metadata_extracts_channels_and_playback(tmp_path):
@@ -110,6 +114,17 @@ def test_read_micromanager_metadata_corrects_tiff_sequence_dimensions_from_files
     assert dimensions["slice_count"] == 1
     assert dimensions["file_backed_corrections"]["frame_count"] == {"metadata": 500, "files": 15}
     assert metadata["tiff_sequence_summary"]["file_count"] == 360
+
+    compact = build_compact_micromanager_metadata(
+        dataset_dir=tmp_path,
+        relative_path="raw/example",
+        source_label="test",
+        parsed_metadata=metadata,
+        data_format="tiff_sequence",
+    )
+    assert compact["dimensions"]["frame_count"] == 15
+    assert compact["dimensions"]["file_backed_corrections"]["frame_count"] == {"metadata": 500, "files": 15}
+    assert compact["tiff_sequence_summary"]["file_count"] == 360
 
 
 def test_extract_acquisition_dimensions_preserves_display_settings_channels():
