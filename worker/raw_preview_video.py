@@ -1808,6 +1808,7 @@ def upsert_preview_artifact(
         "raw_dataset_id": str(raw_dataset.id),
         "position_id": str(position.id),
         "position_key": position.position_key,
+        "generated_at": datetime.now(timezone.utc).isoformat(),
         "frame_count": frame_count,
         "width": int(encoded_width),
         "height": int(encoded_height),
