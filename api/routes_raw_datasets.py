@@ -340,6 +340,14 @@ def list_raw_datasets(
                 RawDataset.acquisition_label.ilike(pattern),
                 RawDataset.external_key.ilike(pattern),
                 RawDataset.microscope_name.ilike(pattern),
+                RawDataset.data_format.ilike(pattern),
+                RawDataset.visibility.ilike(pattern),
+                RawDataset.status.ilike(pattern),
+                RawDataset.completeness_status.ilike(pattern),
+                RawDataset.lifecycle_tier.ilike(pattern),
+                RawDataset.archive_status.ilike(pattern),
+                RawDataset.notes.ilike(pattern),
+                RawDataset.owner.has(or_(User.user_key.ilike(pattern), User.display_name.ilike(pattern))),
             )
         )
     if owner_key:

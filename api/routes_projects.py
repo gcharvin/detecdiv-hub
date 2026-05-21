@@ -117,6 +117,13 @@ def list_projects(
             or_(
                 Project.project_name.ilike(pattern),
                 Project.project_key.ilike(pattern),
+                Project.notes.ilike(pattern),
+                Project.visibility.ilike(pattern),
+                Project.status.ilike(pattern),
+                Project.health_status.ilike(pattern),
+                Project.latest_run_status.ilike(pattern),
+                Project.owner.has(or_(User.user_key.ilike(pattern), User.display_name.ilike(pattern))),
+                Project.locations.any(ProjectLocation.relative_path.ilike(pattern)),
             )
         )
     if owner_key:

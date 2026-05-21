@@ -6,6 +6,7 @@ const state = {
   projects: [],
   projectPageSize: 50,
   projectCurrentPage: 0,
+  projectSort: { key: "", direction: "asc" },
   groups: [],
   storageRoots: [],
   indexBrowse: null,
@@ -21,6 +22,7 @@ const state = {
   rawDatasetsLastRefreshAt: 0,
   rawDatasetPageSize: 50,
   rawDatasetCurrentPage: 0,
+  rawDatasetSort: { key: "", direction: "asc" },
   selectedRawDataset: null,
   selectedRawDatasetDetail: null,
   selectedRawPositionId: null,
@@ -1692,7 +1694,7 @@ function renderIndexBrowser() {
 }
 
 function visibleProjectIds() {
-  return state.projects.map((project) => `${project.id}`);
+  return getVisibleProjects().map((project) => `${project.id}`);
 }
 
 function selectedProjectIds() {
@@ -1805,21 +1807,144 @@ function renderProjectsSummary() {
   if (els.summaryTotalBytes) els.summaryTotalBytes.textContent = humanBytes(totalBytes);
 }
 
+function projectSortValue(project, key) {
+  const ownerLabel = project.owner ? userOptionLabel(project.owner) : "";
+  const values = {
+    name: project.project_name,
+    owner: ownerLabel,
+    visibility: project.visibility,
+    health: project.health_status,
+    runs: Number(project.pipeline_run_count || 0),
+    h5: Number(project.h5_count || 0),
+    size: Number(project.total_bytes || 0),
+    status: project.status,
+  };
+  return values[key] ?? "";
+}
+
+function rawDatasetSortValue(raw, key) {
+  const ownerLabel = raw.owner ? userOptionLabel(raw.owner) : "";
+  const displayStatus = state.rawDatasetDeletionStatusById?.[String(raw.id)] || raw.status;
+  const values = {
+    acquisition: raw.acquisition_label,
+    type: raw.data_format || "unknown",
+    owner: ownerLabel,
+    tier: raw.lifecycle_tier,
+    archive: raw.archive_status,
+    status: displayStatus,
+    size: Number(raw.total_bytes || 0),
+  };
+  return values[key] ?? "";
+}
+
+function compareTableValues(valueA, valueB, direction) {
+  const multiplier = direction === "desc" ? -1 : 1;
+  if (typeof valueA === "number" || typeof valueB === "number") {
+    return (Number(valueA || 0) - Number(valueB || 0)) * multiplier;
+  }
+  return String(valueA || "").localeCompare(String(valueB || ""), undefined, {
+    numeric: true,
+    sensitivity: "base",
+  }) * multiplier;
+}
+
+function rowMatchesSearch(values, query) {
+  const normalizedQuery = String(query || "").trim().toLowerCase();
+  if (!normalizedQuery) {
+    return true;
+  }
+  return values.some((value) => String(value ?? "").toLowerCase().includes(normalizedQuery));
+}
+
+function getVisibleProjects() {
+  const query = els.projectSearch?.value || "";
+  const filtered = (state.projects || []).filter((project) => rowMatchesSearch([
+    project.project_name,
+    project.project_key,
+    project.owner ? userOptionLabel(project.owner) : "",
+    project.visibility,
+    project.health_status,
+    project.status,
+    project.latest_run_status,
+    humanBytes(project.total_bytes),
+  ], query));
+  const { key, direction } = state.projectSort || {};
+  if (!key) {
+    return filtered;
+  }
+  return [...filtered].sort((a, b) => compareTableValues(projectSortValue(a, key), projectSortValue(b, key), direction));
+}
+
+function getVisibleRawDatasets() {
+  const query = els.rawSearch?.value || "";
+  const filtered = (state.rawDatasets || []).filter((raw) => {
+    const displayStatus = state.rawDatasetDeletionStatusById?.[String(raw.id)] || raw.status;
+    return rowMatchesSearch([
+      raw.acquisition_label,
+      raw.external_key,
+      raw.microscope_name,
+      raw.data_format,
+      raw.owner ? userOptionLabel(raw.owner) : "",
+      raw.lifecycle_tier,
+      raw.archive_status,
+      displayStatus,
+      raw.completeness_status,
+      raw.visibility,
+      humanBytes(raw.total_bytes),
+    ], query);
+  });
+  const { key, direction } = state.rawDatasetSort || {};
+  if (!key) {
+    return filtered;
+  }
+  return [...filtered].sort((a, b) => compareTableValues(rawDatasetSortValue(a, key), rawDatasetSortValue(b, key), direction));
+}
+
+function setTableSort(kind, key) {
+  const stateKey = kind === "raw" ? "rawDatasetSort" : "projectSort";
+  const current = state[stateKey] || { key: "", direction: "asc" };
+  state[stateKey] = {
+    key,
+    direction: current.key === key && current.direction === "asc" ? "desc" : "asc",
+  };
+  if (kind === "raw") {
+    state.rawDatasetCurrentPage = 0;
+    renderRawDatasets();
+  } else {
+    state.projectCurrentPage = 0;
+    renderProjects();
+  }
+}
+
+function updateSortHeaders(table, sortState) {
+  if (!table) {
+    return;
+  }
+  table.querySelectorAll("th[data-sort-key]").forEach((th) => {
+    const active = th.dataset.sortKey === sortState?.key;
+    th.classList.toggle("sorted", active);
+    th.dataset.sortDirection = active ? sortState.direction : "";
+    th.setAttribute("aria-sort", active ? (sortState.direction === "desc" ? "descending" : "ascending") : "none");
+  });
+}
+
 function renderProjects() {
   if (!els.projectsTableBody || !els.projectCountLabel) {
     return;
   }
   els.projectsTableBody.innerHTML = "";
-  els.projectCountLabel.textContent = `${state.projects.length} projects`;
+  const visibleProjects = getVisibleProjects();
+  els.projectCountLabel.textContent = `${visibleProjects.length} visible / ${state.projects.length} projects`;
   renderProjectsSummary();
+  updateSortHeaders(document.querySelector("#projects-table"), state.projectSort);
 
   const pageSize = state.projectPageSize;
-  const totalPages = Math.ceil(state.projects.length / pageSize);
+  const totalPages = Math.ceil(visibleProjects.length / pageSize);
   state.projectCurrentPage = Math.min(state.projectCurrentPage, Math.max(0, totalPages - 1));
 
   const startIdx = state.projectCurrentPage * pageSize;
   const endIdx = startIdx + pageSize;
-  const pageProjects = state.projects.slice(startIdx, endIdx);
+  const pageProjects = visibleProjects.slice(startIdx, endIdx);
 
   for (const project of pageProjects) {
     const tr = document.createElement("tr");
@@ -1828,12 +1953,12 @@ function renderProjects() {
     }
     tr.innerHTML = `
       <td><input class="project-select-checkbox" type="checkbox" ${isProjectSelected(project.id) ? "checked" : ""} /></td>
-      <td>${project.project_name}</td>
-      <td>${project.owner ? userOptionLabel(project.owner) : ""}</td>
-      <td>${project.visibility}</td>
-      <td>${project.health_status}</td>
-      <td>${project.pipeline_run_count}</td>
-      <td>${project.h5_count}</td>
+      <td>${escapeHtml(project.project_name)}</td>
+      <td>${escapeHtml(project.owner ? userOptionLabel(project.owner) : "")}</td>
+      <td>${escapeHtml(project.visibility)}</td>
+      <td>${escapeHtml(project.health_status)}</td>
+      <td>${escapeHtml(project.pipeline_run_count)}</td>
+      <td>${escapeHtml(project.h5_count)}</td>
       <td>${humanBytes(project.total_bytes)}</td>
     `;
     tr.querySelector(".project-select-checkbox")?.addEventListener("click", (event) => {
@@ -3203,7 +3328,7 @@ function renderIndexingJobs() {
 }
 
 function visibleRawDatasetIds() {
-  return state.rawDatasets.map((raw) => `${raw.id}`);
+  return getVisibleRawDatasets().map((raw) => `${raw.id}`);
 }
 
 function selectedRawDatasetIds() {
@@ -3424,17 +3549,19 @@ function renderRawDatasets() {
     return;
   }
   els.rawDatasetsTableBody.innerHTML = "";
-  els.rawCountLabel.textContent = `${state.rawDatasets.length} raw datasets`;
+  const visibleRawDatasets = getVisibleRawDatasets();
+  els.rawCountLabel.textContent = `${visibleRawDatasets.length} visible / ${state.rawDatasets.length} raw datasets`;
   renderRawOpsSummary();
   renderArchivedRawDatasets();
+  updateSortHeaders(document.querySelector("#raw-datasets-table"), state.rawDatasetSort);
 
   const pageSize = state.rawDatasetPageSize;
-  const totalPages = Math.ceil(state.rawDatasets.length / pageSize);
+  const totalPages = Math.ceil(visibleRawDatasets.length / pageSize);
   state.rawDatasetCurrentPage = Math.min(state.rawDatasetCurrentPage, Math.max(0, totalPages - 1));
 
   const startIdx = state.rawDatasetCurrentPage * pageSize;
   const endIdx = startIdx + pageSize;
-  const pageDatasets = state.rawDatasets.slice(startIdx, endIdx);
+  const pageDatasets = visibleRawDatasets.slice(startIdx, endIdx);
 
   for (const raw of pageDatasets) {
     const tr = document.createElement("tr");
@@ -3444,12 +3571,12 @@ function renderRawDatasets() {
     }
     tr.innerHTML = `
       <td><input class="raw-select-checkbox" type="checkbox" ${isRawDatasetSelected(raw.id) ? "checked" : ""} /></td>
-      <td>${raw.acquisition_label}</td>
-      <td>${raw.data_format || "unknown"}</td>
-      <td>${raw.owner ? userOptionLabel(raw.owner) : ""}</td>
-      <td>${raw.lifecycle_tier}</td>
-      <td>${raw.archive_status}</td>
-      <td>${displayStatus}</td>
+      <td>${escapeHtml(raw.acquisition_label)}</td>
+      <td>${escapeHtml(raw.data_format || "unknown")}</td>
+      <td>${escapeHtml(raw.owner ? userOptionLabel(raw.owner) : "")}</td>
+      <td>${escapeHtml(raw.lifecycle_tier)}</td>
+      <td>${escapeHtml(raw.archive_status)}</td>
+      <td>${escapeHtml(displayStatus)}</td>
       <td>${humanBytes(raw.total_bytes)}</td>
     `;
     tr.querySelector(".raw-select-checkbox")?.addEventListener("click", (event) => {
@@ -5173,7 +5300,6 @@ async function refreshRawDatasets() {
   }
   const params = new URLSearchParams();
   if (els.rawOwnedOnly?.checked) params.set("owned_only", "true");
-  if (els.rawSearch?.value.trim()) params.set("search", els.rawSearch.value.trim());
   if (els.rawOwnerFilter?.value.trim()) params.set("owner_key", els.rawOwnerFilter.value.trim());
   if (els.rawTierFilter?.value) params.set("lifecycle_tier", els.rawTierFilter.value);
   if (els.rawArchiveStatusFilter?.value) params.set("archive_status", els.rawArchiveStatusFilter.value);
@@ -5479,7 +5605,6 @@ async function refreshProjects() {
   const params = new URLSearchParams();
   if (els.groupFilter?.value) params.set("group_id", els.groupFilter.value);
   if (els.ownedOnly?.checked) params.set("owned_only", "true");
-  if (els.projectSearch?.value.trim()) params.set("search", els.projectSearch.value.trim());
   if (els.ownerFilter?.value.trim()) params.set("owner_key", els.ownerFilter.value.trim());
   if (els.storageRootFilter?.value) params.set("storage_root_name", els.storageRootFilter.value);
   if (els.projectLimit?.value) state.projectPageSize = parseInt(els.projectLimit.value) || 50;
@@ -7793,7 +7918,10 @@ if (els.loginButton) els.loginButton.addEventListener("click", () => login().cat
 if (els.logoutButton) els.logoutButton.addEventListener("click", () => logout().catch((error) => setStatus(String(error))));
 if (els.refreshButton) els.refreshButton.addEventListener("click", () => forceRefreshCurrentPage().catch((error) => setStatus(String(error))));
 if (els.groupFilter) els.groupFilter.addEventListener("change", () => refreshProjects().catch((error) => setStatus(String(error))));
-if (els.projectSearch) els.projectSearch.addEventListener("change", () => refreshProjects().catch((error) => setStatus(String(error))));
+if (els.projectSearch) els.projectSearch.addEventListener("input", () => {
+  state.projectCurrentPage = 0;
+  renderProjects();
+});
 if (els.ownerFilter) els.ownerFilter.addEventListener("change", () => refreshProjects().catch((error) => setStatus(String(error))));
 if (els.storageRootFilter) els.storageRootFilter.addEventListener("change", () => refreshProjects().catch((error) => setStatus(String(error))));
 if (els.projectLimit) els.projectLimit.addEventListener("change", () => refreshProjects().catch((error) => setStatus(String(error))));
@@ -7809,7 +7937,11 @@ if (els.bulkDeleteConfirmButton) els.bulkDeleteConfirmButton.addEventListener("c
   setStatus(String(error));
   window.alert(String(error));
 }));
-if (els.rawSearch) els.rawSearch.addEventListener("change", () => refreshRawDatasets().catch((error) => setStatus(String(error))));
+if (els.rawSearch) els.rawSearch.addEventListener("input", () => {
+  state.rawDatasetCurrentPage = 0;
+  renderRawDatasets();
+  renderArchivedRawDatasets();
+});
 if (els.rawOwnerFilter) els.rawOwnerFilter.addEventListener("change", () => refreshRawDatasets().catch((error) => setStatus(String(error))));
 if (els.rawTierFilter) els.rawTierFilter.addEventListener("change", () => refreshRawDatasets().catch((error) => setStatus(String(error))));
 if (els.rawArchiveStatusFilter) els.rawArchiveStatusFilter.addEventListener("change", () => refreshRawDatasets().catch((error) => setStatus(String(error))));
@@ -7848,6 +7980,24 @@ if (els.rawPositionDeleteConfirmButton) els.rawPositionDeleteConfirmButton.addEv
   window.alert(String(error));
 }));
 if (els.rawPositionDeleteConfirmText) els.rawPositionDeleteConfirmText.addEventListener("input", () => renderRawPositionDeletePanel());
+document.querySelectorAll("#projects-table th[data-sort-key]").forEach((th) => {
+  th.addEventListener("click", () => setTableSort("project", th.dataset.sortKey || ""));
+  th.addEventListener("keydown", (event) => {
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      setTableSort("project", th.dataset.sortKey || "");
+    }
+  });
+});
+document.querySelectorAll("#raw-datasets-table th[data-sort-key]").forEach((th) => {
+  th.addEventListener("click", () => setTableSort("raw", th.dataset.sortKey || ""));
+  th.addEventListener("keydown", (event) => {
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      setTableSort("raw", th.dataset.sortKey || "");
+    }
+  });
+});
 if (els.rawLabguruSearchButton) els.rawLabguruSearchButton.addEventListener("click", () => searchLabguruForSelectedRawDataset().catch((error) => {
   setStatus(String(error));
   window.alert(String(error));

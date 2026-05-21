@@ -488,6 +488,28 @@ td {
   font-size: 0.95rem;
 }
 
+th[data-sort-key] {
+  cursor: pointer;
+  user-select: none;
+}
+
+th[data-sort-key]::after {
+  content: "↕";
+  color: var(--muted);
+  font-size: 0.72rem;
+  margin-left: 6px;
+}
+
+th[data-sort-key].sorted[data-sort-direction="asc"]::after {
+  content: "↑";
+  color: var(--accent);
+}
+
+th[data-sort-key].sorted[data-sort-direction="desc"]::after {
+  content: "↓";
+  color: var(--accent);
+}
+
 #projects-table th:first-child,
 #projects-table td:first-child {
   width: 40px;
