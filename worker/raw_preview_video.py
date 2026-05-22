@@ -1083,7 +1083,7 @@ def try_read_v3_ome_writers_preview_frames(
             channel_frames.append(normalize_frame(frame))
         if not channel_frames:
             continue
-        frames.append(compose_channel_strip(channel_frames) if len(channel_frames) > 1 else channel_frames[0])
+        frames.append(compose_channel_composite(channel_frames) if len(channel_frames) > 1 else channel_frames[0])
 
     if not frames:
         return None
@@ -1384,7 +1384,7 @@ def reduce_array_to_frame(array: np.ndarray) -> np.ndarray:
         for index in range(frame.shape[channel_axis]):
             channel_view = np.take(frame, index, axis=channel_axis)
             channel_frames.append(collapse_to_2d(np.asarray(channel_view)))
-        return compose_channel_strip([normalize_frame(channel_frame) for channel_frame in channel_frames])
+        return compose_channel_composite([normalize_frame(channel_frame) for channel_frame in channel_frames])
     return collapse_to_2d(frame)
 
 
@@ -1770,6 +1770,21 @@ def compose_channel_strip(channel_frames: list[np.ndarray]) -> np.ndarray:
     target_width = max(frame.shape[1] for frame in channel_frames)
     padded = [pad_frame(frame, target_height=target_height, target_width=target_width) for frame in channel_frames]
     return np.concatenate(padded, axis=1)
+
+
+def compose_channel_composite(channel_frames: list[np.ndarray]) -> np.ndarray:
+    if not channel_frames:
+        raise ValueError("Cannot compose an empty channel composite")
+    target_height = max(frame.shape[0] for frame in channel_frames)
+    target_width = max(frame.shape[1] for frame in channel_frames)
+    padded = [
+        pad_frame(frame, target_height=target_height, target_width=target_width).astype(np.float32, copy=False)
+        for frame in channel_frames
+    ]
+    if len(padded) == 1:
+        return padded[0].astype(np.uint8)
+    composite = np.maximum.reduce(padded)
+    return np.clip(composite, 0, 255).astype(np.uint8)
 
 
 def pad_frame(frame: np.ndarray, *, target_height: int, target_width: int) -> np.ndarray:

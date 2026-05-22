@@ -205,7 +205,7 @@ def test_read_zarr_preview_frames_handles_v3_ome_writers_chunks(tmp_path, monkey
 
     assert len(sequence.frames) == 2
     assert sequence.channel_labels == ["A", "B"]
-    assert sequence.frames[0].shape == (4, 8)
+    assert sequence.frames[0].shape == (4, 4)
 
 
 def test_should_use_legacy_matlab_jpg_preview_detects_legacy_root(tmp_path):
