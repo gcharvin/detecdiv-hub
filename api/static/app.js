@@ -1522,13 +1522,19 @@ function renderUserSelect(selectElement, users, options = {}) {
     option.textContent = userOptionLabel(user);
     selectElement.appendChild(option);
   }
+  if (selectedValue && !users.some((user) => user.user_key === selectedValue)) {
+    const option = document.createElement("option");
+    option.value = selectedValue;
+    option.textContent = selectedValue;
+    selectElement.appendChild(option);
+  }
   if (!users.length) {
     const option = document.createElement("option");
     option.value = "";
     option.textContent = noUsersLabel;
     selectElement.appendChild(option);
   }
-  if (users.some((user) => user.user_key === selectedValue)) {
+  if (selectedValue && Array.from(selectElement.options).some((option) => option.value === selectedValue)) {
     selectElement.value = selectedValue;
   } else if (emptyOptionLabel) {
     selectElement.value = "";
@@ -5264,7 +5270,6 @@ async function refreshDashboard() {
 
   state.groups = groups.map((group) => ({ ...group, project_ids: [] }));
   state.storageRoots = storageRoots;
-  applyRawDatasetDisplaySettings();
   if (pageFlags.hasProjectDetail && state.groups.length) {
     const groupDetails = await Promise.all(
       state.groups.map((group) => apiGet(`/project-groups/${group.id}`))
@@ -5277,6 +5282,8 @@ async function refreshDashboard() {
   setSummary(summary);
   renderGroupFilter();
   renderStorageRootFilter();
+  renderUserSelectors();
+  applyRawDatasetDisplaySettings();
   renderUserSelectors();
   renderIndexBrowser();
   if (pageFlags.hasProjectPage) {
