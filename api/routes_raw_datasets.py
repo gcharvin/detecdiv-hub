@@ -642,6 +642,7 @@ def delete_raw_dataset_positions(
             db,
             raw_dataset=raw_dataset,
             position_ids=[position_id for position_id in payload.position_ids],
+            measure_reclaimable=False,
         )
     except ValueError as exc:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc

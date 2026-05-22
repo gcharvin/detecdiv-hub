@@ -31,6 +31,7 @@ def build_raw_dataset_position_deletion_preview(
     *,
     raw_dataset: RawDataset,
     position_ids: list[UUID],
+    measure_reclaimable: bool = True,
 ) -> RawDatasetPositionDeletionPreviewData:
     requested_position_ids = {str(position_id) for position_id in position_ids}
     positions = list(
@@ -57,10 +58,10 @@ def build_raw_dataset_position_deletion_preview(
     for position in positions:
         relative_path = resolve_position_relative_path(position)
         source_paths = resolve_position_source_paths(raw_dataset, relative_path)
-        source_bytes = sum(count_position_source_bytes(path) for path in source_paths)
+        source_bytes = sum(count_position_source_bytes(path) for path in source_paths) if measure_reclaimable else 0
         preview_artifact_path = resolve_preview_artifact_path(position)
         preview_artifact_bytes = 0
-        if preview_artifact_path and preview_artifact_path.exists():
+        if measure_reclaimable and preview_artifact_path and preview_artifact_path.exists():
             if not any(path_contains(source_path, preview_artifact_path) for source_path in source_paths):
                 preview_artifact_bytes = safe_file_size(preview_artifact_path)
         reclaimable_bytes += source_bytes + preview_artifact_bytes

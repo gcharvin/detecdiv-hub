@@ -1,5 +1,12 @@
 from uuid import uuid4
 
+import sys
+from pathlib import Path
+
+REPO_ROOT = Path(__file__).resolve().parents[1]
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
+
 from api.models import RawDataset, RawDatasetLocation, RawDatasetPosition, StorageRoot
 from api.services.raw_dataset_position_deletion import (
     POSITION_STATUS_DELETION_QUEUED,
