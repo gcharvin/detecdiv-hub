@@ -620,13 +620,30 @@ def update_worker_target_state(
 
 def update_raw_preview_position_state(session, *, job: Job, status: str) -> None:
     position_id = (job.params_json or {}).get("position_id")
-    if not position_id:
+    if position_id:
+        position = session.get(RawDatasetPosition, position_id)
+        if position is None:
+            return
+        position.preview_status = status
+        position.updated_at = datetime.now(timezone.utc)
         return
-    position = session.get(RawDatasetPosition, position_id)
-    if position is None:
+
+    # Dataset-level preview jobs can fail before entering the per-position loop
+    # (for example when the catalogued source path has been moved). In that
+    # case, clear only active placeholders so the UI does not stay stuck on
+    # "queued" after the worker job has failed.
+    if status not in {"failed", "cancelled"} or job.raw_dataset_id is None:
         return
-    position.preview_status = status
-    position.updated_at = datetime.now(timezone.utc)
+    positions = session.scalars(
+        select(RawDatasetPosition).where(
+            RawDatasetPosition.raw_dataset_id == job.raw_dataset_id,
+            RawDatasetPosition.preview_status.in_(("queued", "running")),
+        )
+    ).all()
+    now = datetime.now(timezone.utc)
+    for position in positions:
+        position.preview_status = status
+        position.updated_at = now
 
 
 if __name__ == "__main__":
