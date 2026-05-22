@@ -1399,6 +1399,12 @@ class RawPreviewQualitySample(HubBaseModel):
     width: int | None = None
     height: int | None = None
     fps: int | None = None
+    frame_mode: str | None = None
+    max_frames: int | None = None
+    max_dimension: int | None = None
+    binning_factor: int | None = None
+    crf: int | None = None
+    preset: str | None = None
     frame_count: int | None = None
     duration_seconds: float | None = None
     file_size_bytes: int | None = None

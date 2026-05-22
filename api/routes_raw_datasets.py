@@ -163,7 +163,7 @@ def get_raw_preview_quality_status(
         .outerjoin(RawDatasetPosition, RawDatasetPosition.preview_artifact_id == Artifact.id)
         .where(Artifact.artifact_kind == "raw_position_preview_mp4")
         .order_by(Job.finished_at.desc(), Artifact.created_at.desc())
-        .limit(10)
+        .limit(500)
     ).all()
 
     samples: list[RawPreviewQualitySample] = []
@@ -173,9 +173,17 @@ def get_raw_preview_quality_status(
     bitrates: list[float] = []
     for artifact, _job, raw_dataset, position in rows:
         metadata = dict(artifact.metadata_json or {})
+        if not raw_preview_metadata_matches_config(metadata, config):
+            continue
         width = _as_int(metadata.get("width"))
         height = _as_int(metadata.get("height"))
         fps = _as_int(metadata.get("fps"))
+        frame_mode = _as_text(metadata.get("frame_mode"))
+        max_frames = _as_int(metadata.get("max_frames_setting"))
+        max_dimension = _as_int(metadata.get("max_dimension"))
+        binning_factor = _as_int(metadata.get("binning_factor"))
+        crf = _as_int(metadata.get("crf"))
+        preset = _as_text(metadata.get("preset"))
         frame_count = _as_int(metadata.get("frame_count"))
         duration = _as_float(metadata.get("duration_seconds"))
         file_size = _as_int(metadata.get("file_size_bytes"))
@@ -209,12 +217,20 @@ def get_raw_preview_quality_status(
                 width=width,
                 height=height,
                 fps=fps,
+                frame_mode=frame_mode,
+                max_frames=max_frames,
+                max_dimension=max_dimension,
+                binning_factor=binning_factor,
+                crf=crf,
+                preset=preset,
                 frame_count=frame_count,
                 duration_seconds=duration,
                 file_size_bytes=file_size,
                 bitrate_kbps=bitrate,
             )
         )
+        if len(samples) >= 10:
+            break
     summary = RawPreviewQualitySummary(
         sample_count=len(samples),
         avg_width=round(sum(widths) / len(widths), 2) if widths else None,
@@ -290,6 +306,18 @@ def ensure_archive_policy_admin(current_user: User) -> None:
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Admin role required for automatic archive policy controls",
         )
+
+
+def raw_preview_metadata_matches_config(metadata: dict, config) -> bool:
+    return (
+        _as_int(metadata.get("fps")) == int(config.fps)
+        and _normalized_text(metadata.get("frame_mode")) == _normalized_text(config.frame_mode)
+        and _as_int(metadata.get("max_frames_setting")) == int(config.max_frames)
+        and _as_int(metadata.get("max_dimension")) == int(config.max_dimension)
+        and _as_int(metadata.get("binning_factor")) == int(config.binning_factor)
+        and _as_int(metadata.get("crf")) == int(config.crf)
+        and _normalized_text(metadata.get("preset")) == _normalized_text(config.preset)
+    )
 
 
 @router.get("", response_model=list[RawDatasetSummary])
@@ -1267,6 +1295,15 @@ def _as_datetime(value: object) -> datetime | None:
         return datetime.fromisoformat(text.replace("Z", "+00:00"))
     except ValueError:
         return None
+
+
+def _as_text(value: object) -> str | None:
+    text = str(value or "").strip()
+    return text or None
+
+
+def _normalized_text(value: object) -> str:
+    return str(value or "").strip().lower()
 
 
 def raw_dataset_summary_view(raw_dataset: RawDataset) -> RawDatasetSummary:

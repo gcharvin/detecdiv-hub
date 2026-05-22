@@ -4045,7 +4045,7 @@ function renderRawPreviewQualityStatus() {
 
   const summary = status.summary || {};
   els.rawPreviewQualitySummary.textContent = [
-    `${summary.sample_count || 0} sample(s)`,
+    `${summary.sample_count || 0} current-settings sample(s)`,
     summary.avg_width && summary.avg_height ? `avg ${Math.round(summary.avg_width)}x${Math.round(summary.avg_height)}` : "avg resolution n/a",
     summary.avg_fps ? `avg ${Number(summary.avg_fps).toFixed(2)} fps` : "avg fps n/a",
     summary.avg_bitrate_kbps ? `avg ${Number(summary.avg_bitrate_kbps).toFixed(2)} kbps` : "avg bit rate n/a",
@@ -4058,6 +4058,8 @@ function renderRawPreviewQualityStatus() {
       <td>${sample.position_key || ""}</td>
       <td>${sample.width && sample.height ? `${sample.width}x${sample.height}` : ""}</td>
       <td>${sample.fps ?? ""}</td>
+      <td>${sample.preset || ""}</td>
+      <td>${sample.crf ?? ""}</td>
       <td>${sample.frame_count ?? ""}</td>
       <td>${sample.duration_seconds != null ? `${Number(sample.duration_seconds).toFixed(2)} s` : ""}</td>
       <td>${sample.file_size_bytes != null ? humanBytes(sample.file_size_bytes) : ""}</td>
