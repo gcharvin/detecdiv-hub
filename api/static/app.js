@@ -5418,7 +5418,6 @@ async function refreshRawDatasets(options = {}) {
     }
   }
   state.selectedRawDatasetIds = state.selectedRawDatasetIds.filter((rawDatasetId) => visibleIds.has(`${rawDatasetId}`));
-  saveRawDatasetDisplaySettings();
   if (state.pendingRawBulkDelete?.scope === "selected" && !selectedRawDatasetIds().length) {
     closeRawBulkDeletePanel();
   }
@@ -5834,11 +5833,15 @@ async function refreshUsers() {
     if (els.indexOwnerUserKey || els.ownerFilter || els.rawOwnerFilter || pageFlags.hasProjectPage || pageFlags.hasRawDatasetPage) {
       state.users = await apiGet("/users");
       renderUserSelectors();
+      applyRawDatasetDisplaySettings();
+      renderUserSelectors();
     }
     return;
   }
   state.users = await apiGet("/users");
   renderUsers();
+  renderUserSelectors();
+  applyRawDatasetDisplaySettings();
   renderUserSelectors();
 }
 
