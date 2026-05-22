@@ -10,6 +10,7 @@ from api.services.project_indexing import (
     get_or_create_storage_root,
     is_legacy_matlab_timelapse_project_dir,
     raw_root_candidates,
+    source_matching_storage_root_candidates,
 )
 from api.services.raw_dataset_ingest import detect_raw_dataset_format
 
@@ -99,6 +100,28 @@ def test_build_rebased_raw_path_candidates_rebases_against_explicit_root(tmp_pat
 
     assert str(raw_root / "Florian" / "Microscopy" / "2026_04_16_YAM853_switch_1_0001" / "Pos0" / "frame_0001.tif") in candidates
     assert not any("//10.20.11.250" in candidate for candidate in candidates)
+
+
+def test_build_rebased_raw_path_candidates_uses_matching_server_owner_root(tmp_path: Path):
+    owner_root = tmp_path / "Abhilasha"
+    raw_dataset = owner_root / "21_05_2027.ome.zarr"
+    raw_dataset.mkdir(parents=True)
+    session = DummySession(
+        [
+            DummyStorageRoot(
+                name="Abhilashsa_data",
+                root_type="project_root",
+                host_scope="server",
+                path_prefix=str(owner_root),
+            )
+        ]
+    )
+
+    source_path = r"Z:\Abhilasha\21_05_2027.ome.zarr"
+    candidates = build_rebased_raw_path_candidates(session, source_path=source_path, project_dir=tmp_path)
+
+    assert str(raw_dataset) in candidates
+    assert source_matching_storage_root_candidates(session, source_path) == [owner_root]
 
 
 def test_legacy_matlab_timelapse_project_dir_is_detected(tmp_path: Path):

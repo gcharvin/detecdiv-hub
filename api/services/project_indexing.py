@@ -1419,6 +1419,9 @@ def build_rebased_raw_path_candidates(session: Session, *, source_path: str, pro
 
     suffixes = suffix_candidates(normalized)
     root_candidates = raw_root_candidates(session)
+    for root in source_matching_storage_root_candidates(session, normalized):
+        if root not in root_candidates:
+            root_candidates.append(root)
 
     for root in root_candidates:
         root_path = Path(root)
@@ -1473,6 +1476,36 @@ def raw_root_candidates(session: Session) -> list[Path]:
         if "raw" in root_type:
             push(root.path_prefix)
 
+    return candidates
+
+
+def source_matching_storage_root_candidates(session: Session, path_text: str) -> list[Path]:
+    from api.models import StorageRoot
+
+    parts = split_path_parts(path_text)
+    if not parts:
+        return []
+    source_root_name = parts[0].lower()
+    candidates: list[Path] = []
+    seen: set[str] = set()
+
+    for root in session.scalars(select(StorageRoot)):
+        if str(root.host_scope or "").lower() not in {"server", "shared"}:
+            continue
+        prefix = str(root.path_prefix or "").strip()
+        if not prefix:
+            continue
+        try:
+            path = Path(prefix).resolve()
+        except OSError:
+            continue
+        if not path.exists() or path.name.lower() != source_root_name:
+            continue
+        key = str(path)
+        if key in seen:
+            continue
+        seen.add(key)
+        candidates.append(path)
     return candidates
 
 
