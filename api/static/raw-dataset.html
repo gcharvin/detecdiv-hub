@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Detecdiv server - Raw dataset</title>
-    <link rel="stylesheet" href="/web/styles.css?v=20260507-ui1" />
+    <link rel="stylesheet" href="/web/styles.css?v=20260522-ui3" />
   </head>
   <body data-page="raw-dataset">
     <div class="page-shell">
@@ -49,15 +49,17 @@
           <h1 id="raw-dataset-page-title">Raw dataset</h1>
           <p class="hero-copy">Inspect acquisition metadata, linked projects, positions, and preview movies.</p>
         </div>
+        <div class="action-stack hero-detail-actions">
+          <button id="change-raw-owner-button" class="hidden">Change owner</button>
+          <button id="raw-preview-archive-button">Preview archive</button>
+          <button id="raw-archive-button">Request archive</button>
+          <button id="raw-delete-archive-button">Delete archive</button>
+          <button id="raw-restore-button">Request restore</button>
+          <a class="button-link" href="/web/raw-datasets.html">Back to datasets</a>
+        </div>
       </header>
 
       <section class="panel detail-panel">
-        <div class="panel-header">
-          <div>
-            <h2>Raw Dataset Details</h2>
-            <p id="raw-detail-subtitle" class="muted">Loading raw dataset</p>
-          </div>
-        </div>
         <div id="raw-action-feedback" class="inline-feedback hidden"></div>
 
         <div id="raw-detail-empty" class="empty-state">
@@ -65,16 +67,32 @@
         </div>
 
         <div id="raw-detail-content" class="detail-content hidden">
-          <div class="action-stack detail-actions">
-            <button id="change-raw-owner-button" class="hidden">Change owner</button>
-            <button id="raw-preview-archive-button">Preview archive</button>
-            <button id="raw-archive-button">Request archive</button>
-            <button id="raw-delete-archive-button">Delete archive</button>
-            <button id="raw-restore-button">Request restore</button>
-            <a class="button-link" href="/web/raw-datasets.html">Back to datasets</a>
-          </div>
+          <div class="raw-overview-grid">
+            <section class="raw-overview-main">
+              <div class="panel-header">
+                <div>
+                  <h2>Raw Dataset Details</h2>
+                  <p id="raw-detail-subtitle" class="muted">Loading raw dataset</p>
+                </div>
+              </div>
+              <dl class="detail-list" id="raw-detail-list"></dl>
+            </section>
 
-          <dl class="detail-list" id="raw-detail-list"></dl>
+            <section class="raw-overview-side">
+              <div class="subpanel-header">
+                <h3>External ELN</h3>
+              </div>
+              <div id="raw-external-eln-list" class="stack-list"></div>
+              <div class="toolbar">
+                <label class="field">
+                  <span>Labguru search</span>
+                  <input id="raw-labguru-search" type="text" placeholder="experiment title, ID, owner..." />
+                </label>
+                <button id="raw-labguru-search-button">Search Labguru cache</button>
+              </div>
+              <div id="raw-labguru-results" class="stack-list"></div>
+            </section>
+          </div>
 
           <section class="subpanel raw-positions-panel">
             <div class="subpanel-header">
@@ -203,21 +221,6 @@
                 <h3>Analysis Projects</h3>
               </div>
               <div id="raw-analysis-projects-list" class="stack-list"></div>
-            </section>
-
-            <section class="subpanel">
-              <div class="subpanel-header">
-                <h3>External ELN</h3>
-              </div>
-              <div id="raw-external-eln-list" class="stack-list"></div>
-              <div class="toolbar">
-                <label class="field">
-                  <span>Labguru search</span>
-                  <input id="raw-labguru-search" type="text" placeholder="experiment title, ID, owner..." />
-                </label>
-                <button id="raw-labguru-search-button">Search Labguru cache</button>
-              </div>
-              <div id="raw-labguru-results" class="stack-list"></div>
             </section>
           </div>
 
