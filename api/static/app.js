@@ -23,6 +23,7 @@ const state = {
   rawDatasetPageSize: 50,
   rawDatasetCurrentPage: 0,
   rawDatasetSort: { key: "", direction: "asc" },
+  persistedRawDatasetId: "",
   selectedRawDataset: null,
   selectedRawDatasetDetail: null,
   selectedRawPositionId: null,
@@ -63,6 +64,7 @@ const state = {
 const RAW_DATASETS_POLL_INTERVAL_MS = 15_000;
 const MICROMANAGER_INGEST_REPORT_ONLY_STORAGE_KEY = "detecdivHub.micromanagerIngest.reportOnly";
 const MICROMANAGER_INGEST_ROOT_MODE_STORAGE_KEY = "detecdivHub.micromanagerIngest.rootMode";
+const RAW_DATASETS_DISPLAY_STORAGE_KEY = "detecdivHub.rawDatasets.displaySettings.v1";
 
 const els = {
   loginPanel: document.querySelector("#login-panel"),
@@ -171,6 +173,7 @@ const els = {
   rawSelectionSummary: document.querySelector("#raw-selection-summary"),
   rawSelectVisibleButton: document.querySelector("#raw-select-visible-button"),
   rawClearSelectionButton: document.querySelector("#raw-clear-selection-button"),
+  rawClearDisplaySettingsButton: document.querySelector("#raw-clear-display-settings-button"),
   rawBulkQueuePreviewsSelectedButton: document.querySelector("#raw-bulk-queue-previews-selected-button"),
   rawBulkDeleteSelectedButton: document.querySelector("#raw-bulk-delete-selected-button"),
   rawBulkDeletePanel: document.querySelector("#raw-bulk-delete-panel"),
@@ -1856,6 +1859,84 @@ function rowMatchesSearch(values, query) {
   return values.some((value) => String(value ?? "").toLowerCase().includes(normalizedQuery));
 }
 
+function readJsonFromLocalStorage(key, fallback = null) {
+  try {
+    const raw = localStorage.getItem(key);
+    return raw ? JSON.parse(raw) : fallback;
+  } catch (error) {
+    console.warn(`Could not read ${key} from localStorage`, error);
+    return fallback;
+  }
+}
+
+function saveRawDatasetDisplaySettings() {
+  if (!pageFlags.hasRawDatasetsView) {
+    return;
+  }
+  const payload = {
+    search: els.rawSearch?.value || "",
+    ownerKey: els.rawOwnerFilter?.value || "",
+    tier: els.rawTierFilter?.value || "",
+    archiveStatus: els.rawArchiveStatusFilter?.value || "",
+    pageSize: state.rawDatasetPageSize || parseInt(els.rawLimit?.value || "50", 10) || 50,
+    ownedOnly: Boolean(els.rawOwnedOnly?.checked),
+    sort: state.rawDatasetSort || { key: "", direction: "asc" },
+    currentPage: state.rawDatasetCurrentPage || 0,
+    selectedRawDatasetId: state.selectedRawDataset?.id || state.selectedRawDatasetDetail?.id || state.persistedRawDatasetId || "",
+    selectedIds: state.selectedRawDatasetIds || [],
+  };
+  try {
+    localStorage.setItem(RAW_DATASETS_DISPLAY_STORAGE_KEY, JSON.stringify(payload));
+  } catch (error) {
+    console.warn("Could not save raw dataset display settings", error);
+  }
+}
+
+function applyRawDatasetDisplaySettings() {
+  if (!pageFlags.hasRawDatasetsView) {
+    return;
+  }
+  const saved = readJsonFromLocalStorage(RAW_DATASETS_DISPLAY_STORAGE_KEY, null);
+  if (!saved || typeof saved !== "object") {
+    return;
+  }
+  if (els.rawSearch) els.rawSearch.value = String(saved.search || "");
+  if (els.rawOwnerFilter) els.rawOwnerFilter.value = String(saved.ownerKey || "");
+  if (els.rawTierFilter) els.rawTierFilter.value = String(saved.tier || "");
+  if (els.rawArchiveStatusFilter) els.rawArchiveStatusFilter.value = String(saved.archiveStatus || "");
+  if (els.rawLimit && saved.pageSize) els.rawLimit.value = String(saved.pageSize);
+  if (els.rawOwnedOnly) els.rawOwnedOnly.checked = Boolean(saved.ownedOnly);
+  const sort = saved.sort && typeof saved.sort === "object" ? saved.sort : {};
+  state.rawDatasetSort = {
+    key: String(sort.key || ""),
+    direction: sort.direction === "desc" ? "desc" : "asc",
+  };
+  state.rawDatasetPageSize = parseInt(saved.pageSize || els.rawLimit?.value || "50", 10) || 50;
+  state.rawDatasetCurrentPage = Math.max(0, parseInt(saved.currentPage || "0", 10) || 0);
+  state.persistedRawDatasetId = String(saved.selectedRawDatasetId || "");
+  state.selectedRawDatasetIds = Array.isArray(saved.selectedIds) ? saved.selectedIds.map((value) => `${value}`) : [];
+}
+
+function clearRawDatasetDisplaySettings() {
+  localStorage.removeItem(RAW_DATASETS_DISPLAY_STORAGE_KEY);
+  if (els.rawSearch) els.rawSearch.value = "";
+  if (els.rawOwnerFilter) els.rawOwnerFilter.value = "";
+  if (els.rawTierFilter) els.rawTierFilter.value = "";
+  if (els.rawArchiveStatusFilter) els.rawArchiveStatusFilter.value = "";
+  if (els.rawLimit) els.rawLimit.value = "50";
+  if (els.rawOwnedOnly) els.rawOwnedOnly.checked = false;
+  state.rawDatasetSort = { key: "", direction: "asc" };
+  state.rawDatasetCurrentPage = 0;
+  state.rawDatasetPageSize = 50;
+  state.selectedRawDatasetIds = [];
+  state.selectedRawDataset = null;
+  state.selectedRawDatasetDetail = null;
+  state.persistedRawDatasetId = "";
+  renderRawDatasets();
+  renderRawDatasetDetail();
+  refreshRawDatasets({ preservePage: false }).catch((error) => setStatus(String(error)));
+}
+
 function getVisibleProjects() {
   const query = els.projectSearch?.value || "";
   const filtered = (state.projects || []).filter((project) => rowMatchesSearch([
@@ -1910,6 +1991,7 @@ function setTableSort(kind, key) {
   if (kind === "raw") {
     state.rawDatasetCurrentPage = 0;
     renderRawDatasets();
+    saveRawDatasetDisplaySettings();
   } else {
     state.projectCurrentPage = 0;
     renderProjects();
@@ -3345,6 +3427,7 @@ function setSelectedRawDatasetIds(rawDatasetIds) {
   if (state.pendingRawBulkDelete?.scope === "selected") {
     closeRawBulkDeletePanel();
   }
+  saveRawDatasetDisplaySettings();
   renderRawDatasets();
   renderArchivedRawDatasets();
   renderRawSelectionControls();
@@ -3620,6 +3703,7 @@ function renderRawPagination(totalPages) {
   newPrevBtn.addEventListener("click", () => {
     if (state.rawDatasetCurrentPage > 0) {
       state.rawDatasetCurrentPage--;
+      saveRawDatasetDisplaySettings();
       renderRawDatasets();
     }
   });
@@ -3627,6 +3711,7 @@ function renderRawPagination(totalPages) {
   newNextBtn.addEventListener("click", () => {
     if (state.rawDatasetCurrentPage < totalPages - 1) {
       state.rawDatasetCurrentPage++;
+      saveRawDatasetDisplaySettings();
       renderRawDatasets();
     }
   });
@@ -5179,6 +5264,7 @@ async function refreshDashboard() {
 
   state.groups = groups.map((group) => ({ ...group, project_ids: [] }));
   state.storageRoots = storageRoots;
+  applyRawDatasetDisplaySettings();
   if (pageFlags.hasProjectDetail && state.groups.length) {
     const groupDetails = await Promise.all(
       state.groups.map((group) => apiGet(`/project-groups/${group.id}`))
@@ -5295,7 +5381,9 @@ async function clearStaleIndexingJobs() {
   await refreshIndexingJobs();
 }
 
-async function refreshRawDatasets() {
+async function refreshRawDatasets(options = {}) {
+  const preservePage = Boolean(options.preservePage);
+  const previousPage = state.rawDatasetCurrentPage || 0;
   if (!els.rawDatasetsTableBody && pageKind !== "raw-ops") {
     if (pageFlags.hasRawDatasetPage) {
       const rawDatasetId = getRawDatasetPageId();
@@ -5315,7 +5403,7 @@ async function refreshRawDatasets() {
 
   state.rawDatasets = await apiGet(`/raw-datasets${params.toString() ? `?${params.toString()}` : ""}`);
   state.rawDatasetsLastRefreshAt = Date.now();
-  state.rawDatasetCurrentPage = 0;
+  state.rawDatasetCurrentPage = preservePage ? previousPage : 0;
   const visibleIds = new Set(state.rawDatasets.map((raw) => `${raw.id}`));
   for (const rawDatasetId of Object.keys(state.rawDatasetDeletionStatusById || {})) {
     if (!visibleIds.has(rawDatasetId)) {
@@ -5323,6 +5411,7 @@ async function refreshRawDatasets() {
     }
   }
   state.selectedRawDatasetIds = state.selectedRawDatasetIds.filter((rawDatasetId) => visibleIds.has(`${rawDatasetId}`));
+  saveRawDatasetDisplaySettings();
   if (state.pendingRawBulkDelete?.scope === "selected" && !selectedRawDatasetIds().length) {
     closeRawBulkDeletePanel();
   }
@@ -5337,6 +5426,13 @@ async function refreshRawDatasets() {
   if (requestedRawDatasetId && pageFlags.hasRawDatasetPage) {
     if (!state.selectedRawDataset || `${state.selectedRawDataset.id}` === requestedRawDatasetId) {
       await selectRawDataset(requestedRawDatasetId, { hydrateDetail: true });
+    }
+  } else if (!state.selectedRawDataset && state.persistedRawDatasetId && pageFlags.hasRawDatasetsView) {
+    const persisted = state.rawDatasets.find((raw) => `${raw.id}` === `${state.persistedRawDatasetId}`);
+    if (persisted) {
+      state.selectedRawDataset = persisted;
+      state.selectedRawDatasetDetail = persisted;
+      renderRawDatasetDetail();
     }
   } else if (state.selectedRawDataset) {
     const stillExists = state.rawDatasets.find((raw) => raw.id === state.selectedRawDataset.id);
@@ -5654,18 +5750,22 @@ async function selectRawDataset(rawDatasetId, options = {}) {
       }
       state.selectedRawDatasetDetail = raw;
       state.selectedRawDataset = raw;
+      state.persistedRawDatasetId = `${raw.id}`;
       if ((rawDatasetId === getRawDatasetPageId() || pageFlags.hasRawDatasetPage) && els.rawDetailSubtitle) {
         document.title = `Detecdiv server - ${raw.acquisition_label}`;
       }
+      saveRawDatasetDisplaySettings();
       renderRawDatasets();
       renderRawDatasetDetail();
       return;
     }
     state.selectedRawDatasetDetail = await apiGet(`/raw-datasets/${rawDatasetId}`);
     state.selectedRawDataset = raw || state.selectedRawDatasetDetail;
+    state.persistedRawDatasetId = `${rawDatasetId}`;
     if ((rawDatasetId === getRawDatasetPageId() || pageFlags.hasRawDatasetPage) && els.rawDetailSubtitle) {
       document.title = `Detecdiv server - ${state.selectedRawDatasetDetail.acquisition_label}`;
     }
+    saveRawDatasetDisplaySettings();
     renderRawDatasets();
     renderRawDatasetDetail();
   } catch (error) {
@@ -7865,7 +7965,7 @@ async function pollDashboard() {
     }
     if (pageFlags.hasRawDatasetsView || pageKind === "raw-ops") {
       if (Date.now() - state.rawDatasetsLastRefreshAt >= RAW_DATASETS_POLL_INTERVAL_MS) {
-        pollTasks.push(refreshRawDatasets());
+        pollTasks.push(refreshRawDatasets({ preservePage: true }));
       }
     }
     if (pageFlags.hasAutomaticArchivePolicy && isAdmin()) {
@@ -7970,18 +8070,41 @@ if (els.bulkDeleteConfirmButton) els.bulkDeleteConfirmButton.addEventListener("c
 }));
 if (els.rawSearch) els.rawSearch.addEventListener("input", () => {
   state.rawDatasetCurrentPage = 0;
+  saveRawDatasetDisplaySettings();
   renderRawDatasets();
   renderArchivedRawDatasets();
 });
-if (els.rawOwnerFilter) els.rawOwnerFilter.addEventListener("change", () => refreshRawDatasets().catch((error) => setStatus(String(error))));
-if (els.rawTierFilter) els.rawTierFilter.addEventListener("change", () => refreshRawDatasets().catch((error) => setStatus(String(error))));
-if (els.rawArchiveStatusFilter) els.rawArchiveStatusFilter.addEventListener("change", () => refreshRawDatasets().catch((error) => setStatus(String(error))));
-if (els.rawLimit) els.rawLimit.addEventListener("change", () => refreshRawDatasets().catch((error) => setStatus(String(error))));
-if (els.rawOwnedOnly) els.rawOwnedOnly.addEventListener("change", () => refreshRawDatasets().catch((error) => setStatus(String(error))));
+if (els.rawOwnerFilter) els.rawOwnerFilter.addEventListener("change", () => {
+  state.rawDatasetCurrentPage = 0;
+  saveRawDatasetDisplaySettings();
+  refreshRawDatasets().catch((error) => setStatus(String(error)));
+});
+if (els.rawTierFilter) els.rawTierFilter.addEventListener("change", () => {
+  state.rawDatasetCurrentPage = 0;
+  saveRawDatasetDisplaySettings();
+  refreshRawDatasets().catch((error) => setStatus(String(error)));
+});
+if (els.rawArchiveStatusFilter) els.rawArchiveStatusFilter.addEventListener("change", () => {
+  state.rawDatasetCurrentPage = 0;
+  saveRawDatasetDisplaySettings();
+  refreshRawDatasets().catch((error) => setStatus(String(error)));
+});
+if (els.rawLimit) els.rawLimit.addEventListener("change", () => {
+  state.rawDatasetCurrentPage = 0;
+  state.rawDatasetPageSize = parseInt(els.rawLimit.value || "50", 10) || 50;
+  saveRawDatasetDisplaySettings();
+  refreshRawDatasets().catch((error) => setStatus(String(error)));
+});
+if (els.rawOwnedOnly) els.rawOwnedOnly.addEventListener("change", () => {
+  state.rawDatasetCurrentPage = 0;
+  saveRawDatasetDisplaySettings();
+  refreshRawDatasets().catch((error) => setStatus(String(error)));
+});
 if (els.rawBulkQueuePreviewsSelectedButton) els.rawBulkQueuePreviewsSelectedButton.addEventListener("click", () => queueRawPreviewVideosForSelectedRawDatasets().catch((error) => setStatus(String(error))));
 if (els.rawSelectAll) els.rawSelectAll.addEventListener("change", () => setSelectedRawDatasetIds(els.rawSelectAll.checked ? visibleRawDatasetIds() : []));
 if (els.rawSelectVisibleButton) els.rawSelectVisibleButton.addEventListener("click", () => setSelectedRawDatasetIds(visibleRawDatasetIds()));
 if (els.rawClearSelectionButton) els.rawClearSelectionButton.addEventListener("click", () => setSelectedRawDatasetIds([]));
+if (els.rawClearDisplaySettingsButton) els.rawClearDisplaySettingsButton.addEventListener("click", () => clearRawDatasetDisplaySettings());
 if (els.rawBulkDeleteSelectedButton) els.rawBulkDeleteSelectedButton.addEventListener("click", () => openRawBulkDeletePanel("selected").catch((error) => setStatus(String(error))));
 if (els.rawBulkDeleteMode) els.rawBulkDeleteMode.addEventListener("change", () => refreshRawBulkDeletePreview().catch((error) => setStatus(String(error))));
 if (els.rawBulkDeleteLinkedProjects) els.rawBulkDeleteLinkedProjects.addEventListener("change", () => refreshRawBulkDeletePreview().catch((error) => setStatus(String(error))));
