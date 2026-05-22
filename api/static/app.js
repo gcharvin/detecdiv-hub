@@ -1898,6 +1898,23 @@ function saveRawDatasetDisplaySettings() {
   }
 }
 
+function setSelectValue(selectElement, value) {
+  if (!selectElement) {
+    return;
+  }
+  const normalizedValue = String(value || "");
+  if (
+    normalizedValue &&
+    !Array.from(selectElement.options).some((option) => option.value === normalizedValue)
+  ) {
+    const option = document.createElement("option");
+    option.value = normalizedValue;
+    option.textContent = normalizedValue;
+    selectElement.appendChild(option);
+  }
+  selectElement.value = normalizedValue;
+}
+
 function applyRawDatasetDisplaySettings() {
   if (!pageFlags.hasRawDatasetsView) {
     return;
@@ -1907,10 +1924,10 @@ function applyRawDatasetDisplaySettings() {
     return;
   }
   if (els.rawSearch) els.rawSearch.value = String(saved.search || "");
-  if (els.rawOwnerFilter) els.rawOwnerFilter.value = String(saved.ownerKey || "");
-  if (els.rawTierFilter) els.rawTierFilter.value = String(saved.tier || "");
-  if (els.rawArchiveStatusFilter) els.rawArchiveStatusFilter.value = String(saved.archiveStatus || "");
-  if (els.rawLimit && saved.pageSize) els.rawLimit.value = String(saved.pageSize);
+  setSelectValue(els.rawOwnerFilter, saved.ownerKey || "");
+  setSelectValue(els.rawTierFilter, saved.tier || "");
+  setSelectValue(els.rawArchiveStatusFilter, saved.archiveStatus || "");
+  if (els.rawLimit && saved.pageSize) setSelectValue(els.rawLimit, saved.pageSize);
   if (els.rawOwnedOnly) els.rawOwnedOnly.checked = Boolean(saved.ownedOnly);
   const sort = saved.sort && typeof saved.sort === "object" ? saved.sort : {};
   state.rawDatasetSort = {
