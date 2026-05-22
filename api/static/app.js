@@ -3474,7 +3474,12 @@ function renderRawPositionDeletePanel() {
   }
 
   els.rawPositionDeletePanel.classList.remove("hidden");
-  els.rawPositionDeleteConfirmButton.textContent = "Delete selected positions";
+  els.rawPositionDeleteConfirmButton.textContent = "Queue position deletions";
+  els.rawPositionDeleteConfirmButton.disabled = pending.queueStatus === "queueing" || pending.queueStatus === "queued";
+  if (pending.queueMessage) {
+    els.rawPositionDeleteSummary.textContent = pending.queueMessage;
+    return;
+  }
   if (!pending.preview) {
     els.rawPositionDeleteSummary.textContent = `Preparing deletion preview for ${pending.positionIds.length} selected position(s)...`;
     return;
@@ -6787,6 +6792,8 @@ async function openRawPositionDeletePanel() {
     scope: "selected",
     positionIds,
     preview: null,
+    queueStatus: null,
+    queueMessage: null,
   };
   if (els.rawPositionDeleteConfirmText) {
     els.rawPositionDeleteConfirmText.value = "";
@@ -6818,20 +6825,27 @@ async function executeRawPositionDelete() {
     const position = currentRawPositions().find((item) => `${item.id}` === `${positionId}`);
     return position?.display_name || position?.position_key || `${positionId}`;
   });
-  setStatus(`Deleting ${positionIds.length} selected position(s)...`);
+  state.pendingRawPositionDelete.queueStatus = "queueing";
+  state.pendingRawPositionDelete.queueMessage = `Queueing deletion job for ${positionIds.length} selected position(s)...`;
+  renderRawPositionDeletePanel();
+  setStatus(`Queueing deletion job for ${positionIds.length} selected position(s)...`);
   const result = await apiPost(`/raw-datasets/${state.selectedRawDatasetDetail.id}/positions/delete`, {
     position_ids: positionIds,
     confirm: true,
   });
 
   if (result.status === "queued") {
+    const jobLabel = result.result_json?.job_id ? ` Job ${result.result_json.job_id}.` : "";
+    if (state.pendingRawPositionDelete) {
+      state.pendingRawPositionDelete.queueStatus = "queued";
+      state.pendingRawPositionDelete.queueMessage = `Deletion job queued for ${result.position_count || positionIds.length} position(s).${jobLabel}`;
+      renderRawPositionDeletePanel();
+    }
     state.selectedRawPositionIds = state.selectedRawPositionIds.filter((positionId) => !positionIds.includes(`${positionId}`));
     if (state.selectedRawPositionId && positionIds.includes(`${state.selectedRawPositionId}`)) {
       state.selectedRawPositionId = null;
     }
-    closeRawPositionDeletePanel();
     await selectRawDataset(state.selectedRawDatasetDetail.id);
-    const jobLabel = result.result_json?.job_id ? ` Job ${result.result_json.job_id}.` : "";
     setStatus(`Queued deletion of ${result.position_count || positionIds.length} position(s).${jobLabel}`);
     return;
   }
