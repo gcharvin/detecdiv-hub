@@ -708,7 +708,7 @@ def sample_ome_zarr_axis_aware_frames(
     sample_count = resolve_frame_limit(total_count=time_count, runtime_config=runtime_config)
     time_indices = sample_index_values(time_count, max_count=sample_count)
     channel_settings = extract_ome_zarr_channel_settings(series_metadata)
-    channel_indices = select_primary_channel_indices(shape=shape, channel_axis=channel_axis)
+    channel_indices = select_preview_channel_indices(shape=shape, channel_axis=channel_axis)
     channel_labels = [
         channel_label_for_index(channel_settings=channel_settings, channel_index=index)
         for index in channel_indices
@@ -730,7 +730,7 @@ def sample_ome_zarr_axis_aware_frames(
             channel_frames.append(normalize_frame(frame))
         if not channel_frames:
             continue
-        frames.append(channel_frames[0] if len(channel_frames) == 1 else compose_channel_composite(channel_frames))
+        frames.append(channel_frames[0] if len(channel_frames) == 1 else compose_channel_strip(channel_frames))
 
     if not frames:
         return None
@@ -784,13 +784,13 @@ def normalize_ome_axis_roles(axes: Any) -> list[str]:
     return roles
 
 
-def select_primary_channel_indices(*, shape: tuple[int, ...], channel_axis: int | None) -> list[int]:
+def select_preview_channel_indices(*, shape: tuple[int, ...], channel_axis: int | None) -> list[int]:
     if channel_axis is None:
         return [0]
     channel_count = int(shape[channel_axis])
     if channel_count <= 0:
         return []
-    return [0]
+    return list(range(channel_count))
 
 
 def channel_label_for_index(*, channel_settings: list[dict[str, Any]], channel_index: int) -> str:
@@ -1203,7 +1203,7 @@ def try_read_v3_ome_writers_preview_frames(
         channel_records = context_groups.get(best_context_key, {})
         selected_channel_indices = [
             channel_index
-            for channel_index in select_primary_channel_indices(shape=array_view.shape, channel_axis=channel_axis)
+            for channel_index in select_preview_channel_indices(shape=array_view.shape, channel_axis=channel_axis)
             if channel_index in channel_records
         ]
         if not selected_channel_indices:
@@ -1218,7 +1218,7 @@ def try_read_v3_ome_writers_preview_frames(
             channel_frames.append(normalize_frame(frame))
         if not channel_frames:
             continue
-        frames.append(compose_channel_composite(channel_frames) if len(channel_frames) > 1 else channel_frames[0])
+        frames.append(compose_channel_strip(channel_frames) if len(channel_frames) > 1 else channel_frames[0])
 
     if not frames:
         return None
@@ -1227,7 +1227,7 @@ def try_read_v3_ome_writers_preview_frames(
         inferred_channel_count = int(array_view.shape[channel_axis])
     selected_labels = [
         channel_label_for_index(channel_settings=channel_settings, channel_index=index)
-        for index in select_primary_channel_indices(shape=array_view.shape, channel_axis=channel_axis)
+        for index in select_preview_channel_indices(shape=array_view.shape, channel_axis=channel_axis)
     ]
     if not selected_labels:
         selected_labels = channel_names or [f"Channel {index + 1}" for index in range(inferred_channel_count)]

@@ -213,8 +213,8 @@ def test_read_zarr_preview_frames_handles_v3_ome_writers_chunks(tmp_path, monkey
     )
 
     assert len(sequence.frames) == 2
-    assert sequence.channel_labels == ["A"]
-    assert sequence.frames[0].shape == (4, 4)
+    assert sequence.channel_labels == ["A", "B"]
+    assert sequence.frames[0].shape == (4, 8)
 
 
 def test_read_zarr_preview_frames_respects_ome_zarr_axes_without_flattening_channels(tmp_path, monkeypatch):
@@ -294,8 +294,8 @@ def test_read_zarr_preview_frames_respects_ome_zarr_axes_without_flattening_chan
     )
 
     assert len(sequence.frames) == 3
-    assert sequence.channel_labels == ["0 TL"]
-    assert sequence.frames[0].shape == (2, 2)
+    assert sequence.channel_labels == ["0 TL", "2 SB GFP"]
+    assert sequence.frames[0].shape == (2, 4)
 
 
 def test_should_use_legacy_matlab_jpg_preview_detects_legacy_root(tmp_path):
