@@ -1201,18 +1201,18 @@ def try_read_v3_ome_writers_preview_frames(
             ),
         )
         channel_records = context_groups.get(best_context_key, {})
-        selected_channel_indices = [
-            channel_index
-            for channel_index in select_preview_channel_indices(shape=array_view.shape, channel_axis=channel_axis)
-            if channel_index in channel_records
-        ]
+        selected_channel_indices = select_preview_channel_indices(shape=array_view.shape, channel_axis=channel_axis)
         if not selected_channel_indices:
             selected_channel_indices = sorted(channel_records)
         channel_frames: list[np.ndarray] = []
         for channel_index in selected_channel_indices:
-            record = channel_records[channel_index]
+            record = channel_records.get(channel_index)
+            if record is None:
+                channel_frames.append(np.zeros(array_view.shape[-2:], dtype=np.uint8))
+                continue
             storage_index = record.get("storage_index")
             if not isinstance(storage_index, list):
+                channel_frames.append(np.zeros(array_view.shape[-2:], dtype=np.uint8))
                 continue
             frame = array_view.read_frame(storage_index)
             channel_frames.append(normalize_frame(frame))

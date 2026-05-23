@@ -217,6 +217,95 @@ def test_read_zarr_preview_frames_handles_v3_ome_writers_chunks(tmp_path, monkey
     assert sequence.frames[0].shape == (4, 8)
 
 
+def test_read_zarr_preview_frames_keeps_v3_width_when_a_channel_chunk_is_missing(tmp_path, monkeypatch):
+    dataset_path = tmp_path / "21_05_2027.ome.zarr"
+    series_dir = dataset_path / "0.2_1"
+    array_dir = series_dir / "0"
+    array_dir.mkdir(parents=True)
+    (series_dir / "zarr.json").write_text(
+        json.dumps(
+            {
+                "zarr_format": 3,
+                "node_type": "group",
+                "attributes": {
+                    "ome": {
+                        "version": "0.5",
+                        "multiscales": [
+                            {
+                                "axes": [
+                                    {"name": "t", "type": "time"},
+                                    {"name": "c", "type": "channel"},
+                                    {"name": "z", "type": "space"},
+                                    {"name": "y", "type": "space"},
+                                    {"name": "x", "type": "space"},
+                                ],
+                                "datasets": [{"path": "0"}],
+                            }
+                        ],
+                    },
+                    "pymmcore_plus": {
+                        "summary_metadata": {
+                            "mda_sequence": {
+                                "channels": [
+                                    {"config": "0 TL"},
+                                    {"config": "2 SB GFP"},
+                                ]
+                            }
+                        }
+                    },
+                    "ome_writers": {
+                        "frame_metadata": [
+                            {"storage_index": [0, 0, 0]},
+                            {"storage_index": [0, 1, 0]},
+                            {"storage_index": [1, 0, 0]},
+                        ]
+                    },
+                },
+            }
+        ),
+        encoding="utf-8",
+    )
+    (array_dir / "zarr.json").write_text(
+        json.dumps(
+            {
+                "zarr_format": 3,
+                "node_type": "array",
+                "data_type": "uint16",
+                "shape": [2, 2, 1, 4, 4],
+                "chunk_grid": {"name": "regular", "configuration": {"chunk_shape": [1, 1, 1, 4, 4]}},
+                "codecs": [{"name": "bytes", "configuration": {"endian": "little"}}],
+            }
+        ),
+        encoding="utf-8",
+    )
+    for storage_index in [(0, 0, 0), (0, 1, 0), (1, 0, 0)]:
+        chunk_path = array_dir / "c"
+        for part in storage_index:
+            chunk_path /= str(part)
+        chunk_path /= "0"
+        chunk_path /= "0"
+        chunk_path.parent.mkdir(parents=True, exist_ok=True)
+        chunk_path.write_bytes((np.ones((4, 4), dtype=np.uint16) * 100).tobytes(order="C"))
+
+    position = SimpleNamespace(display_name="0.2_1", metadata_json={"relative_path": "0.2_1"})
+    runtime_config = SimpleNamespace(max_frames=2, frame_mode="full", max_dimension=768, binning_factor=1)
+
+    def fake_open_best_zarr_node(path):
+        raise ValueError(f"Unable to open Zarr path {path}: nothing found at path ''")
+
+    monkeypatch.setattr("worker.raw_preview_video.open_best_zarr_node", fake_open_best_zarr_node)
+
+    sequence = read_zarr_preview_frames(
+        dataset_path=dataset_path,
+        position=position,
+        runtime_config=runtime_config,
+    )
+
+    assert sequence.channel_labels == ["0 TL", "2 SB GFP"]
+    assert [frame.shape for frame in sequence.frames] == [(4, 8), (4, 8)]
+    assert int(sequence.frames[1][:, 4:].max()) == 0
+
+
 def test_read_zarr_preview_frames_respects_ome_zarr_axes_without_flattening_channels(tmp_path, monkeypatch):
     dataset_path = tmp_path / "21_05_2027.ome.zarr"
     series_dir = dataset_path / "0.2_1"
