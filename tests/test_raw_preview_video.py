@@ -141,7 +141,16 @@ def test_read_zarr_preview_frames_handles_v3_ome_writers_chunks(tmp_path, monkey
                                 "datasets": [{"path": "0"}],
                             }
                         ],
-                        "omero": {"channels": [{"label": "A"}, {"label": "B"}]},
+                    },
+                    "pymmcore_plus": {
+                        "summary_metadata": {
+                            "mda_sequence": {
+                                "channels": [
+                                    {"config": "A", "exposure": 10.0},
+                                    {"config": "B", "exposure": 60.0},
+                                ]
+                            }
+                        }
                     },
                     "ome_writers": {
                         "frame_metadata": [
@@ -204,8 +213,89 @@ def test_read_zarr_preview_frames_handles_v3_ome_writers_chunks(tmp_path, monkey
     )
 
     assert len(sequence.frames) == 2
-    assert sequence.channel_labels == ["A", "B"]
+    assert sequence.channel_labels == ["A"]
     assert sequence.frames[0].shape == (4, 4)
+
+
+def test_read_zarr_preview_frames_respects_ome_zarr_axes_without_flattening_channels(tmp_path, monkeypatch):
+    dataset_path = tmp_path / "21_05_2027.ome.zarr"
+    series_dir = dataset_path / "0.2_1"
+    array_dir = series_dir / "0"
+    array_dir.mkdir(parents=True)
+    (series_dir / "zarr.json").write_text(
+        json.dumps(
+            {
+                "zarr_format": 3,
+                "node_type": "group",
+                "attributes": {
+                    "ome": {
+                        "version": "0.5",
+                        "multiscales": [
+                            {
+                                "axes": [
+                                    {"name": "t", "type": "time"},
+                                    {"name": "c", "type": "channel"},
+                                    {"name": "z", "type": "space"},
+                                    {"name": "y", "type": "space"},
+                                    {"name": "x", "type": "space"},
+                                ],
+                                "datasets": [{"path": "0"}],
+                            }
+                        ],
+                    },
+                    "pymmcore_plus": {
+                        "summary_metadata": {
+                            "mda_sequence": {
+                                "channels": [
+                                    {"config": "0 TL", "exposure": 10.0},
+                                    {"config": "2 SB GFP", "exposure": 60.0},
+                                ]
+                            }
+                        }
+                    },
+                },
+            }
+        ),
+        encoding="utf-8",
+    )
+    (array_dir / "zarr.json").write_text(
+        json.dumps(
+            {
+                "zarr_format": 3,
+                "node_type": "array",
+                "shape": [3, 2, 2, 2, 2],
+                "dimension_names": ["t", "c", "z", "y", "x"],
+            }
+        ),
+        encoding="utf-8",
+    )
+    array = np.zeros((3, 2, 2, 2, 2), dtype=np.uint16)
+    for time_index in range(3):
+        array[time_index, 0, 1] = np.array([[time_index, time_index + 1], [time_index + 2, time_index + 3]])
+        array[time_index, 1, 1] = 1000
+
+    position = SimpleNamespace(
+        display_name="0.2_1",
+        metadata_json={"source": "ome_zarr_multiscales_child", "relative_path": "0.2_1"},
+    )
+    runtime_config = SimpleNamespace(max_frames=10, frame_mode="full", max_dimension=768, binning_factor=4)
+
+    def fake_open_best_zarr_node(path):
+        if path == array_dir:
+            return array
+        raise ValueError(f"Unable to open Zarr path {path}: nothing found at path ''")
+
+    monkeypatch.setattr("worker.raw_preview_video.open_best_zarr_node", fake_open_best_zarr_node)
+
+    sequence = read_zarr_preview_frames(
+        dataset_path=dataset_path,
+        position=position,
+        runtime_config=runtime_config,
+    )
+
+    assert len(sequence.frames) == 3
+    assert sequence.channel_labels == ["0 TL"]
+    assert sequence.frames[0].shape == (2, 2)
 
 
 def test_should_use_legacy_matlab_jpg_preview_detects_legacy_root(tmp_path):

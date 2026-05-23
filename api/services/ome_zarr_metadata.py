@@ -60,11 +60,19 @@ def extract_ome_zarr_dimensions(
 ) -> dict[str, Any]:
     dimensions: dict[str, Any] = {}
 
-    primary_multiscales = first_dict(metadata_json.get("multiscales"))
+    primary_multiscales = first_dict(get_ome_multiscales(metadata_json))
+    child_series_groups = find_ome_multiscales_child_groups(dataset_dir)
+    first_child_series_metadata = child_series_groups[0][1] if child_series_groups else None
+    first_child_multiscales = (
+        first_dict(get_ome_multiscales(first_child_series_metadata))
+        if isinstance(first_child_series_metadata, dict)
+        else {}
+    )
     series_container_metadata, series_names = find_ome_series_container(dataset_dir, metadata_json)
     series_shape_axes = load_first_ome_series_shape_and_axes(dataset_dir, series_container_metadata, series_names)
     axes = normalize_axes(
         first_list(primary_multiscales.get("axes") if isinstance(primary_multiscales, dict) else None)
+        or first_list(first_child_multiscales.get("axes") if isinstance(first_child_multiscales, dict) else None)
         or (series_shape_axes[1] if series_shape_axes is not None else [])
         or first_list(metadata_json.get("axes"))
     )
@@ -72,6 +80,8 @@ def extract_ome_zarr_dimensions(
         dimensions["axes"] = axes
 
     channel_settings = extract_ome_zarr_channel_settings(metadata_json)
+    if not channel_settings and isinstance(first_child_series_metadata, dict):
+        channel_settings = extract_ome_zarr_channel_settings(first_child_series_metadata)
     if channel_settings:
         dimensions["channel_settings"] = channel_settings
         dimensions["channel_names"] = [
@@ -84,7 +94,11 @@ def extract_ome_zarr_dimensions(
     shape = (
         load_primary_array_shape(dataset_dir, primary_multiscales)
         if primary_multiscales
-        else (series_shape_axes[0] if series_shape_axes is not None else None)
+        else (
+            load_primary_array_shape(dataset_dir / child_series_groups[0][0], first_child_multiscales)
+            if child_series_groups and first_child_multiscales
+            else (series_shape_axes[0] if series_shape_axes is not None else None)
+        )
     )
     axis_sizes = map_axis_sizes(axes, shape)
 
@@ -128,11 +142,20 @@ def extract_ome_zarr_dimensions(
     if height_px is not None:
         dimensions["height_px"] = height_px
 
+    timing = extract_pymmcore_timing(metadata_json)
+    if not timing and isinstance(first_child_series_metadata, dict):
+        timing = extract_pymmcore_timing(first_child_series_metadata)
+    dimensions.update({key: value for key, value in timing.items() if key not in dimensions})
+
     return {key: value for key, value in dimensions.items() if value not in (None, [], {})}
 
 
 def extract_ome_zarr_positions(dataset_dir: Path, metadata_json: dict[str, Any]) -> list[dict[str, Any]]:
     positions = extract_ome_series_positions(dataset_dir, metadata_json)
+    if positions:
+        return positions
+
+    positions = extract_ome_multiscales_child_positions(dataset_dir)
     if positions:
         return positions
 
@@ -144,7 +167,7 @@ def extract_ome_zarr_positions(dataset_dir: Path, metadata_json: dict[str, Any])
     if positions:
         return positions
 
-    primary_multiscales = first_dict(metadata_json.get("multiscales"))
+    primary_multiscales = first_dict(get_ome_multiscales(metadata_json))
     axes = normalize_axes(
         first_list(primary_multiscales.get("axes") if isinstance(primary_multiscales, dict) else None)
         or first_list(metadata_json.get("axes"))
@@ -180,6 +203,56 @@ def extract_ome_zarr_positions(dataset_dir: Path, metadata_json: dict[str, Any])
             }
         ]
 
+    return []
+
+
+def extract_ome_multiscales_child_positions(dataset_dir: Path) -> list[dict[str, Any]]:
+    child_groups = find_ome_multiscales_child_groups(dataset_dir)
+    if not child_groups:
+        return []
+
+    positions: list[dict[str, Any]] = []
+    for index, (series_name, series_metadata) in enumerate(child_groups):
+        position_detail = extract_pymmcore_position_detail(series_metadata)
+        positions.append(
+            {
+                "position_key": slugify_value(series_name),
+                "display_name": series_name,
+                "position_index": index,
+                "metadata_json": {
+                    "source": "ome_zarr_multiscales_child",
+                    "series_name": series_name,
+                    "series_index": index,
+                    "relative_path": series_name,
+                    **position_detail,
+                },
+            }
+        )
+    return positions
+
+
+def find_ome_multiscales_child_groups(dataset_dir: Path) -> list[tuple[str, dict[str, Any]]]:
+    try:
+        child_dirs = sorted((entry for entry in dataset_dir.iterdir() if entry.is_dir()), key=lambda entry: entry.name.lower())
+    except OSError:
+        return []
+
+    child_groups: list[tuple[str, dict[str, Any]]] = []
+    for child in child_dirs:
+        metadata = read_ome_zarr_group_metadata(child)
+        multiscales = get_ome_multiscales(metadata)
+        if isinstance(multiscales, list) and multiscales:
+            child_groups.append((child.name, metadata))
+    return child_groups
+
+
+def get_ome_multiscales(metadata_json: dict[str, Any]) -> list[Any]:
+    multiscales = metadata_json.get("multiscales")
+    if isinstance(multiscales, list):
+        return multiscales
+    ome = metadata_json.get("ome")
+    if isinstance(ome, dict) and isinstance(ome.get("multiscales"), list):
+        return ome["multiscales"]
     return []
 
 
@@ -485,12 +558,16 @@ def infer_image_dimensions(axis_sizes: dict[str, int]) -> tuple[int | None, int 
 
 def extract_ome_zarr_channel_settings(metadata_json: dict[str, Any]) -> list[dict[str, Any]]:
     omero = metadata_json.get("omero")
+    if not isinstance(omero, dict):
+        ome = metadata_json.get("ome")
+        if isinstance(ome, dict):
+            omero = ome.get("omero")
     if isinstance(omero, dict):
         channels = omero.get("channels")
     else:
         channels = None
     if not isinstance(channels, list):
-        return []
+        return extract_pymmcore_channel_settings(metadata_json)
 
     channel_settings: list[dict[str, Any]] = []
     for index, channel in enumerate(channels):
@@ -516,6 +593,82 @@ def extract_ome_zarr_channel_settings(metadata_json: dict[str, Any]) -> list[dic
                     detail[f"window_{key}"] = value
         channel_settings.append(detail)
     return channel_settings
+
+
+def extract_pymmcore_channel_settings(metadata_json: dict[str, Any]) -> list[dict[str, Any]]:
+    channels = extract_pymmcore_mda_sequence(metadata_json).get("channels")
+    if not isinstance(channels, list):
+        return []
+
+    channel_settings: list[dict[str, Any]] = []
+    for index, channel in enumerate(channels):
+        if not isinstance(channel, dict):
+            continue
+        label = first_text(channel.get("config"), channel.get("name"), channel.get("channel"), channel.get("label"))
+        detail: dict[str, Any] = {
+            "index": index,
+            "channel": label or f"Channel {index + 1}",
+        }
+        group = first_text(channel.get("group"), channel.get("config_group"))
+        if group:
+            detail["group"] = group
+        exposure = coerce_number(channel.get("exposure") or channel.get("exposure_ms"))
+        if exposure is not None:
+            detail["exposure_ms"] = exposure
+        acquire_every = coerce_number(channel.get("acquire_every"))
+        if acquire_every is not None:
+            detail["acquire_every"] = acquire_every
+        z_offset = coerce_number(channel.get("z_offset"))
+        if z_offset is not None:
+            detail["z_offset"] = z_offset
+        if isinstance(channel.get("do_stack"), bool):
+            detail["do_stack"] = channel["do_stack"]
+        channel_settings.append(detail)
+    return channel_settings
+
+
+def extract_pymmcore_timing(metadata_json: dict[str, Any]) -> dict[str, Any]:
+    sequence = extract_pymmcore_mda_sequence(metadata_json)
+    time_plan = sequence.get("time_plan")
+    if not isinstance(time_plan, dict):
+        return {}
+
+    dimensions: dict[str, Any] = {}
+    loops = coerce_number(time_plan.get("loops") or time_plan.get("num_time_points"))
+    if isinstance(loops, int) and loops > 0:
+        dimensions["frame_count"] = loops
+    interval_seconds = coerce_number(time_plan.get("interval"))
+    if interval_seconds is not None:
+        dimensions["interval_seconds"] = interval_seconds
+        dimensions["interval_ms"] = int(round(float(interval_seconds) * 1000.0))
+    return dimensions
+
+
+def extract_pymmcore_position_detail(metadata_json: dict[str, Any]) -> dict[str, Any]:
+    summary = extract_pymmcore_summary_metadata(metadata_json)
+    position = summary.get("position")
+    if not isinstance(position, dict):
+        return {}
+    detail: dict[str, Any] = {}
+    for key in ("x", "y", "z"):
+        value = coerce_number(position.get(key))
+        if value is not None:
+            detail[key] = value
+    return detail
+
+
+def extract_pymmcore_mda_sequence(metadata_json: dict[str, Any]) -> dict[str, Any]:
+    summary = extract_pymmcore_summary_metadata(metadata_json)
+    sequence = summary.get("mda_sequence")
+    return sequence if isinstance(sequence, dict) else {}
+
+
+def extract_pymmcore_summary_metadata(metadata_json: dict[str, Any]) -> dict[str, Any]:
+    pymmcore_plus = metadata_json.get("pymmcore_plus")
+    if not isinstance(pymmcore_plus, dict):
+        return {}
+    summary = pymmcore_plus.get("summary_metadata")
+    return summary if isinstance(summary, dict) else {}
 
 
 def read_json_payload(path: Path) -> dict[str, Any]:

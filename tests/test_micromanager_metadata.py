@@ -311,6 +311,94 @@ def test_read_micromanager_metadata_extracts_ome_series_positions(tmp_path):
     assert [position["display_name"] for position in metadata["positions"]] == ["Yam_1", "Yam_2", "Yak8_1"]
 
 
+def test_read_micromanager_metadata_extracts_child_multiscales_ome_zarr(tmp_path):
+    root_payload = {
+        "zarr_format": 3,
+        "node_type": "group",
+        "attributes": {"ome": {"version": "0.5", "bioformats2raw.layout": 3}},
+    }
+    series_payload = {
+        "zarr_format": 3,
+        "node_type": "group",
+        "attributes": {
+            "ome": {
+                "version": "0.5",
+                "multiscales": [
+                    {
+                        "axes": [
+                            {"name": "t", "type": "time"},
+                            {"name": "c", "type": "channel"},
+                            {"name": "z", "type": "space"},
+                            {"name": "y", "type": "space"},
+                            {"name": "x", "type": "space"},
+                        ],
+                        "datasets": [{"path": "0"}],
+                    }
+                ],
+            },
+            "pymmcore_plus": {
+                "summary_metadata": {
+                    "mda_sequence": {
+                        "channels": [
+                            {"config": "0 TL", "group": "z_Channels SD", "exposure": 10.0, "do_stack": True},
+                            {"config": "2 SB GFP", "group": "z_Channels SD", "exposure": 60.0, "do_stack": False},
+                        ],
+                        "time_plan": {"interval": 300.0, "loops": 220},
+                    },
+                    "position": {"x": 1.25, "y": 2.5, "z": 3.75},
+                }
+            },
+        },
+    }
+    array_payload = {
+        "zarr_format": 3,
+        "node_type": "array",
+        "shape": [220, 2, 3, 1024, 1024],
+        "dimension_names": ["t", "c", "z", "y", "x"],
+    }
+
+    (tmp_path / "zarr.json").write_text(json.dumps(root_payload), encoding="utf-8")
+    for series_name in ["0.2_1", "0.2_2"]:
+        series_dir = tmp_path / series_name
+        array_dir = series_dir / "0"
+        array_dir.mkdir(parents=True)
+        (series_dir / "zarr.json").write_text(json.dumps(series_payload), encoding="utf-8")
+        (array_dir / "zarr.json").write_text(json.dumps(array_payload), encoding="utf-8")
+
+    metadata = read_micromanager_metadata(tmp_path)
+
+    dimensions = metadata["dimensions"]
+    assert dimensions["position_count"] == 2
+    assert dimensions["channel_count"] == 2
+    assert dimensions["channel_names"] == ["0 TL", "2 SB GFP"]
+    assert dimensions["channel_settings"][1]["exposure_ms"] == 60.0
+    assert dimensions["frame_count"] == 220
+    assert dimensions["interval_seconds"] == 300.0
+    assert dimensions["slice_count"] == 3
+    assert dimensions["width_px"] == 1024
+    assert dimensions["height_px"] == 1024
+    assert metadata["positions"][0]["metadata_json"]["relative_path"] == "0.2_1"
+    assert metadata["positions"][0]["metadata_json"]["x"] == 1.25
+
+
+def test_read_micromanager_metadata_does_not_scan_inside_zarr_for_mm_files(tmp_path):
+    (tmp_path / "zarr.json").write_text(
+        json.dumps({"zarr_format": 3, "node_type": "group", "attributes": {"ome": {"version": "0.5"}}}),
+        encoding="utf-8",
+    )
+    nested = tmp_path / "0" / "0" / "0"
+    nested.mkdir(parents=True)
+    (nested / "DisplaySettings.json").write_text(
+        json.dumps({"ChannelSettings": [{"Name": "nested stale settings"}]}),
+        encoding="utf-8",
+    )
+
+    metadata = read_micromanager_metadata(tmp_path)
+
+    assert "display_settings" not in metadata
+    assert "nested stale settings" not in str(metadata)
+
+
 def test_read_micromanager_metadata_parses_legacy_timelapse_id_file(tmp_path):
     (tmp_path / "sample-ID.txt").write_text(
         """

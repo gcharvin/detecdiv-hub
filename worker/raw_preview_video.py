@@ -18,7 +18,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session, joinedload
 
 from api.models import Artifact, Job, Project, ProjectRawLink, RawDataset, RawDatasetLocation, RawDatasetPosition
-from api.services.ome_zarr_metadata import read_ome_zarr_group_metadata
+from api.services.ome_zarr_metadata import extract_ome_zarr_channel_settings, read_ome_zarr_group_metadata
 from api.services.path_resolution import compose_storage_path
 from api.config import get_settings
 from api.services.project_indexing import is_legacy_matlab_timelapse_dataset_dir, slugify
@@ -668,11 +668,145 @@ def read_zarr_preview_frames(
                 return v3_sequence
             continue
         if array is not None:
+            axis_aware_sequence = sample_ome_zarr_axis_aware_frames(
+                array,
+                target_path=target_path,
+                runtime_config=runtime_config,
+            )
+            if axis_aware_sequence is not None:
+                return axis_aware_sequence
             return sample_frames_from_ndarray(array, runtime_config=runtime_config)
 
     if last_error is None:
         raise ValueError(f"No readable Zarr array found under {dataset_path}")
     raise ValueError(f"No readable Zarr array found under {dataset_path}: {last_error}") from last_error
+
+
+def sample_ome_zarr_axis_aware_frames(
+    array,
+    *,
+    target_path: Path,
+    runtime_config: RawPreviewRuntimeConfig,
+) -> PreviewSequence | None:
+    shape = tuple(int(value) for value in getattr(array, "shape", ()) or ())
+    if len(shape) < 3:
+        return None
+
+    series_path = target_path.parent if is_zarr_array_dir(target_path) else target_path
+    series_metadata = read_ome_zarr_group_metadata(series_path)
+    axes = extract_ome_zarr_axes(series_metadata, target_path)
+    if len(axes) != len(shape):
+        return None
+
+    leading_axes = axes[:-2]
+    channel_axis = next((index for index, role in enumerate(leading_axes) if role == "channel"), None)
+    time_axis = next((index for index, role in enumerate(leading_axes) if role == "time"), None)
+    if channel_axis is None and time_axis is None:
+        return None
+
+    time_count = shape[time_axis] if time_axis is not None else 1
+    sample_count = resolve_frame_limit(total_count=time_count, runtime_config=runtime_config)
+    time_indices = sample_index_values(time_count, max_count=sample_count)
+    channel_settings = extract_ome_zarr_channel_settings(series_metadata)
+    channel_indices = select_primary_channel_indices(shape=shape, channel_axis=channel_axis)
+    channel_labels = [
+        channel_label_for_index(channel_settings=channel_settings, channel_index=index)
+        for index in channel_indices
+    ]
+
+    frames: list[np.ndarray] = []
+    for time_index in time_indices:
+        channel_frames: list[np.ndarray] = []
+        for channel_index in channel_indices:
+            leading_index: list[int] = []
+            for axis_index, axis_size in enumerate(shape[:-2]):
+                if axis_index == time_axis:
+                    leading_index.append(int(time_index))
+                elif axis_index == channel_axis:
+                    leading_index.append(int(channel_index))
+                else:
+                    leading_index.append(int(axis_size) // 2)
+            frame = collapse_to_2d(np.asarray(array[tuple(leading_index)]))
+            channel_frames.append(normalize_frame(frame))
+        if not channel_frames:
+            continue
+        frames.append(channel_frames[0] if len(channel_frames) == 1 else compose_channel_composite(channel_frames))
+
+    if not frames:
+        return None
+    return PreviewSequence(frames=frames, channel_labels=channel_labels)
+
+
+def extract_ome_zarr_axes(series_metadata: dict[str, Any], target_path: Path) -> list[str]:
+    ome = series_metadata.get("ome") if isinstance(series_metadata, dict) else None
+    multiscales = ome.get("multiscales") if isinstance(ome, dict) else series_metadata.get("multiscales")
+    axes = None
+    if isinstance(multiscales, list):
+        first_multiscales = next((item for item in multiscales if isinstance(item, dict)), None)
+        if isinstance(first_multiscales, dict):
+            axes = first_multiscales.get("axes")
+    normalized = normalize_ome_axis_roles(axes)
+    if normalized:
+        return normalized
+
+    array_metadata = {}
+    metadata_path = target_path / "zarr.json"
+    if metadata_path.is_file():
+        try:
+            array_metadata = json.loads(metadata_path.read_text(encoding="utf-8"))
+        except Exception:
+            array_metadata = {}
+    dimension_names = array_metadata.get("dimension_names") if isinstance(array_metadata, dict) else None
+    return normalize_ome_axis_roles(dimension_names)
+
+
+def normalize_ome_axis_roles(axes: Any) -> list[str]:
+    if not isinstance(axes, list):
+        return []
+    roles: list[str] = []
+    for axis in axes:
+        if isinstance(axis, dict):
+            raw_name = str(axis.get("name") or "").strip().lower()
+            raw_type = str(axis.get("type") or "").strip().lower()
+        else:
+            raw_name = str(axis or "").strip().lower()
+            raw_type = ""
+        if raw_name in {"c", "ch", "channel"} or raw_type == "channel":
+            roles.append("channel")
+        elif raw_name in {"t", "time"} or raw_type == "time":
+            roles.append("time")
+        elif raw_name == "z":
+            roles.append("z")
+        elif raw_name in {"x", "y"}:
+            roles.append(raw_name)
+        else:
+            roles.append(raw_type or raw_name)
+    return roles
+
+
+def select_primary_channel_indices(*, shape: tuple[int, ...], channel_axis: int | None) -> list[int]:
+    if channel_axis is None:
+        return [0]
+    channel_count = int(shape[channel_axis])
+    if channel_count <= 0:
+        return []
+    return [0]
+
+
+def channel_label_for_index(*, channel_settings: list[dict[str, Any]], channel_index: int) -> str:
+    for item in channel_settings:
+        if not isinstance(item, dict):
+            continue
+        try:
+            item_index = int(item.get("index", channel_index))
+        except (TypeError, ValueError):
+            item_index = channel_index
+        if item_index != channel_index:
+            continue
+        label = str(item.get("channel") or item.get("label") or item.get("name") or "").strip()
+        if label:
+            return label
+    return f"Channel {channel_index + 1}"
 
 
 def resolve_position_source_path(*, dataset_path: Path, position: RawDatasetPosition) -> Path:
@@ -1006,18 +1140,12 @@ def try_read_v3_ome_writers_preview_frames(
     except Exception:
         return None
 
-    ome = series_metadata.get("ome") if isinstance(series_metadata, dict) else None
-    omero = ome.get("omero") if isinstance(ome, dict) else None
-    channels = omero.get("channels") if isinstance(omero, dict) else None
-    channel_names = []
-    if isinstance(channels, list):
-        for index, channel in enumerate(channels):
-            if not isinstance(channel, dict):
-                continue
-            label = str(channel.get("label") or channel.get("name") or channel.get("channel") or "").strip()
-            if not label:
-                label = f"Channel {index + 1}"
-            channel_names.append(label)
+    channel_settings = extract_ome_zarr_channel_settings(series_metadata)
+    channel_names = [
+        str(item.get("channel") or item.get("label") or item.get("name") or "").strip()
+        for item in channel_settings
+        if isinstance(item, dict) and str(item.get("channel") or item.get("label") or item.get("name") or "").strip()
+    ]
     channel_axis, time_axis = infer_v3_axes_roles(
         series_metadata=series_metadata,
         shape=array_view.shape,
@@ -1073,8 +1201,15 @@ def try_read_v3_ome_writers_preview_frames(
             ),
         )
         channel_records = context_groups.get(best_context_key, {})
+        selected_channel_indices = [
+            channel_index
+            for channel_index in select_primary_channel_indices(shape=array_view.shape, channel_axis=channel_axis)
+            if channel_index in channel_records
+        ]
+        if not selected_channel_indices:
+            selected_channel_indices = sorted(channel_records)
         channel_frames: list[np.ndarray] = []
-        for channel_index in sorted(channel_records):
+        for channel_index in selected_channel_indices:
             record = channel_records[channel_index]
             storage_index = record.get("storage_index")
             if not isinstance(storage_index, list):
@@ -1090,7 +1225,13 @@ def try_read_v3_ome_writers_preview_frames(
     inferred_channel_count = len(channel_names)
     if inferred_channel_count <= 0:
         inferred_channel_count = int(array_view.shape[channel_axis])
-    return PreviewSequence(frames=frames, channel_labels=channel_names or [f"Channel {index + 1}" for index in range(inferred_channel_count)])
+    selected_labels = [
+        channel_label_for_index(channel_settings=channel_settings, channel_index=index)
+        for index in select_primary_channel_indices(shape=array_view.shape, channel_axis=channel_axis)
+    ]
+    if not selected_labels:
+        selected_labels = channel_names or [f"Channel {index + 1}" for index in range(inferred_channel_count)]
+    return PreviewSequence(frames=frames, channel_labels=selected_labels)
 
 
 def infer_v3_axes_roles(

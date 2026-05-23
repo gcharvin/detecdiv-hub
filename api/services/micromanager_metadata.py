@@ -137,6 +137,8 @@ def find_first_micromanager_file(dataset_dir: Path, file_names: tuple[str, ...])
         candidate = dataset_dir / file_name
         if candidate.exists() and candidate.is_file():
             return candidate
+    if is_zarr_dataset_dir(dataset_dir):
+        return None
     for file_name in file_names:
         try:
             candidate = next((path for path in dataset_dir.rglob(file_name) if path.is_file()), None)
@@ -740,6 +742,13 @@ def infer_tiff_axis_index(file_name: str, axis: str) -> int | None:
         except (TypeError, ValueError):
             continue
     return None
+
+
+def is_zarr_dataset_dir(dataset_dir: Path) -> bool:
+    name = dataset_dir.name.lower()
+    if name.endswith((".zarr", ".ome.zarr")):
+        return True
+    return (dataset_dir / "zarr.json").is_file() or (dataset_dir / ".zgroup").is_file()
 
 
 def reconcile_dimensions_with_tiff_files(metadata_dimensions: dict[str, Any], file_dimensions: dict[str, Any]) -> dict[str, Any]:
