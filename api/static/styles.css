@@ -335,6 +335,10 @@ h3 {
   margin-top: 14px;
 }
 
+.compact-toolbar {
+  margin-top: 0;
+}
+
 .layout-grid {
   display: grid;
   grid-template-columns: minmax(0, 2.45fr) minmax(320px, 0.78fr);

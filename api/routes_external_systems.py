@@ -14,6 +14,8 @@ from api.schemas import (
     ExternalContainerSummary,
     ExternalMatchCandidateGenerateRequest,
     ExternalMatchCandidateGenerateResult,
+    ExternalMatchCandidateBulkReviewRequest,
+    ExternalMatchCandidateBulkReviewResult,
     ExternalMatchCandidateReviewRequest,
     ExternalMatchCandidateReviewResult,
     ExternalMatchCandidateSummary,
@@ -316,6 +318,62 @@ def review_match_candidate(
         result.experiment_project = linked_experiment_summary_view(experiment)
         result.external_link = external_link_summary_from_publication(publication)
     return result
+
+
+@router.post(
+    "/{system_key}/match-candidates/review-bulk",
+    response_model=ExternalMatchCandidateBulkReviewResult,
+)
+def review_match_candidates_bulk(
+    system_key: str,
+    payload: ExternalMatchCandidateBulkReviewRequest,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> ExternalMatchCandidateBulkReviewResult:
+    if current_user.role not in {"admin", "service"}:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="External matching requires admin role")
+    normalized = normalize_or_400(system_key)
+    normalized_action = str(payload.action or "").strip().lower()
+    if normalized_action not in {"accept", "accepted", "reject", "rejected", "reset", "proposed"}:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="action must be accept, reject, or reset")
+
+    results: list[ExternalMatchCandidateReviewResult] = []
+    seen_ids: set[UUID] = set()
+    for candidate_id in payload.candidate_ids:
+        if candidate_id in seen_ids:
+            continue
+        seen_ids.add(candidate_id)
+        try:
+            candidate, linked, experiment, publication = review_external_match_candidate(
+                db,
+                candidate_id=candidate_id,
+                system_key=normalized,
+                action=normalized_action,
+                reviewed_by=current_user,
+                note=payload.note,
+            )
+        except ValueError as exc:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc
+        except LookupError as exc:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
+        result = ExternalMatchCandidateReviewResult(
+            candidate=external_match_candidate_summary(candidate),
+            linked=linked,
+        )
+        if linked and experiment is not None and publication is not None:
+            db.flush()
+            result.experiment_project = linked_experiment_summary_view(experiment)
+            result.external_link = external_link_summary_from_publication(publication)
+        results.append(result)
+
+    db.commit()
+    return ExternalMatchCandidateBulkReviewResult(
+        action=normalized_action,
+        requested_count=len(payload.candidate_ids),
+        reviewed_count=len(results),
+        linked_count=sum(1 for result in results if result.linked),
+        results=results,
+    )
 
 
 @router.patch("/{system_key}/users/{external_user_record_id}", response_model=ExternalUserRecordSummary)

@@ -805,6 +805,20 @@ class ExternalMatchCandidateReviewResult(HubBaseModel):
     experiment_project: LinkedExperimentSummary | None = None
 
 
+class ExternalMatchCandidateBulkReviewRequest(HubBaseModel):
+    candidate_ids: list[UUID] = Field(default_factory=list, min_length=1, max_length=250)
+    action: str
+    note: str | None = None
+
+
+class ExternalMatchCandidateBulkReviewResult(HubBaseModel):
+    action: str
+    requested_count: int = 0
+    reviewed_count: int = 0
+    linked_count: int = 0
+    results: list[ExternalMatchCandidateReviewResult] = Field(default_factory=list)
+
+
 class StorageLifecycleEventSummary(HubBaseModel):
     id: UUID
     event_kind: str

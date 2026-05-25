@@ -40,6 +40,7 @@ const state = {
   rawLabguruResults: [],
   externalMatchStatus: null,
   externalMatchCandidates: [],
+  selectedExternalMatchCandidateIds: [],
   externalUsers: [],
   externalCredential: null,
   archiveSettingsStatus: null,
@@ -274,6 +275,9 @@ const els = {
   externalMatchSyncButton: document.querySelector("#external-match-sync-button"),
   externalMatchRefreshButton: document.querySelector("#external-match-refresh-button"),
   externalMatchStatusFilter: document.querySelector("#external-match-status-filter"),
+  externalMatchSelectAll: document.querySelector("#external-match-select-all"),
+  externalMatchAcceptSelectedButton: document.querySelector("#external-match-accept-selected-button"),
+  externalMatchRejectSelectedButton: document.querySelector("#external-match-reject-selected-button"),
   externalMatchCandidatesTableBody: document.querySelector("#external-match-candidates-table tbody"),
   externalUserStatusFilter: document.querySelector("#external-user-status-filter"),
   externalUsersTableBody: document.querySelector("#external-users-table tbody"),
@@ -4943,8 +4947,12 @@ function renderExternalMatchCandidatesTable() {
     return;
   }
   els.externalMatchCandidatesTableBody.innerHTML = "";
+  state.selectedExternalMatchCandidateIds = state.selectedExternalMatchCandidateIds.filter((candidateId) =>
+    state.externalMatchCandidates.some((candidate) => `${candidate.id}` === `${candidateId}`)
+  );
+  renderExternalMatchSelectionControls();
   if (!state.externalMatchCandidates.length) {
-    els.externalMatchCandidatesTableBody.innerHTML = `<tr><td colspan="6" class="muted">No candidates loaded.</td></tr>`;
+    els.externalMatchCandidatesTableBody.innerHTML = `<tr><td colspan="7" class="muted">No candidates loaded.</td></tr>`;
     return;
   }
   for (const candidate of state.externalMatchCandidates) {
@@ -4962,6 +4970,7 @@ function renderExternalMatchCandidatesTable() {
       ? `<a href="${escapeHtml(external.external_url)}" target="_blank" rel="noreferrer">${escapeHtml(external.title || external.external_id || "")}</a>`
       : escapeHtml(external.title || external.external_id || "");
     tr.innerHTML = `
+      <td><input class="external-match-select-checkbox" type="checkbox" ${isExternalMatchCandidateSelected(candidate.id) ? "checked" : ""} /></td>
       <td>${Math.round(Number(candidate.score || 0) * 100)}%</td>
       <td>
         <a href="${escapeHtml(rawHref)}">${escapeHtml(raw.acquisition_label || "")}</a>
@@ -4978,6 +4987,12 @@ function renderExternalMatchCandidatesTable() {
       <td>${escapeHtml(candidate.status || "")}</td>
       <td><div class="action-stack"></div></td>
     `;
+    tr.querySelector(".external-match-select-checkbox")?.addEventListener("click", (event) => {
+      event.stopPropagation();
+    });
+    tr.querySelector(".external-match-select-checkbox")?.addEventListener("change", (event) => {
+      toggleExternalMatchCandidateSelection(candidate.id, Boolean(event.target.checked));
+    });
     const actions = tr.querySelector(".action-stack");
     if (actions && candidate.status !== "accepted") {
       const acceptButton = document.createElement("button");
@@ -4999,6 +5014,53 @@ function renderExternalMatchCandidatesTable() {
       actions.appendChild(rejectButton);
     }
     els.externalMatchCandidatesTableBody.appendChild(tr);
+  }
+}
+
+function visibleExternalMatchCandidateIds() {
+  return (state.externalMatchCandidates || []).map((candidate) => `${candidate.id}`);
+}
+
+function selectedExternalMatchCandidateIds() {
+  const visibleIds = new Set(visibleExternalMatchCandidateIds());
+  return state.selectedExternalMatchCandidateIds.filter((candidateId) => visibleIds.has(`${candidateId}`));
+}
+
+function isExternalMatchCandidateSelected(candidateId) {
+  return state.selectedExternalMatchCandidateIds.includes(`${candidateId}`);
+}
+
+function setSelectedExternalMatchCandidateIds(candidateIds) {
+  state.selectedExternalMatchCandidateIds = [...new Set((candidateIds || []).map((candidateId) => `${candidateId}`))];
+  renderExternalMatchCandidatesTable();
+}
+
+function toggleExternalMatchCandidateSelection(candidateId, isSelected) {
+  const normalizedId = `${candidateId}`;
+  const selected = new Set(state.selectedExternalMatchCandidateIds);
+  if (isSelected) {
+    selected.add(normalizedId);
+  } else {
+    selected.delete(normalizedId);
+  }
+  setSelectedExternalMatchCandidateIds([...selected]);
+}
+
+function renderExternalMatchSelectionControls() {
+  const visibleIds = visibleExternalMatchCandidateIds();
+  const selectedIds = selectedExternalMatchCandidateIds();
+  const visibleCount = visibleIds.length;
+  const selectedCount = selectedIds.length;
+  if (els.externalMatchSelectAll) {
+    els.externalMatchSelectAll.checked = visibleCount > 0 && selectedCount === visibleCount;
+    els.externalMatchSelectAll.indeterminate = selectedCount > 0 && selectedCount < visibleCount;
+    els.externalMatchSelectAll.disabled = visibleCount === 0;
+  }
+  if (els.externalMatchAcceptSelectedButton) {
+    els.externalMatchAcceptSelectedButton.disabled = selectedCount === 0;
+  }
+  if (els.externalMatchRejectSelectedButton) {
+    els.externalMatchRejectSelectedButton.disabled = selectedCount === 0;
   }
 }
 
@@ -6095,6 +6157,40 @@ async function reviewExternalMatchCandidate(candidateId, action) {
   const result = await apiPost(`/external-systems/labguru/match-candidates/${candidateId}/review`, { action });
   await refreshExternalElnMatching();
   setStatus(action === "accept" && result.linked ? "Labguru link accepted and written." : `Candidate ${action}ed.`);
+}
+
+async function reviewSelectedExternalMatchCandidates(action) {
+  const candidateIds = selectedExternalMatchCandidateIds();
+  if (!candidateIds.length) {
+    throw new Error("Select at least one match candidate.");
+  }
+  const selectedCandidates = candidateIds
+    .map((candidateId) => state.externalMatchCandidates.find((item) => `${item.id}` === `${candidateId}`))
+    .filter(Boolean);
+  if (action === "accept") {
+    const sampleLines = selectedCandidates.slice(0, 5).map((candidate) => {
+      const rawLabel = candidate?.raw_dataset?.acquisition_label || "raw dataset";
+      const externalTitle = candidate?.external_experiment?.title || candidate?.external_id || "Labguru experiment";
+      return `${rawLabel} -> ${externalTitle}`;
+    });
+    const more = selectedCandidates.length > sampleLines.length ? `\n...and ${selectedCandidates.length - sampleLines.length} more` : "";
+    if (!window.confirm(`Write ${candidateIds.length} Labguru link(s)?\n\n${sampleLines.join("\n")}${more}`)) {
+      return;
+    }
+  } else if (!window.confirm(`Reject ${candidateIds.length} selected Labguru candidate(s)?`)) {
+    return;
+  }
+  const result = await apiPost("/external-systems/labguru/match-candidates/review-bulk", {
+    candidate_ids: candidateIds,
+    action,
+  });
+  state.selectedExternalMatchCandidateIds = [];
+  await refreshExternalElnMatching();
+  setStatus(
+    action === "accept"
+      ? `Accepted ${result.reviewed_count} candidate(s), wrote ${result.linked_count} Labguru link(s).`
+      : `Rejected ${result.reviewed_count} candidate(s).`
+  );
 }
 
 async function matchExternalUser(externalUserRecordId) {
@@ -8199,6 +8295,17 @@ if (els.externalMatchSyncButton) els.externalMatchSyncButton.addEventListener("c
 }));
 if (els.externalMatchRefreshButton) els.externalMatchRefreshButton.addEventListener("click", () => refreshExternalElnMatching().catch((error) => setStatus(String(error))));
 if (els.externalMatchStatusFilter) els.externalMatchStatusFilter.addEventListener("change", () => refreshExternalElnMatching().catch((error) => setStatus(String(error))));
+if (els.externalMatchSelectAll) els.externalMatchSelectAll.addEventListener("change", (event) => {
+  setSelectedExternalMatchCandidateIds(Boolean(event.target.checked) ? visibleExternalMatchCandidateIds() : []);
+});
+if (els.externalMatchAcceptSelectedButton) els.externalMatchAcceptSelectedButton.addEventListener("click", () => reviewSelectedExternalMatchCandidates("accept").catch((error) => {
+  setStatus(String(error));
+  window.alert(String(error));
+}));
+if (els.externalMatchRejectSelectedButton) els.externalMatchRejectSelectedButton.addEventListener("click", () => reviewSelectedExternalMatchCandidates("reject").catch((error) => {
+  setStatus(String(error));
+  window.alert(String(error));
+}));
 if (els.externalUserStatusFilter) els.externalUserStatusFilter.addEventListener("change", () => refreshExternalElnMatching().catch((error) => setStatus(String(error))));
 if (els.externalCredentialSaveButton) els.externalCredentialSaveButton.addEventListener("click", () => saveExternalCredential().catch((error) => {
   setStatus(String(error));

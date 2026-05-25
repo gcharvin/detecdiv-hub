@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Detecdiv server - Admin - External ELN</title>
-    <link rel="stylesheet" href="/web/styles.css?v=20260511-eln1" />
+    <link rel="stylesheet" href="/web/styles.css?v=20260525-eln-bulk1" />
   </head>
   <body data-page="admin-external-eln">
     <div class="page-shell">
@@ -124,11 +124,16 @@
                 <option value="">all</option>
               </select>
             </label>
+            <div class="toolbar compact-toolbar">
+              <button id="external-match-accept-selected-button" class="primary" disabled>Accept selected</button>
+              <button id="external-match-reject-selected-button" disabled>Reject selected</button>
+            </div>
           </div>
           <div class="table-wrapper">
             <table id="external-match-candidates-table">
               <thead>
                 <tr>
+                  <th><input id="external-match-select-all" type="checkbox" aria-label="Select all visible candidates" /></th>
                   <th>Score</th>
                   <th>Raw dataset</th>
                   <th>Labguru experiment</th>
@@ -138,7 +143,7 @@
                 </tr>
               </thead>
               <tbody>
-                <tr><td colspan="6" class="muted">No candidates loaded.</td></tr>
+                <tr><td colspan="7" class="muted">No candidates loaded.</td></tr>
               </tbody>
             </table>
           </div>
@@ -187,6 +192,6 @@
       </footer>
     </div>
 
-    <script src="/web/app.js?v=20260514-eln-users1" defer></script>
+    <script src="/web/app.js?v=20260525-eln-bulk1" defer></script>
   </body>
 </html>
