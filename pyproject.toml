@@ -25,6 +25,7 @@ dependencies = [
     "zarr>=2.18",
     "numcodecs<0.16",
     "imageio-ffmpeg>=0.6",
+    "nd2[legacy]>=0.11.3",
 ]
 
 [project.optional-dependencies]

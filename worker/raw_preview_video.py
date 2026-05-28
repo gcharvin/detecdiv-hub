@@ -32,6 +32,7 @@ IMAGE_SUFFIXES = (".jpg", ".jpeg")
 TIFF_LIKE_FORMATS = {"single_tiff", "ome_tiff", "tiff_sequence", "micromanager_tiff_dir", "ndtiff"}
 LEGACY_IMAGE_FORMATS = {"legacy_matlab_jpg_timelapse"}
 ZARR_LIKE_FORMATS = {"zarr", "ome_zarr"}
+ND2_FORMATS = {"nd2"}
 TIME_TOKEN_PATTERNS = (
     re.compile(r"(?:^|[_\-.])(time|frame|tp|t)[_\- ]*(\d+)(?=[_\-.]|$)", flags=re.IGNORECASE),
     re.compile(r"(?:^|[_\-.])img[_\- ]*(\d+)(?=[_\-.]|$)", flags=re.IGNORECASE),
@@ -439,6 +440,13 @@ def read_preview_frames(
     runtime_config: RawPreviewRuntimeConfig,
 ) -> PreviewSequence:
     data_format = str(raw_dataset.data_format or "unknown").lower()
+    if data_format in ND2_FORMATS:
+        return read_nd2_preview_frames(
+            dataset_path=dataset_path,
+            raw_dataset=raw_dataset,
+            position=position,
+            runtime_config=runtime_config,
+        )
     if data_format in ZARR_LIKE_FORMATS:
         return read_zarr_preview_frames(dataset_path=dataset_path, position=position, runtime_config=runtime_config)
     return read_tiff_preview_frames(
@@ -447,6 +455,155 @@ def read_preview_frames(
         position=position,
         runtime_config=runtime_config,
     )
+
+
+def read_nd2_preview_frames(
+    *,
+    dataset_path: Path,
+    raw_dataset: RawDataset,
+    position: RawDatasetPosition,
+    runtime_config: RawPreviewRuntimeConfig,
+) -> PreviewSequence:
+    nd2_path = resolve_nd2_source_path(dataset_path=dataset_path, raw_dataset=raw_dataset)
+    try:
+        import nd2
+    except ImportError as exc:
+        raise RuntimeError("ND2 preview generation requires the nd2[legacy] package.") from exc
+
+    position_index = resolve_nd2_position_index(position)
+    channel_labels = nd2_channel_labels(raw_dataset)
+    with nd2.ND2File(nd2_path) as nd2_file:
+        axis_names = [str(axis) for axis in dict(nd2_file.sizes).keys()]
+        array = nd2_file.to_dask()
+        shape = tuple(int(value) for value in array.shape)
+        axis_sizes = dict(zip(axis_names, shape, strict=False))
+        total_times = int(axis_sizes.get("T", 1) or 1)
+        time_indices = sample_index_values(
+            total_times,
+            max_count=resolve_frame_limit(total_count=total_times, runtime_config=runtime_config),
+        )
+        channel_count = int(axis_sizes.get("C", 1) or 1)
+        if not channel_labels:
+            channel_labels = [f"Channel {index + 1}" for index in range(channel_count)]
+        elif len(channel_labels) < channel_count:
+            channel_labels = channel_labels + [
+                f"Channel {index + 1}" for index in range(len(channel_labels), channel_count)
+            ]
+
+        frames: list[np.ndarray] = []
+        for time_index in time_indices:
+            channel_frames = []
+            for channel_index in range(max(1, channel_count)):
+                raw_frame = read_nd2_frame(
+                    array,
+                    axis_names=axis_names,
+                    axis_sizes=axis_sizes,
+                    time_index=time_index,
+                    position_index=position_index,
+                    channel_index=channel_index,
+                )
+                channel_frames.append(normalize_frame(reduce_array_to_frame(raw_frame)))
+            if len(channel_frames) > 1:
+                frames.append(compose_channel_strip(channel_frames))
+            else:
+                frames.append(channel_frames[0])
+    return PreviewSequence(frames=frames, channel_labels=channel_labels[: max(1, channel_count)])
+
+
+def resolve_nd2_source_path(*, dataset_path: Path, raw_dataset: RawDataset) -> Path:
+    metadata = dict(raw_dataset.metadata_json or {})
+    nd2_metadata = metadata.get("nd2") if isinstance(metadata.get("nd2"), dict) else {}
+    source_path = str(nd2_metadata.get("source_path") or "").strip()
+    if source_path:
+        candidate = Path(source_path)
+        if candidate.is_file():
+            return candidate
+
+    source_file = str(nd2_metadata.get("source_file") or "").strip()
+    if source_file:
+        candidate = dataset_path / source_file
+        if candidate.is_file():
+            return candidate
+
+    try:
+        nd2_files = sorted(
+            (entry for entry in dataset_path.iterdir() if entry.is_file() and entry.name.lower().endswith(".nd2")),
+            key=lambda path: path.stat().st_size,
+            reverse=True,
+        )
+    except OSError:
+        nd2_files = []
+    if nd2_files:
+        return nd2_files[0]
+    raise ValueError(f"No ND2 file found for dataset {dataset_path}")
+
+
+def resolve_nd2_position_index(position: RawDatasetPosition) -> int:
+    metadata = dict(position.metadata_json or {})
+    for value in (metadata.get("nd2_position_index"), metadata.get("position_index"), position.position_index):
+        if value is None:
+            continue
+        try:
+            return max(0, int(value))
+        except (TypeError, ValueError):
+            continue
+    return 0
+
+
+def nd2_channel_labels(raw_dataset: RawDataset) -> list[str]:
+    metadata = dict(raw_dataset.metadata_json or {})
+    nd2_metadata = metadata.get("nd2") if isinstance(metadata.get("nd2"), dict) else {}
+    channels = nd2_metadata.get("channels") if isinstance(nd2_metadata, dict) else None
+    labels = []
+    if isinstance(channels, list):
+        for index, item in enumerate(channels):
+            if not isinstance(item, dict):
+                continue
+            label = str(item.get("name") or "").strip()
+            labels.append(label or f"Channel {index + 1}")
+    if labels:
+        return labels
+    dimensions = metadata.get("dimensions") if isinstance(metadata.get("dimensions"), dict) else {}
+    channel_names = dimensions.get("channel_names") if isinstance(dimensions, dict) else None
+    if isinstance(channel_names, list):
+        return [str(value).strip() or f"Channel {index + 1}" for index, value in enumerate(channel_names)]
+    return []
+
+
+def read_nd2_frame(
+    array,
+    *,
+    axis_names: list[str],
+    axis_sizes: dict[str, int],
+    time_index: int,
+    position_index: int,
+    channel_index: int,
+) -> np.ndarray:
+    selectors: list[Any] = []
+    for axis_name in axis_names:
+        axis_size = int(axis_sizes.get(axis_name, 1) or 1)
+        if axis_name == "T":
+            selectors.append(clamp_index(time_index, axis_size))
+        elif axis_name == "P":
+            selectors.append(clamp_index(position_index, axis_size))
+        elif axis_name == "C":
+            selectors.append(clamp_index(channel_index, axis_size))
+        elif axis_name == "Z":
+            selectors.append(axis_size // 2)
+        elif axis_name in {"Y", "X"}:
+            selectors.append(slice(None))
+        else:
+            selectors.append(0)
+    view = array[tuple(selectors)]
+    if hasattr(view, "compute"):
+        view = view.compute()
+    return np.asarray(view)
+
+
+def clamp_index(value: int, size: int) -> int:
+    if size <= 0:
+        return 0
+    return max(0, min(size - 1, int(value)))
 
 
 def read_tiff_preview_frames(

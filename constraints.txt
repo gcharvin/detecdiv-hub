@@ -1,0 +1,16 @@
+alembic==1.13.2
+fastapi==0.115.0
+httpx==0.27.0
+imageio-ffmpeg==0.6.0
+nd2==0.11.3
+numpy==2.1.1
+pydantic==2.8.2
+pydantic-settings==2.4.0
+psycopg==3.2.1
+psycopg-binary==3.2.1
+pytest==8.3.2
+ruff==0.6.1
+sqlalchemy==2.0.35
+tifffile==2024.9.20
+uvicorn==0.30.6
+zarr==2.18.3

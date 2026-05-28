@@ -14,8 +14,9 @@ from api.services.micromanager_metadata import (
     find_micromanager_display_settings_path,
     read_micromanager_metadata,
 )
+from api.services.nd2_metadata import read_nd2_dataset_metadata
 from api.services.raw_preview_jobs import queue_raw_preview_job_for_dataset
-from api.services.project_indexing import get_or_create_storage_root, slugify
+from api.services.project_indexing import get_or_create_storage_root, is_legacy_matlab_timelapse_dataset_dir, slugify
 from api.services.storage_metrics import safe_dir_size
 
 
@@ -63,6 +64,16 @@ def ingest_raw_dataset_from_directory(
     display_settings_path = find_micromanager_display_settings_path(dataset_dir)
     display_settings_uri = str(display_settings_path) if display_settings_path is not None else None
     data_format = detect_raw_dataset_format(dataset_dir, parsed_metadata)
+    nd2_metadata = {}
+    if data_format == "nd2":
+        nd2_metadata = read_nd2_dataset_metadata(dataset_dir)
+        if nd2_metadata:
+            parsed_metadata = {
+                **parsed_metadata,
+                "dimensions": nd2_metadata.get("dimensions") or {},
+                "positions": nd2_metadata.get("positions") or [],
+                "nd2": nd2_metadata,
+            }
 
     if data_format == "micromanager_tiff_dir":
         frame_count = parsed_metadata.get("frame_count", 0)
@@ -79,6 +90,13 @@ def ingest_raw_dataset_from_directory(
         data_format=data_format,
         source_metadata=source_metadata,
     )
+    if nd2_metadata:
+        metadata["nd2"] = {
+            key: value
+            for key, value in nd2_metadata.items()
+            if key not in {"positions"}
+        }
+        metadata["positions"] = nd2_metadata.get("positions") or []
     effective_source_metadata = dict(parsed_metadata)
     if source_metadata:
         effective_source_metadata.update(source_metadata)
@@ -253,19 +271,6 @@ def detect_raw_dataset_format(dataset_dir: Path, source_metadata: dict) -> str:
     return "unknown"
 
 
-def is_legacy_matlab_timelapse_dataset_dir(dataset_dir: Path) -> bool:
-    if find_legacy_timelapse_id_file(dataset_dir) is None:
-        return False
-    project_mat = dataset_dir / f"{dataset_dir.name}-project.mat"
-    if not project_mat.is_file():
-        return False
-    try:
-        child_dirs = [entry for entry in dataset_dir.iterdir() if entry.is_dir()]
-    except OSError:
-        return False
-    return any(entry.name.lower().startswith(f"{dataset_dir.name.lower()}-pos") for entry in child_dirs)
-
-
 def upsert_raw_dataset_positions(
     session: Session,
     *,
@@ -299,9 +304,13 @@ def upsert_raw_dataset_positions(
                 existing.description = position.get("description")
             existing.position_index = position.get("position_index", position_index)
             existing.status = "indexed"
-            merged_metadata = dict(existing.metadata_json or {})
-            merged_metadata.update(position.get("metadata_json") or {})
-            existing.metadata_json = merged_metadata
+            position_metadata = position.get("metadata_json") or {}
+            if str(position_metadata.get("source") or "").startswith("nd2_"):
+                existing.metadata_json = position_metadata
+            else:
+                merged_metadata = dict(existing.metadata_json or {})
+                merged_metadata.update(position_metadata)
+                existing.metadata_json = merged_metadata
     session.flush()
 
 
@@ -314,13 +323,14 @@ def discover_raw_dataset_positions(dataset_dir: Path, source_metadata: dict) -> 
                 raw_key = item.get("position_key") or item.get("key") or item.get("name") or f"position_{index + 1}"
                 display_name = item.get("display_name") or item.get("name") or str(raw_key)
                 description = item.get("description")
+                item_metadata = item.get("metadata_json") if isinstance(item.get("metadata_json"), dict) else item
                 positions.append(
                     {
                         "position_key": slugify(str(raw_key)),
                         "display_name": str(display_name),
                         "description": str(description) if description else None,
                         "position_index": item.get("position_index", index),
-                        "metadata_json": item,
+                        "metadata_json": item_metadata,
                     }
                 )
             elif item:

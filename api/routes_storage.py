@@ -1,15 +1,19 @@
 from __future__ import annotations
 
 from datetime import datetime, timezone
+from pathlib import Path
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.orm import Session, joinedload
 
+from api.config import get_settings
 from api.db import get_db
 from api.models import (
+    ExecutionTarget,
     Job,
+    MiscStorageItem,
     StorageProvider,
     StorageProvisioningEvent,
     StorageQuotaSnapshot,
@@ -17,6 +21,9 @@ from api.models import (
     UserStorageAccount,
 )
 from api.schemas import (
+    IndexJobLaunchResponse,
+    IndexJobSummary,
+    IndexRequest,
     StorageProviderCreate,
     StorageProviderSummary,
     StorageProviderUpdate,
@@ -37,10 +44,17 @@ from api.schemas import (
     UserHomePrepareRequest,
     UserHomePrepareResponse,
     UserHomeProvisionRequest,
+    MiscStorageExploreChildrenRequest,
+    MiscStorageIndexProjectsRequest,
+    MiscStorageInventoryRequest,
+    MiscStorageInventoryResponse,
+    MiscStorageItemSummary,
+    MiscStorageItemUpdate,
     UserStorageAccountCreate,
     UserStorageAccountSummary,
     UserStorageAccountUpdate,
 )
+from api.services.indexing_jobs import create_indexing_job, enqueue_indexing_worker_job, get_indexing_job_for_user
 from api.services.user_home_storage import (
     create_hub_usage_snapshot,
     create_storage_provider,
@@ -98,11 +112,274 @@ def event_options():
     )
 
 
+def misc_item_options():
+    return (
+        joinedload(MiscStorageItem.owner),
+        joinedload(MiscStorageItem.storage_root),
+    )
+
+
+def misc_item_absolute_path(item: MiscStorageItem) -> str:
+    metadata = item.metadata_json if isinstance(item.metadata_json, dict) else {}
+    absolute_path = str(metadata.get("absolute_path") or "").strip()
+    if absolute_path:
+        return absolute_path
+    return str((Path(item.storage_root.path_prefix) / (item.relative_path or "")).resolve())
+
+
+def resolve_storage_worker_target(
+    session: Session,
+    *,
+    execution_target_id: UUID | None = None,
+    execution_target_key: str | None = None,
+) -> ExecutionTarget | None:
+    if execution_target_id is not None:
+        target = session.get(ExecutionTarget, execution_target_id)
+        if target is None:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Execution target not found")
+        return target
+
+    target_key = str(execution_target_key or get_settings().indexing_target_key or get_settings().worker_target_key or "").strip()
+    if not target_key:
+        return None
+    target = session.scalars(select(ExecutionTarget).where(ExecutionTarget.target_key == target_key)).first()
+    if target is None:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"Execution target '{target_key}' not found")
+    return target
+
+
 def load_account(session: Session, account_id: UUID) -> UserStorageAccount:
     account = session.scalars(select(UserStorageAccount).options(*account_options()).where(UserStorageAccount.id == account_id)).first()
     if account is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User storage account not found")
     return account
+
+
+@router.get("/misc-items", response_model=list[MiscStorageItemSummary])
+def list_misc_storage_items(
+    user_id: UUID | None = None,
+    owner_user_key: str | None = None,
+    category: str | None = None,
+    status_filter: str | None = None,
+    min_size_bytes: int | None = None,
+    limit: int = 200,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> list[MiscStorageItem]:
+    stmt = select(MiscStorageItem).options(*misc_item_options()).order_by(MiscStorageItem.total_bytes.desc())
+    if current_user.role not in {"admin", "service"}:
+        stmt = stmt.where(MiscStorageItem.owner_user_id == current_user.id)
+    elif user_id is not None:
+        stmt = stmt.where(MiscStorageItem.owner_user_id == user_id)
+    elif owner_user_key:
+        stmt = stmt.join(User, MiscStorageItem.owner_user_id == User.id).where(User.user_key == owner_user_key)
+    if category:
+        stmt = stmt.where(MiscStorageItem.category == category)
+    if status_filter:
+        stmt = stmt.where(MiscStorageItem.status == status_filter)
+    if min_size_bytes is not None:
+        stmt = stmt.where(MiscStorageItem.total_bytes >= max(int(min_size_bytes), 0))
+    stmt = stmt.limit(min(max(int(limit), 1), 1000))
+    return list(db.scalars(stmt).unique())
+
+
+@router.patch("/misc-items/{item_id}", response_model=MiscStorageItemSummary)
+def update_misc_storage_item(
+    item_id: UUID,
+    payload: MiscStorageItemUpdate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> MiscStorageItem:
+    require_storage_admin(current_user)
+    item = db.scalars(select(MiscStorageItem).options(*misc_item_options()).where(MiscStorageItem.id == item_id)).first()
+    if item is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Misc storage item not found")
+    if payload.owner_user_id is not None:
+        if db.get(User, payload.owner_user_id) is None:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Owner user not found")
+        item.owner_user_id = payload.owner_user_id
+    if payload.category is not None:
+        item.category = payload.category
+    if payload.status is not None:
+        item.status = payload.status
+    if payload.visibility is not None:
+        item.visibility = payload.visibility
+    if payload.lifecycle_tier is not None:
+        item.lifecycle_tier = payload.lifecycle_tier
+    if payload.archive_status is not None:
+        item.archive_status = payload.archive_status
+    if payload.archive_uri is not None:
+        item.archive_uri = payload.archive_uri
+    if payload.backup_status is not None:
+        item.backup_status = payload.backup_status
+    if payload.backup_excluded is not None:
+        item.backup_excluded = payload.backup_excluded
+    if payload.notes is not None:
+        item.notes = payload.notes
+    if payload.metadata_json is not None:
+        item.metadata_json = {**dict(item.metadata_json or {}), **payload.metadata_json}
+    db.commit()
+    return db.scalars(select(MiscStorageItem).options(*misc_item_options()).where(MiscStorageItem.id == item.id)).first()
+
+
+@router.post("/misc-items/{item_id}/inventory-children/jobs", response_model=MiscStorageInventoryResponse, status_code=status.HTTP_202_ACCEPTED)
+def queue_misc_storage_children_inventory_job(
+    item_id: UUID,
+    payload: MiscStorageExploreChildrenRequest,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> MiscStorageInventoryResponse:
+    require_storage_admin(current_user)
+    item = db.scalars(select(MiscStorageItem).options(*misc_item_options()).where(MiscStorageItem.id == item_id)).first()
+    if item is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Misc storage item not found")
+    target = resolve_storage_worker_target(
+        db,
+        execution_target_id=payload.execution_target_id,
+        execution_target_key=payload.execution_target_key,
+    )
+    source_path = misc_item_absolute_path(item)
+    job = Job(
+        execution_target_id=target.id if target is not None else None,
+        requested_mode=payload.requested_mode,
+        priority=payload.priority,
+        requested_by=current_user.user_key,
+        requested_from_host="api-storage",
+        params_json={
+            "job_kind": "misc_storage_inventory",
+            "source_path": source_path,
+            "storage_root_id": item.storage_root_id,
+            "parent_item_id": str(item.id),
+            "storage_root_name": item.storage_root.name,
+            "host_scope": item.storage_root.host_scope,
+            "root_type": item.storage_root.root_type,
+            "owner_user_key": item.owner.user_key if item.owner is not None else None,
+            "visibility": item.visibility,
+            "min_size_bytes": payload.min_size_bytes,
+            "max_depth": max(1, min(int(payload.max_depth or 1), 2)),
+            "du_timeout_sec": payload.du_timeout_sec,
+            "include_cataloged": payload.include_cataloged,
+            "metadata_json": {
+                **dict(payload.metadata_json or {}),
+                "launched_from_misc_item_id": str(item.id),
+                "launched_from_misc_path": item.relative_path,
+            },
+        },
+    )
+    db.add(job)
+    db.commit()
+    return MiscStorageInventoryResponse(
+        status="queued",
+        job_id=job.id,
+        scanned_count=0,
+        indexed_count=0,
+        skipped_count=0,
+        timeout_count=0,
+        message=f"Queued child inventory for {item.relative_path}.",
+    )
+
+
+@router.post("/misc-items/{item_id}/index-projects/jobs", response_model=IndexJobLaunchResponse, status_code=status.HTTP_202_ACCEPTED)
+def queue_misc_storage_project_index_job(
+    item_id: UUID,
+    payload: MiscStorageIndexProjectsRequest,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> IndexJobLaunchResponse:
+    require_storage_admin(current_user)
+    item = db.scalars(select(MiscStorageItem).options(*misc_item_options()).where(MiscStorageItem.id == item_id)).first()
+    if item is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Misc storage item not found")
+
+    source_path = misc_item_absolute_path(item)
+    owner_user_key = payload.owner_user_key or (item.owner.user_key if item.owner is not None else None)
+    request = IndexRequest(
+        source_kind="project_root",
+        source_path=source_path,
+        storage_root_name=payload.storage_root_name,
+        host_scope="server",
+        root_type="project_root",
+        owner_user_key=owner_user_key,
+        visibility=payload.visibility,
+        clear_existing_for_root=payload.clear_existing_for_root,
+        scan_orphan_raw=payload.scan_orphan_raw,
+        queue_previews=payload.queue_previews,
+        execution_target_id=payload.execution_target_id,
+        execution_target_key=payload.execution_target_key,
+        metadata_json={
+            **dict(payload.metadata_json or {}),
+            "launched_from_misc_item_id": str(item.id),
+            "launched_from_misc_path": item.relative_path,
+        },
+    )
+    try:
+        indexing_job = create_indexing_job(db, payload=request, current_user=current_user)
+        enqueue_indexing_worker_job(db, indexing_job=indexing_job, current_user=current_user)
+        item.status = "project_index_queued"
+        item.metadata_json = {**dict(item.metadata_json or {}), "project_index_job_id": str(indexing_job.id)}
+        db.commit()
+    except ValueError as exc:
+        db.rollback()
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc
+    except Exception:
+        db.rollback()
+        raise
+
+    indexing_job = get_indexing_job_for_user(db, job_id=indexing_job.id, current_user=current_user)
+    if indexing_job is None:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Failed to reload indexing job")
+    return IndexJobLaunchResponse(
+        status="queued",
+        launch_mode="worker",
+        job=IndexJobSummary.model_validate(indexing_job),
+        message="Indexing job accepted and queued for worker execution.",
+    )
+
+
+@router.post("/misc-inventory/jobs", response_model=MiscStorageInventoryResponse, status_code=status.HTTP_202_ACCEPTED)
+def queue_misc_storage_inventory_job(
+    payload: MiscStorageInventoryRequest,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> MiscStorageInventoryResponse:
+    require_storage_admin(current_user)
+    target = resolve_storage_worker_target(
+        db,
+        execution_target_id=payload.execution_target_id,
+        execution_target_key=payload.execution_target_key,
+    )
+    job = Job(
+        execution_target_id=target.id if target is not None else None,
+        requested_mode=payload.requested_mode,
+        priority=payload.priority,
+        requested_by=current_user.user_key,
+        requested_from_host="api-storage",
+        params_json={
+            "job_kind": "misc_storage_inventory",
+            "source_path": payload.source_path,
+            "storage_root_id": payload.storage_root_id,
+            "parent_item_id": str(payload.parent_item_id) if payload.parent_item_id is not None else None,
+            "storage_root_name": payload.storage_root_name,
+            "host_scope": payload.host_scope,
+            "root_type": payload.root_type,
+            "owner_user_key": payload.owner_user_key,
+            "visibility": payload.visibility,
+            "min_size_bytes": payload.min_size_bytes,
+            "max_depth": payload.max_depth,
+            "du_timeout_sec": payload.du_timeout_sec,
+            "include_cataloged": payload.include_cataloged,
+            "metadata_json": payload.metadata_json,
+        },
+        status="queued",
+    )
+    db.add(job)
+    db.commit()
+    return MiscStorageInventoryResponse(
+        status="queued",
+        job_id=job.id,
+        source_path=payload.source_path,
+        message="Misc storage inventory job queued for worker execution.",
+    )
 
 
 @router.get("/providers", response_model=list[StorageProviderSummary])

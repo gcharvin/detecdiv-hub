@@ -48,6 +48,7 @@ const state = {
   automaticArchivePolicyStatus: null,
   micromanagerIngestStatus: null,
   migrationPlans: [],
+  miscStorageItems: [],
   selectedMigrationPlan: null,
   selectedProject: null,
   selectedProjectDetail: null,
@@ -276,6 +277,8 @@ const els = {
   externalMatchRefreshButton: document.querySelector("#external-match-refresh-button"),
   externalMatchStatusFilter: document.querySelector("#external-match-status-filter"),
   externalMatchSelectAll: document.querySelector("#external-match-select-all"),
+  externalMatchSelectVisibleButton: document.querySelector("#external-match-select-visible-button"),
+  externalMatchClearSelectionButton: document.querySelector("#external-match-clear-selection-button"),
   externalMatchAcceptSelectedButton: document.querySelector("#external-match-accept-selected-button"),
   externalMatchRejectSelectedButton: document.querySelector("#external-match-reject-selected-button"),
   externalMatchCandidatesTableBody: document.querySelector("#external-match-candidates-table tbody"),
@@ -353,6 +356,26 @@ const els = {
   migrationDetailList: document.querySelector("#migration-detail-list"),
   migrationItemsTableBody: document.querySelector("#migration-items-table tbody"),
   migrationExecutePilotButton: document.querySelector("#migration-execute-pilot-button"),
+  miscSourcePath: document.querySelector("#misc-source-path"),
+  miscStorageRootName: document.querySelector("#misc-storage-root-name"),
+  miscOwnerUserKey: document.querySelector("#misc-owner-user-key"),
+  miscMinSizeGb: document.querySelector("#misc-min-size-gb"),
+  miscMaxDepth: document.querySelector("#misc-max-depth"),
+  miscDuTimeoutSec: document.querySelector("#misc-du-timeout-sec"),
+  miscIncludeCataloged: document.querySelector("#misc-include-cataloged"),
+  miscInventoryButton: document.querySelector("#misc-inventory-button"),
+  miscRefreshButton: document.querySelector("#misc-refresh-button"),
+  miscSearch: document.querySelector("#misc-search"),
+  miscOwnerFilter: document.querySelector("#misc-owner-filter"),
+  miscCategoryFilter: document.querySelector("#misc-category-filter"),
+  miscStatusFilter: document.querySelector("#misc-status-filter"),
+  miscMinSizeFilterGb: document.querySelector("#misc-min-size-filter-gb"),
+  miscSummaryCount: document.querySelector("#misc-summary-count"),
+  miscSummaryTotalBytes: document.querySelector("#misc-summary-total-bytes"),
+  miscSummaryTimeoutCount: document.querySelector("#misc-summary-timeout-count"),
+  miscSummaryMeasuredCount: document.querySelector("#misc-summary-measured-count"),
+  miscCountLabel: document.querySelector("#misc-count-label"),
+  miscItemsTableBody: document.querySelector("#misc-items-table tbody"),
   pipelineSearch: document.querySelector("#pipeline-search"),
   pipelineRuntimeFilter: document.querySelector("#pipeline-runtime-filter"),
   pipelineSourceFilter: document.querySelector("#pipeline-source-filter"),
@@ -449,6 +472,7 @@ const pageFlags = {
   hasRawDatasetDetail: Boolean(els.rawDetailContent || els.rawDetailList),
   hasIndexForm: Boolean(els.indexSourcePath),
   hasMigrationView: Boolean(els.migrationPlansTableBody || els.migrationDetailContent),
+  hasMiscStorageView: pageKind === "misc-storage" && Boolean(els.miscItemsTableBody),
 };
 
 let appLayoutInitialized = false;
@@ -483,6 +507,9 @@ function getSidebarActiveRoute() {
   }
   if (pageKind === "raw-ops") {
     return "datasets-settings";
+  }
+  if (pageKind === "misc-storage") {
+    return "datasets-misc";
   }
   if (pageKind === "raw-datasets" || pageKind === "raw-dataset") {
     return "datasets-catalog";
@@ -591,6 +618,7 @@ function initializeAppLayout() {
         label: "Datasets",
         items: [
           { label: "Catalog", href: "/web/raw-datasets.html", route: "datasets-catalog" },
+          { label: "Misc Storage", href: "/web/misc-storage.html", route: "datasets-misc" },
           { label: "Settings", href: "/web/raw-ops.html", route: "datasets-settings" },
         ],
       },
@@ -723,6 +751,7 @@ function clearDashboardState() {
   state.automaticArchivePolicyStatus = null;
   state.micromanagerIngestStatus = null;
   state.migrationPlans = [];
+  state.miscStorageItems = [];
   state.selectedMigrationPlan = null;
   state.selectedProject = null;
   state.selectedProjectDetail = null;
@@ -764,6 +793,7 @@ function clearDashboardState() {
   renderArchivePolicyPreview();
   renderMigrationPlans();
   renderMigrationDetail();
+  renderMiscStorageItems();
   renderUsers();
   renderSessions();
   renderDetail();
@@ -5056,6 +5086,12 @@ function renderExternalMatchSelectionControls() {
     els.externalMatchSelectAll.indeterminate = selectedCount > 0 && selectedCount < visibleCount;
     els.externalMatchSelectAll.disabled = visibleCount === 0;
   }
+  if (els.externalMatchSelectVisibleButton) {
+    els.externalMatchSelectVisibleButton.disabled = visibleCount === 0 || selectedCount === visibleCount;
+  }
+  if (els.externalMatchClearSelectionButton) {
+    els.externalMatchClearSelectionButton.disabled = selectedCount === 0;
+  }
   if (els.externalMatchAcceptSelectedButton) {
     els.externalMatchAcceptSelectedButton.disabled = selectedCount === 0;
   }
@@ -5203,18 +5239,36 @@ function renderOwnerFilters() {
       selectedValue: currentValue,
     });
   }
+
+  if (els.miscOwnerFilter) {
+    const currentValue = els.miscOwnerFilter.value || "";
+    renderUserSelect(els.miscOwnerFilter, users, {
+      emptyOptionLabel: "All owners",
+      selectedValue: currentValue,
+    });
+  }
 }
 
 function renderIndexOwnerOptions() {
-  if (!els.indexOwnerUserKey) {
+  if (!els.indexOwnerUserKey && !els.miscOwnerUserKey) {
     return;
   }
   const users = availableOwnerUsers();
-  const currentValue = els.indexOwnerUserKey.value || state.currentUser?.user_key || state.userKey || "";
-  renderUserSelect(els.indexOwnerUserKey, users, {
-    noUsersLabel: "No user accounts available",
-    selectedValue: currentValue,
-  });
+  if (els.indexOwnerUserKey) {
+    const currentValue = els.indexOwnerUserKey.value || state.currentUser?.user_key || state.userKey || "";
+    renderUserSelect(els.indexOwnerUserKey, users, {
+      noUsersLabel: "No user accounts available",
+      selectedValue: currentValue,
+    });
+  }
+  if (els.miscOwnerUserKey) {
+    const currentValue = els.miscOwnerUserKey.value || "";
+    renderUserSelect(els.miscOwnerUserKey, users, {
+      emptyOptionLabel: "Infer from first path segment",
+      noUsersLabel: "No user accounts available",
+      selectedValue: currentValue,
+    });
+  }
 }
 
 function renderUserSelectors() {
@@ -5339,7 +5393,7 @@ async function refreshDashboard() {
   } else {
     bootstrapTasks.push(Promise.resolve([]));
   }
-  if (pageFlags.hasStorageRootFilter || pageFlags.hasIndexForm || pageFlags.hasUsersView) {
+  if (pageFlags.hasStorageRootFilter || pageFlags.hasIndexForm || pageFlags.hasUsersView || pageFlags.hasMiscStorageView) {
     bootstrapTasks.push(apiGet("/storage-roots"));
   } else {
     bootstrapTasks.push(Promise.resolve([]));
@@ -5411,6 +5465,8 @@ async function refreshDashboard() {
   if (
     (pageFlags.hasUsersView && isAdmin()) ||
     els.indexOwnerUserKey ||
+    els.miscOwnerUserKey ||
+    els.miscOwnerFilter ||
     els.ownerFilter ||
     els.rawOwnerFilter ||
     pageFlags.hasProjectPage ||
@@ -5432,6 +5488,9 @@ async function refreshDashboard() {
   }
   if (pageFlags.hasMigrationView) {
     refreshTasks.push(refreshMigrationPlans());
+  }
+  if (pageFlags.hasMiscStorageView) {
+    refreshTasks.push(refreshMiscStorageItems());
   }
   if (pageFlags.hasAdminView) {
     refreshTasks.push(refreshRawPreviewQualityStatus());
@@ -5465,6 +5524,203 @@ async function clearStaleIndexingJobs() {
   const result = await apiPost("/indexing/jobs/clear-stale", {});
   setStatus(result.message || `Deleted ${result.deleted_count} stale indexing job(s).`);
   await refreshIndexingJobs();
+}
+
+function miscItemAbsolutePath(item) {
+  const metadata = item?.metadata_json && typeof item.metadata_json === "object" ? item.metadata_json : {};
+  if (metadata.absolute_path) {
+    return String(metadata.absolute_path);
+  }
+  const rootPath = item?.storage_root?.path_prefix || "";
+  const relativePath = item?.relative_path || "";
+  if (!rootPath) {
+    return relativePath;
+  }
+  return relativePath ? `${rootPath.replace(/\/+$/, "")}/${relativePath}` : rootPath;
+}
+
+function miscOwnerLabel(item) {
+  if (!item?.owner) {
+    return "";
+  }
+  return item.owner.display_name ? `${item.owner.display_name} (${item.owner.user_key})` : item.owner.user_key;
+}
+
+function filteredMiscStorageItems() {
+  const query = (els.miscSearch?.value || "").trim().toLowerCase();
+  if (!query) {
+    return state.miscStorageItems;
+  }
+  return state.miscStorageItems.filter((item) => {
+    const values = [
+      item.display_name,
+      item.relative_path,
+      miscItemAbsolutePath(item),
+      item.category,
+      item.status,
+      item.scan_status,
+      item.lifecycle_tier,
+      item.backup_status,
+      item.archive_status,
+      item.owner?.user_key,
+      item.owner?.display_name,
+    ];
+    return values.some((value) => String(value || "").toLowerCase().includes(query));
+  });
+}
+
+function renderMiscStorageItems() {
+  if (!els.miscItemsTableBody) {
+    return;
+  }
+  const items = filteredMiscStorageItems();
+  const totalBytes = items.reduce((sum, item) => sum + Number(item.total_bytes || 0), 0);
+  const timeoutCount = items.filter((item) => item.scan_status === "timeout").length;
+  const measuredCount = items.filter((item) => item.scan_status === "measured").length;
+
+  if (els.miscSummaryCount) els.miscSummaryCount.textContent = `${items.length}`;
+  if (els.miscSummaryTotalBytes) els.miscSummaryTotalBytes.textContent = humanBytes(totalBytes);
+  if (els.miscSummaryTimeoutCount) els.miscSummaryTimeoutCount.textContent = `${timeoutCount}`;
+  if (els.miscSummaryMeasuredCount) els.miscSummaryMeasuredCount.textContent = `${measuredCount}`;
+  if (els.miscCountLabel) els.miscCountLabel.textContent = `${items.length} item${items.length === 1 ? "" : "s"}`;
+
+  els.miscItemsTableBody.innerHTML = "";
+  if (!items.length) {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `<td colspan="10" class="empty-state">No misc storage items match the current filters.</td>`;
+    els.miscItemsTableBody.appendChild(tr);
+    return;
+  }
+
+  for (const item of items) {
+    const absolutePath = miscItemAbsolutePath(item);
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td title="${escapeHtml(absolutePath)}">
+        <strong>${escapeHtml(item.display_name || item.relative_path || absolutePath)}</strong>
+        <div class="muted">${escapeHtml(item.relative_path || absolutePath)}</div>
+        <div class="action-stack">
+          <button type="button" class="misc-index-projects-button">Index projects</button>
+          <button type="button" class="misc-explore-children-button">Explore children</button>
+        </div>
+      </td>
+      <td>${escapeHtml(miscOwnerLabel(item) || "unassigned")}</td>
+      <td>${escapeHtml(item.category || "")}</td>
+      <td>${escapeHtml(item.status || "")}</td>
+      <td>${humanBytes(item.total_bytes)}</td>
+      <td>${escapeHtml(item.scan_status || "")}</td>
+      <td>${Number(item.child_dir_count || 0)} dirs / ${Number(item.child_file_count || 0)} files</td>
+      <td>${escapeHtml(item.lifecycle_tier || "")}</td>
+      <td>${escapeHtml(item.backup_excluded ? "excluded" : (item.backup_status || ""))}</td>
+      <td>${escapeHtml(formatTimestamp(item.last_seen_at))}</td>
+    `;
+    tr.querySelector(".misc-index-projects-button")?.addEventListener("click", (event) => {
+      event.stopPropagation();
+      queueMiscItemProjectIndex(item).catch((error) => setStatus(String(error)));
+    });
+    tr.querySelector(".misc-explore-children-button")?.addEventListener("click", (event) => {
+      event.stopPropagation();
+      queueMiscItemChildInventory(item).catch((error) => setStatus(String(error)));
+    });
+    els.miscItemsTableBody.appendChild(tr);
+  }
+}
+
+async function refreshMiscStorageItems() {
+  if (!pageFlags.hasMiscStorageView) {
+    return;
+  }
+  const params = new URLSearchParams();
+  if (els.miscOwnerFilter?.value) {
+    params.set("owner_user_key", els.miscOwnerFilter.value);
+  }
+  if (els.miscCategoryFilter?.value) {
+    params.set("category", els.miscCategoryFilter.value);
+  }
+  if (els.miscStatusFilter?.value) {
+    params.set("status_filter", els.miscStatusFilter.value);
+  }
+  const minSizeGb = Number(els.miscMinSizeFilterGb?.value || 0);
+  if (Number.isFinite(minSizeGb) && minSizeGb > 0) {
+    params.set("min_size_bytes", `${Math.round(minSizeGb * 1024 * 1024 * 1024)}`);
+  }
+  params.set("limit", "1000");
+  state.miscStorageItems = await apiGet(`/storage/misc-items?${params.toString()}`);
+  renderMiscStorageItems();
+}
+
+async function queueMiscStorageInventory() {
+  if (!els.miscSourcePath) {
+    return;
+  }
+  const sourcePath = els.miscSourcePath.value.trim();
+  if (!sourcePath) {
+    throw new Error("Source path is required.");
+  }
+  const minSizeGb = Number(els.miscMinSizeGb?.value || 10);
+  const maxDepth = Number(els.miscMaxDepth?.value || 2);
+  const duTimeoutSec = Number(els.miscDuTimeoutSec?.value || 45);
+  if (!Number.isFinite(minSizeGb) || minSizeGb < 0) {
+    throw new Error("Minimum size must be a positive number.");
+  }
+  if (!Number.isFinite(maxDepth) || maxDepth < 1) {
+    throw new Error("Max depth must be at least 1.");
+  }
+  if (!Number.isFinite(duTimeoutSec) || duTimeoutSec <= 0) {
+    throw new Error("du timeout must be positive.");
+  }
+  const payload = {
+    source_path: sourcePath,
+    storage_root_name: (els.miscStorageRootName?.value || "").trim() || null,
+    owner_user_key: (els.miscOwnerUserKey?.value || "").trim() || null,
+    visibility: "private",
+    min_size_bytes: Math.round(minSizeGb * 1024 * 1024 * 1024),
+    max_depth: Math.round(maxDepth),
+    du_timeout_sec: duTimeoutSec,
+    include_cataloged: Boolean(els.miscIncludeCataloged?.checked),
+    requested_mode: "server",
+  };
+  const response = await apiPost("/storage/misc-inventory/jobs", payload);
+  setStatus(`Queued misc inventory job ${response.job_id}.`);
+}
+
+async function queueMiscItemProjectIndex(item) {
+  const absolutePath = miscItemAbsolutePath(item);
+  let ownerUserKey = item.owner?.user_key || "";
+  if (!ownerUserKey) {
+    const metadata = item.metadata_json && typeof item.metadata_json === "object" ? item.metadata_json : {};
+    ownerUserKey = window.prompt("Owner user key for indexed projects", metadata.owner_hint || "") || "";
+    ownerUserKey = ownerUserKey.trim();
+  }
+  const confirmed = window.confirm(`Queue project indexing for ${absolutePath} with orphan raw dataset scan and preview generation enabled?`);
+  if (!confirmed) {
+    return;
+  }
+  const response = await apiPost(`/storage/misc-items/${encodeURIComponent(item.id)}/index-projects/jobs`, {
+    owner_user_key: ownerUserKey || null,
+    scan_orphan_raw: true,
+    queue_previews: true,
+    clear_existing_for_root: false,
+    metadata_json: {},
+  });
+  setStatus(`Queued project indexing job ${response.job.id} for ${response.job.source_path}.`);
+  await refreshMiscStorageItems();
+}
+
+async function queueMiscItemChildInventory(item) {
+  const absolutePath = miscItemAbsolutePath(item);
+  const confirmed = window.confirm(`Explore direct children under ${absolutePath}?`);
+  if (!confirmed) {
+    return;
+  }
+  const response = await apiPost(`/storage/misc-items/${encodeURIComponent(item.id)}/inventory-children/jobs`, {
+    min_size_bytes: 1024 * 1024 * 1024,
+    max_depth: 1,
+    du_timeout_sec: 60,
+    include_cataloged: false,
+    metadata_json: {},
+  });
+  setStatus(`Queued child inventory job ${response.job_id} for ${absolutePath}.`);
 }
 
 async function refreshRawDatasets(options = {}) {
@@ -5909,7 +6165,15 @@ async function refreshProjectPage() {
 
 async function refreshUsers() {
   if (!els.usersTableBody) {
-    if (els.indexOwnerUserKey || els.ownerFilter || els.rawOwnerFilter || pageFlags.hasProjectPage || pageFlags.hasRawDatasetPage) {
+    if (
+      els.indexOwnerUserKey ||
+      els.miscOwnerUserKey ||
+      els.miscOwnerFilter ||
+      els.ownerFilter ||
+      els.rawOwnerFilter ||
+      pageFlags.hasProjectPage ||
+      pageFlags.hasRawDatasetPage
+    ) {
       state.users = await apiGet("/users");
       renderUserSelectors();
       applyRawDatasetDisplaySettings();
@@ -8100,6 +8364,9 @@ async function pollDashboard() {
     if (pageFlags.hasMigrationView) {
       pollTasks.push(refreshMigrationPlans());
     }
+    if (pageFlags.hasMiscStorageView) {
+      pollTasks.push(refreshMiscStorageItems());
+    }
     if (pageFlags.hasExecutionTargetsView && isAdmin()) {
       pollTasks.push(refreshExecutionTargets());
     }
@@ -8148,6 +8415,7 @@ async function forceRefreshCurrentPage() {
     pageFlags.hasAutomaticArchivePolicy ||
     pageFlags.hasMicroManagerIngest ||
     pageFlags.hasIndexingView ||
+    pageFlags.hasMiscStorageView ||
     pageFlags.hasPipelinesView ||
     pageFlags.hasUsersView ||
     pageFlags.hasSessionsView ||
@@ -8298,6 +8566,12 @@ if (els.externalMatchStatusFilter) els.externalMatchStatusFilter.addEventListene
 if (els.externalMatchSelectAll) els.externalMatchSelectAll.addEventListener("change", (event) => {
   setSelectedExternalMatchCandidateIds(Boolean(event.target.checked) ? visibleExternalMatchCandidateIds() : []);
 });
+if (els.externalMatchSelectVisibleButton) els.externalMatchSelectVisibleButton.addEventListener("click", () => {
+  setSelectedExternalMatchCandidateIds(visibleExternalMatchCandidateIds());
+});
+if (els.externalMatchClearSelectionButton) els.externalMatchClearSelectionButton.addEventListener("click", () => {
+  setSelectedExternalMatchCandidateIds([]);
+});
 if (els.externalMatchAcceptSelectedButton) els.externalMatchAcceptSelectedButton.addEventListener("click", () => reviewSelectedExternalMatchCandidates("accept").catch((error) => {
   setStatus(String(error));
   window.alert(String(error));
@@ -8362,6 +8636,13 @@ if (els.indexJobsClearStaleButton) els.indexJobsClearStaleButton.addEventListene
 if (els.migrationCreateButton) els.migrationCreateButton.addEventListener("click", () => createMigrationPlan().catch((error) => setStatus(String(error))));
 if (els.migrationRefreshButton) els.migrationRefreshButton.addEventListener("click", () => refreshMigrationPlans().catch((error) => setStatus(String(error))));
 if (els.migrationExecutePilotButton) els.migrationExecutePilotButton.addEventListener("click", () => executePilotBatch().catch((error) => setStatus(String(error))));
+if (els.miscInventoryButton) els.miscInventoryButton.addEventListener("click", () => queueMiscStorageInventory().catch((error) => setStatus(String(error))));
+if (els.miscRefreshButton) els.miscRefreshButton.addEventListener("click", () => refreshMiscStorageItems().catch((error) => setStatus(String(error))));
+if (els.miscSearch) els.miscSearch.addEventListener("input", () => renderMiscStorageItems());
+if (els.miscOwnerFilter) els.miscOwnerFilter.addEventListener("change", () => refreshMiscStorageItems().catch((error) => setStatus(String(error))));
+if (els.miscCategoryFilter) els.miscCategoryFilter.addEventListener("change", () => refreshMiscStorageItems().catch((error) => setStatus(String(error))));
+if (els.miscStatusFilter) els.miscStatusFilter.addEventListener("change", () => refreshMiscStorageItems().catch((error) => setStatus(String(error))));
+if (els.miscMinSizeFilterGb) els.miscMinSizeFilterGb.addEventListener("change", () => refreshMiscStorageItems().catch((error) => setStatus(String(error))));
 if (els.rawPreviewArchiveButton) els.rawPreviewArchiveButton.addEventListener("click", () => previewRawArchive().catch((error) => setStatus(String(error))));
 if (els.rawQueuePreviewButton) els.rawQueuePreviewButton.addEventListener("click", () => queueRawPreviewVideo("").catch((error) => setStatus(String(error))));
 if (els.rawRegeneratePreviewButton) els.rawRegeneratePreviewButton.addEventListener("click", () => regenerateRawPreviewVideos().catch((error) => setStatus(String(error))));

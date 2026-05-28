@@ -32,6 +32,7 @@ class User(Base):
     owned_projects: Mapped[list["Project"]] = relationship(back_populates="owner")
     owned_experiment_projects: Mapped[list["ExperimentProject"]] = relationship(back_populates="owner")
     owned_raw_datasets: Mapped[list["RawDataset"]] = relationship(back_populates="owner")
+    owned_misc_storage_items: Mapped[list["MiscStorageItem"]] = relationship(back_populates="owner")
     project_acl_entries: Mapped[list["ProjectAcl"]] = relationship(back_populates="user")
     project_groups: Mapped[list["ProjectGroup"]] = relationship(back_populates="owner")
     project_notes: Mapped[list["ProjectNote"]] = relationship(back_populates="author")
@@ -71,6 +72,7 @@ class StorageRoot(Base):
 
     project_locations: Mapped[list["ProjectLocation"]] = relationship(back_populates="storage_root")
     raw_dataset_locations: Mapped[list["RawDatasetLocation"]] = relationship(back_populates="storage_root")
+    misc_storage_items: Mapped[list["MiscStorageItem"]] = relationship(back_populates="storage_root")
     acquisition_sessions: Mapped[list["AcquisitionSession"]] = relationship(back_populates="landing_storage_root")
     user_storage_accounts: Mapped[list["UserStorageAccount"]] = relationship(back_populates="home_storage_root")
 
@@ -277,6 +279,55 @@ class RawDatasetLocation(Base):
 
     raw_dataset: Mapped[RawDataset] = relationship(back_populates="locations")
     storage_root: Mapped[StorageRoot] = relationship(back_populates="raw_dataset_locations")
+
+
+class MiscStorageItem(Base):
+    __tablename__ = "misc_storage_items"
+    __table_args__ = (
+        UniqueConstraint("storage_root_id", "relative_path", name="uq_misc_storage_items_root_path"),
+    )
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    parent_item_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("misc_storage_items.id", ondelete="SET NULL")
+    )
+    owner_user_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("users.id", ondelete="SET NULL")
+    )
+    storage_root_id: Mapped[int] = mapped_column(
+        ForeignKey("storage_roots.id", ondelete="RESTRICT"), nullable=False
+    )
+    relative_path: Mapped[str] = mapped_column(Text, nullable=False)
+    display_name: Mapped[str] = mapped_column(Text, nullable=False)
+    item_kind: Mapped[str] = mapped_column(String, nullable=False, default="directory")
+    category: Mapped[str] = mapped_column(String, nullable=False, default="unknown")
+    status: Mapped[str] = mapped_column(String, nullable=False, default="indexed")
+    visibility: Mapped[str] = mapped_column(String, nullable=False, default="private")
+    scan_depth: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    scan_status: Mapped[str] = mapped_column(String, nullable=False, default="measured")
+    total_bytes: Mapped[int] = mapped_column(BIGINT, nullable=False, default=0)
+    child_dir_count: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    child_file_count: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    last_size_scan_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    last_seen_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    notes: Mapped[str | None] = mapped_column(Text)
+    lifecycle_tier: Mapped[str] = mapped_column(String, nullable=False, default="hot")
+    archive_status: Mapped[str] = mapped_column(String, nullable=False, default="none")
+    archive_uri: Mapped[str | None] = mapped_column(Text)
+    backup_status: Mapped[str] = mapped_column(String, nullable=False, default="none")
+    backup_excluded: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
+    last_backup_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    backup_snapshot_id: Mapped[str | None] = mapped_column(Text)
+    metadata_json: Mapped[dict] = mapped_column(JSONB, nullable=False, default=dict)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
+    )
+
+    owner: Mapped[User | None] = relationship(back_populates="owned_misc_storage_items")
+    storage_root: Mapped[StorageRoot] = relationship(back_populates="misc_storage_items")
+    parent_item: Mapped["MiscStorageItem | None"] = relationship(remote_side=[id], back_populates="child_items")
+    child_items: Mapped[list["MiscStorageItem"]] = relationship(back_populates="parent_item")
 
 
 class RawDatasetPosition(Base):

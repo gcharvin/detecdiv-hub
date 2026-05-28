@@ -19,6 +19,7 @@ from api.services.micromanager_ingest import (
 from api.routes_micromanager_ingest import micromanager_landing_root_summary
 from api.services.raw_preview_settings import RawPreviewRuntimeConfig
 from api.services.raw_dataset_ingest import discover_raw_dataset_positions
+from api.services.project_indexing import iter_orphan_raw_candidates, looks_like_raw_dataset_dir
 from worker.raw_preview_video import (
     find_first_zarr_array_dir,
     try_read_v3_ome_writers_preview_frames,
@@ -64,6 +65,17 @@ def test_discover_micromanager_candidates_finds_orphan_zarr_child(tmp_path):
 
     assert [candidate.dataset_dir for candidate in candidates] == [dataset_dir.resolve()]
     assert candidates[0].relative_path == "test.ome.zarr"
+
+
+def test_orphan_raw_candidates_accept_parent_with_position_metadata(tmp_path):
+    dataset_dir = tmp_path / "20220128_wt_pma1_yra1_ifh1_1"
+    pos_dir = dataset_dir / "Pos0"
+    pos_dir.mkdir(parents=True)
+    (pos_dir / "metadata.txt").write_text(json.dumps({"Summary": {"Frames": 3}}), encoding="utf-8")
+    (pos_dir / "img_channel000_position000_time000000000_z000.tif").write_bytes(b"tiff")
+
+    assert looks_like_raw_dataset_dir(dataset_dir)
+    assert list(iter_orphan_raw_candidates(tmp_path, project_dirs=[])) == [dataset_dir]
 
 
 def test_discover_micromanager_candidates_infers_owner_from_acquisitions_path(tmp_path):
