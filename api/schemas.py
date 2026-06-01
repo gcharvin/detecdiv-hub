@@ -1621,10 +1621,27 @@ class PipelineRunCreateRequest(HubBaseModel):
     pipeline_ref: dict[str, Any] = Field(default_factory=dict)
     run_request: dict[str, Any] = Field(default_factory=dict)
     execution: dict[str, Any] = Field(default_factory=dict)
+    client_context: dict[str, Any] = Field(default_factory=dict)
 
 
 class PipelineRunSummary(JobSummary):
     pass
+
+
+class PipelineRunPreflightIssue(HubBaseModel):
+    severity: str
+    code: str
+    message: str
+    details: dict[str, Any] = Field(default_factory=dict)
+
+
+class PipelineRunPreflightResult(HubBaseModel):
+    can_submit: bool
+    project_id: UUID | None = None
+    pipeline_id: UUID | None = None
+    execution_target_id: UUID | None = None
+    normalized_payload: dict[str, Any] = Field(default_factory=dict)
+    issues: list[PipelineRunPreflightIssue] = Field(default_factory=list)
 
 
 class PipelineRunUpdateRequest(HubBaseModel):
@@ -1639,6 +1656,7 @@ class PipelineRunUpdateRequest(HubBaseModel):
     pipeline_ref: dict[str, Any] | None = None
     run_request: dict[str, Any] | None = None
     execution: dict[str, Any] | None = None
+    client_context: dict[str, Any] | None = None
 
 
 class ExecutionTargetSummary(HubBaseModel):

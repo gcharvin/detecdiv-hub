@@ -221,11 +221,29 @@ Recommended additions in `params_json`:
 Recommended future API specialization:
 
 - `POST /pipeline-runs`
+- `POST /pipeline-runs/submit-prepared`
+- `POST /pipeline-runs/preflight`
 - `GET /pipeline-runs`
 - `GET /pipeline-runs/{job_id}`
 - `POST /pipeline-runs/{job_id}/cancel`
 
 These can still persist into the generic `jobs` table internally.
+
+`POST /pipeline-runs/submit-prepared` is the preferred route for DetecDiv or
+catalog clients that already built the run request locally. `POST
+/pipeline-runs` remains available for the hub web UI and administrative tools.
+Both routes store the same `params_json` shape and create the same
+`job_kind = "pipeline_run"` worker job.
+
+`POST /pipeline-runs/preflight` validates the prepared payload before queueing:
+
+- project visibility and edit access
+- active project write locks
+- registry pipeline and execution-target existence
+- basic run-request shape
+- non-interactive server execution constraints
+- availability of either a registered project location or an explicit
+  `project_mat_path` hint
 
 ## 9. Execution targets
 
@@ -282,16 +300,18 @@ The same project browser may stay dual-mode, but run creation should rely on one
 
 ### Hub web UI
 
-The missing server-side surface is mainly:
+The hub web UI should primarily expose:
 
-- choose a project
-- choose a pipeline or bundle
-- define selected nodes and overrides
-- define Python/GPU policy
-- choose execution target
-- submit and monitor the run
+- run history for each project
+- queued/running/done/failed status
+- live progress, logs, result JSON, and artifacts
+- cancellation of queued or running runs
+- advanced/manual run submission for admin and debug use
 
-This is the main missing product surface today.
+Full scientific run authoring should normally happen in DetecDiv on the local
+workstation, because that is where the project, pipeline, selections, and
+parameters are already in context. The web builder is therefore an advanced
+fallback, not the main user workflow.
 
 ## 12. Artifacts and synchronization
 
@@ -317,10 +337,12 @@ After a local or remote run, the owning client may refresh the project from disk
 
 ### Phase 2
 - Add server execution target routes and UI.
-- Add a basic web run builder in the hub.
+- Add a hub run monitor and an advanced web run builder.
 - Add catalog actions:
   - `Run locally`
   - `Submit to hub`
+- Make DetecDiv/catalog submission use `POST /pipeline-runs/preflight` followed
+  by `POST /pipeline-runs/submit-prepared`.
 
 ### Phase 3
 - Prefer portable pipeline bundles for hub execution.
