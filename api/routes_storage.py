@@ -177,6 +177,8 @@ def list_misc_storage_items(
         stmt = stmt.where(MiscStorageItem.category == category)
     if status_filter:
         stmt = stmt.where(MiscStorageItem.status == status_filter)
+    else:
+        stmt = stmt.where(MiscStorageItem.status.notin_(("cataloged", "deleted")))
     if min_size_bytes is not None:
         stmt = stmt.where(MiscStorageItem.total_bytes >= max(int(min_size_bytes), 0))
     stmt = stmt.limit(min(max(int(limit), 1), 1000))

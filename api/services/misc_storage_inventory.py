@@ -12,7 +12,9 @@ from sqlalchemy.orm import Session
 
 from api.models import (
     MiscStorageItem,
+    Project,
     ProjectLocation,
+    RawDataset,
     RawDatasetLocation,
     StorageRoot,
     User,
@@ -50,6 +52,15 @@ class SizeProbe:
     error_text: str | None = None
 
 
+@dataclass
+class CatalogCoverage:
+    covered: bool
+    exact_match: bool
+    descendant_count: int
+    descendant_bytes: int
+    coverage_ratio: float
+
+
 def inventory_misc_storage(
     session: Session,
     *,
@@ -83,7 +94,7 @@ def inventory_misc_storage(
             host_scope=host_scope,
             root_type=root_type,
         )
-    cataloged_paths = set() if include_cataloged else load_cataloged_paths(session)
+    cataloged_paths = {} if include_cataloged else load_cataloged_paths(session)
     explicit_owner = find_user_by_key(session, owner_user_key) if owner_user_key else None
     run_metadata = dict(metadata_json or {})
     now = datetime.now(timezone.utc)
@@ -117,6 +128,13 @@ def inventory_misc_storage(
             relative_path=relative_path,
         )
         category = classify_misc_item(path, child_probe=child_probe, scan_status=size_probe.scan_status)
+        catalog_coverage = CatalogCoverage(False, False, 0, 0, 0.0)
+        if not include_cataloged:
+            catalog_coverage = calculate_catalog_coverage(
+                path_key=path_key,
+                total_bytes=size_probe.total_bytes,
+                cataloged_paths=cataloged_paths,
+            )
         metadata = {
             **run_metadata,
             "absolute_path": str(path),
@@ -125,9 +143,35 @@ def inventory_misc_storage(
             "min_size_bytes": min_size_bytes,
             "include_cataloged": include_cataloged,
             "catalog_overlap": path_key in cataloged_paths,
+            "catalog_covered": catalog_coverage.covered,
+            "catalog_descendant_count": catalog_coverage.descendant_count,
+            "catalog_descendant_bytes": catalog_coverage.descendant_bytes,
+            "catalog_coverage_ratio": catalog_coverage.coverage_ratio,
             "scan_error": size_probe.error_text,
             "child_probe_truncated": child_probe.truncated,
         }
+        if catalog_coverage.covered:
+            upsert_misc_item(
+                session,
+                storage_root=storage_root,
+                parent_item_id=parent_item_id if depth == 1 else None,
+                owner=owner,
+                relative_path=relative_path,
+                display_name=path.name,
+                item_kind="directory" if path.is_dir() else "file",
+                category="cataloged_container",
+                visibility=visibility,
+                status="cataloged",
+                scan_depth=depth,
+                scan_status=size_probe.scan_status,
+                total_bytes=size_probe.total_bytes,
+                child_dir_count=child_probe.child_dir_count,
+                child_file_count=child_probe.child_file_count,
+                metadata_json=metadata,
+                now=now,
+            )
+            skipped_count += 1
+            continue
         upsert_misc_item(
             session,
             storage_root=storage_root,
@@ -138,6 +182,7 @@ def inventory_misc_storage(
             item_kind="directory" if path.is_dir() else "file",
             category=category,
             visibility=visibility,
+            status="indexed",
             scan_depth=depth,
             scan_status=size_probe.scan_status,
             total_bytes=size_probe.total_bytes,
@@ -297,6 +342,7 @@ def upsert_misc_item(
     item_kind: str,
     category: str,
     visibility: str,
+    status: str,
     scan_depth: int,
     scan_status: str,
     total_bytes: int,
@@ -325,7 +371,7 @@ def upsert_misc_item(
     item.display_name = display_name
     item.item_kind = item_kind
     item.category = category
-    item.status = "indexed"
+    item.status = status
     item.visibility = visibility
     item.scan_depth = scan_depth
     item.scan_status = scan_status
@@ -338,22 +384,59 @@ def upsert_misc_item(
     return item
 
 
-def load_cataloged_paths(session: Session) -> set[str]:
-    paths: set[str] = set()
+def load_cataloged_paths(session: Session) -> dict[str, int]:
+    paths: dict[str, int] = {}
     rows = session.execute(
-        select(StorageRoot.path_prefix, ProjectLocation.relative_path)
+        select(StorageRoot.path_prefix, ProjectLocation.relative_path, Project.total_bytes)
         .join(ProjectLocation, ProjectLocation.storage_root_id == StorageRoot.id)
+        .join(Project, Project.id == ProjectLocation.project_id)
     )
-    for prefix, relative_path in rows:
-        paths.add(normalize_path(Path(prefix) / (relative_path or "")))
+    for prefix, relative_path, total_bytes in rows:
+        path_key = normalize_path(Path(prefix) / (relative_path or ""))
+        paths[path_key] = max(paths.get(path_key, 0), int(total_bytes or 0))
 
     rows = session.execute(
-        select(StorageRoot.path_prefix, RawDatasetLocation.relative_path)
+        select(StorageRoot.path_prefix, RawDatasetLocation.relative_path, RawDataset.total_bytes)
         .join(RawDatasetLocation, RawDatasetLocation.storage_root_id == StorageRoot.id)
+        .join(RawDataset, RawDataset.id == RawDatasetLocation.raw_dataset_id)
     )
-    for prefix, relative_path in rows:
-        paths.add(normalize_path(Path(prefix) / (relative_path or "")))
+    for prefix, relative_path, total_bytes in rows:
+        path_key = normalize_path(Path(prefix) / (relative_path or ""))
+        paths[path_key] = max(paths.get(path_key, 0), int(total_bytes or 0))
     return paths
+
+
+def calculate_catalog_coverage(
+    *,
+    path_key: str,
+    total_bytes: int,
+    cataloged_paths: dict[str, int],
+) -> CatalogCoverage:
+    if path_key in cataloged_paths:
+        return CatalogCoverage(True, True, 1, int(cataloged_paths.get(path_key) or 0), 1.0)
+
+    prefix = f"{path_key.rstrip('/')}/"
+    descendant_bytes = 0
+    descendant_count = 0
+    for catalog_path, catalog_bytes in cataloged_paths.items():
+        if catalog_path.startswith(prefix):
+            descendant_count += 1
+            descendant_bytes += int(catalog_bytes or 0)
+
+    if descendant_count == 0:
+        return CatalogCoverage(False, False, 0, 0, 0.0)
+
+    if total_bytes <= 0:
+        return CatalogCoverage(False, False, descendant_count, descendant_bytes, 0.0)
+
+    coverage_ratio = min(float(descendant_bytes) / float(total_bytes), 1.0)
+    return CatalogCoverage(
+        covered=coverage_ratio >= 0.9,
+        exact_match=False,
+        descendant_count=descendant_count,
+        descendant_bytes=descendant_bytes,
+        coverage_ratio=coverage_ratio,
+    )
 
 
 def relative_path_text(storage_root: StorageRoot, path: Path) -> str:
