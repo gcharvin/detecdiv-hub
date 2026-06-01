@@ -156,6 +156,105 @@ class StorageRootBrowseResponse(HubBaseModel):
     directories: list[StorageRootBrowseEntry] = Field(default_factory=list)
 
 
+class MiscStorageItemSummary(HubBaseModel):
+    id: UUID
+    parent_item_id: UUID | None = None
+    owner: UserSummary | None = None
+    storage_root: StorageRootSummary
+    relative_path: str
+    display_name: str
+    item_kind: str = "directory"
+    category: str = "unknown"
+    status: str = "indexed"
+    visibility: str = "private"
+    scan_depth: int = 0
+    scan_status: str = "measured"
+    total_bytes: int = 0
+    child_dir_count: int = 0
+    child_file_count: int = 0
+    lifecycle_tier: str = "hot"
+    archive_status: str = "none"
+    archive_uri: str | None = None
+    backup_status: str = "none"
+    backup_excluded: bool = False
+    last_size_scan_at: datetime | None = None
+    last_seen_at: datetime | None = None
+    last_backup_at: datetime | None = None
+    notes: str | None = None
+    metadata_json: dict[str, Any] = Field(default_factory=dict)
+    created_at: datetime | None = None
+    updated_at: datetime | None = None
+
+
+class MiscStorageItemUpdate(HubBaseModel):
+    owner_user_id: UUID | None = None
+    category: str | None = None
+    status: str | None = None
+    visibility: str | None = None
+    lifecycle_tier: str | None = None
+    archive_status: str | None = None
+    archive_uri: str | None = None
+    backup_status: str | None = None
+    backup_excluded: bool | None = None
+    notes: str | None = None
+    metadata_json: dict[str, Any] | None = None
+
+
+class MiscStorageInventoryRequest(HubBaseModel):
+    source_path: str
+    storage_root_id: int | None = None
+    parent_item_id: UUID | None = None
+    storage_root_name: str | None = None
+    host_scope: str = "server"
+    root_type: str = "misc_root"
+    owner_user_key: str | None = None
+    visibility: str = "private"
+    min_size_bytes: int = 10 * 1024 * 1024 * 1024
+    max_depth: int = 2
+    du_timeout_sec: float = 45.0
+    include_cataloged: bool = False
+    requested_mode: str = "server"
+    priority: int = 120
+    execution_target_id: UUID | None = None
+    execution_target_key: str | None = None
+    metadata_json: dict[str, Any] = Field(default_factory=dict)
+
+
+class MiscStorageInventoryResponse(HubBaseModel):
+    status: str
+    job_id: UUID | None = None
+    scanned_count: int = 0
+    indexed_count: int = 0
+    skipped_count: int = 0
+    timeout_count: int = 0
+    source_path: str
+    message: str
+
+
+class MiscStorageExploreChildrenRequest(HubBaseModel):
+    min_size_bytes: int = 1024 * 1024 * 1024
+    max_depth: int = 1
+    du_timeout_sec: float = 60.0
+    include_cataloged: bool = False
+    priority: int = 120
+    requested_mode: str = "server"
+    execution_target_id: UUID | None = None
+    execution_target_key: str | None = None
+    metadata_json: dict[str, Any] = Field(default_factory=dict)
+
+
+class MiscStorageIndexProjectsRequest(HubBaseModel):
+    storage_root_name: str | None = None
+    owner_user_key: str | None = None
+    visibility: str = "private"
+    clear_existing_for_root: bool = False
+    scan_orphan_raw: bool = True
+    queue_previews: bool = True
+    execution_target_id: UUID | None = None
+    execution_target_key: str | None = None
+    metadata_json: dict[str, Any] = Field(default_factory=dict)
+
+
 class StorageProviderSummary(HubBaseModel):
     id: UUID
     provider_key: str
@@ -1522,10 +1621,27 @@ class PipelineRunCreateRequest(HubBaseModel):
     pipeline_ref: dict[str, Any] = Field(default_factory=dict)
     run_request: dict[str, Any] = Field(default_factory=dict)
     execution: dict[str, Any] = Field(default_factory=dict)
+    client_context: dict[str, Any] = Field(default_factory=dict)
 
 
 class PipelineRunSummary(JobSummary):
     pass
+
+
+class PipelineRunPreflightIssue(HubBaseModel):
+    severity: str
+    code: str
+    message: str
+    details: dict[str, Any] = Field(default_factory=dict)
+
+
+class PipelineRunPreflightResult(HubBaseModel):
+    can_submit: bool
+    project_id: UUID | None = None
+    pipeline_id: UUID | None = None
+    execution_target_id: UUID | None = None
+    normalized_payload: dict[str, Any] = Field(default_factory=dict)
+    issues: list[PipelineRunPreflightIssue] = Field(default_factory=list)
 
 
 class PipelineRunUpdateRequest(HubBaseModel):
@@ -1540,6 +1656,7 @@ class PipelineRunUpdateRequest(HubBaseModel):
     pipeline_ref: dict[str, Any] | None = None
     run_request: dict[str, Any] | None = None
     execution: dict[str, Any] | None = None
+    client_context: dict[str, Any] | None = None
 
 
 class ExecutionTargetSummary(HubBaseModel):
@@ -1639,8 +1756,8 @@ class IndexRequest(HubBaseModel):
     owner_user_key: str | None = None
     visibility: str = "private"
     clear_existing_for_root: bool = False
-    scan_orphan_raw: bool = False
-    queue_previews: bool = False
+    scan_orphan_raw: bool = True
+    queue_previews: bool = True
     requested_by: str | None = None
     execution_target_id: UUID | None = None
     execution_target_key: str | None = None

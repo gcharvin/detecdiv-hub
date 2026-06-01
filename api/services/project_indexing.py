@@ -614,13 +614,13 @@ def iter_project_candidates(root_path: Path, progress_callback: Callable[..., No
 
 def classify_project_candidate(mat_path: Path) -> tuple[Path, Path] | None:
     mat_path = mat_path.resolve()
+    if has_path_part(mat_path, {".appledouble"}):
+        return None
     project_dir = mat_path.with_suffix("")
     if project_dir.is_dir() and is_detecdiv_project_dir(project_dir):
         return mat_path, project_dir.resolve()
 
-    if mat_path.name.lower() == f"{mat_path.parent.name.lower()}-project.mat" and is_detecdiv_project_dir(
-        mat_path.parent, project_mat_path=mat_path
-    ):
+    if mat_path.name.lower().endswith("-project.mat") and is_detecdiv_project_dir(mat_path.parent, project_mat_path=mat_path):
         return mat_path, mat_path.parent.resolve()
     return None
 
@@ -662,20 +662,53 @@ def is_detecdiv_project_dir(project_dir: Path, *, project_mat_path: Path | None 
 
 
 def is_legacy_matlab_timelapse_project_dir(project_dir: Path, *, project_mat_path: Path | None = None) -> bool:
-    expected_project_mat = project_dir / f"{project_dir.name}-project.mat"
-    mat_candidate = project_mat_path.resolve() if project_mat_path is not None else expected_project_mat.resolve()
-    if mat_candidate != expected_project_mat.resolve():
+    project_mat = legacy_project_mat_path(project_dir, project_mat_path=project_mat_path)
+    if project_mat is None:
         return False
-    if not expected_project_mat.is_file():
-        return False
-    if find_legacy_timelapse_id_file(project_dir) is None:
+    prefix = legacy_project_prefix(project_mat)
+    if not prefix:
         return False
     try:
         children = [entry for entry in project_dir.iterdir() if entry.is_dir()]
     except OSError:
         return False
-    prefix = f"{project_dir.name.lower()}-pos"
-    return any(entry.name.lower().startswith(prefix) for entry in children)
+    position_prefix = f"{prefix.lower()}-pos"
+    if any(entry.name.lower().startswith(position_prefix) for entry in children):
+        return True
+
+    # Older DetecDiv MATLAB timelapse projects sometimes have <folder>-project.mat
+    # plus a sibling *-id.txt but no position folders left next to the project file.
+    if find_legacy_timelapse_id_file(project_dir) is not None and project_mat.name.lower() == f"{project_dir.name.lower()}-project.mat":
+        return True
+    return False
+
+
+def legacy_project_mat_path(project_dir: Path, *, project_mat_path: Path | None = None) -> Path | None:
+    if project_mat_path is not None:
+        candidate = project_mat_path.resolve()
+        if candidate.parent != project_dir.resolve():
+            return None
+        if candidate.name.lower().endswith("-project.mat") and not is_backup_project_mat(candidate):
+            return candidate
+        return None
+
+    expected_project_mat = project_dir / f"{project_dir.name}-project.mat"
+    if expected_project_mat.is_file() and not is_backup_project_mat(expected_project_mat):
+        return expected_project_mat.resolve()
+    return None
+
+
+def legacy_project_prefix(project_mat_path: Path) -> str:
+    suffix = "-project.mat"
+    name = project_mat_path.name
+    if not name.lower().endswith(suffix):
+        return ""
+    return name[: -len(suffix)]
+
+
+def is_backup_project_mat(project_mat_path: Path) -> bool:
+    name = project_mat_path.name.lower()
+    return name == "bk-project.mat" or name.startswith("bk-") or name.startswith("backup")
 
 
 def is_legacy_matlab_timelapse_dataset_dir(dataset_dir: Path) -> bool:
@@ -1054,6 +1087,7 @@ def scan_project_raw_sources(
             session,
             owner=owner,
             visibility=visibility,
+            mat_path=mat_path,
             project_dir=project_dir,
             queue_previews=queue_previews,
         )
@@ -1138,6 +1172,7 @@ def scan_legacy_matlab_timelapse_project(
     *,
     owner: User,
     visibility: str,
+    mat_path: Path,
     project_dir: Path,
     queue_previews: bool = False,
 ) -> RawSourceScanResult:
@@ -1167,7 +1202,7 @@ def scan_legacy_matlab_timelapse_project(
     if position_count <= 0:
         position_count = len(parsed_metadata.get("positions") or []) if isinstance(parsed_metadata, dict) else 0
     if position_count <= 0:
-        position_count = count_legacy_position_dirs(project_dir)
+        position_count = count_legacy_position_dirs(project_dir, project_mat_path=mat_path)
 
     return RawSourceScanResult(
         fov_count=position_count,
@@ -1190,8 +1225,10 @@ def scan_legacy_matlab_timelapse_project(
     )
 
 
-def count_legacy_position_dirs(project_dir: Path) -> int:
-    prefix = f"{project_dir.name.lower()}-pos"
+def count_legacy_position_dirs(project_dir: Path, *, project_mat_path: Path | None = None) -> int:
+    project_mat = legacy_project_mat_path(project_dir, project_mat_path=project_mat_path)
+    prefix_text = legacy_project_prefix(project_mat) if project_mat is not None else project_dir.name
+    prefix = f"{prefix_text.lower()}-pos"
     try:
         return sum(1 for entry in project_dir.iterdir() if entry.is_dir() and entry.name.lower().startswith(prefix))
     except OSError:
@@ -1603,8 +1640,14 @@ def looks_like_raw_dataset_dir(path: Path) -> bool:
     except OSError:
         return False
 
+    if any(name.endswith(".nd2") for name in child_names):
+        return True
+
     has_mm_markers = bool(_MICROMANAGER_MARKER_FILES.intersection(child_names))
+    has_position_dirs_with_mm_markers = False
     if not has_mm_markers:
+        has_position_dirs_with_mm_markers = has_position_child_with_micromanager_markers(path)
+    if not has_mm_markers and not has_position_dirs_with_mm_markers:
         return False
 
     if name_lower.startswith("pos"):
@@ -1628,6 +1671,22 @@ def looks_like_raw_dataset_dir(path: Path) -> bool:
         return False
 
     return True
+
+
+def has_position_child_with_micromanager_markers(path: Path) -> bool:
+    try:
+        for entry in path.iterdir():
+            if not entry.is_dir() or not is_position_like_name(entry.name):
+                continue
+            try:
+                child_file_names = {child.name.lower() for child in entry.iterdir() if child.is_file()}
+            except OSError:
+                continue
+            if _MICROMANAGER_MARKER_FILES.intersection(child_file_names):
+                return True
+    except OSError:
+        return False
+    return False
 
 
 def iter_orphan_raw_candidates(root: Path, *, project_dirs: list[Path], max_depth: int = 5):
@@ -1683,9 +1742,6 @@ def get_or_create_raw_dataset_for_path(
     from api.services.raw_dataset_ingest import ingest_raw_dataset_from_directory
 
     existing = find_existing_raw_dataset_for_path(session, dataset_dir=dataset_dir)
-    if existing is not None:
-        return existing
-
     root_path = resolve_raw_root_path(session, dataset_dir=dataset_dir)
     root = session.scalars(select(StorageRoot).where(StorageRoot.path_prefix == str(root_path))).first()
     root_name = root.name if root is not None else None
@@ -1698,6 +1754,7 @@ def get_or_create_raw_dataset_for_path(
         root_type=(root.root_type if root is not None else "raw_root"),
         root_path=root_path,
         dataset_dir=dataset_dir,
+        external_key=(existing.external_key if existing is not None else None),
         source_label="project_srcpath_relink",
         source_metadata={"source_project_scan": True},
         acquisition_label=dataset_dir.name,

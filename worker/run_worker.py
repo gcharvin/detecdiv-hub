@@ -27,6 +27,7 @@ from api.services.worker_instances import (
 from worker.archive_policy_scheduler import run_archive_policy_if_due
 from worker.backup_executor import BACKUP_JOB_KINDS, execute_backup_job, finalize_backup_failure
 from worker.backup_scheduler import run_backup_if_due
+from worker.misc_storage_inventory import execute_misc_storage_inventory_job
 from worker.micromanager_ingest_scheduler import run_micromanager_ingest_if_due
 from worker.pipeline_run_executor import PipelineRunCancelled, execute_pipeline_run_job
 from worker.storage_lifecycle import execute_storage_lifecycle_job, finalize_storage_lifecycle_failure
@@ -428,6 +429,14 @@ def execute_job(job: Job) -> dict:
                 raise ValueError(f"Job {job.id} disappeared before execution")
             result_json = execute_user_home_storage_job(session, job=job_record)
             result_json["worker_host"] = socket.gethostname()
+            result_json["worker_instance"] = get_worker_instance_id()
+            return result_json
+    if job_kind == "misc_storage_inventory":
+        with session_scope() as session:
+            job_record = session.get(Job, job.id)
+            if job_record is None:
+                raise ValueError(f"Job {job.id} disappeared before execution")
+            result_json = execute_misc_storage_inventory_job(session, job=job_record)
             result_json["worker_instance"] = get_worker_instance_id()
             return result_json
 

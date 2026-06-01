@@ -400,6 +400,7 @@ const els = {
   pipelineRunNodeParams: document.querySelector("#pipeline-run-node-params"),
   pipelineRunSelectionSummary: document.querySelector("#pipeline-run-selection-summary"),
   pipelineRunEditorMode: document.querySelector("#pipeline-run-editor-mode"),
+  pipelineRunAdvancedPanel: document.querySelector(".advanced-run-builder"),
   refreshPipelineRunsButton: document.querySelector("#refresh-pipeline-runs-button"),
   newPipelineRunButton: document.querySelector("#new-pipeline-run-button"),
   cancelPipelineRunButton: document.querySelector("#cancel-pipeline-run-button"),
@@ -2293,7 +2294,7 @@ function renderPipelineRunBuilder() {
       els.submitPipelineRunButton.textContent = "Save run";
     } else {
       els.pipelineRunEditorMode.textContent = "Create mode.";
-      els.submitPipelineRunButton.textContent = "Submit run";
+      els.submitPipelineRunButton.textContent = "Submit advanced run";
     }
   }
 }
@@ -2359,6 +2360,9 @@ function loadPipelineRunIntoForm(run) {
     return;
   }
   state.selectedPipelineRun = run;
+  if (els.pipelineRunAdvancedPanel) {
+    els.pipelineRunAdvancedPanel.open = true;
+  }
   const params = run.params_json || {};
   const rr = params.run_request || {};
   const exec = params.execution || {};
@@ -3126,6 +3130,13 @@ function buildPipelineRunPayload() {
       requested_mode: requestedMode,
       execution_target_id: resolvePipelineRunTarget()?.id || null,
       allow_gui: false,
+      interactive: false,
+      save_project: true,
+    },
+    client_context: {
+      submitted_via: "hub_web_advanced_builder",
+      browser_host: window.location.hostname || null,
+      page: pageFlags.hasProjectPage ? "project" : "catalog",
     },
   };
 }
@@ -3169,13 +3180,23 @@ async function refreshExecutionTargets() {
 async function submitPipelineRun() {
   const payload = buildPipelineRunPayload();
   const project = resolvePipelineRunProject();
+  let warnings = [];
+  if (!state.selectedPipelineRun) {
+    const preflight = await apiPost("/pipeline-runs/preflight", payload);
+    if (!preflight.can_submit) {
+      const issues = (preflight.issues || []).filter((item) => item.severity === "error");
+      throw new Error(`Pipeline run preflight failed: ${issues.map((item) => item.message).join(" ")}`);
+    }
+    warnings = (preflight.issues || []).filter((item) => item.severity === "warning");
+  }
   let saved;
   if (state.selectedPipelineRun) {
     saved = await apiPatch(`/pipeline-runs/${state.selectedPipelineRun.id}`, payload);
     setStatus(`Updated pipeline run ${saved.id} for ${project.project_name}.`);
   } else {
     saved = await apiPost("/pipeline-runs", payload);
-    setStatus(`Queued pipeline run ${saved.id} for ${project.project_name}.`);
+    const warningText = warnings.length ? ` Warning: ${warnings.map((item) => item.message).join(" ")}` : "";
+    setStatus(`Queued pipeline run ${saved.id} for ${project.project_name}.${warningText}`);
   }
   state.selectedPipelineRun = saved;
   await refreshPipelineRuns();

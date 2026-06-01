@@ -141,6 +141,38 @@ CREATE TABLE IF NOT EXISTS raw_dataset_locations (
     UNIQUE(raw_dataset_id, storage_root_id, relative_path)
 );
 
+CREATE TABLE IF NOT EXISTS misc_storage_items (
+    id UUID PRIMARY KEY,
+    parent_item_id UUID REFERENCES misc_storage_items(id) ON DELETE SET NULL,
+    owner_user_id UUID REFERENCES users(id) ON DELETE SET NULL,
+    storage_root_id BIGINT NOT NULL REFERENCES storage_roots(id) ON DELETE RESTRICT,
+    relative_path TEXT NOT NULL,
+    display_name TEXT NOT NULL,
+    item_kind TEXT NOT NULL DEFAULT 'directory',
+    category TEXT NOT NULL DEFAULT 'unknown',
+    status TEXT NOT NULL DEFAULT 'indexed',
+    visibility TEXT NOT NULL DEFAULT 'private',
+    scan_depth INTEGER NOT NULL DEFAULT 0,
+    scan_status TEXT NOT NULL DEFAULT 'measured',
+    total_bytes BIGINT NOT NULL DEFAULT 0,
+    child_dir_count INTEGER NOT NULL DEFAULT 0,
+    child_file_count INTEGER NOT NULL DEFAULT 0,
+    last_size_scan_at TIMESTAMPTZ,
+    last_seen_at TIMESTAMPTZ,
+    notes TEXT,
+    lifecycle_tier TEXT NOT NULL DEFAULT 'hot',
+    archive_status TEXT NOT NULL DEFAULT 'none',
+    archive_uri TEXT,
+    backup_status TEXT NOT NULL DEFAULT 'none',
+    backup_excluded BOOLEAN NOT NULL DEFAULT FALSE,
+    last_backup_at TIMESTAMPTZ,
+    backup_snapshot_id TEXT,
+    metadata_json JSONB NOT NULL DEFAULT '{}'::jsonb,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    UNIQUE(storage_root_id, relative_path)
+);
+
 CREATE TABLE IF NOT EXISTS raw_dataset_positions (
     id UUID PRIMARY KEY,
     raw_dataset_id UUID NOT NULL REFERENCES raw_datasets(id) ON DELETE CASCADE,
@@ -674,6 +706,13 @@ CREATE INDEX IF NOT EXISTS idx_jobs_project_id ON jobs(project_id);
 CREATE INDEX IF NOT EXISTS idx_raw_datasets_status ON raw_datasets(status, completeness_status);
 CREATE INDEX IF NOT EXISTS idx_raw_datasets_owner_user_id ON raw_datasets(owner_user_id);
 CREATE INDEX IF NOT EXISTS idx_raw_datasets_lifecycle_tier ON raw_datasets(lifecycle_tier, archive_status);
+CREATE INDEX IF NOT EXISTS idx_misc_storage_items_owner_user_id ON misc_storage_items(owner_user_id);
+CREATE INDEX IF NOT EXISTS idx_misc_storage_items_parent_item_id ON misc_storage_items(parent_item_id);
+CREATE INDEX IF NOT EXISTS idx_misc_storage_items_storage_root ON misc_storage_items(storage_root_id, relative_path);
+CREATE INDEX IF NOT EXISTS idx_misc_storage_items_category ON misc_storage_items(category, status);
+CREATE INDEX IF NOT EXISTS idx_misc_storage_items_total_bytes ON misc_storage_items(total_bytes DESC);
+CREATE INDEX IF NOT EXISTS idx_misc_storage_items_lifecycle ON misc_storage_items(lifecycle_tier, archive_status);
+CREATE INDEX IF NOT EXISTS idx_misc_storage_items_backup ON misc_storage_items(backup_status, backup_excluded);
 CREATE INDEX IF NOT EXISTS idx_raw_dataset_positions_raw_dataset_id ON raw_dataset_positions(raw_dataset_id, position_index, position_key);
 CREATE INDEX IF NOT EXISTS idx_raw_dataset_positions_preview_status ON raw_dataset_positions(preview_status);
 CREATE INDEX IF NOT EXISTS idx_project_acl_user_id ON project_acl(user_id);

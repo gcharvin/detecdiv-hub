@@ -786,6 +786,18 @@ tbody tr.selected {
   white-space: pre-wrap;
 }
 
+.advanced-run-builder {
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px solid var(--line);
+}
+
+.advanced-run-builder summary {
+  cursor: pointer;
+  color: var(--text);
+  font-weight: 700;
+}
+
 .subpanel {
   margin-top: 18px;
   padding-top: 16px;

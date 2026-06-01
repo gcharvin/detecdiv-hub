@@ -52,6 +52,11 @@ pip install -e .[dev]
 '
 ```
 
+The base install includes `nd2[legacy]` for Nikon `.nd2` metadata extraction and
+preview support. Keep it installed on both API and worker runtimes; without it,
+the hub can still index generic folder structures but cannot inspect ND2 files
+or generate ND2-backed previews.
+
 ## 4. Create PostgreSQL database and role
 
 ```bash

@@ -190,6 +190,32 @@ DETECDIV_HUB_WORKER_TARGET_KEY=detecdiv-server
 DETECDIV_HUB_WORKER_POLL_INTERVAL_SEC=5
 ```
 
+## Python Runtime Dependencies
+
+Both the API image and the remote worker environment install the package from
+`pyproject.toml`, constrained by `constraints.txt` in the live deployment. Keep
+these two files synchronized when adding runtime dependencies.
+
+ND2 support depends on the `nd2[legacy]` Python package. It is required for
+Nikon `.nd2` metadata extraction and future preview generation without reading
+the complete acquisition into memory. The `legacy` extra pulls in the native
+codecs needed by older Nikon files commonly found in legacy microscope data.
+
+After updating these dependency files:
+
+```bash
+# API container on webserver-labo
+cd /home/charvin-admin/repos/detecdiv-hub-webvm/ops/compose/webserver-labo
+docker-compose up -d --build
+```
+
+```bash
+# worker virtual environment on detecdiv-server
+cd /home/charvin-admin/repos/detecdiv-hub-webvm
+. .venv/bin/activate
+python -m pip install -c constraints.txt -e .
+```
+
 Important details:
 
 - From the worker host, the database hostname must be `192.168.122.185`, not the
