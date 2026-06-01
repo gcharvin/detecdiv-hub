@@ -1,0 +1,11 @@
+[Unit]
+Description=Ensure DetecDiv Hub API sees /data after boot
+Requires=detecdiv-data-share.service docker.service
+After=detecdiv-data-share.service docker.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/detecdiv-webvm-after-data.sh
+
+[Install]
+WantedBy=multi-user.target

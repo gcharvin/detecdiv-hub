@@ -1,0 +1,17 @@
+[Unit]
+Description=Mount DetecDiv data share from detecdiv-server
+Wants=network-online.target
+After=network-online.target
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+ExecStartPre=/bin/mkdir -p /data
+ExecStart=/usr/bin/sshfs -f -o reconnect,ServerAliveInterval=15,ServerAliveCountMax=3,IdentityFile=/root/.ssh/detecdiv_hub_data,StrictHostKeyChecking=accept-new,allow_other,default_permissions,uid=1000,gid=1000 charvin-admin@10.20.11.100:/data /data
+ExecStop=/usr/bin/fusermount3 -u /data
+Restart=on-failure
+RestartSec=15
+TimeoutStartSec=90
+
+[Install]
+WantedBy=multi-user.target
