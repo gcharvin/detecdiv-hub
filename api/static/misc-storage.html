@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Detecdiv server - Misc Storage</title>
+    <link rel="stylesheet" href="/web/styles.css?v=20260507-ui1" />
+  </head>
+  <body data-page="misc-storage">
+    <div class="page-shell">
+      <section id="login-panel" class="panel login-panel hidden">
+        <div class="panel-header">
+          <div>
+            <h2>Login</h2>
+            <p class="muted">Open a hub session with a user key and password.</p>
+          </div>
+        </div>
+        <div class="toolbar">
+          <label class="field compact">
+            <span>User key</span>
+            <input id="login-user-key" type="text" placeholder="admin" />
+          </label>
+          <label class="field compact">
+            <span>Password</span>
+            <input id="login-password" type="password" placeholder="password" />
+          </label>
+          <button id="login-button" class="primary">Login</button>
+        </div>
+      </section>
+
+      <header class="hero">
+        <div>
+          <div class="eyebrow">DetecDiv Hub</div>
+          <h1>Misc Storage</h1>
+          <p class="hero-copy">
+            Inventory large folders that are not cataloged as DetecDiv projects or raw datasets.
+          </p>
+        </div>
+        <div class="hero-actions">
+          <nav class="hero-nav">
+            <a class="nav-link" href="/web/">Project Catalog</a>
+            <a class="nav-link" href="/web/raw-datasets.html">Raw datasets Catalog</a>
+            <a class="nav-link active" href="/web/misc-storage.html">Misc Storage</a>
+            <a class="nav-link" href="/web/raw-ops.html">Raw datasets Ops</a>
+            <a class="nav-link" href="/web/indexing.html">Projects Ops</a>
+            <a class="nav-link admin-nav-link hidden" href="/web/admin.html">Admin</a>
+          </nav>
+          <div class="session-box">
+            <div id="session-label" class="muted">Not logged in.</div>
+            <button id="logout-button">Logout</button>
+          </div>
+        </div>
+      </header>
+
+      <section class="summary-grid" id="summary-grid">
+        <article class="summary-card">
+          <div class="summary-label">Misc Items</div>
+          <div id="misc-summary-count" class="summary-value">0</div>
+        </article>
+        <article class="summary-card">
+          <div class="summary-label">Measured Storage</div>
+          <div id="misc-summary-total-bytes" class="summary-value">0 B</div>
+        </article>
+        <article class="summary-card">
+          <div class="summary-label">Measured</div>
+          <div id="misc-summary-measured-count" class="summary-value">0</div>
+        </article>
+        <article class="summary-card">
+          <div class="summary-label">Timed Out</div>
+          <div id="misc-summary-timeout-count" class="summary-value">0</div>
+        </article>
+      </section>
+
+      <section class="panel">
+        <div class="panel-header">
+          <div>
+            <h2>Launch Inventory</h2>
+            <p class="muted">Queue a shallow server-side inventory job for large uncataloged folders.</p>
+          </div>
+          <div class="status-pill" id="user-label">Signed in: not connected</div>
+        </div>
+        <div class="index-form">
+          <label class="field">
+            <span>Source path</span>
+            <input id="misc-source-path" type="text" value="/data" />
+          </label>
+          <label class="field compact">
+            <span>Storage root name</span>
+            <input id="misc-storage-root-name" type="text" placeholder="data_misc" />
+          </label>
+          <label class="field compact">
+            <span>Owner override</span>
+            <select id="misc-owner-user-key"></select>
+          </label>
+          <label class="field compact">
+            <span>Min size GB</span>
+            <input id="misc-min-size-gb" type="number" min="0" step="1" value="10" />
+          </label>
+          <label class="field compact">
+            <span>Max depth</span>
+            <input id="misc-max-depth" type="number" min="1" max="5" step="1" value="2" />
+          </label>
+          <label class="field compact">
+            <span>du timeout sec</span>
+            <input id="misc-du-timeout-sec" type="number" min="1" step="1" value="45" />
+          </label>
+          <label class="toggle">
+            <input id="misc-include-cataloged" type="checkbox" />
+            <span>Include cataloged project/raw paths</span>
+          </label>
+          <button id="misc-inventory-button" class="primary">Queue inventory</button>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-header">
+          <div>
+            <h2>Misc Storage Items</h2>
+            <p class="muted">Folders are listed separately from projects and raw datasets.</p>
+          </div>
+          <div class="action-stack">
+            <div id="misc-count-label" class="status-pill">0 items</div>
+            <button id="misc-refresh-button">Refresh</button>
+          </div>
+        </div>
+        <div class="toolbar compact-toolbar">
+          <label class="field">
+            <span>Search</span>
+            <input id="misc-search" type="search" placeholder="Path, owner, category" />
+          </label>
+          <label class="field compact">
+            <span>Owner</span>
+            <select id="misc-owner-filter"></select>
+          </label>
+          <label class="field compact">
+            <span>Category</span>
+            <select id="misc-category-filter">
+              <option value="">All categories</option>
+              <option value="candidate_raw_dataset">candidate_raw_dataset</option>
+              <option value="legacy_project_candidate">legacy_project_candidate</option>
+              <option value="classifier_training">classifier_training</option>
+              <option value="no_backup">no_backup</option>
+              <option value="legacy_or_archive">legacy_or_archive</option>
+              <option value="software_or_code">software_or_code</option>
+              <option value="movies">movies</option>
+              <option value="image_files">image_files</option>
+              <option value="large_timeout">large_timeout</option>
+              <option value="large_unclassified_data">large_unclassified_data</option>
+              <option value="misc">misc</option>
+            </select>
+          </label>
+          <label class="field compact">
+            <span>Status</span>
+            <select id="misc-status-filter">
+              <option value="">All statuses</option>
+              <option value="indexed">indexed</option>
+              <option value="cataloged">cataloged</option>
+              <option value="project_index_queued">project_index_queued</option>
+              <option value="ignored">ignored</option>
+              <option value="archived">archived</option>
+              <option value="deleted">deleted</option>
+            </select>
+          </label>
+          <label class="field compact">
+            <span>Min size GB</span>
+            <input id="misc-min-size-filter-gb" type="number" min="0" step="1" value="0" />
+          </label>
+        </div>
+        <div class="table-wrap">
+          <table id="misc-items-table">
+            <thead>
+              <tr>
+                <th>Path</th>
+                <th>Owner</th>
+                <th>Category</th>
+                <th>Status</th>
+                <th>Size</th>
+                <th>Scan</th>
+                <th>Children</th>
+                <th>Lifecycle</th>
+                <th>Backup</th>
+                <th>Last Seen</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </section>
+
+      <footer class="footer">
+        <span id="status-line" class="muted">Ready.</span>
+      </footer>
+    </div>
+    <script src="/web/app.js?v=20260526-index-defaults"></script>
+  </body>
+</html>
