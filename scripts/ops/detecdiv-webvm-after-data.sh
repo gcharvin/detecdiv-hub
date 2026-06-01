@@ -34,6 +34,10 @@ container_data_ready() {
   fi
 }
 
+api_health_ready() {
+  curl -fsS "${HEALTH_URL}" >/dev/null 2>&1
+}
+
 if [[ "${EUID}" -ne 0 ]]; then
   echo "Run as root." >&2
   exit 1
@@ -80,5 +84,13 @@ until container_data_ready; do
 done
 
 log "${API_CONTAINER} sees ${DATA_MOUNT}."
-curl -fsS "${HEALTH_URL}" >/dev/null
+deadline=$((SECONDS + 60))
+until api_health_ready; do
+  if (( SECONDS >= deadline )); then
+    echo "DetecDiv Hub API did not pass health check within 60s." >&2
+    curl -fsS "${HEALTH_URL}" >&2 || true
+    exit 1
+  fi
+  sleep 2
+done
 log "DetecDiv Hub API health check passed."
