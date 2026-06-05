@@ -8855,7 +8855,10 @@ if (els.migrationRefreshButton) els.migrationRefreshButton.addEventListener("cli
 if (els.migrationExecutePilotButton) els.migrationExecutePilotButton.addEventListener("click", () => executePilotBatch().catch((error) => setStatus(String(error))));
 if (els.miscInventoryButton) els.miscInventoryButton.addEventListener("click", () => queueMiscStorageInventory().catch((error) => setStatus(String(error))));
 if (els.miscRefreshButton) els.miscRefreshButton.addEventListener("click", () => refreshMiscStorageItems().catch((error) => setStatus(String(error))));
-if (els.miscPurgeButton) els.miscPurgeButton.addEventListener("click", () => purgeMiscStorageItems().catch((error) => setStatus(String(error))));
+if (els.miscPurgeButton) els.miscPurgeButton.addEventListener("click", () => purgeMiscStorageItems().catch((error) => {
+  setStatus(String(error));
+  window.alert(String(error));
+}));
 if (els.miscSearch) els.miscSearch.addEventListener("input", () => renderMiscStorageItems());
 if (els.miscOwnerFilter) els.miscOwnerFilter.addEventListener("change", () => refreshMiscStorageItems().catch((error) => setStatus(String(error))));
 if (els.miscCategoryFilter) els.miscCategoryFilter.addEventListener("change", () => refreshMiscStorageItems().catch((error) => setStatus(String(error))));
