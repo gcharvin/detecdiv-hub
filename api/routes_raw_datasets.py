@@ -4,7 +4,7 @@ from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.responses import FileResponse
-from sqlalchemy import or_, select
+from sqlalchemy import func, or_, select
 from sqlalchemy.orm import Session, joinedload, load_only
 
 from api.db import get_db
@@ -331,8 +331,14 @@ def list_raw_datasets(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ) -> list[RawDatasetSummary]:
+    position_count = (
+        select(func.count(RawDatasetPosition.id))
+        .where(RawDatasetPosition.raw_dataset_id == RawDataset.id)
+        .correlate(RawDataset)
+        .scalar_subquery()
+    )
     stmt = (
-        select(RawDataset)
+        select(RawDataset, position_count.label("position_count"))
         .options(
             load_only(
                 RawDataset.id,
@@ -386,7 +392,10 @@ def list_raw_datasets(
     if archive_status:
         stmt = stmt.where(RawDataset.archive_status == archive_status)
     stmt = stmt.limit(min(max(limit, 1), 5000))
-    return [raw_dataset_catalog_summary_view(raw_dataset) for raw_dataset in db.scalars(stmt).unique()]
+    return [
+        raw_dataset_catalog_summary_view(raw_dataset, position_count=position_count)
+        for raw_dataset, position_count in db.execute(stmt).unique()
+    ]
 
 
 @router.get("/recent/acquisition-templates", response_model=list[RawDatasetAcquisitionTemplateSummary])
@@ -1327,6 +1336,7 @@ def raw_dataset_summary_view(raw_dataset: RawDataset) -> RawDatasetSummary:
             "reclaimable_bytes": raw_dataset.reclaimable_bytes,
             "last_accessed_at": raw_dataset.last_accessed_at,
             "total_bytes": raw_dataset.total_bytes,
+            "position_count": len(raw_dataset.positions or []),
             "metadata_json": raw_dataset.metadata_json or {},
             "owner": raw_dataset.owner,
             "created_at": raw_dataset.created_at,
@@ -1338,7 +1348,7 @@ def raw_dataset_summary_view(raw_dataset: RawDataset) -> RawDatasetSummary:
     )
 
 
-def raw_dataset_catalog_summary_view(raw_dataset: RawDataset) -> RawDatasetSummary:
+def raw_dataset_catalog_summary_view(raw_dataset: RawDataset, *, position_count: int | None = None) -> RawDatasetSummary:
     return RawDatasetSummary.model_validate(
         {
             "id": raw_dataset.id,
@@ -1357,6 +1367,7 @@ def raw_dataset_catalog_summary_view(raw_dataset: RawDataset) -> RawDatasetSumma
             "reclaimable_bytes": raw_dataset.reclaimable_bytes,
             "last_accessed_at": raw_dataset.last_accessed_at,
             "total_bytes": raw_dataset.total_bytes,
+            "position_count": int(position_count or 0),
             "owner": raw_dataset.owner,
             "created_at": raw_dataset.created_at,
             "updated_at": raw_dataset.updated_at,

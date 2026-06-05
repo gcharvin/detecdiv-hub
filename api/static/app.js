@@ -3836,6 +3836,31 @@ function rawDatasetNavigationItems() {
   return visible.length ? visible : (state.rawDatasets || []);
 }
 
+function rawDatasetIndexedPositionCount(raw) {
+  const directCount = Number(raw?.position_count);
+  if (Number.isFinite(directCount)) {
+    return directCount;
+  }
+  if (Array.isArray(raw?.positions)) {
+    return raw.positions.length;
+  }
+  return 0;
+}
+
+function rawDatasetIsNavigable(raw) {
+  if (!raw?.id) {
+    return false;
+  }
+  if (`${raw.status || ""}`.trim().toLowerCase() === "deleted") {
+    return false;
+  }
+  const dataFormat = `${raw.data_format || "unknown"}`.trim().toLowerCase();
+  if (dataFormat === "unknown" && rawDatasetIndexedPositionCount(raw) <= 0) {
+    return false;
+  }
+  return true;
+}
+
 function rawDatasetNeighbor(direction) {
   const raw = state.selectedRawDatasetDetail || state.selectedRawDataset;
   if (!raw) {
@@ -3846,11 +3871,13 @@ function rawDatasetNeighbor(direction) {
   if (currentIndex < 0) {
     return null;
   }
-  const nextIndex = currentIndex + direction;
-  if (nextIndex < 0 || nextIndex >= items.length) {
-    return null;
+  for (let index = currentIndex + direction; index >= 0 && index < items.length; index += direction) {
+    const candidate = items[index];
+    if (rawDatasetIsNavigable(candidate)) {
+      return candidate;
+    }
   }
-  return items[nextIndex];
+  return null;
 }
 
 function renderRawDatasetNavigationControls() {

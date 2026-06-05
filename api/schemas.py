@@ -511,6 +511,7 @@ class RawDatasetSummary(HubBaseModel):
     reclaimable_bytes: int = 0
     last_accessed_at: datetime | None = None
     total_bytes: int = 0
+    position_count: int = 0
     metadata_json: dict[str, Any] = Field(default_factory=dict)
     owner: UserSummary | None = None
     created_at: datetime | None = None
