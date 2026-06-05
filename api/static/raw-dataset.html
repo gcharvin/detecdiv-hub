@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Detecdiv server - Raw dataset</title>
-    <link rel="stylesheet" href="/web/styles.css?v=20260522-ui3" />
+    <link rel="stylesheet" href="/web/styles.css?v=20260605-raw-delete-nav" />
   </head>
   <body data-page="raw-dataset">
     <div class="page-shell">
@@ -50,11 +50,16 @@
           <p class="hero-copy">Inspect acquisition metadata, linked projects, positions, and preview movies.</p>
         </div>
         <div class="action-stack hero-detail-actions">
+          <div class="raw-detail-nav" aria-label="Raw dataset navigation">
+            <button id="raw-prev-dataset-button" class="icon-button" type="button" title="Previous raw dataset" aria-label="Previous raw dataset">&larr;</button>
+            <button id="raw-next-dataset-button" class="icon-button" type="button" title="Next raw dataset" aria-label="Next raw dataset">&rarr;</button>
+          </div>
           <button id="change-raw-owner-button" class="hidden">Change owner</button>
           <button id="raw-preview-archive-button">Preview archive</button>
           <button id="raw-archive-button">Request archive</button>
           <button id="raw-delete-archive-button">Delete archive</button>
           <button id="raw-restore-button">Request restore</button>
+          <button id="raw-delete-dataset-button" class="danger">Delete dataset</button>
           <a class="button-link" href="/web/raw-datasets.html">Back to datasets</a>
         </div>
       </header>
@@ -239,6 +244,6 @@
       </div>
     </div>
 
-    <script src="/web/app.js?v=20260512-ui2" defer></script>
+    <script src="/web/app.js?v=20260605-raw-delete-nav" defer></script>
   </body>
 </html>

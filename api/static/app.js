@@ -234,6 +234,9 @@ const els = {
   rawArchiveButton: document.querySelector("#raw-archive-button"),
   rawDeleteArchiveButton: document.querySelector("#raw-delete-archive-button"),
   rawRestoreButton: document.querySelector("#raw-restore-button"),
+  rawDeleteDatasetButton: document.querySelector("#raw-delete-dataset-button"),
+  rawPrevDatasetButton: document.querySelector("#raw-prev-dataset-button"),
+  rawNextDatasetButton: document.querySelector("#raw-next-dataset-button"),
   rawBackupStatus: document.querySelector("#raw-backup-status"),
   rawLastBackupAt: document.querySelector("#raw-last-backup-at"),
   rawBackupExcluded: document.querySelector("#raw-backup-excluded"),
@@ -928,6 +931,38 @@ function deletionPreviewLines(preview) {
     });
     if (blockers.length > 8) lines.push(`- ... ${blockers.length - 8} more`);
   }
+  return lines;
+}
+
+function rawDatasetDeletionPreviewLines(preview, options = {}) {
+  const previewJson = preview?.preview_json || {};
+  const rawDataset = previewJson.raw_dataset || {};
+  const locations = Array.isArray(rawDataset.locations) ? rawDataset.locations : [];
+  const linkedProjects = Array.isArray(previewJson.linked_projects) ? previewJson.linked_projects : [];
+  const skippedProjects = Array.isArray(previewJson.skipped_linked_projects) ? previewJson.skipped_linked_projects : [];
+  const lines = [
+    `Raw dataset: ${preview?.acquisition_label || rawDataset.acquisition_label || ""}`,
+    "Catalog entry: will be deleted from the database",
+    options.deleteSourceFiles
+      ? `Source files: ${locations.length} location(s), ${humanBytes(preview?.reclaimable_bytes || rawDataset.total_bytes || 0)} reclaimable`
+      : "Source files: kept on disk",
+  ];
+  if (locations.length) {
+    lines.push(`First source location: ${locations[0]}`);
+  }
+  if (options.deleteLinkedProjects) {
+    lines.push(`Linked analysis projects: ${linkedProjects.length} queued for deletion`);
+    if (options.deleteLinkedProjectFiles) {
+      const linkedBytes = linkedProjects.reduce((sum, project) => sum + Number(project.total_bytes || 0), 0);
+      lines.push(`Linked project files: ${humanBytes(linkedBytes)} reclaimable`);
+    }
+  } else if (options.linkedProjectCount) {
+    lines.push(`Linked analysis projects: ${options.linkedProjectCount} kept; raw links will be removed`);
+  }
+  if (skippedProjects.length) {
+    lines.push(`Skipped linked projects: ${skippedProjects.length}`);
+  }
+  lines.push("This action is destructive.");
   return lines;
 }
 
@@ -3795,6 +3830,56 @@ function renderRawPagination(totalPages) {
   });
 }
 
+function rawDatasetNavigationItems() {
+  const visible = getVisibleRawDatasets();
+  return visible.length ? visible : (state.rawDatasets || []);
+}
+
+function rawDatasetNeighbor(direction) {
+  const raw = state.selectedRawDatasetDetail || state.selectedRawDataset;
+  if (!raw) {
+    return null;
+  }
+  const items = rawDatasetNavigationItems();
+  const currentIndex = items.findIndex((item) => `${item.id}` === `${raw.id}`);
+  if (currentIndex < 0) {
+    return null;
+  }
+  const nextIndex = currentIndex + direction;
+  if (nextIndex < 0 || nextIndex >= items.length) {
+    return null;
+  }
+  return items[nextIndex];
+}
+
+function renderRawDatasetNavigationControls() {
+  const previous = rawDatasetNeighbor(-1);
+  const next = rawDatasetNeighbor(1);
+  if (els.rawPrevDatasetButton) {
+    els.rawPrevDatasetButton.disabled = !previous;
+    els.rawPrevDatasetButton.title = previous
+      ? `Previous: ${previous.acquisition_label}`
+      : "No previous raw dataset";
+  }
+  if (els.rawNextDatasetButton) {
+    els.rawNextDatasetButton.disabled = !next;
+    els.rawNextDatasetButton.title = next
+      ? `Next: ${next.acquisition_label}`
+      : "No next raw dataset";
+  }
+}
+
+async function navigateRawDataset(direction) {
+  if (!state.rawDatasets.length) {
+    await refreshRawDatasets({ preservePage: true });
+  }
+  const target = rawDatasetNeighbor(direction);
+  if (!target) {
+    return;
+  }
+  openRawDatasetPage(target.id);
+}
+
 function renderRawDatasetDetail() {
   if (!els.rawDetailEmpty || !els.rawDetailContent || !els.rawDetailSubtitle) {
     return;
@@ -3813,6 +3898,7 @@ function renderRawDatasetDetail() {
     if (els.rawArchiveButton) els.rawArchiveButton.disabled = true;
     if (els.rawDeleteArchiveButton) els.rawDeleteArchiveButton.disabled = true;
     if (els.rawRestoreButton) els.rawRestoreButton.disabled = true;
+    if (els.rawDeleteDatasetButton) els.rawDeleteDatasetButton.disabled = true;
     if (els.rawOpenDisplaySettingsButton) els.rawOpenDisplaySettingsButton.disabled = true;
     setRawActionFeedback("");
     if (els.rawLifecycleEvents) {
@@ -3823,6 +3909,7 @@ function renderRawDatasetDetail() {
     renderRawAnalysisProjects([]);
     renderRawPositions([]);
     renderRawPositionViewer([]);
+    renderRawDatasetNavigationControls();
     return;
   }
 
@@ -3913,6 +4000,7 @@ function renderRawDatasetDetail() {
   if (els.rawArchiveButton) els.rawArchiveButton.disabled = false;
   if (els.rawDeleteArchiveButton) els.rawDeleteArchiveButton.disabled = !raw.archive_uri;
   if (els.rawRestoreButton) els.rawRestoreButton.disabled = false;
+  if (els.rawDeleteDatasetButton) els.rawDeleteDatasetButton.disabled = false;
   if (els.rawBackupStatus) els.rawBackupStatus.textContent = (raw.backup_status || "none").replaceAll("_", " ");
   if (els.rawLastBackupAt) els.rawLastBackupAt.textContent = raw.last_backup_at ? formatTimestamp(raw.last_backup_at) : "never";
   if (els.rawBackupExcluded) els.rawBackupExcluded.checked = Boolean(raw.backup_excluded);
@@ -3931,6 +4019,7 @@ function renderRawDatasetDetail() {
   }
   els.rawDetailEmpty.classList.add("hidden");
   els.rawDetailContent.classList.remove("hidden");
+  renderRawDatasetNavigationControls();
 }
 
 function renderRawLocations(locations) {
@@ -5462,7 +5551,7 @@ async function refreshDashboard() {
   if (pageFlags.hasProjectsView) {
     refreshTasks.push(refreshProjects());
   }
-  if (pageFlags.hasRawDatasetsView || pageKind === "raw-ops") {
+  if (pageFlags.hasRawDatasetsView || pageKind === "raw-ops" || pageFlags.hasRawDatasetPage) {
     refreshTasks.push(refreshRawDatasets());
   }
   if (pageFlags.hasArchiveSettings && isAdmin()) {
@@ -5747,13 +5836,7 @@ async function queueMiscItemChildInventory(item) {
 async function refreshRawDatasets(options = {}) {
   const preservePage = Boolean(options.preservePage);
   const previousPage = state.rawDatasetCurrentPage || 0;
-  if (!els.rawDatasetsTableBody && pageKind !== "raw-ops") {
-    if (pageFlags.hasRawDatasetPage) {
-      const rawDatasetId = getRawDatasetPageId();
-      if (rawDatasetId) {
-        await selectRawDataset(rawDatasetId);
-      }
-    }
+  if (!els.rawDatasetsTableBody && pageKind !== "raw-ops" && !pageFlags.hasRawDatasetPage) {
     return;
   }
   const params = new URLSearchParams();
@@ -7372,6 +7455,96 @@ async function executeRawPositionDelete() {
   }
 }
 
+async function deleteRawDatasetFromDetail() {
+  const raw = state.selectedRawDatasetDetail || state.selectedRawDataset;
+  if (!raw?.id) {
+    return;
+  }
+  const linkedProjects = raw.analysis_projects || [];
+  const deleteLinkedProjects = linkedProjects.length
+    ? window.confirm(
+        `This raw dataset is linked to ${linkedProjects.length} analysis project(s).\n\nAlso delete linked analysis project catalog entries? Choose Cancel to keep the projects and only remove their raw-dataset link.`
+      )
+    : false;
+  const deleteLinkedProjectFiles = deleteLinkedProjects
+    ? window.confirm("Also delete linked analysis project files on disk?")
+    : false;
+  const deleteSourceFiles = true;
+  const nextTarget = rawDatasetNeighbor(1)?.id || rawDatasetNeighbor(-1)?.id || "";
+
+  const preview = await apiPost(`/raw-datasets/${raw.id}/deletion-preview`, {
+    delete_source_files: deleteSourceFiles,
+    delete_linked_projects: deleteLinkedProjects,
+    delete_linked_project_files: deleteLinkedProjectFiles,
+    confirm: false,
+  });
+  const lines = rawDatasetDeletionPreviewLines(preview, {
+    deleteSourceFiles,
+    deleteLinkedProjects,
+    deleteLinkedProjectFiles,
+    linkedProjectCount: linkedProjects.length,
+  });
+  lines.push("Continue?");
+  if (!window.confirm(lines.join("\n"))) {
+    return;
+  }
+  const typed = window.prompt(`Type DELETE to delete raw dataset ${raw.acquisition_label}`, "");
+  if (typed !== "DELETE") {
+    setStatus("Raw dataset deletion cancelled.");
+    return;
+  }
+
+  const params = new URLSearchParams({
+    delete_source_files: "true",
+    delete_linked_projects: deleteLinkedProjects ? "true" : "false",
+    delete_linked_project_files: deleteLinkedProjectFiles ? "true" : "false",
+    confirm: "true",
+  });
+  setRawActionFeedback(`Queueing deletion for ${raw.acquisition_label}...`, "warn");
+  setStatus(`Queueing deletion for ${raw.acquisition_label}...`);
+  const result = await apiDelete(`/raw-datasets/${raw.id}?${params.toString()}`);
+
+  if (result.status === "queued") {
+    const jobId = result.result_json?.job_id || "";
+    setRawActionFeedback(`Raw dataset deletion queued${jobId ? ` as job ${jobId}` : ""}.`, "warn");
+    setStatus(`Waiting for raw dataset deletion job${jobId ? ` ${jobId}` : ""}...`);
+    if (jobId) {
+      const workerResult = await waitForRawDeletionJobs([jobId]);
+      if (workerResult.failed.length) {
+        const failures = workerResult.failed.map((job) => `${job.id}: ${job.error_text || "worker deletion failed"}`);
+        window.alert(`Raw dataset deletion failed:\n${failures.join("\n")}`);
+        setRawActionFeedback("Raw dataset deletion failed. Check worker job details.", "warn");
+        setStatus("Raw dataset deletion failed.");
+        return;
+      }
+      if (workerResult.pending.length) {
+        setRawActionFeedback("Deletion job is still running. Refresh jobs to follow progress.", "warn");
+        setStatus("Raw dataset deletion job is still running.");
+        return;
+      }
+      const completed = workerResult.completed[0];
+      const errors = completed?.result_json?.result_json?.errors || completed?.result_json?.errors || [];
+      if (errors.length) {
+        window.alert(`Raw dataset deletion completed with errors:\n${errors.join("\n")}`);
+      }
+    }
+  } else if (result.result_json?.errors?.length) {
+    window.alert(`Raw dataset deletion completed with errors:\n${result.result_json.errors.join("\n")}`);
+  }
+
+  state.rawDatasets = state.rawDatasets.filter((item) => `${item.id}` !== `${raw.id}`);
+  state.selectedRawDataset = null;
+  state.selectedRawDatasetDetail = null;
+  state.selectedRawPositionId = null;
+  state.selectedRawPositionIds = [];
+  setStatus(result.result_json?.message || `Raw dataset ${raw.acquisition_label} deleted.`);
+  if (nextTarget) {
+    openRawDatasetPage(nextTarget);
+  } else {
+    window.location.href = "/web/raw-datasets.html";
+  }
+}
+
 async function deleteProject() {
   if (!state.selectedProject) {
     return;
@@ -8674,6 +8847,12 @@ if (els.changeRawOwnerButton) els.changeRawOwnerButton.addEventListener("click",
 if (els.rawArchiveButton) els.rawArchiveButton.addEventListener("click", () => requestRawArchive().catch((error) => setStatus(String(error))));
 if (els.rawDeleteArchiveButton) els.rawDeleteArchiveButton.addEventListener("click", () => deleteRawArchive().catch((error) => setStatus(String(error))));
 if (els.rawRestoreButton) els.rawRestoreButton.addEventListener("click", () => requestRawRestore().catch((error) => setStatus(String(error))));
+if (els.rawDeleteDatasetButton) els.rawDeleteDatasetButton.addEventListener("click", () => deleteRawDatasetFromDetail().catch((error) => {
+  setStatus(String(error));
+  window.alert(String(error));
+}));
+if (els.rawPrevDatasetButton) els.rawPrevDatasetButton.addEventListener("click", () => navigateRawDataset(-1).catch((error) => setStatus(String(error))));
+if (els.rawNextDatasetButton) els.rawNextDatasetButton.addEventListener("click", () => navigateRawDataset(1).catch((error) => setStatus(String(error))));
 if (els.rawBackupExcluded) els.rawBackupExcluded.addEventListener("change", () => toggleRawBackupExclude().catch((error) => setStatus(String(error))));
 if (els.rawBackupNowButton) els.rawBackupNowButton.addEventListener("click", () => backupRawDatasetNow().catch((error) => { if (els.rawBackupFeedback) els.rawBackupFeedback.textContent = String(error); setStatus(String(error)); }));
 if (els.rawSnapshotsLoadButton) els.rawSnapshotsLoadButton.addEventListener("click", () => loadRawDatasetSnapshots().catch((error) => setStatus(String(error))));

@@ -262,6 +262,18 @@ h3 {
   min-height: 40px;
 }
 
+.raw-detail-nav {
+  display: inline-flex;
+  gap: 6px;
+}
+
+.icon-button {
+  width: 42px;
+  min-width: 42px;
+  padding: 8px;
+  font-size: 1.1rem;
+}
+
 .session-box {
   display: flex;
   flex-wrap: wrap;
