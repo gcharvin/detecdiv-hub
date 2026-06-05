@@ -9,10 +9,12 @@ from api.services.project_indexing import (
     classify_project_candidate,
     get_or_create_storage_root,
     is_legacy_matlab_timelapse_project_dir,
+    legacy_matlab_position_dir,
     raw_root_candidates,
     source_matching_storage_root_candidates,
 )
 from api.services.raw_dataset_ingest import detect_raw_dataset_format
+from api.services.raw_dataset_ingest import resolve_raw_dataset_acquisition_label
 
 
 @dataclass
@@ -134,6 +136,27 @@ def test_legacy_matlab_timelapse_project_dir_is_detected(tmp_path: Path):
 
     assert is_legacy_matlab_timelapse_project_dir(dataset_dir)
     assert detect_raw_dataset_format(dataset_dir, {}) == "legacy_matlab_jpg_timelapse"
+
+
+def test_legacy_matlab_timelapse_detects_internal_prefix_without_project_mat(tmp_path: Path):
+    dataset_dir = tmp_path / "20120302"
+    dataset_dir.mkdir()
+    (dataset_dir / "BK-project.mat").write_text("backup", encoding="utf-8")
+    (dataset_dir / "test_classic_chip-ID.txt").write_text("Time-Lapse Assay ID File", encoding="utf-8")
+    (dataset_dir / "test_classic_chip-pos1").mkdir()
+    (dataset_dir / "test_classic_chip-pos2").mkdir()
+
+    assert is_legacy_matlab_timelapse_project_dir(dataset_dir)
+    assert detect_raw_dataset_format(dataset_dir, {}) == "legacy_matlab_jpg_timelapse"
+    assert legacy_matlab_position_dir(dataset_dir, 2) == dataset_dir / "test_classic_chip-pos2"
+    assert (
+        resolve_raw_dataset_acquisition_label(
+            dataset_dir=dataset_dir,
+            data_format="legacy_matlab_jpg_timelapse",
+            acquisition_label="20120302",
+        )
+        == "test_classic_chip"
+    )
 
 
 def test_classify_project_candidate_accepts_in_place_project_mat(tmp_path: Path):

@@ -410,6 +410,29 @@ def test_should_use_legacy_matlab_jpg_preview_detects_legacy_root(tmp_path):
     )
 
 
+def test_should_use_legacy_matlab_jpg_preview_detects_internal_prefix(tmp_path):
+    dataset_path = tmp_path / "20120302"
+    position_dir = dataset_path / "test_classic_chip-pos1" / "test_classic_chip-pos1-ch1--"
+    position_dir.mkdir(parents=True)
+    (dataset_path / "BK-project.mat").write_text("backup", encoding="utf-8")
+    (dataset_path / "test_classic_chip-ID.txt").write_text("Time-Lapse Assay ID File", encoding="utf-8")
+    (position_dir / "test_classic_chip-pos1-ch1---001.jpg").write_bytes(b"jpeg-fixture")
+
+    raw_dataset = SimpleNamespace(data_format="unknown")
+    position = SimpleNamespace(
+        position_index=0,
+        position_key="position_1",
+        display_name="Position1",
+        metadata_json={},
+    )
+
+    assert should_use_legacy_matlab_jpg_preview(
+        dataset_path=dataset_path,
+        raw_dataset=raw_dataset,
+        position=position,
+    )
+
+
 def test_tiff_sequence_ignores_legacy_jpeg_preview_fallback(tmp_path):
     dataset_path = tmp_path / "mixed_dataset"
     tiff_position_dir = dataset_path / "Pos0"

@@ -671,8 +671,9 @@ def summarize_tiff_sequence_dimensions(dataset_dir: Path) -> dict[str, Any]:
         child_dirs = sorted((entry for entry in dataset_dir.iterdir() if entry.is_dir()), key=lambda entry: entry.name.lower())
     except OSError:
         child_dirs = []
+    allow_generic_positions = has_micromanager_root_marker(dataset_dir) and count_child_dirs_with_tiffs(child_dirs) >= 2
     for child in child_dirs:
-        if not child.name.lower().startswith(POSITION_DIR_PREFIXES):
+        if not child.name.lower().startswith(POSITION_DIR_PREFIXES) and not allow_generic_positions:
             continue
         files = direct_tiff_files(child)
         if files:
@@ -720,6 +721,31 @@ def direct_tiff_files(path: Path) -> list[Path]:
         )
     except OSError:
         return []
+
+
+def has_micromanager_root_marker(dataset_dir: Path) -> bool:
+    marker_names = MICROMANAGER_METADATA_TEXT_FILES + MICROMANAGER_DISPLAY_SETTINGS_FILES
+    return any((dataset_dir / marker_name).is_file() for marker_name in marker_names)
+
+
+def count_child_dirs_with_tiffs(child_dirs: list[Path]) -> int:
+    count = 0
+    for child in child_dirs:
+        if child.name.startswith("."):
+            continue
+        try:
+            has_tiff = any(
+                entry.is_file() and entry.suffix.lower() in TIFF_SUFFIXES
+                for entry in child.iterdir()
+            )
+        except OSError:
+            has_tiff = False
+        if not has_tiff:
+            continue
+        count += 1
+        if count >= 2:
+            return count
+    return count
 
 
 def parsed_axis_values(files: list[Path], axis: str) -> set[int]:

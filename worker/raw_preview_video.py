@@ -21,7 +21,7 @@ from api.models import Artifact, Job, Project, ProjectRawLink, RawDataset, RawDa
 from api.services.ome_zarr_metadata import extract_ome_zarr_channel_settings, read_ome_zarr_group_metadata
 from api.services.path_resolution import compose_storage_path
 from api.config import get_settings
-from api.services.project_indexing import is_legacy_matlab_timelapse_dataset_dir, slugify
+from api.services.project_indexing import is_legacy_matlab_timelapse_dataset_dir, legacy_matlab_position_dir, slugify
 from api.services.raw_preview_settings import RawPreviewRuntimeConfig, resolve_raw_preview_runtime_config
 from worker.executors.matlab_executor import build_matlab_batch_command, run_matlab_command
 from worker.preview_text import fit_text_scale
@@ -1002,6 +1002,9 @@ def iter_position_source_candidates(*, dataset_path: Path, position: RawDatasetP
     if is_legacy_matlab_timelapse_dataset_dir(dataset_path):
         legacy_position_number = infer_legacy_matlab_position_number(position=position, metadata=metadata)
         if legacy_position_number is not None:
+            legacy_position_dir = legacy_matlab_position_dir(dataset_path, legacy_position_number)
+            if legacy_position_dir is not None:
+                add_candidate(legacy_position_dir)
             add_candidate(Path(f"{dataset_path.name}-pos{legacy_position_number}"))
     return candidates
 

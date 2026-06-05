@@ -16,7 +16,16 @@ from api.services.micromanager_metadata import (
 )
 from api.services.nd2_metadata import read_nd2_dataset_metadata
 from api.services.raw_preview_jobs import queue_raw_preview_job_for_dataset
-from api.services.project_indexing import get_or_create_storage_root, is_legacy_matlab_timelapse_dataset_dir, slugify
+from api.services.project_indexing import (
+    get_or_create_storage_root,
+    has_micromanager_position_dirs,
+    has_multiple_generic_micromanager_position_dirs,
+    is_legacy_matlab_timelapse_dataset_dir,
+    is_micromanager_position_dir,
+    is_position_like_name,
+    legacy_matlab_timelapse_prefixes,
+    slugify,
+)
 from api.services.storage_metrics import safe_dir_size
 
 
@@ -76,8 +85,9 @@ def ingest_raw_dataset_from_directory(
             }
 
     if data_format == "micromanager_tiff_dir":
-        frame_count = parsed_metadata.get("frame_count", 0)
-        if frame_count < 10:
+        if is_short_single_position_micromanager_dataset(parsed_metadata):
+            dimensions = parsed_metadata.get("dimensions") if isinstance(parsed_metadata.get("dimensions"), dict) else {}
+            frame_count = parsed_metadata.get("frame_count") or dimensions.get("frame_count") or 0
             raise ValueError(
                 f"Micro-Manager dataset {dataset_dir.name} has only {frame_count} frames; "
                 "excluding as likely a single-position phenotyping snapshot, not a timelapse"
@@ -100,7 +110,11 @@ def ingest_raw_dataset_from_directory(
     effective_source_metadata = dict(parsed_metadata)
     if source_metadata:
         effective_source_metadata.update(source_metadata)
-    effective_label = acquisition_label or dataset_dir.name
+    effective_label = resolve_raw_dataset_acquisition_label(
+        dataset_dir=dataset_dir,
+        data_format=data_format,
+        acquisition_label=acquisition_label,
+    )
     effective_started_at = started_at or size_timestamp
     effective_ended_at = ended_at or effective_started_at
 
@@ -206,6 +220,19 @@ def ingest_raw_dataset_from_directory(
     return raw_dataset
 
 
+def resolve_raw_dataset_acquisition_label(
+    *,
+    dataset_dir: Path,
+    data_format: str,
+    acquisition_label: str | None = None,
+) -> str:
+    if str(data_format or "").lower() == "legacy_matlab_jpg_timelapse":
+        prefixes = legacy_matlab_timelapse_prefixes(dataset_dir)
+        if prefixes:
+            return prefixes[0]
+    return str(acquisition_label or dataset_dir.name)
+
+
 def detect_raw_dataset_format(dataset_dir: Path, source_metadata: dict) -> str:
     for key in ("data_format", "raw_format", "format", "input_format"):
         value = str(source_metadata.get(key) or "").strip().lower()
@@ -242,7 +269,11 @@ def detect_raw_dataset_format(dataset_dir: Path, source_metadata: dict) -> str:
         return "lif"
     if any(name.endswith(".ims") for name in file_names):
         return "ims"
-    if any(name in {"metadata.txt", "acquisitionmetadata.txt"} for name in file_names):
+    has_micromanager_marker = any(
+        name in {"metadata.txt", "acquisitionmetadata.txt", "displaysettings.txt", "displaysettings.json"}
+        for name in file_names
+    )
+    if has_micromanager_marker:
         return "micromanager_tiff_dir"
 
     tiff_files = [name for name in file_names if name.endswith((".tif", ".tiff"))]
@@ -253,22 +284,37 @@ def detect_raw_dataset_format(dataset_dir: Path, source_metadata: dict) -> str:
             return "single_tiff"
         return "tiff_sequence"
 
+    allow_generic_positions = has_micromanager_marker and has_multiple_generic_micromanager_position_dirs(dataset_dir)
     for child in child_dirs:
-        child_name = child.name.lower()
-        if child_name.startswith(("pos", "position", "xy")):
-            try:
-                child_file_names = [entry.name.lower() for entry in child.iterdir() if entry.is_file()]
-            except OSError:
-                child_file_names = []
-            if any(name == "NDTiff.index".lower() for name in child_file_names):
-                return "ndtiff"
-            child_tiffs = [name for name in child_file_names if name.endswith((".tif", ".tiff"))]
-            if child_tiffs:
-                if any(name.endswith((".ome.tif", ".ome.tiff")) for name in child_tiffs):
-                    return "ome_tiff"
-                return "tiff_sequence"
+        if not is_micromanager_position_dir(child, allow_generic_name=allow_generic_positions):
+            continue
+        try:
+            child_file_names = [entry.name.lower() for entry in child.iterdir() if entry.is_file()]
+        except OSError:
+            child_file_names = []
+        if any(name == "NDTiff.index".lower() for name in child_file_names):
+            return "ndtiff"
+        child_tiffs = [name for name in child_file_names if name.endswith((".tif", ".tiff"))]
+        if child_tiffs:
+            if any(name.endswith((".ome.tif", ".ome.tiff")) for name in child_tiffs):
+                return "ome_tiff"
+            return "tiff_sequence"
 
     return "unknown"
+
+
+def is_short_single_position_micromanager_dataset(parsed_metadata: dict) -> bool:
+    dimensions = parsed_metadata.get("dimensions") if isinstance(parsed_metadata.get("dimensions"), dict) else {}
+    frame_count = safe_metadata_int(parsed_metadata.get("frame_count") or dimensions.get("frame_count"))
+    position_count = safe_metadata_int(parsed_metadata.get("position_count") or dimensions.get("position_count"))
+    return frame_count < 10 and position_count <= 1
+
+
+def safe_metadata_int(value) -> int:
+    try:
+        return int(value or 0)
+    except (TypeError, ValueError):
+        return 0
 
 
 def upsert_raw_dataset_positions(
@@ -351,16 +397,24 @@ def discover_raw_dataset_positions(dataset_dir: Path, source_metadata: dict) -> 
     except OSError:
         return positions
 
+    allow_generic_positions = has_multiple_generic_micromanager_position_dirs(dataset_dir) and has_micromanager_position_dirs(
+        dataset_dir,
+        allow_generic_names=True,
+    )
     for index, entry in enumerate(children):
         name = entry.name
-        lower_name = name.lower()
-        if lower_name.startswith("pos") or lower_name.startswith("position") or lower_name.startswith("xy"):
+        if is_position_like_name(name) or (
+            allow_generic_positions and is_micromanager_position_dir(entry, allow_generic_name=True)
+        ):
             positions.append(
                 {
                     "position_key": slugify(name),
                     "display_name": name,
                     "position_index": index,
-                    "metadata_json": {"relative_path": name, "source": "directory_heuristic"},
+                    "metadata_json": {
+                        "relative_path": name,
+                        "source": "directory_heuristic" if is_position_like_name(name) else "generic_micromanager_directory",
+                    },
                 }
             )
     return positions

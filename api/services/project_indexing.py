@@ -663,22 +663,25 @@ def is_detecdiv_project_dir(project_dir: Path, *, project_mat_path: Path | None 
 
 def is_legacy_matlab_timelapse_project_dir(project_dir: Path, *, project_mat_path: Path | None = None) -> bool:
     project_mat = legacy_project_mat_path(project_dir, project_mat_path=project_mat_path)
-    if project_mat is None:
+    prefixes = legacy_matlab_timelapse_prefixes(project_dir, project_mat_path=project_mat)
+    if not prefixes:
         return False
-    prefix = legacy_project_prefix(project_mat)
-    if not prefix:
-        return False
+
     try:
         children = [entry for entry in project_dir.iterdir() if entry.is_dir()]
     except OSError:
         return False
-    position_prefix = f"{prefix.lower()}-pos"
-    if any(entry.name.lower().startswith(position_prefix) for entry in children):
+    position_prefixes = tuple(f"{prefix.lower()}-pos" for prefix in prefixes)
+    if any(entry.name.lower().startswith(position_prefixes) for entry in children):
         return True
 
     # Older DetecDiv MATLAB timelapse projects sometimes have <folder>-project.mat
     # plus a sibling *-id.txt but no position folders left next to the project file.
-    if find_legacy_timelapse_id_file(project_dir) is not None and project_mat.name.lower() == f"{project_dir.name.lower()}-project.mat":
+    if (
+        project_mat is not None
+        and find_legacy_timelapse_id_file(project_dir) is not None
+        and project_mat.name.lower() == f"{project_dir.name.lower()}-project.mat"
+    ):
         return True
     return False
 
@@ -695,6 +698,21 @@ def legacy_project_mat_path(project_dir: Path, *, project_mat_path: Path | None 
     expected_project_mat = project_dir / f"{project_dir.name}-project.mat"
     if expected_project_mat.is_file() and not is_backup_project_mat(expected_project_mat):
         return expected_project_mat.resolve()
+    try:
+        candidates = sorted(
+            (
+                entry
+                for entry in project_dir.iterdir()
+                if entry.is_file()
+                and entry.name.lower().endswith("-project.mat")
+                and not is_backup_project_mat(entry)
+            ),
+            key=lambda entry: entry.name.lower(),
+        )
+    except OSError:
+        return None
+    if len(candidates) == 1:
+        return candidates[0].resolve()
     return None
 
 
@@ -709,6 +727,58 @@ def legacy_project_prefix(project_mat_path: Path) -> str:
 def is_backup_project_mat(project_mat_path: Path) -> bool:
     name = project_mat_path.name.lower()
     return name == "bk-project.mat" or name.startswith("bk-") or name.startswith("backup")
+
+
+def legacy_matlab_timelapse_prefixes(project_dir: Path, *, project_mat_path: Path | None = None) -> list[str]:
+    prefixes: list[str] = []
+    seen: set[str] = set()
+
+    def add_prefix(value: str | None) -> None:
+        text = str(value or "").strip()
+        if not text:
+            return
+        key = text.lower()
+        if key in seen:
+            return
+        seen.add(key)
+        prefixes.append(text)
+
+    project_mat = legacy_project_mat_path(project_dir, project_mat_path=project_mat_path)
+    if project_mat is not None:
+        add_prefix(legacy_project_prefix(project_mat))
+
+    id_file = find_legacy_timelapse_id_file(project_dir)
+    if id_file is not None and id_file.name.lower().endswith("-id.txt"):
+        add_prefix(id_file.name[: -len("-ID.txt")])
+
+    try:
+        children = [entry for entry in project_dir.iterdir() if entry.is_dir()]
+    except OSError:
+        return prefixes
+    for child in sorted(children, key=lambda entry: entry.name.lower()):
+        match = re.match(r"^(.+)-pos\d+$", child.name, flags=re.IGNORECASE)
+        if match:
+            add_prefix(match.group(1))
+    return prefixes
+
+
+def legacy_matlab_position_dir(project_dir: Path, position_number: int, *, project_mat_path: Path | None = None) -> Path | None:
+    if position_number <= 0:
+        return None
+    suffix = f"-pos{position_number}"
+    for prefix in legacy_matlab_timelapse_prefixes(project_dir, project_mat_path=project_mat_path):
+        candidate = project_dir / f"{prefix}{suffix}"
+        if candidate.is_dir():
+            return candidate
+    try:
+        children = sorted((entry for entry in project_dir.iterdir() if entry.is_dir()), key=lambda entry: entry.name.lower())
+    except OSError:
+        return None
+    suffix_lower = suffix.lower()
+    for child in children:
+        if child.name.lower().endswith(suffix_lower):
+            return child
+    return None
 
 
 def is_legacy_matlab_timelapse_dataset_dir(dataset_dir: Path) -> bool:
@@ -732,9 +802,15 @@ def get_or_create_storage_root(
     )
     if root is None:
         root_name = storage_root_name or build_storage_root_name(normalized_root_path)
-        root = session.scalars(select(StorageRoot).where(StorageRoot.name == root_name)).first()
+        named_root = session.scalars(select(StorageRoot).where(StorageRoot.name == root_name)).first()
+        if named_root is not None and str(named_root.path_prefix or "") == normalized_root_path:
+            root = named_root
     if root is None:
-        root_name = storage_root_name or build_storage_root_name(normalized_root_path)
+        root_name = build_available_storage_root_name(
+            session,
+            preferred_name=storage_root_name or build_storage_root_name(normalized_root_path),
+            root_path=normalized_root_path,
+        )
         root = StorageRoot(
             name=root_name,
             root_type=root_type,
@@ -749,6 +825,24 @@ def get_or_create_storage_root(
         root.path_prefix = normalized_root_path
         session.flush()
     return root
+
+
+def build_available_storage_root_name(session: Session, *, preferred_name: str, root_path: str) -> str:
+    existing = session.scalars(select(StorageRoot).where(StorageRoot.name == preferred_name)).first()
+    if existing is None or str(existing.path_prefix or "") == root_path:
+        return preferred_name
+
+    generated_name = build_storage_root_name(root_path)
+    existing = session.scalars(select(StorageRoot).where(StorageRoot.name == generated_name)).first()
+    if existing is None or str(existing.path_prefix or "") == root_path:
+        return generated_name
+
+    for index in range(2, 1000):
+        candidate = f"{generated_name}_{index}"
+        existing = session.scalars(select(StorageRoot).where(StorageRoot.name == candidate)).first()
+        if existing is None or str(existing.path_prefix or "") == root_path:
+            return candidate
+    raise RuntimeError(f"Could not allocate a unique storage root name for {root_path}")
 
 
 def find_existing_storage_root(
@@ -1226,11 +1320,11 @@ def scan_legacy_matlab_timelapse_project(
 
 
 def count_legacy_position_dirs(project_dir: Path, *, project_mat_path: Path | None = None) -> int:
-    project_mat = legacy_project_mat_path(project_dir, project_mat_path=project_mat_path)
-    prefix_text = legacy_project_prefix(project_mat) if project_mat is not None else project_dir.name
-    prefix = f"{prefix_text.lower()}-pos"
+    prefixes = tuple(f"{prefix.lower()}-pos" for prefix in legacy_matlab_timelapse_prefixes(project_dir, project_mat_path=project_mat_path))
+    if not prefixes:
+        prefixes = (f"{project_dir.name.lower()}-pos",)
     try:
-        return sum(1 for entry in project_dir.iterdir() if entry.is_dir() and entry.name.lower().startswith(prefix))
+        return sum(1 for entry in project_dir.iterdir() if entry.is_dir() and entry.name.lower().startswith(prefixes))
     except OSError:
         return 0
 
@@ -1623,6 +1717,64 @@ def is_position_like_name(name: str) -> bool:
 _MICROMANAGER_MARKER_FILES = frozenset(
     {"metadata.txt", "acquisitionmetadata.txt", "displaysettings.txt", "displaysettings.json"}
 )
+_RAW_IMAGE_FILE_SUFFIXES = (".tif", ".tiff", ".nd2", ".czi", ".lif", ".ims")
+
+
+def has_direct_file_with_suffix(path: Path, suffixes: tuple[str, ...]) -> bool:
+    try:
+        for entry in path.iterdir():
+            if entry.is_file() and entry.name.lower().endswith(suffixes):
+                return True
+    except OSError:
+        return False
+    return False
+
+
+def direct_child_file_names(path: Path) -> set[str]:
+    try:
+        return {entry.name.lower() for entry in path.iterdir() if entry.is_file()}
+    except OSError:
+        return set()
+
+
+def is_micromanager_position_dir(path: Path, *, allow_generic_name: bool = False) -> bool:
+    if not path.is_dir() or path.name.startswith("."):
+        return False
+    if is_position_like_name(path.name):
+        return True
+    if not allow_generic_name:
+        return False
+    if (path / "NDTiff.index").is_file():
+        return True
+    return has_direct_file_with_suffix(path, _RAW_IMAGE_FILE_SUFFIXES)
+
+
+def has_micromanager_position_dirs(path: Path, *, allow_generic_names: bool) -> bool:
+    try:
+        for entry in path.iterdir():
+            if entry.is_dir() and is_micromanager_position_dir(entry, allow_generic_name=allow_generic_names):
+                return True
+    except OSError:
+        return False
+    return False
+
+
+def has_multiple_generic_micromanager_position_dirs(path: Path, *, require_child_marker: bool = False) -> bool:
+    count = 0
+    try:
+        for entry in path.iterdir():
+            if not entry.is_dir() or entry.name.startswith(".") or is_position_like_name(entry.name):
+                continue
+            if require_child_marker and not (_MICROMANAGER_MARKER_FILES.intersection(direct_child_file_names(entry))):
+                continue
+            if not is_micromanager_position_dir(entry, allow_generic_name=True):
+                continue
+            count += 1
+            if count >= 2:
+                return True
+    except OSError:
+        return False
+    return False
 
 
 def looks_like_raw_dataset_dir(path: Path) -> bool:
@@ -1635,10 +1787,7 @@ def looks_like_raw_dataset_dir(path: Path) -> bool:
         return True
     if is_legacy_matlab_timelapse_dataset_dir(path):
         return True
-    try:
-        child_names = {entry.name.lower() for entry in path.iterdir() if entry.is_file()}
-    except OSError:
-        return False
+    child_names = direct_child_file_names(path)
 
     if any(name.endswith(".nd2") for name in child_names):
         return True
@@ -1658,16 +1807,12 @@ def looks_like_raw_dataset_dir(path: Path) -> bool:
         except OSError:
             pass
 
-    # MM directories without any Pos*/Position*/XY* subdirectories are single-image
+    # MM directories without position subdirectories are single-image
     # acquisitions (snapshots, per-channel captures), not multi-position timelapses.
-    try:
-        has_position_dirs = any(
-            entry.is_dir() and is_position_like_name(entry.name)
-            for entry in path.iterdir()
-        )
-    except OSError:
-        has_position_dirs = False
-    if not has_position_dirs:
+    # Some legacy server acquisitions use strain/condition names instead of Pos*/XY*
+    # for position folders, but still have DisplaySettings at the dataset root.
+    allow_generic_positions = has_mm_markers and has_multiple_generic_micromanager_position_dirs(path)
+    if not has_micromanager_position_dirs(path, allow_generic_names=allow_generic_positions):
         return False
 
     return True
@@ -1686,6 +1831,8 @@ def has_position_child_with_micromanager_markers(path: Path) -> bool:
                 return True
     except OSError:
         return False
+    if has_multiple_generic_micromanager_position_dirs(path, require_child_marker=True):
+        return True
     return False
 
 
@@ -1757,7 +1904,6 @@ def get_or_create_raw_dataset_for_path(
         external_key=(existing.external_key if existing is not None else None),
         source_label="project_srcpath_relink",
         source_metadata={"source_project_scan": True},
-        acquisition_label=dataset_dir.name,
         status="indexed",
         completeness_status="complete",
     )

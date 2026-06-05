@@ -18,7 +18,11 @@ from api.services.micromanager_ingest import (
 )
 from api.routes_micromanager_ingest import micromanager_landing_root_summary
 from api.services.raw_preview_settings import RawPreviewRuntimeConfig
-from api.services.raw_dataset_ingest import discover_raw_dataset_positions
+from api.services.raw_dataset_ingest import (
+    detect_raw_dataset_format,
+    discover_raw_dataset_positions,
+    is_short_single_position_micromanager_dataset,
+)
 from api.services.project_indexing import iter_orphan_raw_candidates, looks_like_raw_dataset_dir
 from worker.raw_preview_video import (
     find_first_zarr_array_dir,
@@ -76,6 +80,50 @@ def test_orphan_raw_candidates_accept_parent_with_position_metadata(tmp_path):
 
     assert looks_like_raw_dataset_dir(dataset_dir)
     assert list(iter_orphan_raw_candidates(tmp_path, project_dirs=[])) == [dataset_dir]
+
+
+def test_orphan_raw_candidates_accept_display_settings_with_generic_position_names(tmp_path):
+    dataset_dir = tmp_path / "081025_4d_SC_005_1"
+    for position_name, position_index in (
+        ("10-X452_005_2d_LOG-37", "036"),
+        ("6-X539_SC_2d_LOG-21", "020"),
+    ):
+        position_dir = dataset_dir / position_name
+        position_dir.mkdir(parents=True)
+        (position_dir / "metadata.txt").write_text(json.dumps({"Summary": {"Frames": 900}}), encoding="utf-8")
+        (position_dir / f"img_channel000_position{position_index}_time000000000_z000.tif").write_bytes(b"tiff")
+        (position_dir / f"img_channel000_position{position_index}_time000000001_z000.tif").write_bytes(b"tiff")
+    (dataset_dir / "DisplaySettings.json").write_text(json.dumps({"Channels": []}), encoding="utf-8")
+
+    assert looks_like_raw_dataset_dir(dataset_dir)
+    assert detect_raw_dataset_format(dataset_dir, {}) == "micromanager_tiff_dir"
+    assert list(iter_orphan_raw_candidates(tmp_path, project_dirs=[])) == [dataset_dir]
+    positions = discover_raw_dataset_positions(dataset_dir, {})
+    assert [position["display_name"] for position in positions] == [
+        "10-X452_005_2d_LOG-37",
+        "6-X539_SC_2d_LOG-21",
+    ]
+    assert positions[0]["metadata_json"]["source"] == "generic_micromanager_directory"
+
+
+def test_orphan_raw_candidates_reject_single_generic_child_snapshot(tmp_path):
+    dataset_dir = tmp_path / "single_snapshot"
+    position_dir = dataset_dir / "not_a_pos_name"
+    position_dir.mkdir(parents=True)
+    (dataset_dir / "DisplaySettings.json").write_text(json.dumps({"Channels": []}), encoding="utf-8")
+    (position_dir / "img_channel000_position000_time000000000_z000.tif").write_bytes(b"tiff")
+
+    assert not looks_like_raw_dataset_dir(dataset_dir)
+    assert list(iter_orphan_raw_candidates(tmp_path, project_dirs=[])) == []
+
+
+def test_short_micromanager_filter_keeps_multi_position_single_timepoint_acquisitions():
+    assert not is_short_single_position_micromanager_dataset(
+        {"dimensions": {"frame_count": 1, "position_count": 20}}
+    )
+    assert is_short_single_position_micromanager_dataset(
+        {"dimensions": {"frame_count": 1, "position_count": 1}}
+    )
 
 
 def test_discover_micromanager_candidates_infers_owner_from_acquisitions_path(tmp_path):
