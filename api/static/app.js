@@ -368,6 +368,7 @@ const els = {
   miscIncludeCataloged: document.querySelector("#misc-include-cataloged"),
   miscInventoryButton: document.querySelector("#misc-inventory-button"),
   miscRefreshButton: document.querySelector("#misc-refresh-button"),
+  miscPurgeButton: document.querySelector("#misc-purge-button"),
   miscSearch: document.querySelector("#misc-search"),
   miscOwnerFilter: document.querySelector("#misc-owner-filter"),
   miscCategoryFilter: document.querySelector("#misc-category-filter"),
@@ -5794,6 +5795,28 @@ async function queueMiscStorageInventory() {
   setStatus(`Queued misc inventory job ${response.job_id}.`);
 }
 
+async function purgeMiscStorageItems() {
+  const storageRootName = (els.miscStorageRootName?.value || "").trim() || "data_misc";
+  const confirmed = window.confirm(`Purge all Misc Storage items for storage root ${storageRootName}? This only clears catalog rows; it does not delete files, projects, or raw datasets.`);
+  if (!confirmed) {
+    return;
+  }
+  const typed = window.prompt(`Type ${storageRootName} to confirm purge`, "");
+  if (typed !== storageRootName) {
+    setStatus("Misc storage purge cancelled.");
+    return;
+  }
+  const params = new URLSearchParams({
+    storage_root_name: storageRootName,
+    confirm: "true",
+  });
+  const result = await apiDelete(`/storage/misc-items/purge?${params.toString()}`);
+  state.miscStorageItems = [];
+  renderMiscStorageItems();
+  setStatus(result.message || `Purged misc storage items for ${storageRootName}.`);
+  await refreshMiscStorageItems();
+}
+
 async function queueMiscItemProjectIndex(item) {
   const absolutePath = miscItemAbsolutePath(item);
   let ownerUserKey = item.owner?.user_key || "";
@@ -8832,6 +8855,7 @@ if (els.migrationRefreshButton) els.migrationRefreshButton.addEventListener("cli
 if (els.migrationExecutePilotButton) els.migrationExecutePilotButton.addEventListener("click", () => executePilotBatch().catch((error) => setStatus(String(error))));
 if (els.miscInventoryButton) els.miscInventoryButton.addEventListener("click", () => queueMiscStorageInventory().catch((error) => setStatus(String(error))));
 if (els.miscRefreshButton) els.miscRefreshButton.addEventListener("click", () => refreshMiscStorageItems().catch((error) => setStatus(String(error))));
+if (els.miscPurgeButton) els.miscPurgeButton.addEventListener("click", () => purgeMiscStorageItems().catch((error) => setStatus(String(error))));
 if (els.miscSearch) els.miscSearch.addEventListener("input", () => renderMiscStorageItems());
 if (els.miscOwnerFilter) els.miscOwnerFilter.addEventListener("change", () => refreshMiscStorageItems().catch((error) => setStatus(String(error))));
 if (els.miscCategoryFilter) els.miscCategoryFilter.addEventListener("change", () => refreshMiscStorageItems().catch((error) => setStatus(String(error))));

@@ -5,7 +5,7 @@ from pathlib import Path
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy import select
+from sqlalchemy import delete, select
 from sqlalchemy.orm import Session, joinedload
 
 from api.config import get_settings
@@ -14,6 +14,7 @@ from api.models import (
     ExecutionTarget,
     Job,
     MiscStorageItem,
+    StorageRoot,
     StorageProvider,
     StorageProvisioningEvent,
     StorageQuotaSnapshot,
@@ -50,6 +51,7 @@ from api.schemas import (
     MiscStorageInventoryResponse,
     MiscStorageItemSummary,
     MiscStorageItemUpdate,
+    MiscStoragePurgeResponse,
     UserStorageAccountCreate,
     UserStorageAccountSummary,
     UserStorageAccountUpdate,
@@ -183,6 +185,49 @@ def list_misc_storage_items(
         stmt = stmt.where(MiscStorageItem.total_bytes >= max(int(min_size_bytes), 0))
     stmt = stmt.limit(min(max(int(limit), 1), 1000))
     return list(db.scalars(stmt).unique())
+
+
+@router.delete("/misc-items/purge", response_model=MiscStoragePurgeResponse)
+def purge_misc_storage_items(
+    storage_root_name: str = "data_misc",
+    confirm: bool = False,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> MiscStoragePurgeResponse:
+    require_storage_admin(current_user)
+    if not confirm:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Purge requires confirm=true")
+
+    root_name = str(storage_root_name or "").strip() or "data_misc"
+    storage_root = db.scalars(
+        select(StorageRoot).where(
+            StorageRoot.name == root_name,
+            StorageRoot.root_type == "misc_root",
+        )
+    ).first()
+    if storage_root is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Misc storage root '{root_name}' not found")
+
+    active_misc_job = db.scalars(
+        select(Job).where(
+            Job.status.in_(("queued", "running")),
+            Job.params_json["job_kind"].as_string() == "misc_storage_inventory",
+        )
+    ).first()
+    if active_misc_job is not None:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="A misc storage inventory job is queued or running; wait for it or cancel it before purging.",
+        )
+
+    result = db.execute(delete(MiscStorageItem).where(MiscStorageItem.storage_root_id == storage_root.id))
+    deleted_count = int(result.rowcount or 0)
+    db.commit()
+    return MiscStoragePurgeResponse(
+        storage_root_name=storage_root.name,
+        deleted_count=deleted_count,
+        message=f"Purged {deleted_count} misc storage item(s) for {storage_root.name}.",
+    )
 
 
 @router.patch("/misc-items/{item_id}", response_model=MiscStorageItemSummary)

@@ -231,6 +231,12 @@ class MiscStorageInventoryResponse(HubBaseModel):
     message: str
 
 
+class MiscStoragePurgeResponse(HubBaseModel):
+    storage_root_name: str
+    deleted_count: int
+    message: str
+
+
 class MiscStorageExploreChildrenRequest(HubBaseModel):
     min_size_bytes: int = 1024 * 1024 * 1024
     max_depth: int = 1
