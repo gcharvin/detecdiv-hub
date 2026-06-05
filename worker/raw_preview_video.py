@@ -1891,68 +1891,158 @@ def annotate_preview_frames(
     for index, frame in enumerate(frames):
         canvas = np.array(frame, copy=True)
         height, width = canvas.shape[:2]
-        compact_overlay = min(height, width) < 512
-        frame_scale = max(1, min(4, min(height, width) // 320))
-        if compact_overlay:
-            frame_scale = max(2, frame_scale)
-            label_scale = frame_scale
-            title_scale = frame_scale
-            margin = max(4, frame_scale * 2)
-            line_gap = max(4, frame_scale * 2)
-        else:
-            label_scale = max(1, frame_scale - 1)
-            title_scale = max(1, frame_scale - 1)
-            margin = max(4, frame_scale * 3)
-            line_gap = max(4, label_scale * 8)
+        min_dimension = min(height, width)
+        compact_overlay = min_dimension < 512
+        desired_scale = preferred_overlay_scale(width=width, height=height)
+        margin = preferred_overlay_margin(width=width, height=height, scale=desired_scale)
+        line_gap = preferred_overlay_gap(width=width, height=height, scale=desired_scale)
+        top_row_count = 1 + (1 if overlay_channel_labels else 0)
+        bottom_row_count = (1 if overlay_position_label else 0) + (1 if overlay_project_label else 0)
+        layout_scale = fit_overlay_layout_scale(
+            frame_height=height,
+            desired_scale=desired_scale,
+            top_row_count=top_row_count,
+            bottom_row_count=bottom_row_count,
+            margin=margin,
+            line_gap=line_gap,
+        )
+        margin = preferred_overlay_margin(width=width, height=height, scale=layout_scale)
+        line_gap = preferred_overlay_gap(width=width, height=height, scale=layout_scale)
+        label_scale = layout_scale
+        title_scale = layout_scale
+        available_width = max(16, width - (margin * 2))
         frame_label = f"F{index + 1}" if compact_overlay else f"FRAME {index + 1}"
-        frame_scale = fit_text_scale(frame_label, available_width=max(32, width - (margin * 2)), desired_scale=frame_scale)
-        draw_text_with_box(canvas, frame_label, x=margin, y=margin, scale=frame_scale)
+        frame_text, frame_scale = fit_overlay_text(
+            frame_label,
+            available_width=available_width,
+            desired_scale=layout_scale,
+        )
+        draw_text_with_box(canvas, frame_text, x=margin, y=margin, scale=frame_scale)
+        next_top_y = margin + boxed_text_height(frame_scale) + line_gap
         if overlay_project_label:
-            project_text = overlay_project_label[:18] if compact_overlay else overlay_project_label[:48]
-            project_scale = fit_text_scale(
-                project_text,
-                available_width=max(32, width - (margin * 2)),
+            project_candidate = overlay_project_label[:18] if compact_overlay else overlay_project_label[:48]
+            project_text, project_scale = fit_overlay_text(
+                project_candidate,
+                available_width=available_width,
                 desired_scale=title_scale,
             )
+            project_y = bottom_aligned_text_y(height - margin, project_scale)
             draw_text_with_box(
                 canvas,
                 project_text,
                 x=margin,
-                y=max(margin, height - (7 * project_scale) - margin),
+                y=project_y,
                 scale=project_scale,
             )
+            next_bottom_y = max(margin, box_top_y(project_y) - line_gap)
+        else:
+            project_scale = title_scale
+            next_bottom_y = height - margin
         if overlay_position_label:
-            position_text = f"P{overlay_position_label[:10]}" if compact_overlay else f"POS {overlay_position_label[:28]}"
-            position_scale = fit_text_scale(
-                position_text,
-                available_width=max(32, width - (margin * 2)),
+            position_candidate = f"P{overlay_position_label[:10]}" if compact_overlay else f"POS {overlay_position_label[:28]}"
+            position_text, position_scale = fit_overlay_text(
+                position_candidate,
+                available_width=available_width,
                 desired_scale=title_scale,
             )
+            position_y = bottom_aligned_text_y(next_bottom_y, position_scale)
             draw_text_with_box(
                 canvas,
                 position_text,
                 x=margin,
-                y=max(margin, height - (7 * project_scale if overlay_project_label else 7 * position_scale) - line_gap - margin),
+                y=max(margin, position_y),
                 scale=position_scale,
             )
         if overlay_channel_labels:
             panel_width = max(1, canvas.shape[1] // len(overlay_channel_labels))
             for channel_index, label in enumerate(overlay_channel_labels):
                 channel_text = f"CH{channel_index + 1}" if compact_overlay else label
-                channel_scale = fit_text_scale(
+                channel_text, channel_scale = fit_overlay_text(
                     channel_text,
-                    available_width=max(24, panel_width - (margin * 2)),
+                    available_width=max(12, panel_width - (margin * 2)),
                     desired_scale=label_scale,
                 )
                 draw_text_with_box(
                     canvas,
                     channel_text,
                     x=channel_index * panel_width + margin,
-                    y=margin + line_gap,
+                    y=next_top_y,
                     scale=channel_scale,
                 )
         annotated.append(canvas)
     return annotated
+
+
+def preferred_overlay_scale(*, width: int, height: int) -> int:
+    min_dimension = min(width, height)
+    if min_dimension < 640:
+        return 1
+    return max(1, min(3, min_dimension // 384))
+
+
+def preferred_overlay_margin(*, width: int, height: int, scale: int) -> int:
+    min_dimension = min(width, height)
+    return max(3, min(12, min_dimension // 96, int(scale) * 3))
+
+
+def preferred_overlay_gap(*, width: int, height: int, scale: int) -> int:
+    min_dimension = min(width, height)
+    return max(3, min(8, min_dimension // 128, int(scale) * 3))
+
+
+def fit_overlay_layout_scale(
+    *,
+    frame_height: int,
+    desired_scale: int,
+    top_row_count: int,
+    bottom_row_count: int,
+    margin: int,
+    line_gap: int,
+) -> int:
+    for scale in range(max(1, int(desired_scale)), 0, -1):
+        row_height = boxed_text_height(scale)
+        top_height = overlay_stack_height(top_row_count, row_height=row_height, line_gap=line_gap)
+        bottom_height = overlay_stack_height(bottom_row_count, row_height=row_height, line_gap=line_gap)
+        if top_height + bottom_height + (margin * 2) + line_gap <= frame_height:
+            return scale
+    return 1
+
+
+def overlay_stack_height(row_count: int, *, row_height: int, line_gap: int) -> int:
+    if row_count <= 0:
+        return 0
+    return (row_count * row_height) + ((row_count - 1) * line_gap)
+
+
+def fit_overlay_text(text: str, *, available_width: int, desired_scale: int) -> tuple[str, int]:
+    scale = fit_text_scale(
+        text,
+        available_width=max(1, available_width),
+        desired_scale=max(1, desired_scale),
+    )
+    return truncate_text_to_width(text, available_width=available_width, scale=scale), scale
+
+
+def truncate_text_to_width(text: str, *, available_width: int, scale: int) -> str:
+    clean = str(text or "").strip()
+    if not clean or text_pixel_width(clean, scale=scale) <= available_width:
+        return clean
+    result = clean
+    while result and text_pixel_width(result, scale=scale) > available_width:
+        result = result[:-1].rstrip()
+    return result
+
+
+def boxed_text_height(scale: int) -> int:
+    return (7 * max(1, int(scale))) + 4
+
+
+def box_top_y(text_y: int) -> int:
+    return max(0, int(text_y) - 2)
+
+
+def bottom_aligned_text_y(bottom_edge: int, scale: int) -> int:
+    return max(0, int(bottom_edge) - 2 - (7 * max(1, int(scale))))
 
 
 def sanitize_overlay_text(value: str) -> str:

@@ -28,6 +28,11 @@ def test_fit_text_scale_honors_lower_bounds():
     assert fit_text_scale("FRAME 1", available_width=20, desired_scale=4) == 1
 
 
+def test_fit_text_scale_respects_available_height():
+    assert fit_text_scale("FRAME 1", available_width=1200, available_height=20, desired_scale=4) == 2
+    assert fit_text_scale("FRAME 1", available_width=1200, available_height=6, desired_scale=4) == 1
+
+
 def test_annotate_preview_frames_uses_visible_compact_overlay():
     frame = np.zeros((256, 256), dtype=np.uint8)
 
@@ -39,7 +44,33 @@ def test_annotate_preview_frames_uses_visible_compact_overlay():
     )[0]
 
     assert annotated.shape == (256, 256)
-    assert int((annotated[:32, :32] == 255).sum()) > 80
+    assert int((annotated[:32, :32] == 255).sum()) > 40
+
+
+def test_annotate_preview_frames_keeps_compact_overlay_small():
+    frame = np.full((256, 256), 128, dtype=np.uint8)
+
+    annotated = annotate_preview_frames(
+        [frame],
+        project_label="2026_01_15_YAK109_GT53_with_a_long_tail",
+        position_label="Pos0",
+        channel_labels=["Ch 1"],
+    )[0]
+
+    changed_rows = np.where((annotated != 128).any(axis=1))[0]
+    groups = []
+    start = previous = int(changed_rows[0])
+    for row in changed_rows[1:]:
+        row = int(row)
+        if row == previous + 1:
+            previous = row
+            continue
+        groups.append((start, previous))
+        start = previous = row
+    groups.append((start, previous))
+
+    assert len(groups) >= 4
+    assert max(end - start + 1 for start, end in groups) <= 12
 
 
 def test_read_zarr_preview_frames_falls_back_to_series_array_child(tmp_path, monkeypatch):

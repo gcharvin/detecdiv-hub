@@ -10,6 +10,7 @@ def fit_text_scale(
     *,
     available_width: int,
     desired_scale: int,
+    available_height: int | None = None,
     minimum_scale: int = 1,
     maximum_scale: int = 6,
 ) -> int:
@@ -20,5 +21,7 @@ def fit_text_scale(
     if width_at_unit_scale <= 0 or available_width <= 0:
         return max(1, minimum_scale)
     fitted = available_width // width_at_unit_scale
+    if available_height is not None:
+        fitted = min(fitted, max(1, int(available_height) // 7))
     fitted = max(minimum_scale, min(maximum_scale, int(fitted)))
     return max(minimum_scale, min(int(desired_scale), fitted))
