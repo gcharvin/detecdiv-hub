@@ -513,7 +513,13 @@ def normalize_pipeline_ref_paths_for_posix(*, payload: dict[str, Any], job: Job)
     if not pipeline_json_path:
         return payload
 
-    source_path = Path(pipeline_json_path)
+    source_path = resolve_pipeline_json_source_path(pipeline_json_path)
+    if str(source_path) != pipeline_json_path:
+        pipeline_ref["pipeline_json_path_original"] = pipeline_json_path
+        pipeline_ref["pipeline_json_path"] = str(source_path)
+        normalized_payload = dict(payload)
+        normalized_payload["pipeline_ref"] = pipeline_ref
+        payload = normalized_payload
     if not source_path.is_file():
         return payload
 
@@ -536,6 +542,15 @@ def normalize_pipeline_ref_paths_for_posix(*, payload: dict[str, Any], job: Job)
     normalized_payload = dict(payload)
     normalized_payload["pipeline_ref"] = pipeline_ref
     return normalized_payload
+
+
+def resolve_pipeline_json_source_path(path_text: str) -> Path:
+    source_path = Path(path_text)
+    if source_path.is_dir():
+        pipeline_json = source_path / "pipeline.json"
+        if pipeline_json.is_file():
+            return pipeline_json
+    return source_path
 
 
 def normalize_pipeline_data_paths_for_posix(value: Any, *, key: str | None = None) -> tuple[Any, bool]:

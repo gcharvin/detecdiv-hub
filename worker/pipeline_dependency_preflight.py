@@ -25,13 +25,7 @@ def evaluate_pipeline_dependency_preflight(payload: dict[str, Any]) -> dict[str,
     summary = dependency_audit.get("summary") or {}
     dependencies = dependency_audit.get("dependencies") or []
 
-    required_missing_count = safe_int(summary.get("required_missing_count"))
-    if required_missing_count > 0:
-        errors.append(f"dependency_audit reports {required_missing_count} required missing dependency(ies).")
-
     pipeline_status = str(dependency_audit.get("pipelineStatus") or "").strip().lower()
-    if pipeline_status == "linked_unresolvable":
-        errors.append("dependency_audit pipelineStatus is linked_unresolvable.")
 
     legacy_count = safe_int(summary.get("legacy_count"))
     if legacy_count > 0:
@@ -47,11 +41,15 @@ def evaluate_pipeline_dependency_preflight(payload: dict[str, Any]) -> dict[str,
         source = dep.get("source") or {}
         if not isinstance(source, dict):
             source = {}
+        dependency_mode = str(dep.get("dependency_mode") or "").strip().lower()
+        locator_kind = str(dep.get("locator_kind") or "").strip().lower()
+        module_kind = str(dep.get("module_kind") or dep.get("node_type") or "").strip().lower()
         configured_path = str(source.get("configured_path") or "").strip()
         resolved_path = str(source.get("resolved_path") or "").strip()
         candidate_path = resolved_path or configured_path
         if not candidate_path:
-            errors.append(f"{node_id}: missing configured/resolved module path for required dependency.")
+            if requires_external_path_for_preflight(dependency_mode, locator_kind, module_kind):
+                errors.append(f"{node_id}: missing configured/resolved module path for required dependency.")
             continue
 
         host_path = resolve_dependency_path_for_worker(candidate_path, pipeline_root)
@@ -78,6 +76,14 @@ def evaluate_pipeline_dependency_preflight(payload: dict[str, Any]) -> dict[str,
             [d for d in dependencies if isinstance(d, dict) and bool(d.get("is_required_for_run"))]
         ),
     }
+
+
+def requires_external_path_for_preflight(dependency_mode: str, locator_kind: str, module_kind: str) -> bool:
+    if dependency_mode == "linked":
+        return True
+    if locator_kind in {"external_path", "absolute_path"}:
+        return True
+    return module_kind == "classifier"
 
 
 def build_preflight_error_text(preflight: dict[str, Any]) -> str:
@@ -112,7 +118,27 @@ def normalize_worker_path_text(path_text: str) -> str:
         rest = path_text[3:].replace("\\", "/").lstrip("/")
         if drive == "X":
             return f"/data/{rest}" if rest else "/data"
+        if drive == "C":
+            mapped = map_known_windows_c_path(rest)
+            if mapped:
+                return mapped
     return path_text.replace("\\", "/") if path_text.startswith("\\\\") else path_text
+
+
+def map_known_windows_c_path(rest: str) -> str:
+    normalized = rest.replace("\\", "/").strip("/")
+    mappings = (
+        (
+            "Users/Gilles Charvin/SynologyDrive/DetecDivProjects/Repository/",
+            "/data/Gilles/abhilasha/classifiers/",
+        ),
+    )
+    lower_normalized = normalized.lower()
+    for source_prefix, target_prefix in mappings:
+        if lower_normalized.startswith(source_prefix.lower()):
+            suffix = normalized[len(source_prefix) :].lstrip("/")
+            return f"{target_prefix}{suffix}" if suffix else target_prefix.rstrip("/")
+    return ""
 
 
 def safe_int(value: Any) -> int:
