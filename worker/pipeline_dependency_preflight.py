@@ -99,10 +99,20 @@ def resolve_pipeline_root_for_preflight(pipeline_path: str) -> Path:
 
 
 def resolve_dependency_path_for_worker(candidate_path: str, pipeline_root: Path) -> Path:
-    candidate = Path(str(candidate_path).strip())
+    path_text = normalize_worker_path_text(str(candidate_path).strip())
+    candidate = Path(path_text)
     if candidate.is_absolute():
         return candidate
     return (pipeline_root / candidate).resolve()
+
+
+def normalize_worker_path_text(path_text: str) -> str:
+    if len(path_text) >= 3 and path_text[1] == ":" and path_text[2] in ("\\", "/"):
+        drive = path_text[0].upper()
+        rest = path_text[3:].replace("\\", "/").lstrip("/")
+        if drive == "X":
+            return f"/data/{rest}" if rest else "/data"
+    return path_text.replace("\\", "/") if path_text.startswith("\\\\") else path_text
 
 
 def safe_int(value: Any) -> int:

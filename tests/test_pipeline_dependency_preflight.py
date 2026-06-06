@@ -70,3 +70,12 @@ def test_preflight_passes_with_existing_required_dependency(tmp_path, monkeypatc
     report = preflight_mod.evaluate_pipeline_dependency_preflight({"pipeline_ref": {}})
     assert report["status"] == "ok"
     assert report["errors"] == []
+
+
+def test_worker_dependency_path_maps_windows_data_drive():
+    path = preflight_mod.resolve_dependency_path_for_worker(
+        r"X:\matlab\ClassiRepository\cellpose_4",
+        Path("/data/Gilles/abhilasha/testproject/pipeline/pipelineTemplate_1"),
+    )
+
+    assert path == Path("/data/matlab/ClassiRepository/cellpose_4")
