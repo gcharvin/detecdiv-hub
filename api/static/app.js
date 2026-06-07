@@ -1893,9 +1893,8 @@ function projectSortValue(project, key) {
     name: project.project_name,
     owner: ownerLabel,
     visibility: project.visibility,
-    health: project.health_status,
+    created: timestampSortValue(project.created_at),
     runs: Number(project.pipeline_run_count || 0),
-    h5: Number(project.h5_count || 0),
     size: Number(project.total_bytes || 0),
     status: project.status,
   };
@@ -1912,9 +1911,15 @@ function rawDatasetSortValue(raw, key) {
     tier: raw.lifecycle_tier,
     archive: raw.archive_status,
     status: displayStatus,
+    created: timestampSortValue(raw.created_at),
     size: Number(raw.total_bytes || 0),
   };
   return values[key] ?? "";
+}
+
+function timestampSortValue(value) {
+  const parsed = Date.parse(value || "");
+  return Number.isFinite(parsed) ? parsed : 0;
 }
 
 function compareTableValues(valueA, valueB, direction) {
@@ -2132,9 +2137,8 @@ function renderProjects() {
       <td>${escapeHtml(project.project_name)}</td>
       <td>${escapeHtml(project.owner ? userOptionLabel(project.owner) : "")}</td>
       <td>${escapeHtml(project.visibility)}</td>
-      <td>${escapeHtml(project.health_status)}</td>
+      <td>${escapeHtml(formatTimestamp(project.created_at))}</td>
       <td>${escapeHtml(project.pipeline_run_count)}</td>
-      <td>${escapeHtml(project.h5_count)}</td>
       <td>${humanBytes(project.total_bytes)}</td>
     `;
     tr.querySelector(".project-select-checkbox")?.addEventListener("click", (event) => {
@@ -3779,6 +3783,7 @@ function renderRawDatasets() {
       <td>${escapeHtml(raw.lifecycle_tier)}</td>
       <td>${escapeHtml(raw.archive_status)}</td>
       <td>${escapeHtml(displayStatus)}</td>
+      <td>${escapeHtml(formatTimestamp(raw.created_at))}</td>
       <td>${humanBytes(raw.total_bytes)}</td>
     `;
     tr.querySelector(".raw-select-checkbox")?.addEventListener("click", (event) => {
