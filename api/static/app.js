@@ -15,6 +15,8 @@ const state = {
   executionTargets: [],
   jobs: [],
   pipelineRuns: [],
+  pipelineRunPageSize: 10,
+  pipelineRunCurrentPage: 0,
   sessions: [],
   users: [],
   indexingJobs: [],
@@ -410,6 +412,7 @@ const els = {
   cancelPipelineRunButton: document.querySelector("#cancel-pipeline-run-button"),
   submitPipelineRunButton: document.querySelector("#submit-pipeline-run-button"),
   pipelineRunsTableBody: document.querySelector("#pipeline-runs-table tbody"),
+  pipelineRunsPagination: document.querySelector("#pipeline-runs-pagination"),
   pipelineRunDetail: document.querySelector("#pipeline-run-detail"),
   refreshExecutionTargetsButton: document.querySelector("#refresh-execution-targets-button"),
   newExecutionTargetButton: document.querySelector("#new-execution-target-button"),
@@ -2451,7 +2454,7 @@ function renderPipelineRuns() {
     return;
   }
   els.pipelineRunsTableBody.innerHTML = "";
-  for (const run of state.pipelineRuns) {
+  for (const run of getVisiblePipelineRuns()) {
     const tr = document.createElement("tr");
     if (state.selectedPipelineRun && String(state.selectedPipelineRun.id) === String(run.id)) {
       tr.classList.add("selected");
@@ -2476,6 +2479,7 @@ function renderPipelineRuns() {
     tr.addEventListener("dblclick", () => loadPipelineRunIntoForm(run));
     els.pipelineRunsTableBody.appendChild(tr);
   }
+  renderPipelineRunPagination();
   if (els.pipelineRunDetail) {
     if (!state.selectedPipelineRun) {
       els.pipelineRunDetail.textContent = "Select a run to inspect its status.";
@@ -2483,6 +2487,102 @@ function renderPipelineRuns() {
       renderPipelineRunDetail(state.selectedPipelineRun);
     }
   }
+}
+
+function getPipelineRunSortTimestamp(run) {
+  const value = run?.heartbeat_at || run?.updated_at || run?.created_at || null;
+  if (!value) {
+    return 0;
+  }
+  const parsed = Date.parse(value);
+  return Number.isFinite(parsed) ? parsed : 0;
+}
+
+function sortPipelineRuns(runs) {
+  return [...(runs || [])].sort((a, b) => getPipelineRunSortTimestamp(b) - getPipelineRunSortTimestamp(a));
+}
+
+function getPipelineRunPageCount() {
+  return Math.max(1, Math.ceil((state.pipelineRuns?.length || 0) / state.pipelineRunPageSize));
+}
+
+function clampPipelineRunPage() {
+  state.pipelineRunCurrentPage = Math.min(
+    Math.max(state.pipelineRunCurrentPage || 0, 0),
+    Math.max(getPipelineRunPageCount() - 1, 0),
+  );
+}
+
+function getVisiblePipelineRuns() {
+  clampPipelineRunPage();
+  const start = state.pipelineRunCurrentPage * state.pipelineRunPageSize;
+  return state.pipelineRuns.slice(start, start + state.pipelineRunPageSize);
+}
+
+function getLatestHubPipelineRun() {
+  return state.pipelineRuns[0] || null;
+}
+
+function buildCompactPageList(pageCount, currentPage) {
+  if (pageCount <= 7) {
+    return Array.from({ length: pageCount }, (_, index) => index);
+  }
+  const pages = new Set([0, pageCount - 1, currentPage - 1, currentPage, currentPage + 1]);
+  const compact = [...pages].filter((value) => value >= 0 && value < pageCount).sort((a, b) => a - b);
+  const result = [];
+  for (const page of compact) {
+    if (result.length && page - result[result.length - 1] > 1) {
+      result.push("ellipsis");
+    }
+    result.push(page);
+  }
+  return result;
+}
+
+function renderPipelineRunPagination() {
+  if (!els.pipelineRunsPagination) {
+    return;
+  }
+  const totalRuns = state.pipelineRuns.length;
+  const pageCount = getPipelineRunPageCount();
+  clampPipelineRunPage();
+  if (totalRuns <= state.pipelineRunPageSize) {
+    els.pipelineRunsPagination.classList.add("hidden");
+    els.pipelineRunsPagination.innerHTML = "";
+    return;
+  }
+
+  const currentPage = state.pipelineRunCurrentPage;
+  const start = currentPage * state.pipelineRunPageSize + 1;
+  const end = Math.min(totalRuns, start + state.pipelineRunPageSize - 1);
+  const parts = [];
+  parts.push(`<span class="muted">Showing ${start}-${end} of ${totalRuns}</span>`);
+  parts.push(`<button type="button" data-page="${currentPage - 1}" ${currentPage === 0 ? "disabled" : ""}>Prev</button>`);
+  for (const page of buildCompactPageList(pageCount, currentPage)) {
+    if (page === "ellipsis") {
+      parts.push('<span class="muted">...</span>');
+      continue;
+    }
+    parts.push(
+      `<button type="button" data-page="${page}" class="${page === currentPage ? "active" : ""}">${page + 1}</button>`,
+    );
+  }
+  parts.push(
+    `<button type="button" data-page="${currentPage + 1}" ${currentPage >= pageCount - 1 ? "disabled" : ""}>Next</button>`,
+  );
+  els.pipelineRunsPagination.innerHTML = parts.join("");
+  els.pipelineRunsPagination.classList.remove("hidden");
+  els.pipelineRunsPagination.querySelectorAll("button[data-page]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const nextPage = Number(button.dataset.page);
+      if (!Number.isInteger(nextPage)) {
+        return;
+      }
+      state.pipelineRunCurrentPage = nextPage;
+      clampPipelineRunPage();
+      renderPipelineRuns();
+    });
+  });
 }
 
 function renderPipelineRunDetail(run) {
@@ -3188,11 +3288,20 @@ async function refreshPipelineRuns() {
   const selectedId = state.selectedPipelineRun?.id || null;
   const projectId = pageFlags.hasProjectPage ? getProjectPageId() : "";
   const path = projectId ? `/pipeline-runs?project_id=${encodeURIComponent(projectId)}` : "/pipeline-runs";
-  state.pipelineRuns = await apiGet(path);
+  state.pipelineRuns = sortPipelineRuns(await apiGet(path));
   state.selectedPipelineRun = selectedId
     ? state.pipelineRuns.find((item) => String(item.id) === String(selectedId)) || null
     : null;
+  if (state.selectedPipelineRun) {
+    const selectedIndex = state.pipelineRuns.findIndex((item) => String(item.id) === String(state.selectedPipelineRun.id));
+    state.pipelineRunCurrentPage = selectedIndex >= 0 ? Math.floor(selectedIndex / state.pipelineRunPageSize) : 0;
+  } else {
+    state.pipelineRunCurrentPage = 0;
+  }
   renderPipelineRuns();
+  if (pageFlags.hasProjectPage && state.selectedProjectDetail) {
+    renderDetail();
+  }
 }
 
 async function refreshExecutionTargets() {
@@ -4848,6 +4957,12 @@ function renderDetail() {
   const groups = state.groups
     .filter((group) => group.project_ids?.includes?.(project.id))
     .map((group) => group.display_name);
+  const latestHubRun = getLatestHubPipelineRun();
+  const latestHubRunStatus = latestHubRun
+    ? `${latestHubRun.status || "unknown"} (${formatTimestamp(
+      latestHubRun.heartbeat_at || latestHubRun.updated_at || latestHubRun.created_at,
+    )})`
+    : "none";
 
   const fields = [
     ["Project", project.project_name],
@@ -4863,7 +4978,8 @@ function renderDetail() {
     ["Run JSON", project.run_json_count],
     ["H5 footprint", `${project.h5_count} files / ${humanBytes(project.h5_bytes)}`],
     ["Project size", humanBytes(project.total_bytes)],
-    ["Latest run", project.latest_run_status || "none"],
+    ["Latest observed run", project.latest_run_status || "none"],
+    ["Latest hub run", latestHubRunStatus],
     ["Groups", groups.length ? groups.join(", ") : "none"],
     ["Project MAT", project.metadata_json?.project_mat_abs || ""],
     ["Project dir", project.metadata_json?.project_dir_abs || ""],
