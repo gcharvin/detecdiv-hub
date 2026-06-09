@@ -654,6 +654,12 @@ th[data-sort-key].sorted[data-sort-direction="desc"]::after {
 
 #raw-datasets-table th:nth-child(8),
 #raw-datasets-table td:nth-child(8) {
+  width: 110px;
+  white-space: nowrap;
+}
+
+#raw-datasets-table th:nth-child(9),
+#raw-datasets-table td:nth-child(9) {
   width: 100px;
   white-space: nowrap;
 }

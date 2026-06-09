@@ -3889,8 +3889,8 @@ function renderRawDatasets() {
       <td>${escapeHtml(raw.lifecycle_tier)}</td>
       <td>${escapeHtml(raw.archive_status)}</td>
       <td>${escapeHtml(displayStatus)}</td>
-      <td>${escapeHtml(formatTimestamp(raw.created_at))}</td>
       <td>${humanBytes(raw.total_bytes)}</td>
+      <td>${escapeHtml(formatTimestamp(raw.created_at))}</td>
     `;
     tr.querySelector(".raw-select-checkbox")?.addEventListener("click", (event) => {
       event.stopPropagation();
