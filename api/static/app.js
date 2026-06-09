@@ -2461,12 +2461,10 @@ function renderPipelineRuns() {
     }
     const rr = run.params_json?.run_request || {};
     const project = state.projects.find((item) => String(item.id) === String(run.project_id));
-    const pipeline = [...state.pipelines, ...state.observedPipelines].find((item) => String(item.id || item.identity) === String(run.pipeline_id || ""));
     const target = state.executionTargets.find((item) => String(item.id) === String(run.execution_target_id));
     tr.innerHTML = `
       <td>${run.status}</td>
       <td>${project?.project_name || run.project_id || ""}</td>
-      <td>${pipeline?.display_name || run.params_json?.pipeline_ref?.pipeline_key || run.pipeline_id || ""}</td>
       <td>${target?.display_name || run.execution_target_id || "auto"}</td>
       <td>${rr.run_id || ""}</td>
       <td>${formatTimestamp(run.heartbeat_at || run.updated_at || run.created_at)}</td>
@@ -2476,7 +2474,6 @@ function renderPipelineRuns() {
       state.selectedPipelineRun = run;
       renderPipelineRuns();
     });
-    tr.addEventListener("dblclick", () => loadPipelineRunIntoForm(run));
     els.pipelineRunsTableBody.appendChild(tr);
   }
   renderPipelineRunPagination();
@@ -3305,7 +3302,7 @@ async function refreshPipelineRuns() {
 }
 
 async function refreshExecutionTargets() {
-  if (!els.executionTargetsTableBody && !els.pipelineRunTargetSelect) {
+  if (!els.executionTargetsTableBody && !els.pipelineRunTargetSelect && !pageFlags.hasPipelineRunsView) {
     return;
   }
   const selectedId = state.selectedExecutionTarget?.id || null;
@@ -5715,7 +5712,7 @@ async function refreshDashboard() {
   if (pageFlags.hasPipelinesView) {
     refreshTasks.push(refreshPipelines());
   }
-  if ((pageFlags.hasExecutionTargetsView && isAdmin()) || els.pipelineRunTargetSelect) {
+  if ((pageFlags.hasExecutionTargetsView && isAdmin()) || els.pipelineRunTargetSelect || pageFlags.hasPipelineRunsView) {
     refreshTasks.push(refreshExecutionTargets());
   }
   if (pageFlags.hasPipelineRunsView) {

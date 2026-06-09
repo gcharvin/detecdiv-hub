@@ -425,11 +425,31 @@ h3 {
 }
 
 .project-page-grid {
-  grid-template-columns: minmax(0, 1.45fr) minmax(420px, 0.8fr);
+  grid-template-columns: minmax(0, 1fr);
 }
 
 .project-pipelines-wrap {
   max-height: 420px;
+}
+
+.project-detail-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  column-gap: 18px;
+  row-gap: 16px;
+  align-items: start;
+}
+
+.project-detail-grid > .detail-actions,
+.project-detail-grid > .project-metadata-list,
+.project-detail-grid > .linked-records-grid,
+.project-detail-grid > .project-run-monitor-subpanel,
+.project-detail-grid > #project-backup-subpanel {
+  grid-column: 1 / -1;
+}
+
+.project-metadata-list {
+  grid-template-columns: 128px minmax(0, 1fr) 128px minmax(0, 1fr);
 }
 
 .admin-content {
@@ -740,6 +760,12 @@ tbody tr.selected {
   overflow: auto;
 }
 
+.project-page-grid > .detail-panel {
+  position: static;
+  max-height: none;
+  overflow: visible;
+}
+
 .bulk-actions-panel {
   margin-top: 14px;
 }
@@ -762,6 +788,10 @@ tbody tr.selected {
   display: grid;
   grid-template-columns: 128px 1fr;
   gap: 8px 12px;
+}
+
+.project-metadata-list {
+  grid-template-columns: 128px minmax(0, 1fr) 128px minmax(0, 1fr);
 }
 
 .detail-list dt {
@@ -824,7 +854,7 @@ tbody tr.selected {
 
 .linked-records-grid {
   display: grid;
-  grid-template-columns: minmax(260px, 0.72fr);
+  grid-template-columns: repeat(2, minmax(260px, 1fr));
   gap: 14px;
   align-items: start;
 }
@@ -1230,6 +1260,31 @@ button:disabled {
   }
 
   .detail-list {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (min-width: 901px) and (max-width: 1180px) {
+  .project-detail-grid {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+
+  .project-metadata-list {
+    grid-template-columns: 128px minmax(0, 1fr) 128px minmax(0, 1fr);
+  }
+
+  .project-detail-grid > .linked-records-grid {
+    grid-template-columns: repeat(2, minmax(260px, 1fr));
+  }
+}
+
+@media (max-width: 900px) {
+  .project-detail-grid,
+  .project-detail-grid > .linked-records-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .project-metadata-list {
     grid-template-columns: 1fr;
   }
 }
