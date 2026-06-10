@@ -43,7 +43,9 @@ def expire_stale_project_locks(session: Session, *, now: datetime | None = None)
 
 
 def active_project_locks(session: Session, *, project_id: UUID) -> list[ProjectLock]:
-    expire_stale_project_locks(session)
+    expired_count = expire_stale_project_locks(session)
+    if expired_count:
+        session.flush()
     return list(
         session.scalars(
             select(ProjectLock)
