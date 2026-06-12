@@ -620,6 +620,19 @@ class ProjectUpdate(HubBaseModel):
     metadata_json: dict[str, Any] = Field(default_factory=dict)
 
 
+class ProjectPathRegistrationRequest(HubBaseModel):
+    project_name: str | None = None
+    project_mat_path: str
+    project_dir_path: str | None = None
+    root_path: str | None = None
+    storage_root_name: str | None = None
+    host_scope: str = "server"
+    root_type: str = "project_root"
+    owner_user_key: str | None = None
+    visibility: str = "private"
+    metadata_json: dict[str, Any] = Field(default_factory=dict)
+
+
 class ProjectAclSummary(HubBaseModel):
     id: int
     access_level: str

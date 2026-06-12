@@ -1,5 +1,5 @@
 from pathlib import Path
-from datetime import timedelta
+from datetime import datetime, timezone, timedelta
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, status
@@ -36,6 +36,7 @@ from api.schemas import (
     ProjectLocationSummary,
     ProjectLockStatus,
     ProjectLockSummary,
+    ProjectPathRegistrationRequest,
     ProjectSummary,
     ProjectRawPreviewQueueRequest,
     ProjectRawPreviewQueueResult,
@@ -55,6 +56,11 @@ from api.schemas import (
 from api.services.auth import set_user_password
 from api.services.external_eln import linked_experiment_summary_view
 from api.services.path_resolution import compose_storage_path
+from api.services.project_indexing import (
+    build_project_key,
+    get_or_create_storage_root,
+    project_relative_parent,
+)
 from api.services.project_deletion import (
     ProjectDeletionBlockedError,
     build_deletion_preview,
@@ -138,6 +144,27 @@ def list_projects(
         stmt = stmt.where(Project.visibility == visibility)
     stmt = stmt.limit(min(max(limit, 1), 5000))
     return [project_summary_view(project) for project in db.scalars(stmt).unique()]
+
+
+@router.post("/register-path", response_model=ProjectDetail, status_code=status.HTTP_201_CREATED)
+def register_project_path(
+    payload: ProjectPathRegistrationRequest,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> ProjectDetail:
+    try:
+        project = register_project_path_record(db, payload=payload, current_user=current_user)
+        db.commit()
+    except ValueError as exc:
+        db.rollback()
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc
+    except HTTPException:
+        db.rollback()
+        raise
+    except Exception:
+        db.rollback()
+        raise
+    return get_project(project_id=project.id, db=db, current_user=current_user)
 
 
 @router.get("/{project_id}", response_model=ProjectDetail)
@@ -1215,3 +1242,137 @@ def project_location_summary_view(location: ProjectLocation) -> ProjectLocationS
             "storage_root": location.storage_root,
         }
     )
+
+
+def register_project_path_record(
+    db: Session,
+    *,
+    payload: ProjectPathRegistrationRequest,
+    current_user: User,
+) -> Project:
+    mat_path_text = str(payload.project_mat_path or "").strip()
+    if not mat_path_text:
+        raise ValueError("project_mat_path is required.")
+    mat_path = Path(mat_path_text)
+    if mat_path.suffix.lower() != ".mat":
+        raise ValueError("project_mat_path must point to a .mat file.")
+
+    root_path = infer_registration_root_path(
+        mat_path=mat_path,
+        root_path=payload.root_path,
+    )
+    try:
+        relative_parent = project_relative_parent(root_path, mat_path)
+    except ValueError as exc:
+        raise ValueError(f"project_mat_path must be under root_path: {root_path}") from exc
+
+    project_name = str(payload.project_name or "").strip() or mat_path.stem
+    project_dir_text = str(payload.project_dir_path or "").strip()
+    project_dir_path = Path(project_dir_text) if project_dir_text else mat_path.with_suffix("")
+    project_key = build_project_key(str(mat_path), relative_parent, mat_path.stem)
+    owner = current_user
+    if payload.owner_user_key:
+        if current_user.role not in {"admin", "service"} and payload.owner_user_key != current_user.user_key:
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Project owner cannot be changed.")
+        owner = get_or_create_user(db, user_key=payload.owner_user_key, display_name=payload.owner_user_key)
+
+    storage_root = get_or_create_storage_root(
+        db,
+        root_path=str(root_path),
+        storage_root_name=payload.storage_root_name,
+        host_scope=payload.host_scope,
+        root_type=payload.root_type,
+    )
+
+    project = db.scalars(select(Project).where(Project.project_key == project_key)).first()
+    if project is not None and not user_can_edit_project(project, current_user):
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Project is not editable")
+
+    now = datetime.now(timezone.utc)
+    metadata = dict(project.metadata_json or {}) if project is not None else {}
+    metadata.update(
+        {
+            "source": "matlab_direct_registration",
+            "project_mat_abs": str(mat_path),
+            "project_dir_abs": str(project_dir_path),
+            "project_rel_from_root": safe_relative_path(project_dir_path, root_path),
+            "registered_without_scan": True,
+            "last_direct_registration_at": now.isoformat(),
+        }
+    )
+    if payload.metadata_json:
+        client_metadata = dict(payload.metadata_json)
+        metadata["direct_registration_request"] = client_metadata
+
+    if project is None:
+        project = Project(
+            owner_user_id=owner.id,
+            project_key=project_key,
+            project_name=project_name,
+            visibility=payload.visibility,
+            status="indexed",
+            health_status="ok",
+            metadata_json=metadata,
+        )
+        db.add(project)
+        db.flush()
+    else:
+        project.owner_user_id = owner.id
+        project.project_name = project_name
+        project.visibility = payload.visibility
+        project.status = "indexed"
+        if project.health_status == "deleted":
+            project.health_status = "ok"
+        project.metadata_json = metadata
+        db.flush()
+
+    for existing_location in project.locations or []:
+        existing_location.is_preferred = False
+
+    location = db.scalars(
+        select(ProjectLocation).where(
+            ProjectLocation.project_id == project.id,
+            ProjectLocation.storage_root_id == storage_root.id,
+        )
+    ).first()
+    if location is None:
+        location = ProjectLocation(
+            project_id=project.id,
+            storage_root_id=storage_root.id,
+            relative_path=relative_parent,
+            project_file_name=mat_path.name,
+            access_mode="readwrite",
+            is_preferred=True,
+        )
+        db.add(location)
+    else:
+        location.relative_path = relative_parent
+        location.project_file_name = mat_path.name
+        location.access_mode = "readwrite"
+        location.is_preferred = True
+    db.flush()
+    return project
+
+
+def infer_registration_root_path(*, mat_path: Path, root_path: str | None) -> Path:
+    if root_path:
+        return Path(str(root_path).strip())
+
+    normalized = str(mat_path).replace("\\", "/")
+    parts = [part for part in normalized.split("/") if part]
+    if len(parts) >= 2 and normalized.startswith("/data/") and parts[0] == "data":
+        return Path("/") / "data" / parts[1]
+
+    parent = mat_path.parent
+    if not str(parent):
+        raise ValueError("root_path is required when project_mat_path has no parent directory.")
+    return parent
+
+
+def safe_relative_path(path: Path, root_path: Path) -> str:
+    try:
+        rel = path.relative_to(root_path)
+    except ValueError:
+        return str(path)
+    rel_text = str(rel).replace("\\", "/")
+    return "" if rel_text == "." else rel_text
