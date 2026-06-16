@@ -44,6 +44,7 @@ def build_deletion_preview(
 ) -> DeletionPreviewData:
     project_locations = list(project.locations)
     project_file_paths = []
+    project_backup_file_paths = []
     project_dir_paths = []
     project_bytes = 0
 
@@ -52,6 +53,7 @@ def build_deletion_preview(
             file_path, dir_path = resolve_project_location_paths(location)
             if file_path:
                 project_file_paths.append(file_path)
+                project_backup_file_paths.extend(resolve_project_backup_file_paths(file_path))
             if dir_path:
                 project_dir_paths.append(dir_path)
         project_bytes = int(project.total_bytes or 0)
@@ -65,6 +67,7 @@ def build_deletion_preview(
     reclaimable_bytes = project_bytes + raw_bytes
     filesystem_targets = [
         *[filesystem_delete_target(path, target_kind="project_file") for path in project_file_paths],
+        *[filesystem_delete_target(path, target_kind="project_backup_file") for path in project_backup_file_paths],
         *[filesystem_delete_target(path, target_kind="project_dir") for path in project_dir_paths],
         *[
             filesystem_delete_target(location, target_kind="raw_location")
@@ -81,6 +84,7 @@ def build_deletion_preview(
         "deletion_plan": {
             "database_project_row": True,
             "project_file_count": len(project_file_paths) if delete_project_files else 0,
+            "project_backup_file_count": len(project_backup_file_paths) if delete_project_files else 0,
             "project_dir_count": len(project_dir_paths) if delete_project_files else 0,
             "linked_raw_dataset_count": len(linked_raw),
             "linked_raw_location_count": sum(len(item.get("locations", [])) for item in linked_raw),
@@ -95,6 +99,7 @@ def build_deletion_preview(
             "total_bytes": int(project.total_bytes or 0),
             "paths": {
                 "project_files": project_file_paths,
+                "project_backup_files": project_backup_file_paths,
                 "project_dirs": project_dir_paths,
             },
         },
@@ -185,6 +190,7 @@ def execute_project_deletion(
         event.reclaimable_bytes = preview.reclaimable_bytes
         event.preview_json = preview.preview_json
     deleted_project_files = []
+    deleted_project_backup_files = []
     deleted_project_dirs = []
     deleted_raw_locations = []
     deleted_raw_datasets = []
@@ -207,6 +213,15 @@ def execute_project_deletion(
                     deleted_project_files.append(file_path)
             except OSError as exc:
                 errors.append(f"Failed to delete file {file_path}: {exc}")
+
+        for file_path in preview.preview_json["project"]["paths"].get("project_backup_files", []):
+            try:
+                path = Path(file_path)
+                if path.is_file():
+                    path.unlink()
+                    deleted_project_backup_files.append(file_path)
+            except OSError as exc:
+                errors.append(f"Failed to delete project backup file {file_path}: {exc}")
 
         for dir_path in preview.preview_json["project"]["paths"]["project_dirs"]:
             try:
@@ -250,6 +265,7 @@ def execute_project_deletion(
     event.status = "deleted" if not errors else "partial_failed"
     event.result_json = {
         "deleted_project_files": deleted_project_files,
+        "deleted_project_backup_files": deleted_project_backup_files,
         "deleted_project_dirs": deleted_project_dirs,
         "deleted_raw_locations": deleted_raw_locations,
         "deleted_raw_datasets": deleted_raw_datasets,
@@ -324,6 +340,40 @@ def resolve_project_location_paths(location: ProjectLocation) -> tuple[str, str]
         stem = Path(file_name).stem
         project_dir = compose_storage_path(root, rel, stem)
     return file_path, project_dir
+
+
+def resolve_project_backup_file_paths(project_file_path: str) -> list[str]:
+    path = Path(project_file_path)
+    backup_names = {
+        f"{path.name}.bakk".lower(),
+        f"{path.stem}.bakk".lower(),
+    }
+    candidates = []
+    try:
+        candidates.extend(
+            entry
+            for entry in path.parent.iterdir()
+            if entry.is_file() and entry.name.lower() in backup_names
+        )
+    except OSError:
+        pass
+    candidates.extend(
+        [
+            path.with_name(f"{path.name}.bakk"),
+            path.with_name(f"{path.stem}.bakk"),
+        ]
+    )
+    paths = []
+    seen = set()
+    for candidate in candidates:
+        if not candidate.is_file():
+            continue
+        key = str(candidate.resolve(strict=False)).casefold()
+        if key in seen:
+            continue
+        seen.add(key)
+        paths.append(key)
+    return paths
 
 
 def resolve_raw_location_path(location: RawDatasetLocation) -> Path:
