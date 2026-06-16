@@ -47,7 +47,7 @@
         <div>
           <div class="eyebrow">DetecDiv Hub</div>
           <h1 id="project-page-title">Project</h1>
-          <p class="hero-copy">Review project metadata, notes, access, and linked records.</p>
+          <p class="hero-copy">Review project metadata, notes, access, linked records, and run progress.</p>
         </div>
       </header>
 
@@ -107,6 +107,36 @@
                 <div id="project-external-eln-list" class="stack-list"></div>
               </section>
             </div>
+
+            <section class="subpanel project-run-monitor-subpanel">
+              <div class="subpanel-header">
+                <div>
+                  <h3>Run Monitor</h3>
+                  <p class="muted">DetecDiv runs submitted by clients for this project.</p>
+                </div>
+                <div class="action-stack">
+                  <button id="refresh-pipeline-runs-button">Refresh runs</button>
+                  <button id="cancel-pipeline-run-button">Cancel run</button>
+                </div>
+              </div>
+              <div class="table-wrap jobs-table-wrap">
+                <table id="pipeline-runs-table">
+                  <thead>
+                    <tr>
+                      <th>Status</th>
+                      <th>Project</th>
+                      <th>Target</th>
+                      <th>Run ID</th>
+                      <th>Updated</th>
+                    </tr>
+                  </thead>
+                  <tbody></tbody>
+                </table>
+              </div>
+              <div id="pipeline-runs-pagination" class="pagination-controls hidden"></div>
+              <p class="muted">Single click inspects a run.</p>
+              <div id="pipeline-run-detail" class="run-detail stack-item-meta">Select a run to inspect its status.</div>
+            </section>
 
             <section class="subpanel" id="project-backup-subpanel">
               <div class="subpanel-header">
@@ -174,6 +204,6 @@
       </div>
     </div>
 
-    <script src="/web/app.js?v=20260616-project-ui-trim1" defer></script>
+    <script src="/web/app.js?v=20260616-project-runs-restore1" defer></script>
   </body>
 </html>

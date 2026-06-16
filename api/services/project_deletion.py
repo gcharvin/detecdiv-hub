@@ -344,10 +344,10 @@ def resolve_project_location_paths(location: ProjectLocation) -> tuple[str, str]
 
 def resolve_project_backup_file_paths(project_file_path: str) -> list[str]:
     path = Path(project_file_path)
-    backup_names = {
-        f"{path.name}.bakk".lower(),
-        f"{path.stem}.bakk".lower(),
-    }
+    backup_names = set()
+    for suffix in ("bak", "bakk"):
+        backup_names.add(f"{path.name}.{suffix}".lower())
+        backup_names.add(f"{path.stem}.{suffix}".lower())
     candidates = []
     try:
         candidates.extend(

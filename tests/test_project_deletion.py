@@ -23,12 +23,12 @@ class FakeSession:
         self.flushed = True
 
 
-def test_project_deletion_removes_project_bakk_backup_files(tmp_path):
+def test_project_deletion_removes_project_bak_backup_files(tmp_path):
     project_file = tmp_path / "sample-project.mat"
     project_file.write_text("project", encoding="utf-8")
-    mat_backup = tmp_path / "sample-project.mat.bakk"
+    mat_backup = tmp_path / "sample-project.mat.bak"
     mat_backup.write_text("mat backup", encoding="utf-8")
-    stem_backup = tmp_path / "sample-project.BAKK"
+    stem_backup = tmp_path / "sample-project.BAK"
     stem_backup.write_text("stem backup", encoding="utf-8")
 
     storage_root = StorageRoot(
@@ -65,8 +65,8 @@ def test_project_deletion_removes_project_bakk_backup_files(tmp_path):
     assert sorted(
         Path(path).name.lower() for path in preview.preview_json["project"]["paths"]["project_backup_files"]
     ) == [
-        "sample-project.bakk",
-        "sample-project.mat.bakk",
+        "sample-project.bak",
+        "sample-project.mat.bak",
     ]
 
     event = execute_project_deletion(FakeSession(), preview=preview)
@@ -75,6 +75,6 @@ def test_project_deletion_removes_project_bakk_backup_files(tmp_path):
     assert not mat_backup.exists()
     assert not stem_backup.exists()
     assert sorted(Path(path).name.lower() for path in event.result_json["deleted_project_backup_files"]) == [
-        "sample-project.bakk",
-        "sample-project.mat.bakk",
+        "sample-project.bak",
+        "sample-project.mat.bak",
     ]
