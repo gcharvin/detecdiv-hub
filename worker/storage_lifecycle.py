@@ -83,8 +83,11 @@ def execute_raw_dataset_archive(session: Session, *, job: Job) -> dict:
     archive_bytes = archive_path.stat().st_size
 
     source_deleted = bool((job.params_json or {}).get("mark_archived"))
+    preserved_preview_dirs: list[str] = []
     if source_deleted:
-        delete_source_path(source_path)
+        preserved_preview_dirs = delete_source_path(source_path, preserve_preview_dirs=True)
+        if source_path.exists():
+            write_archive_marker_file(source_path=source_path, archive_path=archive_path)
 
     artifact = Artifact(
         job_id=job.id,
@@ -96,6 +99,7 @@ def execute_raw_dataset_archive(session: Session, *, job: Job) -> dict:
             "archive_bytes": archive_bytes,
             "source_path": str(source_path),
             "source_deleted": source_deleted,
+            "preserved_preview_dirs": preserved_preview_dirs,
         },
     )
     session.add(artifact)
@@ -109,6 +113,7 @@ def execute_raw_dataset_archive(session: Session, *, job: Job) -> dict:
         "archive_bytes": archive_bytes,
         "archive_sha256": archive_sha256,
         "source_deleted": source_deleted,
+        "preserved_preview_dirs": preserved_preview_dirs,
     }
     complete_raw_dataset_archive(
         session,
@@ -137,7 +142,7 @@ def execute_raw_dataset_restore(session: Session, *, job: Job) -> dict:
         raise FileNotFoundError(f"Archive file does not exist: {archive_path}")
 
     restored_from_archive = False
-    if not target_path.exists():
+    if not target_path.exists() or is_preview_only_archive_placeholder(target_path):
         target_path.parent.mkdir(parents=True, exist_ok=True)
         extract_archive(archive_path=archive_path, destination_parent=target_path.parent)
         restored_from_archive = True
@@ -269,11 +274,61 @@ def compute_sha256(path: Path) -> str:
     return digest.hexdigest()
 
 
-def delete_source_path(source_path: Path) -> None:
+def delete_source_path(source_path: Path, *, preserve_preview_dirs: bool = False) -> list[str]:
     if source_path.is_dir():
+        if preserve_preview_dirs:
+            return delete_source_tree_preserving_preview_dirs(source_path)
         shutil.rmtree(source_path)
-        return
+        return []
     source_path.unlink()
+    return []
+
+
+def delete_source_tree_preserving_preview_dirs(source_path: Path) -> list[str]:
+    preserved: list[str] = []
+    for child in source_path.iterdir():
+        if child.name == ".detecdiv-previews" and child.is_dir():
+            preserved.append(str(child))
+            continue
+        if child.is_dir():
+            shutil.rmtree(child)
+        else:
+            child.unlink()
+    try:
+        source_path.rmdir()
+    except OSError:
+        pass
+    return preserved
+
+
+def is_preview_only_archive_placeholder(path: Path) -> bool:
+    if not path.is_dir():
+        return False
+    children = list(path.iterdir())
+    if not children:
+        return False
+    return all(
+        (child.name == ".detecdiv-previews" and child.is_dir())
+        or (child.name == "DO_NOT_DELETE_PARENT_FOLDER" and child.is_file())
+        for child in children
+    )
+
+
+def write_archive_marker_file(*, source_path: Path, archive_path: Path) -> Path:
+    marker_path = source_path / "DO_NOT_DELETE_PARENT_FOLDER"
+    marker_path.write_text(
+        "\n".join(
+            [
+                "This folder is intentionally kept by DetecDiv Hub.",
+                "The raw dataset has been archived and the remaining files are lightweight previews.",
+                f"Archive path: {archive_path}",
+                "Do not delete this parent folder unless you also update the DetecDiv Hub catalog.",
+                "",
+            ]
+        ),
+        encoding="utf-8",
+    )
+    return marker_path
 
 
 def slugify(value: str) -> str:
