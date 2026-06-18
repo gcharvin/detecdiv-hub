@@ -86,6 +86,7 @@ class Settings(BaseSettings):
     webserver_vm_backup_subdir: str = "archives"
     webserver_db_backup_subdir: str = "db-backups"
     webserver_vm_backup_frequency: str = "weekly"
+    webserver_vm_backup_keep_recent: int = 5
     webserver_db_backup_frequency: str = "daily at 00:00 UTC"
     webserver_db_backup_retention_days: int = 30
     synology_dsm_base_url: str = ""

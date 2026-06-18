@@ -97,6 +97,10 @@
             <div id="webserver-vm-frequency" class="summary-value">-</div>
           </article>
           <article class="summary-card">
+            <div class="summary-label">VM retention</div>
+            <div id="webserver-vm-retention" class="summary-value">-</div>
+          </article>
+          <article class="summary-card">
             <div class="summary-label">Latest DB dump</div>
             <div id="webserver-db-latest" class="summary-value">-</div>
           </article>
@@ -114,19 +118,22 @@
             </div>
             <div id="webserver-vm-count" class="muted">-</div>
           </div>
+          <div class="muted" id="webserver-vm-retention-policy" style="margin-bottom:0.75rem;">-</div>
           <div class="table-wrapper">
             <table>
               <thead>
                 <tr>
                   <th>Backup time</th>
                   <th>Name</th>
-                  <th>Size</th>
+                  <th>Total size</th>
+                  <th>Disk size</th>
+                  <th>Retention</th>
                   <th>Checksum</th>
                   <th>Path</th>
                 </tr>
               </thead>
               <tbody id="webserver-vm-backups-tbody">
-                <tr><td colspan="5" class="muted">Loading...</td></tr>
+                <tr><td colspan="7" class="muted">Loading...</td></tr>
               </tbody>
             </table>
           </div>
@@ -211,7 +218,7 @@
         function renderVmRows(items) {
           const tbody = $("webserver-vm-backups-tbody");
           if (!items.length) {
-            tbody.innerHTML = '<tr><td colspan="5" class="muted">No VM archives found.</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="7" class="muted">No VM archives found.</td></tr>';
             return;
           }
           tbody.innerHTML = items.map((item) => `
@@ -219,6 +226,8 @@
               <td>${escapeHtml(formatTimestamp(item.backup_time || item.modified_at))}</td>
               <td><code>${escapeHtml(item.name)}</code></td>
               <td>${escapeHtml(formatBytes(item.size_bytes))}</td>
+              <td>${escapeHtml(formatBytes(item.disk_size_bytes))}</td>
+              <td>${escapeHtml((item.retention_labels || []).join(", ") || "prune")}</td>
               <td>${item.has_sha256 ? "yes" : "missing"}</td>
               <td class="text-small"><code>${escapeHtml(item.path)}</code></td>
             </tr>
@@ -251,6 +260,8 @@
             $("webserver-db-backup-path").textContent = data.db_backups.path || "-";
             $("webserver-vm-latest").textContent = formatTimestamp(data.vm_archives.latest_at);
             $("webserver-vm-frequency").textContent = data.vm_archives.frequency || "-";
+            $("webserver-vm-retention").textContent = data.vm_archives.retention || "-";
+            $("webserver-vm-retention-policy").textContent = data.vm_archives.retention_policy || "-";
             $("webserver-db-latest").textContent = formatTimestamp(data.db_backups.latest_at);
             $("webserver-db-frequency").textContent = data.db_backups.retention
               ? `${data.db_backups.frequency} (${data.db_backups.retention})`
@@ -263,7 +274,7 @@
             if (status) status.textContent = "Webserver backup inventory loaded.";
           } catch (error) {
             const message = escapeHtml(error.message || String(error));
-            $("webserver-vm-backups-tbody").innerHTML = `<tr><td colspan="5" class="muted">Error: ${message}</td></tr>`;
+            $("webserver-vm-backups-tbody").innerHTML = `<tr><td colspan="7" class="muted">Error: ${message}</td></tr>`;
             $("webserver-db-backups-tbody").innerHTML = `<tr><td colspan="5" class="muted">Error: ${message}</td></tr>`;
           }
         }

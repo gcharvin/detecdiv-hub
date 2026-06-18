@@ -137,10 +137,14 @@ class WebserverBackupFileResponse(BaseModel):
     path: str
     kind: str
     size_bytes: int
+    disk_size_bytes: int | None = None
+    bundle_size_bytes: int | None = None
     modified_at: str | None
     backup_time: str | None = None
     sha256_path: str | None = None
     has_sha256: bool = False
+    retention_labels: list[str] = []
+    retained_by_policy: bool = False
 
 
 class WebserverBackupSectionResponse(BaseModel):
@@ -148,6 +152,7 @@ class WebserverBackupSectionResponse(BaseModel):
     path: str
     frequency: str
     retention: str | None = None
+    retention_policy: str | None = None
     exists: bool
     total_count: int
     latest_at: str | None
@@ -213,6 +218,16 @@ def _file_size(path: Path) -> int:
     return 0
 
 
+def _tree_file_size(path: Path) -> int:
+    if not path.is_dir():
+        return _file_size(path)
+    total = 0
+    for child in path.rglob("*"):
+        if child.is_file() and not child.name.startswith("."):
+            total += _file_size(child)
+    return total
+
+
 def _parse_backup_time_from_name(name: str) -> str | None:
     for regex, pattern in (
         (r"\d{8}T\d{6}Z", "%Y%m%dT%H%M%SZ"),
@@ -235,12 +250,15 @@ def _list_vm_archive_items(path: Path, *, limit: int = 50) -> list[WebserverBack
             continue
         archive_file = child / f"{child.name}.tar.gz" if child.is_dir() else child
         sha_file = Path(str(archive_file) + ".sha256")
+        disk_path = child / "disks" if child.is_dir() else None
         items.append(
             WebserverBackupFileResponse(
                 name=child.name,
                 path=str(child),
                 kind="vm_archive",
-                size_bytes=_file_size(archive_file),
+                size_bytes=_tree_file_size(child),
+                disk_size_bytes=_tree_file_size(disk_path) if disk_path is not None else None,
+                bundle_size_bytes=_file_size(archive_file),
                 modified_at=_file_modified_at(child),
                 backup_time=_parse_backup_time_from_name(child.name) or _file_modified_at(child),
                 sha256_path=str(sha_file) if sha_file.exists() else None,
@@ -248,6 +266,32 @@ def _list_vm_archive_items(path: Path, *, limit: int = 50) -> list[WebserverBack
             )
         )
     return sorted(items, key=lambda item: item.backup_time or item.modified_at or "", reverse=True)[:limit]
+
+
+def _apply_vm_retention_policy(
+    items: list[WebserverBackupFileResponse],
+    *,
+    keep_recent: int,
+) -> list[WebserverBackupFileResponse]:
+    monthly_seen: set[str] = set()
+    yearly_seen: set[str] = set()
+    for index, item in enumerate(items):
+        labels: list[str] = []
+        if index < keep_recent:
+            labels.append("recent")
+        backup_time = item.backup_time or item.modified_at
+        if backup_time:
+            month_key = backup_time[:7]
+            year_key = backup_time[:4]
+            if month_key and month_key not in monthly_seen:
+                labels.append("monthly")
+                monthly_seen.add(month_key)
+            if year_key and year_key not in yearly_seen:
+                labels.append("yearly")
+                yearly_seen.add(year_key)
+        item.retention_labels = labels
+        item.retained_by_policy = bool(labels)
+    return items
 
 
 def _list_db_backup_items(path: Path, *, limit: int = 80) -> list[WebserverBackupFileResponse]:
@@ -274,6 +318,7 @@ def _section_response(
     path: Path,
     frequency: str,
     retention: str | None,
+    retention_policy: str | None = None,
     items: list[WebserverBackupFileResponse],
 ) -> WebserverBackupSectionResponse:
     latest = items[0] if items else None
@@ -282,6 +327,7 @@ def _section_response(
         path=str(path),
         frequency=frequency,
         retention=retention,
+        retention_policy=retention_policy,
         exists=path.is_dir(),
         total_count=len(items),
         latest_at=(latest.backup_time or latest.modified_at) if latest else None,
@@ -320,6 +366,11 @@ def get_webserver_labo_backups(
         if settings.webserver_db_backup_retention_days > 0
         else None
     )
+    vm_keep_recent = max(1, int(settings.webserver_vm_backup_keep_recent or 5))
+    vm_items = _apply_vm_retention_policy(
+        _list_vm_archive_items(vm_path),
+        keep_recent=vm_keep_recent,
+    )
     return WebserverBackupStatusResponse(
         root_path=str(root),
         root_exists=root.is_dir(),
@@ -327,8 +378,12 @@ def get_webserver_labo_backups(
             label="Webserver VM archives",
             path=vm_path,
             frequency=settings.webserver_vm_backup_frequency,
-            retention=None,
-            items=_list_vm_archive_items(vm_path),
+            retention=f"{vm_keep_recent} recent + monthly + yearly",
+            retention_policy=(
+                f"Keep the {vm_keep_recent} most recent weekly archives, plus the newest archive "
+                "for each UTC month and each UTC year; prune archives not selected by any rule."
+            ),
+            items=vm_items,
         ),
         db_backups=_section_response(
             label="PostgreSQL dumps",
