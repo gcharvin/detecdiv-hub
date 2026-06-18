@@ -504,6 +504,9 @@ function getSidebarActiveRoute() {
   if (pageKind === "admin-backup") {
     return "admin-backup";
   }
+  if (pageKind === "admin-webserver-backup") {
+    return "admin-webserver-backup";
+  }
   if (pageKind === "admin-external-eln") {
     return "admin-external-eln";
   }
@@ -688,6 +691,7 @@ function initializeAppLayout() {
       { label: "Sessions", href: "/web/admin-sessions.html", route: "admin-sessions" },
       { label: "External ELN", href: "/web/admin-external-eln.html", route: "admin-external-eln" },
       { label: "Backup", href: "/web/admin-backup.html", route: "admin-backup" },
+      { label: "Webserver Backup", href: "/web/admin-webserver-backup.html", route: "admin-webserver-backup" },
     ];
     for (const item of adminItems) {
       const link = document.createElement("a");

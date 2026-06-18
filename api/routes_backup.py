@@ -1,5 +1,8 @@
 from __future__ import annotations
 
+from datetime import datetime
+from pathlib import Path
+import re
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, status
@@ -7,6 +10,7 @@ from pydantic import BaseModel
 from sqlalchemy import select
 from sqlalchemy.orm import Session, joinedload
 
+from api.config import get_settings
 from api.db import get_db
 from api.models import BackupRun, BackupSnapshot, Job, Project, ProjectLocation, RawDataset, RawDatasetLocation, User
 from api.services.backup import (
@@ -128,6 +132,36 @@ class BackupExcludeUpdate(BaseModel):
     backup_excluded: bool
 
 
+class WebserverBackupFileResponse(BaseModel):
+    name: str
+    path: str
+    kind: str
+    size_bytes: int
+    modified_at: str | None
+    backup_time: str | None = None
+    sha256_path: str | None = None
+    has_sha256: bool = False
+
+
+class WebserverBackupSectionResponse(BaseModel):
+    label: str
+    path: str
+    frequency: str
+    retention: str | None = None
+    exists: bool
+    total_count: int
+    latest_at: str | None
+    latest_path: str | None
+    items: list[WebserverBackupFileResponse]
+
+
+class WebserverBackupStatusResponse(BaseModel):
+    root_path: str
+    root_exists: bool
+    vm_archives: WebserverBackupSectionResponse
+    db_backups: WebserverBackupSectionResponse
+
+
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
@@ -163,6 +197,99 @@ def _load_config_and_repo(session: Session):
     return config
 
 
+def _file_modified_at(path: Path) -> str | None:
+    try:
+        return datetime.fromtimestamp(path.stat().st_mtime).isoformat()
+    except OSError:
+        return None
+
+
+def _file_size(path: Path) -> int:
+    try:
+        if path.is_file():
+            return int(path.stat().st_size)
+    except OSError:
+        pass
+    return 0
+
+
+def _parse_backup_time_from_name(name: str) -> str | None:
+    for regex, pattern in (
+        (r"\d{8}T\d{6}Z", "%Y%m%dT%H%M%SZ"),
+        (r"\d{4}-\d{2}-\d{2}T\d{6}Z", "%Y-%m-%dT%H%M%SZ"),
+    ):
+        for match in re.findall(regex, name):
+            try:
+                return datetime.strptime(match, pattern).isoformat() + "Z"
+            except ValueError:
+                continue
+    return None
+
+
+def _list_vm_archive_items(path: Path, *, limit: int = 50) -> list[WebserverBackupFileResponse]:
+    if not path.is_dir():
+        return []
+    items: list[WebserverBackupFileResponse] = []
+    for child in path.iterdir():
+        if child.name.startswith("."):
+            continue
+        archive_file = child / f"{child.name}.tar.gz" if child.is_dir() else child
+        sha_file = Path(str(archive_file) + ".sha256")
+        items.append(
+            WebserverBackupFileResponse(
+                name=child.name,
+                path=str(child),
+                kind="vm_archive",
+                size_bytes=_file_size(archive_file),
+                modified_at=_file_modified_at(child),
+                backup_time=_parse_backup_time_from_name(child.name) or _file_modified_at(child),
+                sha256_path=str(sha_file) if sha_file.exists() else None,
+                has_sha256=sha_file.exists(),
+            )
+        )
+    return sorted(items, key=lambda item: item.backup_time or item.modified_at or "", reverse=True)[:limit]
+
+
+def _list_db_backup_items(path: Path, *, limit: int = 80) -> list[WebserverBackupFileResponse]:
+    if not path.is_dir():
+        return []
+    items = [
+        WebserverBackupFileResponse(
+            name=child.name,
+            path=str(child),
+            kind="db_dump",
+            size_bytes=_file_size(child),
+            modified_at=_file_modified_at(child),
+            backup_time=_parse_backup_time_from_name(child.name) or _file_modified_at(child),
+        )
+        for child in path.glob("*.sql.gz")
+        if child.is_file() and not child.name.startswith(".")
+    ]
+    return sorted(items, key=lambda item: item.backup_time or item.modified_at or "", reverse=True)[:limit]
+
+
+def _section_response(
+    *,
+    label: str,
+    path: Path,
+    frequency: str,
+    retention: str | None,
+    items: list[WebserverBackupFileResponse],
+) -> WebserverBackupSectionResponse:
+    latest = items[0] if items else None
+    return WebserverBackupSectionResponse(
+        label=label,
+        path=str(path),
+        frequency=frequency,
+        retention=retention,
+        exists=path.is_dir(),
+        total_count=len(items),
+        latest_at=(latest.backup_time or latest.modified_at) if latest else None,
+        latest_path=latest.path if latest else None,
+        items=items,
+    )
+
+
 # ---------------------------------------------------------------------------
 # Settings
 # ---------------------------------------------------------------------------
@@ -175,6 +302,42 @@ def get_backup_settings(
     _require_admin(current_user)
     config = resolve_backup_runtime_config(db)
     return _config_to_response(config)
+
+
+@router.get("/webserver-labo", response_model=WebserverBackupStatusResponse)
+def get_webserver_labo_backups(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    _ = db
+    _require_admin(current_user)
+    settings = get_settings()
+    root = Path(settings.webserver_backup_root)
+    vm_path = root / settings.webserver_vm_backup_subdir
+    db_path = root / settings.webserver_db_backup_subdir
+    db_retention = (
+        f"{settings.webserver_db_backup_retention_days} days"
+        if settings.webserver_db_backup_retention_days > 0
+        else None
+    )
+    return WebserverBackupStatusResponse(
+        root_path=str(root),
+        root_exists=root.is_dir(),
+        vm_archives=_section_response(
+            label="Webserver VM archives",
+            path=vm_path,
+            frequency=settings.webserver_vm_backup_frequency,
+            retention=None,
+            items=_list_vm_archive_items(vm_path),
+        ),
+        db_backups=_section_response(
+            label="PostgreSQL dumps",
+            path=db_path,
+            frequency=settings.webserver_db_backup_frequency,
+            retention=db_retention,
+            items=_list_db_backup_items(db_path),
+        ),
+    )
 
 
 @router.patch("/settings", response_model=BackupSettingsResponse)

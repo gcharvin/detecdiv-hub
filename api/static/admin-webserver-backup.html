@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Detecdiv server - Admin - Webserver Backup</title>
+    <link rel="stylesheet" href="/web/styles.css?v=20260507-ui1" />
+  </head>
+  <body data-page="admin-webserver-backup">
+    <div class="page-shell">
+      <section id="login-panel" class="panel login-panel hidden">
+        <div class="panel-header">
+          <div>
+            <h2>Login</h2>
+            <p class="muted">Open a hub session with a user key and password.</p>
+          </div>
+        </div>
+        <div class="toolbar">
+          <label class="field compact">
+            <span>User key</span>
+            <input id="login-user-key" type="text" placeholder="admin" />
+          </label>
+          <label class="field compact">
+            <span>Password</span>
+            <input id="login-password" type="password" placeholder="password" />
+          </label>
+          <button id="login-button" class="primary">Login</button>
+        </div>
+      </section>
+
+      <header class="hero">
+        <div>
+          <div class="eyebrow">DetecDiv Hub</div>
+          <h1>Admin - Webserver Backup</h1>
+          <p class="hero-copy">Inspect VM archives and PostgreSQL dump backups stored for webserver-labo.</p>
+        </div>
+        <div class="hero-actions">
+          <nav class="hero-nav">
+            <a class="nav-link" href="/web/">Project Catalog</a>
+            <a class="nav-link" href="/web/raw-datasets.html">Raw datasets Catalog</a>
+            <a class="nav-link" href="/web/raw-ops.html">Raw datasets Ops</a>
+            <a class="nav-link" href="/web/indexing.html">Projects Ops</a>
+            <a class="nav-link admin-nav-link active hidden" href="/web/admin.html">Admin</a>
+          </nav>
+          <div class="session-box">
+            <div id="session-label" class="muted">Not logged in.</div>
+            <button id="logout-button">Logout</button>
+          </div>
+        </div>
+      </header>
+
+      <section id="admin-denied-panel" class="panel hidden">
+        <div class="panel-header">
+          <div>
+            <h2>Admin role required</h2>
+            <p class="muted">This page is restricted to admin and service accounts.</p>
+          </div>
+        </div>
+      </section>
+
+      <main id="admin-content" class="admin-content hidden">
+        <section class="panel">
+          <div class="panel-header">
+            <div>
+              <h2>Backup Locations</h2>
+              <p class="muted">Read-only inventory of filesystem backups visible to the API container.</p>
+            </div>
+            <button id="webserver-backup-refresh">Refresh</button>
+          </div>
+          <dl class="metadata-grid">
+            <div>
+              <dt>Root path</dt>
+              <dd><code id="webserver-backup-root">-</code></dd>
+            </div>
+            <div>
+              <dt>Root status</dt>
+              <dd id="webserver-backup-root-status">-</dd>
+            </div>
+            <div>
+              <dt>VM archive path</dt>
+              <dd><code id="webserver-vm-backup-path">-</code></dd>
+            </div>
+            <div>
+              <dt>DB dump path</dt>
+              <dd><code id="webserver-db-backup-path">-</code></dd>
+            </div>
+          </dl>
+        </section>
+
+        <section class="summary-grid">
+          <article class="summary-card">
+            <div class="summary-label">Latest VM archive</div>
+            <div id="webserver-vm-latest" class="summary-value">-</div>
+          </article>
+          <article class="summary-card">
+            <div class="summary-label">VM frequency</div>
+            <div id="webserver-vm-frequency" class="summary-value">-</div>
+          </article>
+          <article class="summary-card">
+            <div class="summary-label">Latest DB dump</div>
+            <div id="webserver-db-latest" class="summary-value">-</div>
+          </article>
+          <article class="summary-card">
+            <div class="summary-label">DB frequency</div>
+            <div id="webserver-db-frequency" class="summary-value">-</div>
+          </article>
+        </section>
+
+        <section class="panel">
+          <div class="panel-header">
+            <div>
+              <h2>Webserver VM Archives</h2>
+              <p class="muted">Archive folders currently under the configured VM backup path.</p>
+            </div>
+            <div id="webserver-vm-count" class="muted">-</div>
+          </div>
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>Backup time</th>
+                  <th>Name</th>
+                  <th>Size</th>
+                  <th>Checksum</th>
+                  <th>Path</th>
+                </tr>
+              </thead>
+              <tbody id="webserver-vm-backups-tbody">
+                <tr><td colspan="5" class="muted">Loading...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-header">
+            <div>
+              <h2>PostgreSQL Dumps</h2>
+              <p class="muted">Compressed SQL dumps currently under the configured database backup path.</p>
+            </div>
+            <div id="webserver-db-count" class="muted">-</div>
+          </div>
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>Backup time</th>
+                  <th>Name</th>
+                  <th>Size</th>
+                  <th>Modified</th>
+                  <th>Path</th>
+                </tr>
+              </thead>
+              <tbody id="webserver-db-backups-tbody">
+                <tr><td colspan="5" class="muted">Loading...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </main>
+
+      <footer class="footer">
+        <div id="status-line">Ready.</div>
+      </footer>
+    </div>
+
+    <script src="/web/app.js?v=20260618-webserver-backup1" defer></script>
+    <script defer>
+      document.addEventListener("DOMContentLoaded", () => {
+        const $ = (id) => document.getElementById(id);
+
+        function formatTimestamp(value) {
+          if (!value) return "-";
+          const date = new Date(value);
+          if (Number.isNaN(date.getTime())) return value;
+          return date.toLocaleString();
+        }
+
+        function formatBytes(value) {
+          const bytes = Number(value || 0);
+          if (!bytes) return "0 B";
+          const units = ["B", "KB", "MB", "GB", "TB"];
+          let size = bytes;
+          let index = 0;
+          while (size >= 1024 && index < units.length - 1) {
+            size /= 1024;
+            index += 1;
+          }
+          return `${size.toFixed(index === 0 ? 0 : 1)} ${units[index]}`;
+        }
+
+        function escapeHtml(value) {
+          return String(value ?? "").replace(/[&<>"']/g, (char) => ({
+            "&": "&amp;",
+            "<": "&lt;",
+            ">": "&gt;",
+            '"': "&quot;",
+            "'": "&#39;",
+          }[char]));
+        }
+
+        async function apiFetch(path) {
+          const response = await fetch(path, { credentials: "include" });
+          if (!response.ok) {
+            const body = await response.json().catch(() => ({}));
+            throw new Error(body.detail || `HTTP ${response.status}`);
+          }
+          return response.json();
+        }
+
+        function renderVmRows(items) {
+          const tbody = $("webserver-vm-backups-tbody");
+          if (!items.length) {
+            tbody.innerHTML = '<tr><td colspan="5" class="muted">No VM archives found.</td></tr>';
+            return;
+          }
+          tbody.innerHTML = items.map((item) => `
+            <tr>
+              <td>${escapeHtml(formatTimestamp(item.backup_time || item.modified_at))}</td>
+              <td><code>${escapeHtml(item.name)}</code></td>
+              <td>${escapeHtml(formatBytes(item.size_bytes))}</td>
+              <td>${item.has_sha256 ? "yes" : "missing"}</td>
+              <td class="text-small"><code>${escapeHtml(item.path)}</code></td>
+            </tr>
+          `).join("");
+        }
+
+        function renderDbRows(items) {
+          const tbody = $("webserver-db-backups-tbody");
+          if (!items.length) {
+            tbody.innerHTML = '<tr><td colspan="5" class="muted">No database dumps found.</td></tr>';
+            return;
+          }
+          tbody.innerHTML = items.map((item) => `
+            <tr>
+              <td>${escapeHtml(formatTimestamp(item.backup_time || item.modified_at))}</td>
+              <td><code>${escapeHtml(item.name)}</code></td>
+              <td>${escapeHtml(formatBytes(item.size_bytes))}</td>
+              <td>${escapeHtml(formatTimestamp(item.modified_at))}</td>
+              <td class="text-small"><code>${escapeHtml(item.path)}</code></td>
+            </tr>
+          `).join("");
+        }
+
+        async function refreshWebserverBackups() {
+          try {
+            const data = await apiFetch("/backup/webserver-labo");
+            $("webserver-backup-root").textContent = data.root_path || "-";
+            $("webserver-backup-root-status").textContent = data.root_exists ? "visible" : "missing";
+            $("webserver-vm-backup-path").textContent = data.vm_archives.path || "-";
+            $("webserver-db-backup-path").textContent = data.db_backups.path || "-";
+            $("webserver-vm-latest").textContent = formatTimestamp(data.vm_archives.latest_at);
+            $("webserver-vm-frequency").textContent = data.vm_archives.frequency || "-";
+            $("webserver-db-latest").textContent = formatTimestamp(data.db_backups.latest_at);
+            $("webserver-db-frequency").textContent = data.db_backups.retention
+              ? `${data.db_backups.frequency} (${data.db_backups.retention})`
+              : (data.db_backups.frequency || "-");
+            $("webserver-vm-count").textContent = `${data.vm_archives.total_count} archive(s)`;
+            $("webserver-db-count").textContent = `${data.db_backups.total_count} dump(s)`;
+            renderVmRows(data.vm_archives.items || []);
+            renderDbRows(data.db_backups.items || []);
+            const status = document.getElementById("status-line");
+            if (status) status.textContent = "Webserver backup inventory loaded.";
+          } catch (error) {
+            const message = escapeHtml(error.message || String(error));
+            $("webserver-vm-backups-tbody").innerHTML = `<tr><td colspan="5" class="muted">Error: ${message}</td></tr>`;
+            $("webserver-db-backups-tbody").innerHTML = `<tr><td colspan="5" class="muted">Error: ${message}</td></tr>`;
+          }
+        }
+
+        $("webserver-backup-refresh")?.addEventListener("click", refreshWebserverBackups);
+        document.addEventListener("hub:ready", refreshWebserverBackups);
+        setTimeout(refreshWebserverBackups, 1500);
+      });
+    </script>
+  </body>
+</html>

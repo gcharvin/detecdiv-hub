@@ -82,6 +82,12 @@ class Settings(BaseSettings):
     backup_run_as_user_key: str = "backup-bot"
     backup_include_raw_datasets: bool = True
     backup_include_projects: bool = True
+    webserver_backup_root: str = "/data/webserver-labo"
+    webserver_vm_backup_subdir: str = "archives"
+    webserver_db_backup_subdir: str = "db-backups"
+    webserver_vm_backup_frequency: str = "weekly"
+    webserver_db_backup_frequency: str = "daily at 00:00 UTC"
+    webserver_db_backup_retention_days: int = 30
     synology_dsm_base_url: str = ""
     synology_dsm_account: str = ""
     synology_dsm_password: str = ""
