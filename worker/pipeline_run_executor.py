@@ -177,7 +177,7 @@ def normalize_pipeline_run_payload(session: Session, *, job: Job) -> dict[str, A
         execution["execution_target_id"] = str(job.execution_target_id)
     execution.setdefault("allow_gui", False)
     execution.setdefault("interactive", False)
-    execution.setdefault("save_project", True)
+    execution.setdefault("save_project", bool(job.project_id))
     payload["execution"] = execution
 
     run_request = dict(payload.get("run_request") or {})

@@ -36,7 +36,8 @@ def normalized_pipeline_run_params(
     execution = dict(payload.execution or {})
     client_context = dict(payload.client_context or {})
 
-    project_ref.setdefault("project_id", str(payload.project_id))
+    if payload.project_id is not None:
+        project_ref.setdefault("project_id", str(payload.project_id))
     if payload.pipeline_id is not None:
         pipeline_ref.setdefault("pipeline_id", str(payload.pipeline_id))
     if payload.execution_target_id is not None:
@@ -45,7 +46,7 @@ def normalized_pipeline_run_params(
     execution.setdefault("requested_mode", payload.requested_mode)
     execution.setdefault("allow_gui", False)
     execution.setdefault("interactive", False)
-    execution.setdefault("save_project", True)
+    execution.setdefault("save_project", payload.project_id is not None)
 
     client_context.setdefault("submitted_via", submitted_via)
     client_context.setdefault("submitted_by_user_key", current_user.user_key)
@@ -69,7 +70,6 @@ def preflight_pipeline_run_request(
     submitted_via: str = "hub_web",
 ) -> PipelineRunPreflightResult:
     issues: list[PipelineRunPreflightIssue] = []
-    project = ensure_project_readable(session.get(Project, payload.project_id), current_user)
     pipeline = resolve_pipeline_for_request(session, payload=payload)
     target = (
         session.get(ExecutionTarget, payload.execution_target_id)
@@ -81,12 +81,27 @@ def preflight_pipeline_run_request(
         current_user=current_user,
         submitted_via=submitted_via,
     )
+    classifier_scoped = payload.project_id is None and is_classifier_scoped_pipeline_run(normalized)
+    project = (
+        ensure_project_readable(session.get(Project, payload.project_id), current_user)
+        if payload.project_id is not None
+        else None
+    )
 
-    if project.status == "deleted":
+    if payload.project_id is None and not classifier_scoped:
+        issues.append(
+            issue(
+                "error",
+                "project_required",
+                "Projectless pipeline runs are only allowed for classifier-scoped runs.",
+            )
+        )
+
+    if project is not None and project.status == "deleted":
         issues.append(
             issue("error", "project_deleted", "Deleted projects cannot receive pipeline runs.")
         )
-    if not user_can_edit_project(project, current_user):
+    if project is not None and not user_can_edit_project(project, current_user):
         issues.append(
             issue(
                 "error",
@@ -96,7 +111,7 @@ def preflight_pipeline_run_request(
         )
 
     project_ref = dict(normalized.get("project_ref") or {})
-    if str(project_ref.get("project_id") or "") != str(project.id):
+    if project is not None and str(project_ref.get("project_id") or "") != str(project.id):
         issues.append(
             issue(
                 "error",
@@ -217,7 +232,8 @@ def preflight_pipeline_run_request(
                 )
             )
         runtime_kind = str(pipeline.runtime_kind if pipeline is not None else "").lower()
-        if runtime_kind in {"matlab", "hybrid"} and not target.supports_matlab:
+        needs_matlab = runtime_kind in {"matlab", "hybrid"} or pipeline is None
+        if needs_matlab and not target.supports_matlab:
             issues.append(
                 issue(
                     "error",
@@ -227,7 +243,7 @@ def preflight_pipeline_run_request(
                 )
             )
 
-    if not project.locations and not str(project_ref.get("project_mat_path") or "").strip():
+    if project is not None and not project.locations and not str(project_ref.get("project_mat_path") or "").strip():
         issues.append(
             issue(
                 "error",
@@ -257,7 +273,7 @@ def preflight_pipeline_run_request(
             )
         )
 
-    locks = active_project_locks(session, project_id=project.id)
+    locks = active_project_locks(session, project_id=project.id) if project is not None else []
     if locks:
         issues.append(
             issue(
@@ -271,7 +287,7 @@ def preflight_pipeline_run_request(
     can_submit = not any(item.severity == "error" for item in issues)
     return PipelineRunPreflightResult(
         can_submit=can_submit,
-        project_id=project.id,
+        project_id=project.id if project is not None else None,
         pipeline_id=pipeline.id if pipeline is not None else payload.pipeline_id,
         execution_target_id=payload.execution_target_id,
         normalized_payload=normalized,
@@ -320,8 +336,8 @@ def create_pipeline_run_job(
             },
         )
 
-    project = session.get(Project, payload.project_id)
-    if project is None:
+    project = session.get(Project, payload.project_id) if payload.project_id is not None else None
+    if payload.project_id is not None and project is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Project not found")
 
     job = Job(
@@ -337,32 +353,33 @@ def create_pipeline_run_job(
     )
     session.add(job)
     session.flush()
-    try:
-        execution = dict(preflight.normalized_payload.get("execution") or {})
-        run_request = dict(preflight.normalized_payload.get("run_request") or {})
-        create_server_job_lock(
-            session,
-            project_id=project.id,
-            job=job,
-            owner=current_user,
-            holder_host=payload.requested_from_host,
-            write_scope=str(execution.get("write_scope") or "project_update"),
-            reason="pipeline_run",
-            metadata_json={
-                "run_id": run_request.get("run_id"),
-                "requested_mode": payload.requested_mode,
-                "submitted_via": submitted_via,
-            },
-        )
-    except ProjectLockConflict as exc:
-        session.rollback()
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail={
-                "message": "Project is locked",
-                "locks": [lock_summary(lock) for lock in exc.locks],
-            },
-        ) from exc
+    if project is not None:
+        try:
+            execution = dict(preflight.normalized_payload.get("execution") or {})
+            run_request = dict(preflight.normalized_payload.get("run_request") or {})
+            create_server_job_lock(
+                session,
+                project_id=project.id,
+                job=job,
+                owner=current_user,
+                holder_host=payload.requested_from_host,
+                write_scope=str(execution.get("write_scope") or "project_update"),
+                reason="pipeline_run",
+                metadata_json={
+                    "run_id": run_request.get("run_id"),
+                    "requested_mode": payload.requested_mode,
+                    "submitted_via": submitted_via,
+                },
+            )
+        except ProjectLockConflict as exc:
+            session.rollback()
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail={
+                    "message": "Project is locked",
+                    "locks": [lock_summary(lock) for lock in exc.locks],
+                },
+            ) from exc
 
     session.commit()
     session.refresh(job)
@@ -376,6 +393,25 @@ def pipeline_ref_has_source(preflight: dict[str, Any]) -> bool:
     if str(pipeline_ref.get("pipeline_key") or "").strip():
         return True
     return any(str(pipeline_ref.get(key) or "").strip() for key in PIPELINE_REF_PATH_KEYS)
+
+
+def is_classifier_scoped_pipeline_run(preflight: dict[str, Any]) -> bool:
+    project_ref = dict(preflight.get("project_ref") or {})
+    run_request = dict(preflight.get("run_request") or {})
+    paths = dict(run_request.get("paths") or {})
+    scope = str(project_ref.get("scope") or project_ref.get("type") or "").strip().lower()
+    input_source = str(run_request.get("input_source") or "").strip().lower()
+    has_classifier_ref = bool(
+        str(project_ref.get("classifier_path") or "").strip()
+        or str(project_ref.get("local_classifier_path") or "").strip()
+        or str(paths.get("server_classifier_path") or "").strip()
+        or str(paths.get("classifier_path") or "").strip()
+    )
+    return (
+        pipeline_ref_has_source(preflight)
+        and has_classifier_ref
+        and (scope in {"classifier", "classi"} or "classifier" in input_source)
+    )
 
 
 def resolve_pipeline_for_request(

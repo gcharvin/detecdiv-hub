@@ -1630,7 +1630,7 @@ class RawDatasetPositionDeletionResult(HubBaseModel):
 
 
 class PipelineRunCreateRequest(HubBaseModel):
-    project_id: UUID
+    project_id: UUID | None = None
     pipeline_id: UUID | None = None
     execution_target_id: UUID | None = None
     requested_mode: str = "auto"
