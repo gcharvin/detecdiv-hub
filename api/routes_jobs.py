@@ -25,7 +25,7 @@ class JobPurgeQueuedResult(BaseModel):
 
 @router.get("", response_model=list[JobSummary])
 def list_jobs(db: Session = Depends(get_db)) -> list[Job]:
-    stmt = select(Job).order_by(Job.created_at.desc())
+    stmt = select(Job).order_by(Job.priority.asc(), Job.created_at.asc())
     return list(db.scalars(stmt))
 
 

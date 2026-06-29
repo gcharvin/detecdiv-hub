@@ -1634,7 +1634,7 @@ class PipelineRunCreateRequest(HubBaseModel):
     pipeline_id: UUID | None = None
     execution_target_id: UUID | None = None
     requested_mode: str = "auto"
-    priority: int = 100
+    priority: int = 10
     requested_by: str | None = None
     requested_from_host: str | None = None
     project_ref: dict[str, Any] = Field(default_factory=dict)

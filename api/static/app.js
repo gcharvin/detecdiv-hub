@@ -2394,7 +2394,7 @@ function resetPipelineRunForm() {
   if (els.pipelineRunPolicySelect) els.pipelineRunPolicySelect.value = "resume";
   if (els.pipelineRunExistingSelect) els.pipelineRunExistingSelect.value = "replace";
   if (els.pipelineRunCacheSelect) els.pipelineRunCacheSelect.value = "auto";
-  if (els.pipelineRunPriority) els.pipelineRunPriority.value = 100;
+  if (els.pipelineRunPriority) els.pipelineRunPriority.value = 10;
   if (els.pipelineRunSelectedNodes) els.pipelineRunSelectedNodes.value = "";
   if (els.pipelineRunDescription) els.pipelineRunDescription.value = "";
   if (els.pipelineRunNodeParams) els.pipelineRunNodeParams.value = "[]";
@@ -2974,7 +2974,11 @@ function renderExecutionTargetWorkerPanels(target) {
       job.status === "queued" &&
       (job.execution_target_id == null || String(job.execution_target_id) === String(target.id))
     );
-    const sortedQueued = [...allQueued].sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+    const sortedQueued = [...allQueued].sort((a, b) => {
+      const priorityDelta = Number(a.priority ?? 100) - Number(b.priority ?? 100);
+      if (priorityDelta !== 0) return priorityDelta;
+      return new Date(a.created_at) - new Date(b.created_at);
+    });
     for (const job of sortedQueued) {
       const tr = document.createElement("tr");
       tr.innerHTML = `
@@ -3235,7 +3239,7 @@ function buildPipelineRunPayload() {
   const gpuMode = String(els.pipelineRunGpuSelect?.value || "force_gpu");
   const pythonMode = String(els.pipelineRunPythonModeSelect?.value || "default");
   const pythonEnvName = String(els.pipelineRunPythonEnv?.value || "").trim();
-  const priorityValue = Number(els.pipelineRunPriority?.value || 100);
+  const priorityValue = Number(els.pipelineRunPriority?.value || 10);
   const nodeParams = parseOptionalJsonField(els.pipelineRunNodeParams?.value, "Node overrides JSON", []);
   if (!Array.isArray(nodeParams)) {
     throw new Error("Node overrides JSON must decode to an array.");
@@ -3246,7 +3250,7 @@ function buildPipelineRunPayload() {
     pipeline_id: pipeline.id || null,
     execution_target_id: resolvePipelineRunTarget()?.id || null,
     requested_mode: requestedMode,
-    priority: Number.isFinite(priorityValue) ? Math.max(0, Math.floor(priorityValue)) : 100,
+    priority: Number.isFinite(priorityValue) ? Math.max(0, Math.floor(priorityValue)) : 10,
     requested_by: state.currentUser?.user_key || state.userKey || null,
     requested_from_host: window.location.hostname || "web-ui",
     project_ref: projectRefFromSelection(project),
