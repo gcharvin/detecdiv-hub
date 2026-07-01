@@ -214,7 +214,7 @@ class MiscStorageInventoryRequest(HubBaseModel):
     du_timeout_sec: float = 45.0
     include_cataloged: bool = False
     requested_mode: str = "server"
-    priority: int = 120
+    priority: int = 30
     execution_target_id: UUID | None = None
     execution_target_key: str | None = None
     metadata_json: dict[str, Any] = Field(default_factory=dict)
@@ -242,7 +242,7 @@ class MiscStorageExploreChildrenRequest(HubBaseModel):
     max_depth: int = 1
     du_timeout_sec: float = 60.0
     include_cataloged: bool = False
-    priority: int = 120
+    priority: int = 30
     requested_mode: str = "server"
     execution_target_id: UUID | None = None
     execution_target_key: str | None = None
