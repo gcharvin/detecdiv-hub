@@ -224,7 +224,7 @@ def enqueue_indexing_worker_job(
     worker_job = Job(
         execution_target_id=execution_target.id,
         requested_mode="server",
-        priority=100,
+        priority=30,
         requested_by=current_user.user_key,
         requested_from_host="api-indexing",
         params_json={
