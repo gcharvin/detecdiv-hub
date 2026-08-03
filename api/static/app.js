@@ -304,6 +304,7 @@ const els = {
   deploymentHeartbeatStatus: document.querySelector("#deployment-heartbeat-status"),
   deploymentVersionStatus: document.querySelector("#deployment-version-status"),
   executionTargetHealthWarning: document.querySelector("#execution-target-health-warning"),
+  executionTargetReadonlyNotice: document.querySelector("#execution-target-readonly-notice"),
   archiveSettingsRefreshButton: document.querySelector("#archive-settings-refresh-button"),
   archiveSettingsSaveButton: document.querySelector("#archive-settings-save-button"),
   archiveSettingsRoot: document.querySelector("#archive-settings-root"),
@@ -453,7 +454,8 @@ const els = {
 let dashboardPollHandle = null;
 let lastPollSucceededAt = null;
 const pageKind = document.body?.dataset?.page || "";
-const isAdminPage = pageKind === "admin" || pageKind.startsWith("admin-");
+const isExecutionTargetsPage = pageKind === "admin-execution-targets";
+const isAdminPage = (pageKind === "admin" || pageKind.startsWith("admin-")) && !isExecutionTargetsPage;
 
 const pageFlags = {
   hasAdminView: isAdminPage,
@@ -466,7 +468,7 @@ const pageFlags = {
   hasProjectDetail: Boolean(els.detailContent),
   hasPipelinesView: Boolean(els.pipelinesTableBody),
   hasPipelineRunsView: pageKind === "project" && Boolean(els.pipelineRunsTableBody),
-  hasExecutionTargetsView: pageKind === "admin-execution-targets" && Boolean(els.executionTargetsTableBody),
+  hasExecutionTargetsView: isExecutionTargetsPage && Boolean(els.executionTargetsTableBody),
   hasUsersView: pageKind === "admin-users" && Boolean(els.usersTableBody),
   hasSessionsView: pageKind === "admin-sessions" && Boolean(els.sessionsTableBody),
   hasExternalElnAdminView: pageKind === "admin-external-eln" && Boolean(els.externalMatchCandidatesTableBody),
@@ -639,6 +641,12 @@ function initializeAppLayout() {
           { label: "External Systems", href: "/web/external-systems.html", route: "external-systems" },
         ],
       },
+      {
+        label: "Execution",
+        items: [
+          { label: "Targets & Queue", href: "/web/admin-execution-targets.html", route: "admin-execution-targets" },
+        ],
+      },
     ];
 
     const fragments = [];
@@ -686,7 +694,6 @@ function initializeAppLayout() {
     const adminItems = [
       { label: "General", href: "/web/admin.html", route: "admin-general" },
       { label: "Raw Preview Quality", href: "/web/admin-raw-preview-quality.html", route: "admin-raw-preview-quality" },
-      { label: "Execution Targets", href: "/web/admin-execution-targets.html", route: "admin-execution-targets" },
       { label: "User Accounts", href: "/web/admin-users.html", route: "admin-users" },
       { label: "Sessions", href: "/web/admin-sessions.html", route: "admin-sessions" },
       { label: "External ELN", href: "/web/admin-external-eln.html", route: "admin-external-eln" },
@@ -1418,7 +1425,14 @@ function updateSessionUi() {
     link.classList.toggle("hidden", !canAccessAdminPortal());
   }
   els.adminNavLinks = adminLinks;
-  if (pageFlags.hasAdminView) {
+  if (pageFlags.hasExecutionTargetsView) {
+    if (els.adminContent) {
+      els.adminContent.classList.toggle("hidden", !authenticated);
+    }
+    if (els.adminDeniedPanel) {
+      els.adminDeniedPanel.classList.toggle("hidden", authenticated || !state.userKey);
+    }
+  } else if (pageFlags.hasAdminView) {
     const allowed = canAccessAdminPortal();
     if (els.adminContent) {
       els.adminContent.classList.toggle("hidden", !allowed);
@@ -1428,6 +1442,55 @@ function updateSessionUi() {
     }
   } else if (pageFlags.hasExternalSystemsView && els.adminContent) {
     els.adminContent.classList.toggle("hidden", !authenticated);
+  }
+  updateExecutionTargetAccessControls();
+}
+
+function updateExecutionTargetAccessControls() {
+  if (!pageFlags.hasExecutionTargetsView) {
+    return;
+  }
+  const readOnly = !isAdmin();
+  const adminOnlyControls = [
+    els.newExecutionTargetButton,
+    els.cancelExecutionTargetEditButton,
+    els.applyWorkerInstancesButton,
+    els.applyExecutionTargetDrainButton,
+    els.saveExecutionTargetButton,
+    els.purgeQueuedJobsButton,
+    els.purgeQueuedJobsKind,
+    els.executionTargetName,
+    els.executionTargetKey,
+    els.executionTargetKind,
+    els.executionTargetHost,
+    els.executionTargetStatus,
+    els.executionTargetSupportsMatlab,
+    els.executionTargetSupportsPython,
+    els.executionTargetSupportsGpu,
+    els.executionTargetMaxConcurrentJobs,
+    els.executionTargetMatlabMaxThreads,
+    els.executionTargetWorkerInstances,
+    els.executionTargetDrainNewJobs,
+  ];
+  for (const control of adminOnlyControls) {
+    if (control) {
+      control.disabled = readOnly;
+      control.title = readOnly ? "Admin access required" : "";
+    }
+  }
+  if (!readOnly) {
+    if (els.cancelExecutionTargetEditButton) {
+      els.cancelExecutionTargetEditButton.disabled = !state.editingExecutionTarget;
+    }
+    if (els.applyWorkerInstancesButton) {
+      els.applyWorkerInstancesButton.disabled = !state.selectedExecutionTarget;
+    }
+    if (els.applyExecutionTargetDrainButton) {
+      els.applyExecutionTargetDrainButton.disabled = !state.selectedExecutionTarget;
+    }
+  }
+  if (els.executionTargetReadonlyNotice) {
+    els.executionTargetReadonlyNotice.classList.toggle("hidden", !readOnly || !state.currentUser);
   }
 }
 
@@ -2767,6 +2830,7 @@ function renderExecutionTargets() {
   }
   renderDeploymentAwareness();
   renderPipelineRunBuilder();
+  updateExecutionTargetAccessControls();
 }
 
 function jobKindLabel(job) {
@@ -5720,7 +5784,7 @@ async function refreshDashboard() {
   if (pageFlags.hasPipelinesView) {
     refreshTasks.push(refreshPipelines());
   }
-  if ((pageFlags.hasExecutionTargetsView && isAdmin()) || els.pipelineRunTargetSelect || pageFlags.hasPipelineRunsView) {
+  if (pageFlags.hasExecutionTargetsView || els.pipelineRunTargetSelect || pageFlags.hasPipelineRunsView) {
     refreshTasks.push(refreshExecutionTargets());
   }
   if (pageFlags.hasPipelineRunsView) {
@@ -8737,7 +8801,7 @@ async function pollDashboard() {
     if (pageFlags.hasMiscStorageView) {
       pollTasks.push(refreshMiscStorageItems());
     }
-    if (pageFlags.hasExecutionTargetsView && isAdmin()) {
+    if (pageFlags.hasExecutionTargetsView) {
       pollTasks.push(refreshExecutionTargets());
     }
     if (pageFlags.hasRawPreviewQualityView && isAdmin()) {

@@ -616,6 +616,8 @@ def classify_project_candidate(mat_path: Path) -> tuple[Path, Path] | None:
     mat_path = mat_path.resolve()
     if has_path_part(mat_path, {".appledouble"}):
         return None
+    if mat_path.name.lower() == "temp-project.mat":
+        return None
     project_dir = mat_path.with_suffix("")
     if project_dir.is_dir() and is_detecdiv_project_dir(project_dir):
         return mat_path, project_dir.resolve()

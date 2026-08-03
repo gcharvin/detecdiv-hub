@@ -679,7 +679,12 @@ ALTER TABLE detecdiv_projects ADD COLUMN IF NOT EXISTS project_mat_bytes BIGINT 
 ALTER TABLE detecdiv_projects ADD COLUMN IF NOT EXISTS project_dir_bytes BIGINT NOT NULL DEFAULT 0;
 ALTER TABLE detecdiv_projects ADD COLUMN IF NOT EXISTS estimated_raw_bytes BIGINT NOT NULL DEFAULT 0;
 ALTER TABLE detecdiv_projects ADD COLUMN IF NOT EXISTS total_bytes BIGINT NOT NULL DEFAULT 0;
+ALTER TABLE detecdiv_projects ADD COLUMN IF NOT EXISTS lifecycle_tier TEXT NOT NULL DEFAULT 'hot';
+ALTER TABLE detecdiv_projects ADD COLUMN IF NOT EXISTS archive_status TEXT NOT NULL DEFAULT 'none';
+ALTER TABLE detecdiv_projects ADD COLUMN IF NOT EXISTS archive_uri TEXT;
+ALTER TABLE detecdiv_projects ADD COLUMN IF NOT EXISTS archive_compression TEXT;
 ALTER TABLE detecdiv_projects ADD COLUMN IF NOT EXISTS last_size_scan_at TIMESTAMPTZ;
+CREATE INDEX IF NOT EXISTS idx_detecdiv_projects_archive_status ON detecdiv_projects(archive_status);
 ALTER TABLE jobs ADD COLUMN IF NOT EXISTS heartbeat_at TIMESTAMPTZ;
 ALTER TABLE indexing_jobs ADD COLUMN IF NOT EXISTS phase TEXT NOT NULL DEFAULT 'queued';
 ALTER TABLE indexing_jobs ADD COLUMN IF NOT EXISTS mat_files_seen INTEGER NOT NULL DEFAULT 0;

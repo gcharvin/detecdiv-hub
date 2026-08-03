@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Detecdiv server - Admin - Execution Targets</title>
+    <title>Detecdiv server - Execution Targets</title>
     <link rel="stylesheet" href="/web/styles.css?v=20260507-ui1" />
   </head>
   <body data-page="admin-execution-targets">
@@ -31,8 +31,8 @@
       <header class="hero">
         <div>
           <div class="eyebrow">DetecDiv Hub</div>
-          <h1>Admin - Execution Targets</h1>
-          <p class="hero-copy">Manage available run destinations and the worker capacity behind them.</p>
+          <h1>Execution Targets</h1>
+          <p class="hero-copy">Inspect the job queue, run destinations, and worker activity.</p>
         </div>
         <div class="hero-actions">
           <nav class="hero-nav">
@@ -52,8 +52,8 @@
       <section id="admin-denied-panel" class="panel hidden">
         <div class="panel-header">
           <div>
-            <h2>Admin role required</h2>
-            <p class="muted">This page is restricted to admin and service accounts.</p>
+            <h2>Login required</h2>
+            <p class="muted">Sign in to inspect execution targets and worker activity.</p>
           </div>
         </div>
       </section>
@@ -63,7 +63,7 @@
           <div class="panel-header">
             <div>
               <h2>Execution Targets</h2>
-              <p class="muted">Manage available local, CPU, and GPU run destinations. Active workers are the control surface; concurrency is a guardrail.</p>
+              <p class="muted">Inspect available local, CPU, and GPU run destinations. Active workers are the control surface; concurrency is a guardrail.</p>
             </div>
             <div class="action-stack">
               <button id="refresh-execution-targets-button">Refresh targets</button>
@@ -74,6 +74,9 @@
               <button id="apply-execution-target-drain-button">Apply drain</button>
               <button id="save-execution-target-button" class="primary">Save settings</button>
             </div>
+          </div>
+          <div id="execution-target-readonly-notice" class="inline-feedback hidden">
+            Read-only view. Queue purge, worker settings, and drain controls require an admin account.
           </div>
           <div id="execution-target-health-warning" class="inline-feedback hidden"></div>
           <div class="table-wrap jobs-table-wrap">
@@ -234,7 +237,7 @@
       </footer>
     </div>
 
-    <script src="/web/app.js?v=20260629-priority1" defer></script>
+    <script src="/web/app.js?v=20260803-execution-readonly1" defer></script>
   </body>
 </html>
 

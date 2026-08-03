@@ -37,6 +37,7 @@ def finalize_storage_lifecycle_failure(session: Session, *, job: Job, error_text
 
     raw_dataset = load_raw_dataset_for_job(session, job=job)
     requested_by_user = resolve_requested_by_user(session, job=job)
+    bundle_project_ids = list((job.params_json or {}).get("bundle_project_ids") or [])
     if job_kind == "archive_raw_dataset":
         fail_raw_dataset_lifecycle_job(
             session,
@@ -45,6 +46,7 @@ def finalize_storage_lifecycle_failure(session: Session, *, job: Job, error_text
             event_kind="archive_failed",
             archive_status="archive_failed",
             error_text=error_text,
+            bundle_project_ids=bundle_project_ids,
         )
     else:
         fail_raw_dataset_lifecycle_job(
@@ -54,6 +56,7 @@ def finalize_storage_lifecycle_failure(session: Session, *, job: Job, error_text
             event_kind="restore_failed",
             archive_status="restore_failed",
             error_text=error_text,
+            bundle_project_ids=bundle_project_ids,
         )
 
 
@@ -62,7 +65,10 @@ def execute_raw_dataset_archive(session: Session, *, job: Job) -> dict:
     raw_dataset = load_raw_dataset_for_job(session, job=job)
     requested_by_user = resolve_requested_by_user(session, job=job)
     source_location = pick_preferred_raw_location(raw_dataset)
-    source_path = resolve_raw_location_path(source_location)
+    source_path = Path(
+        (job.params_json or {}).get("bundle_root_path")
+        or resolve_raw_location_path(source_location)
+    )
     if not source_path.exists():
         raise FileNotFoundError(f"Raw dataset path does not exist: {source_path}")
 
@@ -114,6 +120,7 @@ def execute_raw_dataset_archive(session: Session, *, job: Job) -> dict:
         "archive_sha256": archive_sha256,
         "source_deleted": source_deleted,
         "preserved_preview_dirs": preserved_preview_dirs,
+        "bundle_project_ids": list((job.params_json or {}).get("bundle_project_ids") or []),
     }
     complete_raw_dataset_archive(
         session,
@@ -123,6 +130,7 @@ def execute_raw_dataset_archive(session: Session, *, job: Job) -> dict:
         archive_compression=compression,
         source_deleted=source_deleted,
         result_json=result_json,
+        bundle_project_ids=list((job.params_json or {}).get("bundle_project_ids") or []),
     )
     session.flush()
     return result_json
@@ -132,7 +140,10 @@ def execute_raw_dataset_restore(session: Session, *, job: Job) -> dict:
     raw_dataset = load_raw_dataset_for_job(session, job=job)
     requested_by_user = resolve_requested_by_user(session, job=job)
     source_location = pick_preferred_raw_location(raw_dataset)
-    target_path = resolve_raw_location_path(source_location)
+    target_path = Path(
+        (job.params_json or {}).get("bundle_root_path")
+        or resolve_raw_location_path(source_location)
+    )
     archive_uri = (job.params_json or {}).get("archive_uri") or raw_dataset.archive_uri
     if not archive_uri:
         raise ValueError(f"Raw dataset {raw_dataset.id} has no archive_uri to restore from")
@@ -153,12 +164,14 @@ def execute_raw_dataset_restore(session: Session, *, job: Job) -> dict:
         "archive_uri": str(archive_path),
         "target_path": str(target_path),
         "restored_from_archive": restored_from_archive,
+        "bundle_project_ids": list((job.params_json or {}).get("bundle_project_ids") or []),
     }
     complete_raw_dataset_restore(
         session,
         raw_dataset=raw_dataset,
         requested_by_user=requested_by_user,
         result_json=result_json,
+        bundle_project_ids=list((job.params_json or {}).get("bundle_project_ids") or []),
     )
     session.flush()
     return result_json

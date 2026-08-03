@@ -174,6 +174,16 @@ def test_classify_project_candidate_accepts_in_place_project_mat(tmp_path: Path)
     assert candidate[1] == dataset_dir.resolve()
 
 
+def test_classify_project_candidate_ignores_temp_project_mat(tmp_path: Path):
+    dataset_dir = tmp_path / "channel"
+    dataset_dir.mkdir()
+    mat_path = dataset_dir / "temp-project.mat"
+    mat_path.write_text("mat", encoding="utf-8")
+    (dataset_dir / "temp-pos1").mkdir()
+
+    assert classify_project_candidate(mat_path) is None
+
+
 def test_get_or_create_storage_root_prefers_existing_path_prefix_over_new_name(tmp_path: Path):
     root_path = (tmp_path / "Antoine").resolve()
     older = DummyStorageRoot(

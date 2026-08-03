@@ -596,6 +596,10 @@ class ProjectSummary(HubBaseModel):
     project_dir_bytes: int = 0
     estimated_raw_bytes: int = 0
     total_bytes: int = 0
+    lifecycle_tier: str = "hot"
+    archive_status: str = "none"
+    archive_uri: str | None = None
+    archive_compression: str | None = None
     metadata_json: dict[str, Any] = Field(default_factory=dict)
     owner: UserSummary | None = None
     created_at: datetime | None = None
