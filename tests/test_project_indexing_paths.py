@@ -174,14 +174,15 @@ def test_classify_project_candidate_accepts_in_place_project_mat(tmp_path: Path)
     assert candidate[1] == dataset_dir.resolve()
 
 
-def test_classify_project_candidate_ignores_temp_project_mat(tmp_path: Path):
-    dataset_dir = tmp_path / "channel"
-    dataset_dir.mkdir()
-    mat_path = dataset_dir / "temp-project.mat"
-    mat_path.write_text("mat", encoding="utf-8")
-    (dataset_dir / "temp-pos1").mkdir()
+def test_classify_project_candidate_ignores_non_project_legacy_mat_files(tmp_path: Path):
+    for file_name in ("temp-project.mat", "BK-project.mat", "bk-PROJECT.MAT"):
+        dataset_dir = tmp_path / file_name.replace(".", "_")
+        dataset_dir.mkdir()
+        mat_path = dataset_dir / file_name
+        mat_path.write_text("mat", encoding="utf-8")
+        (dataset_dir / "sample-pos1").mkdir()
 
-    assert classify_project_candidate(mat_path) is None
+        assert classify_project_candidate(mat_path) is None
 
 
 def test_get_or_create_storage_root_prefers_existing_path_prefix_over_new_name(tmp_path: Path):
