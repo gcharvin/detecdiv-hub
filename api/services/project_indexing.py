@@ -882,8 +882,24 @@ def upsert_project_from_paths(
     queue_previews: bool = False,
 ) -> tuple[Project, RawSourceScanResult | None]:
     relative_parent = project_relative_parent(root_path, mat_path)
-    project_key = build_project_key(str(mat_path), relative_parent, mat_path.stem)
-    project = session.scalars(select(Project).where(Project.project_key == project_key)).first()
+    project_mat_abs = str(mat_path)
+    project_key = build_project_key(project_mat_abs, relative_parent, mat_path.stem)
+    project = find_existing_project(
+        session,
+        project_mat_abs=project_mat_abs,
+        project_key=project_key,
+    )
+    preferred_location = find_preferred_project_location(session, project=project)
+    access_fields_are_authoritative = (
+        project is None
+        or preferred_location is None
+        or preferred_location.storage_root_id == storage_root.id
+    )
+    effective_owner = owner
+    effective_visibility = visibility
+    if project is not None and not access_fields_are_authoritative:
+        effective_owner = project.owner or owner
+        effective_visibility = project.visibility
     is_legacy_hybrid = is_legacy_matlab_timelapse_project_dir(project_dir, project_mat_path=mat_path)
 
     scan_state = build_project_scan_state(project_dir=project_dir, mat_path=mat_path)
@@ -926,8 +942,8 @@ def upsert_project_from_paths(
         inventory = inspect_project_directory(project_dir)
         raw_scan = scan_project_raw_sources(
             session,
-            owner=owner,
-            visibility=visibility,
+            owner=effective_owner,
+            visibility=effective_visibility,
             mat_path=mat_path,
             project_dir=project_dir,
             queue_previews=queue_previews,
@@ -981,9 +997,9 @@ def upsert_project_from_paths(
         existing_estimated_raw_bytes = int(project.estimated_raw_bytes or 0)
         merged_metadata = dict(project.metadata_json or {})
         merged_metadata.update(metadata)
-        project.owner_user_id = owner.id
+        project.owner_user_id = effective_owner.id
         project.project_name = mat_path.stem
-        project.visibility = visibility
+        project.visibility = effective_visibility
         project.status = "indexed"
         if cache_hit:
             project.health_status = "raw_missing" if existing_missing_raw_count > 0 else "ok"
@@ -1033,19 +1049,57 @@ def upsert_project_from_paths(
             relative_path=relative_parent,
             project_file_name=mat_path.name,
             access_mode="readwrite",
-            is_preferred=True,
+            is_preferred=preferred_location is None,
         )
         session.add(location)
     else:
         location.relative_path = relative_parent
         location.project_file_name = mat_path.name
         location.access_mode = "readwrite"
-        location.is_preferred = True
+        if preferred_location is None:
+            location.is_preferred = True
 
     session.flush()
     if not cache_hit and raw_scan.extraction_status == "ok":
         synchronize_project_raw_links(session, project=project, linked_raw_dataset_ids=raw_scan.linked_raw_dataset_ids)
     return project, (raw_scan if not cache_hit else None)
+
+
+def find_existing_project(
+    session: Session,
+    *,
+    project_mat_abs: str,
+    project_key: str,
+) -> Project | None:
+    """Find a project by its physical MAT file before considering its scan-root key.
+
+    ``project_key`` contains a human-readable path relative to the root that was
+    scanned. The same MAT file can therefore receive different keys when storage
+    roots overlap. ``project_mat_abs`` is the stable server-side identity.
+    """
+    project = session.scalars(
+        select(Project).where(
+            Project.metadata_json["project_mat_abs"].as_string() == project_mat_abs
+        )
+    ).first()
+    if project is not None:
+        return project
+    return session.scalars(select(Project).where(Project.project_key == project_key)).first()
+
+
+def find_preferred_project_location(
+    session: Session,
+    *,
+    project: Project | None,
+) -> ProjectLocation | None:
+    if project is None or project.id is None:
+        return None
+    return session.scalars(
+        select(ProjectLocation).where(
+            ProjectLocation.project_id == project.id,
+            ProjectLocation.is_preferred.is_(True),
+        )
+    ).first()
 
 
 def existing_project_scan_signature(project: Project | None) -> dict | None:

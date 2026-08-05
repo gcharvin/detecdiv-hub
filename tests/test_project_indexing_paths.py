@@ -7,6 +7,8 @@ from pathlib import Path
 from api.services.project_indexing import (
     build_rebased_raw_path_candidates,
     classify_project_candidate,
+    find_existing_project,
+    find_preferred_project_location,
     get_or_create_storage_root,
     is_legacy_matlab_timelapse_project_dir,
     legacy_matlab_position_dir,
@@ -47,6 +49,16 @@ class DummySession:
 
     def flush(self):
         return None
+
+
+class DummyProjectSession:
+    def __init__(self, results):
+        self._results = iter(results)
+        self.scalar_calls = 0
+
+    def scalars(self, _stmt):
+        self.scalar_calls += 1
+        return DummyScalarResult(next(self._results))
 
 
 def test_raw_root_candidates_use_only_explicit_raw_storage_roots(tmp_path: Path):
@@ -213,3 +225,49 @@ def test_get_or_create_storage_root_prefers_existing_path_prefix_over_new_name(t
 
     assert root is older
     assert session.added == []
+
+
+def test_find_existing_project_prefers_physical_mat_identity_over_scan_root_key():
+    same_mat_project = object()
+    session = DummyProjectSession([[same_mat_project]])
+
+    project = find_existing_project(
+        session,
+        project_mat_abs="/data/user/project/example.mat",
+        project_key="different_root_example_0123456789",
+    )
+
+    assert project is same_mat_project
+    assert session.scalar_calls == 1
+
+
+def test_find_existing_project_falls_back_to_project_key_for_old_metadata():
+    keyed_project = object()
+    session = DummyProjectSession([[], [keyed_project]])
+
+    project = find_existing_project(
+        session,
+        project_mat_abs="/data/user/project/example.mat",
+        project_key="project_example_0123456789",
+    )
+
+    assert project is keyed_project
+    assert session.scalar_calls == 2
+
+
+def test_find_preferred_project_location_skips_query_for_new_project():
+    session = DummyProjectSession([])
+
+    assert find_preferred_project_location(session, project=None) is None
+    assert session.scalar_calls == 0
+
+
+def test_find_preferred_project_location_returns_catalog_authority():
+    preferred_location = object()
+    session = DummyProjectSession([[preferred_location]])
+
+    project = type("DummyProject", (), {"id": "project-id"})()
+    location = find_preferred_project_location(session, project=project)
+
+    assert location is preferred_location
+    assert session.scalar_calls == 1
