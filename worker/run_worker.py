@@ -15,6 +15,10 @@ from api.db import SessionLocal
 from api.models import ExecutionTarget, IndexingJob, Job, RawDatasetPosition
 from api.services.external_eln import sync_external_eln_system
 from api.services.indexing_jobs import execute_indexing_job
+from api.services.job_priority_settings import (
+    effective_job_priority_expression,
+    resolve_job_priority_runtime_config,
+)
 from api.services.project_deletion import execute_project_deletion_job, finalize_project_deletion_failure
 from api.services.project_locks import heartbeat_project_locks_for_job, release_project_locks_for_job
 from api.services.raw_dataset_deletion import execute_raw_dataset_deletion_job
@@ -196,10 +200,12 @@ def claim_next_job() -> Job | None:
                         last_job_status="capacity_full",
                     )
                     return None
+        priority_config = resolve_job_priority_runtime_config(session)
+        effective_priority = effective_job_priority_expression(priority_config)
         stmt = (
             select(Job)
             .where(Job.status == "queued")
-            .order_by(Job.priority.asc(), Job.created_at.asc())
+            .order_by(effective_priority.asc(), Job.created_at.asc())
             .limit(1)
             .with_for_update(skip_locked=True)
         )

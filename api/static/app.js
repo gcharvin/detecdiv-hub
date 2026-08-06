@@ -14,6 +14,7 @@ const state = {
   observedPipelines: [],
   executionTargets: [],
   jobs: [],
+  jobPrioritySettings: null,
   pipelineRuns: [],
   pipelineRunPageSize: 10,
   pipelineRunCurrentPage: 0,
@@ -442,6 +443,10 @@ const els = {
   purgeQueuedJobsButton: document.querySelector("#purge-queued-jobs-button"),
   purgeQueuedJobsKind: document.querySelector("#purge-queued-jobs-kind"),
   executionTargetJobMixTableBody: document.querySelector("#execution-target-job-mix-table tbody"),
+  jobPrioritySettingsTableBody: document.querySelector("#job-priority-settings-table tbody"),
+  jobPrioritySettingsSummary: document.querySelector("#job-priority-settings-summary"),
+  refreshJobPrioritiesButton: document.querySelector("#refresh-job-priorities-button"),
+  saveJobPrioritiesButton: document.querySelector("#save-job-priorities-button"),
   usersTableBody: document.querySelector("#users-table tbody"),
   newUserButton: document.querySelector("#new-user-button"),
   bulkImportUsersText: document.querySelector("#bulk-import-users-text"),
@@ -1471,12 +1476,17 @@ function updateExecutionTargetAccessControls() {
     els.executionTargetMatlabMaxThreads,
     els.executionTargetWorkerInstances,
     els.executionTargetDrainNewJobs,
+    els.saveJobPrioritiesButton,
   ];
   for (const control of adminOnlyControls) {
     if (control) {
       control.disabled = readOnly;
       control.title = readOnly ? "Admin access required" : "";
     }
+  }
+  for (const input of document.querySelectorAll("[data-job-priority-kind]")) {
+    input.disabled = readOnly;
+    input.title = readOnly ? "Admin access required" : "";
   }
   if (!readOnly) {
     if (els.cancelExecutionTargetEditButton) {
@@ -2840,6 +2850,12 @@ function jobKindLabel(job) {
   return String(raw).replaceAll("_", " ");
 }
 
+function effectiveJobPriority(job) {
+  const kind = String(job?.params_json?.job_kind || "generic");
+  const configured = (state.jobPrioritySettings?.items || []).find((item) => item.job_kind === kind);
+  return configured?.priority ?? job?.priority ?? "";
+}
+
 function normalizedJobStatus(job) {
   return String(job?.status || "").trim().toLowerCase();
 }
@@ -3039,7 +3055,7 @@ function renderExecutionTargetWorkerPanels(target) {
       (job.execution_target_id == null || String(job.execution_target_id) === String(target.id))
     );
     const sortedQueued = [...allQueued].sort((a, b) => {
-      const priorityDelta = Number(a.priority ?? 100) - Number(b.priority ?? 100);
+      const priorityDelta = Number(effectiveJobPriority(a)) - Number(effectiveJobPriority(b));
       if (priorityDelta !== 0) return priorityDelta;
       return new Date(a.created_at) - new Date(b.created_at);
     });
@@ -3050,7 +3066,7 @@ function renderExecutionTargetWorkerPanels(target) {
         <td>${jobKindLabel(job)}</td>
         <td>${job.requested_by ? userLabelForKey(job.requested_by) : ""}</td>
         <td>${formatTimestamp(job.created_at)}</td>
-        <td>${job.priority ?? ""}</td>
+        <td>${effectiveJobPriority(job)}</td>
       `;
       els.executionTargetQueuedJobsTableBody.appendChild(tr);
     }
@@ -3382,10 +3398,12 @@ async function refreshExecutionTargets() {
   const requests = [apiGet("/execution-targets")];
   if (pageFlags.hasExecutionTargetsView) {
     requests.push(apiGet("/jobs"));
+    requests.push(apiGet("/jobs/settings/priorities"));
   }
-  const [targets, jobs = state.jobs] = await Promise.all(requests);
+  const [targets, jobs = state.jobs, prioritySettings = state.jobPrioritySettings] = await Promise.all(requests);
   state.executionTargets = targets;
   state.jobs = jobs;
+  state.jobPrioritySettings = prioritySettings;
   state.selectedExecutionTarget = selectedId
     ? state.executionTargets.find((item) => String(item.id) === String(selectedId)) || null
     : null;
@@ -3393,6 +3411,51 @@ async function refreshExecutionTargets() {
     ? state.executionTargets.find((item) => String(item.id) === String(editingId)) || null
     : null;
   renderExecutionTargets();
+  renderJobPrioritySettings();
+}
+
+function renderJobPrioritySettings() {
+  if (!els.jobPrioritySettingsTableBody) {
+    return;
+  }
+  const items = state.jobPrioritySettings?.items || [];
+  els.jobPrioritySettingsTableBody.innerHTML = "";
+  for (const item of items) {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${escapeHtml(item.label)}</td>
+      <td><code>${escapeHtml(item.job_kind)}</code></td>
+      <td><input type="number" min="0" max="10000" step="1" value="${Number(item.priority)}" data-job-priority-kind="${escapeHtml(item.job_kind)}" /></td>
+      <td>${Number(item.default_priority)}</td>
+    `;
+    els.jobPrioritySettingsTableBody.appendChild(tr);
+  }
+  if (els.jobPrioritySettingsSummary) {
+    els.jobPrioritySettingsSummary.textContent = items.length
+      ? `${items.length} job type(s) configured. Lower values run first.`
+      : "No priority settings available.";
+  }
+  updateExecutionTargetAccessControls();
+}
+
+async function refreshJobPrioritySettings() {
+  state.jobPrioritySettings = await apiGet("/jobs/settings/priorities");
+  renderJobPrioritySettings();
+  setStatus("Job priorities refreshed.");
+}
+
+async function saveJobPrioritySettings() {
+  const priorities = {};
+  for (const input of document.querySelectorAll("[data-job-priority-kind]")) {
+    const value = Number(input.value);
+    if (!Number.isInteger(value) || value < 0 || value > 10000) {
+      throw new Error(`Invalid priority for ${input.dataset.jobPriorityKind}.`);
+    }
+    priorities[input.dataset.jobPriorityKind] = value;
+  }
+  state.jobPrioritySettings = await apiPatch("/jobs/settings/priorities", { priorities });
+  renderJobPrioritySettings();
+  setStatus("Job priorities updated. Queued jobs will use the new order immediately.");
 }
 
 async function submitPipelineRun() {
@@ -9184,6 +9247,11 @@ if (els.applyExecutionTargetDrainButton) els.applyExecutionTargetDrainButton.add
   window.alert(String(error));
 }));
 if (els.saveExecutionTargetButton) els.saveExecutionTargetButton.addEventListener("click", () => saveExecutionTarget().catch((error) => {
+  setStatus(String(error));
+  window.alert(String(error));
+}));
+if (els.refreshJobPrioritiesButton) els.refreshJobPrioritiesButton.addEventListener("click", () => refreshJobPrioritySettings().catch((error) => setStatus(String(error))));
+if (els.saveJobPrioritiesButton) els.saveJobPrioritiesButton.addEventListener("click", () => saveJobPrioritySettings().catch((error) => {
   setStatus(String(error));
   window.alert(String(error));
 }));

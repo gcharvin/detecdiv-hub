@@ -127,6 +127,7 @@ def test_archive_request_queues_every_exact_legacy_project(monkeypatch):
     )
 
     queued_job = next(item for item in session.projects if item.__class__.__name__ == "Job")
+    assert queued_job.priority == 150
     assert event.metadata_json["bundle_project_ids"] == [str(project.id)]
     assert queued_job.params_json["bundle_root_path"].replace("\\", "/") == "/data/basile2/legacy"
     assert queued_job.params_json["bundle_project_ids"] == [str(project.id)]

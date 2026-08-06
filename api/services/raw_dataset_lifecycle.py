@@ -21,6 +21,9 @@ from api.models import (
 from api.services.archive_settings import resolve_raw_archive_runtime_config
 
 
+ARCHIVE_JOB_PRIORITY = 150
+
+
 @dataclass
 class RawDatasetArchivePreviewData:
     raw_dataset: RawDataset
@@ -220,7 +223,7 @@ def transition_raw_dataset_to_archive(
     job = Job(
         raw_dataset_id=raw_dataset.id,
         requested_mode="server",
-        priority=40,
+        priority=ARCHIVE_JOB_PRIORITY,
         requested_by=requested_by_user.user_key,
         requested_from_host="api",
         params_json={

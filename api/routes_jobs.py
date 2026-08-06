@@ -8,6 +8,11 @@ from sqlalchemy.orm import Session
 from api.db import get_db
 from api.models import Job, RawDatasetPosition, User
 from api.schemas import JobCreateRequest, JobSummary
+from api.services.job_priority_settings import (
+    job_priority_settings_items,
+    resolve_job_priority_runtime_config,
+    update_job_priority_runtime_config,
+)
 from api.services.users import get_current_user
 
 
@@ -21,6 +26,48 @@ class JobPurgeQueuedRequest(BaseModel):
 class JobPurgeQueuedResult(BaseModel):
     cancelled_count: int
     message: str
+
+
+class JobPrioritySettingItem(BaseModel):
+    job_kind: str
+    label: str
+    priority: int
+    default_priority: int
+
+
+class JobPrioritySettingsStatus(BaseModel):
+    items: list[JobPrioritySettingItem]
+    lower_values_run_first: bool = True
+
+
+class JobPrioritySettingsUpdate(BaseModel):
+    priorities: dict[str, int]
+
+
+@router.get("/settings/priorities", response_model=JobPrioritySettingsStatus)
+def get_job_priority_settings(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> JobPrioritySettingsStatus:
+    del current_user
+    config = resolve_job_priority_runtime_config(db)
+    return JobPrioritySettingsStatus(items=job_priority_settings_items(config))
+
+
+@router.patch("/settings/priorities", response_model=JobPrioritySettingsStatus)
+def patch_job_priority_settings(
+    payload: JobPrioritySettingsUpdate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> JobPrioritySettingsStatus:
+    if current_user.role not in {"admin", "service"}:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Admin role required")
+    try:
+        config = update_job_priority_runtime_config(db, updates=payload.priorities)
+    except ValueError as exc:
+        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=str(exc)) from exc
+    db.commit()
+    return JobPrioritySettingsStatus(items=job_priority_settings_items(config))
 
 
 @router.get("", response_model=list[JobSummary])

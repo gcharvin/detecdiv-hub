@@ -163,6 +163,32 @@
           <section class="subpanel">
             <div class="subpanel-header">
               <div>
+                <h3>Job Priorities</h3>
+                <p class="muted">Lower values run first. Changes apply immediately to queued and future jobs; running jobs are not interrupted.</p>
+              </div>
+              <div class="action-stack">
+                <button id="refresh-job-priorities-button">Refresh priorities</button>
+                <button id="save-job-priorities-button" class="primary">Save priorities</button>
+              </div>
+            </div>
+            <div class="table-wrap jobs-table-wrap">
+              <table id="job-priority-settings-table">
+                <thead>
+                  <tr>
+                    <th>Job type</th>
+                    <th>Key</th>
+                    <th>Priority</th>
+                    <th>Default</th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
+            <div id="job-priority-settings-summary" class="muted">Priority settings not loaded yet.</div>
+          </section>
+          <section class="subpanel">
+            <div class="subpanel-header">
+              <div>
                 <h3>Target Settings</h3>
                 <p id="execution-target-editor-mode" class="muted">Create mode.</p>
               </div>
@@ -237,7 +263,7 @@
       </footer>
     </div>
 
-    <script src="/web/app.js?v=20260803-execution-readonly1" defer></script>
+    <script src="/web/app.js?v=20260806-job-priorities1" defer></script>
   </body>
 </html>
 
