@@ -15,6 +15,7 @@ const state = {
   executionTargets: [],
   jobs: [],
   jobPrioritySettings: null,
+  jobPrioritySettingsDirty: false,
   pipelineRuns: [],
   pipelineRunPageSize: 10,
   pipelineRunCurrentPage: 0,
@@ -3396,11 +3397,18 @@ async function refreshExecutionTargets() {
   const selectedId = state.selectedExecutionTarget?.id || null;
   const editingId = state.editingExecutionTarget?.id || null;
   const requests = [apiGet("/execution-targets")];
+  let includesPrioritySettings = false;
   if (pageFlags.hasExecutionTargetsView) {
     requests.push(apiGet("/jobs"));
-    requests.push(apiGet("/jobs/settings/priorities"));
+    if (state.jobPrioritySettings === null) {
+      requests.push(apiGet("/jobs/settings/priorities"));
+      includesPrioritySettings = true;
+    }
   }
-  const [targets, jobs = state.jobs, prioritySettings = state.jobPrioritySettings] = await Promise.all(requests);
+  const results = await Promise.all(requests);
+  const targets = results[0];
+  const jobs = results[1] ?? state.jobs;
+  const prioritySettings = includesPrioritySettings ? results[2] : state.jobPrioritySettings;
   state.executionTargets = targets;
   state.jobs = jobs;
   state.jobPrioritySettings = prioritySettings;
@@ -3411,7 +3419,9 @@ async function refreshExecutionTargets() {
     ? state.executionTargets.find((item) => String(item.id) === String(editingId)) || null
     : null;
   renderExecutionTargets();
-  renderJobPrioritySettings();
+  if (!state.jobPrioritySettingsDirty) {
+    renderJobPrioritySettings();
+  }
 }
 
 function renderJobPrioritySettings() {
@@ -3440,6 +3450,7 @@ function renderJobPrioritySettings() {
 
 async function refreshJobPrioritySettings() {
   state.jobPrioritySettings = await apiGet("/jobs/settings/priorities");
+  state.jobPrioritySettingsDirty = false;
   renderJobPrioritySettings();
   setStatus("Job priorities refreshed.");
 }
@@ -3454,6 +3465,7 @@ async function saveJobPrioritySettings() {
     priorities[input.dataset.jobPriorityKind] = value;
   }
   state.jobPrioritySettings = await apiPatch("/jobs/settings/priorities", { priorities });
+  state.jobPrioritySettingsDirty = false;
   renderJobPrioritySettings();
   setStatus("Job priorities updated. Queued jobs will use the new order immediately.");
 }
@@ -9250,6 +9262,15 @@ if (els.saveExecutionTargetButton) els.saveExecutionTargetButton.addEventListene
   setStatus(String(error));
   window.alert(String(error));
 }));
+if (els.jobPrioritySettingsTableBody) els.jobPrioritySettingsTableBody.addEventListener("input", (event) => {
+  if (!event.target.closest("[data-job-priority-kind]")) {
+    return;
+  }
+  state.jobPrioritySettingsDirty = true;
+  if (els.jobPrioritySettingsSummary) {
+    els.jobPrioritySettingsSummary.textContent = "Unsaved changes. Click Save priorities to apply them.";
+  }
+});
 if (els.refreshJobPrioritiesButton) els.refreshJobPrioritiesButton.addEventListener("click", () => refreshJobPrioritySettings().catch((error) => setStatus(String(error))));
 if (els.saveJobPrioritiesButton) els.saveJobPrioritiesButton.addEventListener("click", () => saveJobPrioritySettings().catch((error) => {
   setStatus(String(error));
