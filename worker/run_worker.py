@@ -155,6 +155,7 @@ def recover_orphaned_jobs(session, *, target: ExecutionTarget | None) -> int:
         )
         if (job.params_json or {}).get("job_kind") == "raw_preview_video":
             update_raw_preview_position_state(session, job=job, status="failed")
+        release_project_locks_for_job(session, job_id=job.id)
         recovered += 1
         LOGGER.warning("Recovered orphaned job %s on target %s", job.id, target.display_name)
     if recovered:
