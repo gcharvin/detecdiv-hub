@@ -1,6 +1,7 @@
 const state = {
   userKey: localStorage.getItem("detecdivHub.userKey") || "",
   sessionToken: localStorage.getItem("detecdivHub.sessionToken") || "",
+  sessionExpiresAt: localStorage.getItem("detecdivHub.sessionExpiresAt") || "",
   authMode: "",
   currentUser: null,
   projects: [],
@@ -68,6 +69,7 @@ const state = {
 };
 
 const RAW_DATASETS_POLL_INTERVAL_MS = 15_000;
+const DISK_SPACE_POLL_INTERVAL_MS = 60_000;
 const MICROMANAGER_INGEST_REPORT_ONLY_STORAGE_KEY = "detecdivHub.micromanagerIngest.reportOnly";
 const MICROMANAGER_INGEST_ROOT_MODE_STORAGE_KEY = "detecdivHub.micromanagerIngest.rootMode";
 const RAW_DATASETS_DISPLAY_STORAGE_KEY = "detecdivHub.rawDatasets.displaySettings.v1";
@@ -855,19 +857,27 @@ function withCacheBust(path, token) {
 }
 
 async function apiJson(path, options = {}) {
+  const { headers = {}, ...fetchOptions } = options;
   const response = await fetch(withIdentity(path), {
     credentials: "same-origin",
-    headers: authHeaders(options.headers || {}),
-    ...options,
+    ...fetchOptions,
+    headers: authHeaders(headers),
   });
   if (!response.ok) {
-    if (response.status === 401) {
+    const isLoginRequest = path === "/auth/login";
+    const hadSession = Boolean(state.sessionToken);
+    if (response.status === 401 && !isLoginRequest) {
       state.sessionToken = "";
+      state.sessionExpiresAt = "";
       state.currentUser = null;
       state.authMode = "";
       localStorage.removeItem("detecdivHub.sessionToken");
+      localStorage.removeItem("detecdivHub.sessionExpiresAt");
       clearDashboardState();
       updateSessionUi();
+      if (hadSession) {
+        throw new Error("Your DetecDiv Hub session expired. Please sign in again.");
+      }
     }
     throw new Error(await response.text());
   }
@@ -885,6 +895,55 @@ function apiPost(path, payload) {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload || {}),
   });
+}
+
+function renderDiskSpaceWarning(health) {
+  const mainContent = document.querySelector(".main-content");
+  if (!mainContent) {
+    return;
+  }
+
+  let banner = document.querySelector("#storage-warning-banner");
+  const warnings = (health?.disk_usage || []).filter((disk) => disk.status === "warning");
+  if (!warnings.length) {
+    banner?.remove();
+    return;
+  }
+
+  const details = warnings.map((disk) => {
+    const percent = Number(disk.used_percent || 0).toLocaleString(undefined, { maximumFractionDigits: 1 });
+    const free = disk.free_bytes === null || disk.free_bytes === undefined ? "unknown" : humanBytes(disk.free_bytes);
+    return `${disk.label || disk.path} (${disk.path}): ${percent}% used, ${free} free`;
+  });
+
+  if (!banner) {
+    banner = document.createElement("section");
+    banner.id = "storage-warning-banner";
+    banner.className = "storage-warning-banner";
+    banner.setAttribute("role", "alert");
+    banner.setAttribute("aria-live", "polite");
+    mainContent.prepend(banner);
+  }
+
+  const heading = document.createElement("strong");
+  heading.textContent = "Storage almost full. ";
+  banner.replaceChildren(
+    heading,
+    document.createTextNode(`${details.join(" | ")}. Free space before writing more data.`),
+  );
+}
+
+async function refreshDiskSpaceWarning() {
+  const health = await apiGet("/health");
+  state.systemHealth = health;
+  renderDiskSpaceWarning(health);
+}
+
+function ensureDiskSpacePolling() {
+  refreshDiskSpaceWarning().catch(() => {});
+  window.setInterval(() => {
+    refreshDiskSpaceWarning().catch(() => {});
+  }, DISK_SPACE_POLL_INTERVAL_MS);
 }
 
 function apiPut(path, payload) {
@@ -5728,10 +5787,12 @@ async function login() {
   });
   state.userKey = userKey;
   state.sessionToken = response.session_token;
+  state.sessionExpiresAt = response.expires_at || "";
   state.currentUser = response.user;
   state.authMode = "session";
   localStorage.setItem("detecdivHub.userKey", state.userKey);
   localStorage.setItem("detecdivHub.sessionToken", state.sessionToken);
+  localStorage.setItem("detecdivHub.sessionExpiresAt", state.sessionExpiresAt);
   if (els.loginPassword) {
     els.loginPassword.value = "";
   }
@@ -5749,15 +5810,30 @@ async function logout() {
     setStatus(String(error));
   }
   state.sessionToken = "";
+  state.sessionExpiresAt = "";
   state.currentUser = null;
   state.authMode = "";
   localStorage.removeItem("detecdivHub.sessionToken");
+  localStorage.removeItem("detecdivHub.sessionExpiresAt");
   clearDashboardState();
   updateSessionUi();
   setStatus("Logged out.");
 }
 
 async function restoreSession() {
+  if (state.sessionToken && state.sessionExpiresAt) {
+    const expiresAt = Date.parse(state.sessionExpiresAt);
+    if (Number.isFinite(expiresAt) && expiresAt <= Date.now()) {
+      state.sessionToken = "";
+      state.sessionExpiresAt = "";
+      localStorage.removeItem("detecdivHub.sessionToken");
+      localStorage.removeItem("detecdivHub.sessionExpiresAt");
+      clearDashboardState();
+      updateSessionUi();
+      setStatus("Your DetecDiv Hub session expired. Please sign in again.");
+      return;
+    }
+  }
   if (state.sessionToken) {
   try {
     const session = await apiGet("/auth/session");
@@ -7575,9 +7651,18 @@ async function executeRawBulkDelete() {
 }
 
 async function requestRawBulkArchive(scope) {
-  const rawDatasetIds = scope === "selected" ? selectedRawDatasetIds() : visibleRawDatasetIds();
-  if (!rawDatasetIds.length) {
+  const requestedRawDatasetIds = scope === "selected" ? selectedRawDatasetIds() : visibleRawDatasetIds();
+  if (!requestedRawDatasetIds.length) {
     throw new Error(scope === "selected" ? "Select at least one raw dataset first." : "No visible raw datasets to archive.");
+  }
+  const rawDatasetsById = new Map(state.rawDatasets.map((raw) => [`${raw.id}`, raw]));
+  const rawDatasetIds = requestedRawDatasetIds.filter((rawDatasetId) => {
+    const raw = rawDatasetsById.get(`${rawDatasetId}`);
+    return raw?.lifecycle_tier === "hot" && ["none", "archive_failed"].includes(raw?.archive_status || "none");
+  });
+  const excludedCount = requestedRawDatasetIds.length - rawDatasetIds.length;
+  if (!rawDatasetIds.length) {
+    throw new Error("No selected or visible Hot dataset is eligible for a new archive request.");
   }
   if (!state.archiveSettingsStatus && isAdmin()) {
     await refreshArchiveSettingsStatus();
@@ -7591,8 +7676,11 @@ async function requestRawBulkArchive(scope) {
   const markArchived = Boolean(config.delete_hot_source);
   const action = markArchived ? "archive and delete hot source" : "archive";
   const datasetCount = rawDatasetIds.length;
+  const excludedMessage = excludedCount > 0
+    ? `\nExcluded because already queued or not Hot: ${excludedCount}`
+    : "";
   const ok = window.confirm(
-    `Request bulk ${action} for ${datasetCount} dataset(s)?\nRoot: ${archiveRoot}\nCompression: ${archiveCompression}`
+    `Request bulk ${action} for ${datasetCount} eligible Hot dataset(s)?${excludedMessage}\nRoot: ${archiveRoot}\nCompression: ${archiveCompression}`
   );
   if (!ok) {
     return;
@@ -7608,6 +7696,20 @@ async function requestRawBulkArchive(scope) {
     await refreshRawDatasets();
     const suffix = result.skipped_count > 0 ? ` Skipped: ${result.skipped_count}.` : "";
     setStatus(`Archive requests queued: ${result.queued_count}/${datasetCount}.${suffix}`);
+    const skippedDetails = Array.isArray(result.skipped_details) ? result.skipped_details : [];
+    if (skippedDetails.length) {
+      const detailLines = skippedDetails.slice(0, 12).map((item) => {
+        const label = item.acquisition_label || item.raw_dataset_id || "Unknown dataset";
+        return `- ${label}: ${item.reason || item.reason_code || "Skipped"}`;
+      });
+      const remaining = skippedDetails.length - detailLines.length;
+      if (remaining > 0) {
+        detailLines.push(`- ...and ${remaining} more skipped dataset(s).`);
+      }
+      window.alert(
+        `Archive requests queued: ${result.queued_count}/${datasetCount}.\n\nSkipped datasets:\n${detailLines.join("\n")}`
+      );
+    }
   } catch (error) {
     throw new Error(`Failed to queue archive requests: ${String(error)}`);
   }
@@ -9285,6 +9387,7 @@ if (els.refreshSessionsButton) els.refreshSessionsButton.addEventListener("click
 
 ensureDashboardPolling();
 initializeAppLayout();
+ensureDiskSpacePolling();
 restoreMicroManagerIngestControls();
 updateSessionUi();
 restoreSession().catch((error) => setStatus(String(error)));

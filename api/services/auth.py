@@ -75,13 +75,14 @@ def get_user_by_session_token(session: Session, token: str | None) -> User | Non
         .join(User)
         .where(
             UserSession.token_hash == token_hash,
-            UserSession.status == "active",
-            UserSession.expires_at >= now,
-            User.is_active.is_(True),
         )
     )
     user_session = session.scalars(stmt).first()
     if user_session is None:
+        return None
+    if user_session.status != "active" or not user_session.user.is_active:
+        return None
+    if user_session.expires_at < now:
         return None
     user_session.last_seen_at = now
     session.flush()
@@ -113,8 +114,10 @@ def revoke_user_session(session: Session, *, session_id, acting_user: User) -> U
 
 
 def list_active_sessions(session: Session, *, acting_user: User, include_all: bool = False) -> list[UserSession]:
+    now = datetime.now(timezone.utc)
     stmt = select(UserSession).join(User).where(
         UserSession.status == "active",
+        UserSession.expires_at >= now,
         User.is_active.is_(True),
     )
     if not include_all or acting_user.role not in {"admin", "service"}:

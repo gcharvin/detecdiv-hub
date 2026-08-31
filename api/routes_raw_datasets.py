@@ -22,6 +22,7 @@ from api.schemas import (
     RawDatasetArchiveBulkDeleteResult,
     RawDatasetArchiveBulkRequest,
     RawDatasetArchiveBulkResult,
+    RawDatasetArchiveBulkSkip,
     RawDatasetArchiveDeleteResult,
     RawDatasetArchivePolicyPreview,
     RawDatasetArchivePolicyQueueResult,
@@ -88,6 +89,7 @@ from api.services.archive_policy import (
 from api.services.raw_dataset_lifecycle import (
     RawDatasetLifecycleConflictError,
     build_archive_preview,
+    load_legacy_archive_bundle_inventory,
     transition_raw_dataset_to_archive,
     transition_raw_dataset_to_restore,
 )
@@ -1047,38 +1049,91 @@ def bulk_archive_raw_datasets(
     unique_raw_dataset_ids = list(dict.fromkeys(payload.raw_dataset_ids))
     queued_raw_dataset_ids: list[UUID] = []
     skipped_raw_dataset_ids: list[UUID] = []
-    for raw_dataset_id in unique_raw_dataset_ids:
-        raw_dataset = db.scalars(
+    skipped_details: list[RawDatasetArchiveBulkSkip] = []
+
+    raw_datasets = list(
+        db.scalars(
             select(RawDataset)
             .options(
                 joinedload(RawDataset.owner),
                 joinedload(RawDataset.locations).joinedload(RawDatasetLocation.storage_root),
-                joinedload(RawDataset.positions).joinedload(RawDatasetPosition.preview_artifact).joinedload(Artifact.job),
-                joinedload(RawDataset.experiment_links),
-                joinedload(RawDataset.project_links).joinedload(ProjectRawLink.project).joinedload(Project.owner),
-                joinedload(RawDataset.lifecycle_events).joinedload(StorageLifecycleEvent.requested_by),
             )
-            .where(RawDataset.id == raw_dataset_id)
-        ).unique().first()
+            .where(RawDataset.id.in_(unique_raw_dataset_ids))
+        ).unique()
+    )
+    raw_datasets_by_id = {raw_dataset.id: raw_dataset for raw_dataset in raw_datasets}
+    bundle_inventory = None
+
+    def skip(raw_dataset_id: UUID, *, reason_code: str, reason: str, acquisition_label: str | None = None) -> None:
+        skipped_raw_dataset_ids.append(raw_dataset_id)
+        skipped_details.append(
+            RawDatasetArchiveBulkSkip(
+                raw_dataset_id=raw_dataset_id,
+                acquisition_label=acquisition_label,
+                reason_code=reason_code,
+                reason=reason,
+            )
+        )
+
+    for raw_dataset_id in unique_raw_dataset_ids:
+        raw_dataset = raw_datasets_by_id.get(raw_dataset_id)
         if raw_dataset is None:
-            skipped_raw_dataset_ids.append(raw_dataset_id)
+            skip(raw_dataset_id, reason_code="not_found", reason="Raw dataset was not found.")
             continue
         try:
             raw_dataset = ensure_raw_dataset_readable(raw_dataset, current_user)
             if not user_can_edit_raw_dataset(raw_dataset, current_user):
-                skipped_raw_dataset_ids.append(raw_dataset_id)
+                skip(
+                    raw_dataset_id,
+                    acquisition_label=raw_dataset.acquisition_label,
+                    reason_code="not_editable",
+                    reason="Raw dataset is not editable by the current user.",
+                )
                 continue
-            transition_raw_dataset_to_archive(
+            if raw_dataset.lifecycle_tier != "hot" or raw_dataset.archive_status not in {"none", "archive_failed"}:
+                skip(
+                    raw_dataset_id,
+                    acquisition_label=raw_dataset.acquisition_label,
+                    reason_code="not_archive_eligible",
+                    reason=(
+                        "Raw dataset is not eligible for a new archive request "
+                        f"(tier={raw_dataset.lifecycle_tier}, status={raw_dataset.archive_status})."
+                    ),
+                )
+                continue
+            if bundle_inventory is None:
+                bundle_inventory = load_legacy_archive_bundle_inventory(db)
+            archive_event = transition_raw_dataset_to_archive(
                 db,
                 raw_dataset=raw_dataset,
                 requested_by_user=current_user,
                 archive_uri=payload.archive_uri,
                 archive_compression=payload.archive_compression,
                 mark_archived=payload.mark_archived,
+                bundle_inventory=bundle_inventory,
             )
-            queued_raw_dataset_ids.append(raw_dataset_id)
-        except RawDatasetLifecycleConflictError:
-            skipped_raw_dataset_ids.append(raw_dataset_id)
+            queued_raw_dataset_ids.append(archive_event.raw_dataset_id)
+        except HTTPException as exc:
+            skip(
+                raw_dataset_id,
+                acquisition_label=raw_dataset.acquisition_label,
+                reason_code="not_accessible",
+                reason=str(exc.detail),
+            )
+        except RawDatasetLifecycleConflictError as exc:
+            skip(
+                raw_dataset_id,
+                acquisition_label=raw_dataset.acquisition_label,
+                reason_code="lifecycle_conflict",
+                reason=str(exc),
+            )
+        except ValueError as exc:
+            skip(
+                raw_dataset_id,
+                acquisition_label=raw_dataset.acquisition_label,
+                reason_code="invalid_catalog",
+                reason=str(exc),
+            )
     db.commit()
     return RawDatasetArchiveBulkResult(
         requested_count=len(unique_raw_dataset_ids),
@@ -1086,6 +1141,7 @@ def bulk_archive_raw_datasets(
         skipped_count=len(skipped_raw_dataset_ids),
         queued_raw_dataset_ids=queued_raw_dataset_ids,
         skipped_raw_dataset_ids=skipped_raw_dataset_ids,
+        skipped_details=skipped_details,
         message=f"Queued {len(queued_raw_dataset_ids)} archive request(s).",
     )
 

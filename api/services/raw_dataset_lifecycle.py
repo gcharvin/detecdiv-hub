@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
 from uuid import UUID
@@ -37,6 +37,13 @@ class LegacyArchiveBundleScope:
     root_path: Path
     projects: list[Project]
     blockers: list[str]
+    raw_datasets: list[RawDataset] = field(default_factory=list)
+
+
+@dataclass
+class LegacyArchiveBundleInventory:
+    raw_locations: list[RawDatasetLocation]
+    project_locations: list[ProjectLocation]
 
 
 class RawDatasetLifecycleConflictError(RuntimeError):
@@ -75,15 +82,7 @@ def is_legacy_shared_project(project: Project) -> bool:
     return value is True or str(value or "").strip().lower() == "true"
 
 
-def inspect_legacy_archive_bundle_scope(
-    session: Session,
-    *,
-    raw_dataset: RawDataset,
-) -> LegacyArchiveBundleScope:
-    root_path = normalized_storage_path(resolve_raw_location_path(pick_preferred_raw_location(raw_dataset)))
-    blockers: list[str] = []
-    projects: list[Project] = []
-
+def load_legacy_archive_bundle_inventory(session: Session) -> LegacyArchiveBundleInventory:
     raw_locations = list(
         session.scalars(
             select(RawDatasetLocation)
@@ -94,20 +93,6 @@ def inspect_legacy_archive_bundle_scope(
             .where(RawDatasetLocation.is_preferred.is_(True))
         ).unique()
     )
-    for location in raw_locations:
-        if location.raw_dataset_id == raw_dataset.id:
-            continue
-        candidate_path = normalized_storage_path(resolve_raw_location_path(location))
-        relation = path_relation(root=root_path, candidate=candidate_path)
-        if relation == "ancestor":
-            blockers.append(
-                f"Selected raw dataset is nested under raw dataset {location.raw_dataset_id}: {candidate_path}"
-            )
-        elif relation == "descendant":
-            blockers.append(
-                f"Raw dataset {location.raw_dataset_id} is nested inside the archive root: {candidate_path}"
-            )
-
     project_locations = list(
         session.scalars(
             select(ProjectLocation)
@@ -118,6 +103,52 @@ def inspect_legacy_archive_bundle_scope(
             .where(ProjectLocation.is_preferred.is_(True))
         ).unique()
     )
+    return LegacyArchiveBundleInventory(
+        raw_locations=raw_locations,
+        project_locations=project_locations,
+    )
+
+
+def inspect_legacy_archive_bundle_scope(
+    session: Session,
+    *,
+    raw_dataset: RawDataset,
+    inventory: LegacyArchiveBundleInventory | None = None,
+) -> LegacyArchiveBundleScope:
+    requested_path = normalized_storage_path(resolve_raw_location_path(pick_preferred_raw_location(raw_dataset)))
+    blockers: list[str] = []
+    projects: list[Project] = []
+
+    if inventory is None:
+        inventory = load_legacy_archive_bundle_inventory(session)
+    raw_locations = inventory.raw_locations
+    same_owner_ancestors: list[tuple[RawDataset, Path]] = []
+    for location in raw_locations:
+        candidate_path = normalized_storage_path(resolve_raw_location_path(location))
+        relation = path_relation(root=requested_path, candidate=candidate_path)
+        if relation == "ancestor" and location.raw_dataset.owner_user_id == raw_dataset.owner_user_id:
+            same_owner_ancestors.append((location.raw_dataset, candidate_path))
+
+    root_raw_dataset, root_path = min(
+        [(raw_dataset, requested_path), *same_owner_ancestors],
+        key=lambda item: (len(item[1].parts), str(item[1]), str(item[0].id)),
+    )
+    bundled_raw_datasets: dict[UUID, RawDataset] = {}
+    for location in raw_locations:
+        candidate_path = normalized_storage_path(resolve_raw_location_path(location))
+        relation = path_relation(root=root_path, candidate=candidate_path)
+        if relation not in {"exact", "descendant"}:
+            continue
+        candidate_raw_dataset = location.raw_dataset
+        if candidate_raw_dataset.owner_user_id != root_raw_dataset.owner_user_id:
+            blockers.append(
+                f"Raw dataset {location.raw_dataset_id} owned by another user overlaps the archive root: {candidate_path}"
+            )
+            continue
+        bundled_raw_datasets[candidate_raw_dataset.id] = candidate_raw_dataset
+    bundled_raw_datasets[root_raw_dataset.id] = root_raw_dataset
+
+    project_locations = inventory.project_locations
     for location in project_locations:
         project = location.project
         if project is None or project.status == "deleted":
@@ -128,23 +159,32 @@ def inspect_legacy_archive_bundle_scope(
         relation = path_relation(root=root_path, candidate=candidate_path)
         if relation == "unrelated":
             continue
-        if relation == "exact":
+        if relation in {"exact", "descendant"}:
             if is_legacy_shared_project(project):
                 projects.append(project)
             else:
                 blockers.append(
-                    f"Non-legacy project {project.id} shares the raw dataset archive path: {candidate_path}"
+                    f"Non-legacy project {project.id} has a {relation} path inside the archive root: {candidate_path}"
                 )
             continue
         blockers.append(
             f"Project {project.id} has a {relation} path relative to the archive root: {candidate_path}"
         )
 
+    projects = list({project.id: project for project in projects}.values())
     projects.sort(key=lambda project: (project.project_name.lower(), str(project.id)))
+    raw_datasets = list(bundled_raw_datasets.values())
+    raw_datasets.sort(
+        key=lambda item: (
+            len(normalized_storage_path(resolve_raw_location_path(pick_preferred_raw_location(item))).parts),
+            str(item.id),
+        )
+    )
     return LegacyArchiveBundleScope(
         root_path=root_path,
         projects=projects,
         blockers=sorted(set(blockers)),
+        raw_datasets=raw_datasets,
     )
 
 
@@ -162,6 +202,8 @@ def build_archive_preview(session: Session, *, raw_dataset: RawDataset, target_t
         },
         "legacy_bundle": {
             "root_path": str(bundle_scope.root_path),
+            "raw_dataset_count": len(bundle_scope.raw_datasets),
+            "raw_dataset_ids": [str(item.id) for item in bundle_scope.raw_datasets],
             "project_count": len(bundle_scope.projects),
             "projects": [
                 {"project_id": str(project.id), "project_name": project.project_name}
@@ -187,51 +229,64 @@ def transition_raw_dataset_to_archive(
     archive_uri: str | None,
     archive_compression: str | None,
     mark_archived: bool | None,
+    bundle_inventory: LegacyArchiveBundleInventory | None = None,
 ) -> StorageLifecycleEvent:
     settings = get_settings()
     archive_config = resolve_raw_archive_runtime_config(session, settings=settings)
-    existing_job = find_active_lifecycle_job(session, raw_dataset=raw_dataset)
-    if existing_job is not None:
-        raise RawDatasetLifecycleConflictError(
-            f"Lifecycle job {existing_job.id} is already active for raw dataset {raw_dataset.id}"
-        )
-
-    from_tier = raw_dataset.lifecycle_tier
     effective_mark_archived = archive_config.delete_hot_source if mark_archived is None else bool(mark_archived)
-    bundle_scope = inspect_legacy_archive_bundle_scope(session, raw_dataset=raw_dataset)
+    bundle_scope = inspect_legacy_archive_bundle_scope(
+        session,
+        raw_dataset=raw_dataset,
+        inventory=bundle_inventory,
+    )
     if bundle_scope.blockers:
         raise RawDatasetLifecycleConflictError(
             "Archive bundle preflight failed: " + "; ".join(bundle_scope.blockers[:5])
         )
+    bundle_raw_datasets = bundle_scope.raw_datasets or [raw_dataset]
+    root_raw_dataset = bundle_raw_datasets[0]
+    for bundled_raw_dataset in bundle_raw_datasets:
+        existing_job = find_active_lifecycle_job(session, raw_dataset=bundled_raw_dataset)
+        if existing_job is not None:
+            raise RawDatasetLifecycleConflictError(
+                f"Lifecycle job {existing_job.id} is already active for raw dataset {bundled_raw_dataset.id}"
+            )
+
+    from_tier = root_raw_dataset.lifecycle_tier
     bundle_project_ids = [str(project.id) for project in bundle_scope.projects]
-    raw_dataset.archive_status = "archive_queued"
-    raw_dataset.archive_uri = (
+    bundle_raw_dataset_ids = [str(item.id) for item in bundle_raw_datasets]
+    archive_uri_value = (
         archive_uri
-        or raw_dataset.archive_uri
+        or root_raw_dataset.archive_uri
         or archive_config.archive_root
         or settings.default_archive_root
         or None
     )
-    raw_dataset.archive_compression = (
+    archive_compression_value = (
         archive_compression
-        or raw_dataset.archive_compression
+        or root_raw_dataset.archive_compression
         or archive_config.archive_compression
         or settings.default_archive_compression
     )
-    raw_dataset.reclaimable_bytes = int(raw_dataset.total_bytes or 0)
+    for bundled_raw_dataset in bundle_raw_datasets:
+        bundled_raw_dataset.archive_status = "archive_queued"
+        bundled_raw_dataset.archive_uri = archive_uri_value
+        bundled_raw_dataset.archive_compression = archive_compression_value
+        bundled_raw_dataset.reclaimable_bytes = int(bundled_raw_dataset.total_bytes or 0)
 
     job = Job(
-        raw_dataset_id=raw_dataset.id,
+        raw_dataset_id=root_raw_dataset.id,
         requested_mode="server",
         priority=ARCHIVE_JOB_PRIORITY,
         requested_by=requested_by_user.user_key,
         requested_from_host="api",
         params_json={
             "job_kind": "archive_raw_dataset",
-            "archive_uri": raw_dataset.archive_uri,
-            "archive_compression": raw_dataset.archive_compression,
+            "archive_uri": archive_uri_value,
+            "archive_compression": archive_compression_value,
             "mark_archived": effective_mark_archived,
             "bundle_root_path": str(bundle_scope.root_path),
+            "bundle_raw_dataset_ids": bundle_raw_dataset_ids,
             "bundle_project_ids": bundle_project_ids,
         },
         status="queued",
@@ -240,19 +295,20 @@ def transition_raw_dataset_to_archive(
     session.flush()
 
     event = StorageLifecycleEvent(
-        raw_dataset_id=raw_dataset.id,
+        raw_dataset_id=root_raw_dataset.id,
         requested_by_user_id=requested_by_user.id,
         event_kind="archive_requested",
         from_tier=from_tier,
         to_tier=from_tier,
         archive_status=raw_dataset.archive_status,
-        reclaimable_bytes=raw_dataset.reclaimable_bytes,
+        reclaimable_bytes=root_raw_dataset.reclaimable_bytes,
         metadata_json={
             "job_id": str(job.id),
-            "archive_uri": raw_dataset.archive_uri,
-            "archive_compression": raw_dataset.archive_compression,
+            "archive_uri": archive_uri_value,
+            "archive_compression": archive_compression_value,
             "mark_archived": effective_mark_archived,
             "bundle_root_path": str(bundle_scope.root_path),
+            "bundle_raw_dataset_ids": bundle_raw_dataset_ids,
             "bundle_project_ids": bundle_project_ids,
         },
     )
@@ -260,11 +316,11 @@ def transition_raw_dataset_to_archive(
     for project in bundle_scope.projects:
         project.lifecycle_tier = from_tier
         project.archive_status = "archive_queued"
-        project.archive_uri = raw_dataset.archive_uri
-        project.archive_compression = raw_dataset.archive_compression
+        project.archive_uri = archive_uri_value
+        project.archive_compression = archive_compression_value
         project.metadata_json = {
             **(project.metadata_json or {}),
-            "archive_bundle_raw_dataset_id": str(raw_dataset.id),
+            "archive_bundle_raw_dataset_id": str(root_raw_dataset.id),
             "archive_bundle_root_path": str(bundle_scope.root_path),
         }
     session.flush()
@@ -277,33 +333,39 @@ def transition_raw_dataset_to_restore(
     raw_dataset: RawDataset,
     requested_by_user: User,
 ) -> StorageLifecycleEvent:
-    existing_job = find_active_lifecycle_job(session, raw_dataset=raw_dataset)
-    if existing_job is not None:
-        raise RawDatasetLifecycleConflictError(
-            f"Lifecycle job {existing_job.id} is already active for raw dataset {raw_dataset.id}"
-        )
-
-    from_tier = raw_dataset.lifecycle_tier
     bundle_scope = inspect_legacy_archive_bundle_scope(session, raw_dataset=raw_dataset)
     if bundle_scope.blockers:
         raise RawDatasetLifecycleConflictError(
             "Restore bundle preflight failed: " + "; ".join(bundle_scope.blockers[:5])
         )
+    bundle_raw_datasets = bundle_scope.raw_datasets or [raw_dataset]
+    root_raw_dataset = bundle_raw_datasets[0]
+    for bundled_raw_dataset in bundle_raw_datasets:
+        existing_job = find_active_lifecycle_job(session, raw_dataset=bundled_raw_dataset)
+        if existing_job is not None:
+            raise RawDatasetLifecycleConflictError(
+                f"Lifecycle job {existing_job.id} is already active for raw dataset {bundled_raw_dataset.id}"
+            )
+
+    from_tier = root_raw_dataset.lifecycle_tier
     bundle_project_ids = [str(project.id) for project in bundle_scope.projects]
-    raw_dataset.archive_status = "restore_queued"
-    raw_dataset.reclaimable_bytes = 0
+    bundle_raw_dataset_ids = [str(item.id) for item in bundle_raw_datasets]
+    for bundled_raw_dataset in bundle_raw_datasets:
+        bundled_raw_dataset.archive_status = "restore_queued"
+        bundled_raw_dataset.reclaimable_bytes = 0
 
     job = Job(
-        raw_dataset_id=raw_dataset.id,
+        raw_dataset_id=root_raw_dataset.id,
         requested_mode="server",
         priority=30,
         requested_by=requested_by_user.user_key,
         requested_from_host="api",
         params_json={
             "job_kind": "restore_raw_dataset",
-            "archive_uri": raw_dataset.archive_uri,
-            "archive_compression": raw_dataset.archive_compression,
+            "archive_uri": root_raw_dataset.archive_uri,
+            "archive_compression": root_raw_dataset.archive_compression,
             "bundle_root_path": str(bundle_scope.root_path),
+            "bundle_raw_dataset_ids": bundle_raw_dataset_ids,
             "bundle_project_ids": bundle_project_ids,
         },
         status="queued",
@@ -312,17 +374,18 @@ def transition_raw_dataset_to_restore(
     session.flush()
 
     event = StorageLifecycleEvent(
-        raw_dataset_id=raw_dataset.id,
+        raw_dataset_id=root_raw_dataset.id,
         requested_by_user_id=requested_by_user.id,
         event_kind="restore_requested",
         from_tier=from_tier,
         to_tier=from_tier,
-        archive_status=raw_dataset.archive_status,
+        archive_status=root_raw_dataset.archive_status,
         reclaimable_bytes=0,
         metadata_json={
             "job_id": str(job.id),
-            "archive_uri": raw_dataset.archive_uri,
+            "archive_uri": root_raw_dataset.archive_uri,
             "bundle_root_path": str(bundle_scope.root_path),
+            "bundle_raw_dataset_ids": bundle_raw_dataset_ids,
             "bundle_project_ids": bundle_project_ids,
         },
     )
@@ -342,14 +405,17 @@ def complete_raw_dataset_archive(
     archive_compression: str,
     source_deleted: bool,
     result_json: dict,
+    bundle_raw_dataset_ids: list[str] | None = None,
     bundle_project_ids: list[str] | None = None,
 ) -> StorageLifecycleEvent:
     from_tier = raw_dataset.lifecycle_tier
-    raw_dataset.lifecycle_tier = "cold" if source_deleted else "warm"
-    raw_dataset.archive_status = "archived"
-    raw_dataset.archive_uri = archive_uri
-    raw_dataset.archive_compression = archive_compression
-    raw_dataset.reclaimable_bytes = 0 if source_deleted else int(raw_dataset.total_bytes or 0)
+    update_bundle_raw_datasets_after_archive(
+        session,
+        raw_dataset_ids=[str(raw_dataset.id), *(bundle_raw_dataset_ids or [])],
+        archive_uri=archive_uri,
+        archive_compression=archive_compression,
+        source_deleted=source_deleted,
+    )
     update_bundle_projects_after_archive(
         session,
         project_ids=bundle_project_ids or [],
@@ -380,13 +446,14 @@ def complete_raw_dataset_restore(
     raw_dataset: RawDataset,
     requested_by_user: User | None,
     result_json: dict,
+    bundle_raw_dataset_ids: list[str] | None = None,
     bundle_project_ids: list[str] | None = None,
 ) -> StorageLifecycleEvent:
     from_tier = raw_dataset.lifecycle_tier
-    raw_dataset.lifecycle_tier = "hot"
-    raw_dataset.archive_status = "restored"
-    raw_dataset.reclaimable_bytes = 0
-    raw_dataset.last_accessed_at = datetime.now(timezone.utc)
+    update_bundle_raw_datasets_after_restore(
+        session,
+        raw_dataset_ids=[str(raw_dataset.id), *(bundle_raw_dataset_ids or [])],
+    )
     update_bundle_projects_after_restore(session, project_ids=bundle_project_ids or [])
 
     event = StorageLifecycleEvent(
@@ -412,9 +479,14 @@ def fail_raw_dataset_lifecycle_job(
     event_kind: str,
     archive_status: str,
     error_text: str,
+    bundle_raw_dataset_ids: list[str] | None = None,
     bundle_project_ids: list[str] | None = None,
 ) -> StorageLifecycleEvent:
-    raw_dataset.archive_status = archive_status
+    update_bundle_raw_dataset_status(
+        session,
+        raw_dataset_ids=[str(raw_dataset.id), *(bundle_raw_dataset_ids or [])],
+        archive_status=archive_status,
+    )
     update_bundle_project_status(
         session,
         project_ids=bundle_project_ids or [],
@@ -434,6 +506,57 @@ def fail_raw_dataset_lifecycle_job(
     session.add(event)
     session.flush()
     return event
+
+
+def load_bundle_raw_datasets(session: Session, *, raw_dataset_ids: list[str]) -> list[RawDataset]:
+    parsed_ids: list[UUID] = []
+    for raw_dataset_id in raw_dataset_ids:
+        try:
+            parsed_ids.append(UUID(str(raw_dataset_id)))
+        except (TypeError, ValueError):
+            continue
+    if not parsed_ids:
+        return []
+    return list(session.scalars(select(RawDataset).where(RawDataset.id.in_(set(parsed_ids)))))
+
+
+def update_bundle_raw_dataset_status(
+    session: Session,
+    *,
+    raw_dataset_ids: list[str],
+    archive_status: str,
+) -> None:
+    for bundled_raw_dataset in load_bundle_raw_datasets(session, raw_dataset_ids=raw_dataset_ids):
+        bundled_raw_dataset.archive_status = archive_status
+
+
+def update_bundle_raw_datasets_after_archive(
+    session: Session,
+    *,
+    raw_dataset_ids: list[str],
+    archive_uri: str,
+    archive_compression: str,
+    source_deleted: bool,
+) -> None:
+    for bundled_raw_dataset in load_bundle_raw_datasets(session, raw_dataset_ids=raw_dataset_ids):
+        bundled_raw_dataset.lifecycle_tier = "cold" if source_deleted else "warm"
+        bundled_raw_dataset.archive_status = "archived"
+        bundled_raw_dataset.archive_uri = archive_uri
+        bundled_raw_dataset.archive_compression = archive_compression
+        bundled_raw_dataset.reclaimable_bytes = 0 if source_deleted else int(bundled_raw_dataset.total_bytes or 0)
+
+
+def update_bundle_raw_datasets_after_restore(
+    session: Session,
+    *,
+    raw_dataset_ids: list[str],
+) -> None:
+    restored_at = datetime.now(timezone.utc)
+    for bundled_raw_dataset in load_bundle_raw_datasets(session, raw_dataset_ids=raw_dataset_ids):
+        bundled_raw_dataset.lifecycle_tier = "hot"
+        bundled_raw_dataset.archive_status = "restored"
+        bundled_raw_dataset.reclaimable_bytes = 0
+        bundled_raw_dataset.last_accessed_at = restored_at
 
 
 def load_bundle_projects(session: Session, *, project_ids: list[str]) -> list[Project]:

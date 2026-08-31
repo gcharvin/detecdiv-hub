@@ -37,6 +37,7 @@ def finalize_storage_lifecycle_failure(session: Session, *, job: Job, error_text
 
     raw_dataset = load_raw_dataset_for_job(session, job=job)
     requested_by_user = resolve_requested_by_user(session, job=job)
+    bundle_raw_dataset_ids = list((job.params_json or {}).get("bundle_raw_dataset_ids") or [])
     bundle_project_ids = list((job.params_json or {}).get("bundle_project_ids") or [])
     if job_kind == "archive_raw_dataset":
         fail_raw_dataset_lifecycle_job(
@@ -46,6 +47,7 @@ def finalize_storage_lifecycle_failure(session: Session, *, job: Job, error_text
             event_kind="archive_failed",
             archive_status="archive_failed",
             error_text=error_text,
+            bundle_raw_dataset_ids=bundle_raw_dataset_ids,
             bundle_project_ids=bundle_project_ids,
         )
     else:
@@ -56,6 +58,7 @@ def finalize_storage_lifecycle_failure(session: Session, *, job: Job, error_text
             event_kind="restore_failed",
             archive_status="restore_failed",
             error_text=error_text,
+            bundle_raw_dataset_ids=bundle_raw_dataset_ids,
             bundle_project_ids=bundle_project_ids,
         )
 
@@ -120,6 +123,7 @@ def execute_raw_dataset_archive(session: Session, *, job: Job) -> dict:
         "archive_sha256": archive_sha256,
         "source_deleted": source_deleted,
         "preserved_preview_dirs": preserved_preview_dirs,
+        "bundle_raw_dataset_ids": list((job.params_json or {}).get("bundle_raw_dataset_ids") or []),
         "bundle_project_ids": list((job.params_json or {}).get("bundle_project_ids") or []),
     }
     complete_raw_dataset_archive(
@@ -130,6 +134,7 @@ def execute_raw_dataset_archive(session: Session, *, job: Job) -> dict:
         archive_compression=compression,
         source_deleted=source_deleted,
         result_json=result_json,
+        bundle_raw_dataset_ids=list((job.params_json or {}).get("bundle_raw_dataset_ids") or []),
         bundle_project_ids=list((job.params_json or {}).get("bundle_project_ids") or []),
     )
     session.flush()
@@ -164,6 +169,7 @@ def execute_raw_dataset_restore(session: Session, *, job: Job) -> dict:
         "archive_uri": str(archive_path),
         "target_path": str(target_path),
         "restored_from_archive": restored_from_archive,
+        "bundle_raw_dataset_ids": list((job.params_json or {}).get("bundle_raw_dataset_ids") or []),
         "bundle_project_ids": list((job.params_json or {}).get("bundle_project_ids") or []),
     }
     complete_raw_dataset_restore(
@@ -171,6 +177,7 @@ def execute_raw_dataset_restore(session: Session, *, job: Job) -> dict:
         raw_dataset=raw_dataset,
         requested_by_user=requested_by_user,
         result_json=result_json,
+        bundle_raw_dataset_ids=list((job.params_json or {}).get("bundle_raw_dataset_ids") or []),
         bundle_project_ids=list((job.params_json or {}).get("bundle_project_ids") or []),
     )
     session.flush()

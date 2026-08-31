@@ -187,6 +187,19 @@ textarea {
   min-width: 0;
 }
 
+.storage-warning-banner {
+  padding: 14px 18px;
+  border: 1px solid #ff9b45;
+  border-left: 6px solid #ff7b45;
+  background: #442719;
+  color: #ffe4cc;
+  box-shadow: var(--shadow);
+}
+
+.storage-warning-banner strong {
+  color: #fff3e8;
+}
+
 .hero,
 .panel,
 .summary-card {

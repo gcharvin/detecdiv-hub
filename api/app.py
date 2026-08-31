@@ -26,6 +26,7 @@ from api.routes_raw_datasets import router as raw_datasets_router
 from api.routes_storage import router as storage_router
 from api.schemas import HealthResponse
 from api.services.runtime_version import get_runtime_version_info
+from api.services.system_storage import collect_disk_usage, configured_disk_paths
 
 
 settings = get_settings()
@@ -65,6 +66,10 @@ def health() -> HealthResponse:
         database_status = "error"
         database_message = str(exc)
     version = get_runtime_version_info()
+    disk_usage = collect_disk_usage(
+        configured_disk_paths(settings.disk_monitor_paths),
+        warning_threshold_percent=settings.disk_warning_threshold_percent,
+    )
     return HealthResponse(
         database_status=database_status,
         database_message=database_message,
@@ -72,6 +77,8 @@ def health() -> HealthResponse:
         deployment_version=version.get("deployment_version"),
         version_source=version.get("version_source"),
         code_fingerprint=version.get("code_fingerprint"),
+        disk_warning_threshold_percent=settings.disk_warning_threshold_percent,
+        disk_usage=disk_usage,
     )
 
 

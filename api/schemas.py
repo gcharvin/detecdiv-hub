@@ -11,6 +11,17 @@ class HubBaseModel(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
 
+class DiskUsageSummary(HubBaseModel):
+    path: str
+    label: str
+    total_bytes: int | None = None
+    used_bytes: int | None = None
+    free_bytes: int | None = None
+    used_percent: float | None = None
+    status: str
+    message: str | None = None
+
+
 class HealthResponse(HubBaseModel):
     status: str = "ok"
     service: str = "detecdiv-hub"
@@ -20,6 +31,8 @@ class HealthResponse(HubBaseModel):
     deployment_version: str | None = None
     version_source: str | None = None
     code_fingerprint: str | None = None
+    disk_warning_threshold_percent: int = 95
+    disk_usage: list[DiskUsageSummary] = Field(default_factory=list)
 
 
 class UserSummary(HubBaseModel):
@@ -1026,12 +1039,20 @@ class RawDatasetArchiveBulkRequest(HubBaseModel):
     mark_archived: bool | None = None
 
 
+class RawDatasetArchiveBulkSkip(HubBaseModel):
+    raw_dataset_id: UUID
+    acquisition_label: str | None = None
+    reason_code: str
+    reason: str
+
+
 class RawDatasetArchiveBulkResult(HubBaseModel):
     requested_count: int = 0
     queued_count: int = 0
     skipped_count: int = 0
     queued_raw_dataset_ids: list[UUID] = Field(default_factory=list)
     skipped_raw_dataset_ids: list[UUID] = Field(default_factory=list)
+    skipped_details: list[RawDatasetArchiveBulkSkip] = Field(default_factory=list)
     message: str
 
 

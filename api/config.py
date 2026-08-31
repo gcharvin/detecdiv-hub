@@ -22,6 +22,8 @@ class Settings(BaseSettings):
     systemd_unit_dir: str = "/etc/systemd/system"
     systemd_service_user: str = Field(default_factory=getpass.getuser)
     log_level: str = "INFO"
+    disk_monitor_paths: str = "/,/data"
+    disk_warning_threshold_percent: int = 95
     worker_poll_interval_sec: float = 5.0
     default_user_key: str = "localdev"
     auto_provision_users: bool = True
