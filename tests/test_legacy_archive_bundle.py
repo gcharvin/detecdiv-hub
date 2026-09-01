@@ -2,10 +2,13 @@ from pathlib import Path
 from types import SimpleNamespace
 from uuid import uuid4
 
+import pytest
+
 from api.models import Project, ProjectLocation, RawDataset, RawDatasetLocation, StorageRoot, User
 import api.services.raw_dataset_lifecycle as lifecycle
 from api.services.raw_dataset_lifecycle import (
     LegacyArchiveBundleScope,
+    RawDatasetLifecycleConflictError,
     inspect_legacy_archive_bundle_scope,
     is_legacy_shared_project,
     path_relation,
@@ -265,3 +268,52 @@ def test_archive_request_uses_parent_raw_dataset_for_nested_bundle(monkeypatch):
     assert event.raw_dataset_id == parent.id
     assert parent.archive_status == "archive_queued"
     assert child.archive_status == "archive_queued"
+
+
+def test_archive_request_rejects_bundle_with_already_archived_parent(monkeypatch):
+    parent = RawDataset(
+        id=uuid4(),
+        acquisition_label="parent",
+        total_bytes=200,
+        lifecycle_tier="cold",
+        archive_status="archived",
+        metadata_json={},
+    )
+    child = RawDataset(
+        id=uuid4(),
+        acquisition_label="child",
+        total_bytes=100,
+        lifecycle_tier="hot",
+        archive_status="none",
+        metadata_json={},
+    )
+    user = User(id=uuid4(), user_key="Basile", display_name="Basile")
+    session = DummySession([])
+    monkeypatch.setattr(
+        lifecycle,
+        "resolve_raw_archive_runtime_config",
+        lambda *_args, **_kwargs: SimpleNamespace(
+            archive_root="/archive", archive_compression="zip", delete_hot_source=True
+        ),
+    )
+    monkeypatch.setattr(
+        lifecycle,
+        "inspect_legacy_archive_bundle_scope",
+        lambda *_args, **_kwargs: LegacyArchiveBundleScope(
+            root_path=Path("/data/run"), projects=[], blockers=[], raw_datasets=[parent, child]
+        ),
+    )
+
+    with pytest.raises(RawDatasetLifecycleConflictError, match="not eligible"):
+        transition_raw_dataset_to_archive(
+            session,
+            raw_dataset=child,
+            requested_by_user=user,
+            archive_uri=None,
+            archive_compression=None,
+            mark_archived=None,
+        )
+
+    assert session.projects == []
+    assert parent.archive_status == "archived"
+    assert child.archive_status == "none"

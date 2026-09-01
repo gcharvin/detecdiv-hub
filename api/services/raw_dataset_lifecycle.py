@@ -245,6 +245,19 @@ def transition_raw_dataset_to_archive(
         )
     bundle_raw_datasets = bundle_scope.raw_datasets or [raw_dataset]
     root_raw_dataset = bundle_raw_datasets[0]
+    ineligible_raw_datasets = [
+        item
+        for item in bundle_raw_datasets
+        if item.lifecycle_tier != "hot" or item.archive_status not in {"none", "archive_failed"}
+    ]
+    if ineligible_raw_datasets:
+        details = ", ".join(
+            f"{item.id} (tier={item.lifecycle_tier}, status={item.archive_status})"
+            for item in ineligible_raw_datasets[:5]
+        )
+        raise RawDatasetLifecycleConflictError(
+            "Archive bundle is not eligible for a new archive request: " + details
+        )
     for bundled_raw_dataset in bundle_raw_datasets:
         existing_job = find_active_lifecycle_job(session, raw_dataset=bundled_raw_dataset)
         if existing_job is not None:

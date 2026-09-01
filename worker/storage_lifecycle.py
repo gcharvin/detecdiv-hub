@@ -40,6 +40,19 @@ def finalize_storage_lifecycle_failure(session: Session, *, job: Job, error_text
     bundle_raw_dataset_ids = list((job.params_json or {}).get("bundle_raw_dataset_ids") or [])
     bundle_project_ids = list((job.params_json or {}).get("bundle_project_ids") or [])
     if job_kind == "archive_raw_dataset":
+        completed_artifact = find_latest_valid_completed_archive_artifact(
+            session,
+            raw_dataset=raw_dataset,
+        )
+        if completed_artifact is not None and raw_dataset.lifecycle_tier in {"warm", "cold"}:
+            reconcile_existing_completed_archive(
+                session,
+                job=job,
+                raw_dataset=raw_dataset,
+                requested_by_user=requested_by_user,
+                artifact=completed_artifact,
+            )
+            return
         fail_raw_dataset_lifecycle_job(
             session,
             raw_dataset=raw_dataset,
@@ -72,9 +85,6 @@ def execute_raw_dataset_archive(session: Session, *, job: Job) -> dict:
         (job.params_json or {}).get("bundle_root_path")
         or resolve_raw_location_path(source_location)
     )
-    if not source_path.exists():
-        raise FileNotFoundError(f"Raw dataset path does not exist: {source_path}")
-
     compression = ((job.params_json or {}).get("archive_compression") or raw_dataset.archive_compression or settings.default_archive_compression).strip()
     archive_path = resolve_archive_path(
         raw_dataset=raw_dataset,
@@ -83,9 +93,26 @@ def execute_raw_dataset_archive(session: Session, *, job: Job) -> dict:
         compression=compression,
         default_archive_root=settings.default_archive_root,
     )
-    archive_path.parent.mkdir(parents=True, exist_ok=True)
     if archive_path.exists():
+        completed_artifact = find_valid_completed_archive_artifact(
+            session,
+            raw_dataset=raw_dataset,
+            archive_path=archive_path,
+        )
+        if completed_artifact is not None:
+            return reconcile_existing_completed_archive(
+                session,
+                job=job,
+                raw_dataset=raw_dataset,
+                requested_by_user=requested_by_user,
+                artifact=completed_artifact,
+            )
         raise FileExistsError(f"Archive destination already exists: {archive_path}")
+
+    if not source_path.exists():
+        raise FileNotFoundError(f"Raw dataset path does not exist: {source_path}")
+
+    archive_path.parent.mkdir(parents=True, exist_ok=True)
 
     create_archive(source_path=source_path, archive_path=archive_path, compression=compression)
     archive_sha256 = compute_sha256(archive_path)
@@ -136,6 +163,106 @@ def execute_raw_dataset_archive(session: Session, *, job: Job) -> dict:
         result_json=result_json,
         bundle_raw_dataset_ids=list((job.params_json or {}).get("bundle_raw_dataset_ids") or []),
         bundle_project_ids=list((job.params_json or {}).get("bundle_project_ids") or []),
+    )
+    session.flush()
+    return result_json
+
+
+def find_valid_completed_archive_artifact(
+    session: Session,
+    *,
+    raw_dataset: RawDataset,
+    archive_path: Path,
+) -> Artifact | None:
+    stmt = (
+        select(Artifact)
+        .join(Job, Job.id == Artifact.job_id)
+        .where(
+            Job.raw_dataset_id == raw_dataset.id,
+            Job.status == "done",
+            Job.params_json["job_kind"].as_string() == "archive_raw_dataset",
+            Artifact.artifact_kind == "raw_dataset_archive",
+            Artifact.uri == str(archive_path),
+        )
+        .order_by(Job.finished_at.desc().nullslast(), Artifact.created_at.desc())
+    )
+    for artifact in session.scalars(stmt):
+        if archive_artifact_matches_file(artifact):
+            return artifact
+    return None
+
+
+def find_latest_valid_completed_archive_artifact(
+    session: Session,
+    *,
+    raw_dataset: RawDataset,
+) -> Artifact | None:
+    stmt = (
+        select(Artifact)
+        .join(Job, Job.id == Artifact.job_id)
+        .where(
+            Job.raw_dataset_id == raw_dataset.id,
+            Job.status == "done",
+            Job.params_json["job_kind"].as_string() == "archive_raw_dataset",
+            Artifact.artifact_kind == "raw_dataset_archive",
+        )
+        .order_by(Job.finished_at.desc().nullslast(), Artifact.created_at.desc())
+    )
+    for artifact in session.scalars(stmt):
+        if archive_artifact_matches_file(artifact):
+            return artifact
+    return None
+
+
+def archive_artifact_matches_file(artifact: Artifact) -> bool:
+    archive_path = Path(artifact.uri)
+    if not archive_path.is_file():
+        return False
+    metadata = dict(artifact.metadata_json or {})
+    try:
+        expected_bytes = int(metadata["archive_bytes"])
+    except (KeyError, TypeError, ValueError):
+        return False
+    return archive_path.stat().st_size == expected_bytes and bool(metadata.get("sha256"))
+
+
+def reconcile_existing_completed_archive(
+    session: Session,
+    *,
+    job: Job,
+    raw_dataset: RawDataset,
+    requested_by_user: User | None,
+    artifact: Artifact,
+) -> dict:
+    metadata = dict(artifact.metadata_json or {})
+    archive_path = Path(artifact.uri)
+    compression = str(metadata.get("compression") or raw_dataset.archive_compression or "zip")
+    source_deleted = bool(metadata.get("source_deleted"))
+    result_json = {
+        "job_kind": "archive_raw_dataset",
+        "raw_dataset_id": str(raw_dataset.id),
+        "source_path": str(metadata.get("source_path") or (job.params_json or {}).get("bundle_root_path") or ""),
+        "archive_uri": str(archive_path),
+        "archive_compression": compression,
+        "archive_bytes": int(metadata["archive_bytes"]),
+        "archive_sha256": str(metadata["sha256"]),
+        "source_deleted": source_deleted,
+        "preserved_preview_dirs": list(metadata.get("preserved_preview_dirs") or []),
+        "bundle_raw_dataset_ids": list((job.params_json or {}).get("bundle_raw_dataset_ids") or []),
+        "bundle_project_ids": list((job.params_json or {}).get("bundle_project_ids") or []),
+        "already_archived": True,
+        "reused_artifact_id": str(artifact.id),
+    }
+    complete_raw_dataset_archive(
+        session,
+        raw_dataset=raw_dataset,
+        requested_by_user=requested_by_user,
+        archive_uri=str(archive_path),
+        archive_compression=compression,
+        source_deleted=source_deleted,
+        result_json=result_json,
+        bundle_raw_dataset_ids=result_json["bundle_raw_dataset_ids"],
+        bundle_project_ids=result_json["bundle_project_ids"],
     )
     session.flush()
     return result_json
