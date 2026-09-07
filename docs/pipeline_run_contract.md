@@ -109,6 +109,7 @@ The following JSON shape is the reference payload for a pipeline run request.
       }
     ],
     "run_policy": "resume",
+    "ingest_raw_dataset": false,
     "existing_data_policy": "replace",
     "roi_cache_policy": "auto",
     "selection": {
@@ -132,6 +133,17 @@ The following JSON shape is the reference payload for a pipeline run request.
   }
 }
 ```
+
+### Raw-input catalogue ingestion
+
+For a server-mode run that parses raw images, clients may set
+`run_request.ingest_raw_dataset` to `true`. Pipeline2 sets it by default when
+its input is raw/dataloader data and the raw path resolves to a server path.
+Before starting MATLAB, the storage-visible worker validates that path against
+a registered server raw root, upserts the dataset, and links it to the job's
+project. The job result records `raw_dataset_ingest` with the dataset ID and
+whether it was created or reused. Clients may explicitly set the field to
+`false` to opt out.
 
 ## 6. Mapping to DetecDiv runtime
 

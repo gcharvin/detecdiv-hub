@@ -47,3 +47,21 @@ def test_pipeline_ref_has_source_accepts_registry_or_portable_bundle():
         {"pipeline_ref": {"pipeline_json_path": "/srv/project/pipeline.json"}}
     )
     assert not pipeline_ref_has_source({"pipeline_ref": {}})
+
+
+def test_raw_ingest_preference_is_preserved_in_pipeline_run_payload():
+    user = User(id=uuid4(), user_key="alice", display_name="Alice")
+    params = normalized_pipeline_run_params(
+        PipelineRunCreateRequest(
+            project_id=uuid4(),
+            requested_mode="server",
+            run_request={
+                "ingest_raw_dataset": True,
+                "paths": {"server_raw_data_path": "/srv/raw/acquisition"},
+            },
+        ),
+        current_user=user,
+        submitted_via="local_client",
+    )
+    assert params["run_request"]["ingest_raw_dataset"] is True
+    assert params["run_request"]["paths"]["server_raw_data_path"] == "/srv/raw/acquisition"

@@ -254,6 +254,15 @@ def preflight_pipeline_run_request(
         )
 
     run_request = dict(normalized.get("run_request") or {})
+    if bool(run_request.get("ingest_raw_dataset")):
+        raw_paths = dict(run_request.get("paths") or {})
+        raw_path = str(raw_paths.get("server_raw_data_path") or raw_paths.get("raw_data_path") or "").strip()
+        if project is None:
+            issues.append(issue("error", "raw_ingest_project_required", "Raw-dataset ingestion requires a project."))
+        if not raw_path:
+            issues.append(issue("error", "raw_ingest_path_required", "Raw-dataset ingestion requires a server raw-data path."))
+        if requested_mode == "local":
+            issues.append(issue("error", "raw_ingest_server_required", "Raw-dataset ingestion is only available to Hub server runs."))
     selected_nodes = run_request.get("selected_nodes")
     if selected_nodes is not None and not isinstance(selected_nodes, list):
         issues.append(

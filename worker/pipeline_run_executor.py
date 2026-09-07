@@ -14,6 +14,7 @@ from api.config import get_settings
 from api.models import Artifact, ExecutionTarget, Job, Pipeline, Project, ProjectLocation
 from api.services.project_deletion import resolve_project_location_paths
 from api.services.project_locks import heartbeat_project_locks_for_job
+from api.services.pipeline_raw_ingest import ingest_pipeline_run_raw_dataset, pipeline_run_requests_raw_ingest
 from worker.executors.matlab_executor import build_matlab_batch_command, run_matlab_command
 from worker.pipeline_dependency_preflight import (
     build_preflight_error_text,
@@ -57,6 +58,16 @@ def execute_pipeline_run_job(session: Session, *, job: Job) -> dict[str, Any]:
 
     payload = normalize_pipeline_run_payload(session, job=job)
     payload = normalize_pipeline_ref_paths_for_posix(payload=payload, job=job)
+    raw_ingest = None
+    if pipeline_run_requests_raw_ingest(payload):
+        raw_ingest = ingest_pipeline_run_raw_dataset(session, job=job)
+        # Keep this provenance even when the subsequent MATLAB execution fails.
+        job_record = session.get(Job, job.id)
+        if job_record is not None:
+            result_json = dict(job_record.result_json or {})
+            result_json["raw_dataset_ingest"] = raw_ingest
+            job_record.result_json = result_json
+        session.commit()
     persist_prepared_pipeline_run(session, job=job, payload=payload)
     preflight = evaluate_pipeline_dependency_preflight(payload)
     persist_pipeline_preflight(session, job=job, preflight=preflight)
@@ -117,6 +128,8 @@ def execute_pipeline_run_job(session: Session, *, job: Job) -> dict[str, Any]:
                 "message": "MATLAB batch returned success without a result JSON payload.",
             }
         result_json = merge_prepared_pipeline_run(payload=payload, result_json=result_json)
+        if raw_ingest is not None:
+            result_json["raw_dataset_ingest"] = raw_ingest
         result_json["preflight"] = preflight
 
         attach_pipeline_run_artifacts(
