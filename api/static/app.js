@@ -5829,41 +5829,41 @@ function renderYeastStrains() {
     article.appendChild(heading);
 
     const contexts = Array.isArray(strain.context) ? strain.context : [];
+    const biologyFields = [
+      ["Genotype", strain.genotype],
+      ["Mating type", strain.mating_type],
+      ["Background", strain.background],
+      ["Source", strain.source],
+    ];
+    if (String(strain.auxotrophies || "").trim()) {
+      biologyFields.splice(1, 0, ["Auxotrophies", strain.auxotrophies]);
+    }
+    const biologyContextLabels = new Set([
+      "genotype", "transgenic features", "auxotrophies", "auxotrophy",
+      "auxotrophic markers", "mating type", "reproduction", "background",
+      "genetic background", "source",
+    ]);
+    const rows = [...biologyFields];
     if (query) {
-      const biologyFields = [
-        ["Genotype", strain.genotype],
-        ["Auxotrophies", strain.auxotrophies],
-        ["Mating type", strain.mating_type],
-        ["Background", strain.background],
-        ["Source", strain.source],
-      ];
-      const biologyContextLabels = new Set([
-        "genotype", "transgenic features", "auxotrophies", "auxotrophy",
-        "auxotrophic markers", "mating type", "reproduction", "background",
-        "genetic background", "source",
-      ]);
-      const rows = biologyFields.filter(([, value]) => String(value || "").trim());
       for (const context of contexts) {
         const normalizedLabel = String(context.label || "").trim().toLocaleLowerCase();
         if (!biologyContextLabels.has(normalizedLabel)) rows.push([context.label || "Field", context.value]);
       }
-      if (rows.length) {
-        const contextList = document.createElement("div");
-        contextList.className = "yeast-context-list yeast-biology-list";
-        for (const [fieldLabel, fieldValue] of rows) {
-          const row = document.createElement("div");
-          row.className = "yeast-context-row";
-          const label = document.createElement("span");
-          label.className = "yeast-context-label";
-          label.textContent = fieldLabel;
-          const value = document.createElement("span");
-          appendYeastHighlightedText(value, fieldValue || "", query);
-          row.append(label, value);
-          contextList.appendChild(row);
-        }
-        article.appendChild(contextList);
-      }
     }
+    const contextList = document.createElement("div");
+    contextList.className = "yeast-context-list yeast-biology-list";
+    for (const [fieldLabel, fieldValue] of rows) {
+      const row = document.createElement("div");
+      row.className = "yeast-context-row";
+      const label = document.createElement("span");
+      label.className = "yeast-context-label";
+      label.textContent = fieldLabel;
+      const value = document.createElement("span");
+      appendYeastHighlightedText(value, String(fieldValue || "").trim() || "—", query);
+      row.append(label, value);
+      contextList.appendChild(row);
+    }
+    article.appendChild(contextList);
 
     if (query) {
       const details = document.createElement("details");
