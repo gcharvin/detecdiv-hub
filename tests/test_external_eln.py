@@ -11,7 +11,6 @@ from api.services.external_eln_clients import (
     extract_labguru_text_sections,
     html_text,
     html_to_text,
-    labguru_incremental_inventory_params,
     labguru_experiment_from_payload,
     labguru_inventory_item_from_payload,
     labguru_observed_users_from_payload,
@@ -233,23 +232,6 @@ def test_labguru_client_lists_complete_yeast_collection(monkeypatch) -> None:
             "progress_percent": None,
         }
     ]
-
-
-def test_labguru_incremental_inventory_filter_covers_created_and_updated_items() -> None:
-    since = datetime(2026, 9, 11, 8, 0, tzinfo=timezone.utc)
-
-    params = labguru_incremental_inventory_params(since)
-
-    assert params["kendo"] is True
-    assert params["filter"]["logic"] == "or"
-    filters = params["filter"]["filters"]
-    assert filters["0"] == {
-        "field": "created_at",
-        "operator": "gte",
-        "value": since.isoformat(),
-    }
-    assert filters["1"]["field"] == "updated_at"
-    assert filters["1"]["value"] == since.isoformat()
 
 
 def test_parse_sync_since_normalizes_naive_timestamp_to_utc() -> None:

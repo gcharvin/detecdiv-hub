@@ -3,7 +3,7 @@ from __future__ import annotations
 import html
 import re
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import datetime
 from typing import Any, Callable, Protocol
 from urllib.parse import parse_qsl, quote, urlencode, urljoin, urlsplit, urlunsplit
 
@@ -219,7 +219,6 @@ class LabguruClient:
         self,
         *,
         collection_name: str = "yeasts",
-        since: datetime | None = None,
         progress_callback: Callable[[dict[str, Any]], None] | None = None,
     ) -> list[LabguruInventoryItem]:
         clean_name = str(collection_name or "yeasts").strip() or "yeasts"
@@ -233,23 +232,15 @@ class LabguruClient:
 
         payloads: list[dict[str, Any]] | None = None
         last_error: requests.HTTPError | None = None
-        incremental_params = labguru_incremental_inventory_params(since)
         for endpoint in dict.fromkeys(candidates):
             try:
                 payloads = self._list_all_pages(
                     endpoint,
                     progress_callback=progress_callback,
-                    **incremental_params,
                 )
                 break
             except requests.HTTPError as exc:
                 last_error = exc
-                if since is not None and exc.response is not None and exc.response.status_code in {400, 422}:
-                    payloads = self._list_all_pages(
-                        endpoint,
-                        progress_callback=progress_callback,
-                    )
-                    break
                 if exc.response is None or exc.response.status_code != 404:
                     raise
         if payloads is None:
@@ -724,23 +715,6 @@ def labguru_inventory_item_from_payload(payload: dict[str, Any], *, base_url: st
         updated_external_at=parse_datetime(item.get("updated_at") or item.get("modified_at")),
         payload_json=item,
     )
-
-
-def labguru_incremental_inventory_params(since: datetime | None) -> dict[str, Any]:
-    if since is None:
-        return {}
-    normalized_since = since if since.tzinfo is not None else since.replace(tzinfo=timezone.utc)
-    value = normalized_since.isoformat()
-    return {
-        "kendo": True,
-        "filter": {
-            "logic": "or",
-            "filters": {
-                "0": {"field": "created_at", "operator": "gte", "value": value},
-                "1": {"field": "updated_at", "operator": "gte", "value": value},
-            },
-        },
-    }
 
 
 def legacy_experiment_description(experiment_payload: dict[str, Any]) -> str | None:

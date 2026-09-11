@@ -53,7 +53,6 @@ def sync_labguru_yeast_strains(
         )
     items = client.list_yeast_strains(
         collection_name=collection_name,
-        since=since,
         progress_callback=progress_callback,
     )
     existing = {
