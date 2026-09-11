@@ -95,6 +95,16 @@ inspect storage-backed folders without logging into the storage host directly.
 
 ## Pending Live Schema Migrations
 
+Before deploying incremental Labguru Yeast strains synchronization and
+creation-date ordering, apply:
+
+```bash
+psql "$DETECDIV_HUB_DATABASE_URL" -f db/migrations/20260911_labguru_yeast_created_external_at.sql
+```
+
+This adds the Labguru-side creation timestamp and backfills it from the already
+imported payloads without repeating local rows.
+
 Before deploying the Labguru Yeast strains catalog and instant-search page,
 apply the migration:
 
@@ -103,8 +113,9 @@ psql "$DETECDIV_HUB_DATABASE_URL" -f db/migrations/20260911_labguru_yeast_strain
 ```
 
 It creates the reconciled local Labguru yeast inventory used by the dedicated
-`External accounts > Yeast strains` page. The API and worker copies must both
-be updated because the import runs as a worker job.
+`External accounts > Yeast strains` page. Synchronization runs as a short
+FastAPI background task because it only needs the Labguru API and PostgreSQL;
+compute workers are not involved.
 
 Before deploying the Micro-Manager acquisition-widget position-description
 changes from commit `a05b313`, apply the migration:

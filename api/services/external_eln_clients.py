@@ -3,8 +3,8 @@ from __future__ import annotations
 import html
 import re
 from dataclasses import dataclass, field
-from datetime import datetime
-from typing import Any, Protocol
+from datetime import datetime, timezone
+from typing import Any, Callable, Protocol
 from urllib.parse import parse_qsl, quote, urlencode, urljoin, urlsplit, urlunsplit
 
 import requests
@@ -49,6 +49,7 @@ class LabguruInventoryItem:
     sys_id: str | None = None
     description: str | None = None
     owner_name: str | None = None
+    created_external_at: datetime | None = None
     updated_external_at: datetime | None = None
     payload_json: dict[str, Any] = field(default_factory=dict)
 
@@ -214,7 +215,13 @@ class LabguruClient:
             for item in self._list_paginated("/api/v2/projects", fallback_endpoint="/api/v1/projects.json")
         ]
 
-    def list_yeast_strains(self, *, collection_name: str = "yeasts") -> list[LabguruInventoryItem]:
+    def list_yeast_strains(
+        self,
+        *,
+        collection_name: str = "yeasts",
+        since: datetime | None = None,
+        progress_callback: Callable[[dict[str, Any]], None] | None = None,
+    ) -> list[LabguruInventoryItem]:
         clean_name = str(collection_name or "yeasts").strip() or "yeasts"
         endpoint_name = re.sub(r"[^a-z0-9]+", "_", clean_name.casefold()).strip("_") or "yeasts"
         candidates = [
@@ -226,12 +233,23 @@ class LabguruClient:
 
         payloads: list[dict[str, Any]] | None = None
         last_error: requests.HTTPError | None = None
+        incremental_params = labguru_incremental_inventory_params(since)
         for endpoint in dict.fromkeys(candidates):
             try:
-                payloads = self._list_all_pages(endpoint)
+                payloads = self._list_all_pages(
+                    endpoint,
+                    progress_callback=progress_callback,
+                    **incremental_params,
+                )
                 break
             except requests.HTTPError as exc:
                 last_error = exc
+                if since is not None and exc.response is not None and exc.response.status_code in {400, 422}:
+                    payloads = self._list_all_pages(
+                        endpoint,
+                        progress_callback=progress_callback,
+                    )
+                    break
                 if exc.response is None or exc.response.status_code != 404:
                     raise
         if payloads is None:
@@ -240,11 +258,23 @@ class LabguruClient:
             payloads = []
         return [labguru_inventory_item_from_payload(item, base_url=self.base_url) for item in payloads]
 
-    def _list_all_pages(self, endpoint: str) -> list[dict[str, Any]]:
+    def _list_all_pages(
+        self,
+        endpoint: str,
+        *,
+        progress_callback: Callable[[dict[str, Any]], None] | None = None,
+        **params: Any,
+    ) -> list[dict[str, Any]]:
         items: list[dict[str, Any]] = []
         seen_ids: set[str] = set()
         for page in range(1, 10_001):
-            payload = self._request_json(endpoint, page=page, page_size=200, meta=True)
+            payload = self._request_json(
+                endpoint,
+                page=page,
+                page_size=200,
+                meta=True,
+                **params,
+            )
             page_items = extract_list_payload(payload)
             if not page_items:
                 break
@@ -260,6 +290,19 @@ class LabguruClient:
             if added == 0:
                 break
             total = extract_list_total(payload)
+            if progress_callback is not None:
+                progress_percent = None
+                if total:
+                    progress_percent = min(100, round(len(items) * 100 / total))
+                progress_callback(
+                    {
+                        "phase": "fetching",
+                        "page": page,
+                        "processed_count": len(items),
+                        "total_count": total,
+                        "progress_percent": progress_percent,
+                    }
+                )
             if total is not None and len(items) >= total:
                 break
         return items
@@ -675,9 +718,29 @@ def labguru_inventory_item_from_payload(payload: dict[str, Any], *, base_url: st
         sys_id=sys_id,
         description=description,
         owner_name=labguru_owner_name(item),
+        created_external_at=parse_datetime(
+            item.get("created_at") or item.get("created_on") or item.get("creation_date")
+        ),
         updated_external_at=parse_datetime(item.get("updated_at") or item.get("modified_at")),
         payload_json=item,
     )
+
+
+def labguru_incremental_inventory_params(since: datetime | None) -> dict[str, Any]:
+    if since is None:
+        return {}
+    normalized_since = since if since.tzinfo is not None else since.replace(tzinfo=timezone.utc)
+    value = normalized_since.isoformat()
+    return {
+        "kendo": True,
+        "filter": {
+            "logic": "or",
+            "filters": {
+                "0": {"field": "created_at", "operator": "gte", "value": value},
+                "1": {"field": "updated_at", "operator": "gte", "value": value},
+            },
+        },
+    }
 
 
 def legacy_experiment_description(experiment_payload: dict[str, Any]) -> str | None:

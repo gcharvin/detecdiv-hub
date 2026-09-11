@@ -3,7 +3,7 @@ from __future__ import annotations
 import re
 import unicodedata
 from datetime import datetime, timezone
-from typing import Any
+from typing import Any, Callable
 
 from sqlalchemy import and_, case, func, or_, select
 from sqlalchemy.orm import Session
@@ -35,9 +35,27 @@ def sync_labguru_yeast_strains(
     *,
     client: LabguruClient,
     collection_name: str,
+    since: datetime | None = None,
+    progress_callback: Callable[[dict[str, Any]], None] | None = None,
 ) -> dict[str, Any]:
     synced_at = datetime.now(timezone.utc)
-    items = client.list_yeast_strains(collection_name=collection_name)
+    sync_mode = "incremental" if since is not None else "full"
+    if progress_callback is not None:
+        progress_callback(
+            {
+                "phase": "connecting",
+                "sync_mode": sync_mode,
+                "processed_count": 0,
+                "total_count": None,
+                "created_count": 0,
+                "updated_count": 0,
+            }
+        )
+    items = client.list_yeast_strains(
+        collection_name=collection_name,
+        since=since,
+        progress_callback=progress_callback,
+    )
     existing = {
         record.external_id: record
         for record in session.scalars(select(LabguruYeastStrain)).all()
@@ -46,7 +64,8 @@ def sync_labguru_yeast_strains(
     created_count = 0
     updated_count = 0
 
-    for item in items:
+    unchanged_count = 0
+    for index, item in enumerate(items, start=1):
         if item.external_id in seen_ids:
             continue
         seen_ids.add(item.external_id)
@@ -56,28 +75,101 @@ def sync_labguru_yeast_strains(
             session.add(record)
             existing[item.external_id] = record
             created_count += 1
-        else:
+        elif inventory_item_needs_sync(record, item=item, since=since):
             updated_count += 1
+        else:
+            unchanged_count += 1
+            if progress_callback is not None and (index % 50 == 0 or index == len(items)):
+                progress_callback(
+                    sync_progress_payload(
+                        phase="synchronizing",
+                        sync_mode=sync_mode,
+                        processed_count=index,
+                        total_count=len(items),
+                        created_count=created_count,
+                        updated_count=updated_count,
+                    )
+                )
+            continue
         apply_inventory_item(record, item=item, synced_at=synced_at)
+        if progress_callback is not None and (index % 50 == 0 or index == len(items)):
+            progress_callback(
+                sync_progress_payload(
+                    phase="synchronizing",
+                    sync_mode=sync_mode,
+                    processed_count=index,
+                    total_count=len(items),
+                    created_count=created_count,
+                    updated_count=updated_count,
+                )
+            )
 
     deactivated_count = 0
-    for external_id, record in existing.items():
-        if external_id in seen_ids or not record.is_active:
-            continue
-        record.is_active = False
-        record.missing_since = synced_at
-        record.updated_at = synced_at
-        deactivated_count += 1
+    if sync_mode == "full":
+        for external_id, record in existing.items():
+            if external_id in seen_ids or not record.is_active:
+                continue
+            record.is_active = False
+            record.missing_since = synced_at
+            record.updated_at = synced_at
+            deactivated_count += 1
 
     session.flush()
     return {
         "system_key": "labguru",
         "collection_name": collection_name,
+        "sync_mode": sync_mode,
         "imported_count": len(seen_ids),
+        "processed_count": len(seen_ids),
+        "total_count": len(seen_ids),
         "created_count": created_count,
         "updated_count": updated_count,
+        "unchanged_count": unchanged_count,
         "deactivated_count": deactivated_count,
-        "synced_at": synced_at,
+        "phase": "completed",
+        "progress_percent": 100,
+        "synced_at": synced_at.isoformat(),
+    }
+
+
+def inventory_item_needs_sync(
+    record: LabguruYeastStrain,
+    *,
+    item: LabguruInventoryItem,
+    since: datetime | None,
+) -> bool:
+    if not record.is_active:
+        return True
+    if record.created_external_at is None and item.created_external_at is not None:
+        return True
+    if (record.payload_json or {}) != (item.payload_json or {}):
+        return True
+    if since is None:
+        return True
+    comparison_time = ensure_aware(item.updated_external_at or item.created_external_at)
+    return comparison_time is not None and comparison_time >= ensure_aware(since)
+
+
+def sync_progress_payload(
+    *,
+    phase: str,
+    sync_mode: str,
+    processed_count: int,
+    total_count: int | None,
+    created_count: int,
+    updated_count: int,
+) -> dict[str, Any]:
+    progress_percent = None
+    if total_count:
+        progress_percent = min(100, round(processed_count * 100 / total_count))
+    return {
+        "phase": phase,
+        "sync_mode": sync_mode,
+        "processed_count": processed_count,
+        "total_count": total_count,
+        "created_count": created_count,
+        "updated_count": updated_count,
+        "progress_percent": progress_percent,
     }
 
 
@@ -97,6 +189,7 @@ def apply_inventory_item(
     record.payload_json = item.payload_json
     record.search_text = normalize_search_text(" ".join(search_fields.values()))
     record.is_active = True
+    record.created_external_at = item.created_external_at
     record.updated_external_at = item.updated_external_at
     record.last_synced_at = synced_at
     record.missing_since = None
@@ -188,6 +281,11 @@ def search_labguru_yeast_strains(
         session.scalar(select(func.count(LabguruYeastStrain.id)).where(*where_clauses)) or 0
     )
     stmt = select(LabguruYeastStrain).where(*where_clauses)
+    creation_order = func.coalesce(
+        LabguruYeastStrain.created_external_at,
+        LabguruYeastStrain.updated_external_at,
+        LabguruYeastStrain.created_at,
+    )
     if tokens:
         normalized_query = " ".join(tokens)
         relevance = case(
@@ -197,9 +295,13 @@ def search_labguru_yeast_strains(
             (LabguruYeastStrain.name.ilike(f"%{normalized_query}%"), 50),
             else_=0,
         )
-        stmt = stmt.order_by(relevance.desc(), LabguruYeastStrain.name.asc())
+        stmt = stmt.order_by(
+            relevance.desc(),
+            creation_order.desc(),
+            LabguruYeastStrain.name.asc(),
+        )
     else:
-        stmt = stmt.order_by(LabguruYeastStrain.name.asc())
+        stmt = stmt.order_by(creation_order.desc(), LabguruYeastStrain.name.asc())
     stmt = stmt.offset(max(0, offset)).limit(min(max(limit, 1), 200))
     return count, list(session.scalars(stmt))
 
@@ -234,9 +336,33 @@ def yeast_strain_search_result(
         "search_fields_json": record.search_fields_json or {},
         "context": contexts[:6],
         "payload_json": (record.payload_json or {}) if include_payload else {},
+        "created_external_at": record.created_external_at
+        or external_created_at_from_payload(record.payload_json or {})
+        or record.created_at,
         "updated_external_at": record.updated_external_at,
         "last_synced_at": record.last_synced_at,
     }
+
+
+def external_created_at_from_payload(payload: dict[str, Any]) -> datetime | None:
+    value = payload.get("created_at") or payload.get("created_on") or payload.get("creation_date")
+    if isinstance(value, datetime):
+        return value
+    text = str(value or "").strip()
+    if not text:
+        return None
+    if text.endswith("Z"):
+        text = f"{text[:-1]}+00:00"
+    try:
+        return datetime.fromisoformat(text)
+    except ValueError:
+        return None
+
+
+def ensure_aware(value: datetime | None) -> datetime | None:
+    if value is None or value.tzinfo is not None:
+        return value
+    return value.replace(tzinfo=timezone.utc)
 
 
 def normalize_scopes(scopes: list[str] | None) -> list[str]:

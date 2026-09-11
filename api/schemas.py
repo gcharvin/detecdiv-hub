@@ -899,6 +899,7 @@ class LabguruYeastStrainSummary(HubBaseModel):
     search_fields_json: dict[str, str] = Field(default_factory=dict)
     context: list[LabguruYeastStrainContext] = Field(default_factory=list)
     payload_json: dict[str, Any] = Field(default_factory=dict)
+    created_external_at: datetime | None = None
     updated_external_at: datetime | None = None
     last_synced_at: datetime | None = None
 
@@ -919,6 +920,8 @@ class LabguruYeastStrainSyncStatus(HubBaseModel):
     latest_sync_at: datetime | None = None
     job_id: UUID | None = None
     job_status: str | None = None
+    job_heartbeat_at: datetime | None = None
+    job_progress: dict[str, Any] = Field(default_factory=dict)
 
 
 class RawDatasetExternalLinkRequest(HubBaseModel):

@@ -315,6 +315,9 @@ const els = {
   yeastStrainSyncState: document.querySelector("#yeast-strain-sync-state"),
   yeastStrainCollection: document.querySelector("#yeast-strain-collection"),
   yeastStrainSyncButton: document.querySelector("#yeast-strain-sync-button"),
+  yeastStrainSyncProgress: document.querySelector("#yeast-strain-sync-progress"),
+  yeastStrainSyncProgressText: document.querySelector("#yeast-strain-sync-progress-text"),
+  yeastStrainSyncProgressBar: document.querySelector("#yeast-strain-sync-progress-bar"),
   yeastStrainMoreButton: document.querySelector("#yeast-strain-more-button"),
   deploymentAwarenessSummary: document.querySelector("#deployment-awareness-summary"),
   deploymentApiStatus: document.querySelector("#deployment-api-status"),
@@ -5674,10 +5677,33 @@ function renderYeastStrains() {
   }
   if (els.yeastStrainSyncState) els.yeastStrainSyncState.textContent = status.job_status || "idle";
   if (els.yeastStrainCollection) els.yeastStrainCollection.textContent = status.collection_name || "yeasts";
+  const isSynchronizing = ["queued", "running"].includes(status.job_status);
   if (els.yeastStrainSyncButton) {
     els.yeastStrainSyncButton.classList.toggle("hidden", !isAdmin());
-    els.yeastStrainSyncButton.disabled = ["queued", "running"].includes(status.job_status);
-    els.yeastStrainSyncButton.textContent = status.job_status === "running" ? "Importing…" : "Import all strains";
+    els.yeastStrainSyncButton.disabled = isSynchronizing;
+    els.yeastStrainSyncButton.textContent = isSynchronizing ? "Synchronizing…" : "Synchronize";
+  }
+  if (els.yeastStrainSyncProgress) {
+    els.yeastStrainSyncProgress.classList.toggle("hidden", !isSynchronizing);
+    const progress = status.job_progress || {};
+    const processed = Number(progress.processed_count || 0);
+    const total = Number(progress.total_count || 0);
+    const created = Number(progress.created_count || 0);
+    const updated = Number(progress.updated_count || 0);
+    const phase = progress.phase || status.job_status || "queued";
+    let progressText = phase === "queued" ? "Synchronization queued…" : "Connecting to Labguru…";
+    if (phase === "fetching") {
+      progressText = `${processed} strain${processed === 1 ? "" : "s"} received from Labguru${total ? ` of ${total}` : ""}…`;
+    } else if (phase === "synchronizing") {
+      progressText = `${processed}${total ? ` / ${total}` : ""} checked · ${created} new · ${updated} updated`;
+    }
+    if (els.yeastStrainSyncProgressText) els.yeastStrainSyncProgressText.textContent = progressText;
+    if (els.yeastStrainSyncProgressBar) {
+      const percent = Number(progress.progress_percent);
+      const hasPercent = Number.isFinite(percent) && total > 0;
+      els.yeastStrainSyncProgressBar.style.width = hasPercent ? `${Math.max(2, Math.min(100, percent))}%` : "34%";
+      els.yeastStrainSyncProgressBar.classList.toggle("indeterminate", !hasPercent);
+    }
   }
 
   const query = (els.yeastStrainSearch?.value || "").trim();
@@ -5685,20 +5711,22 @@ function renderYeastStrains() {
   if (els.yeastStrainResultsSummary) {
     const total = state.yeastStrainSearchMeta.total || 0;
     els.yeastStrainResultsSummary.textContent = total
-      ? `${total} matching strain${total === 1 ? "" : "s"}. Results come from the local Labguru index.`
-      : (status.active_count ? "No strain matches these inclusive criteria." : "No strains imported yet. An admin can start the first import above.");
+      ? (query
+        ? `${total} matching strain${total === 1 ? "" : "s"}. Results come from the synchronized Labguru index.`
+        : `${total} strain${total === 1 ? "" : "s"}, newest creations first.`)
+      : (status.active_count ? "No strain matches these inclusive criteria." : "No strains synchronized yet. An admin can synchronize above.");
   }
   if (!els.yeastStrainResults) return;
   els.yeastStrainResults.replaceChildren();
   for (const strain of state.yeastStrains) {
     const article = document.createElement("article");
-    article.className = "yeast-result-card";
+    article.className = `yeast-result-card${query ? "" : " yeast-result-card-simple"}`;
 
     const heading = document.createElement("div");
     heading.className = "yeast-result-heading";
     const title = document.createElement(strain.external_url ? "a" : "span");
     title.className = "yeast-result-title";
-    title.textContent = strain.name || strain.external_id;
+    title.textContent = strain.name || "Unnamed strain";
     if (strain.external_url) {
       title.href = strain.external_url;
       title.target = "_blank";
@@ -5706,13 +5734,17 @@ function renderYeastStrains() {
     }
     const identifiers = document.createElement("div");
     identifiers.className = "yeast-result-identifiers";
-    identifiers.textContent = [strain.sys_id ? `SysID ${strain.sys_id}` : "", `Labguru ${strain.external_id}`, strain.owner_name || ""]
+    identifiers.textContent = [
+      strain.created_external_at ? `Created ${formatTimestamp(strain.created_external_at)}` : "",
+      strain.owner_name || "",
+      strain.sys_id ? `SysID ${strain.sys_id}` : "",
+    ]
       .filter(Boolean).join(" · ");
     heading.append(title, identifiers);
     article.appendChild(heading);
 
     const contexts = Array.isArray(strain.context) ? strain.context : [];
-    if (contexts.length) {
+    if (query && contexts.length) {
       const contextList = document.createElement("div");
       contextList.className = "yeast-context-list";
       for (const context of contexts) {
@@ -5727,32 +5759,34 @@ function renderYeastStrains() {
         contextList.appendChild(row);
       }
       article.appendChild(contextList);
-    } else if (strain.description) {
+    } else if (query && strain.description) {
       const description = document.createElement("p");
       description.className = "yeast-result-description";
       description.textContent = strain.description;
       article.appendChild(description);
     }
 
-    const details = document.createElement("details");
-    details.className = "yeast-raw-details";
-    const summary = document.createElement("summary");
-    summary.textContent = "All Labguru fields";
-    const payload = document.createElement("pre");
-    payload.textContent = "Open to load…";
-    details.append(summary, payload);
-    details.addEventListener("toggle", () => {
-      if (!details.open || details.dataset.loaded === "true") return;
-      details.dataset.loaded = "true";
-      payload.textContent = "Loading…";
-      apiGet(`/external-systems/labguru/yeast-strains/by-id/${encodeURIComponent(strain.external_id)}`)
-        .then((detail) => { payload.textContent = JSON.stringify(detail.payload_json || {}, null, 2); })
-        .catch((error) => {
-          details.dataset.loaded = "false";
-          payload.textContent = String(error);
+    if (query) {
+      const details = document.createElement("details");
+      details.className = "yeast-raw-details";
+      const summary = document.createElement("summary");
+      summary.textContent = "All Labguru fields";
+      const payload = document.createElement("pre");
+      payload.textContent = "Open to load…";
+      details.append(summary, payload);
+      details.addEventListener("toggle", () => {
+        if (!details.open || details.dataset.loaded === "true") return;
+        details.dataset.loaded = "true";
+        payload.textContent = "Loading…";
+        apiGet(`/external-systems/labguru/yeast-strains/by-id/${encodeURIComponent(strain.external_id)}`)
+          .then((detail) => { payload.textContent = JSON.stringify(detail.payload_json || {}, null, 2); })
+          .catch((error) => {
+            details.dataset.loaded = "false";
+            payload.textContent = String(error);
+          });
         });
-    });
-    article.appendChild(details);
+      article.appendChild(details);
+    }
     els.yeastStrainResults.appendChild(article);
   }
   if (els.yeastStrainMoreButton) {
@@ -6999,18 +7033,18 @@ async function refreshYeastStrainStatus() {
   if (!pageFlags.hasYeastStrainsView) {
     return;
   }
-  const wasImporting = ["queued", "running"].includes(state.yeastStrainStatus?.job_status);
+  const wasSynchronizing = ["queued", "running"].includes(state.yeastStrainStatus?.job_status);
   state.yeastStrainStatus = await apiGet("/external-systems/labguru/yeast-strains/status");
   renderYeastStrains();
-  const isImporting = ["queued", "running"].includes(state.yeastStrainStatus?.job_status);
-  if (wasImporting && !isImporting) {
+  const isSynchronizing = ["queued", "running"].includes(state.yeastStrainStatus?.job_status);
+  if (wasSynchronizing && !isSynchronizing) {
     await refreshYeastStrains();
   }
 }
 
 async function queueYeastStrainSync() {
   const result = await apiPost("/external-systems/labguru/yeast-strains/sync", { priority: 100 });
-  setStatus(result.message || "Labguru Yeast strains import queued.");
+  setStatus(result.message || "Labguru Yeast strains synchronization queued.");
   await refreshYeastStrainStatus();
 }
 

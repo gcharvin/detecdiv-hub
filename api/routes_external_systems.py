@@ -1,8 +1,9 @@
 from __future__ import annotations
 
+from datetime import datetime, timezone
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Query, status
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session, joinedload
 
@@ -56,6 +57,7 @@ from api.services.labguru_yeast_strains import (
     search_labguru_yeast_strains,
     yeast_strain_search_result,
 )
+from api.services.labguru_yeast_sync_job import run_labguru_yeast_sync_job
 from api.services.users import get_current_user
 
 
@@ -161,19 +163,39 @@ def get_labguru_yeast_strain_status(
         )
         or 0
     )
-    latest_sync_at = db.scalar(select(func.max(LabguruYeastStrain.last_synced_at)))
+    latest_record_sync_at = db.scalar(select(func.max(LabguruYeastStrain.last_synced_at)))
     latest_job = db.scalars(
         select(Job)
         .where(Job.params_json["job_kind"].as_string() == "labguru_yeast_strain_sync")
         .order_by(Job.created_at.desc())
         .limit(1)
     ).first()
+    latest_completed_job = db.scalars(
+        select(Job)
+        .where(
+            Job.params_json["job_kind"].as_string() == "labguru_yeast_strain_sync",
+            Job.status == "done",
+        )
+        .order_by(Job.finished_at.desc())
+        .limit(1)
+    ).first()
+    latest_sync_at = latest_record_sync_at
+    if latest_completed_job is not None:
+        completed_at = yeast_sync_completed_at(latest_completed_job)
+        if completed_at is not None and (latest_sync_at is None or completed_at > latest_sync_at):
+            latest_sync_at = completed_at
+    progress = {}
+    if latest_job is not None:
+        result_json = dict(latest_job.result_json or {})
+        progress = dict(result_json.get("progress") or result_json)
     return LabguruYeastStrainSyncStatus(
         collection_name=get_settings().labguru_yeast_collection_name,
         active_count=active_count,
         latest_sync_at=latest_sync_at,
         job_id=latest_job.id if latest_job is not None else None,
         job_status=latest_job.status if latest_job is not None else None,
+        job_heartbeat_at=latest_job.heartbeat_at if latest_job is not None else None,
+        job_progress=progress,
     )
 
 
@@ -184,11 +206,15 @@ def get_labguru_yeast_strain_status(
 )
 def queue_labguru_yeast_strain_sync(
     payload: ExternalSystemSyncRequest,
+    background_tasks: BackgroundTasks,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ) -> ExternalSystemSyncQueueResult:
     if current_user.role not in {"admin", "service"}:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Yeast strain import requires admin role")
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Yeast strain synchronization requires admin role",
+        )
     settings = get_settings()
     credential = get_user_credential(db, user=current_user, system_key="labguru")
     if credential is not None:
@@ -199,7 +225,7 @@ def queue_labguru_yeast_strain_sync(
     elif not (settings.labguru_enabled and settings.labguru_token.strip()):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Store a personal Labguru token or configure the system connector before importing",
+            detail="Store a personal Labguru token or configure the system connector before synchronizing",
         )
 
     active_job = db.scalars(
@@ -213,11 +239,26 @@ def queue_labguru_yeast_strain_sync(
             system_key="labguru",
             job_id=active_job.id,
             status=active_job.status,
-            message="A Yeast strains import is already queued or running.",
+            message="A Yeast strains synchronization is already queued or running.",
         )
 
+    latest_sync_at = db.scalar(select(func.max(LabguruYeastStrain.last_synced_at)))
+    latest_completed_job = db.scalars(
+        select(Job)
+        .where(
+            Job.params_json["job_kind"].as_string() == "labguru_yeast_strain_sync",
+            Job.status == "done",
+        )
+        .order_by(Job.finished_at.desc())
+        .limit(1)
+    ).first()
+    if latest_completed_job is not None:
+        completed_at = yeast_sync_completed_at(latest_completed_job)
+        if completed_at is not None and (latest_sync_at is None or completed_at > latest_sync_at):
+            latest_sync_at = completed_at
     job = Job(
         requested_mode="server",
+        resolved_mode="api",
         priority=payload.priority,
         requested_by=current_user.user_key,
         params_json={
@@ -225,17 +266,34 @@ def queue_labguru_yeast_strain_sync(
             "system_key": "labguru",
             "credential_user_id": str(current_user.id) if credential is not None else None,
             "collection_name": settings.labguru_yeast_collection_name,
+            "execution_source": "api",
+            "sync_mode": "incremental" if latest_sync_at is not None else "full",
+            "since": latest_sync_at.isoformat() if latest_sync_at is not None else None,
         },
-        status="queued",
+        result_json={
+            "progress": {
+                "phase": "queued",
+                "sync_mode": "incremental" if latest_sync_at is not None else "full",
+                "processed_count": 0,
+                "total_count": None,
+                "created_count": 0,
+                "updated_count": 0,
+                "progress_percent": None,
+            }
+        },
+        status="running",
+        started_at=datetime.now(timezone.utc),
+        heartbeat_at=datetime.now(timezone.utc),
     )
     db.add(job)
     db.commit()
     db.refresh(job)
+    background_tasks.add_task(run_labguru_yeast_sync_job, job.id)
     return ExternalSystemSyncQueueResult(
         system_key="labguru",
         job_id=job.id,
         status=job.status,
-        message="Queued the complete Labguru Yeast strains import.",
+        message="Started the Labguru Yeast strains synchronization in the API.",
     )
 
 
@@ -564,6 +622,17 @@ def update_external_user_match(
     db.commit()
     db.refresh(record)
     return record
+
+
+def yeast_sync_completed_at(job: Job) -> datetime | None:
+    value = (job.result_json or {}).get("synced_at")
+    if value:
+        try:
+            parsed = datetime.fromisoformat(str(value).replace("Z", "+00:00"))
+            return parsed if parsed.tzinfo is not None else parsed.replace(tzinfo=timezone.utc)
+        except ValueError:
+            pass
+    return job.finished_at
 
 
 def normalize_or_400(system_key: str) -> str:

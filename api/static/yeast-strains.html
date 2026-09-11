@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>DetecDiv Hub - Yeast strains</title>
-    <link rel="stylesheet" href="/web/styles.css?v=20260911-yeast1" />
+    <link rel="stylesheet" href="/web/styles.css?v=20260911-yeast2" />
   </head>
   <body data-page="yeast-strains">
     <div class="page-shell">
@@ -26,7 +26,7 @@
         <div>
           <div class="eyebrow">External accounts · Labguru</div>
           <h1>Yeast strains</h1>
-          <p class="hero-copy">Instant, contextual search across the complete Labguru yeast inventory.</p>
+          <p class="hero-copy">A synchronized, instantly searchable view of the Labguru yeast inventory.</p>
         </div>
         <div class="hero-actions"><div class="session-box"><div id="session-label" class="muted">Not logged in.</div><button id="logout-button">Logout</button></div></div>
       </header>
@@ -34,13 +34,21 @@
       <main id="admin-content" class="admin-content hidden">
         <section class="summary-grid yeast-summary-grid">
           <article class="summary-card"><div class="summary-label">Indexed strains</div><div id="yeast-strain-count" class="summary-value">0</div></article>
-          <article class="summary-card"><div class="summary-label">Last import</div><div id="yeast-strain-last-sync" class="summary-value compact-value">Never</div></article>
-          <article class="summary-card"><div class="summary-label">Import state</div><div id="yeast-strain-sync-state" class="summary-value compact-value">Idle</div></article>
-          <article class="summary-card yeast-import-card">
+          <article class="summary-card"><div class="summary-label">Last synchronization</div><div id="yeast-strain-last-sync" class="summary-value compact-value">Never</div></article>
+          <article class="summary-card"><div class="summary-label">Synchronization</div><div id="yeast-strain-sync-state" class="summary-value compact-value">Idle</div></article>
+          <article class="summary-card yeast-sync-card">
             <div class="summary-label">Labguru source</div>
             <div id="yeast-strain-collection" class="summary-value compact-value">yeasts</div>
-            <button id="yeast-strain-sync-button" class="primary hidden">Import all strains</button>
+            <button id="yeast-strain-sync-button" class="primary hidden">Synchronize</button>
           </article>
+        </section>
+
+        <section id="yeast-strain-sync-progress" class="yeast-sync-progress hidden" aria-live="polite">
+          <div class="yeast-sync-progress-line">
+            <span class="yeast-sync-heartbeat" aria-hidden="true"></span>
+            <span id="yeast-strain-sync-progress-text">Synchronization queued…</span>
+          </div>
+          <div class="yeast-sync-progress-track" aria-hidden="true"><span id="yeast-strain-sync-progress-bar"></span></div>
         </section>
 
         <section class="panel yeast-search-panel">
@@ -74,6 +82,6 @@
 
       <footer class="footer"><div id="status-line">Ready.</div></footer>
     </div>
-    <script src="/web/app.js?v=20260911-yeast1" defer></script>
+    <script src="/web/app.js?v=20260911-yeast2" defer></script>
   </body>
 </html>

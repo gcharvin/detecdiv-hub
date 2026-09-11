@@ -55,6 +55,9 @@ It is designed to support:
 - `labguru_yeast_strains`
   - reconciled local cache of the complete Labguru yeast inventory
   - supports low-latency contextual search without a network round trip per keystroke
+  - incremental synchronization leaves unchanged records untouched and publishes
+    page/item progress through an API-side background job heartbeat
+  - the unfiltered catalog is ordered by Labguru creation date, newest first
 - `project_acl`
   - explicit per-project sharing entries
 - `project_groups`

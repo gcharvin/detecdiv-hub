@@ -958,6 +958,7 @@ class LabguruYeastStrain(Base):
     payload_json: Mapped[dict] = mapped_column(JSONB, nullable=False, default=dict)
     search_text: Mapped[str] = mapped_column(Text, nullable=False, default="")
     is_active: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
+    created_external_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     updated_external_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     last_synced_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     missing_since: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))

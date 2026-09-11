@@ -29,7 +29,6 @@ JOB_PRIORITY_DEFINITIONS: tuple[tuple[str, str, int], ...] = (
     ("micromanager_post_ingest", "Micro-Manager post-ingest", 90),
     ("raw_preview_video", "Raw preview video", 100),
     ("external_eln_sync", "External ELN sync", 100),
-    ("labguru_yeast_strain_sync", "Labguru Yeast strains import", 100),
     ("generic", "Generic / unknown job", 100),
     ("archive_raw_dataset", "Raw dataset archive", 150),
     ("init_backup_repo", "Initialize backup repository", 200),

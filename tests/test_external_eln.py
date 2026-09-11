@@ -11,6 +11,7 @@ from api.services.external_eln_clients import (
     extract_labguru_text_sections,
     html_text,
     html_to_text,
+    labguru_incremental_inventory_params,
     labguru_experiment_from_payload,
     labguru_inventory_item_from_payload,
     labguru_observed_users_from_payload,
@@ -18,17 +19,19 @@ from api.services.external_eln_clients import (
     normalize_system_key,
     sanitize_http_error_message,
 )
-from api.services.labguru_yeast_strains import (
-    apply_inventory_item,
-    build_search_fields,
-    normalize_search_text,
-    yeast_strain_search_result,
-)
 from api.services.external_eln_matching import (
     extract_date_key,
     raw_dataset_match_sort_key,
     score_external_record_for_raw_dataset,
 )
+from api.services.labguru_yeast_strains import (
+    apply_inventory_item,
+    build_search_fields,
+    inventory_item_needs_sync,
+    normalize_search_text,
+    yeast_strain_search_result,
+)
+from api.services.labguru_yeast_sync_job import parse_sync_since
 
 
 def test_labguru_experiment_payload_builds_stable_record() -> None:
@@ -169,6 +172,7 @@ def test_labguru_yeast_payload_builds_inventory_item() -> None:
         "sys_id": "SYS-0042",
         "description": "<p>Haploid reference strain</p>",
         "owner": {"id": 7, "name": "Ada Lovelace"},
+        "created_at": "2026-09-01T08:15:00Z",
         "updated_at": "2026-09-10T12:30:00Z",
     }
 
@@ -179,11 +183,13 @@ def test_labguru_yeast_payload_builds_inventory_item() -> None:
     assert item.sys_id == "SYS-0042"
     assert item.description == "Haploid reference strain"
     assert item.owner_name == "Ada Lovelace"
+    assert item.created_external_at == datetime(2026, 9, 1, 8, 15, tzinfo=timezone.utc)
     assert item.external_url == "https://labguru.example.org/knowledge/yeasts/42"
 
 
 def test_labguru_client_lists_complete_yeast_collection(monkeypatch) -> None:
     calls = []
+    progress = []
 
     class FakeResponse:
         def raise_for_status(self) -> None:
@@ -202,7 +208,10 @@ def test_labguru_client_lists_complete_yeast_collection(monkeypatch) -> None:
     monkeypatch.setattr("api.services.external_eln_clients.requests.get", fake_get)
     client = LabguruClient(base_url="https://labguru.example.org", token="token-123")
 
-    items = client.list_yeast_strains(collection_name="yeasts")
+    items = client.list_yeast_strains(
+        collection_name="yeasts",
+        progress_callback=progress.append,
+    )
 
     assert [(item.external_id, item.name) for item in items] == [("11", "W303")]
     assert calls == [
@@ -215,6 +224,43 @@ def test_labguru_client_lists_complete_yeast_collection(monkeypatch) -> None:
             "params": {"page": 2, "page_size": 200, "meta": True, "token": "token-123"},
         },
     ]
+    assert progress == [
+        {
+            "phase": "fetching",
+            "page": 1,
+            "processed_count": 1,
+            "total_count": None,
+            "progress_percent": None,
+        }
+    ]
+
+
+def test_labguru_incremental_inventory_filter_covers_created_and_updated_items() -> None:
+    since = datetime(2026, 9, 11, 8, 0, tzinfo=timezone.utc)
+
+    params = labguru_incremental_inventory_params(since)
+
+    assert params["kendo"] is True
+    assert params["filter"]["logic"] == "or"
+    filters = params["filter"]["filters"]
+    assert filters["0"] == {
+        "field": "created_at",
+        "operator": "gte",
+        "value": since.isoformat(),
+    }
+    assert filters["1"]["field"] == "updated_at"
+    assert filters["1"]["value"] == since.isoformat()
+
+
+def test_parse_sync_since_normalizes_naive_timestamp_to_utc() -> None:
+    assert parse_sync_since("2026-09-11T08:00:00") == datetime(
+        2026,
+        9,
+        11,
+        8,
+        0,
+        tzinfo=timezone.utc,
+    )
 
 
 def test_yeast_search_fields_and_context_include_custom_genetics() -> None:
@@ -236,6 +282,53 @@ def test_yeast_search_fields_and_context_include_custom_genetics() -> None:
     assert "mata his3δ1 leu2δ0" in fields["genetics"]
     assert normalize_search_text(item.name) == "etalon by4741"
     assert any(context["label"] == "Phenotype" for context in result["context"])
+
+
+def test_yeast_incremental_sync_only_updates_changed_or_newly_enriched_records() -> None:
+    created_at = datetime(2026, 9, 10, 9, 0, tzinfo=timezone.utc)
+    since = datetime(2026, 9, 11, 8, 0, tzinfo=timezone.utc)
+    payload = {
+        "id": 42,
+        "name": "BY4741",
+        "created_at": created_at.isoformat(),
+        "updated_at": created_at.isoformat(),
+    }
+    item = labguru_inventory_item_from_payload(payload, base_url="https://labguru.example.org")
+    record = LabguruYeastStrain(
+        external_id="42",
+        name="BY4741",
+        created_external_at=created_at,
+        updated_external_at=created_at,
+        payload_json=payload,
+        is_active=True,
+    )
+
+    assert inventory_item_needs_sync(record, item=item, since=since) is False
+
+    changed_payload = {**payload, "description": "New genotype note"}
+    changed = labguru_inventory_item_from_payload(
+        changed_payload,
+        base_url="https://labguru.example.org",
+    )
+    assert inventory_item_needs_sync(record, item=changed, since=since) is True
+
+    record.created_external_at = None
+    assert inventory_item_needs_sync(record, item=item, since=since) is True
+
+
+def test_yeast_result_exposes_labguru_creation_date() -> None:
+    created_at = datetime(2026, 9, 9, 14, 30, tzinfo=timezone.utc)
+    payload = {"id": 7, "name": "W303", "created_at": created_at.isoformat()}
+    record = LabguruYeastStrain(
+        external_id="7",
+        name="W303",
+        payload_json=payload,
+        is_active=True,
+    )
+
+    result = yeast_strain_search_result(record, query=None)
+
+    assert result["created_external_at"] == created_at
 
 
 def test_labguru_client_creates_experiment_with_widget_fields(monkeypatch) -> None:
