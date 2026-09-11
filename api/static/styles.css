@@ -351,6 +351,187 @@ h3 {
   font-size: 1.65rem;
 }
 
+.summary-value.compact-value {
+  font-size: 1.05rem;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.yeast-summary-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.yeast-import-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.yeast-import-card button {
+  margin-top: auto;
+}
+
+.yeast-search-panel {
+  padding: 22px;
+}
+
+.yeast-search-box {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 62px;
+  padding: 0 18px;
+  border: 1px solid #69717d;
+  background: #15171b;
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.3);
+}
+
+.yeast-search-box:focus-within {
+  border-color: #b8dfff;
+  box-shadow: 0 0 0 3px rgba(159, 216, 255, 0.13), 0 8px 28px rgba(0, 0, 0, 0.3);
+}
+
+.yeast-search-icon {
+  color: #b8dfff;
+  font-size: 2rem;
+  line-height: 1;
+}
+
+.yeast-search-box input {
+  width: 100%;
+  min-width: 0;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: var(--ink);
+  font-size: clamp(1.05rem, 2vw, 1.4rem);
+}
+
+.yeast-search-options {
+  display: flex;
+  justify-content: space-between;
+  align-items: end;
+  gap: 18px;
+  margin-top: 18px;
+}
+
+.yeast-scope-fieldset {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 16px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.yeast-scope-fieldset legend {
+  width: 100%;
+  margin-bottom: 8px;
+  color: var(--muted);
+  font-size: 0.82rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.yeast-scope-fieldset label {
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+  padding: 7px 10px;
+  border: 1px solid var(--line);
+  background: var(--panel-strong);
+  cursor: pointer;
+}
+
+.yeast-match-field {
+  min-width: 220px;
+}
+
+.yeast-result-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.yeast-result-card {
+  padding: 18px 20px;
+  border: 1px solid var(--line);
+  border-left: 3px solid #7ec8f7;
+  background: var(--panel-strong);
+}
+
+.yeast-result-heading {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.yeast-result-title {
+  width: fit-content;
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+
+.yeast-result-identifiers {
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+.yeast-context-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 7px 18px;
+  margin-top: 14px;
+}
+
+.yeast-context-row {
+  display: grid;
+  grid-template-columns: minmax(90px, 0.3fr) minmax(0, 1fr);
+  gap: 10px;
+  padding-top: 7px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  overflow-wrap: anywhere;
+}
+
+.yeast-context-label {
+  color: #b8dfff;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.yeast-result-description {
+  margin-top: 12px;
+  color: var(--muted);
+  white-space: pre-wrap;
+}
+
+.yeast-raw-details {
+  margin-top: 14px;
+}
+
+.yeast-raw-details summary {
+  width: fit-content;
+  color: var(--muted);
+  cursor: pointer;
+  font-size: 0.82rem;
+}
+
+.yeast-raw-details pre {
+  max-height: 360px;
+  overflow: auto;
+  padding: 12px;
+  background: #15171b;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.yeast-more-button {
+  display: block;
+  margin: 18px auto 0;
+}
+
 .toolbar,
 .index-form {
   display: flex;
@@ -1260,6 +1441,12 @@ button:disabled {
 
   .summary-grid,
   .layout-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .yeast-search-options,
+  .yeast-context-list {
+    display: grid;
     grid-template-columns: 1fr;
   }
 

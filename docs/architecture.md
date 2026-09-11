@@ -52,6 +52,9 @@ It is designed to support:
   - auditable asynchronous scans with progress, errors, and final counts
 - `users`
   - authenticated or provisioned hub users
+- `labguru_yeast_strains`
+  - reconciled local cache of the complete Labguru yeast inventory
+  - supports low-latency contextual search without a network round trip per keystroke
 - `project_acl`
   - explicit per-project sharing entries
 - `project_groups`

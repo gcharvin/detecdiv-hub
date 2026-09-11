@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>DetecDiv Hub - Yeast strains</title>
+    <link rel="stylesheet" href="/web/styles.css?v=20260911-yeast1" />
+  </head>
+  <body data-page="yeast-strains">
+    <div class="page-shell">
+      <section id="login-panel" class="panel login-panel hidden">
+        <div class="panel-header">
+          <div>
+            <h2>Login</h2>
+            <p class="muted">Open a hub session with a user key and password.</p>
+          </div>
+        </div>
+        <div class="toolbar">
+          <label class="field compact"><span>User key</span><input id="login-user-key" type="text" placeholder="admin" /></label>
+          <label class="field compact"><span>Password</span><input id="login-password" type="password" placeholder="password" /></label>
+          <button id="login-button" class="primary">Login</button>
+        </div>
+      </section>
+
+      <header class="hero yeast-hero">
+        <div>
+          <div class="eyebrow">External accounts · Labguru</div>
+          <h1>Yeast strains</h1>
+          <p class="hero-copy">Instant, contextual search across the complete Labguru yeast inventory.</p>
+        </div>
+        <div class="hero-actions"><div class="session-box"><div id="session-label" class="muted">Not logged in.</div><button id="logout-button">Logout</button></div></div>
+      </header>
+
+      <main id="admin-content" class="admin-content hidden">
+        <section class="summary-grid yeast-summary-grid">
+          <article class="summary-card"><div class="summary-label">Indexed strains</div><div id="yeast-strain-count" class="summary-value">0</div></article>
+          <article class="summary-card"><div class="summary-label">Last import</div><div id="yeast-strain-last-sync" class="summary-value compact-value">Never</div></article>
+          <article class="summary-card"><div class="summary-label">Import state</div><div id="yeast-strain-sync-state" class="summary-value compact-value">Idle</div></article>
+          <article class="summary-card yeast-import-card">
+            <div class="summary-label">Labguru source</div>
+            <div id="yeast-strain-collection" class="summary-value compact-value">yeasts</div>
+            <button id="yeast-strain-sync-button" class="primary hidden">Import all strains</button>
+          </article>
+        </section>
+
+        <section class="panel yeast-search-panel">
+          <label class="yeast-search-box" for="yeast-strain-search">
+            <span class="yeast-search-icon" aria-hidden="true">⌕</span>
+            <input id="yeast-strain-search" type="search" autocomplete="off" spellcheck="false" placeholder="Search a strain, genotype, phenotype, mutation, owner…" />
+          </label>
+          <div class="yeast-search-options">
+            <fieldset class="yeast-scope-fieldset">
+              <legend>Search in</legend>
+              <label><input type="checkbox" name="yeast-scope" value="name" checked /> Name</label>
+              <label><input type="checkbox" name="yeast-scope" value="identity" checked /> IDs</label>
+              <label><input type="checkbox" name="yeast-scope" value="genetics" checked /> Genetics</label>
+              <label><input type="checkbox" name="yeast-scope" value="description" checked /> Description</label>
+              <label><input type="checkbox" name="yeast-scope" value="people" checked /> People</label>
+              <label><input type="checkbox" name="yeast-scope" value="metadata" checked /> Other fields</label>
+            </fieldset>
+            <label class="field compact yeast-match-field">
+              <span>Words</span>
+              <select id="yeast-strain-match"><option value="all">Match every word</option><option value="any">Match at least one word</option></select>
+            </label>
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-header"><div><h2 id="yeast-strain-results-title">All strains</h2><p id="yeast-strain-results-summary" class="muted">Loading the local Labguru index…</p></div></div>
+          <div id="yeast-strain-results" class="yeast-result-list"></div>
+          <button id="yeast-strain-more-button" class="yeast-more-button hidden">Show more</button>
+        </section>
+      </main>
+
+      <footer class="footer"><div id="status-line">Ready.</div></footer>
+    </div>
+    <script src="/web/app.js?v=20260911-yeast1" defer></script>
+  </body>
+</html>

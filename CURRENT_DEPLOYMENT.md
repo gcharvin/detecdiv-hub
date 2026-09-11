@@ -95,6 +95,17 @@ inspect storage-backed folders without logging into the storage host directly.
 
 ## Pending Live Schema Migrations
 
+Before deploying the Labguru Yeast strains catalog and instant-search page,
+apply the migration:
+
+```bash
+psql "$DETECDIV_HUB_DATABASE_URL" -f db/migrations/20260911_labguru_yeast_strains.sql
+```
+
+It creates the reconciled local Labguru yeast inventory used by the dedicated
+`External accounts > Yeast strains` page. The API and worker copies must both
+be updated because the import runs as a worker job.
+
 Before deploying the Micro-Manager acquisition-widget position-description
 changes from commit `a05b313`, apply the migration:
 

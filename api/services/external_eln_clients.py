@@ -5,7 +5,7 @@ import re
 from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Any, Protocol
-from urllib.parse import parse_qsl, urlencode, urljoin, urlsplit, urlunsplit
+from urllib.parse import parse_qsl, quote, urlencode, urljoin, urlsplit, urlunsplit
 
 import requests
 
@@ -38,6 +38,18 @@ class ExternalElnUser:
 class ExternalElnContainer:
     external_id: str
     name: str
+    payload_json: dict[str, Any] = field(default_factory=dict)
+
+
+@dataclass(slots=True)
+class LabguruInventoryItem:
+    external_id: str
+    name: str
+    external_url: str | None = None
+    sys_id: str | None = None
+    description: str | None = None
+    owner_name: str | None = None
+    updated_external_at: datetime | None = None
     payload_json: dict[str, Any] = field(default_factory=dict)
 
 
@@ -201,6 +213,56 @@ class LabguruClient:
             labguru_container_from_payload(item)
             for item in self._list_paginated("/api/v2/projects", fallback_endpoint="/api/v1/projects.json")
         ]
+
+    def list_yeast_strains(self, *, collection_name: str = "yeasts") -> list[LabguruInventoryItem]:
+        clean_name = str(collection_name or "yeasts").strip() or "yeasts"
+        endpoint_name = re.sub(r"[^a-z0-9]+", "_", clean_name.casefold()).strip("_") or "yeasts"
+        candidates = [
+            f"/api/v1/{endpoint_name}",
+            f"/api/v1/biocollections/{quote(clean_name, safe='')}",
+        ]
+        if endpoint_name == "yeasts":
+            candidates.append("/api/v1/biocollections/yeast_strains")
+
+        payloads: list[dict[str, Any]] | None = None
+        last_error: requests.HTTPError | None = None
+        for endpoint in dict.fromkeys(candidates):
+            try:
+                payloads = self._list_all_pages(endpoint)
+                break
+            except requests.HTTPError as exc:
+                last_error = exc
+                if exc.response is None or exc.response.status_code != 404:
+                    raise
+        if payloads is None:
+            if last_error is not None:
+                raise last_error
+            payloads = []
+        return [labguru_inventory_item_from_payload(item, base_url=self.base_url) for item in payloads]
+
+    def _list_all_pages(self, endpoint: str) -> list[dict[str, Any]]:
+        items: list[dict[str, Any]] = []
+        seen_ids: set[str] = set()
+        for page in range(1, 10_001):
+            payload = self._request_json(endpoint, page=page, page_size=200, meta=True)
+            page_items = extract_list_payload(payload)
+            if not page_items:
+                break
+            added = 0
+            for item in page_items:
+                identity = str(item.get("id") or item.get("external_id") or "").strip()
+                identity = identity or repr(item)
+                if identity in seen_ids:
+                    continue
+                seen_ids.add(identity)
+                items.append(item)
+                added += 1
+            if added == 0:
+                break
+            total = extract_list_total(payload)
+            if total is not None and len(items) >= total:
+                break
+        return items
 
     def list_folders(self, *, project_id: str | None = None) -> list[ExternalElnContainer]:
         if project_id:
@@ -555,11 +617,28 @@ def extract_list_payload(payload: Any) -> list[dict[str, Any]]:
         return [item for item in payload if isinstance(item, dict)]
     if not isinstance(payload, dict):
         return []
-    for key in ("data", "experiments", "items", "results"):
+    for key in ("data", "experiments", "items", "results", "yeasts", "generic_items"):
         value = payload.get(key)
         if isinstance(value, list):
             return [item for item in value if isinstance(item, dict)]
     return []
+
+
+def extract_list_total(payload: Any) -> int | None:
+    if not isinstance(payload, dict):
+        return None
+    candidates = [payload.get("total"), payload.get("total_count"), payload.get("count")]
+    meta = payload.get("meta")
+    if isinstance(meta, dict):
+        candidates.extend((meta.get("total"), meta.get("total_count"), meta.get("count")))
+    for value in candidates:
+        try:
+            parsed = int(value)
+        except (TypeError, ValueError):
+            continue
+        if parsed >= 0:
+            return parsed
+    return None
 
 
 def labguru_container_from_payload(payload: dict[str, Any]) -> ExternalElnContainer:
@@ -568,6 +647,37 @@ def labguru_container_from_payload(payload: dict[str, Any]) -> ExternalElnContai
         raise ValueError("Labguru container payload is missing id.")
     name = str(payload.get("name") or payload.get("title") or payload.get("display_name") or external_id).strip()
     return ExternalElnContainer(external_id=external_id, name=name, payload_json=payload)
+
+
+def labguru_inventory_item_from_payload(payload: dict[str, Any], *, base_url: str) -> LabguruInventoryItem:
+    item = payload.get("item") if isinstance(payload.get("item"), dict) else payload
+    external_id = str(item.get("id") or item.get("external_id") or "").strip()
+    if not external_id:
+        raise ValueError("Labguru inventory item payload is missing id.")
+    name = str(item.get("name") or item.get("title") or f"Yeast strain {external_id}").strip()
+    sys_id = str(
+        item.get("sys_id")
+        or item.get("sysid")
+        or item.get("system_id")
+        or item.get("system_identifier")
+        or ""
+    ).strip() or None
+    description = html_to_text(item.get("description") or item.get("notes") or "") or None
+    external_url = normalize_external_url(
+        str(item.get("url") or item.get("external_url") or "").strip()
+        or f"/knowledge/yeasts/{external_id}",
+        base_url=base_url,
+    )
+    return LabguruInventoryItem(
+        external_id=external_id,
+        name=name,
+        external_url=external_url,
+        sys_id=sys_id,
+        description=description,
+        owner_name=labguru_owner_name(item),
+        updated_external_at=parse_datetime(item.get("updated_at") or item.get("modified_at")),
+        payload_json=item,
+    )
 
 
 def legacy_experiment_description(experiment_payload: dict[str, Any]) -> str | None:

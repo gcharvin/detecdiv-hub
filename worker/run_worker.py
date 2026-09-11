@@ -7,18 +7,22 @@ import threading
 import time
 from contextlib import contextmanager
 from datetime import datetime, timezone
+from uuid import UUID
 
 from sqlalchemy import func, select
 
 from api.config import get_settings
 from api.db import SessionLocal
-from api.models import ExecutionTarget, IndexingJob, Job, RawDatasetPosition
+from api.models import ExecutionTarget, IndexingJob, Job, RawDatasetPosition, User
+from api.services.external_credentials import decrypt_user_credential_token, get_user_credential
 from api.services.external_eln import sync_external_eln_system
+from api.services.external_eln_clients import LabguruClient
 from api.services.indexing_jobs import execute_indexing_job
 from api.services.job_priority_settings import (
     effective_job_priority_expression,
     resolve_job_priority_runtime_config,
 )
+from api.services.labguru_yeast_strains import sync_labguru_yeast_strains
 from api.services.project_deletion import execute_project_deletion_job, finalize_project_deletion_failure
 from api.services.project_locks import heartbeat_project_locks_for_job, release_project_locks_for_job
 from api.services.raw_dataset_deletion import execute_raw_dataset_deletion_job
@@ -429,6 +433,38 @@ def execute_job(job: Job) -> dict:
             payload["worker_host"] = socket.gethostname()
             payload["worker_instance"] = get_worker_instance_id()
             return payload
+    if job_kind == "labguru_yeast_strain_sync":
+        params = job.params_json or {}
+        credential_user_id = params.get("credential_user_id")
+        with session_scope() as session:
+            settings = get_settings()
+            if credential_user_id:
+                user = session.get(User, UUID(str(credential_user_id)))
+                if user is None:
+                    raise ValueError("The Labguru credential owner no longer exists")
+                credential = get_user_credential(session, user=user, system_key="labguru")
+                if credential is None:
+                    raise ValueError("The Labguru credential was removed before the import started")
+                token = decrypt_user_credential_token(credential)
+            elif settings.labguru_enabled and settings.labguru_token.strip():
+                token = settings.labguru_token
+            else:
+                raise ValueError("No Labguru credential is available to the worker")
+            client = LabguruClient(
+                base_url=settings.labguru_base_url,
+                token=token,
+                timeout_seconds=30,
+            )
+            result = sync_labguru_yeast_strains(
+                session,
+                client=client,
+                collection_name=str(
+                    params.get("collection_name") or settings.labguru_yeast_collection_name
+                ),
+            )
+            result["worker_host"] = socket.gethostname()
+            result["worker_instance"] = get_worker_instance_id()
+            return result
     if job_kind == "prepare_user_home_storage":
         with session_scope() as session:
             job_record = session.get(Job, job.id)

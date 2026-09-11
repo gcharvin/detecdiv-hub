@@ -48,6 +48,10 @@ const state = {
   selectedExternalMatchCandidateIds: [],
   externalUsers: [],
   externalCredential: null,
+  yeastStrains: [],
+  yeastStrainStatus: null,
+  yeastStrainSearchSequence: 0,
+  yeastStrainSearchMeta: { total: 0, limit: 50, offset: 0 },
   archiveSettingsStatus: null,
   archivePolicyPreview: null,
   automaticArchivePolicyStatus: null,
@@ -301,6 +305,17 @@ const els = {
   externalCredentialSaveButton: document.querySelector("#external-credential-save-button"),
   externalCredentialTestButton: document.querySelector("#external-credential-test-button"),
   externalCredentialDeleteButton: document.querySelector("#external-credential-delete-button"),
+  yeastStrainSearch: document.querySelector("#yeast-strain-search"),
+  yeastStrainMatch: document.querySelector("#yeast-strain-match"),
+  yeastStrainResults: document.querySelector("#yeast-strain-results"),
+  yeastStrainResultsTitle: document.querySelector("#yeast-strain-results-title"),
+  yeastStrainResultsSummary: document.querySelector("#yeast-strain-results-summary"),
+  yeastStrainCount: document.querySelector("#yeast-strain-count"),
+  yeastStrainLastSync: document.querySelector("#yeast-strain-last-sync"),
+  yeastStrainSyncState: document.querySelector("#yeast-strain-sync-state"),
+  yeastStrainCollection: document.querySelector("#yeast-strain-collection"),
+  yeastStrainSyncButton: document.querySelector("#yeast-strain-sync-button"),
+  yeastStrainMoreButton: document.querySelector("#yeast-strain-more-button"),
   deploymentAwarenessSummary: document.querySelector("#deployment-awareness-summary"),
   deploymentApiStatus: document.querySelector("#deployment-api-status"),
   deploymentDbStatus: document.querySelector("#deployment-db-status"),
@@ -461,6 +476,7 @@ const els = {
 
 let dashboardPollHandle = null;
 let lastPollSucceededAt = null;
+let yeastSearchDebounceHandle = null;
 const pageKind = document.body?.dataset?.page || "";
 const isExecutionTargetsPage = pageKind === "admin-execution-targets";
 const isAdminPage = (pageKind === "admin" || pageKind.startsWith("admin-")) && !isExecutionTargetsPage;
@@ -481,6 +497,7 @@ const pageFlags = {
   hasSessionsView: pageKind === "admin-sessions" && Boolean(els.sessionsTableBody),
   hasExternalElnAdminView: pageKind === "admin-external-eln" && Boolean(els.externalMatchCandidatesTableBody),
   hasExternalSystemsView: pageKind === "external-systems" && Boolean(els.externalCredentialStatus),
+  hasYeastStrainsView: pageKind === "yeast-strains" && Boolean(els.yeastStrainResults),
   hasIndexingView: Boolean(els.indexJobsTableBody || els.activeIndexJob),
   hasRawDatasetsView: Boolean(els.rawDatasetsTableBody),
   hasRawDatasetPage: pageKind === "raw-dataset",
@@ -522,6 +539,9 @@ function getSidebarActiveRoute() {
   }
   if (pageKind === "external-systems") {
     return "external-systems";
+  }
+  if (pageKind === "yeast-strains") {
+    return "yeast-strains";
   }
   if (pageKind === "indexing") {
     return "projects-settings";
@@ -646,7 +666,8 @@ function initializeAppLayout() {
       {
         label: "Account",
         items: [
-          { label: "External Systems", href: "/web/external-systems.html", route: "external-systems" },
+          { label: "External accounts", href: "/web/external-systems.html", route: "external-systems" },
+          { label: "Yeast strains", href: "/web/yeast-strains.html", route: "yeast-strains" },
         ],
       },
       {
@@ -777,6 +798,9 @@ function clearDashboardState() {
   state.archivePolicyPreview = null;
   state.automaticArchivePolicyStatus = null;
   state.micromanagerIngestStatus = null;
+  state.yeastStrains = [];
+  state.yeastStrainStatus = null;
+  state.yeastStrainSearchMeta = { total: 0, limit: 50, offset: 0 };
   state.migrationPlans = [];
   state.miscStorageItems = [];
   state.selectedMigrationPlan = null;
@@ -825,6 +849,7 @@ function clearDashboardState() {
   renderSessions();
   renderDetail();
   renderProjectRawDatasets();
+  renderYeastStrains();
 }
 
 function authHeaders(extra = {}) {
@@ -1505,7 +1530,7 @@ function updateSessionUi() {
     if (els.adminDeniedPanel) {
       els.adminDeniedPanel.classList.toggle("hidden", allowed || !authenticated);
     }
-  } else if (pageFlags.hasExternalSystemsView && els.adminContent) {
+  } else if ((pageFlags.hasExternalSystemsView || pageFlags.hasYeastStrainsView) && els.adminContent) {
     els.adminContent.classList.toggle("hidden", !authenticated);
   }
   updateExecutionTargetAccessControls();
@@ -5638,6 +5663,103 @@ function renderExternalCredential() {
   }
 }
 
+function renderYeastStrains() {
+  if (!pageFlags.hasYeastStrainsView) {
+    return;
+  }
+  const status = state.yeastStrainStatus || {};
+  if (els.yeastStrainCount) els.yeastStrainCount.textContent = String(status.active_count || 0);
+  if (els.yeastStrainLastSync) {
+    els.yeastStrainLastSync.textContent = status.latest_sync_at ? formatTimestamp(status.latest_sync_at) : "Never";
+  }
+  if (els.yeastStrainSyncState) els.yeastStrainSyncState.textContent = status.job_status || "idle";
+  if (els.yeastStrainCollection) els.yeastStrainCollection.textContent = status.collection_name || "yeasts";
+  if (els.yeastStrainSyncButton) {
+    els.yeastStrainSyncButton.classList.toggle("hidden", !isAdmin());
+    els.yeastStrainSyncButton.disabled = ["queued", "running"].includes(status.job_status);
+    els.yeastStrainSyncButton.textContent = status.job_status === "running" ? "Importing…" : "Import all strains";
+  }
+
+  const query = (els.yeastStrainSearch?.value || "").trim();
+  if (els.yeastStrainResultsTitle) els.yeastStrainResultsTitle.textContent = query ? `Results for “${query}”` : "All strains";
+  if (els.yeastStrainResultsSummary) {
+    const total = state.yeastStrainSearchMeta.total || 0;
+    els.yeastStrainResultsSummary.textContent = total
+      ? `${total} matching strain${total === 1 ? "" : "s"}. Results come from the local Labguru index.`
+      : (status.active_count ? "No strain matches these inclusive criteria." : "No strains imported yet. An admin can start the first import above.");
+  }
+  if (!els.yeastStrainResults) return;
+  els.yeastStrainResults.replaceChildren();
+  for (const strain of state.yeastStrains) {
+    const article = document.createElement("article");
+    article.className = "yeast-result-card";
+
+    const heading = document.createElement("div");
+    heading.className = "yeast-result-heading";
+    const title = document.createElement(strain.external_url ? "a" : "span");
+    title.className = "yeast-result-title";
+    title.textContent = strain.name || strain.external_id;
+    if (strain.external_url) {
+      title.href = strain.external_url;
+      title.target = "_blank";
+      title.rel = "noopener noreferrer";
+    }
+    const identifiers = document.createElement("div");
+    identifiers.className = "yeast-result-identifiers";
+    identifiers.textContent = [strain.sys_id ? `SysID ${strain.sys_id}` : "", `Labguru ${strain.external_id}`, strain.owner_name || ""]
+      .filter(Boolean).join(" · ");
+    heading.append(title, identifiers);
+    article.appendChild(heading);
+
+    const contexts = Array.isArray(strain.context) ? strain.context : [];
+    if (contexts.length) {
+      const contextList = document.createElement("div");
+      contextList.className = "yeast-context-list";
+      for (const context of contexts) {
+        const row = document.createElement("div");
+        row.className = "yeast-context-row";
+        const label = document.createElement("span");
+        label.className = "yeast-context-label";
+        label.textContent = context.label || "Field";
+        const value = document.createElement("span");
+        value.textContent = context.value || "";
+        row.append(label, value);
+        contextList.appendChild(row);
+      }
+      article.appendChild(contextList);
+    } else if (strain.description) {
+      const description = document.createElement("p");
+      description.className = "yeast-result-description";
+      description.textContent = strain.description;
+      article.appendChild(description);
+    }
+
+    const details = document.createElement("details");
+    details.className = "yeast-raw-details";
+    const summary = document.createElement("summary");
+    summary.textContent = "All Labguru fields";
+    const payload = document.createElement("pre");
+    payload.textContent = "Open to load…";
+    details.append(summary, payload);
+    details.addEventListener("toggle", () => {
+      if (!details.open || details.dataset.loaded === "true") return;
+      details.dataset.loaded = "true";
+      payload.textContent = "Loading…";
+      apiGet(`/external-systems/labguru/yeast-strains/by-id/${encodeURIComponent(strain.external_id)}`)
+        .then((detail) => { payload.textContent = JSON.stringify(detail.payload_json || {}, null, 2); })
+        .catch((error) => {
+          details.dataset.loaded = "false";
+          payload.textContent = String(error);
+        });
+    });
+    article.appendChild(details);
+    els.yeastStrainResults.appendChild(article);
+  }
+  if (els.yeastStrainMoreButton) {
+    els.yeastStrainMoreButton.classList.toggle("hidden", state.yeastStrains.length >= (state.yeastStrainSearchMeta.total || 0));
+  }
+}
+
 function renderUsers() {
   if (!els.usersTableBody) {
     return;
@@ -5961,6 +6083,10 @@ async function refreshDashboard() {
   }
   if (pageFlags.hasExternalSystemsView) {
     refreshTasks.push(refreshExternalCredential());
+  }
+  if (pageFlags.hasYeastStrainsView) {
+    refreshTasks.push(refreshYeastStrainStatus());
+    refreshTasks.push(refreshYeastStrains());
   }
   if (pageFlags.hasIndexingView) {
     refreshTasks.push(refreshIndexingJobs());
@@ -6837,6 +6963,62 @@ async function refreshExternalCredential() {
   }
   state.externalCredential = await apiGet("/external-systems/labguru/credentials/me");
   renderExternalCredential();
+}
+
+function selectedYeastSearchScopes() {
+  return Array.from(document.querySelectorAll('input[name="yeast-scope"]:checked')).map((input) => input.value);
+}
+
+async function refreshYeastStrains({ append = false } = {}) {
+  if (!pageFlags.hasYeastStrainsView) {
+    return;
+  }
+  const sequence = ++state.yeastStrainSearchSequence;
+  const params = new URLSearchParams();
+  const query = (els.yeastStrainSearch?.value || "").trim();
+  if (query) params.set("q", query);
+  for (const scope of selectedYeastSearchScopes()) params.append("scope", scope);
+  params.set("match", els.yeastStrainMatch?.value || "all");
+  params.set("limit", "50");
+  params.set("offset", append ? String(state.yeastStrains.length) : "0");
+  if (els.yeastStrainResultsSummary) els.yeastStrainResultsSummary.textContent = "Searching…";
+  const response = await apiGet(`/external-systems/labguru/yeast-strains?${params.toString()}`);
+  if (sequence !== state.yeastStrainSearchSequence) {
+    return;
+  }
+  state.yeastStrains = append ? state.yeastStrains.concat(response.results || []) : (response.results || []);
+  state.yeastStrainSearchMeta = {
+    total: response.total || 0,
+    limit: response.limit || 50,
+    offset: response.offset || 0,
+  };
+  renderYeastStrains();
+}
+
+async function refreshYeastStrainStatus() {
+  if (!pageFlags.hasYeastStrainsView) {
+    return;
+  }
+  const wasImporting = ["queued", "running"].includes(state.yeastStrainStatus?.job_status);
+  state.yeastStrainStatus = await apiGet("/external-systems/labguru/yeast-strains/status");
+  renderYeastStrains();
+  const isImporting = ["queued", "running"].includes(state.yeastStrainStatus?.job_status);
+  if (wasImporting && !isImporting) {
+    await refreshYeastStrains();
+  }
+}
+
+async function queueYeastStrainSync() {
+  const result = await apiPost("/external-systems/labguru/yeast-strains/sync", { priority: 100 });
+  setStatus(result.message || "Labguru Yeast strains import queued.");
+  await refreshYeastStrainStatus();
+}
+
+function queueYeastSearchRefresh() {
+  if (yeastSearchDebounceHandle !== null) window.clearTimeout(yeastSearchDebounceHandle);
+  yeastSearchDebounceHandle = window.setTimeout(() => {
+    refreshYeastStrains().catch((error) => setStatus(String(error)));
+  }, 180);
 }
 
 async function saveExternalCredential() {
@@ -8987,6 +9169,9 @@ async function pollDashboard() {
     if (pageFlags.hasPipelineRunsView) {
       pollTasks.push(refreshPipelineRuns());
     }
+    if (pageFlags.hasYeastStrainsView) {
+      pollTasks.push(refreshYeastStrainStatus());
+    }
     const hasActiveJob = state.indexingJobs.some((job) => job.status === "queued" || job.status === "running");
     if (pageFlags.hasProjectsView && hasActiveJob) {
       pollTasks.push(refreshProjects());
@@ -9032,6 +9217,7 @@ async function forceRefreshCurrentPage() {
     pageFlags.hasSessionsView ||
     pageFlags.hasExternalElnAdminView ||
     pageFlags.hasExternalSystemsView ||
+    pageFlags.hasYeastStrainsView ||
     pageFlags.hasProjectPage
   ) {
     await refreshDashboard();
@@ -9201,6 +9387,16 @@ if (els.externalCredentialTestButton) els.externalCredentialTestButton.addEventL
   window.alert(String(error));
 }));
 if (els.externalCredentialDeleteButton) els.externalCredentialDeleteButton.addEventListener("click", () => deleteExternalCredential().catch((error) => {
+  setStatus(String(error));
+  window.alert(String(error));
+}));
+if (els.yeastStrainSearch) els.yeastStrainSearch.addEventListener("input", queueYeastSearchRefresh);
+if (els.yeastStrainMatch) els.yeastStrainMatch.addEventListener("change", () => refreshYeastStrains().catch((error) => setStatus(String(error))));
+for (const scopeInput of document.querySelectorAll('input[name="yeast-scope"]')) {
+  scopeInput.addEventListener("change", () => refreshYeastStrains().catch((error) => setStatus(String(error))));
+}
+if (els.yeastStrainMoreButton) els.yeastStrainMoreButton.addEventListener("click", () => refreshYeastStrains({ append: true }).catch((error) => setStatus(String(error))));
+if (els.yeastStrainSyncButton) els.yeastStrainSyncButton.addEventListener("click", () => queueYeastStrainSync().catch((error) => {
   setStatus(String(error));
   window.alert(String(error));
 }));

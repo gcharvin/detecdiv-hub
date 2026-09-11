@@ -1,20 +1,28 @@
 from datetime import datetime, timedelta, timezone
 from uuid import UUID
 
-from api.models import ExternalExperimentRecord, ExternalUserCredential, RawDataset, User
+from api.models import ExternalExperimentRecord, ExternalUserCredential, LabguruYeastStrain, RawDataset, User
 from api.services.external_credentials import credential_status, decrypt_external_token, encrypt_external_token
 from api.services.external_eln import select_unique_user_match
 from api.services.external_eln_clients import (
     LabguruClient,
     extract_list_payload,
+    extract_list_total,
     extract_labguru_text_sections,
     html_text,
     html_to_text,
     labguru_experiment_from_payload,
+    labguru_inventory_item_from_payload,
     labguru_observed_users_from_payload,
     normalize_external_url,
     normalize_system_key,
     sanitize_http_error_message,
+)
+from api.services.labguru_yeast_strains import (
+    apply_inventory_item,
+    build_search_fields,
+    normalize_search_text,
+    yeast_strain_search_result,
 )
 from api.services.external_eln_matching import (
     extract_date_key,
@@ -150,6 +158,84 @@ def test_extract_list_payload_accepts_common_labguru_shapes() -> None:
     assert extract_list_payload([{"id": 1}]) == [{"id": 1}]
     assert extract_list_payload({"data": [{"id": 2}]}) == [{"id": 2}]
     assert extract_list_payload({"experiments": [{"id": 3}]}) == [{"id": 3}]
+    assert extract_list_payload({"yeasts": [{"id": 4}]}) == [{"id": 4}]
+    assert extract_list_total({"meta": {"total_count": 401}}) == 401
+
+
+def test_labguru_yeast_payload_builds_inventory_item() -> None:
+    payload = {
+        "id": 42,
+        "name": "BY4741 pGAL1-GFP",
+        "sys_id": "SYS-0042",
+        "description": "<p>Haploid reference strain</p>",
+        "owner": {"id": 7, "name": "Ada Lovelace"},
+        "updated_at": "2026-09-10T12:30:00Z",
+    }
+
+    item = labguru_inventory_item_from_payload(payload, base_url="https://labguru.example.org")
+
+    assert item.external_id == "42"
+    assert item.name == "BY4741 pGAL1-GFP"
+    assert item.sys_id == "SYS-0042"
+    assert item.description == "Haploid reference strain"
+    assert item.owner_name == "Ada Lovelace"
+    assert item.external_url == "https://labguru.example.org/knowledge/yeasts/42"
+
+
+def test_labguru_client_lists_complete_yeast_collection(monkeypatch) -> None:
+    calls = []
+
+    class FakeResponse:
+        def raise_for_status(self) -> None:
+            return None
+
+        def __init__(self, payload: list[dict]) -> None:
+            self.payload = payload
+
+        def json(self) -> list[dict]:
+            return self.payload
+
+    def fake_get(url, *, json, params, timeout):
+        calls.append({"url": url, "params": params})
+        return FakeResponse([{"id": 11, "name": "W303"}] if params["page"] == 1 else [])
+
+    monkeypatch.setattr("api.services.external_eln_clients.requests.get", fake_get)
+    client = LabguruClient(base_url="https://labguru.example.org", token="token-123")
+
+    items = client.list_yeast_strains(collection_name="yeasts")
+
+    assert [(item.external_id, item.name) for item in items] == [("11", "W303")]
+    assert calls == [
+        {
+            "url": "https://labguru.example.org/api/v1/yeasts",
+            "params": {"page": 1, "page_size": 200, "meta": True, "token": "token-123"},
+        },
+        {
+            "url": "https://labguru.example.org/api/v1/yeasts",
+            "params": {"page": 2, "page_size": 200, "meta": True, "token": "token-123"},
+        },
+    ]
+
+
+def test_yeast_search_fields_and_context_include_custom_genetics() -> None:
+    payload = {
+        "id": 42,
+        "name": "Étalon BY4741",
+        "custom_fields": [
+            {"name": "Genotype", "value": "MATa his3Δ1 leu2Δ0"},
+            {"name": "Phenotype", "value": "G418 resistant"},
+        ],
+    }
+    item = labguru_inventory_item_from_payload(payload, base_url="https://labguru.example.org")
+    fields = build_search_fields(payload, item=item)
+    record = LabguruYeastStrain(external_id=item.external_id, name=item.name)
+
+    apply_inventory_item(record, item=item, synced_at=datetime.now(timezone.utc))
+    result = yeast_strain_search_result(record, query="G418")
+
+    assert "mata his3δ1 leu2δ0" in fields["genetics"]
+    assert normalize_search_text(item.name) == "etalon by4741"
+    assert any(context["label"] == "Phenotype" for context in result["context"])
 
 
 def test_labguru_client_creates_experiment_with_widget_fields(monkeypatch) -> None:

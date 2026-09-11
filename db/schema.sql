@@ -561,6 +561,25 @@ CREATE TABLE IF NOT EXISTS external_user_records (
     UNIQUE(system_key, external_id)
 );
 
+CREATE TABLE IF NOT EXISTS labguru_yeast_strains (
+    id UUID PRIMARY KEY,
+    external_id TEXT NOT NULL UNIQUE,
+    name TEXT NOT NULL,
+    sys_id TEXT,
+    description TEXT,
+    owner_name TEXT,
+    external_url TEXT,
+    search_fields_json JSONB NOT NULL DEFAULT '{}'::jsonb,
+    payload_json JSONB NOT NULL DEFAULT '{}'::jsonb,
+    search_text TEXT NOT NULL DEFAULT '',
+    is_active BOOLEAN NOT NULL DEFAULT TRUE,
+    updated_external_at TIMESTAMPTZ,
+    last_synced_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    missing_since TIMESTAMPTZ,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
 CREATE TABLE IF NOT EXISTS external_user_credentials (
     id UUID PRIMARY KEY,
     user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
@@ -752,6 +771,11 @@ CREATE INDEX IF NOT EXISTS idx_external_experiment_records_system_title ON exter
 CREATE INDEX IF NOT EXISTS idx_external_experiment_records_synced_at ON external_experiment_records(system_key, last_synced_at DESC);
 CREATE INDEX IF NOT EXISTS idx_external_user_records_system_name ON external_user_records(system_key, display_name);
 CREATE INDEX IF NOT EXISTS idx_external_user_records_matched_user_id ON external_user_records(matched_user_id);
+CREATE INDEX IF NOT EXISTS idx_labguru_yeast_strains_name ON labguru_yeast_strains(name);
+CREATE INDEX IF NOT EXISTS idx_labguru_yeast_strains_sys_id ON labguru_yeast_strains(sys_id);
+CREATE INDEX IF NOT EXISTS idx_labguru_yeast_strains_active_sync ON labguru_yeast_strains(is_active, last_synced_at DESC);
+CREATE INDEX IF NOT EXISTS idx_labguru_yeast_strains_search
+    ON labguru_yeast_strains USING GIN (to_tsvector('simple', search_text));
 CREATE INDEX IF NOT EXISTS idx_external_user_credentials_user_system ON external_user_credentials(user_id, system_key);
 CREATE INDEX IF NOT EXISTS idx_external_user_credentials_status ON external_user_credentials(system_key, status, expires_at);
 CREATE INDEX IF NOT EXISTS idx_external_match_candidates_status_score ON external_match_candidates(system_key, status, score DESC);

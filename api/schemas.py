@@ -883,6 +883,44 @@ class ExternalSystemSyncResult(HubBaseModel):
     pending_user_count: int = 0
 
 
+class LabguruYeastStrainContext(HubBaseModel):
+    label: str
+    value: str
+
+
+class LabguruYeastStrainSummary(HubBaseModel):
+    id: UUID
+    external_id: str
+    name: str
+    sys_id: str | None = None
+    description: str | None = None
+    owner_name: str | None = None
+    external_url: str | None = None
+    search_fields_json: dict[str, str] = Field(default_factory=dict)
+    context: list[LabguruYeastStrainContext] = Field(default_factory=list)
+    payload_json: dict[str, Any] = Field(default_factory=dict)
+    updated_external_at: datetime | None = None
+    last_synced_at: datetime | None = None
+
+
+class LabguruYeastStrainSearchResponse(HubBaseModel):
+    query: str = ""
+    match: str = "all"
+    scopes: list[str] = Field(default_factory=list)
+    total: int = 0
+    limit: int = 50
+    offset: int = 0
+    results: list[LabguruYeastStrainSummary] = Field(default_factory=list)
+
+
+class LabguruYeastStrainSyncStatus(HubBaseModel):
+    collection_name: str
+    active_count: int = 0
+    latest_sync_at: datetime | None = None
+    job_id: UUID | None = None
+    job_status: str | None = None
+
+
 class RawDatasetExternalLinkRequest(HubBaseModel):
     system_key: str
     external_experiment_id: str

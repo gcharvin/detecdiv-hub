@@ -2,13 +2,13 @@ from __future__ import annotations
 
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy import select
+from fastapi import APIRouter, Depends, HTTPException, Query, status
+from sqlalchemy import func, select
 from sqlalchemy.orm import Session, joinedload
 
 from api.config import get_settings
 from api.db import get_db
-from api.models import ExternalExperimentRecord, ExternalUserRecord, Job, User
+from api.models import ExternalExperimentRecord, ExternalUserRecord, Job, LabguruYeastStrain, User
 from api.schemas import (
     ExternalExperimentRecordSummary,
     ExternalContainerSummary,
@@ -26,6 +26,9 @@ from api.schemas import (
     ExternalUserCredentialTestResult,
     ExternalUserCredentialUpsertRequest,
     ExternalUserRecordSummary,
+    LabguruYeastStrainSearchResponse,
+    LabguruYeastStrainSummary,
+    LabguruYeastStrainSyncStatus,
 )
 from api.services.external_credentials import (
     decrypt_user_credential_token,
@@ -47,6 +50,11 @@ from api.services.external_eln_matching import (
     generate_external_match_candidates,
     list_external_match_candidates,
     review_external_match_candidate,
+)
+from api.services.labguru_yeast_strains import (
+    normalize_scopes,
+    search_labguru_yeast_strains,
+    yeast_strain_search_result,
 )
 from api.services.users import get_current_user
 
@@ -108,6 +116,147 @@ def list_external_experiments(
     _ = current_user
     normalized = normalize_or_400(system_key)
     return search_external_experiments(db, system_key=normalized, search=search, limit=limit)
+
+
+@router.get("/labguru/yeast-strains", response_model=LabguruYeastStrainSearchResponse)
+def list_labguru_yeast_strains(
+    q: str | None = None,
+    scope: list[str] = Query(default=[]),
+    match: str = "all",
+    limit: int = 50,
+    offset: int = 0,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> LabguruYeastStrainSearchResponse:
+    _ = current_user
+    selected_scopes = normalize_scopes(scope)
+    total, records = search_labguru_yeast_strains(
+        db,
+        query=q,
+        scopes=selected_scopes,
+        match=match,
+        limit=limit,
+        offset=offset,
+    )
+    return LabguruYeastStrainSearchResponse(
+        query=str(q or "").strip(),
+        match="any" if str(match).lower() == "any" else "all",
+        scopes=selected_scopes,
+        total=total,
+        limit=min(max(limit, 1), 200),
+        offset=max(offset, 0),
+        results=[yeast_strain_search_result(record, query=q) for record in records],
+    )
+
+
+@router.get("/labguru/yeast-strains/status", response_model=LabguruYeastStrainSyncStatus)
+def get_labguru_yeast_strain_status(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> LabguruYeastStrainSyncStatus:
+    _ = current_user
+    active_count = int(
+        db.scalar(
+            select(func.count(LabguruYeastStrain.id)).where(LabguruYeastStrain.is_active.is_(True))
+        )
+        or 0
+    )
+    latest_sync_at = db.scalar(select(func.max(LabguruYeastStrain.last_synced_at)))
+    latest_job = db.scalars(
+        select(Job)
+        .where(Job.params_json["job_kind"].as_string() == "labguru_yeast_strain_sync")
+        .order_by(Job.created_at.desc())
+        .limit(1)
+    ).first()
+    return LabguruYeastStrainSyncStatus(
+        collection_name=get_settings().labguru_yeast_collection_name,
+        active_count=active_count,
+        latest_sync_at=latest_sync_at,
+        job_id=latest_job.id if latest_job is not None else None,
+        job_status=latest_job.status if latest_job is not None else None,
+    )
+
+
+@router.post(
+    "/labguru/yeast-strains/sync",
+    response_model=ExternalSystemSyncQueueResult,
+    status_code=status.HTTP_201_CREATED,
+)
+def queue_labguru_yeast_strain_sync(
+    payload: ExternalSystemSyncRequest,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> ExternalSystemSyncQueueResult:
+    if current_user.role not in {"admin", "service"}:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Yeast strain import requires admin role")
+    settings = get_settings()
+    credential = get_user_credential(db, user=current_user, system_key="labguru")
+    if credential is not None:
+        try:
+            decrypt_user_credential_token(credential)
+        except ValueError as exc:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc
+    elif not (settings.labguru_enabled and settings.labguru_token.strip()):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Store a personal Labguru token or configure the system connector before importing",
+        )
+
+    active_job = db.scalars(
+        select(Job).where(
+            Job.status.in_(("queued", "running")),
+            Job.params_json["job_kind"].as_string() == "labguru_yeast_strain_sync",
+        )
+    ).first()
+    if active_job is not None:
+        return ExternalSystemSyncQueueResult(
+            system_key="labguru",
+            job_id=active_job.id,
+            status=active_job.status,
+            message="A Yeast strains import is already queued or running.",
+        )
+
+    job = Job(
+        requested_mode="server",
+        priority=payload.priority,
+        requested_by=current_user.user_key,
+        params_json={
+            "job_kind": "labguru_yeast_strain_sync",
+            "system_key": "labguru",
+            "credential_user_id": str(current_user.id) if credential is not None else None,
+            "collection_name": settings.labguru_yeast_collection_name,
+        },
+        status="queued",
+    )
+    db.add(job)
+    db.commit()
+    db.refresh(job)
+    return ExternalSystemSyncQueueResult(
+        system_key="labguru",
+        job_id=job.id,
+        status=job.status,
+        message="Queued the complete Labguru Yeast strains import.",
+    )
+
+
+@router.get("/labguru/yeast-strains/by-id/{external_id}", response_model=LabguruYeastStrainSummary)
+def get_labguru_yeast_strain(
+    external_id: str,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> LabguruYeastStrainSummary:
+    _ = current_user
+    record = db.scalars(
+        select(LabguruYeastStrain).where(
+            LabguruYeastStrain.external_id == external_id,
+            LabguruYeastStrain.is_active.is_(True),
+        )
+    ).first()
+    if record is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Yeast strain not found")
+    return LabguruYeastStrainSummary.model_validate(
+        yeast_strain_search_result(record, query=None, include_payload=True)
+    )
 
 
 @router.get("/{system_key}/credentials/me", response_model=ExternalUserCredentialSummary)

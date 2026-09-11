@@ -941,6 +941,32 @@ class ExternalExperimentRecord(Base):
     match_candidates: Mapped[list["ExternalMatchCandidate"]] = relationship(back_populates="external_experiment_record")
 
 
+class LabguruYeastStrain(Base):
+    __tablename__ = "labguru_yeast_strains"
+    __table_args__ = (
+        UniqueConstraint("external_id", name="uq_labguru_yeast_strains_external_id"),
+    )
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    external_id: Mapped[str] = mapped_column(String, nullable=False)
+    name: Mapped[str] = mapped_column(String, nullable=False)
+    sys_id: Mapped[str | None] = mapped_column(String)
+    description: Mapped[str | None] = mapped_column(Text)
+    owner_name: Mapped[str | None] = mapped_column(String)
+    external_url: Mapped[str | None] = mapped_column(Text)
+    search_fields_json: Mapped[dict] = mapped_column(JSONB, nullable=False, default=dict)
+    payload_json: Mapped[dict] = mapped_column(JSONB, nullable=False, default=dict)
+    search_text: Mapped[str] = mapped_column(Text, nullable=False, default="")
+    is_active: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
+    updated_external_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    last_synced_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    missing_since: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
+    )
+
+
 class ExternalUserRecord(Base):
     __tablename__ = "external_user_records"
     __table_args__ = (
