@@ -678,6 +678,35 @@ body[data-page="yeast-strains"] .yeast-limit-field {
   font-size: 0.79rem;
 }
 
+.yeast-biology-list .yeast-field-genotype {
+  grid-column: 1;
+  grid-row: 1;
+}
+
+.yeast-biology-list .yeast-field-auxotrophies {
+  grid-column: 2;
+  grid-row: 1;
+}
+
+.yeast-biology-list .yeast-field-mating-type {
+  grid-column: 1;
+  grid-row: 2;
+}
+
+.yeast-biology-list .yeast-field-background {
+  grid-column: 2;
+  grid-row: 2;
+}
+
+.yeast-biology-list .yeast-field-source {
+  grid-column: 1;
+  grid-row: 3;
+}
+
+.yeast-search-context-list {
+  margin-top: 2px;
+}
+
 .yeast-context-label {
   color: #b8dfff;
   font-size: 0.72rem;
@@ -1686,6 +1715,11 @@ button:disabled {
 
   .yeast-result-identifiers {
     text-align: left;
+  }
+
+  .yeast-biology-list > .yeast-context-row {
+    grid-column: 1;
+    grid-row: auto;
   }
 
   body[data-page="yeast-strains"] .yeast-results-header {

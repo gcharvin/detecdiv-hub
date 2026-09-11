@@ -5743,6 +5743,24 @@ function humanReadableYeastPayload(value) {
   return value;
 }
 
+function appendYeastContextList(article, fields, className, query) {
+  if (!fields.length) return;
+  const contextList = document.createElement("div");
+  contextList.className = `yeast-context-list ${className}`;
+  for (const field of fields) {
+    const row = document.createElement("div");
+    row.className = `yeast-context-row${field.key ? ` yeast-field-${field.key}` : ""}`;
+    const label = document.createElement("span");
+    label.className = "yeast-context-label";
+    label.textContent = field.label;
+    const value = document.createElement("span");
+    appendYeastHighlightedText(value, String(field.value || "").trim() || "—", query);
+    row.append(label, value);
+    contextList.appendChild(row);
+  }
+  article.appendChild(contextList);
+}
+
 function renderYeastStrains() {
   if (!pageFlags.hasYeastStrainsView) {
     return;
@@ -5833,40 +5851,30 @@ function renderYeastStrains() {
 
     const contexts = Array.isArray(strain.context) ? strain.context : [];
     const biologyFields = [
-      ["Genotype", strain.genotype],
-      ["Mating type", strain.mating_type],
-      ["Background", strain.background],
-      ["Source", strain.source],
+      { key: "genotype", label: "Genotype", value: strain.genotype },
+      { key: "mating-type", label: "Mating type", value: strain.mating_type },
+      { key: "background", label: "Background", value: strain.background },
+      { key: "source", label: "Source", value: strain.source },
     ];
     if (String(strain.auxotrophies || "").trim()) {
-      biologyFields.splice(1, 0, ["Auxotrophies", strain.auxotrophies]);
+      biologyFields.splice(1, 0, { key: "auxotrophies", label: "Auxotrophies", value: strain.auxotrophies });
     }
     const biologyContextLabels = new Set([
       "genotype", "transgenic features", "auxotrophies", "auxotrophy",
       "auxotrophic markers", "mating type", "reproduction", "background",
       "genetic background", "source",
     ]);
-    const rows = [...biologyFields];
+    const matchedFields = [];
     if (query) {
       for (const context of contexts) {
         const normalizedLabel = String(context.label || "").trim().toLocaleLowerCase();
-        if (!biologyContextLabels.has(normalizedLabel)) rows.push([context.label || "Field", context.value]);
+        if (!biologyContextLabels.has(normalizedLabel)) {
+          matchedFields.push({ label: context.label || "Field", value: context.value });
+        }
       }
     }
-    const contextList = document.createElement("div");
-    contextList.className = "yeast-context-list yeast-biology-list";
-    for (const [fieldLabel, fieldValue] of rows) {
-      const row = document.createElement("div");
-      row.className = "yeast-context-row";
-      const label = document.createElement("span");
-      label.className = "yeast-context-label";
-      label.textContent = fieldLabel;
-      const value = document.createElement("span");
-      appendYeastHighlightedText(value, String(fieldValue || "").trim() || "—", query);
-      row.append(label, value);
-      contextList.appendChild(row);
-    }
-    article.appendChild(contextList);
+    appendYeastContextList(article, biologyFields, "yeast-biology-list", query);
+    appendYeastContextList(article, matchedFields, "yeast-search-context-list", query);
 
     if (query) {
       const details = document.createElement("details");
