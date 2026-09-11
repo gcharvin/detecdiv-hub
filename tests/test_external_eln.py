@@ -28,6 +28,7 @@ from api.services.labguru_yeast_strains import (
     build_search_fields,
     inventory_item_needs_sync,
     normalize_search_text,
+    yeast_biology_fields,
     yeast_strain_search_result,
 )
 from api.services.labguru_yeast_sync_job import parse_sync_since
@@ -264,6 +265,38 @@ def test_yeast_search_fields_and_context_include_custom_genetics() -> None:
     assert "mata his3δ1 leu2δ0" in fields["genetics"]
     assert normalize_search_text(item.name) == "etalon by4741"
     assert any(context["label"] == "Phenotype" for context in result["context"])
+
+
+def test_yeast_result_exposes_human_biology_fields_and_hides_uuid_context() -> None:
+    payload = {
+        "id": 42,
+        "uuid": "9a575aac-9f3f-49a4-bd95-d3630a8b1fd5",
+        "name": "YAM4-44",
+        "transgenic_features": "delta gsh1, srx1pr-sfGFP-deg-NatMX",
+        "auxotrophies": "his3 leu2 ura3",
+        "reproduction": "alpha",
+        "genetic_background": "S288C",
+        "source": "delta gsh1 bank",
+    }
+    biology = yeast_biology_fields(payload)
+    record = LabguruYeastStrain(
+        external_id="42",
+        name="YAM4-44",
+        payload_json=payload,
+        is_active=True,
+    )
+
+    result = yeast_strain_search_result(record, query="9a575aac")
+
+    assert biology == {
+        "genotype": "delta gsh1, srx1pr-sfGFP-deg-NatMX",
+        "auxotrophies": "his3 leu2 ura3",
+        "mating_type": "alpha",
+        "background": "S288C",
+        "source": "delta gsh1 bank",
+    }
+    assert result["genotype"] == biology["genotype"]
+    assert all(context["label"] != "Uuid" for context in result["context"])
 
 
 def test_yeast_incremental_sync_only_updates_changed_or_newly_enriched_records() -> None:

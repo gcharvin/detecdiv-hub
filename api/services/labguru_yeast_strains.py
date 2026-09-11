@@ -28,6 +28,27 @@ _GENETICS_TERMS = (
 _IDENTITY_TERMS = ("barcode", "identifier", "sys_id", "sysid", "system_id")
 _PEOPLE_TERMS = ("author", "created_by", "creator", "member", "owner", "produced_by")
 _DESCRIPTION_TERMS = ("comment", "description", "note", "remark")
+_HIDDEN_CONTEXT_LABELS = {
+    "api url",
+    "external uuid",
+    "export path",
+    "id",
+    "labguru id",
+    "member id",
+    "member url",
+    "owner id",
+    "owner url",
+    "url",
+    "user",
+    "uuid",
+}
+_BIOLOGY_FIELD_ALIASES = {
+    "genotype": ("genotype", "transgenic features"),
+    "auxotrophies": ("auxotrophies", "auxotrophy", "auxotrophic markers"),
+    "mating_type": ("mating type", "reproduction"),
+    "background": ("background", "genetic background"),
+    "source": ("source",),
+}
 
 
 def sync_labguru_yeast_strains(
@@ -313,9 +334,12 @@ def yeast_strain_search_result(
 ) -> dict[str, Any]:
     tokens = search_tokens(query or "")
     flattened = flatten_labguru_fields(record.payload_json or {})
+    biology = yeast_biology_fields(record.payload_json or {}, flattened=flattened)
     contexts = []
     preferred = []
     for label, value in flattened:
+        if hidden_technical_context(label):
+            continue
         normalized_value = normalize_search_text(value)
         context = {"label": label, "value": truncate(value, 360)}
         if tokens and any(token in normalized_value for token in tokens):
@@ -332,6 +356,7 @@ def yeast_strain_search_result(
         "description": record.description,
         "owner_name": record.owner_name,
         "external_url": record.external_url,
+        **biology,
         "search_fields_json": record.search_fields_json or {},
         "context": contexts[:6],
         "payload_json": (record.payload_json or {}) if include_payload else {},
@@ -341,6 +366,32 @@ def yeast_strain_search_result(
         "updated_external_at": record.updated_external_at,
         "last_synced_at": record.last_synced_at,
     }
+
+
+def yeast_biology_fields(
+    payload: dict[str, Any],
+    *,
+    flattened: list[tuple[str, str]] | None = None,
+) -> dict[str, str | None]:
+    flattened_fields = flattened if flattened is not None else flatten_labguru_fields(payload)
+    values_by_label: dict[str, str] = {}
+    for label, value in flattened_fields:
+        normalized_label = normalize_search_text(label)
+        if normalized_label and value and normalized_label not in values_by_label:
+            values_by_label[normalized_label] = value
+
+    result: dict[str, str | None] = {}
+    for field_name, aliases in _BIOLOGY_FIELD_ALIASES.items():
+        result[field_name] = next(
+            (values_by_label[alias] for alias in aliases if values_by_label.get(alias)),
+            None,
+        )
+    return result
+
+
+def hidden_technical_context(label: str) -> bool:
+    normalized = normalize_search_text(label)
+    return normalized in _HIDDEN_CONTEXT_LABELS or normalized.endswith(" uuid")
 
 
 def external_created_at_from_payload(payload: dict[str, Any]) -> datetime | None:

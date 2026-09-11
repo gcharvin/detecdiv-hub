@@ -896,6 +896,11 @@ class LabguruYeastStrainSummary(HubBaseModel):
     description: str | None = None
     owner_name: str | None = None
     external_url: str | None = None
+    genotype: str | None = None
+    auxotrophies: str | None = None
+    mating_type: str | None = None
+    background: str | None = None
+    source: str | None = None
     search_fields_json: dict[str, str] = Field(default_factory=dict)
     context: list[LabguruYeastStrainContext] = Field(default_factory=list)
     payload_json: dict[str, Any] = Field(default_factory=dict)

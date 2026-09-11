@@ -573,6 +573,14 @@ h3 {
   font-weight: 700;
 }
 
+.yeast-search-highlight {
+  padding: 0 0.12em;
+  border-radius: 3px;
+  background: #ffe27a;
+  color: #1b2430;
+  font-weight: 750;
+}
+
 .yeast-result-description {
   margin-top: 12px;
   color: var(--muted);

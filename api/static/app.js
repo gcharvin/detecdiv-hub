@@ -5666,6 +5666,81 @@ function renderExternalCredential() {
   }
 }
 
+function yeastHighlightMap(value) {
+  const text = String(value || "");
+  let normalized = "";
+  const offsets = [];
+  let originalOffset = 0;
+  for (const character of text) {
+    const folded = character.normalize("NFKD").replace(/[\u0300-\u036f]/g, "").toLocaleLowerCase();
+    normalized += folded;
+    for (let index = 0; index < folded.length; index += 1) {
+      offsets.push({ start: originalOffset, end: originalOffset + character.length });
+    }
+    originalOffset += character.length;
+  }
+  return { text, normalized, offsets };
+}
+
+function appendYeastHighlightedText(element, value, query) {
+  const mapped = yeastHighlightMap(value);
+  const tokens = Array.from(new Set(
+    yeastHighlightMap(query).normalized.split(/\s+/).filter(Boolean),
+  ));
+  const ranges = [];
+  for (const token of tokens) {
+    let searchFrom = 0;
+    while (searchFrom < mapped.normalized.length) {
+      const matchIndex = mapped.normalized.indexOf(token, searchFrom);
+      if (matchIndex < 0) break;
+      const firstOffset = mapped.offsets[matchIndex];
+      const lastOffset = mapped.offsets[matchIndex + token.length - 1];
+      if (firstOffset && lastOffset) ranges.push([firstOffset.start, lastOffset.end]);
+      searchFrom = matchIndex + Math.max(token.length, 1);
+    }
+  }
+  ranges.sort((left, right) => left[0] - right[0] || left[1] - right[1]);
+  const merged = [];
+  for (const range of ranges) {
+    const previous = merged[merged.length - 1];
+    if (previous && range[0] <= previous[1]) previous[1] = Math.max(previous[1], range[1]);
+    else merged.push([...range]);
+  }
+
+  element.replaceChildren();
+  let cursor = 0;
+  for (const [start, end] of merged) {
+    if (start > cursor) element.appendChild(document.createTextNode(mapped.text.slice(cursor, start)));
+    const highlight = document.createElement("mark");
+    highlight.className = "yeast-search-highlight";
+    highlight.textContent = mapped.text.slice(start, end);
+    element.appendChild(highlight);
+    cursor = end;
+  }
+  if (cursor < mapped.text.length) element.appendChild(document.createTextNode(mapped.text.slice(cursor)));
+}
+
+function humanReadableYeastPayload(value) {
+  if (Array.isArray(value)) {
+    const items = value.map(humanReadableYeastPayload).filter((item) => item !== undefined);
+    return items.length ? items : undefined;
+  }
+  if (value && typeof value === "object") {
+    const cleaned = {};
+    for (const [key, child] of Object.entries(value)) {
+      const normalizedKey = key.toLocaleLowerCase();
+      const isIdentifier = normalizedKey !== "sys_id"
+        && (normalizedKey === "id" || normalizedKey.endsWith("_id") || normalizedKey.includes("uuid"));
+      if (isIdentifier || normalizedKey === "labguru_id") continue;
+      const cleanChild = humanReadableYeastPayload(child);
+      if (cleanChild !== undefined) cleaned[key] = cleanChild;
+    }
+    return Object.keys(cleaned).length ? cleaned : undefined;
+  }
+  if (value === null || value === undefined || value === "") return undefined;
+  return value;
+}
+
 function renderYeastStrains() {
   if (!pageFlags.hasYeastStrainsView) {
     return;
@@ -5726,7 +5801,7 @@ function renderYeastStrains() {
     heading.className = "yeast-result-heading";
     const title = document.createElement(strain.external_url ? "a" : "span");
     title.className = "yeast-result-title";
-    title.textContent = strain.name || "Unnamed strain";
+    appendYeastHighlightedText(title, strain.name || "Unnamed strain", query);
     if (strain.external_url) {
       title.href = strain.external_url;
       title.target = "_blank";
@@ -5734,36 +5809,50 @@ function renderYeastStrains() {
     }
     const identifiers = document.createElement("div");
     identifiers.className = "yeast-result-identifiers";
-    identifiers.textContent = [
+    appendYeastHighlightedText(identifiers, [
       strain.created_external_at ? `Created ${formatTimestamp(strain.created_external_at)}` : "",
       strain.owner_name || "",
       strain.sys_id ? `SysID ${strain.sys_id}` : "",
     ]
-      .filter(Boolean).join(" · ");
+      .filter(Boolean).join(" · "), query);
     heading.append(title, identifiers);
     article.appendChild(heading);
 
     const contexts = Array.isArray(strain.context) ? strain.context : [];
-    if (query && contexts.length) {
-      const contextList = document.createElement("div");
-      contextList.className = "yeast-context-list";
+    if (query) {
+      const biologyFields = [
+        ["Genotype", strain.genotype],
+        ["Auxotrophies", strain.auxotrophies],
+        ["Mating type", strain.mating_type],
+        ["Background", strain.background],
+        ["Source", strain.source],
+      ];
+      const biologyContextLabels = new Set([
+        "genotype", "transgenic features", "auxotrophies", "auxotrophy",
+        "auxotrophic markers", "mating type", "reproduction", "background",
+        "genetic background", "source",
+      ]);
+      const rows = biologyFields.filter(([, value]) => String(value || "").trim());
       for (const context of contexts) {
-        const row = document.createElement("div");
-        row.className = "yeast-context-row";
-        const label = document.createElement("span");
-        label.className = "yeast-context-label";
-        label.textContent = context.label || "Field";
-        const value = document.createElement("span");
-        value.textContent = context.value || "";
-        row.append(label, value);
-        contextList.appendChild(row);
+        const normalizedLabel = String(context.label || "").trim().toLocaleLowerCase();
+        if (!biologyContextLabels.has(normalizedLabel)) rows.push([context.label || "Field", context.value]);
       }
-      article.appendChild(contextList);
-    } else if (query && strain.description) {
-      const description = document.createElement("p");
-      description.className = "yeast-result-description";
-      description.textContent = strain.description;
-      article.appendChild(description);
+      if (rows.length) {
+        const contextList = document.createElement("div");
+        contextList.className = "yeast-context-list yeast-biology-list";
+        for (const [fieldLabel, fieldValue] of rows) {
+          const row = document.createElement("div");
+          row.className = "yeast-context-row";
+          const label = document.createElement("span");
+          label.className = "yeast-context-label";
+          label.textContent = fieldLabel;
+          const value = document.createElement("span");
+          appendYeastHighlightedText(value, fieldValue || "", query);
+          row.append(label, value);
+          contextList.appendChild(row);
+        }
+        article.appendChild(contextList);
+      }
     }
 
     if (query) {
@@ -5779,7 +5868,9 @@ function renderYeastStrains() {
         details.dataset.loaded = "true";
         payload.textContent = "Loading…";
         apiGet(`/external-systems/labguru/yeast-strains/by-id/${encodeURIComponent(strain.external_id)}`)
-          .then((detail) => { payload.textContent = JSON.stringify(detail.payload_json || {}, null, 2); })
+          .then((detail) => {
+            payload.textContent = JSON.stringify(humanReadableYeastPayload(detail.payload_json || {}) || {}, null, 2);
+          })
           .catch((error) => {
             details.dataset.loaded = "false";
             payload.textContent = String(error);
