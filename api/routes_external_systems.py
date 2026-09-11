@@ -5,7 +5,7 @@ from uuid import UUID
 
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Query, status
 from sqlalchemy import func, select
-from sqlalchemy.orm import Session, joinedload
+from sqlalchemy.orm import Session, joinedload, selectinload
 
 from api.config import get_settings
 from api.db import get_db
@@ -305,7 +305,7 @@ def get_labguru_yeast_strain(
 ) -> LabguruYeastStrainSummary:
     _ = current_user
     record = db.scalars(
-        select(LabguruYeastStrain).where(
+        select(LabguruYeastStrain).options(selectinload(LabguruYeastStrain.stocks)).where(
             LabguruYeastStrain.external_id == external_id,
             LabguruYeastStrain.is_active.is_(True),
         )

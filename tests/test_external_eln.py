@@ -1,7 +1,16 @@
 from datetime import datetime, timedelta, timezone
 from uuid import UUID
 
-from api.models import ExternalExperimentRecord, ExternalUserCredential, LabguruYeastStrain, RawDataset, User
+from api.models import (
+    ExternalExperimentRecord,
+    ExternalUserCredential,
+    LabguruStorageBox,
+    LabguruStorageLocation,
+    LabguruYeastStock,
+    LabguruYeastStrain,
+    RawDataset,
+    User,
+)
 from api.services.external_credentials import credential_status, decrypt_external_token, encrypt_external_token
 from api.services.external_eln import select_unique_user_match
 from api.services.external_eln_clients import (
@@ -28,6 +37,8 @@ from api.services.labguru_yeast_strains import (
     build_search_fields,
     inventory_item_needs_sync,
     normalize_search_text,
+    refresh_storage_search_fields,
+    storage_path_for_box,
     yeast_biology_fields,
     yeast_strain_search_result,
 )
@@ -236,6 +247,39 @@ def test_labguru_client_lists_complete_yeast_collection(monkeypatch) -> None:
     ]
 
 
+def test_labguru_client_lists_stocks_with_specific_progress_phase(monkeypatch) -> None:
+    progress = []
+
+    class FakeResponse:
+        def raise_for_status(self) -> None:
+            return None
+
+        def __init__(self, payload: dict) -> None:
+            self.payload = payload
+
+        def json(self) -> dict:
+            return self.payload
+
+    def fake_get(url, *, json, params, timeout):
+        assert url == "https://labguru.example.org/api/v1/stocks.json"
+        if params["page"] == 1:
+            return FakeResponse(
+                {
+                    "meta": {"item_count": 1},
+                    "data": [{"id": 11061, "stockable_id": 9957, "name": "YAM7-04"}],
+                }
+            )
+        return FakeResponse({"meta": {"item_count": 1}, "data": []})
+
+    monkeypatch.setattr("api.services.external_eln_clients.requests.get", fake_get)
+    client = LabguruClient(base_url="https://labguru.example.org", token="token-123")
+
+    stocks = client.list_stocks(progress_callback=progress.append)
+
+    assert stocks[0]["stockable_id"] == 9957
+    assert progress[0]["phase"] == "fetching_stocks"
+
+
 def test_parse_sync_since_normalizes_naive_timestamp_to_utc() -> None:
     assert parse_sync_since("2026-09-11T08:00:00") == datetime(
         2026,
@@ -298,6 +342,88 @@ def test_yeast_result_exposes_human_biology_fields_and_hides_uuid_context() -> N
     }
     assert result["genotype"] == biology["genotype"]
     assert all(context["label"] != "Uuid" for context in result["context"])
+
+
+def test_yeast_result_exposes_linked_physical_storage_path() -> None:
+    room = LabguruStorageLocation(
+        external_id="1",
+        name="Lab Room",
+        location_type="Room",
+        external_url="https://labguru.example.org/storage/storages/1",
+    )
+    freezer = LabguruStorageLocation(
+        external_id="41",
+        parent_external_id="1",
+        name="-80°C Freezer",
+        location_type="Freezer",
+        external_url="https://labguru.example.org/storage/storages/41",
+    )
+    rack = LabguruStorageLocation(
+        external_id="827",
+        parent_external_id="41",
+        name="Rack 1",
+        location_type="Slide Rack",
+        external_url="https://labguru.example.org/storage/storages/827",
+    )
+    cell = LabguruStorageLocation(
+        external_id="953",
+        parent_external_id="827",
+        name="rack cell 7",
+        location_type="Rack Cell",
+        external_url="https://labguru.example.org/storage/storages/953",
+    )
+    box = LabguruStorageBox(
+        external_id="761",
+        storage_external_id="953",
+        name="YAM7",
+        external_url="https://labguru.example.org/storage/boxes/761",
+    )
+    path = storage_path_for_box(
+        box,
+        locations_by_external_id={
+            "1": room,
+            "41": freezer,
+            "827": rack,
+            "953": cell,
+        },
+    )
+    strain_id = UUID("db16220e-a969-4f3a-bfa9-bb705836bd5e")
+    stock = LabguruYeastStock(
+        external_id="11061",
+        yeast_strain_id=strain_id,
+        name="YAM7-04",
+        container_type="Tube",
+        box_name="YAM7",
+        box_url="https://labguru.example.org/storage/boxes/761",
+        position="4 (A4)",
+        external_url="https://labguru.example.org/storage/stocks/11061",
+        storage_path_json=path,
+        is_active=True,
+    )
+    strain = LabguruYeastStrain(
+        id=strain_id,
+        external_id="9957",
+        name="YAM7-04",
+        payload_json={"id": 9957, "name": "YAM7-04"},
+        search_fields_json={},
+        is_active=True,
+    )
+    strain.stocks.append(stock)
+
+    refresh_storage_search_fields([strain], stocks=[stock])
+    result = yeast_strain_search_result(strain, query="freezer")
+
+    assert [segment["name"] for segment in path] == [
+        "Lab Room",
+        "-80°C Freezer",
+        "Rack 1",
+        "rack cell 7",
+        "YAM7",
+    ]
+    assert result["stocks"][0]["position"] == "4 (A4)"
+    assert result["stocks"][0]["storage_path"][-1]["url"].endswith("/storage/boxes/761")
+    assert "freezer" in strain.search_fields_json["storage"]
+    assert "external_id" not in result["stocks"][0]
 
 
 def test_yeast_incremental_sync_only_updates_changed_or_newly_enriched_records() -> None:

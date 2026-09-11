@@ -5761,6 +5761,72 @@ function appendYeastContextList(article, fields, className, query) {
   article.appendChild(contextList);
 }
 
+function appendYeastStorageList(article, stocks, query) {
+  const storageList = document.createElement("div");
+  storageList.className = "yeast-storage-list";
+  const visibleStocks = Array.isArray(stocks) ? stocks : [];
+  if (!visibleStocks.length) {
+    const row = document.createElement("div");
+    row.className = "yeast-storage-row yeast-storage-empty";
+    const label = document.createElement("span");
+    label.className = "yeast-context-label";
+    label.textContent = "Storage";
+    const value = document.createElement("span");
+    value.textContent = "No physical stock recorded";
+    row.append(label, value);
+    storageList.appendChild(row);
+    article.appendChild(storageList);
+    return;
+  }
+
+  visibleStocks.forEach((stock, stockIndex) => {
+    const row = document.createElement("div");
+    row.className = "yeast-storage-row";
+    const label = document.createElement("span");
+    label.className = "yeast-context-label";
+    label.textContent = visibleStocks.length > 1 ? `Storage ${stockIndex + 1}` : "Storage";
+    const value = document.createElement("span");
+    value.className = "yeast-storage-path";
+    const stockName = String(stock.name || "Stock").trim();
+    const stockLink = document.createElement(stock.external_url ? "a" : "span");
+    appendYeastHighlightedText(stockLink, stockName, query);
+    if (stock.external_url) {
+      stockLink.href = stock.external_url;
+      stockLink.target = "_blank";
+      stockLink.rel = "noopener noreferrer";
+    }
+    value.appendChild(stockLink);
+    const path = Array.isArray(stock.storage_path) ? stock.storage_path : [];
+    for (const segment of path) {
+      value.appendChild(document.createTextNode("  ›  "));
+      const segmentLink = document.createElement(segment.url ? "a" : "span");
+      const segmentText = `${segment.name || "Unknown"}${segment.type ? ` (${segment.type})` : ""}`;
+      appendYeastHighlightedText(segmentLink, segmentText, query);
+      if (segment.url) {
+        segmentLink.href = segment.url;
+        segmentLink.target = "_blank";
+        segmentLink.rel = "noopener noreferrer";
+      }
+      value.appendChild(segmentLink);
+    }
+    if (stock.position) {
+      value.appendChild(document.createTextNode("  ·  "));
+      const position = document.createElement("strong");
+      appendYeastHighlightedText(position, stock.position, query);
+      value.appendChild(position);
+    }
+    const metadata = [
+      stock.container_type || "",
+      stock.stored_on ? `stored ${formatTimestamp(stock.stored_on)}` : "",
+      stock.stored_by_name ? `by ${stock.stored_by_name}` : "",
+    ].filter(Boolean).join(" · ");
+    if (metadata) value.title = metadata;
+    row.append(label, value);
+    storageList.appendChild(row);
+  });
+  article.appendChild(storageList);
+}
+
 function renderYeastStrains() {
   if (!pageFlags.hasYeastStrainsView) {
     return;
@@ -5793,13 +5859,22 @@ function renderYeastStrains() {
     const phase = progress.phase || status.job_status || "queued";
     let progressText = phase === "queued" ? "Synchronization queued…" : "Connecting to Labguru…";
     if (isComplete) {
-      progressText = `Synchronization complete · ${processed || total} checked · ${created} new · ${updated} updated`;
+      const stockCount = Number(progress.stock_count || 0);
+      progressText = `Synchronization complete · ${processed || total} strains checked · ${stockCount} physical stocks synchronized · ${created} new · ${updated} updated`;
     } else if (isFailed) {
       progressText = "Synchronization failed. You can retry with Synchronize.";
     } else if (phase === "fetching") {
       progressText = `${processed} strain${processed === 1 ? "" : "s"} received from Labguru${total ? ` of ${total}` : ""}…`;
+    } else if (phase === "fetching_stocks") {
+      progressText = `${processed} physical stock${processed === 1 ? "" : "s"} received${total ? ` of ${total}` : ""}…`;
+    } else if (phase === "fetching_storage") {
+      progressText = `${processed} storage location${processed === 1 ? "" : "s"} received${total ? ` of ${total}` : ""}…`;
+    } else if (phase === "fetching_boxes") {
+      progressText = `${processed} storage box${processed === 1 ? "" : "es"} received${total ? ` of ${total}` : ""}…`;
     } else if (phase === "synchronizing") {
       progressText = `${processed}${total ? ` / ${total}` : ""} checked · ${created} new · ${updated} updated`;
+    } else if (phase === "synchronizing_stocks") {
+      progressText = `${processed}${total ? ` / ${total}` : ""} physical stocks linked to strains…`;
     }
     if (els.yeastStrainSyncProgressText) els.yeastStrainSyncProgressText.textContent = progressText;
     if (els.yeastStrainSyncProgressBar) {
@@ -5874,6 +5949,7 @@ function renderYeastStrains() {
       }
     }
     appendYeastContextList(article, biologyFields, "yeast-biology-list", query);
+    appendYeastStorageList(article, strain.stocks, query);
     appendYeastContextList(article, matchedFields, "yeast-search-context-list", query);
 
     if (query) {
@@ -7166,12 +7242,27 @@ function sortedDisplayedYeastStrains(strains) {
     } else if (textCriteria[criterion]) {
       const [field, direction] = textCriteria[criterion];
       comparison = compareOptionalYeastText(left.strain[field], right.strain[field], direction);
+    } else if (criterion === "storage_asc" || criterion === "storage_desc") {
+      comparison = compareOptionalYeastText(
+        yeastStorageSortValue(left.strain),
+        yeastStorageSortValue(right.strain),
+        criterion === "storage_desc" ? -1 : 1,
+      );
     }
     if (comparison) return comparison;
     const nameComparison = compareOptionalYeastText(left.strain.name, right.strain.name);
     return nameComparison || left.index - right.index;
   });
   return indexed.map(({ strain }) => strain);
+}
+
+function yeastStorageSortValue(strain) {
+  const stock = Array.isArray(strain.stocks) ? strain.stocks[0] : null;
+  if (!stock) return "";
+  const path = Array.isArray(stock.storage_path)
+    ? stock.storage_path.map((segment) => segment.name || "").filter(Boolean).join(" ")
+    : "";
+  return [path, stock.box_name || "", stock.position || "", stock.name || ""].filter(Boolean).join(" ");
 }
 
 async function refreshYeastStrains({ append = false } = {}) {

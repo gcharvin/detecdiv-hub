@@ -1,9 +1,9 @@
 from __future__ import annotations
 
 import uuid
-from datetime import datetime
+from datetime import date, datetime
 
-from sqlalchemy import BIGINT, Boolean, DateTime, Float, ForeignKey, Integer, String, Text, UniqueConstraint, func
+from sqlalchemy import BIGINT, Boolean, Date, DateTime, Float, ForeignKey, Integer, String, Text, UniqueConstraint, func
 from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -966,6 +966,83 @@ class LabguruYeastStrain(Base):
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
     )
+
+    stocks: Mapped[list["LabguruYeastStock"]] = relationship(
+        back_populates="yeast_strain",
+        cascade="all, delete-orphan",
+    )
+
+
+class LabguruStorageLocation(Base):
+    __tablename__ = "labguru_storage_locations"
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    external_id: Mapped[str] = mapped_column(String, nullable=False, unique=True)
+    parent_external_id: Mapped[str | None] = mapped_column(String)
+    name: Mapped[str] = mapped_column(String, nullable=False)
+    location_type: Mapped[str | None] = mapped_column(String)
+    external_url: Mapped[str | None] = mapped_column(Text)
+    name_with_hierarchy: Mapped[str | None] = mapped_column(Text)
+    payload_json: Mapped[dict] = mapped_column(JSONB, nullable=False, default=dict)
+    is_active: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
+    last_synced_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    missing_since: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
+    )
+
+
+class LabguruStorageBox(Base):
+    __tablename__ = "labguru_storage_boxes"
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    external_id: Mapped[str] = mapped_column(String, nullable=False, unique=True)
+    storage_external_id: Mapped[str | None] = mapped_column(String)
+    name: Mapped[str] = mapped_column(String, nullable=False)
+    external_url: Mapped[str | None] = mapped_column(Text)
+    rows: Mapped[int | None] = mapped_column(Integer)
+    cols: Mapped[int | None] = mapped_column(Integer)
+    payload_json: Mapped[dict] = mapped_column(JSONB, nullable=False, default=dict)
+    is_active: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
+    last_synced_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    missing_since: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
+    )
+
+
+class LabguruYeastStock(Base):
+    __tablename__ = "labguru_yeast_stocks"
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    yeast_strain_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("labguru_yeast_strains.id", ondelete="CASCADE"), nullable=False
+    )
+    external_id: Mapped[str] = mapped_column(String, nullable=False, unique=True)
+    name: Mapped[str] = mapped_column(String, nullable=False)
+    container_type: Mapped[str | None] = mapped_column(String)
+    box_external_id: Mapped[str | None] = mapped_column(String)
+    box_name: Mapped[str | None] = mapped_column(String)
+    box_url: Mapped[str | None] = mapped_column(Text)
+    position: Mapped[str | None] = mapped_column(String)
+    owner_name: Mapped[str | None] = mapped_column(String)
+    stored_by_name: Mapped[str | None] = mapped_column(String)
+    stored_on: Mapped[date | None] = mapped_column(Date)
+    external_url: Mapped[str | None] = mapped_column(Text)
+    storage_path_json: Mapped[list] = mapped_column(JSONB, nullable=False, default=list)
+    payload_json: Mapped[dict] = mapped_column(JSONB, nullable=False, default=dict)
+    is_active: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
+    updated_external_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    last_synced_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    missing_since: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
+    )
+
+    yeast_strain: Mapped[LabguruYeastStrain] = relationship(back_populates="stocks")
 
 
 class ExternalUserRecord(Base):

@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>DetecDiv Hub - Yeast strains</title>
-    <link rel="stylesheet" href="/web/styles.css?v=20260911-yeast8" />
+    <link rel="stylesheet" href="/web/styles.css?v=20260911-yeast9" />
   </head>
   <body data-page="yeast-strains">
     <div class="page-shell">
@@ -54,7 +54,7 @@
         <section class="panel yeast-search-panel">
           <label class="yeast-search-box" for="yeast-strain-search">
             <span class="yeast-search-icon" aria-hidden="true">⌕</span>
-            <input id="yeast-strain-search" type="search" autocomplete="off" spellcheck="false" placeholder="Search a strain, genotype, phenotype, mutation, owner…" />
+            <input id="yeast-strain-search" type="search" autocomplete="off" spellcheck="false" placeholder="Search a strain, genotype, freezer, box, position, owner…" />
           </label>
           <div class="yeast-search-options">
             <fieldset class="yeast-scope-fieldset">
@@ -64,6 +64,7 @@
               <label><input type="checkbox" name="yeast-scope" value="genetics" checked /> Genetics</label>
               <label><input type="checkbox" name="yeast-scope" value="description" checked /> Description</label>
               <label><input type="checkbox" name="yeast-scope" value="people" checked /> People</label>
+              <label><input type="checkbox" name="yeast-scope" value="storage" checked /> Storage</label>
               <label><input type="checkbox" name="yeast-scope" value="metadata" checked /> Other fields</label>
             </fieldset>
             <label class="field compact yeast-match-field">
@@ -103,6 +104,8 @@
                 <option value="background_desc">Background · Z–A</option>
                 <option value="source_asc">Source · A–Z</option>
                 <option value="source_desc">Source · Z–A</option>
+                <option value="storage_asc">Storage · A–Z</option>
+                <option value="storage_desc">Storage · Z–A</option>
                 <option value="owner_asc">Owner · A–Z</option>
                 <option value="owner_desc">Owner · Z–A</option>
               </select>
@@ -115,6 +118,6 @@
 
       <footer class="footer"><div id="status-line">Ready.</div></footer>
     </div>
-    <script src="/web/app.js?v=20260911-yeast8" defer></script>
+    <script src="/web/app.js?v=20260911-yeast9" defer></script>
   </body>
 </html>

@@ -95,6 +95,16 @@ inspect storage-backed folders without logging into the storage host directly.
 
 ## Pending Live Schema Migrations
 
+Before deploying synchronized physical locations for Labguru yeast stocks, apply:
+
+```bash
+psql "$DETECDIV_HUB_DATABASE_URL" -f db/migrations/20260911_labguru_yeast_storage.sql
+```
+
+This adds the synchronized Labguru storage tree, boxes, and physical stocks.
+The same API-side synchronization that refreshes YeastStrains also refreshes
+these records; compute workers remain uninvolved.
+
 Before deploying incremental Labguru Yeast strains synchronization and
 creation-date ordering, apply:
 

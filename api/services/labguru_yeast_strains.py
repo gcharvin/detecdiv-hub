@@ -2,17 +2,28 @@ from __future__ import annotations
 
 import re
 import unicodedata
-from datetime import datetime, timezone
+from datetime import date, datetime, timezone
 from typing import Any, Callable
 
 from sqlalchemy import and_, case, func, or_, select
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, selectinload
 
-from api.models import LabguruYeastStrain
-from api.services.external_eln_clients import LabguruClient, LabguruInventoryItem, html_to_text
+from api.models import (
+    LabguruStorageBox,
+    LabguruStorageLocation,
+    LabguruYeastStock,
+    LabguruYeastStrain,
+)
+from api.services.external_eln_clients import (
+    LabguruClient,
+    LabguruInventoryItem,
+    html_to_text,
+    normalize_external_url,
+    parse_datetime,
+)
 
 
-SEARCH_SCOPES = ("name", "identity", "genetics", "description", "people", "metadata")
+SEARCH_SCOPES = ("name", "identity", "genetics", "description", "people", "storage", "metadata")
 _GENETICS_TERMS = (
     "allele",
     "background",
@@ -76,6 +87,9 @@ def sync_labguru_yeast_strains(
         collection_name=collection_name,
         progress_callback=progress_callback,
     )
+    stock_payloads = client.list_stocks(progress_callback=progress_callback)
+    storage_payloads = client.list_storage_locations(progress_callback=progress_callback)
+    box_payloads = client.list_storage_boxes(progress_callback=progress_callback)
     existing = {
         record.external_id: record
         for record in session.scalars(select(LabguruYeastStrain)).all()
@@ -135,6 +149,35 @@ def sync_labguru_yeast_strains(
             deactivated_count += 1
 
     session.flush()
+    storage_locations = sync_storage_locations(
+        session,
+        payloads=storage_payloads,
+        synced_at=synced_at,
+        base_url=client.base_url,
+    )
+    storage_boxes = sync_storage_boxes(
+        session,
+        payloads=box_payloads,
+        synced_at=synced_at,
+        base_url=client.base_url,
+    )
+    stock_result = sync_yeast_stocks(
+        session,
+        payloads=stock_payloads,
+        strains_by_external_id={external_id: existing[external_id] for external_id in seen_ids},
+        locations_by_external_id=storage_locations,
+        boxes_by_external_id=storage_boxes,
+        synced_at=synced_at,
+        base_url=client.base_url,
+        progress_callback=progress_callback,
+        sync_mode=sync_mode,
+        collection_name=collection_name,
+    )
+    session.flush()
+    refresh_storage_search_fields(
+        existing.values(),
+        stocks=session.scalars(select(LabguruYeastStock)).all(),
+    )
     return {
         "system_key": "labguru",
         "collection_name": collection_name,
@@ -146,10 +189,350 @@ def sync_labguru_yeast_strains(
         "updated_count": updated_count,
         "unchanged_count": unchanged_count,
         "deactivated_count": deactivated_count,
+        "stock_count": stock_result["stock_count"],
+        "stock_created_count": stock_result["created_count"],
+        "stock_updated_count": stock_result["updated_count"],
+        "stock_deactivated_count": stock_result["deactivated_count"],
+        "storage_location_count": len(storage_locations),
+        "storage_box_count": len(storage_boxes),
         "phase": "completed",
         "progress_percent": 100,
         "synced_at": synced_at.isoformat(),
     }
+
+
+def sync_storage_locations(
+    session: Session,
+    *,
+    payloads: list[dict[str, Any]],
+    synced_at: datetime,
+    base_url: str,
+) -> dict[str, LabguruStorageLocation]:
+    existing = {
+        record.external_id: record
+        for record in session.scalars(select(LabguruStorageLocation)).all()
+    }
+    seen_ids: set[str] = set()
+    for payload in payloads:
+        external_id = payload_external_id(payload)
+        if not external_id:
+            continue
+        seen_ids.add(external_id)
+        record = existing.get(external_id)
+        if record is None:
+            record = LabguruStorageLocation(external_id=external_id, name=payload_name(payload, external_id))
+            session.add(record)
+            existing[external_id] = record
+        storage_type = payload.get("storage_type")
+        record.parent_external_id = optional_text(payload.get("parent_id"))
+        record.name = payload_name(payload, external_id)
+        record.location_type = nested_name(storage_type)
+        record.external_url = normalize_external_url(
+            optional_text(payload.get("url")) or f"/storage/storages/{external_id}",
+            base_url=base_url,
+        )
+        record.name_with_hierarchy = optional_text(payload.get("name_with_hierarchy"))
+        record.payload_json = payload
+        record.is_active = payload.get("deleted_at") in (None, "") and not bool(payload.get("archived"))
+        record.last_synced_at = synced_at
+        record.missing_since = None
+        record.updated_at = synced_at
+    deactivate_missing_records(existing, seen_ids=seen_ids, synced_at=synced_at)
+    session.flush()
+    return existing
+
+
+def sync_storage_boxes(
+    session: Session,
+    *,
+    payloads: list[dict[str, Any]],
+    synced_at: datetime,
+    base_url: str,
+) -> dict[str, LabguruStorageBox]:
+    existing = {
+        record.external_id: record
+        for record in session.scalars(select(LabguruStorageBox)).all()
+    }
+    seen_ids: set[str] = set()
+    for payload in payloads:
+        external_id = payload_external_id(payload)
+        if not external_id:
+            continue
+        seen_ids.add(external_id)
+        record = existing.get(external_id)
+        if record is None:
+            record = LabguruStorageBox(external_id=external_id, name=payload_name(payload, external_id))
+            session.add(record)
+            existing[external_id] = record
+        record.storage_external_id = optional_text(payload.get("storage_id"))
+        record.name = payload_name(payload, external_id)
+        record.external_url = normalize_external_url(
+            optional_text(payload.get("url")) or f"/storage/boxes/{external_id}",
+            base_url=base_url,
+        )
+        record.rows = optional_int(payload.get("rows"))
+        record.cols = optional_int(payload.get("cols"))
+        record.payload_json = payload
+        record.is_active = payload.get("deleted_at") in (None, "")
+        record.last_synced_at = synced_at
+        record.missing_since = None
+        record.updated_at = synced_at
+    deactivate_missing_records(existing, seen_ids=seen_ids, synced_at=synced_at)
+    session.flush()
+    return existing
+
+
+def sync_yeast_stocks(
+    session: Session,
+    *,
+    payloads: list[dict[str, Any]],
+    strains_by_external_id: dict[str, LabguruYeastStrain],
+    locations_by_external_id: dict[str, LabguruStorageLocation],
+    boxes_by_external_id: dict[str, LabguruStorageBox],
+    synced_at: datetime,
+    base_url: str,
+    progress_callback: Callable[[dict[str, Any]], None] | None,
+    sync_mode: str,
+    collection_name: str,
+) -> dict[str, int]:
+    existing = {
+        record.external_id: record
+        for record in session.scalars(select(LabguruYeastStock)).all()
+    }
+    yeast_payloads = [
+        payload
+        for payload in payloads
+        if optional_text(payload.get("stockable_id") or payload.get("sample_id")) in strains_by_external_id
+        and stock_matches_collection(payload, collection_name=collection_name)
+    ]
+    seen_ids: set[str] = set()
+    created_count = 0
+    updated_count = 0
+    for index, payload in enumerate(yeast_payloads, start=1):
+        external_id = payload_external_id(payload)
+        strain_external_id = optional_text(payload.get("stockable_id") or payload.get("sample_id"))
+        strain = strains_by_external_id.get(strain_external_id or "")
+        if not external_id or strain is None:
+            continue
+        seen_ids.add(external_id)
+        record = existing.get(external_id)
+        if record is None:
+            record = LabguruYeastStock(
+                external_id=external_id,
+                yeast_strain_id=strain.id,
+                name=payload_name(payload, external_id),
+            )
+            session.add(record)
+            existing[external_id] = record
+            created_count += 1
+        elif record.payload_json != payload or not record.is_active:
+            updated_count += 1
+        apply_stock_payload(
+            record,
+            payload=payload,
+            strain=strain,
+            locations_by_external_id=locations_by_external_id,
+            boxes_by_external_id=boxes_by_external_id,
+            synced_at=synced_at,
+            base_url=base_url,
+        )
+        if progress_callback is not None and (index % 50 == 0 or index == len(yeast_payloads)):
+            progress_callback(
+                {
+                    **sync_progress_payload(
+                        phase="synchronizing_stocks",
+                        sync_mode=sync_mode,
+                        processed_count=index,
+                        total_count=len(yeast_payloads),
+                        created_count=created_count,
+                        updated_count=updated_count,
+                    ),
+                    "stock_count": len(yeast_payloads),
+                }
+            )
+    deactivated_count = deactivate_missing_records(existing, seen_ids=seen_ids, synced_at=synced_at)
+    return {
+        "stock_count": len(seen_ids),
+        "created_count": created_count,
+        "updated_count": updated_count,
+        "deactivated_count": deactivated_count,
+    }
+
+
+def apply_stock_payload(
+    record: LabguruYeastStock,
+    *,
+    payload: dict[str, Any],
+    strain: LabguruYeastStrain,
+    locations_by_external_id: dict[str, LabguruStorageLocation],
+    boxes_by_external_id: dict[str, LabguruStorageBox],
+    synced_at: datetime,
+    base_url: str,
+) -> None:
+    box_payload = payload.get("box") if isinstance(payload.get("box"), dict) else {}
+    storage_type = optional_text(payload.get("storage_type")) or ""
+    is_box_storage = storage_type.endswith("::Box") or bool(box_payload)
+    box_external_id = (
+        optional_text(payload.get("storage_id") or box_payload.get("id"))
+        if is_box_storage
+        else None
+    )
+    box = boxes_by_external_id.get(box_external_id or "")
+    box_name = optional_text(box_payload.get("name")) or (box.name if box is not None else None)
+    box_url = optional_text(box_payload.get("url")) or (box.external_url if box is not None else None)
+    stored_by = payload.get("stored_by")
+    owner = payload.get("owner")
+    record.yeast_strain = strain
+    record.name = payload_name(payload, record.external_id)
+    record.container_type = optional_text(payload.get("container_type"))
+    record.box_external_id = box_external_id
+    record.box_name = box_name
+    record.box_url = normalize_external_url(box_url, base_url=base_url) if box_url else None
+    record.position = optional_text(payload.get("position")) or optional_text(box_payload.get("location_in_box"))
+    record.owner_name = nested_name(owner)
+    record.stored_by_name = nested_name(stored_by)
+    record.stored_on = parse_date(payload.get("stored_on"))
+    record.external_url = normalize_external_url(
+        optional_text(payload.get("url")) or f"/storage/stocks/{record.external_id}",
+        base_url=base_url,
+    )
+    if box is not None:
+        record.storage_path_json = storage_path_for_box(
+            box,
+            locations_by_external_id=locations_by_external_id,
+        )
+    else:
+        record.storage_path_json = storage_path_for_location(
+            optional_text(payload.get("storage_id")),
+            locations_by_external_id=locations_by_external_id,
+        )
+    record.payload_json = payload
+    record.is_active = payload.get("deleted_at") in (None, "") and payload.get("archived_at") in (None, "")
+    record.updated_external_at = parse_datetime(payload.get("updated_at"))
+    record.last_synced_at = synced_at
+    record.missing_since = None
+    record.updated_at = synced_at
+
+
+def storage_path_for_box(
+    box: LabguruStorageBox | None,
+    *,
+    locations_by_external_id: dict[str, LabguruStorageLocation],
+) -> list[dict[str, str | None]]:
+    if box is None:
+        return []
+    path = storage_path_for_location(
+        box.storage_external_id,
+        locations_by_external_id=locations_by_external_id,
+    )
+    path.append({"name": box.name, "type": "Box", "url": box.external_url})
+    return path
+
+
+def storage_path_for_location(
+    location_external_id: str | None,
+    *,
+    locations_by_external_id: dict[str, LabguruStorageLocation],
+) -> list[dict[str, str | None]]:
+    path: list[dict[str, str | None]] = []
+    seen: set[str] = set()
+    while location_external_id and location_external_id not in seen:
+        seen.add(location_external_id)
+        location = locations_by_external_id.get(location_external_id)
+        if location is None:
+            break
+        path.append(
+            {
+                "name": location.name,
+                "type": location.location_type,
+                "url": location.external_url,
+            }
+        )
+        location_external_id = location.parent_external_id
+    path.reverse()
+    return path
+
+
+def refresh_storage_search_fields(records: Any, *, stocks: list[LabguruYeastStock]) -> None:
+    stocks_by_strain_id: dict[Any, list[LabguruYeastStock]] = {}
+    for stock in stocks:
+        stocks_by_strain_id.setdefault(stock.yeast_strain_id, []).append(stock)
+    for record in records:
+        storage_values: list[str] = []
+        for stock in stocks_by_strain_id.get(record.id, []):
+            if not stock.is_active:
+                continue
+            add_unique(storage_values, stock.name)
+            add_unique(storage_values, stock.container_type)
+            add_unique(storage_values, stock.box_name)
+            add_unique(storage_values, stock.position)
+            add_unique(storage_values, stock.owner_name)
+            add_unique(storage_values, stock.stored_by_name)
+            for segment in stock.storage_path_json or []:
+                if isinstance(segment, dict):
+                    add_unique(storage_values, segment.get("name"))
+                    add_unique(storage_values, segment.get("type"))
+        search_fields = dict(record.search_fields_json or {})
+        search_fields["storage"] = normalize_search_text(" | ".join(storage_values))
+        record.search_fields_json = search_fields
+        record.search_text = normalize_search_text(" ".join(search_fields.values()))
+
+
+def deactivate_missing_records(records: dict[str, Any], *, seen_ids: set[str], synced_at: datetime) -> int:
+    deactivated_count = 0
+    for external_id, record in records.items():
+        if external_id in seen_ids or not record.is_active:
+            continue
+        record.is_active = False
+        record.missing_since = synced_at
+        record.updated_at = synced_at
+        deactivated_count += 1
+    return deactivated_count
+
+
+def payload_external_id(payload: dict[str, Any]) -> str:
+    return optional_text(payload.get("id") or payload.get("external_id")) or ""
+
+
+def stock_matches_collection(payload: dict[str, Any], *, collection_name: str) -> bool:
+    displayed_type = optional_text(payload.get("content_type_for_display"))
+    if not displayed_type:
+        return True
+    return normalize_search_text(displayed_type).replace(" ", "") == normalize_search_text(
+        collection_name
+    ).replace(" ", "")
+
+
+def payload_name(payload: dict[str, Any], fallback: str) -> str:
+    return optional_text(payload.get("name") or payload.get("title")) or fallback
+
+
+def nested_name(value: Any) -> str | None:
+    if isinstance(value, dict):
+        return optional_text(value.get("name") or value.get("title"))
+    return optional_text(value)
+
+
+def optional_text(value: Any) -> str | None:
+    text = str(value or "").strip()
+    return text or None
+
+
+def optional_int(value: Any) -> int | None:
+    try:
+        return int(value) if value is not None else None
+    except (TypeError, ValueError):
+        return None
+
+
+def parse_date(value: Any) -> date | None:
+    text = optional_text(value)
+    if not text:
+        return None
+    try:
+        return date.fromisoformat(text[:10])
+    except ValueError:
+        return None
 
 
 def inventory_item_needs_sync(
@@ -300,7 +683,7 @@ def search_labguru_yeast_strains(
     count = int(
         session.scalar(select(func.count(LabguruYeastStrain.id)).where(*where_clauses)) or 0
     )
-    stmt = select(LabguruYeastStrain).where(*where_clauses)
+    stmt = select(LabguruYeastStrain).options(selectinload(LabguruYeastStrain.stocks)).where(*where_clauses)
     creation_order = func.coalesce(
         LabguruYeastStrain.created_external_at,
         LabguruYeastStrain.updated_external_at,
@@ -357,6 +740,13 @@ def yeast_strain_search_result(
         "owner_name": record.owner_name,
         "external_url": record.external_url,
         **biology,
+        "stocks": [
+            yeast_stock_summary(stock)
+            for stock in sorted(
+                (stock for stock in record.stocks if stock.is_active),
+                key=lambda stock: ((stock.box_name or "").casefold(), stock.position or "", stock.name.casefold()),
+            )
+        ],
         "search_fields_json": record.search_fields_json or {},
         "context": contexts[:6],
         "payload_json": (record.payload_json or {}) if include_payload else {},
@@ -365,6 +755,21 @@ def yeast_strain_search_result(
         or record.created_at,
         "updated_external_at": record.updated_external_at,
         "last_synced_at": record.last_synced_at,
+    }
+
+
+def yeast_stock_summary(stock: LabguruYeastStock) -> dict[str, Any]:
+    return {
+        "name": stock.name,
+        "container_type": stock.container_type,
+        "box_name": stock.box_name,
+        "box_url": stock.box_url,
+        "position": stock.position,
+        "owner_name": stock.owner_name,
+        "stored_by_name": stock.stored_by_name,
+        "stored_on": stock.stored_on,
+        "external_url": stock.external_url,
+        "storage_path": stock.storage_path_json or [],
     }
 
 

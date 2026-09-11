@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import date, datetime
 from typing import Any
 from uuid import UUID
 
@@ -888,6 +888,25 @@ class LabguruYeastStrainContext(HubBaseModel):
     value: str
 
 
+class LabguruStoragePathSegment(HubBaseModel):
+    name: str
+    type: str | None = None
+    url: str | None = None
+
+
+class LabguruYeastStockSummary(HubBaseModel):
+    name: str
+    container_type: str | None = None
+    box_name: str | None = None
+    box_url: str | None = None
+    position: str | None = None
+    owner_name: str | None = None
+    stored_by_name: str | None = None
+    stored_on: date | None = None
+    external_url: str | None = None
+    storage_path: list[LabguruStoragePathSegment] = Field(default_factory=list)
+
+
 class LabguruYeastStrainSummary(HubBaseModel):
     id: UUID
     external_id: str
@@ -901,6 +920,7 @@ class LabguruYeastStrainSummary(HubBaseModel):
     mating_type: str | None = None
     background: str | None = None
     source: str | None = None
+    stocks: list[LabguruYeastStockSummary] = Field(default_factory=list)
     search_fields_json: dict[str, str] = Field(default_factory=dict)
     context: list[LabguruYeastStrainContext] = Field(default_factory=list)
     payload_json: dict[str, Any] = Field(default_factory=dict)

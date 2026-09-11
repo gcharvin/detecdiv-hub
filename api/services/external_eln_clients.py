@@ -249,11 +249,45 @@ class LabguruClient:
             payloads = []
         return [labguru_inventory_item_from_payload(item, base_url=self.base_url) for item in payloads]
 
+    def list_stocks(
+        self,
+        *,
+        progress_callback: Callable[[dict[str, Any]], None] | None = None,
+    ) -> list[dict[str, Any]]:
+        return self._list_all_pages(
+            "/api/v1/stocks.json",
+            progress_callback=progress_callback,
+            progress_phase="fetching_stocks",
+        )
+
+    def list_storage_locations(
+        self,
+        *,
+        progress_callback: Callable[[dict[str, Any]], None] | None = None,
+    ) -> list[dict[str, Any]]:
+        return self._list_all_pages(
+            "/api/v1/storages.json",
+            progress_callback=progress_callback,
+            progress_phase="fetching_storage",
+        )
+
+    def list_storage_boxes(
+        self,
+        *,
+        progress_callback: Callable[[dict[str, Any]], None] | None = None,
+    ) -> list[dict[str, Any]]:
+        return self._list_all_pages(
+            "/api/v1/boxes.json",
+            progress_callback=progress_callback,
+            progress_phase="fetching_boxes",
+        )
+
     def _list_all_pages(
         self,
         endpoint: str,
         *,
         progress_callback: Callable[[dict[str, Any]], None] | None = None,
+        progress_phase: str = "fetching",
         **params: Any,
     ) -> list[dict[str, Any]]:
         items: list[dict[str, Any]] = []
@@ -287,7 +321,7 @@ class LabguruClient:
                     progress_percent = min(100, round(len(items) * 100 / total))
                 progress_callback(
                     {
-                        "phase": "fetching",
+                        "phase": progress_phase,
                         "page": page,
                         "processed_count": len(items),
                         "total_count": total,
