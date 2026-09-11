@@ -308,6 +308,7 @@ const els = {
   yeastStrainSearch: document.querySelector("#yeast-strain-search"),
   yeastStrainMatch: document.querySelector("#yeast-strain-match"),
   yeastStrainLimit: document.querySelector("#yeast-strain-limit"),
+  yeastStrainSort: document.querySelector("#yeast-strain-sort"),
   yeastStrainResults: document.querySelector("#yeast-strain-results"),
   yeastStrainResultsTitle: document.querySelector("#yeast-strain-results-title"),
   yeastStrainResultsSummary: document.querySelector("#yeast-strain-results-summary"),
@@ -5805,7 +5806,7 @@ function renderYeastStrains() {
   }
   if (!els.yeastStrainResults) return;
   els.yeastStrainResults.replaceChildren();
-  for (const strain of state.yeastStrains) {
+  for (const strain of sortedDisplayedYeastStrains(state.yeastStrains)) {
     const article = document.createElement("article");
     article.className = `yeast-result-card${query ? "" : " yeast-result-card-simple"}`;
 
@@ -7104,6 +7105,65 @@ async function refreshExternalCredential() {
 
 function selectedYeastSearchScopes() {
   return Array.from(document.querySelectorAll('input[name="yeast-scope"]:checked')).map((input) => input.value);
+}
+
+function compareOptionalYeastText(left, right, direction = 1) {
+  const leftText = String(left || "").trim();
+  const rightText = String(right || "").trim();
+  if (!leftText && !rightText) return 0;
+  if (!leftText) return 1;
+  if (!rightText) return -1;
+  return leftText.localeCompare(rightText, undefined, { numeric: true, sensitivity: "base" }) * direction;
+}
+
+function compareOptionalYeastDate(left, right, direction = 1) {
+  const leftTime = Date.parse(left || "");
+  const rightTime = Date.parse(right || "");
+  const hasLeft = Number.isFinite(leftTime);
+  const hasRight = Number.isFinite(rightTime);
+  if (!hasLeft && !hasRight) return 0;
+  if (!hasLeft) return 1;
+  if (!hasRight) return -1;
+  return (leftTime - rightTime) * direction;
+}
+
+function sortedDisplayedYeastStrains(strains) {
+  const criterion = els.yeastStrainSort?.value || "recommended";
+  if (criterion === "recommended") return strains;
+  const textCriteria = {
+    name_asc: ["name", 1],
+    name_desc: ["name", -1],
+    genotype_asc: ["genotype", 1],
+    genotype_desc: ["genotype", -1],
+    auxotrophies_asc: ["auxotrophies", 1],
+    auxotrophies_desc: ["auxotrophies", -1],
+    mating_type_asc: ["mating_type", 1],
+    mating_type_desc: ["mating_type", -1],
+    background_asc: ["background", 1],
+    background_desc: ["background", -1],
+    source_asc: ["source", 1],
+    source_desc: ["source", -1],
+    owner_asc: ["owner_name", 1],
+    owner_desc: ["owner_name", -1],
+  };
+  const indexed = strains.map((strain, index) => ({ strain, index }));
+  indexed.sort((left, right) => {
+    let comparison = 0;
+    if (criterion === "created_desc" || criterion === "created_asc") {
+      comparison = compareOptionalYeastDate(
+        left.strain.created_external_at || left.strain.updated_external_at,
+        right.strain.created_external_at || right.strain.updated_external_at,
+        criterion === "created_desc" ? -1 : 1,
+      );
+    } else if (textCriteria[criterion]) {
+      const [field, direction] = textCriteria[criterion];
+      comparison = compareOptionalYeastText(left.strain[field], right.strain[field], direction);
+    }
+    if (comparison) return comparison;
+    const nameComparison = compareOptionalYeastText(left.strain.name, right.strain.name);
+    return nameComparison || left.index - right.index;
+  });
+  return indexed.map(({ strain }) => strain);
 }
 
 async function refreshYeastStrains({ append = false } = {}) {
@@ -9531,6 +9591,7 @@ if (els.externalCredentialDeleteButton) els.externalCredentialDeleteButton.addEv
 if (els.yeastStrainSearch) els.yeastStrainSearch.addEventListener("input", queueYeastSearchRefresh);
 if (els.yeastStrainMatch) els.yeastStrainMatch.addEventListener("change", () => refreshYeastStrains().catch((error) => setStatus(String(error))));
 if (els.yeastStrainLimit) els.yeastStrainLimit.addEventListener("change", () => refreshYeastStrains().catch((error) => setStatus(String(error))));
+if (els.yeastStrainSort) els.yeastStrainSort.addEventListener("change", renderYeastStrains);
 for (const scopeInput of document.querySelectorAll('input[name="yeast-scope"]')) {
   scopeInput.addEventListener("change", () => refreshYeastStrains().catch((error) => setStatus(String(error))));
 }

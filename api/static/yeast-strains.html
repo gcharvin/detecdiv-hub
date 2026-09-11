@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>DetecDiv Hub - Yeast strains</title>
-    <link rel="stylesheet" href="/web/styles.css?v=20260911-yeast6" />
+    <link rel="stylesheet" href="/web/styles.css?v=20260911-yeast7" />
   </head>
   <body data-page="yeast-strains">
     <div class="page-shell">
@@ -83,7 +83,31 @@
         </section>
 
         <section class="panel yeast-results-panel">
-          <div class="panel-header"><div><h2 id="yeast-strain-results-title">All strains</h2><p id="yeast-strain-results-summary" class="muted">Loading the local Labguru index…</p></div></div>
+          <div class="panel-header yeast-results-header">
+            <div><h2 id="yeast-strain-results-title">All strains</h2><p id="yeast-strain-results-summary" class="muted">Loading the local Labguru index…</p></div>
+            <label class="field compact yeast-sort-field">
+              <span>Sort displayed results</span>
+              <select id="yeast-strain-sort">
+                <option value="recommended" selected>Recommended order</option>
+                <option value="created_desc">Creation date · newest</option>
+                <option value="created_asc">Creation date · oldest</option>
+                <option value="name_asc">Name · A–Z</option>
+                <option value="name_desc">Name · Z–A</option>
+                <option value="genotype_asc">Genotype · A–Z</option>
+                <option value="genotype_desc">Genotype · Z–A</option>
+                <option value="auxotrophies_asc">Auxotrophies · A–Z</option>
+                <option value="auxotrophies_desc">Auxotrophies · Z–A</option>
+                <option value="mating_type_asc">Mating type · A–Z</option>
+                <option value="mating_type_desc">Mating type · Z–A</option>
+                <option value="background_asc">Background · A–Z</option>
+                <option value="background_desc">Background · Z–A</option>
+                <option value="source_asc">Source · A–Z</option>
+                <option value="source_desc">Source · Z–A</option>
+                <option value="owner_asc">Owner · A–Z</option>
+                <option value="owner_desc">Owner · Z–A</option>
+              </select>
+            </label>
+          </div>
           <div id="yeast-strain-results" class="yeast-result-list"></div>
           <button id="yeast-strain-more-button" class="yeast-more-button hidden">Show more</button>
         </section>
@@ -91,6 +115,6 @@
 
       <footer class="footer"><div id="status-line">Ready.</div></footer>
     </div>
-    <script src="/web/app.js?v=20260911-yeast6" defer></script>
+    <script src="/web/app.js?v=20260911-yeast7" defer></script>
   </body>
 </html>

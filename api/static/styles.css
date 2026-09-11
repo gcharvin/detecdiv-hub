@@ -741,6 +741,21 @@ body[data-page="yeast-strains"] .yeast-results-panel .panel-header p {
   font-size: 0.75rem;
 }
 
+body[data-page="yeast-strains"] .yeast-sort-field {
+  flex: 0 0 205px;
+  min-width: 205px;
+  gap: 3px;
+}
+
+body[data-page="yeast-strains"] .yeast-sort-field span {
+  font-size: 0.68rem;
+}
+
+body[data-page="yeast-strains"] .yeast-sort-field select {
+  min-height: 31px;
+  padding: 4px 8px;
+}
+
 .toolbar,
 .index-form {
   display: flex;
@@ -1671,6 +1686,16 @@ button:disabled {
 
   .yeast-result-identifiers {
     text-align: left;
+  }
+
+  body[data-page="yeast-strains"] .yeast-results-header {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  body[data-page="yeast-strains"] .yeast-sort-field {
+    flex-basis: auto;
+    min-width: 0;
   }
 
   .layout-grid > .detail-panel {
