@@ -218,14 +218,14 @@ class LabguruClient:
     def list_yeast_strains(
         self,
         *,
-        collection_name: str = "yeasts",
+        collection_name: str = "YeastStrains",
         progress_callback: Callable[[dict[str, Any]], None] | None = None,
     ) -> list[LabguruInventoryItem]:
-        clean_name = str(collection_name or "yeasts").strip() or "yeasts"
+        clean_name = str(collection_name or "YeastStrains").strip() or "YeastStrains"
         endpoint_name = re.sub(r"[^a-z0-9]+", "_", clean_name.casefold()).strip("_") or "yeasts"
         candidates = [
-            f"/api/v1/{endpoint_name}",
             f"/api/v1/biocollections/{quote(clean_name, safe='')}",
+            f"/api/v1/{endpoint_name}",
         ]
         if endpoint_name == "yeasts":
             candidates.append("/api/v1/biocollections/yeast_strains")
@@ -661,10 +661,22 @@ def extract_list_payload(payload: Any) -> list[dict[str, Any]]:
 def extract_list_total(payload: Any) -> int | None:
     if not isinstance(payload, dict):
         return None
-    candidates = [payload.get("total"), payload.get("total_count"), payload.get("count")]
+    candidates = [
+        payload.get("total"),
+        payload.get("total_count"),
+        payload.get("item_count"),
+        payload.get("count"),
+    ]
     meta = payload.get("meta")
     if isinstance(meta, dict):
-        candidates.extend((meta.get("total"), meta.get("total_count"), meta.get("count")))
+        candidates.extend(
+            (
+                meta.get("total"),
+                meta.get("total_count"),
+                meta.get("item_count"),
+                meta.get("count"),
+            )
+        )
     for value in candidates:
         try:
             parsed = int(value)

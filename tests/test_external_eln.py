@@ -163,6 +163,7 @@ def test_extract_list_payload_accepts_common_labguru_shapes() -> None:
     assert extract_list_payload({"experiments": [{"id": 3}]}) == [{"id": 3}]
     assert extract_list_payload({"yeasts": [{"id": 4}]}) == [{"id": 4}]
     assert extract_list_total({"meta": {"total_count": 401}}) == 401
+    assert extract_list_total({"meta": {"item_count": 3570}}) == 3570
 
 
 def test_labguru_yeast_payload_builds_inventory_item() -> None:
@@ -209,18 +210,18 @@ def test_labguru_client_lists_complete_yeast_collection(monkeypatch) -> None:
     client = LabguruClient(base_url="https://labguru.example.org", token="token-123")
 
     items = client.list_yeast_strains(
-        collection_name="yeasts",
+        collection_name="YeastStrains",
         progress_callback=progress.append,
     )
 
     assert [(item.external_id, item.name) for item in items] == [("11", "W303")]
     assert calls == [
         {
-            "url": "https://labguru.example.org/api/v1/yeasts",
+            "url": "https://labguru.example.org/api/v1/biocollections/YeastStrains",
             "params": {"page": 1, "page_size": 200, "meta": True, "token": "token-123"},
         },
         {
-            "url": "https://labguru.example.org/api/v1/yeasts",
+            "url": "https://labguru.example.org/api/v1/biocollections/YeastStrains",
             "params": {"page": 2, "page_size": 200, "meta": True, "token": "token-123"},
         },
     ]
