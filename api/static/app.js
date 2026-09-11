@@ -307,6 +307,7 @@ const els = {
   externalCredentialDeleteButton: document.querySelector("#external-credential-delete-button"),
   yeastStrainSearch: document.querySelector("#yeast-strain-search"),
   yeastStrainMatch: document.querySelector("#yeast-strain-match"),
+  yeastStrainLimit: document.querySelector("#yeast-strain-limit"),
   yeastStrainResults: document.querySelector("#yeast-strain-results"),
   yeastStrainResultsTitle: document.querySelector("#yeast-strain-results-title"),
   yeastStrainResultsSummary: document.querySelector("#yeast-strain-results-summary"),
@@ -5795,10 +5796,11 @@ function renderYeastStrains() {
   if (els.yeastStrainResultsTitle) els.yeastStrainResultsTitle.textContent = query ? `Results for “${query}”` : "All strains";
   if (els.yeastStrainResultsSummary) {
     const total = state.yeastStrainSearchMeta.total || 0;
+    const shown = state.yeastStrains.length;
     els.yeastStrainResultsSummary.textContent = total
       ? (query
-        ? `${total} matching strain${total === 1 ? "" : "s"}. Results come from the synchronized Labguru index.`
-        : `${total} strain${total === 1 ? "" : "s"}, newest creations first.`)
+        ? `${total} matching strain${total === 1 ? "" : "s"}. Showing ${shown}.`
+        : `${total} strain${total === 1 ? "" : "s"}, newest first. Showing ${shown}.`)
       : (status.active_count ? "No strain matches these inclusive criteria." : "No strains synchronized yet. An admin can synchronize above.");
   }
   if (!els.yeastStrainResults) return;
@@ -7111,10 +7113,11 @@ async function refreshYeastStrains({ append = false } = {}) {
   const sequence = ++state.yeastStrainSearchSequence;
   const params = new URLSearchParams();
   const query = (els.yeastStrainSearch?.value || "").trim();
+  const requestedLimit = Math.min(200, Math.max(1, Number(els.yeastStrainLimit?.value) || 50));
   if (query) params.set("q", query);
   for (const scope of selectedYeastSearchScopes()) params.append("scope", scope);
   params.set("match", els.yeastStrainMatch?.value || "all");
-  params.set("limit", "50");
+  params.set("limit", String(requestedLimit));
   params.set("offset", append ? String(state.yeastStrains.length) : "0");
   if (els.yeastStrainResultsSummary) els.yeastStrainResultsSummary.textContent = "Searching…";
   const response = await apiGet(`/external-systems/labguru/yeast-strains?${params.toString()}`);
@@ -7124,7 +7127,7 @@ async function refreshYeastStrains({ append = false } = {}) {
   state.yeastStrains = append ? state.yeastStrains.concat(response.results || []) : (response.results || []);
   state.yeastStrainSearchMeta = {
     total: response.total || 0,
-    limit: response.limit || 50,
+    limit: response.limit || requestedLimit,
     offset: response.offset || 0,
   };
   renderYeastStrains();
@@ -9527,6 +9530,7 @@ if (els.externalCredentialDeleteButton) els.externalCredentialDeleteButton.addEv
 }));
 if (els.yeastStrainSearch) els.yeastStrainSearch.addEventListener("input", queueYeastSearchRefresh);
 if (els.yeastStrainMatch) els.yeastStrainMatch.addEventListener("change", () => refreshYeastStrains().catch((error) => setStatus(String(error))));
+if (els.yeastStrainLimit) els.yeastStrainLimit.addEventListener("change", () => refreshYeastStrains().catch((error) => setStatus(String(error))));
 for (const scopeInput of document.querySelectorAll('input[name="yeast-scope"]')) {
   scopeInput.addEventListener("change", () => refreshYeastStrains().catch((error) => setStatus(String(error))));
 }

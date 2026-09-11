@@ -361,20 +361,74 @@ h3 {
   grid-template-columns: repeat(4, minmax(0, 1fr));
 }
 
+body[data-page="yeast-strains"] .storage-warning-banner {
+  padding: 6px 10px;
+  border-left-width: 3px;
+  font-size: 0.78rem;
+}
+
+body[data-page="yeast-strains"] .admin-content {
+  gap: 6px;
+}
+
+.yeast-hero {
+  align-items: center;
+  padding: 9px 14px;
+}
+
+.yeast-hero .eyebrow {
+  margin-bottom: 2px;
+  font-size: 0.64rem;
+}
+
+.yeast-hero h1 {
+  margin-bottom: 0;
+  font-size: 1.55rem;
+  line-height: 1;
+}
+
+.yeast-hero .hero-copy {
+  display: none;
+}
+
+.yeast-summary-grid {
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.yeast-summary-grid .summary-card {
+  min-height: 54px;
+  padding: 7px 10px;
+}
+
+.yeast-summary-grid .summary-label {
+  font-size: 0.66rem;
+}
+
+.yeast-summary-grid .summary-value,
+.yeast-summary-grid .summary-value.compact-value {
+  margin-top: 2px;
+  font-size: 0.92rem;
+  line-height: 1.2;
+}
+
 .yeast-sync-card {
   display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 8px;
+  flex-flow: row wrap;
+  align-items: center;
+  gap: 2px 8px;
 }
 
 .yeast-sync-card button {
-  margin-top: auto;
+  min-height: 28px;
+  margin-left: auto;
+  padding: 4px 9px;
+  font-size: 0.78rem;
 }
 
 .yeast-sync-progress {
-  margin-top: 12px;
-  padding: 12px 16px;
+  margin-top: 0;
+  padding: 5px 9px;
   border: 1px solid rgba(126, 200, 247, 0.32);
   background: rgba(126, 200, 247, 0.07);
 }
@@ -382,14 +436,14 @@ h3 {
 .yeast-sync-progress-line {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 7px;
   color: #d9efff;
-  font-size: 0.9rem;
+  font-size: 0.78rem;
 }
 
 .yeast-sync-heartbeat {
-  width: 9px;
-  height: 9px;
+  width: 7px;
+  height: 7px;
   border-radius: 50%;
   background: #7ec8f7;
   box-shadow: 0 0 0 0 rgba(126, 200, 247, 0.55);
@@ -397,8 +451,8 @@ h3 {
 }
 
 .yeast-sync-progress-track {
-  height: 3px;
-  margin-top: 10px;
+  height: 2px;
+  margin-top: 4px;
   overflow: hidden;
   background: rgba(255, 255, 255, 0.1);
 }
@@ -459,15 +513,15 @@ h3 {
 }
 
 .yeast-search-panel {
-  padding: 22px;
+  padding: 9px 10px;
 }
 
 .yeast-search-box {
   display: flex;
   align-items: center;
-  gap: 12px;
-  min-height: 62px;
-  padding: 0 18px;
+  gap: 8px;
+  min-height: 42px;
+  padding: 0 11px;
   border: 1px solid #69717d;
   background: #15171b;
   box-shadow: 0 8px 28px rgba(0, 0, 0, 0.3);
@@ -480,7 +534,7 @@ h3 {
 
 .yeast-search-icon {
   color: #b8dfff;
-  font-size: 2rem;
+  font-size: 1.45rem;
   line-height: 1;
 }
 
@@ -491,21 +545,23 @@ h3 {
   outline: 0;
   background: transparent;
   color: var(--ink);
-  font-size: clamp(1.05rem, 2vw, 1.4rem);
+  min-height: 40px;
+  padding: 6px 0;
+  font-size: clamp(0.95rem, 1.4vw, 1.1rem);
 }
 
 .yeast-search-options {
   display: flex;
   justify-content: space-between;
   align-items: end;
-  gap: 18px;
-  margin-top: 18px;
+  gap: 8px;
+  margin-top: 7px;
 }
 
 .yeast-scope-fieldset {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px 16px;
+  gap: 4px 6px;
   margin: 0;
   padding: 0;
   border: 0;
@@ -513,43 +569,61 @@ h3 {
 
 .yeast-scope-fieldset legend {
   width: 100%;
-  margin-bottom: 8px;
+  margin-bottom: 3px;
   color: var(--muted);
-  font-size: 0.82rem;
+  font-size: 0.68rem;
   text-transform: uppercase;
   letter-spacing: 0.08em;
 }
 
 .yeast-scope-fieldset label {
   display: inline-flex;
-  gap: 6px;
+  gap: 4px;
   align-items: center;
-  padding: 7px 10px;
+  padding: 3px 6px;
   border: 1px solid var(--line);
   background: var(--panel-strong);
   cursor: pointer;
 }
 
 .yeast-match-field {
-  min-width: 220px;
+  min-width: 180px;
+}
+
+body[data-page="yeast-strains"] .yeast-limit-field {
+  flex: 0 0 82px;
+  min-width: 82px;
+}
+
+.yeast-search-options .field {
+  gap: 3px;
+}
+
+.yeast-search-options .field span {
+  font-size: 0.68rem;
+}
+
+.yeast-search-options select {
+  min-height: 31px;
+  padding: 4px 8px;
 }
 
 .yeast-result-list {
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  margin-top: 16px;
+  gap: 5px;
+  margin-top: 7px;
 }
 
 .yeast-result-card {
-  padding: 18px 20px;
+  padding: 7px 10px;
   border: 1px solid var(--line);
   border-left: 3px solid #7ec8f7;
   background: var(--panel-strong);
 }
 
 .yeast-result-card-simple {
-  padding: 12px 16px;
+  padding: 7px 10px;
   border-left-width: 2px;
 }
 
@@ -570,40 +644,43 @@ h3 {
 
 .yeast-result-heading {
   display: flex;
-  flex-direction: column;
-  gap: 5px;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
 }
 
 .yeast-result-title {
   width: fit-content;
-  font-size: 1.2rem;
+  font-size: 0.96rem;
   font-weight: 700;
 }
 
 .yeast-result-identifiers {
   color: var(--muted);
-  font-size: 0.85rem;
+  font-size: 0.72rem;
+  text-align: right;
 }
 
 .yeast-context-list {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 7px 18px;
-  margin-top: 14px;
+  gap: 2px 12px;
+  margin-top: 5px;
 }
 
 .yeast-context-row {
   display: grid;
-  grid-template-columns: minmax(90px, 0.3fr) minmax(0, 1fr);
-  gap: 10px;
-  padding-top: 7px;
+  grid-template-columns: minmax(78px, 0.24fr) minmax(0, 1fr);
+  gap: 6px;
+  padding-top: 3px;
   border-top: 1px solid rgba(255, 255, 255, 0.08);
   overflow-wrap: anywhere;
+  font-size: 0.79rem;
 }
 
 .yeast-context-label {
   color: #b8dfff;
-  font-size: 0.8rem;
+  font-size: 0.72rem;
   font-weight: 700;
 }
 
@@ -622,7 +699,7 @@ h3 {
 }
 
 .yeast-raw-details {
-  margin-top: 14px;
+  margin-top: 5px;
 }
 
 .yeast-raw-details summary {
@@ -643,7 +720,25 @@ h3 {
 
 .yeast-more-button {
   display: block;
-  margin: 18px auto 0;
+  min-height: 32px;
+  margin: 8px auto 0;
+  padding: 5px 10px;
+}
+
+body[data-page="yeast-strains"] .yeast-results-panel {
+  padding: 9px 10px;
+}
+
+body[data-page="yeast-strains"] .yeast-results-panel .panel-header {
+  margin-bottom: 4px;
+}
+
+body[data-page="yeast-strains"] .yeast-results-panel .panel-header h2 {
+  font-size: 1rem;
+}
+
+body[data-page="yeast-strains"] .yeast-results-panel .panel-header p {
+  font-size: 0.75rem;
 }
 
 .toolbar,
@@ -1558,10 +1653,24 @@ button:disabled {
     grid-template-columns: 1fr;
   }
 
+  body[data-page="yeast-strains"] .yeast-summary-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
   .yeast-search-options,
   .yeast-context-list {
     display: grid;
     grid-template-columns: 1fr;
+  }
+
+  .yeast-result-heading {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .yeast-result-identifiers {
+    text-align: left;
   }
 
   .layout-grid > .detail-panel {

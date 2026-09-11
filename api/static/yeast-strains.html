@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>DetecDiv Hub - Yeast strains</title>
-    <link rel="stylesheet" href="/web/styles.css?v=20260911-yeast5" />
+    <link rel="stylesheet" href="/web/styles.css?v=20260911-yeast6" />
   </head>
   <body data-page="yeast-strains">
     <div class="page-shell">
@@ -70,10 +70,19 @@
               <span>Words</span>
               <select id="yeast-strain-match"><option value="all">Match every word</option><option value="any">Match at least one word</option></select>
             </label>
+            <label class="field compact yeast-limit-field">
+              <span>Results</span>
+              <select id="yeast-strain-limit">
+                <option value="25">25</option>
+                <option value="50" selected>50</option>
+                <option value="100">100</option>
+                <option value="200">200</option>
+              </select>
+            </label>
           </div>
         </section>
 
-        <section class="panel">
+        <section class="panel yeast-results-panel">
           <div class="panel-header"><div><h2 id="yeast-strain-results-title">All strains</h2><p id="yeast-strain-results-summary" class="muted">Loading the local Labguru index…</p></div></div>
           <div id="yeast-strain-results" class="yeast-result-list"></div>
           <button id="yeast-strain-more-button" class="yeast-more-button hidden">Show more</button>
@@ -82,6 +91,6 @@
 
       <footer class="footer"><div id="status-line">Ready.</div></footer>
     </div>
-    <script src="/web/app.js?v=20260911-yeast5" defer></script>
+    <script src="/web/app.js?v=20260911-yeast6" defer></script>
   </body>
 </html>
