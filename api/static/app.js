@@ -5759,15 +5759,24 @@ function renderYeastStrains() {
     els.yeastStrainSyncButton.textContent = isSynchronizing ? "Synchronizing…" : "Synchronize";
   }
   if (els.yeastStrainSyncProgress) {
-    els.yeastStrainSyncProgress.classList.toggle("hidden", !isSynchronizing);
     const progress = status.job_progress || {};
+    const isComplete = status.job_status === "done";
+    const isFailed = status.job_status === "failed";
+    const showProgress = Boolean(status.job_id) && (isSynchronizing || isComplete || isFailed);
+    els.yeastStrainSyncProgress.classList.toggle("hidden", !showProgress);
+    els.yeastStrainSyncProgress.classList.toggle("is-complete", isComplete);
+    els.yeastStrainSyncProgress.classList.toggle("is-failed", isFailed);
     const processed = Number(progress.processed_count || 0);
     const total = Number(progress.total_count || 0);
     const created = Number(progress.created_count || 0);
     const updated = Number(progress.updated_count || 0);
     const phase = progress.phase || status.job_status || "queued";
     let progressText = phase === "queued" ? "Synchronization queued…" : "Connecting to Labguru…";
-    if (phase === "fetching") {
+    if (isComplete) {
+      progressText = `Synchronization complete · ${processed || total} checked · ${created} new · ${updated} updated`;
+    } else if (isFailed) {
+      progressText = "Synchronization failed. You can retry with Synchronize.";
+    } else if (phase === "fetching") {
       progressText = `${processed} strain${processed === 1 ? "" : "s"} received from Labguru${total ? ` of ${total}` : ""}…`;
     } else if (phase === "synchronizing") {
       progressText = `${processed}${total ? ` / ${total}` : ""} checked · ${created} new · ${updated} updated`;
@@ -5775,9 +5784,10 @@ function renderYeastStrains() {
     if (els.yeastStrainSyncProgressText) els.yeastStrainSyncProgressText.textContent = progressText;
     if (els.yeastStrainSyncProgressBar) {
       const percent = Number(progress.progress_percent);
-      const hasPercent = Number.isFinite(percent) && total > 0;
-      els.yeastStrainSyncProgressBar.style.width = hasPercent ? `${Math.max(2, Math.min(100, percent))}%` : "34%";
-      els.yeastStrainSyncProgressBar.classList.toggle("indeterminate", !hasPercent);
+      const hasPercent = isComplete || (Number.isFinite(percent) && total > 0);
+      const displayedPercent = isComplete ? 100 : percent;
+      els.yeastStrainSyncProgressBar.style.width = hasPercent ? `${Math.max(2, Math.min(100, displayedPercent))}%` : "34%";
+      els.yeastStrainSyncProgressBar.classList.toggle("indeterminate", isSynchronizing && !hasPercent);
     }
   }
 
