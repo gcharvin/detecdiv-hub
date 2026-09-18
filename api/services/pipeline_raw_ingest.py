@@ -41,7 +41,7 @@ def ingest_pipeline_run_raw_dataset(session: Session, *, job: Job) -> dict:
     storage_root = resolve_server_raw_storage_root(session, dataset_dir=dataset_dir)
     if storage_root is None:
         raise ValueError(
-            "Raw-data path is outside every registered server raw storage root: "
+            "Raw-data path is outside every registered server storage root: "
             f"{dataset_dir}"
         )
 
@@ -88,13 +88,19 @@ def ingest_pipeline_run_raw_dataset(session: Session, *, job: Job) -> dict:
 
 
 def resolve_server_raw_storage_root(session: Session, *, dataset_dir: Path) -> StorageRoot | None:
+    """Return the most specific registered server root containing ``dataset_dir``.
+
+    Pipeline submissions request the ingestion of one explicit, server-visible
+    directory.  That directory is safe to catalogue when it is already under a
+    registered server root; whether that root was initially introduced as a
+    project or a raw-data root must not prevent the automatic catalogue step.
+    The root type is retained on the resulting dataset location.
+    """
     candidates = session.scalars(
         select(StorageRoot).where(StorageRoot.host_scope == "server")
     ).all()
     matching: list[StorageRoot] = []
     for root in candidates:
-        if str(root.root_type or "") not in {"raw_root", "raw", "dataset_root"}:
-            continue
         try:
             dataset_dir.relative_to(Path(root.path_prefix).expanduser().resolve())
         except ValueError:
