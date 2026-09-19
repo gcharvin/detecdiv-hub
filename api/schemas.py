@@ -1960,3 +1960,20 @@ class DashboardSummary(HubBaseModel):
     group_count: int = 0
     deleted_projects: int = 0
     health: list[DashboardHealthBucket] = Field(default_factory=list)
+
+
+class AssistantStatusResponse(HubBaseModel):
+    enabled: bool
+    configured: bool
+    model: str | None = None
+    message: str
+
+
+class AssistantChatRequest(HubBaseModel):
+    message: str = Field(min_length=1, max_length=12000)
+    mode: str = Field(default="chat", pattern="^(chat|translation)$")
+
+
+class AssistantChatResponse(HubBaseModel):
+    answer: str
+    model: str

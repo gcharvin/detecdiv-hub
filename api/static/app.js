@@ -548,6 +548,9 @@ function getSidebarActiveRoute() {
   if (pageKind === "yeast-strains") {
     return "yeast-strains";
   }
+  if (pageKind === "assistant") {
+    return "assistant";
+  }
   if (pageKind === "indexing") {
     return "projects-settings";
   }
@@ -679,6 +682,12 @@ function initializeAppLayout() {
         label: "Execution",
         items: [
           { label: "Targets & Queue", href: "/web/admin-execution-targets.html", route: "admin-execution-targets" },
+        ],
+      },
+      {
+        label: "AI",
+        items: [
+          { label: "Assistant", href: "/web/assistant.html", route: "assistant" },
         ],
       },
     ];

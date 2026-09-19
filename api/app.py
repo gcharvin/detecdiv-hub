@@ -1,37 +1,39 @@
-from pathlib import Path
 import socket
+from pathlib import Path
 
 from fastapi import FastAPI
 from fastapi.responses import RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from sqlalchemy import text
 
-from api.db import SessionLocal
 from api.config import get_settings
+from api.db import SessionLocal
 from api.routes_acquisition_sessions import router as acquisition_sessions_router
-from api.routes_experiments import router as experiments_router
+from api.routes_assistant import router as assistant_router
 from api.routes_auth import router as auth_router
+from api.routes_backup import router as backup_router
 from api.routes_dashboard import router as dashboard_router
 from api.routes_execution_targets import router as execution_targets_router
+from api.routes_experiments import router as experiments_router
 from api.routes_external_systems import router as external_systems_router
 from api.routes_indexing import router as indexing_router
 from api.routes_jobs import router as jobs_router
-from api.routes_migrations import router as migrations_router
 from api.routes_micromanager_ingest import router as micromanager_ingest_router
-from api.routes_pipelines import router as pipelines_router
+from api.routes_migrations import router as migrations_router
 from api.routes_pipeline_runs import router as pipeline_runs_router
-from api.routes_backup import router as backup_router
-from api.routes_projects import groups_router, router as projects_router, storage_roots_router, users_router
+from api.routes_pipelines import router as pipelines_router
+from api.routes_projects import groups_router, storage_roots_router, users_router
+from api.routes_projects import router as projects_router
 from api.routes_raw_datasets import router as raw_datasets_router
 from api.routes_storage import router as storage_router
 from api.schemas import HealthResponse
 from api.services.runtime_version import get_runtime_version_info
 from api.services.system_storage import collect_disk_usage, configured_disk_paths
 
-
 settings = get_settings()
 app = FastAPI(title=settings.app_name, version="0.1.0")
 app.include_router(auth_router)
+app.include_router(assistant_router)
 app.include_router(backup_router)
 app.include_router(acquisition_sessions_router)
 app.include_router(experiments_router)

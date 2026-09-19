@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>DetecDiv Hub — Assistant</title>
+    <link rel="stylesheet" href="/web/styles.css?v=20260919-assistant1" />
+  </head>
+  <body data-page="assistant">
+    <div class="page-shell">
+      <aside class="sidebar-shell">
+        <div class="sidebar-brand">
+          <div class="eyebrow">DetecDiv Hub</div>
+          <h2>Navigation</h2>
+          <p class="muted">Projets, données, calcul et assistant.</p>
+        </div>
+        <div class="sidebar-auth"></div>
+        <div class="session-box hidden">
+          <div id="session-label" class="muted">Non connecté.</div>
+          <button id="logout-button">Déconnexion</button>
+        </div>
+        <nav class="sidebar-menu" aria-label="Navigation principale"></nav>
+      </aside>
+
+      <div class="main-content">
+        <section id="login-panel" class="panel login-panel hidden">
+          <div class="panel-header"><div><h2>Connexion</h2><p class="muted">Ouvrir une session Hub.</p></div></div>
+          <div class="toolbar">
+            <label class="field compact"><span>Identifiant</span><input id="login-user-key" type="text" /></label>
+            <label class="field compact"><span>Mot de passe</span><input id="login-password" type="password" /></label>
+            <button id="login-button" class="primary">Connexion</button>
+          </div>
+        </section>
+
+        <header class="hero">
+          <div>
+            <div class="eyebrow">IA locale</div>
+            <h1>Assistant Qwen</h1>
+            <p class="hero-copy">Discussion et traduction sur l’infrastructure DetecDiv. Cette première version n’accède ni aux fichiers ni aux jobs.</p>
+          </div>
+        </header>
+
+        <section class="panel assistant-panel">
+          <div class="panel-header">
+            <div><h2>Conversation</h2><p id="assistant-status" class="muted">Vérification du service…</p></div>
+            <label class="field compact"><span>Mode</span>
+              <select id="assistant-mode"><option value="chat">Discussion</option><option value="translation">Traduction</option></select>
+            </label>
+          </div>
+          <div id="assistant-messages" class="assistant-messages" aria-live="polite"></div>
+          <form id="assistant-form" class="assistant-form">
+            <label class="field"><span>Votre message</span><textarea id="assistant-message" maxlength="12000" placeholder="Écrivez une question ou un texte à traduire…" required></textarea></label>
+            <div class="assistant-actions"><span id="assistant-feedback" class="muted"></span><button id="assistant-send" class="primary" type="submit">Envoyer</button></div>
+          </form>
+        </section>
+      </div>
+    </div>
+    <script src="/web/app.js?v=20260919-assistant1" defer></script>
+    <script src="/web/assistant.js?v=20260919-assistant1" defer></script>
+  </body>
+</html>

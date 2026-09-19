@@ -1,0 +1,18 @@
+[Unit]
+Description=DetecDiv Hub local Qwen inference service
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=charvin-admin
+WorkingDirectory=/home/charvin-admin/repos/detecdiv-hub-webvm
+EnvironmentFile=/etc/detecdiv-hub/qwen.env
+ExecStart=/home/charvin-admin/repos/detecdiv-hub-webvm/ops/scripts/run-qwen-server.sh
+Restart=on-failure
+RestartSec=10
+TimeoutStopSec=45
+Nice=10
+
+[Install]
+WantedBy=multi-user.target

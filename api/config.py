@@ -1,5 +1,5 @@
-from functools import lru_cache
 import getpass
+from functools import lru_cache
 
 from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -24,6 +24,16 @@ class Settings(BaseSettings):
     log_level: str = "INFO"
     disk_monitor_paths: str = "/,/data"
     disk_warning_threshold_percent: int = 95
+    assistant_enabled: bool = False
+    assistant_qwen_base_url: str = ""
+    assistant_qwen_model: str = ""
+    assistant_request_timeout_sec: float = 90.0
+    assistant_max_message_chars: int = 12000
+    assistant_max_response_tokens: int = 2048
+    assistant_gpu_arbitration_enabled: bool = False
+    assistant_qwen_service_name: str = "detecdiv-qwen.service"
+    assistant_systemctl_command: str = "/usr/bin/systemctl"
+    assistant_sudo_command: str = "/usr/bin/sudo"
     worker_poll_interval_sec: float = 5.0
     default_user_key: str = "localdev"
     auto_provision_users: bool = True

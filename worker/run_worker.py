@@ -31,6 +31,12 @@ from api.services.worker_instances import (
 from worker.archive_policy_scheduler import run_archive_policy_if_due
 from worker.backup_executor import BACKUP_JOB_KINDS, execute_backup_job, finalize_backup_failure
 from worker.backup_scheduler import run_backup_if_due
+from worker.gpu_arbitration import (
+    GpuArbitrationError,
+    job_requires_gpu,
+    pause_qwen_for_gpu_job,
+    resume_qwen_if_gpu_is_idle,
+)
 from worker.misc_storage_inventory import execute_misc_storage_inventory_job
 from worker.micromanager_ingest_scheduler import run_micromanager_ingest_if_due
 from worker.pipeline_run_executor import PipelineRunCancelled, execute_pipeline_run_job
@@ -265,6 +271,7 @@ def mark_job_done(job_id, result_json: dict) -> None:
             last_job_status="done",
             last_job=job,
         )
+        resume_qwen_if_gpu_is_idle(session, settings=settings)
 
 
 def mark_job_failed(job_id, error_text: str) -> None:
@@ -300,6 +307,7 @@ def mark_job_failed(job_id, error_text: str) -> None:
             last_job=job,
             error_text=error_text,
         )
+        resume_qwen_if_gpu_is_idle(session, settings=settings)
 
 
 def mark_job_cancelled(job_id, message: str) -> None:
@@ -336,6 +344,7 @@ def mark_job_cancelled(job_id, message: str) -> None:
             last_job_status="cancelled",
             last_job=job,
         )
+        resume_qwen_if_gpu_is_idle(session, settings=settings)
 
 
 def execute_job(job: Job) -> dict:
@@ -346,6 +355,11 @@ def execute_job(job: Job) -> dict:
             job_record = session.get(Job, job.id)
             if job_record is None:
                 raise ValueError(f"Job {job.id} disappeared before execution")
+            if job_requires_gpu(session, job=job_record):
+                try:
+                    pause_qwen_for_gpu_job(settings=get_settings())
+                except GpuArbitrationError as exc:
+                    raise RuntimeError(f"GPU arbitration blocked this pipeline job: {exc}") from exc
             result_json = execute_pipeline_run_job(session, job=job_record)
             result_json["worker_instance"] = get_worker_instance_id()
             return result_json
