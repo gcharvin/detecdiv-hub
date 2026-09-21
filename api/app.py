@@ -21,6 +21,7 @@ from api.routes_jobs import router as jobs_router
 from api.routes_micromanager_ingest import router as micromanager_ingest_router
 from api.routes_migrations import router as migrations_router
 from api.routes_pipeline_runs import router as pipeline_runs_router
+from api.routes_legacy_matlab import router as legacy_matlab_router
 from api.routes_pipelines import router as pipelines_router
 from api.routes_projects import groups_router, storage_roots_router, users_router
 from api.routes_projects import router as projects_router
@@ -49,6 +50,7 @@ app.include_router(external_systems_router)
 app.include_router(execution_targets_router)
 app.include_router(jobs_router)
 app.include_router(pipeline_runs_router)
+app.include_router(legacy_matlab_router)
 app.include_router(pipelines_router)
 app.include_router(indexing_router)
 app.include_router(dashboard_router)
