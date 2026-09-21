@@ -240,6 +240,18 @@ canonical raw dataset only after worker-side indexing verifies the landing-zone
 content. Large image data should move through storage, not through the FastAPI
 API.
 
+### Raw-image compression policy
+
+The TIFF optimization workflow applies only to legacy uncompressed TIFF
+sequences. It must not be applied to `pymmcore-plus` acquisitions stored as
+OME-Zarr: these are chunked Zarr v2/v3 stores, whose per-array codec pipeline
+is declared in `.zarray` or `zarr.json`. OME-Zarr writers can use codecs such
+as `blosc-zstd`, `blosc-lz4`, or `zstd`, but can also be configured with no
+compression. Before considering any storage change for this format, a
+worker-side, read-only inventory must record the declared codecs, chunk/shard
+layout, and physical-versus-logical size. The hub must never rewrite an
+OME-Zarr store with a generic TIFF or archive compressor.
+
 Archive destination resolution:
 
 - first use the request-level `archive_uri` if provided
