@@ -1161,8 +1161,8 @@ def queue_raw_dataset_storage_optimization(
     raw_dataset = ensure_raw_dataset_readable(db.get(RawDataset, raw_dataset_id), current_user)
     if raw_dataset.completeness_status != "complete":
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Only complete datasets can be optimized")
-    if raw_dataset.storage_optimization_status in {"queued", "running"}:
-        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="A storage optimization run is already active")
+    if raw_dataset.storage_optimization_status in {"queued", "running", "completed"}:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="This dataset already has a completed or active storage optimization run")
     run = StorageOptimizationRun(raw_dataset_id=raw_dataset.id, requested_by_user_id=current_user.id, requested_by=current_user.user_key, scope_kind="raw_dataset", status="queued", codec=payload.codec)
     db.add(run)
     db.flush()

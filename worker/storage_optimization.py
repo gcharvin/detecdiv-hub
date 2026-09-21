@@ -3,12 +3,14 @@ from __future__ import annotations
 
 import os
 import subprocess
+from hashlib import sha256
 from datetime import datetime, timezone
 from pathlib import Path
 from uuid import UUID
 
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session, joinedload
+import tifffile
 
 from api.models import Job, RawDataset, StorageOptimizationFile, StorageOptimizationRun
 from api.services.raw_dataset_lifecycle import pick_preferred_raw_location, resolve_raw_location_path
@@ -124,6 +126,9 @@ def _compress_one(item: StorageOptimizationFile, path: Path) -> None:
         if not _is_deflate_tiff(tmp):
             raise RuntimeError("Temporary TIFF does not report AdobeDeflate")
         _assert_same_pixels(path, tmp)
+        protected_metadata = _protected_metadata_digest(path)
+        if protected_metadata != _protected_metadata_digest(tmp):
+            raise RuntimeError("Temporary TIFF changed protected ImageJ/Micro-Manager metadata")
         output_bytes = tmp.stat().st_size
         if output_bytes >= item.source_bytes:
             item.status, item.output_bytes, item.saved_bytes, item.completed_at = "skipped", output_bytes, 0, now
@@ -133,7 +138,7 @@ def _compress_one(item: StorageOptimizationFile, path: Path) -> None:
         os.replace(tmp, path)
         item.status, item.output_bytes = "completed", output_bytes
         item.saved_bytes, item.completed_at = item.source_bytes - output_bytes, now
-        item.verification_json = {"codec": "deflate", "predictor": 2, "atomic_replace": True}
+        item.verification_json = {"codec": "deflate", "predictor": 2, "atomic_replace": True, "protected_metadata_sha256": protected_metadata}
     except Exception as exc:
         item.status, item.error_text = "failed", str(exc)
     finally:
@@ -149,9 +154,43 @@ def _is_deflate_tiff(path: Path) -> bool:
 def _assert_same_pixels(source: Path, target: Path) -> None:
     """tiffcmp compares decoded samples; the Compression tag difference is expected."""
     result = subprocess.run(["tiffcmp", str(source), str(target)], capture_output=True, text=True)
-    unexpected = [line for line in result.stdout.splitlines() if line.strip() and not line.lstrip().startswith("Compression:")]
-    if unexpected:
+    output = "\n".join(part for part in (result.stdout, result.stderr) if part).splitlines()
+    expected = (
+        "Compression:",
+        "TIFFReadDirectory: Warning, Unknown field with tag 50838",
+        "TIFFReadDirectory: Warning, Unknown field with tag 50839",
+    )
+    unexpected = [line for line in output if line.strip() and not line.lstrip().startswith(expected)]
+    if result.returncode or unexpected:
         raise RuntimeError("TIFF pixel verification failed: " + " | ".join(unexpected[:3]))
+
+
+def _protected_metadata_digest(path: Path) -> str:
+    """Digest metadata that makes these ImageJ/Micro-Manager frames interpretable.
+
+    TIFF layout and compression tags are expected to change.  ImageDescription
+    and the two Micro-Manager metadata tags (50838/50839) must be byte-for-byte
+    identical on every page before the atomic replacement is allowed.
+    """
+    digest = sha256()
+    with tifffile.TiffFile(path) as image:
+        for page_index, page in enumerate(image.pages):
+            digest.update(f"page:{page_index};".encode("ascii"))
+            for code in (270, 50838, 50839):
+                tag = page.tags.get(code)
+                if tag is None:
+                    digest.update(f"{code}:missing;".encode("ascii"))
+                    continue
+                digest.update(f"{code}:{tag.dtype}:{tag.count}:".encode("ascii"))
+                value = tag.value
+                if isinstance(value, bytes):
+                    digest.update(value)
+                elif isinstance(value, str):
+                    digest.update(value.encode("utf-8"))
+                else:
+                    digest.update(repr(value).encode("utf-8"))
+                digest.update(b";")
+    return digest.hexdigest()
 
 
 def _refresh_run(session: Session, *, run: StorageOptimizationRun, raw: RawDataset) -> None:

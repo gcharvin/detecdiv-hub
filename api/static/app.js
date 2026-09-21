@@ -240,6 +240,7 @@ const els = {
   rawPositionViewerVideo: document.querySelector("#raw-position-viewer-video"),
   rawPositionViewerOpenLink: document.querySelector("#raw-position-viewer-open-link"),
   rawLifecycleEvents: document.querySelector("#raw-lifecycle-events"),
+  rawStorageOptimizeButton: document.querySelector("#raw-storage-optimize-button"),
   rawPreviewArchiveButton: document.querySelector("#raw-preview-archive-button"),
   rawArchiveButton: document.querySelector("#raw-archive-button"),
   rawDeleteArchiveButton: document.querySelector("#raw-delete-archive-button"),
@@ -4279,6 +4280,10 @@ function renderRawDatasetDetail() {
       els.changeRawOwnerButton.disabled = true;
     }
     if (els.rawPreviewArchiveButton) els.rawPreviewArchiveButton.disabled = true;
+    if (els.rawStorageOptimizeButton) {
+      els.rawStorageOptimizeButton.classList.add("hidden");
+      els.rawStorageOptimizeButton.disabled = true;
+    }
     if (els.rawArchiveButton) els.rawArchiveButton.disabled = true;
     if (els.rawDeleteArchiveButton) els.rawDeleteArchiveButton.disabled = true;
     if (els.rawRestoreButton) els.rawRestoreButton.disabled = true;
@@ -4321,6 +4326,9 @@ function renderRawDatasetDetail() {
       ["Archive status", raw.archive_status],
       ["Archive URI", raw.archive_uri || ""],
       ["Compression", raw.archive_compression || ""],
+      ["TIFF optimization", (raw.storage_optimization_status || "none").replaceAll("_", " ")],
+      ["TIFF storage saved", humanBytes(raw.storage_optimization_saved_bytes || 0)],
+      ["TIFF optimized at", raw.storage_optimized_at ? formatTimestamp(raw.storage_optimized_at) : "never"],
       ["Archive size", humanBytes(raw.archive_file_bytes || 0)],
       ["Reclaimable", humanBytes(raw.reclaimable_bytes)],
       ["Total size", humanBytes(raw.total_bytes)],
@@ -4381,6 +4389,15 @@ function renderRawDatasetDetail() {
   renderRawPositionViewer(isDedicatedRawPage ? (raw.positions || []) : []);
   renderRawLifecycleEvents(isDedicatedRawPage ? (raw.lifecycle_events || []) : []);
   if (els.rawPreviewArchiveButton) els.rawPreviewArchiveButton.disabled = false;
+  if (els.rawStorageOptimizeButton) {
+    const optimizationStatus = raw.storage_optimization_status || "none";
+    const canOptimize = isAdmin() && ["none", "partial", "failed", "cancelled"].includes(optimizationStatus);
+    els.rawStorageOptimizeButton.classList.toggle("hidden", !isAdmin());
+    els.rawStorageOptimizeButton.disabled = !canOptimize;
+    els.rawStorageOptimizeButton.title = canOptimize
+      ? "Queue a resumable, low-priority TIFF DEFLATE optimization run"
+      : `TIFF optimization is ${optimizationStatus.replaceAll("_", " ")}.`;
+  }
   if (els.rawArchiveButton) els.rawArchiveButton.disabled = false;
   if (els.rawDeleteArchiveButton) els.rawDeleteArchiveButton.disabled = !raw.archive_uri;
   if (els.rawRestoreButton) els.rawRestoreButton.disabled = false;
@@ -4396,6 +4413,11 @@ function renderRawDatasetDetail() {
     setRawActionFeedback(`Latest lifecycle action failed: ${raw.archive_status}.`, "warn");
   } else {
     setRawActionFeedback("");
+  }
+  if (["queued", "running"].includes(raw.storage_optimization_status)) {
+    setRawActionFeedback(`TIFF optimization ${raw.storage_optimization_status}; the worker processes short, drain-safe chunks.`, "ok");
+  } else if (raw.storage_optimization_status === "partial" || raw.storage_optimization_status === "failed") {
+    setRawActionFeedback(`TIFF optimization ${raw.storage_optimization_status}. Review the run before retrying.`, "warn");
   }
   els.rawDetailSubtitle.textContent = raw.acquisition_label;
   if (els.rawDatasetPageTitle) {
@@ -9270,6 +9292,30 @@ async function createUser() {
   setStatus(`Created user ${userKey}.`);
 }
 
+async function queueRawStorageOptimization() {
+  const raw = state.selectedRawDatasetDetail || state.selectedRawDataset;
+  if (!raw?.id) {
+    return;
+  }
+  if (!isAdmin()) {
+    throw new Error("Only administrators can optimize raw dataset storage.");
+  }
+  if (!["none", "partial", "failed", "cancelled"].includes(raw.storage_optimization_status || "none")) {
+    throw new Error(`TIFF optimization is already ${raw.storage_optimization_status}.`);
+  }
+  const ok = window.confirm(
+    `Queue lossless TIFF DEFLATE optimization for ${raw.acquisition_label}?\n\nThe worker validates decoded pixels and Micro-Manager metadata before each atomic replacement. Work is low priority and split into short chunks, so draining workers pauses safely between chunks.`
+  );
+  if (!ok) {
+    return;
+  }
+  const result = await apiPost(`/raw-datasets/${raw.id}/storage-optimization`, { codec: "deflate" });
+  await refreshRawDatasets();
+  await selectRawDataset(raw.id);
+  setRawActionFeedback("TIFF optimization queued. It will start when a storage-visible worker is available.", "ok");
+  setStatus(`TIFF optimization queued as run ${result.id}.`);
+}
+
 async function editUser(user) {
   const adminFields = hasAdminPrivileges()
     ? [
@@ -9770,6 +9816,10 @@ if (els.rawPreviewQualitySaveButton) els.rawPreviewQualitySaveButton.addEventLis
 if (els.rawPreviewQualityFrameMode) els.rawPreviewQualityFrameMode.addEventListener("change", updateRawPreviewFrameModeUi);
 if (els.changeRawOwnerButton) els.changeRawOwnerButton.addEventListener("click", () => changeRawDatasetOwner().catch((error) => setStatus(String(error))));
 if (els.rawArchiveButton) els.rawArchiveButton.addEventListener("click", () => requestRawArchive().catch((error) => setStatus(String(error))));
+if (els.rawStorageOptimizeButton) els.rawStorageOptimizeButton.addEventListener("click", () => queueRawStorageOptimization().catch((error) => {
+  setStatus(String(error));
+  window.alert(String(error));
+}));
 if (els.rawDeleteArchiveButton) els.rawDeleteArchiveButton.addEventListener("click", () => deleteRawArchive().catch((error) => setStatus(String(error))));
 if (els.rawRestoreButton) els.rawRestoreButton.addEventListener("click", () => requestRawRestore().catch((error) => setStatus(String(error))));
 if (els.rawDeleteDatasetButton) els.rawDeleteDatasetButton.addEventListener("click", () => deleteRawDatasetFromDetail().catch((error) => {
