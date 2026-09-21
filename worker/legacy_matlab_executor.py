@@ -16,6 +16,7 @@ from sqlalchemy.orm import Session
 from api.config import get_settings
 from api.models import Job
 from worker.executors.matlab_executor import build_matlab_batch_command, run_matlab_command
+from worker.pipeline_run_executor import resolve_project_mat_path
 
 
 LEGACY_CODE_ROOT = Path("/data/Alexander/code/gillestest").resolve()
@@ -40,6 +41,8 @@ def execute_legacy_matlab_job(session: Session, *, job: Job) -> dict:
         raise ValueError(f"legacy_matlab routine must be under {LEGACY_CODE_ROOT}") from exc
     if not routine_path.is_file():
         raise ValueError(f"legacy_matlab routine does not exist: {routine_path}")
+    if not job.project_id:
+        raise ValueError("legacy_matlab jobs must be attached to a DetecDiv project.")
 
     with tempfile.TemporaryDirectory(prefix="detecdiv_legacy_matlab_") as tmpdir:
         tmp = Path(tmpdir)
@@ -47,7 +50,13 @@ def execute_legacy_matlab_job(session: Session, *, job: Job) -> dict:
         payload_path = tmp / "job.json"
         stdout_path = tmp / "matlab_stdout.log"
         stderr_path = tmp / "matlab_stderr.log"
-        payload.update({"job_id": str(job.id), "result_json_path": str(result_path)})
+        payload.update(
+            {
+                "job_id": str(job.id),
+                "project_mat_path": resolve_project_mat_path(session, project_id=job.project_id),
+                "result_json_path": str(result_path),
+            }
+        )
         payload_path.write_text(json.dumps(payload, indent=2), encoding="utf-8")
         entrypoint = (
             "detecdiv_hub_run_legacy_matlab_job(" + matlab_quote(str(payload_path)) + ")"
