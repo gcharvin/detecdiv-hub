@@ -249,6 +249,10 @@ class RawDataset(Base):
     backup_excluded: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
     last_backup_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     backup_snapshot_id: Mapped[str | None] = mapped_column(Text)
+    storage_optimization_status: Mapped[str] = mapped_column(String, nullable=False, default="none")
+    storage_optimization_run_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True))
+    storage_optimization_saved_bytes: Mapped[int] = mapped_column(BIGINT, nullable=False, default=0)
+    storage_optimized_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
 
     owner: Mapped[User | None] = relationship(back_populates="owned_raw_datasets")
     locations: Mapped[list["RawDatasetLocation"]] = relationship(back_populates="raw_dataset")
@@ -489,6 +493,10 @@ class Project(Base):
     backup_excluded: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
     last_backup_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     backup_snapshot_id: Mapped[str | None] = mapped_column(Text)
+    storage_optimization_status: Mapped[str] = mapped_column(String, nullable=False, default="none")
+    storage_optimization_run_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True))
+    storage_optimization_saved_bytes: Mapped[int] = mapped_column(BIGINT, nullable=False, default=0)
+    storage_optimized_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
 
     owner: Mapped[User | None] = relationship(back_populates="owned_projects")
     experiment_project: Mapped[ExperimentProject | None] = relationship(back_populates="analysis_projects")
@@ -788,6 +796,52 @@ class Job(Base):
     raw_dataset: Mapped[RawDataset | None] = relationship()
     artifacts: Mapped[list["Artifact"]] = relationship(back_populates="job")
     project_locks: Mapped[list[ProjectLock]] = relationship(back_populates="job")
+
+
+class StorageOptimizationRun(Base):
+    __tablename__ = "storage_optimization_runs"
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    raw_dataset_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True), ForeignKey("raw_datasets.id", ondelete="CASCADE"))
+    project_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True), ForeignKey("detecdiv_projects.id", ondelete="CASCADE"))
+    requested_by_user_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="SET NULL"))
+    requested_by: Mapped[str | None] = mapped_column(String)
+    scope_kind: Mapped[str] = mapped_column(String, nullable=False)
+    status: Mapped[str] = mapped_column(String, nullable=False, default="queued")
+    codec: Mapped[str] = mapped_column(String, nullable=False, default="deflate")
+    policy_version: Mapped[str] = mapped_column(String, nullable=False, default="v1")
+    source_bytes: Mapped[int] = mapped_column(BIGINT, nullable=False, default=0)
+    output_bytes: Mapped[int] = mapped_column(BIGINT, nullable=False, default=0)
+    saved_bytes: Mapped[int] = mapped_column(BIGINT, nullable=False, default=0)
+    total_files: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    completed_files: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    failed_files: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    metadata_json: Mapped[dict] = mapped_column(JSONB, nullable=False, default=dict)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    started_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    finished_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
+
+
+class StorageOptimizationFile(Base):
+    __tablename__ = "storage_optimization_files"
+    __table_args__ = (UniqueConstraint("run_id", "relative_path", name="uq_storage_optimization_files_run_path"),)
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    run_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("storage_optimization_runs.id", ondelete="CASCADE"), nullable=False)
+    job_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True), ForeignKey("jobs.id", ondelete="SET NULL"))
+    relative_path: Mapped[str] = mapped_column(Text, nullable=False)
+    file_format: Mapped[str] = mapped_column(String, nullable=False)
+    status: Mapped[str] = mapped_column(String, nullable=False, default="pending")
+    source_bytes: Mapped[int] = mapped_column(BIGINT, nullable=False, default=0)
+    output_bytes: Mapped[int | None] = mapped_column(BIGINT)
+    saved_bytes: Mapped[int] = mapped_column(BIGINT, nullable=False, default=0)
+    attempts: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    error_text: Mapped[str | None] = mapped_column(Text)
+    verification_json: Mapped[dict] = mapped_column(JSONB, nullable=False, default=dict)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
+    completed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
 
 
 class WorkerInstance(Base):

@@ -41,6 +41,7 @@ from worker.misc_storage_inventory import execute_misc_storage_inventory_job
 from worker.micromanager_ingest_scheduler import run_micromanager_ingest_if_due
 from worker.pipeline_run_executor import PipelineRunCancelled, execute_pipeline_run_job
 from worker.storage_lifecycle import execute_storage_lifecycle_job, finalize_storage_lifecycle_failure
+from worker.storage_optimization import execute_storage_optimization_job, finalize_storage_optimization_failure
 from worker.user_home_storage import execute_user_home_storage_job, finalize_user_home_storage_failure
 
 
@@ -381,6 +382,14 @@ def execute_job(job: Job) -> dict:
             result_json = execute_storage_lifecycle_job(session, job=job_record)
             result_json["worker_instance"] = get_worker_instance_id()
             return result_json
+    if job_kind in {"storage_optimization_scan", "storage_optimization_chunk"}:
+        with session_scope() as session:
+            job_record = session.get(Job, job.id)
+            if job_record is None:
+                raise ValueError(f"Storage optimization job {job.id} disappeared before execution")
+            result_json = execute_storage_optimization_job(session, job=job_record)
+            result_json["worker_instance"] = get_worker_instance_id()
+            return result_json
     if job_kind == "project_deletion":
         with session_scope() as session:
             job_record = session.get(Job, job.id)
@@ -579,6 +588,7 @@ def run_forever() -> None:
                 job_record = session.get(Job, job.id)
                 if job_record is not None:
                     finalize_storage_lifecycle_failure(session, job=job_record, error_text=str(exc))
+                    finalize_storage_optimization_failure(session, job=job_record, error_text=str(exc))
                     finalize_backup_failure(session, job=job_record, error_text=str(exc))
                     finalize_user_home_storage_failure(session, job=job_record, error_text=str(exc))
                     finalize_project_deletion_failure(session, job=job_record, error_text=str(exc))

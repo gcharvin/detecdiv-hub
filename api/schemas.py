@@ -532,6 +532,10 @@ class RawDatasetSummary(HubBaseModel):
     backup_status: str = "none"
     backup_excluded: bool = False
     last_backup_at: datetime | None = None
+    storage_optimization_status: str = "none"
+    storage_optimization_run_id: UUID | None = None
+    storage_optimization_saved_bytes: int = 0
+    storage_optimized_at: datetime | None = None
 
 
 class RawDatasetAcquisitionTemplateSummary(HubBaseModel):
@@ -1070,6 +1074,31 @@ class RawDatasetUpdate(HubBaseModel):
     archive_uri: str | None = None
     archive_compression: str | None = None
     metadata_json: dict[str, Any] | None = None
+
+
+class StorageOptimizationRequest(HubBaseModel):
+    """Admin-confirmed request. Filesystem discovery happens on the worker."""
+
+    codec: str = Field(default="deflate", pattern="^deflate$")
+
+
+class StorageOptimizationRunSummary(HubBaseModel):
+    id: UUID
+    raw_dataset_id: UUID | None = None
+    project_id: UUID | None = None
+    scope_kind: str
+    status: str
+    codec: str
+    source_bytes: int = 0
+    output_bytes: int = 0
+    saved_bytes: int = 0
+    total_files: int = 0
+    completed_files: int = 0
+    failed_files: int = 0
+    created_at: datetime | None = None
+    started_at: datetime | None = None
+    finished_at: datetime | None = None
+    updated_at: datetime | None = None
 
 
 class RawDatasetArchiveRequest(HubBaseModel):

@@ -8,7 +8,7 @@ from sqlalchemy import func, or_, select
 from sqlalchemy.orm import Session, joinedload, load_only
 
 from api.db import get_db
-from api.models import Artifact, Job, Project, ProjectRawLink, RawDataset, RawDatasetLocation, RawDatasetPosition, StorageLifecycleEvent, User
+from api.models import Artifact, Job, Project, ProjectRawLink, RawDataset, RawDatasetLocation, RawDatasetPosition, StorageLifecycleEvent, StorageOptimizationRun, User
 from api.schemas import (
     ArchivePolicyAutomaticConfig,
     ArchivePolicyAutomaticRunRequest,
@@ -53,6 +53,8 @@ from api.schemas import (
     RawPreviewQualityUpdate,
     RawDatasetSummary,
     RawDatasetUpdate,
+    StorageOptimizationRequest,
+    StorageOptimizationRunSummary,
     ProjectSummary,
     StorageLifecycleEventSummary,
 )
@@ -1075,6 +1077,7 @@ def bulk_archive_raw_datasets(
             )
         )
 
+
     for raw_dataset_id in unique_raw_dataset_ids:
         raw_dataset = raw_datasets_by_id.get(raw_dataset_id)
         if raw_dataset is None:
@@ -1144,6 +1147,36 @@ def bulk_archive_raw_datasets(
         skipped_details=skipped_details,
         message=f"Queued {len(queued_raw_dataset_ids)} archive request(s).",
     )
+
+
+@router.post("/{raw_dataset_id}/storage-optimization", response_model=StorageOptimizationRunSummary, status_code=status.HTTP_202_ACCEPTED)
+def queue_raw_dataset_storage_optimization(
+    raw_dataset_id: UUID,
+    payload: StorageOptimizationRequest,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> StorageOptimizationRun:
+    """Queue worker-side TIFF discovery; the API deliberately never scans storage."""
+    ensure_archive_policy_admin(current_user)
+    raw_dataset = ensure_raw_dataset_readable(db.get(RawDataset, raw_dataset_id), current_user)
+    if raw_dataset.completeness_status != "complete":
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Only complete datasets can be optimized")
+    if raw_dataset.storage_optimization_status in {"queued", "running"}:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="A storage optimization run is already active")
+    run = StorageOptimizationRun(raw_dataset_id=raw_dataset.id, requested_by_user_id=current_user.id, requested_by=current_user.user_key, scope_kind="raw_dataset", status="queued", codec=payload.codec)
+    db.add(run)
+    db.flush()
+    raw_dataset.storage_optimization_status, raw_dataset.storage_optimization_run_id = "queued", run.id
+    db.add(Job(raw_dataset_id=raw_dataset.id, requested_mode="server", priority=20, requested_by=current_user.user_key, requested_from_host="api", params_json={"job_kind": "storage_optimization_scan", "storage_optimization_run_id": str(run.id)}, status="queued"))
+    db.commit()
+    db.refresh(run)
+    return run
+
+
+@router.get("/{raw_dataset_id}/storage-optimization", response_model=list[StorageOptimizationRunSummary])
+def list_raw_dataset_storage_optimization_runs(raw_dataset_id: UUID, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)) -> list[StorageOptimizationRun]:
+    ensure_raw_dataset_readable(db.get(RawDataset, raw_dataset_id), current_user)
+    return list(db.scalars(select(StorageOptimizationRun).where(StorageOptimizationRun.raw_dataset_id == raw_dataset_id).order_by(StorageOptimizationRun.created_at.desc())))
 
 
 @router.post("/restore-bulk", response_model=RawDatasetRestoreBulkResult)
@@ -1400,6 +1433,10 @@ def raw_dataset_summary_view(raw_dataset: RawDataset) -> RawDatasetSummary:
             "backup_status": raw_dataset.backup_status,
             "backup_excluded": raw_dataset.backup_excluded,
             "last_backup_at": raw_dataset.last_backup_at,
+            "storage_optimization_status": raw_dataset.storage_optimization_status,
+            "storage_optimization_run_id": raw_dataset.storage_optimization_run_id,
+            "storage_optimization_saved_bytes": raw_dataset.storage_optimization_saved_bytes,
+            "storage_optimized_at": raw_dataset.storage_optimized_at,
         }
     )
 
@@ -1430,6 +1467,10 @@ def raw_dataset_catalog_summary_view(raw_dataset: RawDataset, *, position_count:
             "backup_status": raw_dataset.backup_status,
             "backup_excluded": raw_dataset.backup_excluded,
             "last_backup_at": raw_dataset.last_backup_at,
+            "storage_optimization_status": raw_dataset.storage_optimization_status,
+            "storage_optimization_run_id": raw_dataset.storage_optimization_run_id,
+            "storage_optimization_saved_bytes": raw_dataset.storage_optimization_saved_bytes,
+            "storage_optimized_at": raw_dataset.storage_optimized_at,
         }
     )
 
