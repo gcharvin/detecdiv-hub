@@ -3133,10 +3133,17 @@ function renderExecutionTargetWorkerPanels(target) {
       const currentJobStatus = currentJob?.status || workerHealth.current_job_status || "";
       const currentJobStartedAt = currentJob?.started_at || workerHealth.current_job_started_at || null;
       const currentUserKey = currentJob?.requested_by || "";
+      const currentProjectId = currentJob?.project_id ? String(currentJob.project_id) : "";
+      const currentJobLabel = currentJobId
+        ? `${escapeHtml(shortText(currentJobId, 10))}${currentJob ? ` (${escapeHtml(shortText(currentJobKind, 18))})` : ""}`
+        : "";
+      const currentProjectLink = currentProjectId
+        ? ` <a href="/web/project.html?id=${encodeURIComponent(currentProjectId)}" title="Open the related project">Project</a>`
+        : "";
       tr.innerHTML = `
         <td>${workerId}</td>
         <td>${workerHealth.health || "unknown"}</td>
-        <td>${currentJobId ? `${shortText(currentJobId, 10)}${currentJob ? ` (${shortText(currentJobKind, 18)})` : ""}` : ""}</td>
+        <td>${currentJobLabel}${currentProjectLink}</td>
         <td>${currentUserKey ? userLabelForKey(currentUserKey) : ""}</td>
         <td>${currentJobKind}</td>
         <td>${currentJobStatus}</td>
