@@ -2950,6 +2950,43 @@ function jobKindLabel(job) {
   return String(raw).replaceAll("_", " ");
 }
 
+function jobKindGroupLabel(job) {
+  const kind = typeof job === "string"
+    ? job
+    : (job?.params_json?.job_kind || job?.job_kind || "generic");
+  if (["storage_optimization_scan", "storage_optimization_chunk"].includes(String(kind))) {
+    return "TIFF storage optimization";
+  }
+  return String(kind).replaceAll("_", " ");
+}
+
+function groupedQueuedJobs(jobs) {
+  const grouped = new Map();
+  for (const job of jobs) {
+    const kind = String(job?.params_json?.job_kind || "generic");
+    const runId = job?.params_json?.storage_optimization_run_id;
+    const key = ["storage_optimization_scan", "storage_optimization_chunk"].includes(kind) && runId
+      ? `storage_optimization:${runId}`
+      : `job:${job.id}`;
+    const group = grouped.get(key);
+    if (group) {
+      group.jobs.push(job);
+    } else {
+      grouped.set(key, { jobs: [job], runId: runId || null });
+    }
+  }
+  return [...grouped.values()].map(({ jobs: runJobs, runId }) => {
+    const first = runJobs[0];
+    return runId
+      ? {
+          ...first,
+          displayId: `Run ${shortText(String(runId), 10)}`,
+          displayKind: `TIFF storage optimization (${runJobs.length} queued step${runJobs.length === 1 ? "" : "s"})`,
+        }
+      : { ...first, displayId: shortText(String(first.id), 12), displayKind: jobKindLabel(first) };
+  });
+}
+
 function effectiveJobPriority(job) {
   const kind = String(job?.params_json?.job_kind || "generic");
   const configured = (state.jobPrioritySettings?.items || []).find((item) => item.job_kind === kind);
@@ -3166,11 +3203,11 @@ function renderExecutionTargetWorkerPanels(target) {
       if (priorityDelta !== 0) return priorityDelta;
       return new Date(a.created_at) - new Date(b.created_at);
     });
-    for (const job of sortedQueued) {
+    for (const job of groupedQueuedJobs(sortedQueued)) {
       const tr = document.createElement("tr");
       tr.innerHTML = `
-        <td>${shortText(String(job.id), 12)}</td>
-        <td>${jobKindLabel(job)}</td>
+        <td>${escapeHtml(job.displayId)}</td>
+        <td>${escapeHtml(job.displayKind)}</td>
         <td>${job.requested_by ? userLabelForKey(job.requested_by) : ""}</td>
         <td>${formatTimestamp(job.created_at)}</td>
         <td>${effectiveJobPriority(job)}</td>
@@ -3183,7 +3220,7 @@ function renderExecutionTargetWorkerPanels(target) {
     els.executionTargetJobMixTableBody.innerHTML = "";
     const grouped = new Map();
     for (const job of targetJobs) {
-      const kind = jobKindLabel(job);
+      const kind = jobKindGroupLabel(job);
       if (!grouped.has(kind)) {
         grouped.set(kind, {
           kind,
@@ -3208,7 +3245,7 @@ function renderExecutionTargetWorkerPanels(target) {
       }
     }
     for (const { workerHealth } of workerEntries) {
-      const kind = jobKindLabel(workerHealth.current_job_kind || "");
+      const kind = jobKindGroupLabel(workerHealth.current_job_kind || "");
       if (!kind) {
         continue;
       }
