@@ -2988,9 +2988,17 @@ function groupedQueuedJobs(jobs) {
   });
 }
 
-function effectiveJobPriority(job) {
+function jobPrioritySettingKey(job) {
   const kind = String(job?.params_json?.job_kind || "generic");
-  const configured = (state.jobPrioritySettings?.items || []).find((item) => item.job_kind === kind);
+  if (["storage_optimization_scan", "storage_optimization_chunk"].includes(kind)) {
+    return "storage_optimization";
+  }
+  return kind;
+}
+
+function effectiveJobPriority(job) {
+  const settingKey = jobPrioritySettingKey(job);
+  const configured = (state.jobPrioritySettings?.items || []).find((item) => item.job_kind === settingKey);
   return configured?.priority ?? job?.priority ?? "";
 }
 
@@ -3196,7 +3204,7 @@ function renderExecutionTargetWorkerPanels(target) {
   if (els.executionTargetQueuedJobsTableBody) {
     els.executionTargetQueuedJobsTableBody.innerHTML = "";
     const allQueued = state.jobs.filter((job) =>
-      job.status === "queued" &&
+      normalizedJobStatus(job) === "queued" &&
       (job.execution_target_id == null || String(job.execution_target_id) === String(target.id))
     );
     const sortedQueued = [...allQueued].sort((a, b) => {

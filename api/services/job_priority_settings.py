@@ -8,7 +8,6 @@ from sqlalchemy.orm import Session
 from api.models import Job, SystemSetting
 from api.services.raw_preview_settings import ensure_system_settings_table
 
-
 JOB_PRIORITY_SETTING_KEY = "job_priority_settings"
 MIN_JOB_PRIORITY = 0
 MAX_JOB_PRIORITY = 10_000
@@ -21,6 +20,7 @@ JOB_PRIORITY_DEFINITIONS: tuple[tuple[str, str, int], ...] = (
     ("raw_dataset_deletion", "Raw dataset deletion", 20),
     ("raw_dataset_position_deletion", "Raw position deletion", 20),
     ("project_indexing", "Project indexing", 30),
+    ("storage_optimization", "TIFF storage optimization", 20),
     ("restore_raw_dataset", "Raw archive restore", 30),
     ("misc_storage_inventory", "Storage inventory", 30),
     ("restore_raw_dataset_from_backup", "Raw backup restore", 50),
@@ -37,6 +37,16 @@ JOB_PRIORITY_DEFINITIONS: tuple[tuple[str, str, int], ...] = (
     ("list_snapshot_dir", "List backup snapshot", 200),
 )
 
+# These internal steps are presented as one scheduling class in the admin UI:
+# users should be able to prioritize a dataset's scan and its follow-up chunks
+# together without exposing implementation-level jobs as separate settings.
+JOB_PRIORITY_KIND_ALIASES: dict[str, tuple[str, ...]] = {
+    "storage_optimization": (
+        "storage_optimization_scan",
+        "storage_optimization_chunk",
+    ),
+}
+
 
 @dataclass(frozen=True)
 class JobPriorityRuntimeConfig:
@@ -44,6 +54,10 @@ class JobPriorityRuntimeConfig:
 
     def priority_for(self, job_kind: str | None, *, requested_priority: int) -> int:
         normalized_kind = str(job_kind or "generic").strip() or "generic"
+        for setting_key, aliases in JOB_PRIORITY_KIND_ALIASES.items():
+            if normalized_kind in aliases:
+                normalized_kind = setting_key
+                break
         return int(self.priorities.get(normalized_kind, requested_priority))
 
 
@@ -90,11 +104,12 @@ def update_job_priority_runtime_config(
 
 def effective_job_priority_expression(config: JobPriorityRuntimeConfig):
     job_kind = Job.params_json["job_kind"].as_string()
-    rules = [
-        (job_kind == key, priority)
-        for key, priority in config.priorities.items()
-        if key != "generic"
-    ]
+    rules = []
+    for key, priority in config.priorities.items():
+        if key == "generic":
+            continue
+        aliases = JOB_PRIORITY_KIND_ALIASES.get(key, (key,))
+        rules.append((job_kind.in_(aliases), priority))
     rules.append((job_kind.is_(None), config.priorities["generic"]))
     return case(*rules, else_=Job.priority)
 
