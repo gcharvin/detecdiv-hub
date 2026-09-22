@@ -1,6 +1,7 @@
 """Resumable, low-priority TIFF DEFLATE optimization for storage-visible workers."""
 from __future__ import annotations
 
+import logging
 import os
 import subprocess
 import struct
@@ -17,6 +18,7 @@ from api.models import Job, RawDataset, StorageOptimizationFile, StorageOptimiza
 from api.services.raw_dataset_lifecycle import pick_preferred_raw_location, resolve_raw_location_path
 
 CHUNK_FILE_LIMIT = 25
+logger = logging.getLogger(__name__)
 
 
 def execute_storage_optimization_job(session: Session, *, job: Job) -> dict:
@@ -100,7 +102,7 @@ def _run_chunk(session: Session, *, job: Job, run_id: UUID) -> dict:
     session.flush()
     for item in files:
         _compress_one(item, source / item.relative_path)
-    _refresh_run(session, run=run, raw=raw)
+    _refresh_run(session, run=run, raw=raw, source=source)
     if run.status == "running":
         _queue_chunk(session, run=run, raw=raw, exclude_job_id=job.id)
     return {"run_id": str(run.id), "status": run.status, "completed_files": run.completed_files, "failed_files": run.failed_files, "saved_bytes": run.saved_bytes}
@@ -276,7 +278,7 @@ def _protected_metadata_digest(path: Path) -> str:
     return digest.hexdigest()
 
 
-def _refresh_run(session: Session, *, run: StorageOptimizationRun, raw: RawDataset) -> None:
+def _refresh_run(session: Session, *, run: StorageOptimizationRun, raw: RawDataset, source: Path) -> None:
     rows = session.execute(select(StorageOptimizationFile.status, func.count(), func.coalesce(func.sum(StorageOptimizationFile.output_bytes), 0), func.coalesce(func.sum(StorageOptimizationFile.saved_bytes), 0)).where(StorageOptimizationFile.run_id == run.id).group_by(StorageOptimizationFile.status)).all()
     totals = {status: (int(count), int(output), int(saved)) for status, count, output, saved in rows}
     run.completed_files = sum(totals.get(status, (0, 0, 0))[0] for status in ("completed", "skipped"))
@@ -291,6 +293,36 @@ def _refresh_run(session: Session, *, run: StorageOptimizationRun, raw: RawDatas
     raw.storage_optimization_status = run.status
     raw.storage_optimization_saved_bytes = run.saved_bytes
     raw.storage_optimized_at = run.finished_at
+    metadata = dict(run.metadata_json or {})
+    try:
+        raw.total_bytes = _measure_directory_size(source)
+        raw.last_size_scan_at = run.finished_at
+        metadata["size_recalculation"] = {
+            "status": "completed",
+            "total_bytes": raw.total_bytes,
+            "measured_at": run.finished_at.isoformat(),
+        }
+    except OSError as exc:
+        metadata["size_recalculation"] = {
+            "status": "failed",
+            "error": str(exc),
+            "attempted_at": run.finished_at.isoformat(),
+        }
+        logger.exception("Could not refresh raw dataset size after TIFF optimization run %s", run.id)
+    run.metadata_json = metadata
+
+
+def _measure_directory_size(path: Path) -> int:
+    """Measure the full dataset tree, failing instead of publishing a partial sum."""
+    total = 0
+
+    def raise_walk_error(error: OSError) -> None:
+        raise error
+
+    for root, _directories, files in os.walk(path, onerror=raise_walk_error):
+        for filename in files:
+            total += (Path(root) / filename).stat().st_size
+    return total
 
 
 def _queue_chunk(session: Session, *, run: StorageOptimizationRun, raw: RawDataset, exclude_job_id: UUID | None = None) -> None:
