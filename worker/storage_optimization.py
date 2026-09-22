@@ -148,8 +148,11 @@ def _compress_one(item: StorageOptimizationFile, path: Path) -> None:
 
 
 def _is_deflate_tiff(path: Path) -> bool:
-    result = subprocess.run(["tiffinfo", str(path)], capture_output=True, text=True)
-    return "Compression Scheme: AdobeDeflate" in result.stdout
+    try:
+        with tifffile.TiffFile(path) as image:
+            return all(int(page.tags[259].value) in {8, 32946} for page in image.pages)
+    except (OSError, KeyError, ValueError):
+        return False
 
 
 def _write_deflate_tiff(source: Path, target: Path) -> None:
@@ -174,7 +177,7 @@ def _write_deflate_tiff(source: Path, target: Path) -> None:
             photometric=page.photometric,
             description=page.description,
             metadata=None,
-            compression="deflate",
+            compression="adobe_deflate",
             predictor=True,
             byteorder=image.byteorder,
             subfiletype=page.subfiletype,
