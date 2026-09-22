@@ -33,6 +33,7 @@ from worker.backup_executor import BACKUP_JOB_KINDS, execute_backup_job, finaliz
 from worker.backup_scheduler import run_backup_if_due
 from worker.gpu_arbitration import (
     GpuArbitrationError,
+    execute_assistant_control_job,
     job_requires_gpu,
     pause_qwen_for_gpu_job,
     resume_qwen_if_gpu_is_idle,
@@ -352,6 +353,15 @@ def mark_job_cancelled(job_id, message: str) -> None:
 def execute_job(job: Job) -> dict:
     job_kind = (job.params_json or {}).get("job_kind")
     LOGGER.info("Executing job %s on host %s instance %s", job.id, socket.gethostname(), get_worker_instance_id())
+    if job_kind == "assistant_service_control":
+        with session_scope() as session:
+            job_record = session.get(Job, job.id)
+            if job_record is None:
+                raise ValueError(f"Assistant control job {job.id} disappeared before execution")
+            result_json = execute_assistant_control_job(session, job=job_record, settings=get_settings())
+            result_json["worker_host"] = socket.gethostname()
+            result_json["worker_instance"] = get_worker_instance_id()
+            return result_json
     if job_kind == "pipeline_run":
         with session_scope() as session:
             job_record = session.get(Job, job.id)

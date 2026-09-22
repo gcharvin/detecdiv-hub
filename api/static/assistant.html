@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>DetecDiv Hub — Assistant</title>
-    <link rel="stylesheet" href="/web/styles.css?v=20260919-assistant1" />
+    <link rel="stylesheet" href="/web/styles.css?v=20260922-assistant-chat-polish1" />
   </head>
   <body data-page="assistant">
     <div class="page-shell">
@@ -53,9 +53,23 @@
             <div class="assistant-actions"><span id="assistant-feedback" class="muted"></span><button id="assistant-send" class="primary" type="submit">Envoyer</button></div>
           </form>
         </section>
+
+        <section id="assistant-admin-controls" class="panel assistant-admin-controls hidden">
+          <div class="panel-header">
+            <div>
+              <h2>Service du modèle</h2>
+              <p class="muted">Contrôle réservé aux administrateurs. L’ordre passe par un worker du serveur GPU.</p>
+            </div>
+          </div>
+          <div class="assistant-admin-actions">
+            <button id="assistant-start-model" class="primary" type="button">Démarrer Qwen</button>
+            <button id="assistant-stop-model" class="danger" type="button">Arrêter Qwen</button>
+            <span id="assistant-control-feedback" class="muted" role="status" aria-live="polite"></span>
+          </div>
+        </section>
       </div>
     </div>
-    <script src="/web/app.js?v=20260919-assistant1" defer></script>
-    <script src="/web/assistant.js?v=20260919-assistant1" defer></script>
+    <script src="/web/app.js?v=20260922-assistant-chat-polish1" defer></script>
+    <script src="/web/assistant.js?v=20260922-assistant-chat-polish1" defer></script>
   </body>
 </html>

@@ -12,6 +12,25 @@ server receives text, not Hub credentials, filesystem paths, database access,
 shell access, or DetecDiv job controls. Storage search and job preparation
 will be separate, audited tools added later.
 
+## Administrator start/stop control
+
+Administrators can start or stop Qwen from the Assistant page. The request is
+stored as the desired state and queued as a Hub job for the configured GPU
+worker target; the API VM never runs `systemctl` on the compute host. Starting
+is refused while a Hub GPU pipeline job is active. When GPU arbitration is
+enabled, pipeline completion only restarts Qwen if its desired state is still
+`running`.
+
+The same API can be controlled from a shell with `ops/scripts/qwen-control.sh`.
+Set `DETECDIV_HUB_URL` to the Hub API base URL and `DETECDIV_HUB_TOKEN` to an
+administrator session token, then run `bash ops/scripts/qwen-control.sh status`,
+`start`, or `stop`. Start/stop print the queued job; the status command reports the
+service's current and desired state. Treat the token as a password and do not
+put it in shell history or a shared script.
+
+The worker host still needs the narrow passwordless sudoers rule shown below.
+Without it, the control job fails safely and reports an error in the Hub.
+
 ## GPU host installation
 
 Do this on `detecdiv-server` during an agreed maintenance window. The service

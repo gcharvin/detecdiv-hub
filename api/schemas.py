@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from datetime import date, datetime
-from typing import Any
+from typing import Any, Literal
 from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, Field
@@ -1994,8 +1994,16 @@ class DashboardSummary(HubBaseModel):
 class AssistantStatusResponse(HubBaseModel):
     enabled: bool
     configured: bool
+    running: bool = False
+    desired_state: Literal["running", "stopped"] = "running"
+    control_pending: bool = False
+    can_control: bool = False
     model: str | None = None
     message: str
+
+
+class AssistantControlRequest(HubBaseModel):
+    action: Literal["start", "stop"]
 
 
 class AssistantChatRequest(HubBaseModel):

@@ -8,6 +8,10 @@ from sqlalchemy.orm import Session
 
 from api.config import Settings
 from api.models import ExecutionTarget, Job
+from api.services.assistant_control import (
+    ASSISTANT_CONTROL_JOB_KIND,
+    get_assistant_desired_state,
+)
 
 LOGGER = logging.getLogger("detecdiv-hub-worker")
 
@@ -41,6 +45,8 @@ def pause_qwen_for_gpu_job(*, settings: Settings) -> None:
 def resume_qwen_if_gpu_is_idle(session: Session, *, settings: Settings) -> None:
     if not settings.assistant_gpu_arbitration_enabled:
         return
+    if get_assistant_desired_state(session) != "running":
+        return
     active_jobs = session.scalars(
         select(Job).where(Job.status.in_(("running", "cancelling")))
     ).all()
@@ -52,6 +58,31 @@ def resume_qwen_if_gpu_is_idle(session: Session, *, settings: Settings) -> None:
         # A completed DetecDiv job must not be marked failed merely because the
         # optional assistant did not restart. Operators can restart it manually.
         LOGGER.exception("Could not resume Qwen after GPU jobs completed")
+
+
+def execute_assistant_control_job(session: Session, *, job: Job, settings: Settings) -> dict:
+    params = dict(job.params_json or {})
+    if params.get("job_kind") != ASSISTANT_CONTROL_JOB_KIND:
+        raise GpuArbitrationError("Invalid Qwen control job.")
+    action = str(params.get("action") or "")
+    if action not in {"start", "stop"}:
+        raise GpuArbitrationError("Invalid Qwen control action.")
+    if action == "start":
+        active_jobs = session.scalars(
+            select(Job).where(
+                Job.id != job.id,
+                Job.status.in_(("running", "cancelling")),
+            )
+        ).all()
+        if any(job_requires_gpu(session, job=active_job) for active_job in active_jobs):
+            raise GpuArbitrationError("Qwen cannot start while a Hub GPU job is running.")
+    _run_systemctl(settings=settings, action=action)
+    return {
+        "job_kind": ASSISTANT_CONTROL_JOB_KIND,
+        "action": action,
+        "service": settings.assistant_qwen_service_name,
+        "message": f"Qwen service {action} request applied.",
+    }
 
 
 def _run_systemctl(*, settings: Settings, action: str) -> None:
