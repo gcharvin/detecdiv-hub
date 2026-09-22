@@ -1170,7 +1170,7 @@ def queue_raw_dataset_storage_optimization(
     db.add(run)
     db.flush()
     raw_dataset.storage_optimization_status, raw_dataset.storage_optimization_run_id = "queued", run.id
-    db.add(Job(raw_dataset_id=raw_dataset.id, requested_mode="server", priority=20, requested_by=current_user.user_key, requested_from_host="api", params_json={"job_kind": "storage_optimization", "storage_optimization_run_id": str(run.id)}, status="queued"))
+    db.add(Job(raw_dataset_id=raw_dataset.id, requested_mode="server", priority=200, requested_by=current_user.user_key, requested_from_host="api", params_json={"job_kind": "storage_optimization", "storage_optimization_run_id": str(run.id)}, status="queued"))
     db.commit()
     db.refresh(run)
     return run
@@ -1253,7 +1253,7 @@ def queue_bulk_raw_dataset_storage_optimization(
         db.add(Job(
             raw_dataset_id=raw_dataset.id,
             requested_mode="server",
-            priority=20,
+            priority=200,
             requested_by=current_user.user_key,
             requested_from_host="api",
             params_json={

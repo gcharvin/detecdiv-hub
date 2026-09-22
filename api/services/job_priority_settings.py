@@ -20,7 +20,7 @@ JOB_PRIORITY_DEFINITIONS: tuple[tuple[str, str, int], ...] = (
     ("raw_dataset_deletion", "Raw dataset deletion", 20),
     ("raw_dataset_position_deletion", "Raw position deletion", 20),
     ("project_indexing", "Project indexing", 30),
-    ("storage_optimization", "TIFF storage optimization", 20),
+    ("storage_optimization", "TIFF storage optimization", 200),
     ("restore_raw_dataset", "Raw archive restore", 30),
     ("misc_storage_inventory", "Storage inventory", 30),
     ("restore_raw_dataset_from_backup", "Raw backup restore", 50),

@@ -2975,8 +2975,9 @@ function groupedQueuedJobs(jobs) {
   for (const job of jobs) {
     const kind = String(job?.params_json?.job_kind || "generic");
     const runId = job?.params_json?.storage_optimization_run_id;
-    const key = ["storage_optimization", "storage_optimization_scan", "storage_optimization_chunk"].includes(kind) && runId
-      ? `storage_optimization:${runId}`
+    const datasetId = job?.raw_dataset_id;
+    const key = ["storage_optimization", "storage_optimization_scan", "storage_optimization_chunk"].includes(kind) && (datasetId || runId)
+      ? `storage_optimization:${datasetId || runId}`
       : `job:${job.id}`;
     const group = grouped.get(key);
     if (group) {
@@ -2991,7 +2992,7 @@ function groupedQueuedJobs(jobs) {
       ? {
           ...first,
           displayId: jobDisplayId(first),
-          displayKind: `TIFF storage optimization (${runJobs.length} queued step${runJobs.length === 1 ? "" : "s"})`,
+          displayKind: "TIFF storage optimization",
         }
       : { ...first, displayId: jobDisplayId(first), displayKind: jobKindLabel(first) };
   });

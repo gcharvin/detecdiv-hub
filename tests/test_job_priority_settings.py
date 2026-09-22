@@ -34,9 +34,9 @@ def test_default_priorities_put_archives_behind_normal_jobs_and_previews():
     assert config.priority_for("pipeline_run", requested_priority=999) == 10
     assert config.priority_for("raw_preview_video", requested_priority=999) == 100
     assert config.priority_for("archive_raw_dataset", requested_priority=40) == 150
-    assert config.priority_for("storage_optimization_scan", requested_priority=999) == 20
-    assert config.priority_for("storage_optimization_chunk", requested_priority=999) == 20
-    assert config.priority_for("storage_optimization", requested_priority=999) == 20
+    assert config.priority_for("storage_optimization_scan", requested_priority=999) == 200
+    assert config.priority_for("storage_optimization_chunk", requested_priority=999) == 200
+    assert config.priority_for("storage_optimization", requested_priority=999) == 200
     assert config.priority_for("unregistered_kind", requested_priority=77) == 77
 
 

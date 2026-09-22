@@ -14,10 +14,19 @@ from sqlalchemy import func, select
 from sqlalchemy.orm import Session, joinedload
 import tifffile
 
-from api.models import Job, RawDataset, StorageOptimizationFile, StorageOptimizationRun
+from api.models import (
+    Job,
+    RawDataset,
+    StorageOptimizationFile,
+    StorageOptimizationRun,
+    StorageOptimizationScanDirectory,
+)
 from api.services.raw_dataset_lifecycle import pick_preferred_raw_location, resolve_raw_location_path
 
-CHUNK_FILE_LIMIT = 25
+# Yield to higher-priority work after each TIFF and each directory. This keeps
+# long campaigns from occupying every worker for a whole batch at a time.
+CHUNK_FILE_LIMIT = 1
+SCAN_DIRECTORY_LIMIT = 1
 STORAGE_OPTIMIZATION_JOB_KINDS = {
     "storage_optimization",
     "storage_optimization_scan",
@@ -29,11 +38,7 @@ logger = logging.getLogger(__name__)
 def execute_storage_optimization_job(session: Session, *, job: Job) -> dict:
     kind = (job.params_json or {}).get("job_kind")
     run_id = UUID(str((job.params_json or {}).get("storage_optimization_run_id")))
-    if kind == "storage_optimization_scan":
-        _scan_run(session, run_id=run_id, queue_next=False)
-        _promote_to_stable_job(job)
-        return _run_stable_optimization(session, job=job, run_id=run_id)
-    if kind in {"storage_optimization", "storage_optimization_chunk"}:
+    if kind in STORAGE_OPTIMIZATION_JOB_KINDS:
         _promote_to_stable_job(job)
         return _run_stable_optimization(session, job=job, run_id=run_id)
     raise ValueError(f"Unsupported storage optimization job: {kind}")
@@ -70,43 +75,144 @@ def _load_run(session: Session, run_id: UUID) -> tuple[StorageOptimizationRun, R
     return run, raw, source
 
 
-def _scan_run(session: Session, *, run_id: UUID, queue_next: bool = True) -> dict:
+def _scan_run(session: Session, *, run_id: UUID) -> dict:
     run, raw, source = _load_run(session, run_id)
     if run.status not in {"queued", "scanning"}:
-        return {"run_id": str(run.id), "status": run.status, "message": "Run already planned."}
+        return {
+            "run_id": str(run.id),
+            "status": run.status,
+            "scan_complete": bool((run.metadata_json or {}).get("scan_complete")),
+        }
+
+    metadata = dict(run.metadata_json or {})
+    if metadata.get("scan_complete"):
+        return {"run_id": str(run.id), "status": run.status, "scan_complete": True}
+
     run.status = "scanning"
     raw.storage_optimization_status = "running"
     run.started_at = run.started_at or datetime.now(timezone.utc)
+
+    if not metadata.get("scan_initialized"):
+        session.add(StorageOptimizationScanDirectory(run_id=run.id, relative_path=""))
+        metadata["scan_initialized"] = True
+        metadata["scan_directories_completed"] = 0
+        metadata["scan_total_bytes"] = 0
+        run.metadata_json = metadata
     session.flush()
-    count = 0
-    total = 0
-    for candidate in source.rglob("*"):
-        if not candidate.is_file() or candidate.suffix.lower() not in {".tif", ".tiff"}:
-            continue
-        relative_path = str(candidate.relative_to(source))
-        source_bytes = candidate.stat().st_size
-        session.add(StorageOptimizationFile(run_id=run.id, relative_path=relative_path, file_format="tiff", source_bytes=source_bytes))
-        count += 1
-        total += source_bytes
-        if count % 500 == 0:
-            session.flush()
-    run.total_files = count
-    run.source_bytes = total
-    run.status = "queued"
-    if queue_next:
-        _queue_chunk(session, run=run, raw=raw)
-    return {"run_id": str(run.id), "status": run.status, "total_files": count, "source_bytes": total}
+
+    directories = list(
+        session.scalars(
+            select(StorageOptimizationScanDirectory)
+            .where(
+                StorageOptimizationScanDirectory.run_id == run.id,
+                StorageOptimizationScanDirectory.status == "pending",
+            )
+            .order_by(StorageOptimizationScanDirectory.relative_path)
+            .limit(SCAN_DIRECTORY_LIMIT)
+            .with_for_update(skip_locked=True)
+        )
+    )
+    for directory in directories:
+        directory.status = "running"
+        session.flush()
+        relative_directory = Path(directory.relative_path) if directory.relative_path else Path()
+        absolute_directory = source / relative_directory
+        child_directories, tiff_files, directory_bytes = _scan_directory_entries(
+            absolute_directory,
+            relative_directory,
+        )
+        for child in child_directories:
+            session.add(StorageOptimizationScanDirectory(run_id=run.id, relative_path=child))
+        for relative_path, source_bytes in tiff_files:
+            session.add(
+                StorageOptimizationFile(
+                    run_id=run.id,
+                    relative_path=relative_path,
+                    file_format="tiff",
+                    source_bytes=source_bytes,
+                )
+            )
+            run.total_files += 1
+            run.source_bytes += source_bytes
+        metadata["scan_total_bytes"] = int(metadata.get("scan_total_bytes", 0)) + directory_bytes
+        metadata["scan_directories_completed"] = int(metadata.get("scan_directories_completed", 0)) + 1
+        directory.status = "completed"
+        directory.completed_at = datetime.now(timezone.utc)
+        session.flush()
+
+    remaining = session.scalar(
+        select(func.count())
+        .select_from(StorageOptimizationScanDirectory)
+        .where(
+            StorageOptimizationScanDirectory.run_id == run.id,
+            StorageOptimizationScanDirectory.status.in_(("pending", "running")),
+        )
+    )
+    scan_complete = int(remaining or 0) == 0
+    if scan_complete:
+        metadata["scan_complete"] = True
+        run.status = "queued"
+    else:
+        run.status = "scanning"
+    run.metadata_json = metadata
+    session.flush()
+    return {
+        "run_id": str(run.id),
+        "status": run.status,
+        "scan_complete": scan_complete,
+        "scan_directories_completed": metadata["scan_directories_completed"],
+        "scan_directories_remaining": int(remaining or 0),
+        "total_files": run.total_files,
+        "source_bytes": run.source_bytes,
+    }
+
+
+def _scan_directory_entries(
+    directory: Path,
+    relative_directory: Path,
+) -> tuple[list[str], list[tuple[str, int]], int]:
+    """Inspect one directory and return child directories, TIFFs, and all-file bytes."""
+    child_directories: list[str] = []
+    tiff_files: list[tuple[str, int]] = []
+    total_bytes = 0
+    with os.scandir(directory) as entries:
+        for entry in entries:
+            relative_path = relative_directory / entry.name
+            if entry.is_dir(follow_symlinks=False):
+                child_directories.append(relative_path.as_posix())
+                continue
+            if not entry.is_file(follow_symlinks=True):
+                continue
+            source_bytes = entry.stat(follow_symlinks=True).st_size
+            total_bytes += source_bytes
+            if Path(entry.name).suffix.lower() in {".tif", ".tiff"} and not entry.is_symlink():
+                tiff_files.append((relative_path.as_posix(), source_bytes))
+    return child_directories, tiff_files, total_bytes
 
 
 def _run_stable_optimization(session: Session, *, job: Job, run_id: UUID) -> dict:
-    run = session.get(StorageOptimizationRun, run_id)
+    # A dataset may still have duplicate legacy queue rows. Serialize them on
+    # the run record so only one worker advances its scan/compression at once.
+    run = session.scalar(
+        select(StorageOptimizationRun).where(StorageOptimizationRun.id == run_id).with_for_update()
+    )
     if run is None:
         raise ValueError(f"Storage optimization run {run_id} is missing")
+    if run.status in {"cancelled", "completed", "failed"}:
+        return {"run_id": str(run.id), "status": run.status}
     planned_files = session.scalar(
         select(func.count()).select_from(StorageOptimizationFile).where(StorageOptimizationFile.run_id == run.id)
     )
-    if not planned_files and run.status in {"queued", "scanning"}:
-        _scan_run(session, run_id=run_id, queue_next=False)
+    metadata = dict(run.metadata_json or {})
+    # Runs scanned by the original all-at-once implementation already have a
+    # complete file plan, even though they have no scan-directory records.
+    legacy_plan_complete = bool(planned_files) and not metadata.get("scan_initialized")
+    if run.status in {"queued", "scanning"} and not metadata.get("scan_complete") and not legacy_plan_complete:
+        scan_result = _scan_run(session, run_id=run_id)
+        return {**scan_result, "requeue": True}
+    if legacy_plan_complete:
+        metadata["scan_complete"] = True
+        run.metadata_json = metadata
     result = _run_chunk(session, job=job, run_id=run_id, queue_next=False)
     if result["status"] == "running":
         result["requeue"] = True
@@ -324,13 +430,23 @@ def _refresh_run(session: Session, *, run: StorageOptimizationRun, raw: RawDatas
     raw.storage_optimization_saved_bytes = run.saved_bytes
     raw.storage_optimized_at = run.finished_at
     metadata = dict(run.metadata_json or {})
+    scan_total_bytes = metadata.get("scan_total_bytes")
     try:
-        raw.total_bytes = _measure_directory_size(source)
+        if metadata.get("scan_complete") and scan_total_bytes is not None:
+            # The completed inventory is our size snapshot; subtract only the
+            # verified per-file savings instead of walking the huge tree again.
+            raw.total_bytes = max(0, int(scan_total_bytes) - run.saved_bytes)
+            method = "scan_inventory_minus_verified_savings"
+        else:
+            # Compatibility fallback for runs planned by older worker versions.
+            raw.total_bytes = _measure_directory_size(source)
+            method = "full_directory_walk"
         raw.last_size_scan_at = run.finished_at
         metadata["size_recalculation"] = {
             "status": "completed",
             "total_bytes": raw.total_bytes,
             "measured_at": run.finished_at.isoformat(),
+            "method": method,
         }
     except OSError as exc:
         metadata["size_recalculation"] = {
@@ -362,4 +478,4 @@ def _queue_chunk(session: Session, *, run: StorageOptimizationRun, raw: RawDatas
     exists = session.scalar(stmt)
     if exists:
         return
-    session.add(Job(raw_dataset_id=raw.id, requested_mode="server", priority=20, requested_by=run.requested_by, requested_from_host="storage_optimization", params_json={"job_kind": "storage_optimization_chunk", "storage_optimization_run_id": str(run.id)}, status="queued"))
+    session.add(Job(raw_dataset_id=raw.id, requested_mode="server", priority=200, requested_by=run.requested_by, requested_from_host="storage_optimization", params_json={"job_kind": "storage_optimization_chunk", "storage_optimization_run_id": str(run.id)}, status="queued"))
