@@ -36,6 +36,7 @@ def test_default_priorities_put_archives_behind_normal_jobs_and_previews():
     assert config.priority_for("archive_raw_dataset", requested_priority=40) == 150
     assert config.priority_for("storage_optimization_scan", requested_priority=999) == 20
     assert config.priority_for("storage_optimization_chunk", requested_priority=999) == 20
+    assert config.priority_for("storage_optimization", requested_priority=999) == 20
     assert config.priority_for("unregistered_kind", requested_priority=77) == 77
 
 
@@ -46,6 +47,7 @@ def test_storage_optimization_priority_is_one_setting_for_scan_and_chunks():
 
     assert config.priority_for("storage_optimization_scan", requested_priority=20) == 45
     assert config.priority_for("storage_optimization_chunk", requested_priority=20) == 45
+    assert config.priority_for("storage_optimization", requested_priority=20) == 45
 
     sql = str(
         priorities.effective_job_priority_expression(config).compile(
@@ -54,6 +56,7 @@ def test_storage_optimization_priority_is_one_setting_for_scan_and_chunks():
     )
     assert "storage_optimization_scan" in sql
     assert "storage_optimization_chunk" in sql
+    assert "storage_optimization" in sql
 
 
 def test_stored_priorities_override_defaults_and_validate_updates():

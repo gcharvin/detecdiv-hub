@@ -2951,11 +2951,20 @@ function jobKindLabel(job) {
   return String(raw).replaceAll("_", " ");
 }
 
+function jobDisplayId(job) {
+  const kind = String(job?.params_json?.job_kind || job?.job_kind || "generic");
+  const runId = job?.params_json?.storage_optimization_run_id;
+  if (["storage_optimization", "storage_optimization_scan", "storage_optimization_chunk"].includes(kind) && runId) {
+    return `Run ${shortText(String(runId), 10)}`;
+  }
+  return shortText(String(job?.id || ""), 12);
+}
+
 function jobKindGroupLabel(job) {
   const kind = typeof job === "string"
     ? job
     : (job?.params_json?.job_kind || job?.job_kind || "generic");
-  if (["storage_optimization_scan", "storage_optimization_chunk"].includes(String(kind))) {
+  if (["storage_optimization", "storage_optimization_scan", "storage_optimization_chunk"].includes(String(kind))) {
     return "TIFF storage optimization";
   }
   return String(kind).replaceAll("_", " ");
@@ -2966,7 +2975,7 @@ function groupedQueuedJobs(jobs) {
   for (const job of jobs) {
     const kind = String(job?.params_json?.job_kind || "generic");
     const runId = job?.params_json?.storage_optimization_run_id;
-    const key = ["storage_optimization_scan", "storage_optimization_chunk"].includes(kind) && runId
+    const key = ["storage_optimization", "storage_optimization_scan", "storage_optimization_chunk"].includes(kind) && runId
       ? `storage_optimization:${runId}`
       : `job:${job.id}`;
     const group = grouped.get(key);
@@ -2981,16 +2990,16 @@ function groupedQueuedJobs(jobs) {
     return runId
       ? {
           ...first,
-          displayId: `Run ${shortText(String(runId), 10)}`,
+          displayId: jobDisplayId(first),
           displayKind: `TIFF storage optimization (${runJobs.length} queued step${runJobs.length === 1 ? "" : "s"})`,
         }
-      : { ...first, displayId: shortText(String(first.id), 12), displayKind: jobKindLabel(first) };
+      : { ...first, displayId: jobDisplayId(first), displayKind: jobKindLabel(first) };
   });
 }
 
 function jobPrioritySettingKey(job) {
   const kind = String(job?.params_json?.job_kind || "generic");
-  if (["storage_optimization_scan", "storage_optimization_chunk"].includes(kind)) {
+  if (["storage_optimization", "storage_optimization_scan", "storage_optimization_chunk"].includes(kind)) {
     return "storage_optimization";
   }
   return kind;
@@ -3181,7 +3190,7 @@ function renderExecutionTargetWorkerPanels(target) {
       const currentUserKey = currentJob?.requested_by || "";
       const currentProjectId = currentJob?.project_id ? String(currentJob.project_id) : "";
       const currentJobLabel = currentJobId
-        ? `${escapeHtml(shortText(currentJobId, 10))}${currentJob ? ` (${escapeHtml(shortText(currentJobKind, 18))})` : ""}`
+        ? `${escapeHtml(currentJob ? jobDisplayId(currentJob) : shortText(currentJobId, 10))}${currentJob ? ` (${escapeHtml(shortText(currentJobKind, 18))})` : ""}`
         : "";
       const currentProjectLink = currentProjectId
         ? ` <a href="/web/project.html?id=${encodeURIComponent(currentProjectId)}" title="Open the related project">Project</a>`

@@ -42,6 +42,7 @@ JOB_PRIORITY_DEFINITIONS: tuple[tuple[str, str, int], ...] = (
 # together without exposing implementation-level jobs as separate settings.
 JOB_PRIORITY_KIND_ALIASES: dict[str, tuple[str, ...]] = {
     "storage_optimization": (
+        "storage_optimization",
         "storage_optimization_scan",
         "storage_optimization_chunk",
     ),

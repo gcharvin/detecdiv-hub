@@ -88,6 +88,6 @@ def test_bulk_storage_optimization_queues_eligible_datasets_and_reports_skips(mo
     assert runs[0].codec == "deflate"
     assert len(jobs) == 1
     assert jobs[0].raw_dataset_id == eligible_id
-    assert jobs[0].params_json["job_kind"] == "storage_optimization_scan"
+    assert jobs[0].params_json["job_kind"] == "storage_optimization"
     assert jobs[0].params_json["storage_optimization_run_id"] == str(runs[0].id)
     assert session.commit_calls == 1

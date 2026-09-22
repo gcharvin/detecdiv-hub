@@ -18,6 +18,11 @@ from api.models import Job, RawDataset, StorageOptimizationFile, StorageOptimiza
 from api.services.raw_dataset_lifecycle import pick_preferred_raw_location, resolve_raw_location_path
 
 CHUNK_FILE_LIMIT = 25
+STORAGE_OPTIMIZATION_JOB_KINDS = {
+    "storage_optimization",
+    "storage_optimization_scan",
+    "storage_optimization_chunk",
+}
 logger = logging.getLogger(__name__)
 
 
@@ -25,14 +30,17 @@ def execute_storage_optimization_job(session: Session, *, job: Job) -> dict:
     kind = (job.params_json or {}).get("job_kind")
     run_id = UUID(str((job.params_json or {}).get("storage_optimization_run_id")))
     if kind == "storage_optimization_scan":
-        return _scan_run(session, run_id=run_id)
-    if kind == "storage_optimization_chunk":
-        return _run_chunk(session, job=job, run_id=run_id)
+        _scan_run(session, run_id=run_id, queue_next=False)
+        _promote_to_stable_job(job)
+        return _run_stable_optimization(session, job=job, run_id=run_id)
+    if kind in {"storage_optimization", "storage_optimization_chunk"}:
+        _promote_to_stable_job(job)
+        return _run_stable_optimization(session, job=job, run_id=run_id)
     raise ValueError(f"Unsupported storage optimization job: {kind}")
 
 
 def finalize_storage_optimization_failure(session: Session, *, job: Job, error_text: str) -> None:
-    if (job.params_json or {}).get("job_kind") not in {"storage_optimization_scan", "storage_optimization_chunk"}:
+    if (job.params_json or {}).get("job_kind") not in STORAGE_OPTIMIZATION_JOB_KINDS:
         return
     try:
         run_id = UUID(str((job.params_json or {}).get("storage_optimization_run_id")))
@@ -62,7 +70,7 @@ def _load_run(session: Session, run_id: UUID) -> tuple[StorageOptimizationRun, R
     return run, raw, source
 
 
-def _scan_run(session: Session, *, run_id: UUID) -> dict:
+def _scan_run(session: Session, *, run_id: UUID, queue_next: bool = True) -> dict:
     run, raw, source = _load_run(session, run_id)
     if run.status not in {"queued", "scanning"}:
         return {"run_id": str(run.id), "status": run.status, "message": "Run already planned."}
@@ -85,11 +93,27 @@ def _scan_run(session: Session, *, run_id: UUID) -> dict:
     run.total_files = count
     run.source_bytes = total
     run.status = "queued"
-    _queue_chunk(session, run=run, raw=raw)
+    if queue_next:
+        _queue_chunk(session, run=run, raw=raw)
     return {"run_id": str(run.id), "status": run.status, "total_files": count, "source_bytes": total}
 
 
-def _run_chunk(session: Session, *, job: Job, run_id: UUID) -> dict:
+def _run_stable_optimization(session: Session, *, job: Job, run_id: UUID) -> dict:
+    run = session.get(StorageOptimizationRun, run_id)
+    if run is None:
+        raise ValueError(f"Storage optimization run {run_id} is missing")
+    planned_files = session.scalar(
+        select(func.count()).select_from(StorageOptimizationFile).where(StorageOptimizationFile.run_id == run.id)
+    )
+    if not planned_files and run.status in {"queued", "scanning"}:
+        _scan_run(session, run_id=run_id, queue_next=False)
+    result = _run_chunk(session, job=job, run_id=run_id, queue_next=False)
+    if result["status"] == "running":
+        result["requeue"] = True
+    return result
+
+
+def _run_chunk(session: Session, *, job: Job, run_id: UUID, queue_next: bool = True) -> dict:
     run, raw, source = _load_run(session, run_id)
     if run.status in {"cancelled", "completed", "failed"}:
         return {"run_id": str(run.id), "status": run.status}
@@ -103,9 +127,15 @@ def _run_chunk(session: Session, *, job: Job, run_id: UUID) -> dict:
     for item in files:
         _compress_one(item, source / item.relative_path)
     _refresh_run(session, run=run, raw=raw, source=source)
-    if run.status == "running":
+    if run.status == "running" and queue_next:
         _queue_chunk(session, run=run, raw=raw, exclude_job_id=job.id)
     return {"run_id": str(run.id), "status": run.status, "completed_files": run.completed_files, "failed_files": run.failed_files, "saved_bytes": run.saved_bytes}
+
+
+def _promote_to_stable_job(job: Job) -> None:
+    params = dict(job.params_json or {})
+    params["job_kind"] = "storage_optimization"
+    job.params_json = params
 
 
 def _compress_one(item: StorageOptimizationFile, path: Path) -> None:

@@ -234,7 +234,7 @@ def claim_next_job() -> Job | None:
 
         job.status = "running"
         job.resolved_mode = job.requested_mode if job.requested_mode != "auto" else "server"
-        job.started_at = datetime.now(timezone.utc)
+        job.started_at = job.started_at or datetime.now(timezone.utc)
         job.heartbeat_at = job.started_at
         job.updated_at = datetime.now(timezone.utc)
         if target is not None and job.execution_target_id is None:
@@ -275,6 +275,29 @@ def mark_job_done(job_id, result_json: dict) -> None:
             last_job=job,
         )
         resume_qwen_if_gpu_is_idle(session, settings=settings)
+
+
+def requeue_job(job_id, result_json: dict) -> None:
+    """Return a resumable job to the queue while retaining its job ID."""
+    settings = get_settings()
+    with session_scope() as session:
+        job = session.get(Job, job_id)
+        if job is None:
+            return
+        now = datetime.now(timezone.utc)
+        job.status = "queued"
+        job.result_json = result_json
+        job.heartbeat_at = now
+        job.updated_at = now
+        target = resolve_target_for_job(session, job=job, configured_target_key=settings.worker_target_key)
+        update_worker_target_state(
+            session,
+            target=target,
+            health="online",
+            current_job=None,
+            last_job_status="requeued",
+            last_job=job,
+        )
 
 
 def mark_job_failed(job_id, error_text: str) -> None:
@@ -401,7 +424,7 @@ def execute_job(job: Job) -> dict:
             result_json = execute_legacy_matlab_job(session, job=job_record)
             result_json["worker_instance"] = get_worker_instance_id()
             return result_json
-    if job_kind in {"storage_optimization_scan", "storage_optimization_chunk"}:
+    if job_kind in {"storage_optimization", "storage_optimization_scan", "storage_optimization_chunk"}:
         with session_scope() as session:
             job_record = session.get(Job, job.id)
             if job_record is None:
@@ -585,8 +608,12 @@ def run_forever() -> None:
             result_json = execute_job(job)
             keepalive_stop.set()
             keepalive_thread.join(timeout=1.0)
-            mark_job_done(job.id, result_json)
-            LOGGER.info("Job %s completed", job.id)
+            if result_json.get("requeue"):
+                requeue_job(job.id, result_json)
+                LOGGER.info("Job %s processed one storage optimization chunk and was requeued", job.id)
+            else:
+                mark_job_done(job.id, result_json)
+                LOGGER.info("Job %s completed", job.id)
         except PipelineRunCancelled as exc:
             keepalive_stop = locals().get("keepalive_stop")
             keepalive_thread = locals().get("keepalive_thread")
