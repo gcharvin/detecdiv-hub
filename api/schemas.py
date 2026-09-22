@@ -1082,6 +1082,28 @@ class StorageOptimizationRequest(HubBaseModel):
     codec: str = Field(default="deflate", pattern="^deflate$")
 
 
+class StorageOptimizationBulkRequest(HubBaseModel):
+    raw_dataset_ids: list[UUID] = Field(default_factory=list)
+    codec: str = Field(default="deflate", pattern="^deflate$")
+
+
+class StorageOptimizationBulkSkip(HubBaseModel):
+    raw_dataset_id: UUID
+    acquisition_label: str | None = None
+    reason_code: str
+    reason: str
+
+
+class StorageOptimizationBulkResult(HubBaseModel):
+    requested_count: int = 0
+    queued_count: int = 0
+    skipped_count: int = 0
+    queued_raw_dataset_ids: list[UUID] = Field(default_factory=list)
+    skipped_raw_dataset_ids: list[UUID] = Field(default_factory=list)
+    skipped_details: list[StorageOptimizationBulkSkip] = Field(default_factory=list)
+    message: str
+
+
 class StorageOptimizationRunSummary(HubBaseModel):
     id: UUID
     raw_dataset_id: UUID | None = None

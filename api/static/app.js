@@ -188,6 +188,7 @@ const els = {
   rawClearDisplaySettingsButton: document.querySelector("#raw-clear-display-settings-button"),
   rawBulkQueuePreviewsSelectedButton: document.querySelector("#raw-bulk-queue-previews-selected-button"),
   rawBulkDeleteSelectedButton: document.querySelector("#raw-bulk-delete-selected-button"),
+  rawBulkOptimizeSelectedButton: document.querySelector("#raw-bulk-optimize-selected-button"),
   rawBulkDeletePanel: document.querySelector("#raw-bulk-delete-panel"),
   rawBulkDeleteSummary: document.querySelector("#raw-bulk-delete-summary"),
   rawBulkDeleteMode: document.querySelector("#raw-bulk-delete-mode"),
@@ -4019,6 +4020,12 @@ function renderRawSelectionControls() {
   }
   if (els.rawBulkQueuePreviewsSelectedButton) {
     els.rawBulkQueuePreviewsSelectedButton.disabled = selectedCount === 0;
+  }
+  if (els.rawBulkOptimizeSelectedButton) {
+    const admin = isAdmin();
+    els.rawBulkOptimizeSelectedButton.classList.toggle("hidden", !admin);
+    els.rawBulkOptimizeSelectedButton.disabled = !admin || selectedCount === 0;
+    els.rawBulkOptimizeSelectedButton.title = "Queue low-priority, resumable TIFF DEFLATE optimization for the selected datasets.";
   }
   if (els.rawBulkDeleteSelectedButton) {
     els.rawBulkDeleteSelectedButton.disabled = selectedCount === 0;
@@ -7994,6 +8001,50 @@ async function queueRawPreviewVideosForSelectedRawDatasets() {
   await refreshRawDatasets();
 }
 
+async function queueRawBulkStorageOptimization() {
+  const requestedIds = selectedRawDatasetIds();
+  if (!requestedIds.length) {
+    throw new Error("Select at least one raw dataset first.");
+  }
+  const rawById = new Map(state.rawDatasets.map((raw) => [`${raw.id}`, raw]));
+  const eligibleIds = requestedIds.filter((rawDatasetId) => {
+    const raw = rawById.get(`${rawDatasetId}`);
+    return raw?.completeness_status === "complete"
+      && ["none", "partial", "failed", "cancelled"].includes(raw?.storage_optimization_status || "none");
+  });
+  const excludedCount = requestedIds.length - eligibleIds.length;
+  if (!eligibleIds.length) {
+    throw new Error("None of the selected datasets is complete and eligible for TIFF optimization.");
+  }
+  const excludedText = excludedCount ? `\nExcluded as incomplete, active, or already optimized: ${excludedCount}.` : "";
+  const ok = window.confirm(
+    `Queue lossless TIFF DEFLATE optimization for ${eligibleIds.length} selected dataset(s)?${excludedText}\nEach dataset gets a resumable low-priority run; TIFF steps are grouped in the jobs list.`
+  );
+  if (!ok) return;
+
+  if (els.rawBulkOptimizeSelectedButton) els.rawBulkOptimizeSelectedButton.disabled = true;
+  setStatus(`Queuing TIFF optimization for ${eligibleIds.length} dataset(s)...`);
+  try {
+    const result = await apiPost("/raw-datasets/storage-optimization-bulk", {
+      raw_dataset_ids: eligibleIds,
+      codec: "deflate",
+    });
+    await refreshRawDatasets();
+    const skippedDetails = Array.isArray(result.skipped_details) ? result.skipped_details : [];
+    const suffix = result.skipped_count ? ` Skipped: ${result.skipped_count}.` : "";
+    setStatus(`TIFF optimization queued: ${result.queued_count}/${eligibleIds.length}.${suffix}`);
+    if (skippedDetails.length) {
+      const lines = skippedDetails.slice(0, 12).map((item) =>
+        `- ${item.acquisition_label || item.raw_dataset_id}: ${item.reason || item.reason_code || "Skipped"}`
+      );
+      if (skippedDetails.length > lines.length) lines.push(`- ...and ${skippedDetails.length - lines.length} more.`);
+      window.alert(`TIFF optimization queued: ${result.queued_count}/${eligibleIds.length}.\n\nSkipped datasets:\n${lines.join("\n")}`);
+    }
+  } finally {
+    renderRawSelectionControls();
+  }
+}
+
 async function refreshRawBulkDeletePreview() {
   if (!state.pendingRawBulkDelete?.rawDatasetIds?.length) {
     return;
@@ -9685,6 +9736,10 @@ if (els.rawOwnedOnly) els.rawOwnedOnly.addEventListener("change", () => {
   refreshRawDatasets().catch((error) => setStatus(String(error)));
 });
 if (els.rawBulkQueuePreviewsSelectedButton) els.rawBulkQueuePreviewsSelectedButton.addEventListener("click", () => queueRawPreviewVideosForSelectedRawDatasets().catch((error) => setStatus(String(error))));
+if (els.rawBulkOptimizeSelectedButton) els.rawBulkOptimizeSelectedButton.addEventListener("click", () => queueRawBulkStorageOptimization().catch((error) => {
+  setStatus(String(error));
+  window.alert(String(error));
+}));
 if (els.rawSelectAll) els.rawSelectAll.addEventListener("change", () => setSelectedRawDatasetIds(els.rawSelectAll.checked ? visibleRawDatasetIds() : []));
 if (els.rawSelectVisibleButton) els.rawSelectVisibleButton.addEventListener("click", () => setSelectedRawDatasetIds(visibleRawDatasetIds()));
 if (els.rawClearSelectionButton) els.rawClearSelectionButton.addEventListener("click", () => setSelectedRawDatasetIds([]));

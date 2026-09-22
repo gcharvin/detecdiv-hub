@@ -53,6 +53,9 @@ from api.schemas import (
     RawPreviewQualityUpdate,
     RawDatasetSummary,
     RawDatasetUpdate,
+    StorageOptimizationBulkRequest,
+    StorageOptimizationBulkResult,
+    StorageOptimizationBulkSkip,
     StorageOptimizationRequest,
     StorageOptimizationRunSummary,
     ProjectSummary,
@@ -1171,6 +1174,106 @@ def queue_raw_dataset_storage_optimization(
     db.commit()
     db.refresh(run)
     return run
+
+
+@router.post("/storage-optimization-bulk", response_model=StorageOptimizationBulkResult, status_code=status.HTTP_202_ACCEPTED)
+def queue_bulk_raw_dataset_storage_optimization(
+    payload: StorageOptimizationBulkRequest,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> StorageOptimizationBulkResult:
+    ensure_archive_policy_admin(current_user)
+    if not payload.raw_dataset_ids:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="raw_dataset_ids is required")
+
+    raw_dataset_ids = list(dict.fromkeys(payload.raw_dataset_ids))
+
+    raw_datasets = list(db.scalars(select(RawDataset).where(RawDataset.id.in_(raw_dataset_ids))))
+    raw_datasets_by_id = {raw_dataset.id: raw_dataset for raw_dataset in raw_datasets}
+    queued_ids: list[UUID] = []
+    skipped_ids: list[UUID] = []
+    skipped_details: list[StorageOptimizationBulkSkip] = []
+
+    def skip(raw_dataset_id: UUID, *, reason_code: str, reason: str, acquisition_label: str | None = None) -> None:
+        skipped_ids.append(raw_dataset_id)
+        skipped_details.append(StorageOptimizationBulkSkip(
+            raw_dataset_id=raw_dataset_id,
+            acquisition_label=acquisition_label,
+            reason_code=reason_code,
+            reason=reason,
+        ))
+
+    for raw_dataset_id in raw_dataset_ids:
+        raw_dataset = raw_datasets_by_id.get(raw_dataset_id)
+        if raw_dataset is None:
+            skip(raw_dataset_id, reason_code="not_found", reason="Raw dataset was not found.")
+            continue
+        try:
+            raw_dataset = ensure_raw_dataset_readable(raw_dataset, current_user)
+        except HTTPException as exc:
+            skip(
+                raw_dataset_id,
+                acquisition_label=raw_dataset.acquisition_label,
+                reason_code="not_accessible",
+                reason=str(exc.detail),
+            )
+            continue
+        if raw_dataset.completeness_status != "complete":
+            skip(
+                raw_dataset_id,
+                acquisition_label=raw_dataset.acquisition_label,
+                reason_code="incomplete",
+                reason="Only complete datasets can be optimized.",
+            )
+            continue
+        if raw_dataset.storage_optimization_status in {"queued", "running", "completed"}:
+            skip(
+                raw_dataset_id,
+                acquisition_label=raw_dataset.acquisition_label,
+                reason_code="already_optimized_or_active",
+                reason=(
+                    "Dataset already has an active or completed optimization run "
+                    f"(status={raw_dataset.storage_optimization_status})."
+                ),
+            )
+            continue
+
+        run = StorageOptimizationRun(
+            raw_dataset_id=raw_dataset.id,
+            requested_by_user_id=current_user.id,
+            requested_by=current_user.user_key,
+            scope_kind="raw_dataset",
+            status="queued",
+            codec=payload.codec,
+        )
+        db.add(run)
+        db.flush()
+        raw_dataset.storage_optimization_status = "queued"
+        raw_dataset.storage_optimization_run_id = run.id
+        db.add(Job(
+            raw_dataset_id=raw_dataset.id,
+            requested_mode="server",
+            priority=20,
+            requested_by=current_user.user_key,
+            requested_from_host="api",
+            params_json={
+                "job_kind": "storage_optimization_scan",
+                "storage_optimization_run_id": str(run.id),
+            },
+            status="queued",
+        ))
+        queued_ids.append(raw_dataset.id)
+
+    db.commit()
+    return StorageOptimizationBulkResult(
+        requested_count=len(raw_dataset_ids),
+        queued_count=len(queued_ids),
+        skipped_count=len(skipped_ids),
+        queued_raw_dataset_ids=queued_ids,
+        skipped_raw_dataset_ids=skipped_ids,
+        skipped_details=skipped_details,
+        message=f"Queued TIFF optimization for {len(queued_ids)} of {len(raw_dataset_ids)} selected dataset(s).",
+    )
 
 
 @router.get("/{raw_dataset_id}/storage-optimization", response_model=list[StorageOptimizationRunSummary])
