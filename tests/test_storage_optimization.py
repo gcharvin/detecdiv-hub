@@ -17,6 +17,27 @@ def test_protected_metadata_digest_changes_when_micromanager_tag_changes(tmp_pat
     assert optimization._protected_metadata_digest(first) != optimization._protected_metadata_digest(second)
 
 
+def test_deflate_writer_preserves_imagej_private_metadata_and_pixels(tmp_path):
+    source = tmp_path / "source.tif"
+    target = tmp_path / "target.tif"
+    pixels = np.arange(256, dtype=np.uint16).reshape(16, 16)
+    tifffile.imwrite(
+        source,
+        pixels,
+        description="ImageJ=1.51s",
+        extratags=[
+            (50838, "I", 2, (12, 8), False),
+            (50839, "B", 8, b"one-0001", False),
+        ],
+    )
+
+    optimization._write_deflate_tiff(source, target)
+
+    assert optimization._protected_metadata_digest(source) == optimization._protected_metadata_digest(target)
+    with tifffile.TiffFile(target) as image:
+        assert np.array_equal(image.pages[0].asarray(), pixels)
+
+
 def test_pixel_check_allows_expected_micromanager_tag_warnings(monkeypatch, tmp_path):
     monkeypatch.setattr(
         optimization.subprocess,

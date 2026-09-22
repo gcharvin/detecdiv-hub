@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import os
 import subprocess
+import struct
 from hashlib import sha256
 from datetime import datetime, timezone
 from pathlib import Path
@@ -122,7 +123,7 @@ def _compress_one(item: StorageOptimizationFile, path: Path) -> None:
     backup = path.with_name(f".{path.name}.detecdiv-original-{item.id}.bak")
     try:
         os.link(path, backup)  # same-volume recovery point, no extra data copy
-        subprocess.run(["tiffcp", "-c", "zip:2", str(path), str(tmp)], check=True, capture_output=True, text=True)
+        _write_deflate_tiff(path, tmp)
         if not _is_deflate_tiff(tmp):
             raise RuntimeError("Temporary TIFF does not report AdobeDeflate")
         _assert_same_pixels(path, tmp)
@@ -149,6 +150,78 @@ def _compress_one(item: StorageOptimizationFile, path: Path) -> None:
 def _is_deflate_tiff(path: Path) -> bool:
     result = subprocess.run(["tiffinfo", str(path)], capture_output=True, text=True)
     return "Compression Scheme: AdobeDeflate" in result.stdout
+
+
+def _write_deflate_tiff(source: Path, target: Path) -> None:
+    """Write a DEFLATE TIFF without discarding ImageJ private metadata.
+
+    libtiff's ``tiffcp`` does not copy tags 50838 and 50839.  They contain the
+    ImageJ/Micro-Manager metadata used by these acquisitions, so for files
+    carrying either tag we use tifffile and explicitly preserve the original
+    on-disk tag payloads.  Ordinary TIFF files keep the broadly compatible
+    tiffcp path.
+    """
+    with tifffile.TiffFile(source) as image:
+        if not any(page.tags.get(code) is not None for page in image.pages for code in (50838, 50839)):
+            subprocess.run(["tiffcp", "-c", "zip:2", str(source), str(target)], check=True, capture_output=True, text=True)
+            return
+        if len(image.pages) != 1:
+            raise RuntimeError("TIFF with protected ImageJ metadata has multiple pages and is not supported yet")
+        page = image.pages[0]
+        tifffile.imwrite(
+            target,
+            page.asarray(),
+            photometric=page.photometric,
+            description=page.description,
+            metadata=None,
+            compression="deflate",
+            predictor=True,
+            byteorder=image.byteorder,
+            subfiletype=page.subfiletype,
+            extratags=_protected_metadata_extratags(image, page),
+        )
+
+
+def _protected_metadata_extratags(image: tifffile.TiffFile, page: tifffile.TiffPage) -> list[tuple]:
+    """Return ImageJ private tags with their payloads untouched.
+
+    ``tifffile`` parses tag 50839 into a dict on input.  Re-serializing that
+    dict is not equivalent to copying the original metadata bytes, therefore
+    read those bytes directly from the TIFF stream instead.
+    """
+    tags: list[tuple] = []
+    byte_counts = page.tags.get(50838)
+    if byte_counts is not None:
+        if byte_counts.dtype != 4:
+            raise RuntimeError("Unsupported ImageJ metadata byte-count tag type")
+        raw_counts = _tag_value_bytes(image, byte_counts)
+        expected_size = byte_counts.count * 4
+        if len(raw_counts) != expected_size:
+            raise RuntimeError("ImageJ metadata byte-count tag is truncated")
+        values = struct.unpack(f"{image.byteorder}{byte_counts.count}I", raw_counts)
+        tags.append((50838, "I", byte_counts.count, values, False))
+    metadata = page.tags.get(50839)
+    if metadata is not None:
+        if metadata.dtype != 1:
+            raise RuntimeError("Unsupported ImageJ metadata tag type")
+        tags.append((50839, "B", metadata.count, _tag_value_bytes(image, metadata), False))
+    return tags
+
+
+def _tag_value_bytes(image: tifffile.TiffFile, tag: tifffile.TiffTag) -> bytes:
+    """Return the exact serialized payload of a non-inline TIFF tag."""
+    if tag.valuebytecount <= 4:
+        raise RuntimeError(f"Protected TIFF tag {tag.code} is unexpectedly inline")
+    handle = image.filehandle
+    position = handle.tell()
+    try:
+        handle.seek(tag.valueoffset)
+        value = handle.read(tag.valuebytecount)
+    finally:
+        handle.seek(position)
+    if len(value) != tag.valuebytecount:
+        raise RuntimeError(f"Protected TIFF tag {tag.code} is truncated")
+    return value
 
 
 def _assert_same_pixels(source: Path, target: Path) -> None:
@@ -181,14 +254,21 @@ def _protected_metadata_digest(path: Path) -> str:
                 if tag is None:
                     digest.update(f"{code}:missing;".encode("ascii"))
                     continue
-                digest.update(f"{code}:{tag.dtype}:{tag.count}:".encode("ascii"))
-                value = tag.value
-                if isinstance(value, bytes):
-                    digest.update(value)
-                elif isinstance(value, str):
-                    digest.update(value.encode("utf-8"))
+                if code in (50838, 50839):
+                    digest.update(f"{code}:{tag.dtype}:{tag.count}:".encode("ascii"))
+                    digest.update(_tag_value_bytes(image, tag))
                 else:
-                    digest.update(repr(value).encode("utf-8"))
+                    # TIFF ASCII fields include a terminating NUL in their tag
+                    # count. tifffile normalizes that terminator while retaining
+                    # the exact description text, so the count is not semantic.
+                    digest.update(f"{code}:".encode("ascii"))
+                    value = tag.value
+                    if isinstance(value, bytes):
+                        digest.update(value)
+                    elif isinstance(value, str):
+                        digest.update(value.encode("utf-8"))
+                    else:
+                        digest.update(repr(value).encode("utf-8"))
                 digest.update(b";")
     return digest.hexdigest()
 
