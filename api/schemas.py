@@ -1999,6 +1999,27 @@ class DashboardHealthBucket(HubBaseModel):
     total_bytes: int = 0
 
 
+class DashboardJobItem(HubBaseModel):
+    id: UUID
+    status: str
+    job_kind: str
+    resource_name: str | None = None
+    project_id: UUID | None = None
+    raw_dataset_id: UUID | None = None
+    requested_mode: str
+    created_at: datetime | None = None
+    started_at: datetime | None = None
+    finished_at: datetime | None = None
+    updated_at: datetime | None = None
+    error_text: str | None = None
+
+
+class DashboardActivity(HubBaseModel):
+    active_jobs: list[DashboardJobItem] = Field(default_factory=list)
+    recent_jobs: list[DashboardJobItem] = Field(default_factory=list)
+    active_acquisitions: list[AcquisitionSessionSummary] = Field(default_factory=list)
+
+
 class DashboardSummary(HubBaseModel):
     user: UserSummary
     total_projects: int = 0

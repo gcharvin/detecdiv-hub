@@ -56,7 +56,6 @@ app.include_router(indexing_router)
 app.include_router(dashboard_router)
 
 STATIC_DIR = Path(__file__).resolve().parent / "static"
-app.mount("/web", StaticFiles(directory=STATIC_DIR, html=True), name="web")
 
 
 @app.get("/health", response_model=HealthResponse)
@@ -88,4 +87,17 @@ def health() -> HealthResponse:
 
 @app.get("/", include_in_schema=False)
 def root() -> RedirectResponse:
-    return RedirectResponse(url="/web/")
+    return RedirectResponse(url="/web/dashboard.html")
+
+
+@app.get("/web/", include_in_schema=False)
+def web_home() -> RedirectResponse:
+    return RedirectResponse(url="/web/dashboard.html")
+
+
+@app.get("/web", include_in_schema=False)
+def web_root() -> RedirectResponse:
+    return RedirectResponse(url="/web/dashboard.html")
+
+
+app.mount("/web", StaticFiles(directory=STATIC_DIR, html=True), name="web")

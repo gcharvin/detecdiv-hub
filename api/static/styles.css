@@ -335,6 +335,22 @@ h3 {
   margin-top: 14px;
 }
 
+.dashboard-activity-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  margin-top: 14px;
+  align-items: start;
+}
+
+.dashboard-activity-grid .panel {
+  min-width: 0;
+}
+
+.dashboard-activity-grid .table-wrap {
+  overflow-x: auto;
+}
+
 .summary-card {
   padding: 18px 20px;
 }
@@ -1846,6 +1862,14 @@ button:disabled {
   .summary-grid,
   .layout-grid {
     grid-template-columns: 1fr;
+  }
+
+  .dashboard-activity-grid {
+    grid-template-columns: 1fr;
+  }
+
+  body[data-page="dashboard"] .dashboard-summary-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   body[data-page="yeast-strains"] .yeast-summary-grid {

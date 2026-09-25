@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>DetecDiv Hub - Dashboard</title>
+    <link rel="stylesheet" href="/web/styles.css?v=20260925-dashboard1" />
+  </head>
+  <body data-page="dashboard">
+    <div class="page-shell">
+      <section id="login-panel" class="panel login-panel hidden">
+        <div class="panel-header">
+          <div>
+            <h2>Login</h2>
+            <p class="muted">Open a hub session with a user key and password.</p>
+          </div>
+        </div>
+        <div class="toolbar">
+          <label class="field compact">
+            <span>User key</span>
+            <input id="login-user-key" type="text" placeholder="admin" />
+          </label>
+          <label class="field compact">
+            <span>Password</span>
+            <input id="login-password" type="password" placeholder="password" />
+          </label>
+          <button id="login-button" class="primary">Login</button>
+        </div>
+      </section>
+
+      <header class="hero">
+        <div>
+          <div class="eyebrow">DetecDiv Hub</div>
+          <h1>Dashboard</h1>
+          <p class="hero-copy">Your active jobs, recent job history, and ongoing Micro-Manager acquisitions.</p>
+        </div>
+        <div class="hero-actions">
+          <nav class="hero-nav"></nav>
+          <div class="session-box">
+            <div id="session-label" class="muted">Not logged in.</div>
+            <button id="logout-button">Logout</button>
+          </div>
+        </div>
+      </header>
+
+      <section class="summary-grid dashboard-summary-grid">
+        <article class="summary-card">
+          <div class="summary-label">Active jobs</div>
+          <div id="dashboard-active-job-count" class="summary-value">0</div>
+        </article>
+        <article class="summary-card">
+          <div class="summary-label">Recent jobs</div>
+          <div id="dashboard-recent-job-count" class="summary-value">0</div>
+        </article>
+        <article class="summary-card">
+          <div class="summary-label">Ongoing acquisitions</div>
+          <div id="dashboard-acquisition-count" class="summary-value">0</div>
+        </article>
+        <article class="summary-card">
+          <div class="summary-label">Accessible projects</div>
+          <div id="dashboard-project-count" class="summary-value">0</div>
+        </article>
+      </section>
+
+      <section class="dashboard-activity-grid">
+        <section class="panel">
+          <div class="panel-header">
+            <div>
+              <h2>Active jobs</h2>
+              <p class="muted">Queued or running jobs requested by your account.</p>
+            </div>
+            <button id="refresh-button" type="button">Refresh</button>
+          </div>
+          <div class="table-wrap">
+            <table id="dashboard-active-jobs-table">
+              <thead>
+                <tr><th>Job</th><th>Status</th><th>Related item</th><th>Started</th></tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+            <div id="dashboard-active-jobs-empty" class="empty-state hidden">No active jobs.</div>
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-header">
+            <div>
+              <h2>Micro-Manager acquisitions</h2>
+              <p class="muted">Acquisition sessions reported by your microscope client.</p>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table id="dashboard-acquisitions-table">
+              <thead>
+                <tr><th>Acquisition</th><th>Status</th><th>Progress</th><th>Last signal</th></tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+            <div id="dashboard-acquisitions-empty" class="empty-state hidden">No ongoing acquisitions.</div>
+          </div>
+        </section>
+      </section>
+
+      <section class="panel">
+        <div class="panel-header">
+          <div>
+            <h2>Recent job history</h2>
+            <p class="muted">The latest completed, failed, or cancelled jobs requested by your account.</p>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table id="dashboard-recent-jobs-table">
+            <thead>
+              <tr><th>Job</th><th>Status</th><th>Related item</th><th>Started</th><th>Finished</th></tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+          <div id="dashboard-recent-jobs-empty" class="empty-state hidden">No recent job history.</div>
+        </div>
+      </section>
+
+      <footer class="footer">
+        <div id="status-line">Ready.</div>
+      </footer>
+    </div>
+    <script src="/web/app.js?v=20260925-dashboard1" defer></script>
+  </body>
+</html>

@@ -112,6 +112,16 @@ const els = {
   summaryOwnedProjects: document.querySelector("#summary-owned-projects"),
   summaryTotalBytes: document.querySelector("#summary-total-bytes"),
   summaryGroupCount: document.querySelector("#summary-group-count"),
+  dashboardActiveJobCount: document.querySelector("#dashboard-active-job-count"),
+  dashboardRecentJobCount: document.querySelector("#dashboard-recent-job-count"),
+  dashboardAcquisitionCount: document.querySelector("#dashboard-acquisition-count"),
+  dashboardProjectCount: document.querySelector("#dashboard-project-count"),
+  dashboardActiveJobsBody: document.querySelector("#dashboard-active-jobs-table tbody"),
+  dashboardRecentJobsBody: document.querySelector("#dashboard-recent-jobs-table tbody"),
+  dashboardAcquisitionsBody: document.querySelector("#dashboard-acquisitions-table tbody"),
+  dashboardActiveJobsEmpty: document.querySelector("#dashboard-active-jobs-empty"),
+  dashboardRecentJobsEmpty: document.querySelector("#dashboard-recent-jobs-empty"),
+  dashboardAcquisitionsEmpty: document.querySelector("#dashboard-acquisitions-empty"),
   detailEmpty: document.querySelector("#detail-empty"),
   detailContent: document.querySelector("#detail-content"),
   detailSubtitle: document.querySelector("#detail-subtitle"),
@@ -489,6 +499,7 @@ const isExecutionTargetsPage = pageKind === "admin-execution-targets";
 const isAdminPage = (pageKind === "admin" || pageKind.startsWith("admin-")) && !isExecutionTargetsPage;
 
 const pageFlags = {
+  hasDashboardView: pageKind === "dashboard",
   hasAdminView: isAdminPage,
   hasAdminGeneralView: pageKind === "admin" || pageKind === "admin-general",
   hasRawPreviewQualityView: pageKind === "admin-raw-preview-quality",
@@ -520,6 +531,9 @@ const pageFlags = {
 let appLayoutInitialized = false;
 
 function getSidebarActiveRoute() {
+  if (pageKind === "dashboard") {
+    return "dashboard";
+  }
   if (pageKind === "admin" || pageKind === "admin-general") {
     return "admin-general";
   }
@@ -659,9 +673,15 @@ function initializeAppLayout() {
     const activeRoute = getSidebarActiveRoute();
     const groups = [
       {
+        label: "Overview",
+        items: [
+          { label: "Dashboard", href: "/web/dashboard.html", route: "dashboard" },
+        ],
+      },
+      {
         label: "Projects",
         items: [
-          { label: "Catalog", href: "/web/", route: "projects-catalog" },
+          { label: "Catalog", href: "/web/index.html", route: "projects-catalog" },
           { label: "Setting", href: "/web/indexing.html", route: "projects-settings" },
         ],
       },
@@ -837,6 +857,8 @@ function clearDashboardState() {
   if (els.summaryOwnedProjects) els.summaryOwnedProjects.textContent = "0";
   if (els.summaryTotalBytes) els.summaryTotalBytes.textContent = "0 B";
   if (els.summaryGroupCount) els.summaryGroupCount.textContent = "0";
+  if (els.dashboardProjectCount) els.dashboardProjectCount.textContent = "0";
+  renderDashboardActivity({ active_jobs: [], recent_jobs: [], active_acquisitions: [] });
 
   renderGroupFilter();
   renderStorageRootFilter();
@@ -1613,8 +1635,84 @@ function setSummary(summary) {
     if (els.summaryTotalBytes) els.summaryTotalBytes.textContent = humanBytes(summary.total_bytes);
     if (els.summaryGroupCount) els.summaryGroupCount.textContent = summary.group_count;
   }
+  if (els.dashboardProjectCount) {
+    els.dashboardProjectCount.textContent = summary.total_projects ?? 0;
+  }
   state.currentUser = summary.user || null;
   updateSessionUi();
+}
+
+function dashboardJobKindLabel(job) {
+  const kind = String(job.job_kind || "background").replace(/[_-]+/g, " ").trim();
+  return kind ? kind.replace(/\b\w/g, (letter) => letter.toUpperCase()) : "Background job";
+}
+
+function dashboardJobResourceLabel(job) {
+  if (job.resource_name) {
+    return job.resource_name;
+  }
+  const resourceId = job.project_id || job.raw_dataset_id;
+  return resourceId ? `Item ${String(resourceId).slice(0, 8)}` : "—";
+}
+
+function renderDashboardJobRows(tableBody, emptyState, jobs, { history = false } = {}) {
+  if (!tableBody) {
+    return;
+  }
+  const rows = Array.isArray(jobs) ? jobs : [];
+  tableBody.replaceChildren();
+  if (emptyState) {
+    emptyState.classList.toggle("hidden", rows.length > 0);
+  }
+  for (const job of rows) {
+    const row = document.createElement("tr");
+    const jobLabel = dashboardJobKindLabel(job);
+    const resourceLabel = dashboardJobResourceLabel(job);
+    row.innerHTML = history
+      ? `<td>${escapeHtml(jobLabel)}</td><td>${escapeHtml(job.status || "unknown")}</td><td>${escapeHtml(resourceLabel)}</td><td>${escapeHtml(formatTimestamp(job.started_at) || "—")}</td><td>${escapeHtml(formatTimestamp(job.finished_at) || "—")}</td>`
+      : `<td>${escapeHtml(jobLabel)}</td><td>${escapeHtml(job.status || "unknown")}</td><td>${escapeHtml(resourceLabel)}</td><td>${escapeHtml(formatTimestamp(job.started_at || job.created_at) || "—")}</td>`;
+    tableBody.appendChild(row);
+  }
+}
+
+function renderDashboardActivity(activity) {
+  const activeJobs = Array.isArray(activity?.active_jobs) ? activity.active_jobs : [];
+  const recentJobs = Array.isArray(activity?.recent_jobs) ? activity.recent_jobs : [];
+  const acquisitions = Array.isArray(activity?.active_acquisitions) ? activity.active_acquisitions : [];
+  if (els.dashboardActiveJobCount) els.dashboardActiveJobCount.textContent = `${activeJobs.length}`;
+  if (els.dashboardRecentJobCount) els.dashboardRecentJobCount.textContent = `${recentJobs.length}`;
+  if (els.dashboardAcquisitionCount) els.dashboardAcquisitionCount.textContent = `${acquisitions.length}`;
+  renderDashboardJobRows(els.dashboardActiveJobsBody, els.dashboardActiveJobsEmpty, activeJobs);
+  renderDashboardJobRows(els.dashboardRecentJobsBody, els.dashboardRecentJobsEmpty, recentJobs, { history: true });
+
+  if (els.dashboardAcquisitionsBody) {
+    els.dashboardAcquisitionsBody.replaceChildren();
+    if (els.dashboardAcquisitionsEmpty) {
+      els.dashboardAcquisitionsEmpty.classList.toggle("hidden", acquisitions.length > 0);
+    }
+    for (const acquisition of acquisitions) {
+      const row = document.createElement("tr");
+      const progress = acquisition.progress_percent == null
+        ? "—"
+        : `${Number(acquisition.progress_percent).toLocaleString(undefined, { maximumFractionDigits: 1 })}%`;
+      const microscope = acquisition.microscope_name ? ` · ${acquisition.microscope_name}` : "";
+      row.innerHTML = `
+        <td>${escapeHtml(acquisition.acquisition_label || acquisition.session_key || "Acquisition")}${escapeHtml(microscope)}</td>
+        <td>${escapeHtml(acquisition.status || "unknown")}</td>
+        <td>${escapeHtml(progress)}</td>
+        <td>${escapeHtml(formatTimestamp(acquisition.last_seen_at || acquisition.updated_at) || "—")}</td>
+      `;
+      els.dashboardAcquisitionsBody.appendChild(row);
+    }
+  }
+}
+
+async function refreshDashboardActivity() {
+  if (!pageFlags.hasDashboardView) {
+    return;
+  }
+  const activity = await apiGet("/dashboard/activity");
+  renderDashboardActivity(activity);
 }
 
 function renderRawOpsSummary() {
@@ -6241,6 +6339,10 @@ async function login() {
     els.loginPassword.value = "";
   }
   updateSessionUi();
+  if (pageKind !== "dashboard") {
+    window.location.href = "/web/dashboard.html";
+    return;
+  }
   await refreshDashboard();
   setStatus(`Logged in as ${response.user.user_key}.`);
 }
@@ -6361,6 +6463,9 @@ async function refreshDashboard() {
   }
 
   const refreshTasks = [];
+  if (pageFlags.hasDashboardView) {
+    refreshTasks.push(refreshDashboardActivity());
+  }
   if (pageFlags.hasProjectsView) {
     refreshTasks.push(refreshProjects());
   }
@@ -9605,6 +9710,9 @@ async function pollDashboard() {
   }
   try {
     const pollTasks = [apiGet("/dashboard/summary").then((summary) => setSummary(summary))];
+    if (pageFlags.hasDashboardView) {
+      pollTasks.push(refreshDashboardActivity());
+    }
     if (pageFlags.hasIndexingView) {
       pollTasks.push(refreshIndexingJobs());
     }
@@ -9670,6 +9778,7 @@ async function forceRefreshCurrentPage() {
     return;
   }
   if (
+    pageFlags.hasDashboardView ||
     pageFlags.hasProjectsView ||
     pageFlags.hasRawDatasetsView ||
     pageFlags.hasRawDatasetPage ||

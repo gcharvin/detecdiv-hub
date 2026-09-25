@@ -1,15 +1,93 @@
 from sqlalchemy import func, select
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 
 from fastapi import APIRouter, Depends
 
 from api.db import get_db
-from api.models import Project, ProjectGroup, ProjectNote, User
-from api.schemas import DashboardHealthBucket, DashboardSummary
+from api.models import AcquisitionSession, Job, Project, ProjectGroup, ProjectNote, User
+from api.schemas import (
+    AcquisitionSessionSummary,
+    DashboardActivity,
+    DashboardHealthBucket,
+    DashboardJobItem,
+    DashboardSummary,
+)
 from api.services.users import get_current_user, project_access_filter
 
 
 router = APIRouter(prefix="/dashboard", tags=["dashboard"])
+
+
+@router.get("/activity", response_model=DashboardActivity)
+def get_dashboard_activity(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> DashboardActivity:
+    job_base = (
+        select(Job)
+        .options(joinedload(Job.project), joinedload(Job.raw_dataset))
+        .where(Job.requested_by == current_user.user_key)
+    )
+    active_jobs = list(
+        db.scalars(
+            job_base
+            .where(Job.status.in_(("queued", "running")))
+            .order_by(Job.priority.asc(), Job.created_at.desc())
+        ).unique()
+    )
+    recent_jobs = list(
+        db.scalars(
+            job_base
+            .where(Job.status.not_in(("queued", "running")))
+            .order_by(func.coalesce(Job.finished_at, Job.updated_at, Job.created_at).desc())
+            .limit(12)
+        ).unique()
+    )
+
+    active_acquisitions = list(
+        db.scalars(
+            select(AcquisitionSession)
+            .options(
+                joinedload(AcquisitionSession.owner),
+                joinedload(AcquisitionSession.landing_storage_root),
+            )
+            .where(
+                AcquisitionSession.owner_user_id == current_user.id,
+                AcquisitionSession.status.in_(("acquiring", "transferring")),
+            )
+            .order_by(func.coalesce(AcquisitionSession.last_seen_at, AcquisitionSession.updated_at).desc())
+        ).unique()
+    )
+
+    return DashboardActivity(
+        active_jobs=[dashboard_job_item(job) for job in active_jobs],
+        recent_jobs=[dashboard_job_item(job) for job in recent_jobs],
+        active_acquisitions=[AcquisitionSessionSummary.model_validate(item) for item in active_acquisitions],
+    )
+
+
+def dashboard_job_item(job: Job) -> DashboardJobItem:
+    params = job.params_json or {}
+    job_kind = str(params.get("job_kind") or "background")
+    resource_name = None
+    if job.project is not None:
+        resource_name = job.project.project_name
+    elif job.raw_dataset is not None:
+        resource_name = job.raw_dataset.acquisition_label
+    return DashboardJobItem(
+        id=job.id,
+        status=job.status,
+        job_kind=job_kind,
+        resource_name=resource_name,
+        project_id=job.project_id,
+        raw_dataset_id=job.raw_dataset_id,
+        requested_mode=job.requested_mode,
+        created_at=job.created_at,
+        started_at=job.started_at,
+        finished_at=job.finished_at,
+        updated_at=job.updated_at,
+        error_text=job.error_text,
+    )
 
 
 @router.get("/summary", response_model=DashboardSummary)
