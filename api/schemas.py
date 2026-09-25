@@ -2014,10 +2014,15 @@ class DashboardJobItem(HubBaseModel):
     error_text: str | None = None
 
 
+class DashboardAcquisitionItem(AcquisitionSessionSummary):
+    mda_progress: Any | None = None
+
+
 class DashboardActivity(HubBaseModel):
     active_jobs: list[DashboardJobItem] = Field(default_factory=list)
     recent_jobs: list[DashboardJobItem] = Field(default_factory=list)
     active_acquisitions: list[AcquisitionSessionSummary] = Field(default_factory=list)
+    recent_failed_acquisitions: list[DashboardAcquisitionItem] = Field(default_factory=list)
 
 
 class DashboardSummary(HubBaseModel):

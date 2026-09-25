@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>DetecDiv Hub - Dashboard</title>
-    <link rel="stylesheet" href="/web/styles.css?v=20260925-dashboard1" />
+    <link rel="stylesheet" href="/web/styles.css?v=20260925-dashboard2" />
   </head>
   <body data-page="dashboard">
     <div class="page-shell">
@@ -104,6 +104,24 @@
       <section class="panel">
         <div class="panel-header">
           <div>
+            <h2>Recent acquisition failures</h2>
+            <p class="muted">The latest failed Micro-Manager acquisitions, with their error and MDA progress details.</p>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table id="dashboard-failed-acquisitions-table">
+            <thead>
+              <tr><th>Acquisition</th><th>Failed</th><th>MDA progress</th><th>Error</th></tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+          <div id="dashboard-failed-acquisitions-empty" class="empty-state hidden">No recent failed acquisitions.</div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-header">
+          <div>
             <h2>Recent job history</h2>
             <p class="muted">The latest completed, failed, or cancelled jobs requested by your account.</p>
           </div>
@@ -123,6 +141,6 @@
         <div id="status-line">Ready.</div>
       </footer>
     </div>
-    <script src="/web/app.js?v=20260925-dashboard1" defer></script>
+    <script src="/web/app.js?v=20260925-dashboard2" defer></script>
   </body>
 </html>

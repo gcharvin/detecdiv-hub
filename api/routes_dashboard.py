@@ -7,6 +7,7 @@ from api.db import get_db
 from api.models import AcquisitionSession, Job, Project, ProjectGroup, ProjectNote, User
 from api.schemas import (
     AcquisitionSessionSummary,
+    DashboardAcquisitionItem,
     DashboardActivity,
     DashboardHealthBucket,
     DashboardJobItem,
@@ -58,12 +59,76 @@ def get_dashboard_activity(
             .order_by(func.coalesce(AcquisitionSession.last_seen_at, AcquisitionSession.updated_at).desc())
         ).unique()
     )
+    recent_failed_acquisitions = list(
+        db.scalars(
+            select(AcquisitionSession)
+            .options(
+                joinedload(AcquisitionSession.owner),
+                joinedload(AcquisitionSession.landing_storage_root),
+            )
+            .where(
+                AcquisitionSession.owner_user_id == current_user.id,
+                AcquisitionSession.status == "failed",
+            )
+            .order_by(
+                func.coalesce(
+                    AcquisitionSession.completed_at,
+                    AcquisitionSession.last_seen_at,
+                    AcquisitionSession.updated_at,
+                    AcquisitionSession.created_at,
+                ).desc()
+            )
+            .limit(12)
+        ).unique()
+    )
 
     return DashboardActivity(
         active_jobs=[dashboard_job_item(job) for job in active_jobs],
         recent_jobs=[dashboard_job_item(job) for job in recent_jobs],
         active_acquisitions=[AcquisitionSessionSummary.model_validate(item) for item in active_acquisitions],
+        recent_failed_acquisitions=[dashboard_acquisition_item(item) for item in recent_failed_acquisitions],
     )
+
+
+def dashboard_acquisition_item(acquisition: AcquisitionSession) -> DashboardAcquisitionItem:
+    summary = AcquisitionSessionSummary.model_validate(acquisition)
+    return DashboardAcquisitionItem.model_validate(
+        {
+            **summary.model_dump(),
+            "mda_progress": acquisition_mda_progress(acquisition),
+        }
+    )
+
+
+def acquisition_mda_progress(acquisition: AcquisitionSession):
+    direct_progress = getattr(acquisition, "mda_progress", None)
+    if direct_progress is not None:
+        return direct_progress
+    for payload in (
+        acquisition.result_json,
+        acquisition.metadata_json,
+        acquisition.acquisition_params_json,
+    ):
+        progress = find_mda_progress(payload)
+        if progress is not None:
+            return progress
+    return None
+
+
+def find_mda_progress(payload):
+    if isinstance(payload, dict):
+        if payload.get("mda_progress") is not None:
+            return payload["mda_progress"]
+        for value in payload.values():
+            progress = find_mda_progress(value)
+            if progress is not None:
+                return progress
+    elif isinstance(payload, list):
+        for value in payload:
+            progress = find_mda_progress(value)
+            if progress is not None:
+                return progress
+    return None
 
 
 def dashboard_job_item(job: Job) -> DashboardJobItem:

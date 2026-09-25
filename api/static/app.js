@@ -119,9 +119,11 @@ const els = {
   dashboardActiveJobsBody: document.querySelector("#dashboard-active-jobs-table tbody"),
   dashboardRecentJobsBody: document.querySelector("#dashboard-recent-jobs-table tbody"),
   dashboardAcquisitionsBody: document.querySelector("#dashboard-acquisitions-table tbody"),
+  dashboardFailedAcquisitionsBody: document.querySelector("#dashboard-failed-acquisitions-table tbody"),
   dashboardActiveJobsEmpty: document.querySelector("#dashboard-active-jobs-empty"),
   dashboardRecentJobsEmpty: document.querySelector("#dashboard-recent-jobs-empty"),
   dashboardAcquisitionsEmpty: document.querySelector("#dashboard-acquisitions-empty"),
+  dashboardFailedAcquisitionsEmpty: document.querySelector("#dashboard-failed-acquisitions-empty"),
   detailEmpty: document.querySelector("#detail-empty"),
   detailContent: document.querySelector("#detail-content"),
   detailSubtitle: document.querySelector("#detail-subtitle"),
@@ -858,7 +860,7 @@ function clearDashboardState() {
   if (els.summaryTotalBytes) els.summaryTotalBytes.textContent = "0 B";
   if (els.summaryGroupCount) els.summaryGroupCount.textContent = "0";
   if (els.dashboardProjectCount) els.dashboardProjectCount.textContent = "0";
-  renderDashboardActivity({ active_jobs: [], recent_jobs: [], active_acquisitions: [] });
+  renderDashboardActivity({ active_jobs: [], recent_jobs: [], active_acquisitions: [], recent_failed_acquisitions: [] });
 
   renderGroupFilter();
   renderStorageRootFilter();
@@ -1679,6 +1681,7 @@ function renderDashboardActivity(activity) {
   const activeJobs = Array.isArray(activity?.active_jobs) ? activity.active_jobs : [];
   const recentJobs = Array.isArray(activity?.recent_jobs) ? activity.recent_jobs : [];
   const acquisitions = Array.isArray(activity?.active_acquisitions) ? activity.active_acquisitions : [];
+  const failedAcquisitions = Array.isArray(activity?.recent_failed_acquisitions) ? activity.recent_failed_acquisitions : [];
   if (els.dashboardActiveJobCount) els.dashboardActiveJobCount.textContent = `${activeJobs.length}`;
   if (els.dashboardRecentJobCount) els.dashboardRecentJobCount.textContent = `${recentJobs.length}`;
   if (els.dashboardAcquisitionCount) els.dashboardAcquisitionCount.textContent = `${acquisitions.length}`;
@@ -1703,6 +1706,33 @@ function renderDashboardActivity(activity) {
         <td>${escapeHtml(formatTimestamp(acquisition.last_seen_at || acquisition.updated_at) || "—")}</td>
       `;
       els.dashboardAcquisitionsBody.appendChild(row);
+    }
+  }
+
+  if (els.dashboardFailedAcquisitionsBody) {
+    els.dashboardFailedAcquisitionsBody.replaceChildren();
+    if (els.dashboardFailedAcquisitionsEmpty) {
+      els.dashboardFailedAcquisitionsEmpty.classList.toggle("hidden", failedAcquisitions.length > 0);
+    }
+    for (const acquisition of failedAcquisitions) {
+      const row = document.createElement("tr");
+      const label = acquisition.acquisition_label || acquisition.session_key || "Acquisition";
+      const microscope = acquisition.microscope_name ? ` · ${acquisition.microscope_name}` : "";
+      const mdaProgress = acquisition.mda_progress
+        ?? acquisition.result_json?.mda_progress
+        ?? acquisition.metadata_json?.mda_progress
+        ?? acquisition.acquisition_params_json?.mda_progress;
+      const progressText = mdaProgress == null
+        ? (acquisition.progress_percent == null ? "—" : `${Number(acquisition.progress_percent).toLocaleString(undefined, { maximumFractionDigits: 1 })}%`)
+        : (typeof mdaProgress === "object" ? JSON.stringify(mdaProgress) : String(mdaProgress));
+      const errorText = acquisition.error_text || "—";
+      row.innerHTML = `
+        <td>${escapeHtml(label)}${escapeHtml(microscope)}</td>
+        <td>${escapeHtml(formatTimestamp(acquisition.completed_at || acquisition.updated_at || acquisition.last_seen_at) || "—")}</td>
+        <td title="${escapeHtml(progressText)}">${escapeHtml(shortText(progressText, 180))}</td>
+        <td title="${escapeHtml(errorText)}">${escapeHtml(shortText(errorText, 240))}</td>
+      `;
+      els.dashboardFailedAcquisitionsBody.appendChild(row);
     }
   }
 }
