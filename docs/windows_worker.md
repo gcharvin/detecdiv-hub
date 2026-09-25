@@ -136,6 +136,18 @@ to this PC uses a separate key and account.
 In a **PowerShell** session as `GMGM\Charvin-Admin`, create `.env` from
 `ops/windows/worker.env.example` and set these values:
 
+The helper below prompts for the PostgreSQL login and masked password, writes
+the machine-specific values, and locks down the `.env` ACL. Run it from the
+hub checkout:
+
+```powershell
+.\scripts\configure_windows_worker_env.ps1
+```
+
+Enter the login from the database URL's `LOGIN:PASSWORD` portion. At the
+password prompt, type the password and press Enter; PowerShell masks the
+input. Do not paste the password or generated URL into chat.
+
 ```text
 DETECDIV_HUB_DATABASE_URL=postgresql+psycopg://USER:PASSWORD@127.0.0.1:15432/detecdiv_hub
 DETECDIV_HUB_WORKER_TARGET_KEY=windows-10-20-11-56
