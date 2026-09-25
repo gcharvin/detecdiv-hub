@@ -1,27 +1,35 @@
 from __future__ import annotations
 
 import json
+import os
 import re
 import tempfile
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
-from datetime import datetime, timezone
 
 from sqlalchemy import select
 from sqlalchemy.orm import Session, joinedload
 
 from api.config import get_settings
 from api.models import Artifact, ExecutionTarget, Job, Pipeline, Project, ProjectLocation
+from api.services.pipeline_raw_ingest import (
+    ingest_pipeline_run_raw_dataset,
+    pipeline_run_requests_raw_ingest,
+)
 from api.services.project_deletion import resolve_project_location_paths
 from api.services.project_locks import heartbeat_project_locks_for_job
-from api.services.pipeline_raw_ingest import ingest_pipeline_run_raw_dataset, pipeline_run_requests_raw_ingest
 from worker.executors.matlab_executor import build_matlab_batch_command, run_matlab_command
+from worker.path_mappings import (
+    WorkerPathMapping,
+    map_payload_path_fields,
+    parse_worker_path_mappings,
+)
 from worker.pipeline_dependency_preflight import (
     build_preflight_error_text,
     evaluate_pipeline_dependency_preflight,
 )
 from worker.pipeline_prepared_run import merge_prepared_pipeline_run, persist_prepared_pipeline_run
-
 
 PIPELINE_REF_PATH_KEYS = ("export_manifest_uri", "pipeline_bundle_uri", "pipeline_json_path")
 PIPELINE_PATHISH_KEYS = {
@@ -56,26 +64,49 @@ def execute_pipeline_run_job(session: Session, *, job: Job) -> dict[str, Any]:
 
     matlab_command = str(settings.matlab_command or "matlab").strip() or "matlab"
 
-    payload = normalize_pipeline_run_payload(session, job=job)
-    payload = normalize_pipeline_ref_paths_for_posix(payload=payload, job=job)
-    raw_ingest = None
-    if pipeline_run_requests_raw_ingest(payload):
-        raw_ingest = ingest_pipeline_run_raw_dataset(session, job=job)
-        # Keep this provenance even when the subsequent MATLAB execution fails.
-        job_record = session.get(Job, job.id)
-        if job_record is not None:
-            result_json = dict(job_record.result_json or {})
-            result_json["raw_dataset_ingest"] = raw_ingest
-            job_record.result_json = result_json
-        session.commit()
-    persist_prepared_pipeline_run(session, job=job, payload=payload)
-    preflight = evaluate_pipeline_dependency_preflight(payload)
-    persist_pipeline_preflight(session, job=job, preflight=preflight)
-    if preflight.get("status") == "failed":
-        raise PipelinePreflightFailed(build_preflight_error_text(preflight))
-
     with tempfile.TemporaryDirectory(prefix="detecdiv_pipeline_job_") as tmpdir:
         tmp_path = Path(tmpdir)
+        payload = normalize_pipeline_run_payload(session, job=job)
+        path_mappings = parse_worker_path_mappings(settings.worker_path_mappings)
+        if path_mappings:
+            payload = map_payload_path_fields(payload, path_mappings)
+            project_ref = dict(payload.get("project_ref") or {})
+            pipeline_ref = dict(payload.get("pipeline_ref") or {})
+            resolve_pipeline_ref_for_server(
+                session, job=job, project_ref=project_ref, pipeline_ref=pipeline_ref
+            )
+            payload["pipeline_ref"] = pipeline_ref
+        payload = normalize_pipeline_ref_paths_for_posix(
+            payload=payload,
+            job=job,
+            path_mappings=path_mappings,
+            runtime_dir=tmp_path if path_mappings else None,
+        )
+        if os.name == "nt" and pipeline_run_requests_raw_ingest(payload):
+            raise ValueError(
+                "Raw-dataset ingestion during a pipeline run requires the Linux storage worker; "
+                "submit this job to a Linux target."
+            )
+        raw_ingest = None
+        if pipeline_run_requests_raw_ingest(payload):
+            raw_ingest = ingest_pipeline_run_raw_dataset(session, job=job)
+            # Keep this provenance even when the subsequent MATLAB execution fails.
+            job_record = session.get(Job, job.id)
+            if job_record is not None:
+                result_json = dict(job_record.result_json or {})
+                result_json["raw_dataset_ingest"] = raw_ingest
+                job_record.result_json = result_json
+            session.commit()
+        persist_prepared_pipeline_run(session, job=job, payload=payload)
+        preflight = evaluate_pipeline_dependency_preflight(
+            payload,
+            worker_platform="windows" if os.name == "nt" else "linux",
+            path_mappings=path_mappings,
+        )
+        persist_pipeline_preflight(session, job=job, preflight=preflight)
+        if preflight.get("status") == "failed":
+            raise PipelinePreflightFailed(build_preflight_error_text(preflight))
+
         payload_path = tmp_path / "pipeline_run_job.json"
         result_path = tmp_path / "pipeline_run_result.json"
         stdout_path = tmp_path / "matlab_stdout.log"
@@ -520,7 +551,13 @@ def path_leaf(path_text: str) -> str:
     return parts[-1] if parts else ""
 
 
-def normalize_pipeline_ref_paths_for_posix(*, payload: dict[str, Any], job: Job) -> dict[str, Any]:
+def normalize_pipeline_ref_paths_for_posix(
+    *,
+    payload: dict[str, Any],
+    job: Job,
+    path_mappings: tuple[WorkerPathMapping, ...] = (),
+    runtime_dir: Path | None = None,
+) -> dict[str, Any]:
     pipeline_ref = dict(payload.get("pipeline_ref") or {})
     pipeline_json_path = str(pipeline_ref.get("pipeline_json_path") or "").strip()
     if not pipeline_json_path:
@@ -541,16 +578,20 @@ def normalize_pipeline_ref_paths_for_posix(*, payload: dict[str, Any], job: Job)
     except (OSError, json.JSONDecodeError):
         return payload
 
-    normalized_data, changed = normalize_pipeline_data_paths_for_posix(pipeline_data)
+    mapped_data = map_payload_path_fields(pipeline_data, path_mappings)
+    normalized_data, normalized = normalize_pipeline_data_paths_for_posix(mapped_data)
+    changed = mapped_data != pipeline_data or normalized
     if not changed:
         return payload
 
-    runtime_path = source_path.parent / f".detecdiv_runtime_pipeline_{job.id}.json"
+    runtime_path = (runtime_dir or source_path.parent) / f".detecdiv_runtime_pipeline_{job.id}.json"
     runtime_path.write_text(json.dumps(normalized_data, indent=2), encoding="utf-8")
 
     pipeline_ref["pipeline_json_path_original"] = pipeline_json_path
     pipeline_ref["pipeline_json_path"] = str(runtime_path)
-    pipeline_ref["path_normalization"] = "relative_windows_paths_rewritten_for_posix"
+    pipeline_ref["path_normalization"] = (
+        "worker_local_paths" if path_mappings else "relative_windows_paths_rewritten_for_posix"
+    )
 
     normalized_payload = dict(payload)
     normalized_payload["pipeline_ref"] = pipeline_ref

@@ -58,7 +58,8 @@ def normalized_pipeline_path_from_ref(pipeline_ref: dict[str, Any]) -> str:
 
 def read_dependency_audit_for_payload(payload: dict[str, Any]) -> dict[str, Any]:
     pipeline_ref = dict(payload.get("pipeline_ref") or {})
-    pipeline_path = normalized_pipeline_path_from_ref(pipeline_ref)
+    pipeline_path = str(pipeline_ref.get("pipeline_json_path_original") or "").strip()
+    pipeline_path = pipeline_path or normalized_pipeline_path_from_ref(pipeline_ref)
     if not pipeline_path:
         return {}
 

@@ -19,8 +19,14 @@ from api.services.job_priority_settings import (
     effective_job_priority_expression,
     resolve_job_priority_runtime_config,
 )
-from api.services.project_deletion import execute_project_deletion_job, finalize_project_deletion_failure
-from api.services.project_locks import heartbeat_project_locks_for_job, release_project_locks_for_job
+from api.services.project_deletion import (
+    execute_project_deletion_job,
+    finalize_project_deletion_failure,
+)
+from api.services.project_locks import (
+    heartbeat_project_locks_for_job,
+    release_project_locks_for_job,
+)
 from api.services.raw_dataset_deletion import execute_raw_dataset_deletion_job
 from api.services.raw_dataset_position_deletion import execute_raw_dataset_position_deletion_job
 from api.services.worker_instances import (
@@ -38,14 +44,23 @@ from worker.gpu_arbitration import (
     pause_qwen_for_gpu_job,
     resume_qwen_if_gpu_is_idle,
 )
-from worker.misc_storage_inventory import execute_misc_storage_inventory_job
-from worker.micromanager_ingest_scheduler import run_micromanager_ingest_if_due
-from worker.pipeline_run_executor import PipelineRunCancelled, execute_pipeline_run_job
 from worker.legacy_matlab_executor import execute_legacy_matlab_job
-from worker.storage_lifecycle import execute_storage_lifecycle_job, finalize_storage_lifecycle_failure
-from worker.storage_optimization import execute_storage_optimization_job, finalize_storage_optimization_failure
-from worker.user_home_storage import execute_user_home_storage_job, finalize_user_home_storage_failure
-
+from worker.micromanager_ingest_scheduler import run_micromanager_ingest_if_due
+from worker.misc_storage_inventory import execute_misc_storage_inventory_job
+from worker.path_mappings import parse_worker_path_mappings
+from worker.pipeline_run_executor import PipelineRunCancelled, execute_pipeline_run_job
+from worker.storage_lifecycle import (
+    execute_storage_lifecycle_job,
+    finalize_storage_lifecycle_failure,
+)
+from worker.storage_optimization import (
+    execute_storage_optimization_job,
+    finalize_storage_optimization_failure,
+)
+from worker.user_home_storage import (
+    execute_user_home_storage_job,
+    finalize_user_home_storage_failure,
+)
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
 LOGGER = logging.getLogger("detecdiv-hub-worker")
@@ -182,6 +197,12 @@ def claim_next_job() -> Job | None:
     settings = get_settings()
     with session_scope() as session:
         target = resolve_worker_target(session, settings.worker_target_key)
+        if settings.worker_target_key and target is None:
+            raise RuntimeError(
+                f"Configured worker target '{settings.worker_target_key}' does not exist."
+            )
+        if target is None and not settings.worker_claim_unassigned_jobs:
+            raise RuntimeError("A worker target is required when unassigned jobs are disabled.")
         if target is not None:
             target = session.scalars(select(ExecutionTarget).where(ExecutionTarget.id == target.id).with_for_update()).one()
             if bool((target.metadata_json or {}).get("drain_new_jobs")):
@@ -219,8 +240,15 @@ def claim_next_job() -> Job | None:
             .limit(1)
             .with_for_update(skip_locked=True)
         )
-        if target is not None:
-            stmt = stmt.where((Job.execution_target_id.is_(None)) | (Job.execution_target_id == target.id))
+        allowed_job_kinds = tuple(
+            kind.strip() for kind in settings.worker_job_kinds.split(",") if kind.strip()
+        )
+        stmt = apply_worker_job_filters(
+            stmt,
+            target=target,
+            claim_unassigned_jobs=settings.worker_claim_unassigned_jobs,
+            allowed_job_kinds=allowed_job_kinds,
+        )
         job = session.scalars(stmt).first()
         if job is None:
             update_worker_target_state(
@@ -249,6 +277,23 @@ def claim_next_job() -> Job | None:
         session.flush()
         session.expunge(job)
         return job
+
+
+def apply_worker_job_filters(
+    stmt,
+    *,
+    target: ExecutionTarget | None,
+    claim_unassigned_jobs: bool,
+    allowed_job_kinds: tuple[str, ...],
+):
+    if target is not None:
+        if claim_unassigned_jobs:
+            stmt = stmt.where((Job.execution_target_id.is_(None)) | (Job.execution_target_id == target.id))
+        else:
+            stmt = stmt.where(Job.execution_target_id == target.id)
+    if allowed_job_kinds:
+        stmt = stmt.where(Job.params_json["job_kind"].as_string().in_(allowed_job_kinds))
+    return stmt
 
 
 def mark_job_done(job_id, result_json: dict) -> None:
@@ -553,6 +598,15 @@ def sync_indexing_job_from_worker_job(
 
 def run_forever() -> None:
     settings = get_settings()
+    parse_worker_path_mappings(settings.worker_path_mappings)
+    with session_scope() as session:
+        target = resolve_worker_target(session, settings.worker_target_key)
+        if settings.worker_target_key and target is None:
+            raise RuntimeError(
+                f"Configured worker target '{settings.worker_target_key}' does not exist."
+            )
+        if target is None and not settings.worker_claim_unassigned_jobs:
+            raise RuntimeError("A worker target is required when unassigned jobs are disabled.")
     last_archive_policy_run_at: datetime | None = None
     last_micromanager_ingest_run_at: datetime | None = None
     last_backup_run_at: datetime | None = None
@@ -566,29 +620,30 @@ def run_forever() -> None:
         except Exception:  # pragma: no cover - defensive around heartbeat
             LOGGER.exception("Execution target heartbeat update failed")
 
-        try:
-            with session_scope() as session:
-                last_archive_policy_run_at = run_archive_policy_if_due(
-                    session,
-                    last_run_at=last_archive_policy_run_at,
-                )
-        except Exception:  # pragma: no cover - defensive around periodic maintenance
-            LOGGER.exception("Automatic archive policy run failed")
+        if settings.worker_enable_schedulers:
+            try:
+                with session_scope() as session:
+                    last_archive_policy_run_at = run_archive_policy_if_due(
+                        session,
+                        last_run_at=last_archive_policy_run_at,
+                    )
+            except Exception:  # pragma: no cover - defensive around periodic maintenance
+                LOGGER.exception("Automatic archive policy run failed")
 
-        try:
-            with session_scope() as session:
-                last_micromanager_ingest_run_at = run_micromanager_ingest_if_due(
-                    session,
-                    last_run_at=last_micromanager_ingest_run_at,
-                )
-        except Exception:  # pragma: no cover - defensive around periodic maintenance
-            LOGGER.exception("Micro-Manager ingest run failed")
+            try:
+                with session_scope() as session:
+                    last_micromanager_ingest_run_at = run_micromanager_ingest_if_due(
+                        session,
+                        last_run_at=last_micromanager_ingest_run_at,
+                    )
+            except Exception:  # pragma: no cover - defensive around periodic maintenance
+                LOGGER.exception("Micro-Manager ingest run failed")
 
-        try:
-            with session_scope() as session:
-                last_backup_run_at = run_backup_if_due(session, last_run_at=last_backup_run_at)
-        except Exception:  # pragma: no cover - defensive around periodic maintenance
-            LOGGER.exception("Backup scheduler run failed")
+            try:
+                with session_scope() as session:
+                    last_backup_run_at = run_backup_if_due(session, last_run_at=last_backup_run_at)
+            except Exception:  # pragma: no cover - defensive around periodic maintenance
+                LOGGER.exception("Backup scheduler run failed")
 
         job = claim_next_job()
         if job is None:

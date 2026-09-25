@@ -130,6 +130,10 @@ Do not store real database passwords in repository files.
 
 ## Remote Worker Installation Pattern
 
+For a native Windows MATLAB worker on another PC, see
+[`docs/windows_worker.md`](windows_worker.md). The procedure below describes
+the current Linux worker host.
+
 A compute worker is a normal Python process managed by systemd. It connects to
 the VM PostgreSQL database and claims jobs from the central `jobs` table.
 

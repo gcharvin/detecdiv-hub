@@ -18,6 +18,10 @@ class Settings(BaseSettings):
     indexing_target_key: str = ""
     worker_target_key: str = ""
     worker_instance: str = ""
+    worker_claim_unassigned_jobs: bool = True
+    worker_job_kinds: str = ""
+    worker_path_mappings: str = ""
+    worker_enable_schedulers: bool = True
     systemd_env_file: str = "/etc/detecdiv-hub/detecdiv-hub.env"
     systemd_unit_dir: str = "/etc/systemd/system"
     systemd_service_user: str = Field(default_factory=getpass.getuser)

@@ -57,6 +57,11 @@ Shortcuts:
 
 See [docs/architecture.md](docs/architecture.md), [docs/install_server.md](docs/install_server.md), [docs/install_client.md](docs/install_client.md), [docs/development.md](docs/development.md), [docs/dev_deploy_workflow.md](docs/dev_deploy_workflow.md), and [AGENTS.md](AGENTS.md).
 
+For a native Windows MATLAB worker, configure its dedicated `.env` and follow
+[docs/windows_worker.md](docs/windows_worker.md) before running `run_worker.ps1`.
+The [SSH setup and pilot strategy](docs/windows_worker_ssh_strategy.md) explain
+how to prepare the Windows PC for remote administration.
+
 ## Bootstrap a local development database
 
 This repository expects PostgreSQL. Create a database first, then:

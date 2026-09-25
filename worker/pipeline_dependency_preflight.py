@@ -3,10 +3,19 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any
 
-from worker.pipeline_prepared_run import normalized_pipeline_path_from_ref, read_dependency_audit_for_payload
+from worker.path_mappings import WorkerPathMapping, map_worker_path
+from worker.pipeline_prepared_run import (
+    normalized_pipeline_path_from_ref,
+    read_dependency_audit_for_payload,
+)
 
 
-def evaluate_pipeline_dependency_preflight(payload: dict[str, Any]) -> dict[str, Any]:
+def evaluate_pipeline_dependency_preflight(
+    payload: dict[str, Any],
+    *,
+    worker_platform: str = "linux",
+    path_mappings: tuple[WorkerPathMapping, ...] = (),
+) -> dict[str, Any]:
     dependency_audit = read_dependency_audit_for_payload(payload)
     if not dependency_audit:
         return {
@@ -17,7 +26,8 @@ def evaluate_pipeline_dependency_preflight(payload: dict[str, Any]) -> dict[str,
         }
 
     pipeline_ref = dict(payload.get("pipeline_ref") or {})
-    pipeline_path = normalized_pipeline_path_from_ref(pipeline_ref)
+    pipeline_path = str(pipeline_ref.get("pipeline_json_path_original") or "").strip()
+    pipeline_path = pipeline_path or normalized_pipeline_path_from_ref(pipeline_ref)
     pipeline_root = resolve_pipeline_root_for_preflight(pipeline_path)
 
     errors: list[str] = []
@@ -52,7 +62,12 @@ def evaluate_pipeline_dependency_preflight(payload: dict[str, Any]) -> dict[str,
                 errors.append(f"{node_id}: missing configured/resolved module path for required dependency.")
             continue
 
-        host_path = resolve_dependency_path_for_worker(candidate_path, pipeline_root)
+        host_path = resolve_dependency_path_for_worker(
+            candidate_path,
+            pipeline_root,
+            worker_platform=worker_platform,
+            path_mappings=path_mappings,
+        )
         if not host_path.exists():
             errors.append(f"{node_id}: required dependency path not found on worker host: {host_path}")
             continue
@@ -104,15 +119,26 @@ def resolve_pipeline_root_for_preflight(pipeline_path: str) -> Path:
     return path_obj.parent
 
 
-def resolve_dependency_path_for_worker(candidate_path: str, pipeline_root: Path) -> Path:
-    path_text = normalize_worker_path_text(str(candidate_path).strip())
+def resolve_dependency_path_for_worker(
+    candidate_path: str,
+    pipeline_root: Path,
+    *,
+    worker_platform: str = "linux",
+    path_mappings: tuple[WorkerPathMapping, ...] = (),
+) -> Path:
+    path_text = map_worker_path(str(candidate_path).strip(), path_mappings)
+    path_text = normalize_worker_path_text(path_text, worker_platform=worker_platform)
     candidate = Path(path_text)
+    if worker_platform == "linux" and path_text.startswith("/"):
+        return candidate
     if candidate.is_absolute():
         return candidate
     return (pipeline_root / candidate).resolve()
 
 
-def normalize_worker_path_text(path_text: str) -> str:
+def normalize_worker_path_text(path_text: str, *, worker_platform: str = "linux") -> str:
+    if worker_platform == "windows":
+        return path_text
     if len(path_text) >= 3 and path_text[1] == ":" and path_text[2] in ("\\", "/"):
         drive = path_text[0].upper()
         rest = path_text[3:].replace("\\", "/").lstrip("/")
