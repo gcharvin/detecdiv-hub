@@ -69,12 +69,15 @@ from api.services.user_home_storage import (
     upsert_user_storage_account,
 )
 from api.services.storage_providers.synology_dsm import (
-    SynologyDsmClient,
     SynologyDsmError,
     parse_user_quota_payload,
     summarize_discovered_capabilities,
 )
-from api.services.storage_providers.synology_ssh import SynologySshClient, SynologySshError
+from api.services.storage_providers.synology_ssh import SynologySshError
+from api.services.storage_providers.provider_clients import (
+    synology_dsm_client_for_provider,
+    synology_ssh_client_for_provider,
+)
 from api.services.users import get_current_user
 
 
@@ -503,7 +506,7 @@ def discover_synology_provider(
     provider = resolve_provider(db, provider_key)
     if provider.provider_kind != "synology_dsm":
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Provider is not a Synology DSM provider")
-    client = SynologyDsmClient()
+    client = synology_dsm_client_for_provider(provider)
     try:
         api_info = client.discover()
     except SynologyDsmError as exc:
@@ -540,7 +543,7 @@ def check_synology_login(
     provider = resolve_provider(db, provider_key)
     if provider.provider_kind != "synology_dsm":
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Provider is not a Synology DSM provider")
-    client = SynologyDsmClient()
+    client = synology_dsm_client_for_provider(provider)
     try:
         result = client.login_check()
     except SynologyDsmError as exc:
@@ -571,7 +574,7 @@ def probe_synology_api(
     provider = resolve_provider(db, provider_key)
     if provider.provider_kind != "synology_dsm":
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Provider is not a Synology DSM provider")
-    client = SynologyDsmClient()
+    client = synology_dsm_client_for_provider(provider)
     try:
         result = client.call_discovered_api(
             api_name=payload.api_name,
@@ -607,7 +610,7 @@ def list_synology_users(
     provider = resolve_provider(db, provider_key)
     if provider.provider_kind != "synology_dsm":
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Provider is not a Synology DSM provider")
-    client = SynologyDsmClient()
+    client = synology_dsm_client_for_provider(provider)
     try:
         users = client.list_users()
     except SynologyDsmError as exc:
@@ -644,7 +647,7 @@ def get_synology_user_home_settings(
     provider = resolve_provider(db, provider_key)
     if provider.provider_kind != "synology_dsm":
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Provider is not a Synology DSM provider")
-    client = SynologyDsmClient()
+    client = synology_dsm_client_for_provider(provider)
     try:
         settings = client.get_user_home_settings()
     except SynologyDsmError as exc:
@@ -674,7 +677,7 @@ def get_synology_user_quota_for_account(
     account = load_account(db, account_id)
     if account.provider.provider_kind != "synology_dsm":
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Storage account is not linked to a Synology DSM provider")
-    client = SynologyDsmClient()
+    client = synology_dsm_client_for_provider(account.provider)
     try:
         payload = client.get_user_quota(account.provider_user_key)
     except SynologyDsmError as exc:
@@ -736,7 +739,7 @@ def update_synology_user_quota_for_account(
     message = "Quota target recorded in the hub."
     if quota_bytes is not None:
         try:
-            SynologySshClient().set_user_quota(
+            synology_ssh_client_for_provider(account.provider).set_user_quota(
                 user_name=account.provider_user_key,
                 quota_bytes=quota_bytes,
             )
@@ -781,7 +784,7 @@ def ensure_synology_user_for_account(
     if account.provider.provider_kind != "synology_dsm":
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Storage account is not linked to a Synology DSM provider")
 
-    client = SynologyDsmClient()
+    client = synology_dsm_client_for_provider(account.provider)
     try:
         raw_user = client.get_user(account.provider_user_key)
     except SynologyDsmError as exc:
@@ -843,7 +846,7 @@ def ensure_synology_user_for_account(
             creation_method = "dsm_api"
         except SynologyDsmError as exc:
             dsm_api_create_error_code = exc.code
-            ssh_client = SynologySshClient()
+            ssh_client = synology_ssh_client_for_provider(account.provider)
             if not ssh_client.is_configured():
                 now = datetime.now(timezone.utc)
                 account.last_synced_at = now
@@ -1104,6 +1107,11 @@ def queue_user_home_prepare_job(
 ) -> UserHomePrepareResponse:
     require_storage_admin(current_user)
     account = load_account(db, account_id)
+    if not account.provider.is_active:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Storage provider is inactive; home preparation is not available yet",
+        )
     job = Job(
         requested_mode=payload.requested_mode,
         priority=payload.priority,

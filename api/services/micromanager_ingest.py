@@ -19,6 +19,7 @@ from api.models import (
     MicroManagerIngestRun,
     Pipeline,
     RawDataset,
+    StorageProvider,
     User,
     UserStorageAccount,
 )
@@ -188,6 +189,7 @@ def list_user_micromanager_landing_roots(
     stmt = (
         select(UserStorageAccount)
         .join(UserStorageAccount.user)
+        .join(UserStorageAccount.provider)
         .options(
             joinedload(UserStorageAccount.user),
             joinedload(UserStorageAccount.home_storage_root),
@@ -197,6 +199,7 @@ def list_user_micromanager_landing_roots(
     )
     if not include_inactive_users:
         stmt = stmt.where(User.is_active.is_(True))
+    stmt = stmt.where(StorageProvider.is_active.is_(True))
     accounts = list(session.scalars(stmt).unique())
     roots: list[MicroManagerLandingRootData] = []
     seen_users: set[str] = set()
@@ -605,11 +608,14 @@ def promote_micromanager_candidate_to_user_home(
 
     account = session.scalars(
         select(UserStorageAccount)
+        .join(UserStorageAccount.provider)
         .options(
             joinedload(UserStorageAccount.home_storage_root),
             joinedload(UserStorageAccount.provider),
         )
         .where(UserStorageAccount.user_id == owner.id)
+        .where(StorageProvider.is_active.is_(True))
+        .where(UserStorageAccount.provisioning_status.in_(("ready", "provider_user_ready")))
         .order_by(UserStorageAccount.updated_at.desc())
     ).first()
     if account is None:

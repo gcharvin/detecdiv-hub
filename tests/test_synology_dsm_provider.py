@@ -1,3 +1,7 @@
+from types import SimpleNamespace
+
+import pytest
+
 from api.services.storage_providers.synology_dsm import (
     SynologyDsmClient,
     SynologyDsmError,
@@ -13,6 +17,10 @@ from api.services.storage_providers.synology_ssh import (
     build_synouser_delete_command,
 )
 from api.schemas import SynologyDsmUserQuotaResponse, StorageProviderSummary
+from api.services.storage_providers.provider_clients import (
+    synology_dsm_client_for_provider,
+    synology_ssh_client_for_provider,
+)
 
 
 def test_choose_auth_version_caps_at_recommended_version() -> None:
@@ -20,6 +28,35 @@ def test_choose_auth_version_caps_at_recommended_version() -> None:
     assert choose_auth_version({"maxVersion": 6}) == 6
     assert choose_auth_version({"maxVersion": 3}) == 3
     assert choose_auth_version({}) == 6
+
+
+def test_secondary_provider_uses_its_own_endpoint_and_credentials(monkeypatch) -> None:
+    provider = SimpleNamespace(
+        provider_key="synology-secondary",
+        config_json={
+            "dsm_base_url": "http://10.20.8.250:5000",
+            "ssh_host": "10.20.8.250",
+            "credentials_env_prefix": "DETECDIV_HUB_SYNOLOGY_SECONDARY",
+        },
+    )
+    monkeypatch.setenv("DETECDIV_HUB_SYNOLOGY_SECONDARY_DSM_ACCOUNT", "service-user")
+    monkeypatch.setenv("DETECDIV_HUB_SYNOLOGY_SECONDARY_DSM_PASSWORD", "test-secret")
+    dsm = synology_dsm_client_for_provider(provider)
+    assert dsm.config.base_url == "http://10.20.8.250:5000"
+    assert dsm.config.account == "service-user"
+    assert dsm.config.password == "test-secret"
+
+    ssh = synology_ssh_client_for_provider(provider)
+    assert ssh.config.host == "10.20.8.250"
+    assert ssh.config.enabled is False
+
+
+def test_secondary_provider_cannot_fall_back_to_main_nas() -> None:
+    provider = SimpleNamespace(provider_key="synology-secondary", config_json={})
+    with pytest.raises(SynologyDsmError, match="credentials_env_prefix"):
+        synology_dsm_client_for_provider(provider)
+    with pytest.raises(SynologyDsmError, match="credentials_env_prefix"):
+        synology_ssh_client_for_provider(provider)
 
 
 def test_choose_max_version_defaults_to_one() -> None:

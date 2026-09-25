@@ -1,3 +1,6 @@
+from types import SimpleNamespace
+
+import pytest
 from fastapi import HTTPException
 
 from api.services.user_home_storage import (
@@ -8,7 +11,7 @@ from api.services.user_home_storage import (
     storage_safe_user_key,
 )
 from api.models import StorageRoot
-from worker.user_home_storage import normalize_subdirectories, resolve_storage_root_relative_path
+from worker.user_home_storage import normalize_subdirectories, resolve_storage_root_relative_path, resolve_user_home_path
 
 
 def test_normalize_provider_key_is_stable() -> None:
@@ -65,6 +68,16 @@ def test_resolve_storage_root_relative_path_requires_existing_root(tmp_path) -> 
         pass
     else:
         raise AssertionError("Expected missing storage root to be rejected")
+
+
+def test_synology_home_prepare_rejects_unmounted_root(tmp_path) -> None:
+    root = StorageRoot(name="homes2", root_type="user_home_root", host_scope="test", path_prefix=str(tmp_path))
+    provider = SimpleNamespace(provider_key="synology-secondary", provider_kind="synology_dsm", mount_root=str(tmp_path))
+    account = SimpleNamespace(id="test", provider=provider, home_storage_root=root, home_relative_path="maliavko/DetecdivHub")
+
+    with pytest.raises(RuntimeError, match="not mounted"):
+        resolve_user_home_path(account)
+    assert not (tmp_path / "maliavko").exists()
 
 
 def test_normalize_subdirectories_rejects_nested_or_unsafe_values() -> None:

@@ -117,6 +117,12 @@ def resolve_user_home_path(account: UserStorageAccount) -> Path:
         raise ValueError(f"User storage account {account.id} has no home storage root")
     if account.provider.provider_kind not in {"posix_mount", "synology_dsm"}:
         raise ValueError(f"Provider kind {account.provider.provider_kind} is not mount-backed")
+    if account.provider.provider_kind == "synology_dsm":
+        mount_root = Path(account.provider.mount_root or "")
+        if not mount_root.is_absolute() or not mount_root.is_mount():
+            raise RuntimeError(
+                f"Synology provider {account.provider.provider_key} is not mounted at {mount_root}"
+            )
     return resolve_storage_root_relative_path(account.home_storage_root, account.home_relative_path)
 
 

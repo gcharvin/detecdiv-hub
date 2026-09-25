@@ -17,6 +17,7 @@ from api.models import (
     ProjectLocation,
     ProjectRawLink,
     RawDataset,
+    StorageProvider,
     StorageRoot,
     User,
     UserStorageAccount,
@@ -76,7 +77,8 @@ from api.services.project_locks import (
     utcnow,
 )
 from api.services.users import ensure_project_readable, get_current_user, get_or_create_user, project_access_filter, user_can_edit_project
-from api.services.storage_providers.synology_ssh import SynologySshClient, SynologySshError
+from api.services.storage_providers.synology_ssh import SynologySshError
+from api.services.storage_providers.provider_clients import synology_ssh_client_for_provider
 
 
 router = APIRouter(prefix="/projects", tags=["projects"])
@@ -760,7 +762,9 @@ def list_users(
             .join(UserStorageAccount.provider)
             .options(joinedload(UserStorageAccount.provider))
             .where(UserStorageAccount.user_id.in_([user.id for user in users]))
-            .order_by(UserStorageAccount.created_at.desc())
+            .where(StorageProvider.is_active.is_(True))
+            .where(UserStorageAccount.provisioning_status.in_(("ready", "provider_user_ready")))
+            .order_by(UserStorageAccount.updated_at.asc())
         ).unique()
     }
 
@@ -963,7 +967,7 @@ def delete_user(
     message = "Hub user was deactivated."
     if delete_synology_user and account is not None:
         try:
-            SynologySshClient().delete_user(user_name=account.provider_user_key)
+            synology_ssh_client_for_provider(account.provider).delete_user(user_name=account.provider_user_key)
             synology_deleted = True
             account.provisioning_status = "provider_user_deleted"
             account.metadata_json = {
