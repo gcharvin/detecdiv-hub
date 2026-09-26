@@ -21,19 +21,17 @@ class GpuArbitrationError(RuntimeError):
 
 
 def job_requires_gpu(session: Session, *, job: Job) -> bool:
-    """Return whether this pipeline run will claim the configured GPU target."""
+    """Return whether the worker scheduler reserved a GPU for this pipeline."""
     if (job.params_json or {}).get("job_kind") != "pipeline_run":
         return False
-    gpu = dict(((job.params_json or {}).get("run_request") or {}).get("gpu") or {})
-    mode = str(gpu.get("mode") or "").strip().lower()
-    if mode == "force_gpu":
-        return True
-    if mode in {"force_cpu", "disabled", "none"}:
-        return False
-    if job.execution_target_id is None:
-        return False
-    target = session.get(ExecutionTarget, job.execution_target_id)
-    return bool(target is not None and target.supports_gpu)
+    params = dict(job.params_json or {})
+    allocation = params.get("_hub_resource_allocation")
+    if isinstance(allocation, dict) and "gpu_required" in allocation:
+        return bool(allocation.get("gpu_required"))
+    from worker.job_resources import resolve_job_resource_allocation
+
+    target = session.get(ExecutionTarget, job.execution_target_id) if job.execution_target_id else None
+    return bool(resolve_job_resource_allocation(session, job=job, target=target).get("gpu_required"))
 
 
 def pause_qwen_for_gpu_job(*, settings: Settings) -> None:

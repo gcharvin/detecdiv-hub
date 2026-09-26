@@ -17,6 +17,7 @@ from api.services.external_eln import sync_external_eln_system
 from api.services.indexing_jobs import execute_indexing_job
 from api.services.job_priority_settings import (
     effective_job_priority_expression,
+    resolve_job_resource_runtime_config,
     resolve_job_priority_runtime_config,
 )
 from api.services.project_deletion import (
@@ -37,6 +38,7 @@ from api.services.worker_instances import (
 from worker.archive_policy_scheduler import run_archive_policy_if_due
 from worker.backup_executor import BACKUP_JOB_KINDS, execute_backup_job, finalize_backup_failure
 from worker.backup_scheduler import run_backup_if_due
+from worker.cpu_usage import JobCpuMonitor, get_cpu_topology, merge_cpu_usage
 from worker.gpu_arbitration import (
     GpuArbitrationError,
     execute_assistant_control_job,
@@ -44,8 +46,18 @@ from worker.gpu_arbitration import (
     pause_qwen_for_gpu_job,
     resume_qwen_if_gpu_is_idle,
 )
+from worker.job_resources import (
+    HUB_RESOURCE_ALLOCATION_KEY,
+    active_resource_totals,
+    allocation_fits,
+    allocation_fits_with_reservation,
+    resolve_job_resource_allocation,
+)
 from worker.legacy_matlab_executor import execute_legacy_matlab_job
-from worker.micromanager_ingest_scheduler import run_micromanager_ingest_if_due
+from worker.micromanager_ingest_scheduler import (
+    execute_micromanager_ingest_job,
+    run_micromanager_ingest_if_due,
+)
 from worker.misc_storage_inventory import execute_misc_storage_inventory_job
 from worker.path_mappings import parse_worker_path_mappings
 from worker.pipeline_run_executor import PipelineRunCancelled, execute_pipeline_run_job
@@ -86,6 +98,16 @@ def get_worker_instance_id() -> str:
     return normalize_worker_instance_id(f"{socket.gethostname()}-pid{os.getpid()}")
 
 
+def finish_job_cpu_monitor(monitor: JobCpuMonitor | None, job: Job) -> dict | None:
+    if monitor is None:
+        return None
+    usage = monitor.finish()
+    allocation = (job.params_json or {}).get(HUB_RESOURCE_ALLOCATION_KEY)
+    if isinstance(allocation, dict):
+        usage["allocated_cores"] = allocation.get("cpu_cores")
+    return usage
+
+
 def normalize_worker_instance_id(value: str) -> str:
     text = str(value or "").strip()
     if not text:
@@ -106,7 +128,12 @@ def running_job_is_stale(job: Job) -> bool:
     return (now - reference_time).total_seconds() > 60
 
 
-def keep_running_job_alive(stop_event: threading.Event, *, job_id) -> None:
+def keep_running_job_alive(
+    stop_event: threading.Event,
+    *,
+    job_id,
+    cpu_monitor: JobCpuMonitor | None = None,
+) -> None:
     settings = get_settings()
     while not stop_event.wait(10.0):
         try:
@@ -126,6 +153,7 @@ def keep_running_job_alive(stop_event: threading.Event, *, job_id) -> None:
                     health="busy",
                     current_job=job,
                     last_job_status="running",
+                    current_job_cpu_cores=cpu_monitor.current_cores if cpu_monitor is not None else 0.0,
                 )
         except Exception:  # pragma: no cover - defensive around keepalive
             LOGGER.exception("Job keepalive update failed for %s", job_id)
@@ -168,6 +196,11 @@ def recover_orphaned_jobs(session, *, target: ExecutionTarget | None) -> int:
         job.finished_at = datetime.now(timezone.utc)
         job.heartbeat_at = job.finished_at
         job.updated_at = job.finished_at
+        allocation = (job.params_json or {}).get(HUB_RESOURCE_ALLOCATION_KEY)
+        if isinstance(allocation, dict):
+            result_json = dict(job.result_json or {})
+            result_json["resource_allocation"] = allocation
+            job.result_json = result_json
         sync_indexing_job_from_worker_job(
             session,
             job=job,
@@ -232,12 +265,13 @@ def claim_next_job() -> Job | None:
                     )
                     return None
         priority_config = resolve_job_priority_runtime_config(session)
+        resource_config = resolve_job_resource_runtime_config(session)
         effective_priority = effective_job_priority_expression(priority_config)
         stmt = (
             select(Job)
             .where(Job.status == "queued")
             .order_by(effective_priority.asc(), Job.created_at.asc())
-            .limit(1)
+            .limit(100)
             .with_for_update(skip_locked=True)
         )
         allowed_job_kinds = tuple(
@@ -249,14 +283,67 @@ def claim_next_job() -> Job | None:
             claim_unassigned_jobs=settings.worker_claim_unassigned_jobs,
             allowed_job_kinds=allowed_job_kinds,
         )
-        job = session.scalars(stmt).first()
+        candidates = list(session.scalars(stmt))
+        totals = active_resource_totals(session, target=target, config=resource_config)
+        empty_totals = {
+            "cpu_cores": 0,
+            "disk_io_units": 0,
+            "gpu_jobs": 0,
+            "gpu_vram_mb": 0,
+            "gpu_exclusive": False,
+            "allocations": {},
+        }
+        reserved_allocation = None
+        job = None
+        for candidate in candidates:
+            allocation = resolve_job_resource_allocation(
+                session,
+                job=candidate,
+                target=target,
+                config=resource_config,
+            )
+            fits, _reason = allocation_fits(allocation, totals=totals, config=resource_config)
+            if fits:
+                if reserved_allocation is not None:
+                    # Keep both resource headroom and one slot in the bounded
+                    # worker pool for the first higher-priority job that fits
+                    # once currently running jobs release resources.
+                    if not allocation_fits_with_reservation(
+                        allocation,
+                        reserved_allocation=reserved_allocation,
+                        totals=totals,
+                        config=resource_config,
+                    ):
+                        continue
+                    if target is not None:
+                        target_metadata = target.metadata_json or {}
+                        slot_limits = [
+                            read_positive_int(target_metadata.get("max_concurrent_jobs")),
+                            read_positive_int(target_metadata.get("worker_instances_desired")),
+                        ]
+                        slot_limits = [limit for limit in slot_limits if limit is not None]
+                        worker_slot_capacity = min(slot_limits) if slot_limits else None
+                        if (
+                            worker_slot_capacity is not None
+                            and len(totals["allocations"]) + 1 >= worker_slot_capacity
+                        ):
+                            continue
+                job = candidate
+                params = dict(candidate.params_json or {})
+                params[HUB_RESOURCE_ALLOCATION_KEY] = allocation
+                candidate.params_json = params
+                break
+            if reserved_allocation is None:
+                fits_when_idle, _reason = allocation_fits(allocation, totals=empty_totals, config=resource_config)
+                if fits_when_idle:
+                    reserved_allocation = allocation
         if job is None:
             update_worker_target_state(
                 session,
                 target=target,
-                health="idle",
+                health="busy" if candidates else "idle",
                 current_job=None,
-                last_job_status=None,
+                last_job_status="resource_capacity_full" if candidates else None,
             )
             return None
 
@@ -303,7 +390,16 @@ def mark_job_done(job_id, result_json: dict) -> None:
         if job is None:
             return
         job.status = "done"
-        job.result_json = result_json
+        completed_result = dict(job.result_json or {})
+        previous_cpu_usage = completed_result.get("cpu_usage")
+        completed_result.update(result_json)
+        cpu_usage = merge_cpu_usage(previous_cpu_usage, result_json.get("cpu_usage"))
+        if cpu_usage is not None:
+            completed_result["cpu_usage"] = cpu_usage
+        allocation = (job.params_json or {}).get(HUB_RESOURCE_ALLOCATION_KEY)
+        if isinstance(allocation, dict):
+            completed_result["resource_allocation"] = allocation
+        job.result_json = completed_result
         job.finished_at = datetime.now(timezone.utc)
         job.heartbeat_at = job.finished_at
         job.updated_at = datetime.now(timezone.utc)
@@ -331,7 +427,18 @@ def requeue_job(job_id, result_json: dict) -> None:
             return
         now = datetime.now(timezone.utc)
         job.status = "queued"
+        previous_result = dict(job.result_json or {})
+        cpu_usage = merge_cpu_usage(previous_result.get("cpu_usage"), result_json.get("cpu_usage"))
+        result_json = {**previous_result, **result_json}
+        if cpu_usage is not None:
+            result_json["cpu_usage"] = cpu_usage
+        allocation = (job.params_json or {}).get(HUB_RESOURCE_ALLOCATION_KEY)
+        if isinstance(allocation, dict):
+            result_json = {**result_json, "last_resource_allocation": allocation}
         job.result_json = result_json
+        params = dict(job.params_json or {})
+        params.pop(HUB_RESOURCE_ALLOCATION_KEY, None)
+        job.params_json = params
         job.heartbeat_at = now
         job.updated_at = now
         target = resolve_target_for_job(session, job=job, configured_target_key=settings.worker_target_key)
@@ -345,7 +452,7 @@ def requeue_job(job_id, result_json: dict) -> None:
         )
 
 
-def mark_job_failed(job_id, error_text: str) -> None:
+def mark_job_failed(job_id, error_text: str, *, cpu_usage: dict | None = None) -> None:
     settings = get_settings()
     with session_scope() as session:
         job = session.get(Job, job_id)
@@ -353,6 +460,14 @@ def mark_job_failed(job_id, error_text: str) -> None:
             return
         job.status = "failed"
         job.error_text = error_text
+        result_json = dict(job.result_json or {})
+        merged_cpu_usage = merge_cpu_usage(result_json.get("cpu_usage"), cpu_usage)
+        if merged_cpu_usage is not None:
+            result_json["cpu_usage"] = merged_cpu_usage
+        allocation = (job.params_json or {}).get(HUB_RESOURCE_ALLOCATION_KEY)
+        if isinstance(allocation, dict):
+            result_json["resource_allocation"] = allocation
+        job.result_json = result_json
         job.finished_at = datetime.now(timezone.utc)
         job.heartbeat_at = job.finished_at
         job.updated_at = datetime.now(timezone.utc)
@@ -381,7 +496,7 @@ def mark_job_failed(job_id, error_text: str) -> None:
         resume_qwen_if_gpu_is_idle(session, settings=settings)
 
 
-def mark_job_cancelled(job_id, message: str) -> None:
+def mark_job_cancelled(job_id, message: str, *, cpu_usage: dict | None = None) -> None:
     settings = get_settings()
     with session_scope() as session:
         job = session.get(Job, job_id)
@@ -391,6 +506,12 @@ def mark_job_cancelled(job_id, message: str) -> None:
         result_json = dict(job.result_json or {})
         result_json["status"] = "cancelled"
         result_json["message"] = message or "Pipeline run cancelled by user."
+        merged_cpu_usage = merge_cpu_usage(result_json.get("cpu_usage"), cpu_usage)
+        if merged_cpu_usage is not None:
+            result_json["cpu_usage"] = merged_cpu_usage
+        allocation = (job.params_json or {}).get(HUB_RESOURCE_ALLOCATION_KEY)
+        if isinstance(allocation, dict):
+            result_json["resource_allocation"] = allocation
         job.result_json = result_json
         job.error_text = message or None
         job.finished_at = datetime.now(timezone.utc)
@@ -453,6 +574,15 @@ def execute_job(job: Job) -> dict:
         result_json["requested_mode"] = job.requested_mode
         result_json["resolved_mode"] = job.resolved_mode
         return result_json
+    if job_kind == "micromanager_ingest":
+        with session_scope() as session:
+            job_record = session.get(Job, job.id)
+            if job_record is None:
+                raise ValueError(f"Micro-Manager ingestion job {job.id} disappeared before execution")
+            result_json = execute_micromanager_ingest_job(session, job=job_record)
+            result_json["worker_host"] = socket.gethostname()
+            result_json["worker_instance"] = get_worker_instance_id()
+            return result_json
     if job_kind in {"archive_raw_dataset", "restore_raw_dataset"}:
         with session_scope() as session:
             job_record = session.get(Job, job.id)
@@ -635,6 +765,7 @@ def run_forever() -> None:
                     last_micromanager_ingest_run_at = run_micromanager_ingest_if_due(
                         session,
                         last_run_at=last_micromanager_ingest_run_at,
+                        target=target,
                     )
             except Exception:  # pragma: no cover - defensive around periodic maintenance
                 LOGGER.exception("Micro-Manager ingest run failed")
@@ -650,12 +781,17 @@ def run_forever() -> None:
             time.sleep(settings.worker_poll_interval_sec)
             continue
 
+        keepalive_stop: threading.Event | None = None
+        keepalive_thread: threading.Thread | None = None
+        cpu_monitor: JobCpuMonitor | None = None
         try:
+            cpu_monitor = JobCpuMonitor()
+            cpu_monitor.start()
             keepalive_stop = threading.Event()
             keepalive_thread = threading.Thread(
                 target=keep_running_job_alive,
                 args=(keepalive_stop,),
-                kwargs={"job_id": job.id},
+                kwargs={"job_id": job.id, "cpu_monitor": cpu_monitor},
                 daemon=True,
                 name=f"job-keepalive-{job.id}",
             )
@@ -663,6 +799,9 @@ def run_forever() -> None:
             result_json = execute_job(job)
             keepalive_stop.set()
             keepalive_thread.join(timeout=1.0)
+            cpu_usage = finish_job_cpu_monitor(cpu_monitor, job)
+            if cpu_usage is not None:
+                result_json["cpu_usage"] = cpu_usage
             if result_json.get("requeue"):
                 requeue_job(job.id, result_json)
                 LOGGER.info("Job %s processed one storage optimization chunk and was requeued", job.id)
@@ -670,17 +809,13 @@ def run_forever() -> None:
                 mark_job_done(job.id, result_json)
                 LOGGER.info("Job %s completed", job.id)
         except PipelineRunCancelled as exc:
-            keepalive_stop = locals().get("keepalive_stop")
-            keepalive_thread = locals().get("keepalive_thread")
             if isinstance(keepalive_stop, threading.Event):
                 keepalive_stop.set()
             if isinstance(keepalive_thread, threading.Thread):
                 keepalive_thread.join(timeout=1.0)
-            mark_job_cancelled(job.id, str(exc))
+            mark_job_cancelled(job.id, str(exc), cpu_usage=finish_job_cpu_monitor(cpu_monitor, job))
             LOGGER.info("Job %s cancelled", job.id)
         except Exception as exc:  # pragma: no cover - defensive for worker loop
-            keepalive_stop = locals().get("keepalive_stop")
-            keepalive_thread = locals().get("keepalive_thread")
             if isinstance(keepalive_stop, threading.Event):
                 keepalive_stop.set()
             if isinstance(keepalive_thread, threading.Thread):
@@ -693,7 +828,7 @@ def run_forever() -> None:
                     finalize_backup_failure(session, job=job_record, error_text=str(exc))
                     finalize_user_home_storage_failure(session, job=job_record, error_text=str(exc))
                     finalize_project_deletion_failure(session, job=job_record, error_text=str(exc))
-            mark_job_failed(job.id, str(exc))
+            mark_job_failed(job.id, str(exc), cpu_usage=finish_job_cpu_monitor(cpu_monitor, job))
             LOGGER.exception("Job %s failed", job.id)
 
 
@@ -731,12 +866,16 @@ def update_worker_target_state(
     last_job_status: str | None,
     last_job: Job | None = None,
     error_text: str | None = None,
+    current_job_cpu_cores: float | None = None,
 ) -> None:
     if target is None:
         return
 
     now = datetime.now(timezone.utc)
     worker_instance_id = get_worker_instance_id()
+    host_cpu_count, available_cpu_count = get_cpu_topology()
+    if current_job is None or current_job_cpu_cores is None:
+        current_job_cpu_cores = 0.0
     upsert_worker_instance(
         session,
         target=target,
@@ -746,6 +885,9 @@ def update_worker_target_state(
         last_job=last_job,
         last_job_status=last_job_status,
         error_text=error_text,
+        host_cpu_count=host_cpu_count,
+        available_cpu_count=available_cpu_count,
+        current_job_cpu_cores=current_job_cpu_cores,
         poll_interval_sec=get_settings().worker_poll_interval_sec,
         now=now,
     )

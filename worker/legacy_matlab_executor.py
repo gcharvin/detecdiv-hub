@@ -16,7 +16,7 @@ from sqlalchemy.orm import Session
 from api.config import get_settings
 from api.models import Job
 from worker.executors.matlab_executor import build_matlab_batch_command, run_matlab_command
-from worker.pipeline_run_executor import resolve_project_mat_path
+from worker.pipeline_run_executor import resolve_matlab_max_threads, resolve_project_mat_path
 
 
 LEGACY_CODE_ROOT = Path("/data/Alexander/code/gillestest").resolve()
@@ -58,9 +58,10 @@ def execute_legacy_matlab_job(session: Session, *, job: Job) -> dict:
             }
         )
         payload_path.write_text(json.dumps(payload, indent=2), encoding="utf-8")
-        entrypoint = (
-            "detecdiv_hub_run_legacy_matlab_job(" + matlab_quote(str(payload_path)) + ")"
-        )
+        matlab_max_threads = resolve_matlab_max_threads(session, job=job)
+        entrypoint = "detecdiv_hub_run_legacy_matlab_job(" + matlab_quote(str(payload_path)) + ")"
+        if matlab_max_threads is not None:
+            entrypoint = f"maxNumCompThreads({matlab_max_threads}); {entrypoint}"
         command = build_matlab_batch_command(
             repo_root, entrypoint, matlab_command=str(settings.matlab_command or "matlab")
         )
@@ -81,6 +82,7 @@ def execute_legacy_matlab_job(session: Session, *, job: Job) -> dict:
                 "engine": "matlab",
                 "routine_path": str(routine_path),
                 "function_name": function_name,
+                "matlab_max_threads": matlab_max_threads,
                 "stdout_log": str(stdout_path),
                 "stderr_log": str(stderr_path),
             },

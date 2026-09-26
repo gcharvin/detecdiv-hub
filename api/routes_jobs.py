@@ -1,7 +1,7 @@
 from datetime import datetime, timezone
 
 from fastapi import APIRouter, Depends, HTTPException, status
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
@@ -10,7 +10,9 @@ from api.models import Job, RawDatasetPosition, User
 from api.schemas import JobCreateRequest, JobSummary
 from api.services.job_priority_settings import (
     job_priority_settings_items,
+    resolve_job_resource_runtime_config,
     resolve_job_priority_runtime_config,
+    update_job_resource_runtime_config,
     update_job_priority_runtime_config,
 )
 from api.services.users import get_current_user
@@ -33,15 +35,39 @@ class JobPrioritySettingItem(BaseModel):
     label: str
     priority: int
     default_priority: int
+    cpu_cores: int
+    default_cpu_cores: int
+    gpu_enabled: bool
+    default_gpu_enabled: bool
+    gpu_vram_mb: int
+    default_gpu_vram_mb: int
+    disk_io_units: int
+    default_disk_io_units: int
+
+
+class JobResourceCapacities(BaseModel):
+    cpu_cores: int
+    gpu_vram_mb: int
+    disk_io_units: int
+
+
+class JobResourceProfileUpdate(BaseModel):
+    cpu_cores: int
+    gpu_enabled: bool
+    gpu_vram_mb: int
+    disk_io_units: int
 
 
 class JobPrioritySettingsStatus(BaseModel):
     items: list[JobPrioritySettingItem]
+    capacities: JobResourceCapacities
     lower_values_run_first: bool = True
 
 
 class JobPrioritySettingsUpdate(BaseModel):
-    priorities: dict[str, int]
+    priorities: dict[str, int] = Field(default_factory=dict)
+    resources: dict[str, JobResourceProfileUpdate] = Field(default_factory=dict)
+    capacities: JobResourceCapacities | None = None
 
 
 @router.get("/settings/priorities", response_model=JobPrioritySettingsStatus)
@@ -50,8 +76,16 @@ def get_job_priority_settings(
     current_user: User = Depends(get_current_user),
 ) -> JobPrioritySettingsStatus:
     del current_user
-    config = resolve_job_priority_runtime_config(db)
-    return JobPrioritySettingsStatus(items=job_priority_settings_items(config))
+    priority_config = resolve_job_priority_runtime_config(db)
+    resource_config = resolve_job_resource_runtime_config(db)
+    return JobPrioritySettingsStatus(
+        items=job_priority_settings_items(priority_config, resource_config),
+        capacities=JobResourceCapacities(
+            cpu_cores=resource_config.cpu_capacity_cores,
+            gpu_vram_mb=resource_config.gpu_vram_capacity_mb,
+            disk_io_units=resource_config.disk_io_capacity_units,
+        ),
+    )
 
 
 @router.patch("/settings/priorities", response_model=JobPrioritySettingsStatus)
@@ -63,11 +97,28 @@ def patch_job_priority_settings(
     if current_user.role not in {"admin", "service"}:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Admin role required")
     try:
-        config = update_job_priority_runtime_config(db, updates=payload.priorities)
+        if payload.priorities:
+            update_job_priority_runtime_config(db, updates=payload.priorities)
+        if payload.resources or payload.capacities is not None:
+            resource_config = update_job_resource_runtime_config(
+                db,
+                profile_updates={key: value.model_dump() for key, value in payload.resources.items()},
+                capacity_updates=payload.capacities.model_dump() if payload.capacities is not None else None,
+            )
+        else:
+            resource_config = resolve_job_resource_runtime_config(db)
     except ValueError as exc:
         raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=str(exc)) from exc
     db.commit()
-    return JobPrioritySettingsStatus(items=job_priority_settings_items(config))
+    priority_config = resolve_job_priority_runtime_config(db)
+    return JobPrioritySettingsStatus(
+        items=job_priority_settings_items(priority_config, resource_config),
+        capacities=JobResourceCapacities(
+            cpu_cores=resource_config.cpu_capacity_cores,
+            gpu_vram_mb=resource_config.gpu_vram_capacity_mb,
+            disk_io_units=resource_config.disk_io_capacity_units,
+        ),
+    )
 
 
 @router.get("", response_model=list[JobSummary])

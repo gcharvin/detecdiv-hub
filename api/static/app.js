@@ -482,6 +482,9 @@ const els = {
   executionTargetJobMixTableBody: document.querySelector("#execution-target-job-mix-table tbody"),
   jobPrioritySettingsTableBody: document.querySelector("#job-priority-settings-table tbody"),
   jobPrioritySettingsSummary: document.querySelector("#job-priority-settings-summary"),
+  jobResourceCpuCapacity: document.querySelector("#job-resource-cpu-capacity"),
+  jobResourceGpuVramCapacity: document.querySelector("#job-resource-gpu-vram-capacity"),
+  jobResourceDiskCapacity: document.querySelector("#job-resource-disk-capacity"),
   refreshJobPrioritiesButton: document.querySelector("#refresh-job-priorities-button"),
   saveJobPrioritiesButton: document.querySelector("#save-job-priorities-button"),
   usersTableBody: document.querySelector("#users-table tbody"),
@@ -1602,6 +1605,9 @@ function updateExecutionTargetAccessControls() {
     els.executionTargetWorkerInstances,
     els.executionTargetDrainNewJobs,
     els.saveJobPrioritiesButton,
+    els.jobResourceCpuCapacity,
+    els.jobResourceGpuVramCapacity,
+    els.jobResourceDiskCapacity,
   ];
   for (const control of adminOnlyControls) {
     if (control) {
@@ -1610,6 +1616,10 @@ function updateExecutionTargetAccessControls() {
     }
   }
   for (const input of document.querySelectorAll("[data-job-priority-kind]")) {
+    input.disabled = readOnly;
+    input.title = readOnly ? "Admin access required" : "";
+  }
+  for (const input of document.querySelectorAll("[data-job-resource-kind]")) {
     input.disabled = readOnly;
     input.title = readOnly ? "Admin access required" : "";
   }
@@ -2984,6 +2994,9 @@ function renderExecutionTargets() {
     const workerHealth = workerSnapshot.workerHealthSummary || {};
     const maxConcurrentJobs = workerSnapshot.maxConcurrentJobs || "";
     const matlabMaxThreads = target.metadata_json?.matlab_max_threads || "";
+    const detectedCpuCounts = [...new Set(workerSnapshot.workerEntries
+      .map((entry) => Number(entry.workerHealth.host_cpu_count || entry.workerHealth.available_cpu_count || 0))
+      .filter((count) => count > 0))].sort((a, b) => a - b);
     const drainNewJobs = Boolean(target.metadata_json?.drain_new_jobs);
     const workerSlots = maxConcurrentJobs || "";
     let healthLabel = workerHealth.health || target.status || "unknown";
@@ -3005,6 +3018,7 @@ function renderExecutionTargets() {
       <td>${target.supports_gpu ? "yes" : "no"}</td>
       <td>${maxConcurrentJobs || ""}</td>
       <td>${workerSnapshot.activeWorkerCount}/${workerSnapshot.registeredWorkerCount}</td>
+      <td>${detectedCpuCounts.join(", ")}</td>
       <td>${matlabMaxThreads || ""}</td>
       <td>${target.status}</td>
       <td>${healthLabel}</td>
@@ -3180,6 +3194,36 @@ function userLabelForKey(userKey) {
   return user ? userOptionLabel(user) : normalized;
 }
 
+function formatCpuCores(value) {
+  if (value === null || value === undefined || value === "") return "";
+  const cores = Number(value);
+  return Number.isFinite(cores) ? cores.toFixed(1) : "";
+}
+
+function workerCpuAvailabilityLabel(workerHealth) {
+  const available = Number(workerHealth.available_cpu_count || 0);
+  const logical = Number(workerHealth.host_cpu_count || 0);
+  if (available && logical) return `${available} / ${logical}`;
+  return String(available || logical || "");
+}
+
+function workerCpuUsageLabel(workerHealth, currentJob, targetJobs) {
+  if (workerHealth.current_job_id) {
+    const allocated = Number(currentJob?.params_json?._hub_resource_allocation?.cpu_cores
+      ?? currentJob?.result_json?.resource_allocation?.cpu_cores
+      ?? 0);
+    const used = formatCpuCores(workerHealth.current_job_cpu_cores);
+    return allocated > 0 ? `${used} now / ${allocated} reserved` : `${used} now`;
+  }
+  const lastJobId = String(workerHealth.last_job_id || "");
+  const lastJob = lastJobId
+    ? targetJobs.find((job) => String(job.id) === lastJobId) || state.jobs.find((job) => String(job.id) === lastJobId)
+    : null;
+  const usage = lastJob?.result_json?.cpu_usage;
+  if (!usage) return "";
+  return `${formatCpuCores(usage.average_cores)} avg / ${formatCpuCores(usage.peak_cores)} peak`;
+}
+
 function executionTargetWorkerEntries(target) {
   const workerHealths = target?.metadata_json?.worker_healths || {};
   return Object.entries(workerHealths)
@@ -3326,6 +3370,8 @@ function renderExecutionTargetWorkerPanels(target) {
         : "";
       tr.innerHTML = `
         <td>${workerId}</td>
+        <td title="Available CPUs by process affinity / host logical CPU count">${workerCpuAvailabilityLabel(workerHealth)}</td>
+        <td>${workerCpuUsageLabel(workerHealth, currentJob, targetJobs)}</td>
         <td>${workerHealth.health || "unknown"}</td>
         <td>${currentJobLabel}${currentProjectLink}</td>
         <td>${currentUserKey ? userLabelForKey(currentUserKey) : ""}</td>
@@ -3719,6 +3765,10 @@ function renderJobPrioritySettings() {
     return;
   }
   const items = state.jobPrioritySettings?.items || [];
+  const capacities = state.jobPrioritySettings?.capacities || {};
+  if (els.jobResourceCpuCapacity) els.jobResourceCpuCapacity.value = Number(capacities.cpu_cores ?? 36);
+  if (els.jobResourceGpuVramCapacity) els.jobResourceGpuVramCapacity.value = Number(capacities.gpu_vram_mb ?? 0);
+  if (els.jobResourceDiskCapacity) els.jobResourceDiskCapacity.value = Number(capacities.disk_io_units ?? 8);
   els.jobPrioritySettingsTableBody.innerHTML = "";
   for (const item of items) {
     const tr = document.createElement("tr");
@@ -3727,12 +3777,16 @@ function renderJobPrioritySettings() {
       <td><code>${escapeHtml(item.job_kind)}</code></td>
       <td><input type="number" min="0" max="10000" step="1" value="${Number(item.priority)}" data-job-priority-kind="${escapeHtml(item.job_kind)}" /></td>
       <td>${Number(item.default_priority)}</td>
+      <td><input type="number" min="1" max="36" step="1" value="${Number(item.cpu_cores)}" data-job-resource-kind="${escapeHtml(item.job_kind)}" data-job-resource-field="cpu_cores" aria-label="${escapeHtml(item.label)} CPU cores" /><small class="muted">Default: ${Number(item.default_cpu_cores)}</small></td>
+      <td><input type="checkbox" ${item.gpu_enabled ? "checked" : ""} data-job-resource-kind="${escapeHtml(item.job_kind)}" data-job-resource-field="gpu_enabled" aria-label="${escapeHtml(item.label)} GPU allowed" /><small class="muted">Default: ${item.default_gpu_enabled ? "yes" : "no"}</small></td>
+      <td><input type="number" min="0" max="262144" step="256" value="${Number(item.gpu_vram_mb)}" data-job-resource-kind="${escapeHtml(item.job_kind)}" data-job-resource-field="gpu_vram_mb" aria-label="${escapeHtml(item.label)} GPU VRAM MB" /><small class="muted">Default: ${Number(item.default_gpu_vram_mb)}</small></td>
+      <td><input type="number" min="0" max="36" step="1" value="${Number(item.disk_io_units)}" data-job-resource-kind="${escapeHtml(item.job_kind)}" data-job-resource-field="disk_io_units" aria-label="${escapeHtml(item.label)} disk I/O units" /><small class="muted">Default: ${Number(item.default_disk_io_units)}</small></td>
     `;
     els.jobPrioritySettingsTableBody.appendChild(tr);
   }
   if (els.jobPrioritySettingsSummary) {
     els.jobPrioritySettingsSummary.textContent = items.length
-      ? `${items.length} job type(s) configured. Lower values run first.`
+      ? `${items.length} job type(s). Lower priorities run first; resource limits apply when a worker claims a job.`
       : "No priority settings available.";
   }
   updateExecutionTargetAccessControls();
@@ -3754,10 +3808,41 @@ async function saveJobPrioritySettings() {
     }
     priorities[input.dataset.jobPriorityKind] = value;
   }
-  state.jobPrioritySettings = await apiPatch("/jobs/settings/priorities", { priorities });
+  const resources = {};
+  for (const input of document.querySelectorAll("[data-job-resource-kind]")) {
+    const kind = input.dataset.jobResourceKind;
+    const field = input.dataset.jobResourceField;
+    resources[kind] ||= {};
+    if (field === "gpu_enabled") {
+      resources[kind][field] = input.checked;
+      continue;
+    }
+    const value = Number(input.value);
+    const maximum = field === "cpu_cores" ? 36 : field === "gpu_vram_mb" ? 262144 : 36;
+    const minimum = field === "cpu_cores" ? 1 : 0;
+    if (!Number.isInteger(value) || value < minimum || value > maximum) {
+      throw new Error(`Invalid ${field} value for ${kind}.`);
+    }
+    resources[kind][field] = value;
+  }
+  const capacities = {
+    cpu_cores: Number(els.jobResourceCpuCapacity?.value),
+    gpu_vram_mb: Number(els.jobResourceGpuVramCapacity?.value),
+    disk_io_units: Number(els.jobResourceDiskCapacity?.value),
+  };
+  if (!Number.isInteger(capacities.cpu_cores) || capacities.cpu_cores < 1 || capacities.cpu_cores > 36) {
+    throw new Error("CPU capacity must be between 1 and 36 cores.");
+  }
+  if (!Number.isInteger(capacities.gpu_vram_mb) || capacities.gpu_vram_mb < 0 || capacities.gpu_vram_mb > 262144) {
+    throw new Error("GPU VRAM capacity must be between 0 and 262144 MB.");
+  }
+  if (!Number.isInteger(capacities.disk_io_units) || capacities.disk_io_units < 1 || capacities.disk_io_units > 36) {
+    throw new Error("Disk I/O capacity must be between 1 and 36 units.");
+  }
+  state.jobPrioritySettings = await apiPatch("/jobs/settings/priorities", { priorities, resources, capacities });
   state.jobPrioritySettingsDirty = false;
   renderJobPrioritySettings();
-  setStatus("Job priorities updated. Queued jobs will use the new order immediately.");
+  setStatus("Job priorities and resource profiles updated. Queued jobs will use them immediately.");
 }
 
 async function submitPipelineRun() {
@@ -10175,7 +10260,7 @@ if (els.saveExecutionTargetButton) els.saveExecutionTargetButton.addEventListene
   window.alert(String(error));
 }));
 if (els.jobPrioritySettingsTableBody) els.jobPrioritySettingsTableBody.addEventListener("input", (event) => {
-  if (!event.target.closest("[data-job-priority-kind]")) {
+  if (!event.target.closest("[data-job-priority-kind], [data-job-resource-kind]")) {
     return;
   }
   state.jobPrioritySettingsDirty = true;
@@ -10183,6 +10268,14 @@ if (els.jobPrioritySettingsTableBody) els.jobPrioritySettingsTableBody.addEventL
     els.jobPrioritySettingsSummary.textContent = "Unsaved changes. Click Save priorities to apply them.";
   }
 });
+for (const input of [els.jobResourceCpuCapacity, els.jobResourceGpuVramCapacity, els.jobResourceDiskCapacity]) {
+  if (input) input.addEventListener("input", () => {
+    state.jobPrioritySettingsDirty = true;
+    if (els.jobPrioritySettingsSummary) {
+      els.jobPrioritySettingsSummary.textContent = "Unsaved changes. Click Save priorities to apply them.";
+    }
+  });
+}
 if (els.refreshJobPrioritiesButton) els.refreshJobPrioritiesButton.addEventListener("click", () => refreshJobPrioritySettings().catch((error) => setStatus(String(error))));
 if (els.saveJobPrioritiesButton) els.saveJobPrioritiesButton.addEventListener("click", () => saveJobPrioritySettings().catch((error) => {
   setStatus(String(error));

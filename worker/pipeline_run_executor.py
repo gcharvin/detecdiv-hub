@@ -226,6 +226,12 @@ def normalize_pipeline_run_payload(session: Session, *, job: Job) -> dict[str, A
 
     run_request = dict(payload.get("run_request") or {})
     gpu = dict(run_request.get("gpu") or {})
+    allocation = dict((job.params_json or {}).get("_hub_resource_allocation") or {})
+    if allocation.get("gpu_permitted") is False:
+        gpu["mode"] = "force_cpu"
+    pipeline_profile = dict(allocation.get("pipeline_gpu_profile") or {})
+    if pipeline_profile.get("status") == "known" and not pipeline_profile.get("deep_learning_node_ids"):
+        gpu["mode"] = "force_cpu"
     if not gpu.get("mode"):
         gpu["mode"] = default_gpu_mode_for_job(session, job=job)
     run_request["gpu"] = gpu
@@ -271,17 +277,22 @@ def build_pipeline_matlab_entrypoint(payload_path: Path, *, matlab_max_threads: 
 
 
 def resolve_matlab_max_threads(session: Session, *, job: Job) -> int | None:
+    allocation = dict((job.params_json or {}).get("_hub_resource_allocation") or {})
+    allocated_cores = read_positive_int(allocation.get("cpu_cores"))
     execution = dict((job.params_json or {}).get("execution") or {})
     from_payload = read_positive_int(execution.get("matlab_max_threads"))
     if from_payload is not None:
-        return from_payload
+        return min(from_payload, allocated_cores) if allocated_cores is not None else from_payload
 
     if not job.execution_target_id:
         return None
     target = session.get(ExecutionTarget, job.execution_target_id)
     if target is None:
-        return None
-    return read_positive_int((target.metadata_json or {}).get("matlab_max_threads"))
+        return allocated_cores
+    configured = read_positive_int((target.metadata_json or {}).get("matlab_max_threads"))
+    if allocated_cores is not None:
+        return min(configured, allocated_cores) if configured is not None else allocated_cores
+    return configured
 
 
 def read_positive_int(value) -> int | None:

@@ -115,6 +115,9 @@ def worker_instance_to_health(worker: WorkerInstance) -> dict:
         "worker_instance": worker.worker_instance,
         "worker_host": worker.worker_host,
         "process_id": worker.process_id,
+        "host_cpu_count": worker.host_cpu_count,
+        "available_cpu_count": worker.available_cpu_count,
+        "current_job_cpu_cores": worker.current_job_cpu_cores,
         "health": worker.health,
         "current_job_id": str(worker.current_job_id) if worker.current_job_id else None,
         "current_job_kind": worker.current_job_kind,
@@ -173,6 +176,9 @@ def upsert_worker_instance(
     last_job: Job | None = None,
     last_job_status: str | None = None,
     error_text: str | None = None,
+    host_cpu_count: int | None = None,
+    available_cpu_count: int | None = None,
+    current_job_cpu_cores: float | None = None,
     now: datetime | None = None,
 ) -> WorkerInstance:
     now = now or datetime.now(timezone.utc)
@@ -206,6 +212,12 @@ def upsert_worker_instance(
         "last_seen_at": now,
         "updated_at": now,
     }
+    optional_metrics = {
+        "host_cpu_count": host_cpu_count,
+        "available_cpu_count": available_cpu_count,
+        "current_job_cpu_cores": current_job_cpu_cores,
+    }
+    insert_values.update({key: value for key, value in optional_metrics.items() if value is not None})
     update_values = dict(insert_values)
     update_values.pop("id", None)
     update_values.pop("execution_target_id", None)

@@ -138,6 +138,15 @@ It adds `raw_dataset_positions.description`, used to persist per-position
 annotations entered in the acquisition widget and exposed on raw dataset
 details.
 
+Before deploying worker CPU reporting, apply:
+
+```bash
+psql "$DETECDIV_HUB_DATABASE_URL" -f db/migrations/20260926_worker_cpu_usage.sql
+```
+
+This adds the per-worker CPU topology and live job-usage fields to
+`worker_instances`.
+
 ## Agent Rules
 
 Future agents should assume:

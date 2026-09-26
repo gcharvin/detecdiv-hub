@@ -311,7 +311,7 @@ def _write_deflate_tiff(source: Path, target: Path) -> None:
         page = image.pages[0]
         tifffile.imwrite(
             target,
-            page.asarray(),
+            page.asarray(maxworkers=1),
             photometric=page.photometric,
             description=page.description,
             metadata=None,
@@ -320,6 +320,7 @@ def _write_deflate_tiff(source: Path, target: Path) -> None:
             byteorder=image.byteorder,
             subfiletype=page.subfiletype,
             extratags=_protected_metadata_extratags(image, page),
+            maxworkers=1,
         )
 
 

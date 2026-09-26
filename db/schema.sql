@@ -452,6 +452,9 @@ CREATE TABLE IF NOT EXISTS worker_instances (
     worker_instance TEXT NOT NULL,
     worker_host TEXT,
     process_id INTEGER,
+    host_cpu_count INTEGER,
+    available_cpu_count INTEGER,
+    current_job_cpu_cores DOUBLE PRECISION,
     health TEXT NOT NULL DEFAULT 'online',
     current_job_id UUID REFERENCES jobs(id) ON DELETE SET NULL,
     current_job_kind TEXT,
@@ -768,6 +771,9 @@ ALTER TABLE indexing_jobs ADD COLUMN IF NOT EXISTS heartbeat_at TIMESTAMPTZ;
 ALTER TABLE worker_instances ADD COLUMN IF NOT EXISTS deployment_version TEXT;
 ALTER TABLE worker_instances ADD COLUMN IF NOT EXISTS version_source TEXT;
 ALTER TABLE worker_instances ADD COLUMN IF NOT EXISTS code_fingerprint TEXT;
+ALTER TABLE worker_instances ADD COLUMN IF NOT EXISTS host_cpu_count INTEGER;
+ALTER TABLE worker_instances ADD COLUMN IF NOT EXISTS available_cpu_count INTEGER;
+ALTER TABLE worker_instances ADD COLUMN IF NOT EXISTS current_job_cpu_cores DOUBLE PRECISION;
 
 CREATE INDEX IF NOT EXISTS idx_projects_name ON detecdiv_projects(project_name);
 CREATE INDEX IF NOT EXISTS idx_projects_owner_user_id ON detecdiv_projects(owner_user_id);

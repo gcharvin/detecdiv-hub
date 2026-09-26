@@ -91,6 +91,7 @@
                   <th>GPU</th>
                   <th>Concurrency</th>
                   <th>Workers</th>
+                  <th>Host CPUs</th>
                   <th>MATLAB Threads</th>
                   <th>Status</th>
                   <th>Health</th>
@@ -107,6 +108,8 @@
               <thead>
                 <tr>
                   <th>Worker</th>
+                  <th>CPUs available / logical</th>
+                  <th>CPU used (cores)</th>
                   <th>Health</th>
                   <th>Current Job</th>
                   <th>Current User</th>
@@ -164,12 +167,27 @@
             <div class="subpanel-header">
               <div>
                 <h3>Job Priorities</h3>
-                <p class="muted">Lower values run first. Changes apply immediately to queued and future jobs; running jobs are not interrupted.</p>
+                <p class="muted">Lower values run first. Saved profiles govern the next job claims; running jobs keep their allocation. CPU capacity is capped at 36 cores per target.</p>
               </div>
               <div class="action-stack">
                 <button id="refresh-job-priorities-button">Refresh priorities</button>
                 <button id="save-job-priorities-button" class="primary">Save priorities</button>
               </div>
+            </div>
+            <div id="job-resource-capacities" class="toolbar">
+              <label class="field compact">
+                <span>CPU capacity per target (max 36)</span>
+                <input id="job-resource-cpu-capacity" type="number" min="1" max="36" step="1" />
+              </label>
+              <label class="field compact">
+                <span>GPU VRAM per target (MB; 0 = exclusive)</span>
+                <input id="job-resource-gpu-vram-capacity" type="number" min="0" max="262144" step="256" />
+              </label>
+              <label class="field compact">
+                <span>Disk I/O per target (relative units)</span>
+                <input id="job-resource-disk-capacity" type="number" min="1" max="36" step="1" />
+              </label>
+              <span class="muted">Disk units are scheduling weights, not MB/s. Start at 8 and calibrate from storage measurements.</span>
             </div>
             <div class="table-wrap jobs-table-wrap">
               <table id="job-priority-settings-table">
@@ -178,7 +196,11 @@
                     <th>Job type</th>
                     <th>Key</th>
                     <th>Priority</th>
-                    <th>Default</th>
+                    <th>Default priority</th>
+                    <th>CPU cores</th>
+                    <th>GPU allowed</th>
+                    <th>GPU VRAM MB (0 = exclusive)</th>
+                    <th>Disk I/O units</th>
                   </tr>
                 </thead>
                 <tbody></tbody>
@@ -263,7 +285,7 @@
       </footer>
     </div>
 
-    <script src="/web/app.js?v=20260925-dashboard2" defer></script>
+    <script src="/web/app.js?v=20260926-cpu1" defer></script>
   </body>
 </html>
 
