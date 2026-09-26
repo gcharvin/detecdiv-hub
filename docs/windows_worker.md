@@ -9,13 +9,18 @@ starts the MATLAB installation on its own machine with `-batch`.
 
 ## State of the first PC (2026-09-26)
 
-On `CG-PCDELL01-306` (`10.20.11.56`), the Windows OpenSSH server accepts the
-configured administrator key, but the current workstation's SSH session resets
-immediately after authentication. The Windows hub checkout was last reported
-at `184d4dd`. MATLAB R2025b is installed, and DetecDiv `unstable` is at
-`86c66b5`. Python 3.11 and the hub dependencies are installed in the hub
-checkout's `.venv`. Python 3.13 could not resolve the pinned `nd2` and
-`pydantic` versions.
+On `CG-PCDELL01-306` (`10.20.11.56`), MATLAB R2025b, DetecDiv, Python 3.11,
+and the hub checkout's `.venv` are installed. Python 3.13 could not resolve
+the pinned `nd2` and `pydantic` versions, so use Python 3.11 for this checkout.
+Verify the exact hub revision with `git log -1` before an upgrade or
+troubleshooting session.
+
+The Windows OpenSSH operational log recorded `Accepted publickey` for
+`GMGM\Charvin-Admin` from `192.168.190.2` at 2026-09-26 09:04, even though some
+client sessions reset immediately after authentication. Treat that event as
+proof that key authentication succeeded; a later reset is a shell/session
+or transport issue after authentication. See the SSH troubleshooting section in
+[windows_worker_ssh_strategy.md](windows_worker_ssh_strategy.md).
 
 The `windows-10-20-11-56` execution target (`a8eedb3f-85fc-47a8-b327-2aa766550f51`)
 is now reported online. The readiness check passed under
@@ -23,8 +28,10 @@ is now reported online. The readiness check passed under
 runs as `SYSTEM` and forwards local port `15432` to PostgreSQL on
 `webserver-labo` through `detecdiv-server`.
 
-The data share was verified on `X:` in an interactive PowerShell session as
-`GMGM\Gilles`; the worker path mapping now contains both `/data` and `X:\` to
+The data share was verified on `X:` in an interactive PowerShell session. The
+SMB connection was requested as `GMGM\Gilles`; that does not guarantee that a
+scheduled worker session can see the drive or reuse those credentials. The
+worker path mapping contains both `/data` and `X:\` to
 `//10.20.11.250/DATA`. Verify read and write access from the worker's actual
 launch session before relying on filesystem jobs.
 
@@ -33,17 +40,19 @@ exited before starting the pipeline with MathWorks Licensing Error 10 because
 the installed license is expired. The job is failed and the Windows worker is
 idle. MATLAB work must stay out of its queue until a license check succeeds.
 
-The latest live queue inspection found 206 queued `archive_raw_dataset` jobs
-without an execution target; two `pipeline_run` jobs and one archive job were
-running on `detecdiv-server`. The last Windows readiness output supplied
-reported
-`DETECDIV_HUB_WORKER_CLAIM_UNASSIGNED_JOBS=false` and
-`DETECDIV_HUB_WORKER_JOB_KINDS=pipeline_run`. A new opt-in helper is provided
-below to let Windows claim unassigned work while excluding archive/restore and,
-until MATLAB is licensed, MATLAB job kinds. Workers do not move jobs already
-assigned to another execution target. The database's `SKIP LOCKED` claim means
-the first eligible worker to poll an unassigned job gets it; this is not a
-least-loaded-target scheduler.
+The queue helper completed successfully on the Windows PC on 2026-09-26. It
+set unassigned-job claiming to `true`, allowed all job kinds, and excluded
+`archive_raw_dataset`, `restore_raw_dataset`, `pipeline_run`, and
+`legacy_matlab`. The follow-up readiness command was mistyped as `-EnvFil`; run
+the complete `-Check` command below to confirm the effective settings. Keep
+MATLAB kinds excluded until the license is verified. Workers do not move jobs
+already assigned to another execution target. The database's `SKIP LOCKED`
+claim means the first eligible worker to poll an unassigned job gets it; this
+is not a least-loaded-target scheduler.
+
+At the last check, the scheduled task `DetecDiv Hub Worker` did not exist.
+Register it only after confirming the manual worker and its share access. The
+database-tunnel task is separate and was already reported installed.
 
 The server's `/data` mount comes from `//10.20.11.250/DATA`.
 
@@ -63,11 +72,20 @@ write access before being trusted with server-root operations.
 Run Windows commands in **PowerShell**, not `cmd.exe`. The worker runs as
 `GMGM\Charvin-Admin`; use the approved hub revision and keep `.env` private.
 The commands below describe the first-PC pilot. Follow
-[the SSH strategy](windows_worker_ssh_strategy.md) for the restricted database
-tunnel key and task setup.
+[the SSH strategy](windows_worker_ssh_strategy.md) for installing the incoming
+SSH server, provisioning its separate key, setting up the restricted database
+tunnel, and diagnosing Windows OpenSSH.
 
-1. Install MATLAB, DetecDiv, and 64-bit Python 3.11. In the hub repository,
-   create the Python environment and install dependencies:
+These scripts currently contain first-PC values: the Windows account,
+execution-target key, MATLAB/DetecDiv paths, share mapping, and `.env` ACL.
+Before reusing them on another Windows host, update those values and ACL
+principals for that account. Do not copy the first PC's `.env`, tunnel private
+key, or incoming SSH private key to another worker.
+
+1. Install MATLAB, DetecDiv, and 64-bit Python 3.11. Confirm installed Python
+   versions with `py -0p`; Python 3.13 failed to resolve the pinned `nd2` and
+   `pydantic` packages. In an approved hub checkout, create the worker's
+   separate Python environment and install dependencies:
 
    ```powershell
    Set-Location 'C:\Users\Charvin-Admin\Documents\MATLAB\detecdiv-hub'
@@ -75,7 +93,25 @@ tunnel key and task setup.
    .\.venv\Scripts\python.exe -m pip install -c constraints.txt -e .
    ```
 
-2. Install and start the database tunnel task using the SSH strategy procedure.
+   This `.venv` runs the Hub worker. It is not necessarily the Python
+   environment called by MATLAB. Install/configure the pipeline's Python
+   environment separately and verify that MATLAB can call it in `-batch` mode
+   under the worker account. The pilot's MATLAB currently fails with
+   MathWorks Licensing Error 10 because its license is expired.
+
+2. For an existing clean checkout, inspect and update the Hub code before
+   running setup scripts:
+
+   ```powershell
+   git status --short --branch
+   git pull --ff-only origin master
+   git log -1 --oneline
+   ```
+
+   Do not overwrite or discard `.env` or other uncommitted files. `.env` is
+   machine-specific and ignored by Git.
+
+3. Install and start the database tunnel task using the SSH strategy procedure.
    Confirm it is listening before configuring the worker:
 
    ```powershell
@@ -83,7 +119,7 @@ tunnel key and task setup.
    Get-NetTCPConnection -LocalAddress 127.0.0.1 -LocalPort 15432 -State Listen
    ```
 
-3. Map the data share as `X:` in the same Windows user session that will run
+4. Map the data share as `X:` in the same Windows user session that will run
    the worker. This prompts for the `GMGM\Gilles` password without putting it
    in the command line:
 
@@ -93,6 +129,12 @@ tunnel key and task setup.
    Get-ChildItem -LiteralPath 'X:\' -ErrorAction Stop | Select-Object -First 1
    ```
 
+   `Test-NetConnection 10.20.11.250 -Port 445` only tests whether SMB's TCP
+   port is reachable; it does not prove that the share name, credentials, or
+   permissions work. `Get-ChildItem X:\` is the actual read check. Use exactly
+   two leading backslashes in `$share`; do not synthesize the UNC path from
+   repeated escaped backslashes.
+
    Once `X:` is verified, remove the old `Y:` mapping if it is still connected:
    `net.exe use Y: /delete`. Confirm write access to the specific output folder
    as well. Keep UNC targets in the worker path mappings because drive letters
@@ -100,7 +142,7 @@ tunnel key and task setup.
    paths to the same share:
    `[{"source":"/data","target":"//10.20.11.250/DATA"},{"source":"X:\\","target":"//10.20.11.250/DATA"}]`.
 
-4. Create the protected machine-specific `.env`. Enter the PostgreSQL login
+5. Create the protected machine-specific `.env`. Enter the PostgreSQL login
    and type its password only at the masked prompt:
 
    ```powershell
@@ -126,18 +168,30 @@ tunnel key and task setup.
    The helper preserves the database URL and secures the `.env` ACL. Restart
    the worker only while it is idle; it reads the `.env` at process startup.
 
-5. Check configuration, then launch the worker manually for the first pilot:
+6. Check configuration, then launch the worker manually for the first pilot:
 
    ```powershell
    .\scripts\run_worker.ps1 -EnvFile .env -Check
    .\scripts\run_worker.ps1 -EnvFile .env
    ```
 
-   Keep this PowerShell window open. Confirm the target shows online. Before
-   sending MATLAB work, verify the license with `matlab.exe -batch` and inspect
-   output paths and `worker_host` on a small run.
+   The readiness output should show the correct execution target, MATLAB path,
+   DetecDiv path, and mappings. For the current queue policy, expect
+   `Allowed job kinds: all`, `Claim unassigned jobs: True`, schedulers disabled,
+   and exclusions for archive/restore plus MATLAB until the license is fixed.
+   Keep this PowerShell window open during the manual pilot. Before sending
+   MATLAB work, verify the license explicitly:
 
-6. After the manual worker and data access are validated, register the logon
+   ```powershell
+   & 'C:\Program Files\MATLAB\R2025b\bin\matlab.exe' -batch "disp(version)"
+   ```
+
+   The pilot returned MathWorks Licensing Error 10 (expired license), so no
+   `pipeline_run` should be enabled until this command succeeds. Then verify the
+   pipeline-specific Python environment and inspect output paths and
+   `worker_host` on a small run.
+
+7. After the manual worker and data access are validated, register the logon
    task. Stop the foreground worker with `Ctrl+C` before starting the task so
    only one process sends the worker-instance heartbeat:
 
@@ -154,7 +208,7 @@ tunnel key and task setup.
    Windows service. Keep the PC awake and the user signed in. Confirm the task
    can access the UNC share from its own run before relying on it.
 
-7. For a quick operational check, look for the execution target online in the
+8. For a quick operational check, look for the execution target online in the
    hub, review the worker log, and confirm the database tunnel is listening.
    Stop the task with
    `Stop-ScheduledTask -TaskName 'DetecDiv Hub Worker'`. To run interactively
@@ -228,10 +282,11 @@ server-root indexing.
    .\.venv\Scripts\python.exe -m pip install -c constraints.txt -e .
    ```
 
-3. Copy `ops/windows/worker.env.example` to `.env` in the repository root and
-   fill in the database URL, target key, MATLAB executable, DetecDiv repository
-   path, and storage mapping. `.env` is ignored by git and contains a database
-   password; restrict it to the worker account.
+3. Create `.env` with `scripts/configure_windows_worker_env.ps1` as described in
+   [Finish the first PC configuration](#finish-the-first-pc-configuration).
+   It prompts for database credentials, encodes them for the URL, writes the
+   pilot's machine-specific values, and restricts the file ACL. Do not edit or
+   commit a credential-bearing `.env` by hand.
 4. The PC must reach PostgreSQL on `webserver-labo`. Direct access to
    `192.168.122.185:5432` was unavailable from `10.20.11.56`, so this pilot
    uses the managed SSH tunnel below. Set the database URL host and port to
@@ -274,6 +329,30 @@ server before installing it. The task runs
 [`scripts/run_windows_db_tunnel.ps1`](../scripts/run_windows_db_tunnel.ps1).
 The registration helper is
 [`scripts/register_windows_db_tunnel_task.ps1`](../scripts/register_windows_db_tunnel_task.ps1).
+The key and the pinned `known_hosts` file must already have been provisioned
+securely; do not generate/copy private key material from the repository. From
+the Windows Hub checkout, install the reconnecting script and register the
+SYSTEM startup task:
+
+```powershell
+$installDir = 'C:\ProgramData\DetecDivHub'
+New-Item -ItemType Directory -Path $installDir -Force | Out-Null
+Copy-Item .\scripts\run_windows_db_tunnel.ps1 (Join-Path $installDir 'run_db_tunnel.ps1') -Force
+icacls.exe (Join-Path $installDir 'id_ed25519_db_tunnel') /inheritance:r /grant:r '*S-1-5-18:F' '*S-1-5-32-544:F'
+.\scripts\register_windows_db_tunnel_task.ps1 `
+    -SshHost 'detecdiv-server' `
+    -SshUser 'charvin-admin' `
+    -DatabaseHost '192.168.122.185' `
+    -DatabasePort 5432 `
+    -LocalPort 15432 `
+    -IdentityFile (Join-Path $installDir 'id_ed25519_db_tunnel') `
+    -KnownHostsFile 'C:\Users\detecdiv-ops\.ssh\known_hosts' `
+    -TunnelScript (Join-Path $installDir 'run_db_tunnel.ps1')
+Start-ScheduledTask -TaskName 'DetecDiv Hub Database Tunnel'
+```
+
+The `icacls` line assumes the private-key file was copied to the path above.
+Confirm the tunnel task, listener, and log with the read-only checks below.
 
 From a **PowerShell** session on the PC, inspect the task and tunnel with:
 
@@ -289,8 +368,9 @@ to this PC uses a separate key and account.
 
 ## Finish the first PC configuration
 
-In a **PowerShell** session as `GMGM\Charvin-Admin`, create `.env` from
-`ops/windows/worker.env.example` and set these values:
+In a **PowerShell** session as `GMGM\Charvin-Admin`, create `.env` with the
+helper below. It writes the first-PC values from
+`ops/windows/worker.env.example` and sets the file ACL:
 
 The helper below prompts for the PostgreSQL login and masked password, writes
 the machine-specific values, and locks down the `.env` ACL. Run it from the
@@ -313,12 +393,18 @@ DETECDIV_HUB_MATLAB_REPO_ROOT=C:\Users\Charvin-Admin\Documents\MATLAB\DetecDiv
 DETECDIV_HUB_WORKER_PATH_MAPPINGS=[{"source":"/data","target":"//10.20.11.250/DATA"},{"source":"X:\\","target":"//10.20.11.250/DATA"}]
 ```
 
-Use the actual database username and password from the VM deployment. Keep
-`DETECDIV_HUB_WORKER_CLAIM_UNASSIGNED_JOBS=false`,
-`DETECDIV_HUB_WORKER_JOB_KINDS=pipeline_run`, and
-`DETECDIV_HUB_WORKER_ENABLE_SCHEDULERS=false` from the example. Restrict `.env`
-to the worker account, `SYSTEM`, and local Administrators. Do not paste the
-database URL or password into a chat or commit it to git.
+Use the actual database username and password from the VM deployment. For the
+current Windows queue policy, use
+`DETECDIV_HUB_WORKER_CLAIM_UNASSIGNED_JOBS=true`, leave
+`DETECDIV_HUB_WORKER_JOB_KINDS` empty (all kinds), exclude
+`archive_raw_dataset,restore_raw_dataset,pipeline_run,legacy_matlab`, and keep
+`DETECDIV_HUB_WORKER_ENABLE_SCHEDULERS=false`. The helper
+`scripts/enable_windows_queue_worker.ps1` applies this policy to an existing
+`.env` without rewriting its database URL. After the MATLAB license is
+successfully checked, run it with `-MatlabLicenseReady` to remove only the two
+MATLAB exclusions. Restrict `.env` to the worker account, `SYSTEM`, and local
+Administrators. Do not paste the database URL or password into a chat or commit
+it to git.
 
 ## Check and start manually
 
@@ -331,10 +417,11 @@ From the Windows repository root:
 
 The check verifies that the MATLAB executable and DetecDiv repository exist,
 that the path mapping is well formed, and that the PC can read its execution
-target from PostgreSQL. The running worker then appears in the target's
-`worker_instances` heartbeat. Submit one small pipeline run explicitly to this
-target and inspect the job result, MATLAB log, and `worker_host` before enabling
-automatic startup.
+target from PostgreSQL. It does not test the MATLAB license or SMB access. The
+running worker then appears in the target's `worker_instances` heartbeat.
+Submit a small pipeline only after MATLAB license and the pipeline's Python
+environment have been verified; inspect the job result, MATLAB log, output
+paths, and `worker_host` before enabling automatic startup.
 
 ## Start after Windows sign-in
 
@@ -355,3 +442,98 @@ For an unattended machine, have the Windows administrator replace the logon
 task with a dedicated service account and verify its MATLAB license, network
 share permissions, and startup behavior. An SSH server on the PC is useful for
 remote installation and diagnostics but is not needed by the worker itself.
+
+## Troubleshooting recorded during the first installation
+
+### PowerShell versus `cmd.exe`
+
+The prompt `C:\Users\...>` was `cmd.exe`, not PowerShell. Commands such as
+`Get-Service`, `Get-WinEvent`, `Select-Object`, `Get-ChildItem`, and PowerShell's
+call operator `&` then failed with “not recognized” or “unexpected”. Start
+PowerShell first; do not paste prompt markers (`PS>` or `>`) with the commands.
+If connected over SSH, the login shell may initially be `cmd.exe`; type
+`powershell` before running PowerShell commands.
+
+`Test-Connection` checks ICMP and has no `-Port` option. Use
+`Test-NetConnection <host> -Port <port>` to check TCP, then test the actual
+service/share separately.
+
+### SSH username, key, and connection reset
+
+For the domain account, this syntax worked:
+
+```powershell
+ssh -l 'GMGM\Charvin-Admin' 10.20.11.56
+```
+
+The form `ssh charvin-admin\@10.20.11.56` caused the server to parse `GMGM` as
+the username (`Invalid user GMGM`). Do not infer key failure from
+`Connection reset` alone. Run `ssh -vvv` with the intended `-i` key and check
+the Windows `OpenSSH/Operational` event log. The log recorded
+`Accepted publickey for GMGM\Charvin-Admin` during sessions that still reset;
+once the client reports `Authenticated ... using "publickey"`, the key worked
+and investigation should move to session/shell or transport behavior. Full commands are in
+[windows_worker_ssh_strategy.md](windows_worker_ssh_strategy.md).
+
+Windows OpenSSH normally uses the single file
+`C:\ProgramData\ssh\administrators_authorized_keys` for administrators. Do not
+confuse it with a folder named `administrators\authorized_keys`. The pilot's
+`Match User` override instead selected the account's `.ssh\authorized_keys`.
+Use `sshd -T -C ...` to discover the effective `authorizedkeysfile`; inspect
+that file's key fingerprint and ACL. The key fingerprint used in this pilot was
+`SHA256:J1A0r8jwW5LVY3clMjP3beXWJ+JjUPeg5Dxa9Ux4PLk`. A DEBUG3 setting was added
+to `sshd_config` while diagnosing; remove/restore it after debugging, validate
+with `sshd -t`, and restart `sshd`.
+
+### SMB share and drive mappings
+
+The `Y:` mapping was reported unavailable in `net use`; a malformed UNC path
+also produced triple leading backslashes and `Test-Path` returned false. The
+working PowerShell form used a literal UNC path and prompted for the SMB
+password without putting it on the command line:
+
+```powershell
+$share = '\\10.20.11.250\data'
+net.exe use X: $share '*' '/USER:GMGM\Gilles' '/PERSISTENT:NO'
+Get-ChildItem -LiteralPath 'X:\' -ErrorAction Stop | Select-Object -First 1
+Get-SmbConnection | Select-Object ServerName, ShareName, UserName
+```
+
+TCP 445 being reachable did not prove the share was accessible; the successful
+`Get-ChildItem` read did. The `X:` mapping is session-scoped, so verify it under
+the worker's actual sign-in/task. A JSON path mapping rewrites job paths; it does
+not mount a drive or supply SMB credentials. Keep both `/data` and legacy
+`X:\` mappings pointed to the corresponding UNC share.
+
+### `.env`, readiness, queue, and scheduled task
+
+- Use `scripts/configure_windows_worker_env.ps1` to create a new `.env`. It
+  prompts separately for the PostgreSQL login and a masked password, URI-escapes
+  both, and sets the ACL. Do not paste a large hand-written PowerShell block
+  from chat into a prompt; one malformed paste previously put a PowerShell
+  expression in the login field. Never display or paste `.env` or its database
+  URL.
+- For an existing `.env`, use
+  `scripts/enable_windows_queue_worker.ps1 -EnvFile .env`; it preserves the DB
+  URL. The first version of this helper used `$matches`, a reserved automatic
+  PowerShell variable, and failed before writing the file. This was fixed in
+  commit `c546012`. After pulling that commit, the helper completed successfully.
+- Run the readiness check with the complete parameter spelling:
+  `.\scripts\run_worker.ps1 -EnvFile .env -Check`. The truncated `-EnvFil`
+  command failed with “Argument manquant”; it did not test readiness.
+- A failed `Get/Stop/Start-ScheduledTask -TaskName 'DetecDiv Hub Worker'` means
+  the task name was not registered. Check the exact tasks with
+  `Get-ScheduledTask | Where-Object TaskName -like '*DetecDiv*'`. The worker
+  script run in a console stays attached to that console and must be stopped
+  there with `Ctrl+C` while idle. Register the logon task only after the manual
+  run is validated; the task uses the signed-in user and is not a Windows
+  service or boot-time task.
+- The first MATLAB test failed with MathWorks Licensing Error 10. The queue
+  helper therefore excludes `pipeline_run` and `legacy_matlab` as well as
+  archive/restore. When MATLAB licensing is repaired, verify `matlab.exe
+  -batch` first, then update `.env` using `-MatlabLicenseReady` and restart the
+  worker while idle.
+
+At the last queue inspection, all unassigned jobs were archives. It is therefore
+expected for the Windows worker to remain idle with the archive exclusions in
+place; a non-archive unassigned job is needed to confirm shared-queue execution.
