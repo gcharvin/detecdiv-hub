@@ -227,16 +227,18 @@ the restricted database tunnel.
   `windows-10-20-11-56`, with `supports_matlab=true`, `supports_python=true`,
   and `max_concurrent_jobs=1`.
 - Set `DETECDIV_HUB_WORKER_CLAIM_UNASSIGNED_JOBS=true`, leave
-  `DETECDIV_HUB_WORKER_JOB_KINDS` empty (all kinds), and exclude archive/restore
-  jobs. Until MATLAB licensing is restored, also exclude `pipeline_run` and
+  `DETECDIV_HUB_WORKER_JOB_KINDS` empty (all kinds). Keep archive and restore
+  excluded by default. Archive jobs can be enabled after the SMB share is
+  verified; keep restore excluded until a separate restore test is planned.
+  Until MATLAB licensing is restored, also exclude `pipeline_run` and
   `legacy_matlab`. Disable periodic schedulers.
 - This only shares jobs with `execution_target_id=NULL`. Jobs explicitly
   assigned to `detecdiv-server` remain there. For a shared job, the first
   eligible worker that claims it wins; priorities and resource limits still
   apply within each target.
-- The current unassigned backlog consists only of archive jobs, so Windows
-  should remain idle after the new filter is applied. That confirms the archive
-  exclusion; a later non-archive queued job is needed to confirm execution.
+- While archive jobs remain excluded, an unassigned archive-only backlog will
+  leave Windows idle. Enabling archive jobs makes those queued jobs eligible
+  after the worker is restarted.
 - Queue eligibility alone does not guarantee that every filesystem job can run
   on Windows. Validate its path mapping, share permissions, and required tools
   before allowing storage-mutating jobs to use this target.
@@ -310,6 +312,59 @@ retains its canonical paths; these mappings belong only to this worker's env
 file. A path mapping translates strings for the worker; it does not create a
 Windows drive mapping. MATLAB code that directly opens `X:\...` needs `X:` to
 be mounted in the worker's own logon session.
+
+## Enable raw-dataset archiving on Windows
+
+The archive storage root used by the Linux workers is `/archive`, backed by
+the SMB share `\\10.20.11.251\archive`. The Windows lifecycle handler maps
+canonical `/data/...` and `/archive/...` paths to this PC's configured UNC
+paths for file operations, while it continues to store canonical `/data` and
+`/archive` paths in the hub database. The SMB login must have read access to
+the source data and write/delete access in the archive share.
+
+Run these commands in **PowerShell as the same `GMGM\Charvin-Admin` account
+that runs the worker**. The `net use` command prompts for the SMB password;
+the password is not part of the command. This temporary `W:` mapping is for
+the access check; the worker configuration below uses the UNC path directly.
+
+```powershell
+Test-NetConnection 10.20.11.251 -Port 445
+$archiveShare = '\\10.20.11.251\archive'
+net.exe use W: $archiveShare '*' '/USER:GMGM\Gilles' '/PERSISTENT:NO'
+Get-ChildItem -LiteralPath 'W:\' -ErrorAction Stop | Select-Object -First 1
+$probe = Join-Path 'W:\' ('.detecdiv-write-test-' + [guid]::NewGuid().ToString('N') + '.tmp')
+New-Item -ItemType File -Path $probe -ErrorAction Stop | Out-Null
+Remove-Item -LiteralPath $probe -Force -ErrorAction Stop
+```
+
+If the archive server authorizes a different SMB account, use that account in
+`/USER:`. A successful TCP check alone does not prove share access; the
+directory read and temporary-file create/delete must both succeed. If `W:` is
+already assigned, choose another unused letter. Drive mappings are per logon
+session, so do this from the worker's account.
+
+After confirming the queued archive jobs and their `mark_archived` settings,
+configure the worker with the UNC path. The helper verifies read access and
+creates/deletes a uniquely named temporary file before it changes `.env`; it
+preserves the database URL, updates the `/archive` path mapping, enables only
+`archive_raw_dataset`, and leaves `restore_raw_dataset`, `pipeline_run`, and
+`legacy_matlab` excluded by default. It also sets the worker's default archive
+root to canonical `/archive`:
+
+```powershell
+.\scripts\enable_windows_queue_worker.ps1 `
+    -EnvFile .env `
+    -ArchiveSharePath '\\10.20.11.251\archive' `
+    -EnableArchiveJobs
+.\scripts\run_worker.ps1 -EnvFile .env -Check
+```
+
+The helper does not restart the worker. Apply the new environment on the next
+intentional restart while the worker is idle. Once it restarts, any unassigned
+archive jobs in the queue are eligible immediately. An archive job with
+`mark_archived=true` removes the source data after a successful archive, so
+review the queued jobs before restarting. `restore_raw_dataset` stays excluded;
+enable it only after separately validating restore paths and permissions.
 
 ## Database tunnel on the first PC
 
@@ -397,14 +452,17 @@ Use the actual database username and password from the VM deployment. For the
 current Windows queue policy, use
 `DETECDIV_HUB_WORKER_CLAIM_UNASSIGNED_JOBS=true`, leave
 `DETECDIV_HUB_WORKER_JOB_KINDS` empty (all kinds), exclude
-`archive_raw_dataset,restore_raw_dataset,pipeline_run,legacy_matlab`, and keep
+`archive_raw_dataset,restore_raw_dataset,pipeline_run,legacy_matlab` by default,
+and keep
 `DETECDIV_HUB_WORKER_ENABLE_SCHEDULERS=false`. The helper
 `scripts/enable_windows_queue_worker.ps1` applies this policy to an existing
-`.env` without rewriting its database URL. After the MATLAB license is
-successfully checked, run it with `-MatlabLicenseReady` to remove only the two
-MATLAB exclusions. Restrict `.env` to the worker account, `SYSTEM`, and local
-Administrators. Do not paste the database URL or password into a chat or commit
-it to git.
+`.env` without rewriting its database URL. Once the archive share has passed
+the read/write probe, use `-ArchiveSharePath ... -EnableArchiveJobs` to remove
+only the archive exclusion and add its path mapping. After the MATLAB license
+is successfully checked, run it with `-MatlabLicenseReady` to remove only the
+two MATLAB exclusions. Restrict `.env` to the worker account, `SYSTEM`, and
+local Administrators. Do not paste the database URL or password into a chat or
+commit it to git.
 
 ## Check and start manually
 
@@ -534,6 +592,7 @@ not mount a drive or supply SMB credentials. Keep both `/data` and legacy
   -batch` first, then update `.env` using `-MatlabLicenseReady` and restart the
   worker while idle.
 
-At the last queue inspection, all unassigned jobs were archives. It is therefore
-expected for the Windows worker to remain idle with the archive exclusions in
-place; a non-archive unassigned job is needed to confirm shared-queue execution.
+At the last queue inspection, all unassigned jobs were archives. With the
+default exclusions in place, it is therefore expected for the Windows worker to
+remain idle. If archive jobs are enabled, review pending jobs before restarting
+because eligible jobs can be claimed immediately.

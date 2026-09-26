@@ -5,7 +5,7 @@ import re
 import shutil
 import tarfile
 import zipfile
-from pathlib import Path
+from pathlib import Path, PurePath, PurePosixPath, PureWindowsPath
 
 from sqlalchemy import select
 from sqlalchemy.orm import Session, joinedload
@@ -17,8 +17,8 @@ from api.services.raw_dataset_lifecycle import (
     complete_raw_dataset_restore,
     fail_raw_dataset_lifecycle_job,
     pick_preferred_raw_location,
-    resolve_raw_location_path,
 )
+from worker.path_mappings import map_worker_path, parse_worker_path_mappings
 
 
 def execute_storage_lifecycle_job(session: Session, *, job: Job) -> dict:
@@ -81,23 +81,29 @@ def execute_raw_dataset_archive(session: Session, *, job: Job) -> dict:
     raw_dataset = load_raw_dataset_for_job(session, job=job)
     requested_by_user = resolve_requested_by_user(session, job=job)
     source_location = pick_preferred_raw_location(raw_dataset)
-    source_path = Path(
-        (job.params_json or {}).get("bundle_root_path")
-        or resolve_raw_location_path(source_location)
+    params = job.params_json or {}
+    canonical_source_path = _canonical_path(
+        params.get("bundle_root_path") or _canonical_raw_location_path(source_location)
     )
-    compression = ((job.params_json or {}).get("archive_compression") or raw_dataset.archive_compression or settings.default_archive_compression).strip()
-    archive_path = resolve_archive_path(
+    source_path = _worker_local_path(canonical_source_path)
+    compression = (
+        params.get("archive_compression")
+        or raw_dataset.archive_compression
+        or settings.default_archive_compression
+    ).strip()
+    canonical_archive_path = resolve_archive_path(
         raw_dataset=raw_dataset,
-        source_path=source_path,
-        archive_uri=(job.params_json or {}).get("archive_uri") or raw_dataset.archive_uri,
+        source_path=canonical_source_path,
+        archive_uri=params.get("archive_uri") or raw_dataset.archive_uri,
         compression=compression,
         default_archive_root=settings.default_archive_root,
     )
+    archive_path = _worker_local_path(canonical_archive_path)
     if archive_path.exists():
         completed_artifact = find_valid_completed_archive_artifact(
             session,
             raw_dataset=raw_dataset,
-            archive_path=archive_path,
+            archive_uri=str(canonical_archive_path),
         )
         if completed_artifact is not None:
             return reconcile_existing_completed_archive(
@@ -123,19 +129,23 @@ def execute_raw_dataset_archive(session: Session, *, job: Job) -> dict:
     if source_deleted:
         preserved_preview_dirs = delete_source_path(source_path, preserve_preview_dirs=True)
         if source_path.exists():
-            write_archive_marker_file(source_path=source_path, archive_path=archive_path)
+            write_archive_marker_file(
+                source_path=source_path,
+                archive_path=archive_path,
+                archive_uri=str(canonical_archive_path),
+            )
 
     artifact = Artifact(
         job_id=job.id,
         artifact_kind="raw_dataset_archive",
-        uri=str(archive_path),
+        uri=str(canonical_archive_path),
         metadata_json={
             "compression": compression,
             "sha256": archive_sha256,
             "archive_bytes": archive_bytes,
-            "source_path": str(source_path),
+            "source_path": str(canonical_source_path),
             "source_deleted": source_deleted,
-            "preserved_preview_dirs": preserved_preview_dirs,
+            "preserved_preview_dirs": [_canonical_worker_path(path) for path in preserved_preview_dirs],
         },
     )
     session.add(artifact)
@@ -143,13 +153,13 @@ def execute_raw_dataset_archive(session: Session, *, job: Job) -> dict:
     result_json = {
         "job_kind": "archive_raw_dataset",
         "raw_dataset_id": str(raw_dataset.id),
-        "source_path": str(source_path),
-        "archive_uri": str(archive_path),
+        "source_path": str(canonical_source_path),
+        "archive_uri": str(canonical_archive_path),
         "archive_compression": compression,
         "archive_bytes": archive_bytes,
         "archive_sha256": archive_sha256,
         "source_deleted": source_deleted,
-        "preserved_preview_dirs": preserved_preview_dirs,
+        "preserved_preview_dirs": [_canonical_worker_path(path) for path in preserved_preview_dirs],
         "bundle_raw_dataset_ids": list((job.params_json or {}).get("bundle_raw_dataset_ids") or []),
         "bundle_project_ids": list((job.params_json or {}).get("bundle_project_ids") or []),
     }
@@ -157,7 +167,7 @@ def execute_raw_dataset_archive(session: Session, *, job: Job) -> dict:
         session,
         raw_dataset=raw_dataset,
         requested_by_user=requested_by_user,
-        archive_uri=str(archive_path),
+        archive_uri=str(canonical_archive_path),
         archive_compression=compression,
         source_deleted=source_deleted,
         result_json=result_json,
@@ -172,7 +182,7 @@ def find_valid_completed_archive_artifact(
     session: Session,
     *,
     raw_dataset: RawDataset,
-    archive_path: Path,
+    archive_uri: str,
 ) -> Artifact | None:
     stmt = (
         select(Artifact)
@@ -182,7 +192,7 @@ def find_valid_completed_archive_artifact(
             Job.status == "done",
             Job.params_json["job_kind"].as_string() == "archive_raw_dataset",
             Artifact.artifact_kind == "raw_dataset_archive",
-            Artifact.uri == str(archive_path),
+            Artifact.uri == archive_uri,
         )
         .order_by(Job.finished_at.desc().nullslast(), Artifact.created_at.desc())
     )
@@ -215,7 +225,7 @@ def find_latest_valid_completed_archive_artifact(
 
 
 def archive_artifact_matches_file(artifact: Artifact) -> bool:
-    archive_path = Path(artifact.uri)
+    archive_path = _worker_local_path(artifact.uri)
     if not archive_path.is_file():
         return False
     metadata = dict(artifact.metadata_json or {})
@@ -235,19 +245,23 @@ def reconcile_existing_completed_archive(
     artifact: Artifact,
 ) -> dict:
     metadata = dict(artifact.metadata_json or {})
-    archive_path = Path(artifact.uri)
+    canonical_archive_uri = str(artifact.uri)
+    archive_path = _worker_local_path(canonical_archive_uri)
     compression = str(metadata.get("compression") or raw_dataset.archive_compression or "zip")
     source_deleted = bool(metadata.get("source_deleted"))
     result_json = {
         "job_kind": "archive_raw_dataset",
         "raw_dataset_id": str(raw_dataset.id),
         "source_path": str(metadata.get("source_path") or (job.params_json or {}).get("bundle_root_path") or ""),
-        "archive_uri": str(archive_path),
+        "archive_uri": canonical_archive_uri,
         "archive_compression": compression,
         "archive_bytes": int(metadata["archive_bytes"]),
         "archive_sha256": str(metadata["sha256"]),
         "source_deleted": source_deleted,
-        "preserved_preview_dirs": list(metadata.get("preserved_preview_dirs") or []),
+        "preserved_preview_dirs": [
+            _canonical_worker_path(path)
+            for path in metadata.get("preserved_preview_dirs") or []
+        ],
         "bundle_raw_dataset_ids": list((job.params_json or {}).get("bundle_raw_dataset_ids") or []),
         "bundle_project_ids": list((job.params_json or {}).get("bundle_project_ids") or []),
         "already_archived": True,
@@ -257,7 +271,7 @@ def reconcile_existing_completed_archive(
         session,
         raw_dataset=raw_dataset,
         requested_by_user=requested_by_user,
-        archive_uri=str(archive_path),
+        archive_uri=canonical_archive_uri,
         archive_compression=compression,
         source_deleted=source_deleted,
         result_json=result_json,
@@ -272,15 +286,16 @@ def execute_raw_dataset_restore(session: Session, *, job: Job) -> dict:
     raw_dataset = load_raw_dataset_for_job(session, job=job)
     requested_by_user = resolve_requested_by_user(session, job=job)
     source_location = pick_preferred_raw_location(raw_dataset)
-    target_path = Path(
-        (job.params_json or {}).get("bundle_root_path")
-        or resolve_raw_location_path(source_location)
+    params = job.params_json or {}
+    canonical_target_path = _canonical_path(
+        params.get("bundle_root_path") or _canonical_raw_location_path(source_location)
     )
-    archive_uri = (job.params_json or {}).get("archive_uri") or raw_dataset.archive_uri
-    if not archive_uri:
+    target_path = _worker_local_path(canonical_target_path)
+    canonical_archive_uri = params.get("archive_uri") or raw_dataset.archive_uri
+    if not canonical_archive_uri:
         raise ValueError(f"Raw dataset {raw_dataset.id} has no archive_uri to restore from")
 
-    archive_path = Path(archive_uri)
+    archive_path = _worker_local_path(canonical_archive_uri)
     if not archive_path.exists():
         raise FileNotFoundError(f"Archive file does not exist: {archive_path}")
 
@@ -293,8 +308,8 @@ def execute_raw_dataset_restore(session: Session, *, job: Job) -> dict:
     result_json = {
         "job_kind": "restore_raw_dataset",
         "raw_dataset_id": str(raw_dataset.id),
-        "archive_uri": str(archive_path),
-        "target_path": str(target_path),
+        "archive_uri": str(canonical_archive_uri),
+        "target_path": str(canonical_target_path),
         "restored_from_archive": restored_from_archive,
         "bundle_raw_dataset_ids": list((job.params_json or {}).get("bundle_raw_dataset_ids") or []),
         "bundle_project_ids": list((job.params_json or {}).get("bundle_project_ids") or []),
@@ -336,14 +351,58 @@ def resolve_requested_by_user(session: Session, *, job: Job) -> User | None:
     return session.scalars(stmt).first()
 
 
+def _canonical_path(value: str | Path | PurePath) -> PurePath:
+    text = str(value or "").strip()
+    if re.match(r"^[A-Za-z]:[/\\]", text) or text.startswith(("\\\\", "//")):
+        return PureWindowsPath(text)
+    return PurePosixPath(text.replace("\\", "/"))
+
+
+def _canonical_raw_location_path(location: RawDatasetLocation) -> PurePath:
+    root = _canonical_path(location.storage_root.path_prefix)
+    relative = str(location.relative_path or "")
+    if isinstance(root, PureWindowsPath):
+        return root / PureWindowsPath(relative)
+    return root / PurePosixPath(relative.replace("\\", "/"))
+
+
+def _worker_path_mappings():
+    return parse_worker_path_mappings(get_settings().worker_path_mappings)
+
+
+def _worker_local_path(canonical_path: str | Path | PurePath) -> Path:
+    mappings = _worker_path_mappings()
+    local_path = map_worker_path(str(canonical_path), mappings)
+    return Path(local_path)
+
+
+def _canonical_worker_path(local_path: str | Path) -> str:
+    candidate = str(local_path).replace("\\", "/")
+    mappings = _worker_path_mappings()
+    for mapping in mappings:
+        target = mapping.target.replace("\\", "/").rstrip("/")
+        is_windows_target = target.startswith("//") or re.match(r"^[A-Za-z]:", target)
+        compared_candidate = candidate.casefold() if is_windows_target else candidate
+        compared_target = target.casefold() if is_windows_target else target
+        if compared_candidate == compared_target:
+            suffix = ""
+        elif compared_candidate.startswith(f"{compared_target}/"):
+            suffix = candidate[len(target) + 1 :]
+        else:
+            continue
+        source = str(_canonical_path(mapping.source)).rstrip("/\\")
+        return f"{source}/{suffix}" if suffix else source
+    return str(local_path)
+
+
 def resolve_archive_path(
     *,
     raw_dataset: RawDataset,
-    source_path: Path,
+    source_path: PurePath,
     archive_uri: str | None,
     compression: str,
     default_archive_root: str,
-) -> Path:
+) -> PurePath:
     compression = compression.lower()
     extension = archive_extension(compression)
     safe_label = slugify(raw_dataset.external_key or raw_dataset.acquisition_label or source_path.name)
@@ -352,16 +411,16 @@ def resolve_archive_path(
     owner_key = raw_dataset.owner.user_key if raw_dataset.owner else "unknown"
 
     if archive_uri:
-        candidate = Path(archive_uri)
-        if archive_uri.endswith(extension):
+        candidate = _canonical_path(archive_uri)
+        if archive_uri.lower().endswith(extension.lower()):
             return candidate
-        if archive_uri.endswith(".zip") or archive_uri.endswith(".tar.gz"):
+        if archive_uri.lower().endswith(".zip") or archive_uri.lower().endswith(".tar.gz"):
             return candidate
         return candidate / owner_key / default_name
 
     if not default_archive_root:
         raise ValueError("No archive destination configured; set archive_uri or DETECDIV_HUB_DEFAULT_ARCHIVE_ROOT")
-    return Path(default_archive_root) / owner_key / default_name
+    return _canonical_path(default_archive_root) / owner_key / default_name
 
 
 def archive_extension(compression: str) -> str:
@@ -461,14 +520,16 @@ def is_preview_only_archive_placeholder(path: Path) -> bool:
     )
 
 
-def write_archive_marker_file(*, source_path: Path, archive_path: Path) -> Path:
+def write_archive_marker_file(
+    *, source_path: Path, archive_path: Path, archive_uri: str | None = None
+) -> Path:
     marker_path = source_path / "DO_NOT_DELETE_PARENT_FOLDER"
     marker_path.write_text(
         "\n".join(
             [
                 "This folder is intentionally kept by DetecDiv Hub.",
                 "The raw dataset has been archived and the remaining files are lightweight previews.",
-                f"Archive path: {archive_path}",
+                f"Archive path: {archive_uri or archive_path}",
                 "Do not delete this parent folder unless you also update the DetecDiv Hub catalog.",
                 "",
             ]
