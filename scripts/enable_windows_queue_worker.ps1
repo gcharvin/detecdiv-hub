@@ -29,15 +29,17 @@ $lines = [System.Collections.Generic.List[string]]::new()
 foreach ($line in [IO.File]::ReadAllLines($EnvFile)) { $lines.Add($line) }
 foreach ($entry in $updates.GetEnumerator()) {
     $pattern = '^' + [regex]::Escape($entry.Key) + '='
-    $matches = @()
+    # `$Matches` is a PowerShell automatic variable populated by `-match`.
+    # Use another name so we can safely collect the matching .env line indexes.
+    $matchingIndices = @()
     for ($index = 0; $index -lt $lines.Count; $index++) {
-        if ($lines[$index] -match $pattern) { $matches += $index }
+        if ($lines[$index] -match $pattern) { $matchingIndices += $index }
     }
-    if ($matches.Count -gt 1) {
+    if ($matchingIndices.Count -gt 1) {
         throw "Duplicate $($entry.Key) entries found; .env was not changed."
     }
-    if ($matches.Count -eq 1) {
-        $lines[$matches[0]] = "$($entry.Key)=$($entry.Value)"
+    if ($matchingIndices.Count -eq 1) {
+        $lines[$matchingIndices[0]] = "$($entry.Key)=$($entry.Value)"
     } else {
         $lines.Add("$($entry.Key)=$($entry.Value)")
     }
