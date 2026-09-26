@@ -20,6 +20,7 @@ class Settings(BaseSettings):
     worker_instance: str = ""
     worker_claim_unassigned_jobs: bool = True
     worker_job_kinds: str = ""
+    worker_excluded_job_kinds: str = ""
     worker_path_mappings: str = ""
     worker_enable_schedulers: bool = True
     systemd_env_file: str = "/etc/detecdiv-hub/detecdiv-hub.env"

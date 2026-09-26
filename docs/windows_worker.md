@@ -7,11 +7,12 @@ The live API and the three Linux workers remain separate deployments. The
 Windows worker is a Python process that polls the central PostgreSQL queue and
 starts the MATLAB installation on its own machine with `-batch`.
 
-## State of the first PC (2026-09-25)
+## State of the first PC (2026-09-26)
 
-On `CG-PCDELL01-306` (`10.20.11.56`), SSH key access through the local
-`detecdiv-ops` administrator account works. The Windows hub checkout is at
-`184d4dd`. MATLAB R2025b is installed, and DetecDiv `unstable` is at
+On `CG-PCDELL01-306` (`10.20.11.56`), the Windows OpenSSH server accepts the
+configured administrator key, but the current workstation's SSH session resets
+immediately after authentication. The Windows hub checkout was last reported
+at `184d4dd`. MATLAB R2025b is installed, and DetecDiv `unstable` is at
 `86c66b5`. Python 3.11 and the hub dependencies are installed in the hub
 checkout's `.venv`. Python 3.13 could not resolve the pinned `nd2` and
 `pydantic` versions.
@@ -22,42 +23,40 @@ is now reported online. The readiness check passed under
 runs as `SYSTEM` and forwards local port `15432` to PostgreSQL on
 `webserver-labo` through `detecdiv-server`.
 
-The first interactive SMB read test succeeded on `Y:` after authenticating to
-`\\10.20.11.250\data` as `GMGM\Gilles`. The worker setup is being standardized
-on `X:` because existing MATLAB pipeline dependencies use paths such as
-`X:\matlab\ClassiRepository`. The `Y:` test proves access in that interactive
-session only. Confirm that the worker's account and its launch session can read
-and write the required paths before relying on automatic startup.
-The worker was first launched in the foreground from PowerShell; closing that
-window or ending its SSH session stops that process. A synthetic
-`worker_smoke_test` was then claimed and completed on Windows (`CG-PCDELL01-306`)
-with status `done`. This exercised the target-specific queue claim and result
-writeback through the generic placeholder handler; it did not launch MATLAB.
-No MATLAB pipeline run or scheduled-worker startup has yet been validated.
+The data share was verified on `X:` in an interactive PowerShell session as
+`GMGM\Gilles`; the worker path mapping now contains both `/data` and `X:\` to
+`//10.20.11.250/DATA`. Verify read and write access from the worker's actual
+launch session before relying on filesystem jobs.
 
-At the time of the smoke test, the live queue had 209 queued
-`archive_raw_dataset` jobs with no execution target, while two `pipeline_run`
-jobs and one archive job were already running on `detecdiv-server`. The Windows
-worker's `.env` intentionally allows only `pipeline_run` and sets
-`DETECDIV_HUB_WORKER_CLAIM_UNASSIGNED_JOBS=false`. The worker therefore ignores
-both unassigned jobs and all archive jobs. The hub does not currently rebalance
-queued work onto any idle worker automatically; new jobs must be assigned to
-the Windows target when submitted. Keep the archive jobs on the Linux
-storage-visible worker while Windows has `storage_visible=false`.
+A Windows `pipeline_run` was claimed and passed worker preflight. MATLAB then
+exited before starting the pipeline with MathWorks Licensing Error 10 because
+the installed license is expired. The job is failed and the Windows worker is
+idle. MATLAB work must stay out of its queue until a license check succeeds.
+
+The latest live queue inspection found 206 queued `archive_raw_dataset` jobs
+without an execution target; two `pipeline_run` jobs and one archive job were
+running on `detecdiv-server`. The last Windows readiness output supplied
+reported
+`DETECDIV_HUB_WORKER_CLAIM_UNASSIGNED_JOBS=false` and
+`DETECDIV_HUB_WORKER_JOB_KINDS=pipeline_run`. A new opt-in helper is provided
+below to let Windows claim unassigned work while excluding archive/restore and,
+until MATLAB is licensed, MATLAB job kinds. Workers do not move jobs already
+assigned to another execution target. The database's `SKIP LOCKED` claim means
+the first eligible worker to poll an unassigned job gets it; this is not a
+least-loaded-target scheduler.
 
 The server's `/data` mount comes from `//10.20.11.250/DATA`.
 
 The live raw archive root is `/archive`, mounted on `detecdiv-server` from
 `//10.20.11.251/archive`. TCP port 445 on `10.20.11.251` is reachable from
 Windows, but SMB authentication and read/write access have not been tested
-there. The configured archive policy has `delete_hot_source=true`; all 209
-queued `archive_raw_dataset` jobs currently have `mark_archived=true`, so a
-successful run deletes its source after writing the archive. Do not enable
-these jobs on Windows until both shares are accessible to the worker account
+there. The configured archive policy can delete hot sources after writing the
+archive. Do not enable these jobs on Windows until both shares are accessible to the worker account
 and a copy-only archive test verifies destination write, archive integrity,
-and path translation. The current worker path mapping is applied in the
-pipeline executor; storage lifecycle jobs still resolve server paths such as
-`/data` and `/archive` directly.
+and path translation. Archive and restore kinds remain excluded from Windows.
+The worker's current path mapping is applied to pipeline execution; other
+filesystem job handlers still need per-kind validation for Windows paths and
+write access before being trusted with server-root operations.
 
 ## Quick installation procedure for a future agent
 
@@ -109,9 +108,23 @@ tunnel key and task setup.
    ```
 
    Do not print, paste, or commit `.env` or its database URL. The helper sets
-   the target key, MATLAB and DetecDiv paths, UNC mapping, and pilot-safe job
-   filters (`pipeline_run` only, no unassigned jobs, schedulers disabled). The
-   helper maps `/data` and legacy `X:\` pipeline paths to the share's UNC path.
+   the target key, MATLAB and DetecDiv paths, UNC mapping, and queue settings.
+   To update an existing `.env` without rewriting its database URL, use the
+   queue helper below instead.
+
+   For an existing Windows worker, update only its queue settings from
+   PowerShell:
+
+   ```powershell
+   .\scripts\enable_windows_queue_worker.ps1 -EnvFile .env
+   .\scripts\run_worker.ps1 -EnvFile .env -Check
+   ```
+
+   This enables unassigned jobs, excludes `archive_raw_dataset` and
+   `restore_raw_dataset`, and also excludes `pipeline_run` and `legacy_matlab`
+   until `-MatlabLicenseReady` is supplied after a successful license check.
+   The helper preserves the database URL and secures the `.env` ACL. Restart
+   the worker only while it is idle; it reads the `.env` at process startup.
 
 5. Check configuration, then launch the worker manually for the first pilot:
 
@@ -120,10 +133,9 @@ tunnel key and task setup.
    .\scripts\run_worker.ps1 -EnvFile .env
    ```
 
-   Keep this PowerShell window open. Confirm the target shows online. Send one
-   small pipeline run explicitly to this execution target and inspect its job
-   status, MATLAB log, Python calls, output paths, and `worker_host` before
-   enabling automatic startup.
+   Keep this PowerShell window open. Confirm the target shows online. Before
+   sending MATLAB work, verify the license with `matlab.exe -batch` and inspect
+   output paths and `worker_host` on a small run.
 
 6. After the manual worker and data access are validated, register the logon
    task. Stop the foreground worker with `Ctrl+C` before starting the task so
@@ -155,16 +167,25 @@ worked for this domain account. The Windows worker's incoming SSH access is
 only for administration; the worker itself connects outward to the hub through
 the restricted database tunnel.
 
-## Pilot scope
+## Queue sharing scope
 
 - Use one execution target dedicated to this PC, for example
   `windows-10-20-11-56`, with `supports_matlab=true`, `supports_python=true`,
   and `max_concurrent_jobs=1`.
-- Set `DETECDIV_HUB_WORKER_CLAIM_UNASSIGNED_JOBS=false` and
-  `DETECDIV_HUB_WORKER_JOB_KINDS=pipeline_run`, and disable periodic schedulers.
-  Submit a pipeline run with this
-  target's `execution_target_id` explicitly. The worker cannot take general
-  Linux maintenance jobs or jobs pinned to `detecdiv-server`.
+- Set `DETECDIV_HUB_WORKER_CLAIM_UNASSIGNED_JOBS=true`, leave
+  `DETECDIV_HUB_WORKER_JOB_KINDS` empty (all kinds), and exclude archive/restore
+  jobs. Until MATLAB licensing is restored, also exclude `pipeline_run` and
+  `legacy_matlab`. Disable periodic schedulers.
+- This only shares jobs with `execution_target_id=NULL`. Jobs explicitly
+  assigned to `detecdiv-server` remain there. For a shared job, the first
+  eligible worker that claims it wins; priorities and resource limits still
+  apply within each target.
+- The current unassigned backlog consists only of archive jobs, so Windows
+  should remain idle after the new filter is applied. That confirms the archive
+  exclusion; a later non-archive queued job is needed to confirm execution.
+- Queue eligibility alone does not guarantee that every filesystem job can run
+  on Windows. Validate its path mapping, share permissions, and required tools
+  before allowing storage-mutating jobs to use this target.
 - Pipeline runs requesting `ingest_raw_dataset` remain on the Linux storage
   worker. Their catalog ingest assumes server storage roots.
 - Use one worker process initially. A process executes one job at a time; only

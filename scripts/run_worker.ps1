@@ -33,12 +33,16 @@ foreach ($line in Get-Content -LiteralPath $EnvFile) {
     [System.Environment]::SetEnvironmentVariable($key, $value, "Process")
 }
 
-# A Windows pilot must not consume unrelated server maintenance jobs.
+# Windows workers may share the unassigned queue; keep archive and currently
+# unlicensed MATLAB job kinds out of the default Windows pool.
 if (-not $env:DETECDIV_HUB_WORKER_CLAIM_UNASSIGNED_JOBS) {
-    $env:DETECDIV_HUB_WORKER_CLAIM_UNASSIGNED_JOBS = "false"
+    $env:DETECDIV_HUB_WORKER_CLAIM_UNASSIGNED_JOBS = "true"
 }
 if (-not $env:DETECDIV_HUB_WORKER_JOB_KINDS) {
-    $env:DETECDIV_HUB_WORKER_JOB_KINDS = "pipeline_run"
+    $env:DETECDIV_HUB_WORKER_JOB_KINDS = ""
+}
+if (-not $env:DETECDIV_HUB_WORKER_EXCLUDED_JOB_KINDS) {
+    $env:DETECDIV_HUB_WORKER_EXCLUDED_JOB_KINDS = "archive_raw_dataset,restore_raw_dataset,pipeline_run,legacy_matlab"
 }
 if (-not $env:DETECDIV_HUB_WORKER_ENABLE_SCHEDULERS) {
     $env:DETECDIV_HUB_WORKER_ENABLE_SCHEDULERS = "false"

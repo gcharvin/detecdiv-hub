@@ -32,8 +32,9 @@ try {
         "DETECDIV_HUB_DATABASE_URL=$databaseUrl"
         'DETECDIV_HUB_WORKER_TARGET_KEY=windows-10-20-11-56'
         'DETECDIV_HUB_WORKER_INSTANCE=windows-10-20-11-56-main'
-        'DETECDIV_HUB_WORKER_CLAIM_UNASSIGNED_JOBS=false'
-        'DETECDIV_HUB_WORKER_JOB_KINDS=pipeline_run'
+        'DETECDIV_HUB_WORKER_CLAIM_UNASSIGNED_JOBS=true'
+        'DETECDIV_HUB_WORKER_JOB_KINDS='
+        'DETECDIV_HUB_WORKER_EXCLUDED_JOB_KINDS=archive_raw_dataset,restore_raw_dataset,pipeline_run,legacy_matlab'
         'DETECDIV_HUB_WORKER_ENABLE_SCHEDULERS=false'
         'DETECDIV_HUB_WORKER_POLL_INTERVAL_SEC=5'
         'DETECDIV_HUB_MATLAB_COMMAND=C:\Program Files\MATLAB\R2025b\bin\matlab.exe'

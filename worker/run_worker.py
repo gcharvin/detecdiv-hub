@@ -277,11 +277,17 @@ def claim_next_job() -> Job | None:
         allowed_job_kinds = tuple(
             kind.strip() for kind in settings.worker_job_kinds.split(",") if kind.strip()
         )
+        excluded_job_kinds = tuple(
+            kind.strip()
+            for kind in settings.worker_excluded_job_kinds.split(",")
+            if kind.strip()
+        )
         stmt = apply_worker_job_filters(
             stmt,
             target=target,
             claim_unassigned_jobs=settings.worker_claim_unassigned_jobs,
             allowed_job_kinds=allowed_job_kinds,
+            excluded_job_kinds=excluded_job_kinds,
         )
         candidates = list(session.scalars(stmt))
         totals = active_resource_totals(session, target=target, config=resource_config)
@@ -372,6 +378,7 @@ def apply_worker_job_filters(
     target: ExecutionTarget | None,
     claim_unassigned_jobs: bool,
     allowed_job_kinds: tuple[str, ...],
+    excluded_job_kinds: tuple[str, ...] = (),
 ):
     if target is not None:
         if claim_unassigned_jobs:
@@ -380,6 +387,9 @@ def apply_worker_job_filters(
             stmt = stmt.where(Job.execution_target_id == target.id)
     if allowed_job_kinds:
         stmt = stmt.where(Job.params_json["job_kind"].as_string().in_(allowed_job_kinds))
+    if excluded_job_kinds:
+        job_kind = func.coalesce(Job.params_json["job_kind"].as_string(), "generic")
+        stmt = stmt.where(~job_kind.in_(excluded_job_kinds))
     return stmt
 
 

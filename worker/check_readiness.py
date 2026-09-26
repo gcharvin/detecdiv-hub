@@ -42,6 +42,7 @@ def main() -> None:
     print(f"DetecDiv repository: {repo_root}")
     print(f"Worker path mappings: {len(mappings)}")
     print(f"Allowed job kinds: {settings.worker_job_kinds or 'all'}")
+    print(f"Excluded job kinds: {settings.worker_excluded_job_kinds or 'none'}")
     print(f"Claim unassigned jobs: {settings.worker_claim_unassigned_jobs}")
     print(f"Periodic schedulers enabled: {settings.worker_enable_schedulers}")
 
