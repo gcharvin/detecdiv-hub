@@ -497,6 +497,8 @@ const els = {
 };
 
 let dashboardPollHandle = null;
+let dashboardPollInFlight = false;
+let executionTargetRefreshPromise = null;
 let lastPollSucceededAt = null;
 let yeastSearchDebounceHandle = null;
 const pageKind = document.body?.dataset?.page || "";
@@ -3739,7 +3741,16 @@ async function refreshPipelineRuns() {
   }
 }
 
-async function refreshExecutionTargets() {
+function refreshExecutionTargets() {
+  if (!executionTargetRefreshPromise) {
+    executionTargetRefreshPromise = refreshExecutionTargetsNow().finally(() => {
+      executionTargetRefreshPromise = null;
+    });
+  }
+  return executionTargetRefreshPromise;
+}
+
+async function refreshExecutionTargetsNow() {
   if (!els.executionTargetsTableBody && !els.pipelineRunTargetSelect && !pageFlags.hasPipelineRunsView) {
     return;
   }
@@ -3748,7 +3759,7 @@ async function refreshExecutionTargets() {
   const requests = [apiGet("/execution-targets")];
   let includesPrioritySettings = false;
   if (pageFlags.hasExecutionTargetsView) {
-    requests.push(apiGet("/jobs"));
+    requests.push(apiGet("/jobs?compact=true"));
     if (state.jobPrioritySettings === null) {
       requests.push(apiGet("/jobs/settings/priorities"));
       includesPrioritySettings = true;
@@ -9834,9 +9845,10 @@ async function revokeSession(sessionId) {
 }
 
 async function pollDashboard() {
-  if (!state.currentUser) {
+  if (!state.currentUser || dashboardPollInFlight || document.hidden) {
     return;
   }
+  dashboardPollInFlight = true;
   try {
     const pollTasks = [apiGet("/dashboard/summary").then((summary) => setSummary(summary))];
     if (pageFlags.hasDashboardView) {
@@ -9888,6 +9900,8 @@ async function pollDashboard() {
       ? ` Last successful refresh at ${lastPollSucceededAt.toLocaleTimeString()}.`
       : "";
     setStatus(`${String(error)}${suffix}`);
+  } finally {
+    dashboardPollInFlight = false;
   }
 }
 

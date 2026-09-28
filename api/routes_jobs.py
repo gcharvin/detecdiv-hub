@@ -2,7 +2,7 @@ from datetime import datetime, timezone
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel, Field
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from api.db import get_db
@@ -125,7 +125,25 @@ def patch_job_priority_settings(
 
 
 @router.get("", response_model=list[JobSummary])
-def list_jobs(db: Session = Depends(get_db)) -> list[Job]:
+def list_jobs(db: Session = Depends(get_db), compact: bool = False):
+    if compact:
+        def resource_projection(column):
+            keys = ("cpu_cores", "requested_cpu_cores", "memory_mb", "swap_limit_mb", "gpu_required", "gpu_vram_mb", "disk_io_units")
+            return func.jsonb_build_object(*[part for key in keys for part in (key, column[key])])
+
+        columns = [column for column in Job.__table__.columns if column.name not in {"params_json", "result_json"}]
+        params = func.jsonb_build_object(
+            "job_kind", Job.params_json["job_kind"],
+            "storage_optimization_run_id", Job.params_json["storage_optimization_run_id"],
+            "_hub_resource_allocation", resource_projection(Job.params_json["_hub_resource_allocation"]),
+        ).label("params_json")
+        result = func.jsonb_build_object(
+            "cpu_usage", Job.result_json["cpu_usage"],
+            "resource_allocation", resource_projection(Job.result_json["resource_allocation"]),
+        ).label("result_json")
+        return [dict(row) for row in db.execute(
+            select(*columns, params, result).order_by(Job.priority.asc(), Job.created_at.asc())
+        ).mappings()]
     stmt = select(Job).order_by(Job.priority.asc(), Job.created_at.asc())
     return list(db.scalars(stmt))
 

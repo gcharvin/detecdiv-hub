@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session, joinedload
 from fastapi import APIRouter, Depends
 
 from api.db import get_db
-from api.models import AcquisitionSession, Job, Project, ProjectGroup, ProjectNote, User
+from api.models import AcquisitionSession, Job, Project, ProjectGroup, ProjectNote, RawDataset, User
 from api.schemas import (
     AcquisitionSessionSummary,
     DashboardAcquisitionItem,
@@ -25,24 +25,31 @@ def get_dashboard_activity(
     current_user: User = Depends(get_current_user),
 ) -> DashboardActivity:
     job_base = (
-        select(Job)
-        .options(joinedload(Job.project), joinedload(Job.raw_dataset))
+        select(
+            Job.id, Job.status, Job.project_id, Job.raw_dataset_id,
+            Job.requested_mode, Job.created_at, Job.started_at,
+            Job.finished_at, Job.updated_at, Job.error_text,
+            func.coalesce(Job.params_json["job_kind"].as_string(), "background").label("job_kind"),
+            func.coalesce(Project.project_name, RawDataset.acquisition_label).label("resource_name"),
+        )
+        .outerjoin(Project, Job.project_id == Project.id)
+        .outerjoin(RawDataset, Job.raw_dataset_id == RawDataset.id)
         .where(Job.requested_by == current_user.user_key)
     )
     active_jobs = list(
-        db.scalars(
+        db.execute(
             job_base
             .where(Job.status.in_(("queued", "running")))
             .order_by(Job.priority.asc(), Job.created_at.desc())
-        ).unique()
+        ).mappings()
     )
     recent_jobs = list(
-        db.scalars(
+        db.execute(
             job_base
             .where(Job.status.not_in(("queued", "running")))
             .order_by(func.coalesce(Job.finished_at, Job.updated_at, Job.created_at).desc())
             .limit(12)
-        ).unique()
+        ).mappings()
     )
 
     active_acquisitions = list(
@@ -83,8 +90,8 @@ def get_dashboard_activity(
     )
 
     return DashboardActivity(
-        active_jobs=[dashboard_job_item(job) for job in active_jobs],
-        recent_jobs=[dashboard_job_item(job) for job in recent_jobs],
+        active_jobs=[DashboardJobItem.model_validate(job) for job in active_jobs],
+        recent_jobs=[DashboardJobItem.model_validate(job) for job in recent_jobs],
         active_acquisitions=[AcquisitionSessionSummary.model_validate(item) for item in active_acquisitions],
         recent_failed_acquisitions=[dashboard_acquisition_item(item) for item in recent_failed_acquisitions],
     )
@@ -160,8 +167,10 @@ def get_dashboard_summary(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ) -> DashboardSummary:
-    accessible_stmt = select(Project).where(Project.status != "deleted").where(project_access_filter(current_user))
-    accessible_projects = list(db.scalars(accessible_stmt))
+    accessible_stmt = select(
+        Project.id, Project.owner_user_id, Project.visibility, Project.total_bytes, Project.health_status,
+    ).where(Project.status != "deleted").where(project_access_filter(current_user))
+    accessible_projects = list(db.execute(accessible_stmt))
 
     total_projects = len(accessible_projects)
     owned_projects = sum(1 for project in accessible_projects if project.owner_user_id == current_user.id)
