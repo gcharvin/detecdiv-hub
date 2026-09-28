@@ -791,7 +791,7 @@ def run_forever() -> None:
                     last_micromanager_ingest_run_at = run_micromanager_ingest_if_due(
                         session,
                         last_run_at=last_micromanager_ingest_run_at,
-                        target=target,
+                        target=resolve_worker_target(session, settings.worker_target_key),
                     )
             except Exception:  # pragma: no cover - defensive around periodic maintenance
                 LOGGER.exception("Micro-Manager ingest run failed")
