@@ -61,16 +61,39 @@ Set-Location $repoRoot
 if ($LogFile) {
     $logDirectory = Split-Path -Parent $LogFile
     New-Item -ItemType Directory -Path $logDirectory -Force | Out-Null
-    & $pythonPath -m worker.check_readiness *>> $LogFile
-} else {
-    & $pythonPath -m worker.check_readiness
 }
-if ($LASTEXITCODE -ne 0) { throw "Worker readiness check failed." }
+$readinessErrorActionPreference = $ErrorActionPreference
+try {
+    # Windows PowerShell 5.1 converts native stderr output into error records.
+    # Python logging writes INFO messages to stderr by default, so Stop would
+    # terminate this launcher even though the worker started successfully.
+    $ErrorActionPreference = "Continue"
+    if ($LogFile) {
+        & $pythonPath -m worker.check_readiness *>> $LogFile
+    } else {
+        & $pythonPath -m worker.check_readiness
+    }
+    $readinessExitCode = $LASTEXITCODE
+} finally {
+    $ErrorActionPreference = $readinessErrorActionPreference
+}
+if ($readinessExitCode -ne 0) {
+    throw "Worker readiness check failed with exit code $readinessExitCode."
+}
 if ($Check) { return }
 
-if ($LogFile) {
-    & $pythonPath -u -m worker.run_worker *>> $LogFile
-} else {
-    & $pythonPath -u -m worker.run_worker
+$workerErrorActionPreference = $ErrorActionPreference
+try {
+    $ErrorActionPreference = "Continue"
+    if ($LogFile) {
+        & $pythonPath -u -m worker.run_worker *>> $LogFile
+    } else {
+        & $pythonPath -u -m worker.run_worker
+    }
+    $workerExitCode = $LASTEXITCODE
+} finally {
+    $ErrorActionPreference = $workerErrorActionPreference
 }
-if ($LASTEXITCODE -ne 0) { throw "Worker exited with code $LASTEXITCODE." }
+if ($workerExitCode -ne 0) {
+    throw "Worker exited with code $workerExitCode."
+}
