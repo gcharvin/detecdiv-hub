@@ -23,7 +23,13 @@ def memory_policy(target=None) -> dict[str, int | None]:
     configured = [positive_mb(metadata.get("memory_capacity_mb")), positive_mb(os.getenv("DETECDIV_HUB_WORKER_MEMORY_BUDGET_MB"))]
     capacity = min([host_capacity, *[value for value in configured if value is not None]])
     worker_limit = positive_mb(os.getenv("DETECDIV_HUB_WORKER_MEMORY_LIMIT_MB"))
+    dynamic = os.getenv("DETECDIV_HUB_WORKER_DYNAMIC_RESOURCES") == "1"
+    if dynamic:
+        count = positive_mb(metadata.get("worker_instances_desired")) or positive_mb(os.getenv("DETECDIV_HUB_WORKER_INSTANCES")) or 1
+        capacity = max(0, capacity - 512 * count)
+        worker_limit = capacity
     return {
+        "dynamic": dynamic,
         "capacity_mb": capacity,
         "worker_limit_mb": worker_limit,
         "available_mb": host.available // (1024 * 1024),
@@ -31,16 +37,18 @@ def memory_policy(target=None) -> dict[str, int | None]:
     }
 
 
-def requested_memory_mb(job, *, policy: dict) -> int:
+def requested_memory_mb(job, *, policy: dict, default_mb: int | None = None) -> int:
     params = job.params_json or {}
     resources = params.get("resources") or {}
     if not isinstance(resources, dict):
         raise ValueError("Job resources must be an object")
     if "memory_mb" in resources:
         memory = positive_mb(resources["memory_mb"])
-        if memory is None:
-            raise ValueError("Job resources.memory_mb must be a positive integer")
+        if memory is None or (policy.get("dynamic") and memory < 512):
+            raise ValueError("Job resources.memory_mb must be a positive integer (at least 512 MB for dynamic workers)")
         return memory
+    if policy.get("dynamic"):
+        return default_mb or (24576 if params.get("job_kind") in {"pipeline_run", "legacy_matlab"} else 1024)
     # A MATLAB pool can multiply image/model memory. Reserve its entire worker
     # slot by default, rather than underestimating each additional process.
     if params.get("job_kind") in {"pipeline_run", "legacy_matlab"}:
@@ -52,7 +60,7 @@ def worker_allocation_fits(allocation: dict, *, policy: dict) -> tuple[bool, str
     limit = policy["worker_limit_mb"]
     if limit is not None and allocation["memory_mb"] > limit:
         return False, "worker_memory_capacity"
-    cpu_limit = positive_mb(os.getenv("DETECDIV_HUB_WORKER_CPU_LIMIT"))
+    cpu_limit = positive_mb(os.getenv("DETECDIV_HUB_WORKER_CPU_BUDGET" if policy.get("dynamic") else "DETECDIV_HUB_WORKER_CPU_LIMIT"))
     if cpu_limit is not None and allocation["cpu_cores"] > cpu_limit:
         return False, "worker_cpu_capacity"
     if policy["available_mb"] < policy["headroom_mb"]:

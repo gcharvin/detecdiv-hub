@@ -101,6 +101,7 @@ class JobResourceProfile:
     gpu_enabled: bool
     gpu_vram_mb: int
     disk_io_units: int
+    memory_mb: int = 1024
 
 
 @dataclass(frozen=True)
@@ -172,6 +173,7 @@ def default_job_resource_profiles() -> dict[str, JobResourceProfile]:
             gpu_enabled=values[1],
             gpu_vram_mb=values[2],
             disk_io_units=values[3],
+            memory_mb=24576 if key in {"pipeline_run", "legacy_matlab"} else 1024,
         )
         for key, values in JOB_RESOURCE_DEFAULTS.items()
     }
@@ -197,6 +199,7 @@ def resolve_job_resource_runtime_config(session: Session) -> JobResourceRuntimeC
                     cpu_cores=normalize_bounded_int(stored.get("cpu_cores"), default=default.cpu_cores, minimum=1, maximum=MAX_JOB_CPU_CORES),
                     gpu_enabled=normalize_bool(stored.get("gpu_enabled"), default=default.gpu_enabled),
                     gpu_vram_mb=normalize_bounded_int(stored.get("gpu_vram_mb"), default=default.gpu_vram_mb, minimum=0, maximum=MAX_GPU_VRAM_MB),
+                    memory_mb=normalize_bounded_int(stored.get("memory_mb"), default=default.memory_mb, minimum=512, maximum=262144),
                     disk_io_units=normalize_bounded_int(stored.get("disk_io_units"), default=default.disk_io_units, minimum=0, maximum=MAX_DISK_IO_UNITS),
                 )
         capacities = payload.get("capacities")
@@ -233,6 +236,7 @@ def update_job_resource_runtime_config(
             cpu_cores=normalize_bounded_int(raw.get("cpu_cores"), default=previous.cpu_cores, minimum=1, maximum=MAX_JOB_CPU_CORES, strict=True, label=f"{key} CPU cores"),
             gpu_enabled=normalize_bool(raw.get("gpu_enabled"), default=previous.gpu_enabled, strict=True, label=f"{key} GPU enabled"),
             gpu_vram_mb=normalize_bounded_int(raw.get("gpu_vram_mb"), default=previous.gpu_vram_mb, minimum=0, maximum=MAX_GPU_VRAM_MB, strict=True, label=f"{key} GPU VRAM MB"),
+            memory_mb=normalize_bounded_int(raw.get("memory_mb") if raw.get("memory_mb") is not None else previous.memory_mb, default=previous.memory_mb, minimum=512, maximum=262144, strict=True, label=f"{key} RAM MB"),
             disk_io_units=normalize_bounded_int(raw.get("disk_io_units"), default=previous.disk_io_units, minimum=0, maximum=MAX_DISK_IO_UNITS, strict=True, label=f"{key} disk I/O units"),
         )
 
@@ -259,6 +263,7 @@ def update_job_resource_runtime_config(
                 "gpu_enabled": value.gpu_enabled,
                 "gpu_vram_mb": value.gpu_vram_mb,
                 "disk_io_units": value.disk_io_units,
+                "memory_mb": value.memory_mb,
             }
             for key, value in profiles.items()
         },
@@ -316,6 +321,8 @@ def job_priority_settings_items(
             "default_priority": default,
             "cpu_cores": resource_config.profiles[key].cpu_cores,
             "default_cpu_cores": JOB_RESOURCE_DEFAULTS[key][0],
+            "memory_mb": resource_config.profiles[key].memory_mb,
+            "default_memory_mb": 24576 if key in {"pipeline_run", "legacy_matlab"} else 1024,
             "gpu_enabled": resource_config.profiles[key].gpu_enabled,
             "default_gpu_enabled": JOB_RESOURCE_DEFAULTS[key][1],
             "gpu_vram_mb": resource_config.profiles[key].gpu_vram_mb,

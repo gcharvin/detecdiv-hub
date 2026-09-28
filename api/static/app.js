@@ -3381,8 +3381,8 @@ function renderExecutionTargetWorkerPanels(target) {
       const active = workerIsActive(workerHealth);
       tr.innerHTML = `
         <td>${workerId}</td>
-        <td title="Worker CPU budget (host logical CPUs: ${Number(workerHealth.host_cpu_count || 0)})">${active ? (workerHealth.cpu_allocated_cores ?? workerHealth.available_cpu_count ?? "—") : "—"}</td>
-        <td title="Worker RAM limit; swap: ${workerMemoryLabel(workerHealth.swap_allocated_mb)}">${active ? workerMemoryLabel(workerHealth.ram_allocated_mb) : "—"}</td>
+        <td title="Worker CPU budget (host logical CPUs: ${Number(workerHealth.host_cpu_count || 0)})">${active ? `${workerHealth.cpu_allocated_cores ?? "—"} / ${workerHealth.cpu_limit_cores ?? "—"}` : "—"}</td>
+        <td title="Worker RAM limit; swap: ${workerMemoryLabel(workerHealth.swap_allocated_mb)}">${active ? `${workerMemoryLabel(workerHealth.ram_allocated_mb)} / ${workerMemoryLabel(workerHealth.ram_limit_mb)}` : "—"}</td>
         <td title="Current job VRAM reservation / visible shared GPU capacity; this is a scheduler reservation, not a hardware partition">${active ? workerVramLabel(workerHealth) : "—"}</td>
         <td>${workerCpuUsageLabel(workerHealth, currentJob, targetJobs)}</td>
         <td>${active ? (workerHealth.health || "unknown") : "inactive (stale)"}</td>
@@ -3791,6 +3791,7 @@ function renderJobPrioritySettings() {
       <td><input type="number" min="0" max="10000" step="1" value="${Number(item.priority)}" data-job-priority-kind="${escapeHtml(item.job_kind)}" /></td>
       <td>${Number(item.default_priority)}</td>
       <td><input type="number" min="1" max="36" step="1" value="${Number(item.cpu_cores)}" data-job-resource-kind="${escapeHtml(item.job_kind)}" data-job-resource-field="cpu_cores" aria-label="${escapeHtml(item.label)} CPU cores" /><small class="muted">Default: ${Number(item.default_cpu_cores)}</small></td>
+      <td><input type="number" min="512" max="262144" step="512" value="${Number(item.memory_mb)}" data-job-resource-kind="${escapeHtml(item.job_kind)}" data-job-resource-field="memory_mb" aria-label="${escapeHtml(item.label)} RAM MB" /><small class="muted">Default: ${Number(item.default_memory_mb)}</small></td>
       <td><input type="checkbox" ${item.gpu_enabled ? "checked" : ""} data-job-resource-kind="${escapeHtml(item.job_kind)}" data-job-resource-field="gpu_enabled" aria-label="${escapeHtml(item.label)} GPU allowed" /><small class="muted">Default: ${item.default_gpu_enabled ? "yes" : "no"}</small></td>
       <td><input type="number" min="0" max="262144" step="256" value="${Number(item.gpu_vram_mb)}" data-job-resource-kind="${escapeHtml(item.job_kind)}" data-job-resource-field="gpu_vram_mb" aria-label="${escapeHtml(item.label)} GPU VRAM MB" /><small class="muted">Default: ${Number(item.default_gpu_vram_mb)}</small></td>
       <td><input type="number" min="0" max="36" step="1" value="${Number(item.disk_io_units)}" data-job-resource-kind="${escapeHtml(item.job_kind)}" data-job-resource-field="disk_io_units" aria-label="${escapeHtml(item.label)} disk I/O units" /><small class="muted">Default: ${Number(item.default_disk_io_units)}</small></td>
@@ -3831,8 +3832,8 @@ async function saveJobPrioritySettings() {
       continue;
     }
     const value = Number(input.value);
-    const maximum = field === "cpu_cores" ? 36 : field === "gpu_vram_mb" ? 262144 : 36;
-    const minimum = field === "cpu_cores" ? 1 : 0;
+    const maximum = field === "cpu_cores" ? 36 : ["gpu_vram_mb", "memory_mb"].includes(field) ? 262144 : 36;
+    const minimum = field === "memory_mb" ? 512 : field === "cpu_cores" ? 1 : 0;
     if (!Number.isInteger(value) || value < minimum || value > maximum) {
       throw new Error(`Invalid ${field} value for ${kind}.`);
     }

@@ -82,8 +82,11 @@ Since 2026-09-28 the compute pool uses `detecdiv-workers.slice` with a shared
 96 GiB RAM, 6 GiB swap, and 36 CPU-core budget. The remaining approximately
 29 GiB physical RAM and 2 GiB swap stay outside the pool for the 16 GiB Hub VM
 and host services. Three workers receive 32 GiB RAM, 2 GiB swap, and 12 CPU cores
-each; six receive 16 GiB RAM, 1 GiB swap, and 6 cores. Budgets are persisted in
-`/etc/systemd/system/detecdiv-worker-resources.conf` and redistributed on scaling.
+each was the initial static arrangement, now superseded by per-job sizing.
+Idle workers have 1 CPU / 512 MiB RAM. Their quotas grow to the admitted job's
+CPU/RAM request and proportional swap share, then return to idle limits.
+Changing worker count changes the available slots, not job sizes. Shared budgets
+remain persisted in `/etc/systemd/system/detecdiv-worker-resources.conf`.
 
 `detecdiv-worker-manager.service` runs on the compute host and applies the
 admin API's worker-count requests after active jobs finish. Its database

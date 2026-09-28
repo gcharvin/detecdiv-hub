@@ -37,6 +37,8 @@ class JobPrioritySettingItem(BaseModel):
     default_priority: int
     cpu_cores: int
     default_cpu_cores: int
+    memory_mb: int
+    default_memory_mb: int
     gpu_enabled: bool
     default_gpu_enabled: bool
     gpu_vram_mb: int
@@ -52,6 +54,7 @@ class JobResourceCapacities(BaseModel):
 
 
 class JobResourceProfileUpdate(BaseModel):
+    memory_mb: int | None = None
     cpu_cores: int
     gpu_enabled: bool
     gpu_vram_mb: int

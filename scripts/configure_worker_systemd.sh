@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+CONFIGURE_SCRIPT=$(realpath "$0")
 REPO_ROOT=""
 SERVICE_USER=""
 ENV_FILE="/etc/detecdiv-hub/detecdiv-hub.env"
@@ -14,6 +15,10 @@ SWAP_BUDGET_MB=""
 PLAN_ONLY="false"
 SKIP_MANAGER_RESTART="false"
 VERIFY_MEMORY_ISOLATION="false"
+JOB_WORKER_INSTANCE=""
+JOB_CPU_CORES=""
+JOB_MEMORY_MB=""
+JOB_SWAP_MB=""
 
 usage() {
   cat <<'EOF'
@@ -62,6 +67,10 @@ while [[ $# -gt 0 ]]; do
       WORKER_INSTANCE_COUNT="$2"
       shift 2
       ;;
+    --job-worker-instance) JOB_WORKER_INSTANCE="$2"; shift 2 ;;
+    --job-cpu-cores) JOB_CPU_CORES="$2"; shift 2 ;;
+    --job-memory-mb) JOB_MEMORY_MB="$2"; shift 2 ;;
+    --job-swap-mb) JOB_SWAP_MB="$2"; shift 2 ;;
     --memory-budget-mb) MEMORY_BUDGET_MB="$2"; shift 2 ;;
     --cpu-budget) CPU_BUDGET="$2"; shift 2 ;;
     --swap-budget-mb) SWAP_BUDGET_MB="$2"; shift 2 ;;
@@ -131,11 +140,22 @@ if (( MEMORY_BUDGET_MB + HOST_MEMORY_RESERVE_MB > HOST_MEMORY_MB || CPU_BUDGET >
   echo 'Worker budgets exceed physical host capacity after the host/VM reserve.' >&2
   exit 1
 fi
-WORKER_MEMORY_MB=$(( MEMORY_BUDGET_MB / WORKER_INSTANCE_COUNT ))
-WORKER_CPU_CORES=$(( CPU_BUDGET / WORKER_INSTANCE_COUNT ))
-WORKER_SWAP_MB=$(( SWAP_BUDGET_MB / WORKER_INSTANCE_COUNT ))
-if (( WORKER_MEMORY_MB < 1024 || WORKER_CPU_CORES < 1 )); then
-  echo 'Too many workers: each worker needs at least 1 GiB and one CPU core.' >&2
+# Job quota changes do not restart or modify any other service.
+if [[ -n "$JOB_WORKER_INSTANCE" ]]; then
+  [[ "$JOB_WORKER_INSTANCE" =~ ^[1-9][0-9]*$ && "$JOB_CPU_CORES" =~ ^[1-9][0-9]*$ && "$JOB_MEMORY_MB" =~ ^[1-9][0-9]*$ && "$JOB_SWAP_MB" =~ ^(0|[1-9][0-9]*)$ ]] || { echo 'Invalid job quota arguments.' >&2; exit 1; }
+  (( JOB_CPU_CORES <= CPU_BUDGET && JOB_MEMORY_MB >= 512 && JOB_MEMORY_MB <= MEMORY_BUDGET_MB && JOB_SWAP_MB <= SWAP_BUDGET_MB )) || { echo 'Job quota exceeds compute budget.' >&2; exit 1; }
+  JOB_UNIT="${WORKER_TEMPLATE_BASENAME}@${JOB_WORKER_INSTANCE}.service"
+  [[ "$(systemctl show "$JOB_UNIT" -p User --value)" == "$SERVICE_USER" && "$(systemctl show "$JOB_UNIT" -p Slice --value)" == 'detecdiv-workers.slice' ]] || { echo 'Worker service ownership or slice mismatch.' >&2; exit 1; }
+  systemctl set-property --runtime "$JOB_UNIT" "CPUQuota=$((JOB_CPU_CORES * 100))%" "MemoryMax=${JOB_MEMORY_MB}M" "MemoryHigh=$((JOB_MEMORY_MB * 9 / 10))M" "MemorySwapMax=${JOB_SWAP_MB}M"
+  echo "worker=$JOB_WORKER_INSTANCE cpu=$JOB_CPU_CORES memory_mb=$JOB_MEMORY_MB swap_mb=$JOB_SWAP_MB"
+  exit 0
+fi
+# Idle slots stay small. Their CPU/RAM limits grow only after job admission.
+WORKER_MEMORY_MB=512
+WORKER_CPU_CORES=1
+WORKER_SWAP_MB=0
+if (( WORKER_INSTANCE_COUNT > CPU_BUDGET || WORKER_INSTANCE_COUNT * WORKER_MEMORY_MB >= MEMORY_BUDGET_MB )); then
+  echo 'Too many workers for the idle-process reserve and CPU budget.' >&2
   exit 1
 fi
 WORKER_MEMORY_HIGH_MB=$(( WORKER_MEMORY_MB * 9 / 10 ))
@@ -183,11 +203,15 @@ CPUQuota=$((WORKER_CPU_CORES * 100))%
 OOMPolicy=kill
 KillMode=control-group
 Environment=DETECDIV_HUB_WORKER_MEMORY_BUDGET_MB=$MEMORY_BUDGET_MB
+Environment=DETECDIV_HUB_WORKER_SWAP_BUDGET_MB=$SWAP_BUDGET_MB
+Environment=DETECDIV_HUB_WORKER_INSTANCES=$WORKER_INSTANCE_COUNT
 Environment=DETECDIV_HUB_WORKER_MEMORY_LIMIT_MB=$WORKER_MEMORY_MB
 Environment=DETECDIV_HUB_WORKER_SWAP_LIMIT_MB=$WORKER_SWAP_MB
 Environment=DETECDIV_HUB_HOST_MEMORY_RESERVE_MB=$HOST_MEMORY_RESERVE_MB
 Environment=DETECDIV_HUB_WORKER_CPU_LIMIT=$WORKER_CPU_CORES
 Environment=DETECDIV_HUB_WORKER_CPU_BUDGET=$CPU_BUDGET
+Environment=DETECDIV_HUB_WORKER_DYNAMIC_RESOURCES=1
+Environment=DETECDIV_HUB_WORKER_CONFIGURE_SCRIPT=$CONFIGURE_SCRIPT
 EOF
 }
 

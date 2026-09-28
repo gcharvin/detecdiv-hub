@@ -40,6 +40,7 @@ from worker.backup_executor import BACKUP_JOB_KINDS, execute_backup_job, finaliz
 from worker.backup_scheduler import run_backup_if_due
 from worker.cpu_usage import JobCpuMonitor, get_cpu_topology, merge_cpu_usage
 from worker.resource_reporting import worker_resource_snapshot
+from worker.dynamic_resources import apply_job_limits, enabled as dynamic_resources_enabled
 from worker.gpu_arbitration import (
     GpuArbitrationError,
     execute_assistant_control_job,
@@ -903,6 +904,7 @@ def update_worker_target_state(
     ).with_for_update().execution_options(populate_existing=True)).one()
     now = datetime.now(timezone.utc)
     worker_instance_id = get_worker_instance_id()
+    apply_job_limits(worker_instance_id, current_job)
     host_cpu_count, available_cpu_count = get_cpu_topology()
     cpu_limit = positive_mb(os.getenv("DETECDIV_HUB_WORKER_CPU_LIMIT"))
     if cpu_limit is not None:
@@ -940,6 +942,7 @@ def update_worker_target_state(
         available_cpu_count=available_cpu_count, current_job=current_job, now=now,
     )
     metadata["worker_resource_allocations"] = resources
+    metadata["worker_dynamic_resources"] = dynamic_resources_enabled()
     target.metadata_json = metadata
     if health == "error":
         target.status = "degraded"

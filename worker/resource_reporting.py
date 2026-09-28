@@ -40,8 +40,10 @@ def worker_resource_snapshot(*, available_cpu_count: int, current_job, now) -> d
     reserved = int(allocation.get("gpu_vram_mb") or 0)
     exclusive = gpu_required and reserved == 0
     return {
-        "cpu_allocated_cores": positive_env("DETECDIV_HUB_WORKER_CPU_LIMIT") or available_cpu_count,
-        "ram_allocated_mb": positive_env("DETECDIV_HUB_WORKER_MEMORY_LIMIT_MB"),
+        "cpu_allocated_cores": int(allocation.get("cpu_cores") or 0),
+        "cpu_limit_cores": positive_env("DETECDIV_HUB_WORKER_CPU_LIMIT") or available_cpu_count,
+        "ram_allocated_mb": int(allocation.get("memory_mb") or 0),
+        "ram_limit_mb": positive_env("DETECDIV_HUB_WORKER_MEMORY_LIMIT_MB"),
         "swap_allocated_mb": positive_env("DETECDIV_HUB_WORKER_SWAP_LIMIT_MB"),
         "gpu_shared_capacity_mb": gpu_capacity,
         "vram_allocated_mb": (gpu_capacity if exclusive else reserved) if gpu_required else 0,

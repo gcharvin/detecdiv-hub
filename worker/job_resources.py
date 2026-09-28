@@ -39,12 +39,21 @@ def resolve_job_resource_allocation(
     config = config or resolve_job_resource_runtime_config(session)
     job_kind = str((job.params_json or {}).get("job_kind") or "generic").strip() or "generic"
     profile = job_resource_profile_for_kind(config, job_kind)
-    worker_cpu_limit = positive_mb(os.getenv("DETECDIV_HUB_WORKER_CPU_LIMIT"))
+    policy = memory_policy(target)
+    worker_cpu_limit = None if policy.get("dynamic") else positive_mb(os.getenv("DETECDIV_HUB_WORKER_CPU_LIMIT"))
+    resources = (job.params_json or {}).get("resources") or {}
+    requested_cpu = resources.get("cpu_cores", profile.cpu_cores) if isinstance(resources, dict) else profile.cpu_cores
+    if not isinstance(requested_cpu, int) or isinstance(requested_cpu, bool) or not 1 <= requested_cpu <= 36:
+        raise ValueError("Job resources.cpu_cores must be an integer between 1 and 36")
+    memory_mb = requested_memory_mb(job, policy=policy, default_mb=profile.memory_mb)
+    swap_mb = positive_mb(os.getenv("DETECDIV_HUB_WORKER_SWAP_BUDGET_MB")) or 0
+    pool_mb = positive_mb(os.getenv("DETECDIV_HUB_WORKER_MEMORY_BUDGET_MB")) or policy["capacity_mb"]
+    swap_mb = swap_mb * memory_mb // max(1, pool_mb) if policy.get("dynamic") else (positive_mb(os.getenv("DETECDIV_HUB_WORKER_SWAP_LIMIT_MB")) or 0)
     allocation: dict[str, Any] = {
-        "cpu_cores": min(profile.cpu_cores, worker_cpu_limit) if worker_cpu_limit else profile.cpu_cores,
-        "requested_cpu_cores": profile.cpu_cores,
-        "memory_mb": requested_memory_mb(job, policy=memory_policy(target)),
-        "swap_limit_mb": positive_mb(os.getenv("DETECDIV_HUB_WORKER_SWAP_LIMIT_MB")) or 0,
+        "cpu_cores": min(requested_cpu, worker_cpu_limit) if worker_cpu_limit else requested_cpu,
+        "requested_cpu_cores": requested_cpu,
+        "memory_mb": memory_mb,
+        "swap_limit_mb": swap_mb,
         "gpu_permitted": profile.gpu_enabled,
         "gpu_required": bool(profile.gpu_enabled and job_kind != "pipeline_run"),
         "gpu_vram_mb": profile.gpu_vram_mb if profile.gpu_enabled and job_kind != "pipeline_run" else 0,

@@ -93,40 +93,39 @@ stored alongside CPU/GPU/disk allocations; priority backfill also preserves RAM
 for waiting jobs. New claims pause when available host RAM drops below a safety
 headroom, including pressure caused by processes outside the Hub.
 
-`scripts/configure_worker_systemd.sh` accepts `--memory-budget-mb`,
-`--swap-budget-mb`, `--host-memory-reserve-mb`, and `--cpu-budget`. These totals
-are persisted in the unit directory's `detecdiv-worker-resources.conf` and reused
-when `--worker-instances N` changes. Each worker receives an integer share of
-the totals, so adding workers never increases aggregate consumption. The script
-rejects impossible budgets and slots smaller than 1 GiB or one CPU core.
-`--plan-only` prints the allocation without changing services.
+Worker count is a configurable concurrency ceiling, not a CPU/RAM divisor.
+Idle Linux workers have one CPU and 512 MiB RAM. The scheduler reserves 512 MiB
+per configured worker from the shared RAM capacity for idle process overhead.
+On admission, the shared target lock checks the complete job resource demand.
+The worker applies that job's CPUQuota, MemoryMax, MemoryHigh (90%), and swap
+share to its own systemd service in place, before starting execution. No other
+worker is restarted or resized. Completion/failure returns the worker to its
+idle limits. The shared slice enforces the total host budget throughout.
 
-A shared `detecdiv-workers.slice` enforces aggregate RAM, swap, and CPU budgets;
-each service also has MemoryHigh, MemoryMax, MemorySwapMax, and CPUQuota. These
-limits include every descendant MATLAB/Python process and parallel pool worker.
-RAM above MemoryHigh can spill into the worker's swap share. Swap is a bounded
-overflow buffer, not an unlimited substitute for RAM. The defaults leave 25% of
-host swap outside the worker slice; the live server uses 6 GiB of its 8 GiB swap.
-If RAM and swap are exhausted, OOMPolicy=kill contains the kill to that worker.
-ExecStopPost marks its active job failed with a specific memory-budget message
-and releases project locks before the service restarts. It never retries an
-out-of-memory job automatically.
+Per-kind CPU and RAM profiles are editable in Execution Targets. Default MATLAB
+jobs request 24 GiB RAM; other jobs request 1 GiB. These are conservative defaults,
+not measured peaks. Explicit `params_json.resources.cpu_cores` and `memory_mb`
+requests override the profile. Memory requests must include the worker process,
+MATLAB pools, and Python descendants. Swap is proportional to the job's RAM
+share of the pool and remains bounded by the shared swap cap. Requests wait for
+available shared capacity instead of being truncated to a fixed worker share.
 
-Pipeline and legacy MATLAB jobs reserve their whole worker RAM slot by default.
-Other jobs reserve 1 GiB. An explicit `params_json.resources.memory_mb` request
-can reserve a different amount; a request exceeding a worker's RAM slot waits
-for a suitable larger worker. A job's CPU allocation is capped to its worker's
-CPU share, so increasing the count creates smaller CPU workers without leaving
-pipeline jobs stranded behind their default CPU profile. Both desired and
-allocated CPU counts are recorded with the job.
-The OS quota covers MATLAB pools even though maxNumCompThreads alone does not.
+The UI displays current job CPU/RAM reservations alongside the service limits.
+An idle worker reserves no job resources. VRAM is shared and reserved per GPU
+job; an exclusive reservation is marked explicitly, not presented as a private
+hardware partition. ROI extraction reads the current service's cgroup limits,
+so its batching follows the job-specific RAM budget.
 
-The temporary global max_concurrent_jobs=1 should be cleared after installing
-these controls. The number of worker slots and resource budgets then determine
-concurrency. Scaling requires an idle/drained target because changing per-worker
-quotas restarts its services. Configure workers on the compute host, not inside
-the API VM. Linux systemd limits provide enforcement; non-systemd workers have
-admission checks but require equivalent platform limits for strict isolation.
+The helper's `--job-worker-instance`, `--job-cpu-cores`, `--job-memory-mb`, and
+`--job-swap-mb` mode validates the target service's owner and compute slice and
+changes only runtime properties. A missing helper or failed quota change stops
+admission/execution; it never silently runs a job without its limits. The
+persistent unit definitions return to idle limits after a restart.
+
+The temporary global max_concurrent_jobs=1 has been removed. Worker slots and
+CPU/RAM/GPU/disk admission determine effective concurrency. Linux systemd
+limits include all descendants. Non-systemd workers retain resource admission
+but need equivalent platform controls for strict isolation.
 
 The admin worker-scale API now records a desired count instead of invoking
 systemd in the API container. `detecdiv-worker-manager.service` on the compute
