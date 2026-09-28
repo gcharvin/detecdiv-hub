@@ -38,6 +38,11 @@ The production-like split is:
   - compute worker only
   - MATLAB access
   - direct visibility of server project/dataset storage
+- `CG-PCDELL01-306` / `10.20.11.56`
+  - supplemental native Windows worker, one job at a time
+  - local MATLAB R2025b and Python environments
+  - accesses shared jobs only when they are unassigned; jobs explicitly
+    targeted at `detecdiv-server` stay there
 
 The VM should not be assumed to have direct access to project or dataset file
 storage. Any server-side filesystem work, including project-root indexing, must
@@ -103,6 +108,35 @@ concurrency. See `docs/worker_resource_scheduling.md` for limits and verificatio
 
 The boot-time VM orchestration service now lives in the adjacent `Webserver`
 repository because it belongs to the VM host layer, not the hub control plane.
+
+## Windows MATLAB Worker Deployment Policy
+
+The Windows worker is an additional queue consumer, not a replacement for the
+Linux storage-visible workers. Keep its Hub checkout at
+`C:\Users\Charvin-Admin\Documents\MATLAB\detecdiv-hub` and its MATLAB
+processing checkout at
+`C:\Users\Charvin-Admin\Documents\GitHub\DetecDiv`. The Linux worker's
+DetecDiv checkout is configured through `DETECDIV_HUB_MATLAB_REPO_ROOT` (the
+current deployment default is `/home/charvin-admin/repos/DetecDiv`). These are
+separate repositories with separate purposes; do not copy MATLAB project
+internals into the Hub repository.
+
+When a DetecDiv pipeline change is deployed, synchronize the Windows and Linux
+DetecDiv checkouts to the same approved Git commit. Record and compare
+`git rev-parse HEAD` on both hosts, check for local changes before pulling, and
+do not update either checkout while a job is using it. Restart the affected
+worker only after it is idle so the next job uses the synchronized code. The
+Hub worker code itself follows its own deployment revision and procedure.
+
+The Windows MATLAB license was reported renewed on 2026-09-28. Before making
+MATLAB job kinds eligible there, confirm that the unattended command
+`matlab.exe -batch "disp(version)"` succeeds under `GMGM\Charvin-Admin`. Then
+allow `pipeline_run` and `legacy_matlab` through the Windows worker's queue
+settings. Keep raw-data ingestion on the Linux storage-visible worker. The
+Windows archive destination is reported mounted at `Y:\archive`; resolve its
+actual UNC path and verify task-session read/write access before enabling
+archive jobs, since archive jobs can remove source data after a successful
+copy. Keep restore excluded pending a separate restore test.
 
 ## Data State
 

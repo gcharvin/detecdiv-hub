@@ -7,13 +7,20 @@ The live API and the three Linux workers remain separate deployments. The
 Windows worker is a Python process that polls the central PostgreSQL queue and
 starts the MATLAB installation on its own machine with `-batch`.
 
-## State of the first PC (2026-09-26)
+## State of the first PC (2026-09-28)
 
 On `CG-PCDELL01-306` (`10.20.11.56`), MATLAB R2025b, DetecDiv, Python 3.11,
 and the hub checkout's `.venv` are installed. Python 3.13 could not resolve
 the pinned `nd2` and `pydantic` versions, so use Python 3.11 for this checkout.
 Verify the exact hub revision with `git log -1` before an upgrade or
 troubleshooting session.
+
+The MATLAB processing repository used by this PC is
+`C:\Users\Charvin-Admin\Documents\GitHub\DetecDiv`. Keep it synchronized to
+the same approved DetecDiv commit as the checkout used by the Linux MATLAB
+worker on `detecdiv-server`; compare `git rev-parse HEAD` on both machines when
+deploying pipeline changes. Do not confuse this repository with the separate
+`detecdiv-hub` worker checkout.
 
 The Windows OpenSSH operational log recorded `Accepted publickey` for
 `GMGM\Charvin-Admin` from `192.168.190.2` at 2026-09-26 09:04, even though some
@@ -35,34 +42,38 @@ worker path mapping contains both `/data` and `X:\` to
 `//10.20.11.250/DATA`. Verify read and write access from the worker's actual
 launch session before relying on filesystem jobs.
 
-A Windows `pipeline_run` was claimed and passed worker preflight. MATLAB then
-exited before starting the pipeline with MathWorks Licensing Error 10 because
-the installed license is expired. The job is failed and the Windows worker is
-idle. MATLAB work must stay out of its queue until a license check succeeds.
+A Windows `pipeline_run` was previously claimed and passed worker preflight.
+MATLAB then exited before starting the pipeline with MathWorks Licensing Error
+10 because the license was expired; that job failed. The license was reported
+renewed on 2026-09-28. Revalidate it in the worker account with
+`matlab.exe -batch "disp(version)"` before enabling MATLAB queue kinds.
 
 The queue helper completed successfully on the Windows PC on 2026-09-26. It
 set unassigned-job claiming to `true`, allowed all job kinds, and excluded
 `archive_raw_dataset`, `restore_raw_dataset`, `pipeline_run`, and
 `legacy_matlab`. The follow-up readiness command was mistyped as `-EnvFil`; run
-the complete `-Check` command below to confirm the effective settings. Keep
-MATLAB kinds excluded until the license is verified. Workers do not move jobs
+the complete `-Check` command below to confirm the effective settings. The
+renewed license means MATLAB kinds are now intended to be eligible after the
+batch check; use `-MatlabLicenseReady` and confirm the readiness output.
+Workers do not move jobs
 already assigned to another execution target. The database's `SKIP LOCKED`
 claim means the first eligible worker to poll an unassigned job gets it; this
 is not a least-loaded-target scheduler.
 
-At the last check, the scheduled task `DetecDiv Hub Worker` did not exist.
-Register it only after confirming the manual worker and its share access. The
-database-tunnel task is separate and was already reported installed.
+The scheduled task `DetecDiv Hub Worker` was subsequently registered for
+`GMGM\Charvin-Admin` and started. It runs after that user signs in; the database
+tunnel task is separate and starts at system boot.
 
 The server's `/data` mount comes from `//10.20.11.250/DATA`.
 
 The live raw archive root is `/archive`, mounted on `detecdiv-server` from
-`//10.20.11.251/archive`. TCP port 445 on `10.20.11.251` is reachable from
-Windows, but SMB authentication and read/write access have not been tested
-there. The configured archive policy can delete hot sources after writing the
-archive. Do not enable these jobs on Windows until both shares are accessible to the worker account
-and a copy-only archive test verifies destination write, archive integrity,
-and path translation. Archive and restore kinds remain excluded from Windows.
+`//10.20.11.251/archive`. The Windows archive server is now reported mounted at
+`Y:\archive`, but the drive's underlying UNC path and access from the scheduled
+worker session still need verification. The configured archive policy can
+delete hot sources after writing the archive. Do not enable archive jobs on
+Windows until the UNC mapping, worker-session read/write access, and a copy-only
+archive test verify destination write, archive integrity, and path translation.
+Keep restore excluded pending a separate restore test.
 The worker's current path mapping is applied to pipeline execution; other
 filesystem job handlers still need per-kind validation for Windows paths and
 write access before being trusted with server-root operations.
@@ -96,8 +107,8 @@ key, or incoming SSH private key to another worker.
    This `.venv` runs the Hub worker. It is not necessarily the Python
    environment called by MATLAB. Install/configure the pipeline's Python
    environment separately and verify that MATLAB can call it in `-batch` mode
-   under the worker account. The pilot's MATLAB currently fails with
-   MathWorks Licensing Error 10 because its license is expired.
+   under the worker account. The MATLAB license was reported renewed on
+   2026-09-28. Confirm it with the batch check below before enabling MATLAB jobs.
 
 2. For an existing clean checkout, inspect and update the Hub code before
    running setup scripts:
@@ -151,6 +162,9 @@ key, or incoming SSH private key to another worker.
 
    Do not print, paste, or commit `.env` or its database URL. The helper sets
    the target key, MATLAB and DetecDiv paths, UNC mapping, and queue settings.
+   Once the batch license check succeeds, a new `.env` can be created with
+   `.\scripts\configure_windows_worker_env.ps1 -MatlabLicenseReady` so
+   MATLAB job kinds are not excluded.
    To update an existing `.env` without rewriting its database URL, use the
    queue helper below instead.
 
@@ -158,13 +172,19 @@ key, or incoming SSH private key to another worker.
    PowerShell:
 
    ```powershell
-   .\scripts\enable_windows_queue_worker.ps1 -EnvFile .env
+   & 'C:\Program Files\MATLAB\R2025b\bin\matlab.exe' -batch "disp(version)"
+   if ($LASTEXITCODE -ne 0) { throw 'MATLAB batch/license check failed.' }
+   .\scripts\enable_windows_queue_worker.ps1 `
+       -EnvFile .env `
+       -MatlabLicenseReady `
+       -MatlabRepoRoot 'C:\Users\Charvin-Admin\Documents\GitHub\DetecDiv'
    .\scripts\run_worker.ps1 -EnvFile .env -Check
    ```
 
-   This enables unassigned jobs, excludes `archive_raw_dataset` and
-   `restore_raw_dataset`, and also excludes `pipeline_run` and `legacy_matlab`
-   until `-MatlabLicenseReady` is supplied after a successful license check.
+   This enables unassigned jobs and excludes archive/restore. Supplying
+   `-MatlabLicenseReady` after a successful batch check also removes
+   `pipeline_run` and `legacy_matlab` from the exclusions. `-MatlabRepoRoot`
+   validates the new local DetecDiv checkout and updates only that `.env` value.
    The helper preserves the database URL and secures the `.env` ACL. Restart
    the worker only while it is idle; it reads the `.env` at process startup.
 
@@ -175,21 +195,19 @@ key, or incoming SSH private key to another worker.
    .\scripts\run_worker.ps1 -EnvFile .env
    ```
 
-   The readiness output should show the correct execution target, MATLAB path,
+   This removes `pipeline_run` and `legacy_matlab` from the exclusions only
+   after the MATLAB batch command succeeds. The readiness output should show
+   the correct execution target, MATLAB path,
    DetecDiv path, and mappings. For the current queue policy, expect
    `Allowed job kinds: all`, `Claim unassigned jobs: True`, schedulers disabled,
-   and exclusions for archive/restore plus MATLAB until the license is fixed.
-   Keep this PowerShell window open during the manual pilot. Before sending
-   MATLAB work, verify the license explicitly:
-
-   ```powershell
-   & 'C:\Program Files\MATLAB\R2025b\bin\matlab.exe' -batch "disp(version)"
-   ```
-
-   The pilot returned MathWorks Licensing Error 10 (expired license), so no
-   `pipeline_run` should be enabled until this command succeeds. Then verify the
-   pipeline-specific Python environment and inspect output paths and
-   `worker_host` on a small run.
+   and exclusions for archive/restore. After the license check and
+   `-MatlabLicenseReady`, `pipeline_run` and `legacy_matlab` should not appear
+   in the exclusions.
+   Keep this PowerShell window open during the manual pilot. The pilot
+   previously returned MathWorks Licensing Error 10; now that the license is
+   reported renewed, run the check before enabling MATLAB job kinds as shown in
+   step 5. Then verify the pipeline-specific Python environment and inspect
+   output paths and `worker_host` on a small run.
 
 7. After the manual worker and data access are validated, register the logon
    task. Stop the foreground worker with `Ctrl+C` before starting the task so
@@ -230,8 +248,9 @@ the restricted database tunnel.
   `DETECDIV_HUB_WORKER_JOB_KINDS` empty (all kinds). Keep archive and restore
   excluded by default. Archive jobs can be enabled after the SMB share is
   verified; keep restore excluded until a separate restore test is planned.
-  Until MATLAB licensing is restored, also exclude `pipeline_run` and
-  `legacy_matlab`. Disable periodic schedulers.
+  The license was reported renewed; after `matlab.exe -batch "disp(version)"`
+  succeeds, remove the `pipeline_run` and `legacy_matlab` exclusions with
+  `-MatlabLicenseReady`. Disable periodic schedulers.
 - This only shares jobs with `execution_target_id=NULL`. Jobs explicitly
   assigned to `detecdiv-server` remain there. For a shared job, the first
   eligible worker that claims it wins; priorities and resource limits still
@@ -316,45 +335,48 @@ be mounted in the worker's own logon session.
 ## Enable raw-dataset archiving on Windows
 
 The archive storage root used by the Linux workers is `/archive`, backed by
-the SMB share `\\10.20.11.251\archive`. The Windows lifecycle handler maps
-canonical `/data/...` and `/archive/...` paths to this PC's configured UNC
-paths for file operations, while it continues to store canonical `/data` and
-`/archive` paths in the hub database. The SMB login must have read access to
-the source data and write/delete access in the archive share.
+the SMB share `\\10.20.11.251\archive`. On Windows, the mount is reported at
+`Y:\archive`; first identify its underlying UNC path and verify access from the
+worker account. The Windows lifecycle handler maps canonical `/data/...` and
+`/archive/...` paths to this PC's configured UNC paths for file operations,
+while it continues to store canonical `/data` and `/archive` paths in the hub
+database. The SMB login must have read access to source data and write/delete
+access in the archive share.
 
 Run these commands in **PowerShell as the same `GMGM\Charvin-Admin` account
-that runs the worker**. The `net use` command prompts for the SMB password;
-the password is not part of the command. This temporary `W:` mapping is for
-the access check; the worker configuration below uses the UNC path directly.
+that runs the worker**. The existing `Y:` mapping is used for access checks;
+the worker configuration uses its underlying UNC path directly so it does not
+depend on a drive letter.
 
 ```powershell
-Test-NetConnection 10.20.11.251 -Port 445
-$archiveShare = '\\10.20.11.251\archive'
-net.exe use W: $archiveShare '*' '/USER:GMGM\Gilles' '/PERSISTENT:NO'
-Get-ChildItem -LiteralPath 'W:\' -ErrorAction Stop | Select-Object -First 1
-$probe = Join-Path 'W:\' ('.detecdiv-write-test-' + [guid]::NewGuid().ToString('N') + '.tmp')
+Get-SmbMapping -LocalPath 'Y:' | Select-Object LocalPath, RemotePath, Status
+Get-ChildItem -LiteralPath 'Y:\archive' -ErrorAction Stop | Select-Object -First 1
+$probe = Join-Path 'Y:\archive' ('.detecdiv-write-test-' + [guid]::NewGuid().ToString('N') + '.tmp')
 New-Item -ItemType File -Path $probe -ErrorAction Stop | Out-Null
 Remove-Item -LiteralPath $probe -Force -ErrorAction Stop
 ```
 
-If the archive server authorizes a different SMB account, use that account in
-`/USER:`. A successful TCP check alone does not prove share access; the
-directory read and temporary-file create/delete must both succeed. If `W:` is
-already assigned, choose another unused letter. Drive mappings are per logon
-session, so do this from the worker's account.
+Use the exact UNC corresponding to `Y:\archive` as `-ArchiveSharePath`; do not
+assume that it is `\\10.20.11.251\archive` until `Get-SmbMapping` confirms it.
+The directory read and temporary-file create/delete must both succeed from the
+worker's account. Drive mappings are per logon session, so also confirm the
+scheduled worker task can access the share before relying on it.
 
 After confirming the queued archive jobs and their `mark_archived` settings,
 configure the worker with the UNC path. The helper verifies read access and
 creates/deletes a uniquely named temporary file before it changes `.env`; it
-preserves the database URL, updates the `/archive` path mapping, enables only
-`archive_raw_dataset`, and leaves `restore_raw_dataset`, `pipeline_run`, and
-`legacy_matlab` excluded by default. It also sets the worker's default archive
-root to canonical `/archive`:
+preserves the database URL, updates the `/archive` path mapping, enables
+`archive_raw_dataset`, and keeps `restore_raw_dataset` excluded. Include
+`-MatlabLicenseReady` after a successful license check to keep the MATLAB job
+kinds enabled at the same time. It also sets the worker's default archive root
+to canonical `/archive`:
 
 ```powershell
 .\scripts\enable_windows_queue_worker.ps1 `
     -EnvFile .env `
-    -ArchiveSharePath '\\10.20.11.251\archive' `
+    -MatlabLicenseReady `
+    -MatlabRepoRoot 'C:\Users\Charvin-Admin\Documents\GitHub\DetecDiv' `
+    -ArchiveSharePath '<UNC path corresponding to Y:\archive>' `
     -EnableArchiveJobs
 .\scripts\run_worker.ps1 -EnvFile .env -Check
 ```
@@ -444,7 +466,7 @@ DETECDIV_HUB_DATABASE_URL=postgresql+psycopg://USER:PASSWORD@127.0.0.1:15432/det
 DETECDIV_HUB_WORKER_TARGET_KEY=windows-10-20-11-56
 DETECDIV_HUB_WORKER_INSTANCE=windows-10-20-11-56-main
 DETECDIV_HUB_MATLAB_COMMAND=C:\Program Files\MATLAB\R2025b\bin\matlab.exe
-DETECDIV_HUB_MATLAB_REPO_ROOT=C:\Users\Charvin-Admin\Documents\MATLAB\DetecDiv
+DETECDIV_HUB_MATLAB_REPO_ROOT=C:\Users\Charvin-Admin\Documents\GitHub\DetecDiv
 DETECDIV_HUB_WORKER_PATH_MAPPINGS=[{"source":"/data","target":"//10.20.11.250/DATA"},{"source":"X:\\","target":"//10.20.11.250/DATA"}]
 ```
 
@@ -452,8 +474,9 @@ Use the actual database username and password from the VM deployment. For the
 current Windows queue policy, use
 `DETECDIV_HUB_WORKER_CLAIM_UNASSIGNED_JOBS=true`, leave
 `DETECDIV_HUB_WORKER_JOB_KINDS` empty (all kinds), exclude
-`archive_raw_dataset,restore_raw_dataset,pipeline_run,legacy_matlab` by default,
-and keep
+`archive_raw_dataset,restore_raw_dataset` by default; `pipeline_run` and
+`legacy_matlab` stay excluded until the license check succeeds and the queue
+helper is run with `-MatlabLicenseReady`. Keep
 `DETECDIV_HUB_WORKER_ENABLE_SCHEDULERS=false`. The helper
 `scripts/enable_windows_queue_worker.ps1` applies this policy to an existing
 `.env` without rewriting its database URL. Once the archive share has passed
@@ -586,11 +609,9 @@ not mount a drive or supply SMB credentials. Keep both `/data` and legacy
   there with `Ctrl+C` while idle. Register the logon task only after the manual
   run is validated; the task uses the signed-in user and is not a Windows
   service or boot-time task.
-- The first MATLAB test failed with MathWorks Licensing Error 10. The queue
-  helper therefore excludes `pipeline_run` and `legacy_matlab` as well as
-  archive/restore. When MATLAB licensing is repaired, verify `matlab.exe
-  -batch` first, then update `.env` using `-MatlabLicenseReady` and restart the
-  worker while idle.
+- The first MATLAB test failed with MathWorks Licensing Error 10; the license
+  was later reported renewed. Verify `matlab.exe -batch "disp(version)"`, then
+  update `.env` using `-MatlabLicenseReady` and restart the worker while idle.
 
 At the last queue inspection, all unassigned jobs were archives. With the
 default exclusions in place, it is therefore expected for the Windows worker to

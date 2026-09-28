@@ -1,6 +1,7 @@
 param(
     [string]$EnvFile,
     [switch]$MatlabLicenseReady,
+    [string]$MatlabRepoRoot,
     [string]$ArchiveSharePath,
     [switch]$EnableArchiveJobs
 )
@@ -15,6 +16,17 @@ if (-not $EnvFile) {
 $EnvFile = [IO.Path]::GetFullPath($EnvFile)
 if (-not (Test-Path -LiteralPath $EnvFile -PathType Leaf)) {
     throw "Missing worker environment file: $EnvFile"
+}
+
+$resolvedMatlabRepoRoot = $null
+if ($PSBoundParameters.ContainsKey('MatlabRepoRoot')) {
+    if ([string]::IsNullOrWhiteSpace($MatlabRepoRoot)) {
+        throw 'MatlabRepoRoot cannot be empty.'
+    }
+    $resolvedMatlabRepoRoot = [IO.Path]::GetFullPath($MatlabRepoRoot)
+    if (-not (Test-Path -LiteralPath $resolvedMatlabRepoRoot -PathType Container)) {
+        throw "MATLAB repository directory does not exist: $resolvedMatlabRepoRoot"
+    }
 }
 
 $lines = [System.Collections.Generic.List[string]]::new()
@@ -97,6 +109,9 @@ if ($archiveConfigurationRequested) {
     $updates['DETECDIV_HUB_WORKER_PATH_MAPPINGS'] = $updatesPathMappings
     $updates['DETECDIV_HUB_DEFAULT_ARCHIVE_ROOT'] = '/archive'
 }
+if ($PSBoundParameters.ContainsKey('MatlabRepoRoot')) {
+    $updates['DETECDIV_HUB_MATLAB_REPO_ROOT'] = $resolvedMatlabRepoRoot
+}
 
 foreach ($entry in $updates.GetEnumerator()) {
     $pattern = '^' + [regex]::Escape($entry.Key) + '='
@@ -126,5 +141,8 @@ Write-Output "Excluded job kinds: $($excludedKinds -join ',')"
 if ($archiveConfigurationRequested) {
     Write-Output "Archive share verified and mapped: /archive -> $archiveTarget"
     Write-Warning 'After restart, queued archive jobs may start. Jobs with mark_archived=true delete the source after a successful archive.'
+}
+if ($PSBoundParameters.ContainsKey('MatlabRepoRoot')) {
+    Write-Output "MATLAB repository: $resolvedMatlabRepoRoot"
 }
 Write-Output 'Run .\scripts\run_worker.ps1 -EnvFile .env -Check, then restart the worker while it is idle.'

@@ -1,5 +1,6 @@
 param(
-    [string]$RepositoryRoot = (Resolve-Path (Join-Path $PSScriptRoot '..')).Path
+    [string]$RepositoryRoot = (Resolve-Path (Join-Path $PSScriptRoot '..')).Path,
+    [switch]$MatlabLicenseReady
 )
 
 $ErrorActionPreference = 'Stop'
@@ -19,6 +20,11 @@ try {
     $encodedPassword = [Uri]::EscapeDataString($dbPassword)
     $databaseUrl = "postgresql+psycopg://${encodedUser}:${encodedPassword}@127.0.0.1:15432/detecdiv_hub"
 
+    $excludedKinds = @('archive_raw_dataset', 'restore_raw_dataset')
+    if (-not $MatlabLicenseReady) {
+        $excludedKinds += @('pipeline_run', 'legacy_matlab')
+    }
+
     if (-not (Test-Path -LiteralPath $envPath -PathType Leaf)) {
         New-Item -ItemType File -Path $envPath | Out-Null
     }
@@ -34,11 +40,11 @@ try {
         'DETECDIV_HUB_WORKER_INSTANCE=windows-10-20-11-56-main'
         'DETECDIV_HUB_WORKER_CLAIM_UNASSIGNED_JOBS=true'
         'DETECDIV_HUB_WORKER_JOB_KINDS='
-        'DETECDIV_HUB_WORKER_EXCLUDED_JOB_KINDS=archive_raw_dataset,restore_raw_dataset,pipeline_run,legacy_matlab'
+        "DETECDIV_HUB_WORKER_EXCLUDED_JOB_KINDS=$($excludedKinds -join ',')"
         'DETECDIV_HUB_WORKER_ENABLE_SCHEDULERS=false'
         'DETECDIV_HUB_WORKER_POLL_INTERVAL_SEC=5'
         'DETECDIV_HUB_MATLAB_COMMAND=C:\Program Files\MATLAB\R2025b\bin\matlab.exe'
-        'DETECDIV_HUB_MATLAB_REPO_ROOT=C:\Users\Charvin-Admin\Documents\MATLAB\DetecDiv'
+        'DETECDIV_HUB_MATLAB_REPO_ROOT=C:\Users\Charvin-Admin\Documents\GitHub\DetecDiv'
         'DETECDIV_HUB_WORKER_PATH_MAPPINGS=[{"source":"/data","target":"//10.20.11.250/DATA"},{"source":"X:\\","target":"//10.20.11.250/DATA"}]'
     )
     [IO.File]::WriteAllLines($envPath, [string[]]$lines, [Text.UTF8Encoding]::new($false))

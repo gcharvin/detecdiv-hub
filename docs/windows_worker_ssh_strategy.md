@@ -11,10 +11,12 @@ worker process. Le worker Python natif Windows interroge la même base PostgreSQ
 que les workers Linux ; il lance le MATLAB local avec `-batch`, et les pipelines
 peuvent appeler un environnement Python installé/configuré sur le PC.
 
-La configuration de queue actuelle autorise les jobs non attribués et tous les
-types sauf `archive_raw_dataset`, `restore_raw_dataset`, `pipeline_run` et
-`legacy_matlab`. Les deux types MATLAB resteront exclus jusqu'à réparation et
-validation de la licence. Les schedulers périodiques restent désactivés. Seuls
+La politique voulue autorise les jobs non attribués, y compris
+`pipeline_run` et `legacy_matlab` après validation de la licence MATLAB
+renouvelée. `restore_raw_dataset` reste exclu. L'archivage reste exclu jusqu'à
+validation du chemin UNC derrière `Y:\archive`, des droits d'écriture du compte
+worker et d'un essai de copie sans suppression de la source. Les schedulers
+périodiques restent désactivés. Seuls
 les jobs avec `execution_target_id=NULL` sont partagés : un job déjà attribué à
 `detecdiv-server` n'est pas déplacé. Parmi les workers éligibles, le premier à
 réserver le job le prend ; ce n'est pas un équilibrage de charge entre machines.
@@ -142,6 +144,24 @@ ne jamais copier la clé privée. Le chemin retenu doit correspondre à
 configuration effective. Microsoft décrit les emplacements et ACL dans sa
 [documentation sur l'authentification par clé](https://learn.microsoft.com/en-us/windows-server/administration/openssh/openssh_keymanagement).
 
+Sur le poste d'administration utilisé dans ce pilote, la clé dédiée existe à
+`C:\Users\Gilles\.ssh\id_ed25519_detecdiv_windows`. Une entrée `Host` dans
+`C:\Users\Gilles\.ssh\config` évite de sélectionner par erreur une autre clé
+ou de retaper le chemin complet à chaque essai :
+
+```sshconfig
+Host detecdiv-windows
+    HostName 10.20.11.56
+    User GMGM\Charvin-Admin
+    IdentityFile C:/Users/Gilles/.ssh/id_ed25519_detecdiv_windows
+    IdentitiesOnly yes
+    PreferredAuthentications publickey
+```
+
+Tester avec `ssh detecdiv-windows`. Cette entrée rend le choix du compte et de
+la clé reproductible côté client ; elle ne corrige pas une coupure de session
+provoquée côté Windows après l'authentification.
+
 Une session SSH Windows ouverte avec une clé peut ne pas avoir les identifiants
 nécessaires pour accéder à un partage réseau. Tester les accès aux partages
 avec le **compte et le mode de lancement réels du worker** (tâche planifiée à
@@ -197,10 +217,14 @@ changé. Interprétation des erreurs vues pendant la mise en place :
 - `Connection reset` : ce message seul ne prouve pas un échec de clé. Les
   événements `Accepted publickey for GMGM\Charvin-Admin` ont été enregistrés
   alors que le client voyait encore une coupure ; la confirmation la plus
-  récente date du 2026-09-26 à 09:04 depuis `192.168.190.2`. Si le client affiche
-  `Authenticated ... using "publickey"`, l'authentification est terminée avec
-  succès ; diagnostiquer ensuite la session, le shell ou le transport, pas
-  `authorized_keys`.
+  récente côté serveur date du 2026-09-26 à 09:04 depuis `192.168.190.2`. Le
+  nouvel essai client du 2026-09-28 avec la clé dédiée et `IdentitiesOnly=yes`
+  affiche `Authenticated ... using "publickey"`, puis reçoit un reset avant
+  l'ouverture du canal de session. Le fingerprint client est
+  `SHA256:J1A0r8jwW5LVY3clMjP3beXWJ+JjUPeg5Dxa9Ux4PLk`. La clé est donc acceptée
+  actuellement ; ne la régénérer ni ne modifier `authorized_keys` pour corriger
+  ce symptôme. Diagnostiquer ensuite le shell/session, le service et le
+  transport côté Windows.
 - `Get-Service`, `Get-WinEvent`, `Select-Object` ou `&` non reconnu/inattendu :
   les commandes PowerShell ont été collées dans `cmd.exe`. Taper `powershell`
   pour ouvrir PowerShell, puis lancer les commandes sans les marqueurs `PS>`.
@@ -216,6 +240,25 @@ sans supprimer le bloc `Match User` qui sélectionne le fichier de clé. Une
 copie `.before-debug` avait été faite après la modification du chemin de clé ;
 inspecter son contenu avant toute restauration. Exécuter `sshd -t`, puis
 redémarrer `sshd` après une modification.
+
+Pour le reset post-authentification, lancer d'abord ces vérifications
+**read-only** dans PowerShell administrateur sur `10.20.11.56`, après un nouvel
+essai `ssh detecdiv-windows` :
+
+```powershell
+Get-CimInstance Win32_Service -Filter "Name='sshd'" | Select-Object Name, State, StartMode, PathName
+$sshd = Join-Path $env:WINDIR 'System32\OpenSSH\sshd.exe'
+& $sshd -t
+& $sshd -T -C 'user=GMGM\Charvin-Admin,host=CG-PCDELL01-306,addr=192.168.190.2' | findstr /I "authorizedkeysfile pubkeyauthentication passwordauthentication loglevel forcecommand chrootdirectory"
+Get-WinEvent -LogName 'OpenSSH/Operational' -MaxEvents 20 | Select-Object TimeCreated, Id, Message | Format-List
+```
+
+Confirmer que `sshd` est `Running` et `StartMode` vaut `Auto`. Dans le journal,
+chercher l'événement correspondant exactement à l'essai, notamment les lignes
+après `Accepted publickey`. Renvoyer ces sorties sans le contenu des fichiers de
+clé. Ne pas restaurer `.before-debug`, toucher aux ACL, ni redémarrer le service
+avant d'avoir lu le résultat : l'authentification par clé fonctionne déjà et
+une modification aveugle peut interrompre l'accès distant.
 
 ## Suite une fois SSH disponible
 
