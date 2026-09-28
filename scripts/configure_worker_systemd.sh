@@ -19,6 +19,7 @@ JOB_WORKER_INSTANCE=""
 JOB_CPU_CORES=""
 JOB_MEMORY_MB=""
 JOB_SWAP_MB=""
+POOL_INSTANCES_LIVE=""
 
 usage() {
   cat <<'EOF'
@@ -32,6 +33,7 @@ Options:
   --unit-dir PATH        systemd unit directory (default: /etc/systemd/system)
   --worker-name NAME     Worker service unit filename (default: detecdiv-worker.service)
   --worker-instances N   Number of worker service instances to run (default: 1)
+  --pool-instances-live N  Grow/shrink numbered pool without restarting retained workers
   --memory-budget-mb N   Total RAM for ALL worker instances (persisted across scaling)
   --cpu-budget N         Total CPU cores for ALL workers (persisted across scaling)
   --swap-budget-mb N     Total swap for ALL workers (0 disables worker swap)
@@ -72,6 +74,7 @@ while [[ $# -gt 0 ]]; do
       shift 2
       ;;
     --job-worker-instance) JOB_WORKER_INSTANCE="$2"; shift 2 ;;
+    --pool-instances-live) POOL_INSTANCES_LIVE="$2"; shift 2 ;;
     --job-cpu-cores) JOB_CPU_CORES="$2"; shift 2 ;;
     --job-memory-mb) JOB_MEMORY_MB="$2"; shift 2 ;;
     --job-swap-mb) JOB_SWAP_MB="$2"; shift 2 ;;
@@ -143,6 +146,25 @@ done
 if (( MEMORY_BUDGET_MB + HOST_MEMORY_RESERVE_MB > HOST_MEMORY_MB || CPU_BUDGET > HOST_CPUS )); then
   echo 'Worker budgets exceed physical host capacity after the host/VM reserve.' >&2
   exit 1
+fi
+# Live autoscaling changes only added/removed services. The manager holds the
+# admission lock and has checked that every removed service has no active job.
+if [[ -n "$POOL_INSTANCES_LIVE" ]]; then
+  [[ "$POOL_INSTANCES_LIVE" =~ ^[1-9][0-9]*$ ]] || { echo 'Invalid live pool count.' >&2; exit 1; }
+  (( POOL_INSTANCES_LIVE <= CPU_BUDGET && POOL_INSTANCES_LIVE * 512 < MEMORY_BUDGET_MB )) || { echo 'Live pool count exceeds budget.' >&2; exit 1; }
+  [[ "$(systemctl show "${WORKER_TEMPLATE_BASENAME}@1.service" -p User --value)" == "$SERVICE_USER" && "$(systemctl show "${WORKER_TEMPLATE_BASENAME}@1.service" -p Slice --value)" == 'detecdiv-workers.slice' ]] || { echo 'Worker ownership or slice mismatch.' >&2; exit 1; }
+  for ((instance=1; instance<=CPU_BUDGET; instance++)); do
+    LIVE_UNIT="${WORKER_TEMPLATE_BASENAME}@${instance}.service"
+    if (( instance <= POOL_INSTANCES_LIVE )); then
+      # start is idempotent and preserves running jobs and their runtime quotas.
+      systemctl start "$LIVE_UNIT"
+    elif systemctl is-active --quiet "$LIVE_UNIT"; then
+      # --no-block avoids waiting for ExecStopPost, which also needs the DB lock.
+      systemctl stop --no-block "$LIVE_UNIT"
+    fi
+  done
+  echo "live_worker_instances=$POOL_INSTANCES_LIVE"
+  exit 0
 fi
 # Job quota changes do not restart or modify any other service.
 if [[ -n "$JOB_WORKER_INSTANCE" ]]; then

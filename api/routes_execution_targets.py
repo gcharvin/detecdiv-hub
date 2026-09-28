@@ -131,6 +131,19 @@ def scale_execution_target_workers(
     cpu_budget = int(metadata.get("worker_cpu_capacity") or 36)
     if payload.worker_instances > cpu_budget:
         raise HTTPException(status_code=422, detail=f"At most {cpu_budget} workers fit the compute CPU budget.")
+    if metadata.get("worker_autoscale_enabled", True):
+        metadata["worker_autoscale_enabled"] = True
+        metadata["worker_instances_baseline"] = payload.worker_instances
+        metadata["worker_scale_state"] = "automatic"
+        target.metadata_json = metadata
+        db.commit()
+        db.refresh(target)
+        return ExecutionTargetWorkerScaleResponse(
+            target_id=target.id, display_name=target.display_name,
+            worker_instances_requested=payload.worker_instances,
+            message=f"Automatic workers: baseline {payload.worker_instances}; pool grows with admissible queued jobs within CPU/RAM/VRAM/disk budgets.",
+            metadata_json=target.metadata_json or {},
+        )
     metadata.setdefault("worker_scale_previous_drain", bool(metadata.get("drain_new_jobs")))
     metadata["drain_new_jobs"] = True
     metadata["worker_instances_desired"] = payload.worker_instances

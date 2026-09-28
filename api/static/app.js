@@ -3359,7 +3359,7 @@ function renderExecutionTargetWorkerPanels(target) {
     els.executionTargetWorkerSummary.textContent =
       `${snapshot.activeWorkerCount}/${snapshot.registeredWorkerCount} worker records active on ${target.display_name}. `
       + `${snapshot.busyWorkerCount} busy, ${snapshot.staleWorkerCount} stale, ${queuedJobs.length} queued, ${cancellingJobs.length} cancelling.`
-      + (snapshot.desiredWorkers ? ` Desired ${snapshot.desiredWorkers}.` : "")
+      + (snapshot.desiredWorkers ? ` Target ${snapshot.desiredWorkers}. ${target.metadata_json?.worker_autoscale_enabled !== false ? `Automatic; baseline ${target.metadata_json?.worker_instances_baseline || 6}.` : "Manual."}` : "")
       + (snapshot.maxConcurrentJobs ? ` Max concurrent jobs ${snapshot.maxConcurrentJobs}.` : "");
   }
 
@@ -3983,7 +3983,7 @@ function fillExecutionTargetForm(target) {
     els.executionTargetMatlabMaxThreads.value = target.metadata_json?.matlab_max_threads || "";
   }
   if (els.executionTargetWorkerInstances) {
-    els.executionTargetWorkerInstances.value = target.metadata_json?.worker_instances_desired
+    els.executionTargetWorkerInstances.value = target.metadata_json?.worker_instances_baseline || 6
       || target.metadata_json?.worker_health_summary?.worker_count
       || target.metadata_json?.worker_health?.worker_count
       || "";
@@ -4042,9 +4042,10 @@ function buildExecutionTargetPayload() {
     metadata.matlab_max_threads = matlabMaxThreads;
   }
   if (workerInstances === null) {
-    delete metadata.worker_instances_desired;
+    delete metadata.worker_instances_baseline;
   } else {
-    metadata.worker_instances_desired = workerInstances;
+    metadata.worker_instances_baseline = workerInstances;
+    metadata.worker_autoscale_enabled = true;
   }
   metadata.drain_new_jobs = Boolean(els.executionTargetDrainNewJobs?.checked);
   return {

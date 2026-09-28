@@ -1,5 +1,24 @@
 # Worker Resource Scheduling
 
+## Automatic worker count
+
+The Linux worker manager keeps six idle workers by default, and every five
+seconds evaluates queued jobs using the same priority, CPU, RAM, GPU VRAM and
+disk admission functions as workers. It starts additional numbered instances
+when the queue can use them, up to the CPU budget (36 currently). Small jobs can
+therefore increase concurrency without changing the resource size of other jobs.
+RAM reserves 512 MiB of idle overhead for each potential instance, independently
+of the current pool count. Swap remains a bounded overflow allowance, not extra
+RAM for admission. TIFF jobs reserve two of eight disk units by default: at most
+four TIFF jobs run together until the disk profile/capacity is changed.
+
+The pool shrinks after 60 seconds of stable lower demand. Only idle workers above
+the required count stop; active jobs and retained workers are never restarted.
+The target metadata publishes `worker_autoscale_plan`, including blocked-resource
+reasons. `worker_instances_baseline` sets the default ready pool; Apply workers
+changes that baseline. `worker_autoscale_enabled=false` explicitly opts into the
+legacy manual count mode.
+
 ## Behavior
 
 Workers admit queued jobs against shared resource capacities for their execution

@@ -25,7 +25,10 @@ def memory_policy(target=None) -> dict[str, int | None]:
     worker_limit = positive_mb(os.getenv("DETECDIV_HUB_WORKER_MEMORY_LIMIT_MB"))
     dynamic = os.getenv("DETECDIV_HUB_WORKER_DYNAMIC_RESOURCES") == "1"
     if dynamic:
-        count = positive_mb(metadata.get("worker_instances_desired")) or positive_mb(os.getenv("DETECDIV_HUB_WORKER_INSTANCES")) or 1
+        if metadata.get("worker_autoscale_enabled", True):
+            count = positive_mb(metadata.get("worker_cpu_capacity")) or positive_mb(os.getenv("DETECDIV_HUB_WORKER_CPU_BUDGET")) or 36
+        else:
+            count = positive_mb(metadata.get("worker_instances_desired")) or positive_mb(os.getenv("DETECDIV_HUB_WORKER_INSTANCES")) or 1
         capacity = max(0, capacity - 512 * count)
         worker_limit = capacity
     return {
