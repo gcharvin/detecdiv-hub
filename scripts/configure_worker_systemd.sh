@@ -36,6 +36,10 @@ Options:
   --cpu-budget N         Total CPU cores for ALL workers (persisted across scaling)
   --swap-budget-mb N     Total swap for ALL workers (0 disables worker swap)
   --host-memory-reserve-mb N  RAM kept outside the workers for VMs and host services
+  --job-worker-instance N  Resize one numbered worker in place (no restart)
+  --job-cpu-cores N      CPU limit for that worker's admitted job
+  --job-memory-mb N      RAM limit for that worker's admitted job (minimum 512)
+  --job-swap-mb N        Swap limit for that worker's admitted job
   --plan-only            Print the resource plan without changing services
   --verify-memory-isolation  Run a disposable 64 MiB RAM / 32 MiB swap cgroup OOM check
 EOF

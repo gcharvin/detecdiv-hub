@@ -27,8 +27,9 @@ def record_exit() -> None:
         if job is None or job.status not in {"running", "cancelling"}:
             return
         job_id = job.id
-    limit_mb = os.getenv("DETECDIV_HUB_WORKER_MEMORY_LIMIT_MB", "unknown")
-    swap_mb = os.getenv("DETECDIV_HUB_WORKER_SWAP_LIMIT_MB", "unknown")
+        allocation = (job.params_json or {}).get("_hub_resource_allocation") or {}
+        limit_mb = allocation.get("memory_mb", os.getenv("DETECDIV_HUB_WORKER_MEMORY_LIMIT_MB", "unknown"))
+        swap_mb = allocation.get("swap_limit_mb", os.getenv("DETECDIV_HUB_WORKER_SWAP_LIMIT_MB", "unknown"))
     mark_job_failed(
         job_id,
         f"Worker process tree exhausted its RAM/swap budget ({limit_mb} MiB RAM, {swap_mb} MiB swap); "
