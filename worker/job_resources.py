@@ -1,11 +1,13 @@
 from __future__ import annotations
 
 import json
+import os
 from pathlib import Path
 from typing import Any
 
 from api.config import get_settings
 from api.models import ExecutionTarget, Job
+from worker.memory_resources import memory_policy, positive_mb, requested_memory_mb
 from api.services.job_priority_settings import (
     JobResourceRuntimeConfig,
     job_resource_profile_for_kind,
@@ -37,8 +39,12 @@ def resolve_job_resource_allocation(
     config = config or resolve_job_resource_runtime_config(session)
     job_kind = str((job.params_json or {}).get("job_kind") or "generic").strip() or "generic"
     profile = job_resource_profile_for_kind(config, job_kind)
+    worker_cpu_limit = positive_mb(os.getenv("DETECDIV_HUB_WORKER_CPU_LIMIT"))
     allocation: dict[str, Any] = {
-        "cpu_cores": profile.cpu_cores,
+        "cpu_cores": min(profile.cpu_cores, worker_cpu_limit) if worker_cpu_limit else profile.cpu_cores,
+        "requested_cpu_cores": profile.cpu_cores,
+        "memory_mb": requested_memory_mb(job, policy=memory_policy(target)),
+        "swap_limit_mb": positive_mb(os.getenv("DETECDIV_HUB_WORKER_SWAP_LIMIT_MB")) or 0,
         "gpu_permitted": profile.gpu_enabled,
         "gpu_required": bool(profile.gpu_enabled and job_kind != "pipeline_run"),
         "gpu_vram_mb": profile.gpu_vram_mb if profile.gpu_enabled and job_kind != "pipeline_run" else 0,
@@ -87,6 +93,8 @@ def active_resource_totals(
     ))
     totals: dict[str, Any] = {
         "cpu_cores": 0,
+        "memory_mb": 0,
+        "memory_capacity_mb": memory_policy(target)["capacity_mb"],
         "disk_io_units": 0,
         "gpu_jobs": 0,
         "gpu_vram_mb": 0,
@@ -105,6 +113,7 @@ def active_resource_totals(
             )
         allocation = normalize_allocation(allocation, config=config)
         totals["cpu_cores"] += allocation["cpu_cores"]
+        totals["memory_mb"] += allocation["memory_mb"]
         totals["disk_io_units"] += allocation["disk_io_units"]
         if allocation["gpu_required"]:
             totals["gpu_jobs"] += 1
@@ -133,6 +142,7 @@ def normalize_allocation(
     return {
         **allocation,
         "cpu_cores": cpu_cores,
+        "memory_mb": positive_mb(allocation.get("memory_mb")) or 24576,
         "gpu_required": gpu_required,
         "gpu_vram_mb": gpu_vram_mb,
         "disk_io_units": disk_io_units,
@@ -146,6 +156,9 @@ def allocation_fits(
     config: JobResourceRuntimeConfig,
 ) -> tuple[bool, str | None]:
     allocation = normalize_allocation(allocation, config=config)
+    capacity = totals.get("memory_capacity_mb")
+    if capacity is not None and totals.get("memory_mb", 0) + allocation["memory_mb"] > capacity:
+        return False, "memory_capacity"
     if totals["cpu_cores"] + allocation["cpu_cores"] > config.cpu_capacity_cores:
         return False, "cpu_capacity"
     if totals["disk_io_units"] + allocation["disk_io_units"] > config.disk_io_capacity_units:
@@ -174,6 +187,9 @@ def allocation_fits_with_reservation(
     """Check a lower-priority job while leaving room for a blocked higher one."""
     allocation = normalize_allocation(allocation, config=config)
     reserved = normalize_allocation(reserved_allocation, config=config)
+    capacity = totals.get("memory_capacity_mb")
+    if capacity is not None and totals.get("memory_mb", 0) + allocation["memory_mb"] + reserved["memory_mb"] > capacity:
+        return False
     reserved_cpu_total = totals["cpu_cores"] + allocation["cpu_cores"] + reserved["cpu_cores"]
     if reserved_cpu_total > config.cpu_capacity_cores:
         return False

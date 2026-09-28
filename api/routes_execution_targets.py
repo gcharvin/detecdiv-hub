@@ -1,13 +1,10 @@
-import subprocess
 from datetime import datetime, timezone
-from pathlib import Path
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from api.config import get_settings
 from api.db import get_db
 from api.models import ExecutionTarget, User
 from api.schemas import (
@@ -82,7 +79,7 @@ def update_execution_target(
     current_user: User = Depends(get_current_user),
 ) -> ExecutionTarget:
     require_admin(current_user)
-    target = db.get(ExecutionTarget, target_id)
+    target = db.scalars(select(ExecutionTarget).where(ExecutionTarget.id == target_id).with_for_update()).first()
     if target is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Execution target not found")
 
@@ -118,55 +115,28 @@ def scale_execution_target_workers(
     current_user: User = Depends(get_current_user),
 ) -> ExecutionTargetWorkerScaleResponse:
     require_admin(current_user)
-    target = db.get(ExecutionTarget, target_id)
+    target = db.scalars(select(ExecutionTarget).where(ExecutionTarget.id == target_id).with_for_update()).first()
     if target is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Execution target not found")
 
-    settings = get_settings()
-    repo_root = Path(__file__).resolve().parents[1]
-    script_path = repo_root / "scripts" / "configure_worker_systemd.sh"
-    if not script_path.exists():
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Worker systemd helper is missing")
-
-    command = [
-        "sudo",
-        "-n",
-        "bash",
-        str(script_path),
-        "--repo-root",
-        str(repo_root),
-        "--service-user",
-        settings.systemd_service_user,
-        "--env-file",
-        settings.systemd_env_file,
-        "--unit-dir",
-        settings.systemd_unit_dir,
-        "--worker-instances",
-        str(payload.worker_instances),
-    ]
-    try:
-        completed = subprocess.run(
-            command,
-            check=True,
-            capture_output=True,
-            text=True,
-            cwd=str(repo_root),
-        )
-    except subprocess.CalledProcessError as exc:
-        stderr = (exc.stderr or "").strip()
-        stdout = (exc.stdout or "").strip()
-        detail = stderr or stdout or "Worker scaling command failed"
-        if "sudo" in detail.lower() and ("password" in detail.lower() or "a password is required" in detail.lower()):
-            detail = (
-                "Worker scaling requires passwordless sudo for scripts/configure_worker_systemd.sh "
-                "or equivalent systemctl commands."
-            )
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=detail) from exc
-
     metadata = dict(target.metadata_json or {})
+    now = datetime.now(timezone.utc)
+    try:
+        seen = datetime.fromisoformat(str(metadata.get("worker_manager_seen_at") or ""))
+        manager_online = metadata.get("worker_manager_enabled") and 0 <= (now - seen).total_seconds() < 30
+    except (ValueError, TypeError):
+        manager_online = False
+    if not manager_online:
+        raise HTTPException(status_code=503, detail="Compute-host worker manager is offline; configure it on the worker host before scaling.")
+    cpu_budget = int(metadata.get("worker_cpu_capacity") or 36)
+    if payload.worker_instances > cpu_budget:
+        raise HTTPException(status_code=422, detail=f"At most {cpu_budget} workers fit the compute CPU budget.")
+    metadata.setdefault("worker_scale_previous_drain", bool(metadata.get("drain_new_jobs")))
+    metadata["drain_new_jobs"] = True
     metadata["worker_instances_desired"] = payload.worker_instances
-    metadata["worker_scale_last_applied_at"] = datetime.now(timezone.utc).isoformat()
-    metadata["worker_scale_last_message"] = completed.stdout.strip() or None
+    metadata["worker_scale_requested_at"] = now.isoformat()
+    metadata["worker_scale_state"] = "requested"
+    metadata.pop("worker_scale_failed_request", None)
     target.metadata_json = metadata
     db.commit()
     db.refresh(target)
@@ -174,7 +144,7 @@ def scale_execution_target_workers(
         target_id=target.id,
         display_name=target.display_name,
         worker_instances_requested=payload.worker_instances,
-        message=f"Configured {payload.worker_instances} worker instance(s) for {target.display_name}.",
+        message=f"Requested {payload.worker_instances} worker instance(s) for {target.display_name}; the compute host applies the change after active jobs finish.",
         metadata_json=target.metadata_json or {},
     )
 

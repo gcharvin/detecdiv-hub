@@ -54,6 +54,7 @@ from worker.job_resources import (
     resolve_job_resource_allocation,
 )
 from worker.legacy_matlab_executor import execute_legacy_matlab_job
+from worker.memory_resources import memory_policy, positive_mb, worker_allocation_fits
 from worker.micromanager_ingest_scheduler import (
     execute_micromanager_ingest_job,
     run_micromanager_ingest_if_due,
@@ -291,8 +292,11 @@ def claim_next_job() -> Job | None:
         )
         candidates = list(session.scalars(stmt))
         totals = active_resource_totals(session, target=target, config=resource_config)
+        worker_memory_policy = memory_policy(target)
         empty_totals = {
             "cpu_cores": 0,
+            "memory_mb": 0,
+            "memory_capacity_mb": totals["memory_capacity_mb"],
             "disk_io_units": 0,
             "gpu_jobs": 0,
             "gpu_vram_mb": 0,
@@ -302,12 +306,24 @@ def claim_next_job() -> Job | None:
         reserved_allocation = None
         job = None
         for candidate in candidates:
-            allocation = resolve_job_resource_allocation(
-                session,
-                job=candidate,
-                target=target,
-                config=resource_config,
-            )
+            try:
+                allocation = resolve_job_resource_allocation(
+                    session,
+                    job=candidate,
+                    target=target,
+                    config=resource_config,
+                )
+            except ValueError as exc:
+                candidate.status = "failed"
+                candidate.error_text = f"Invalid resource request: {exc}"
+                candidate.finished_at = candidate.updated_at = datetime.now(timezone.utc)
+                candidate.heartbeat_at = candidate.finished_at
+                release_project_locks_for_job(session, job_id=candidate.id)
+                continue
+            worker_fits, worker_reason = worker_allocation_fits(allocation, policy=worker_memory_policy)
+            if not worker_fits:
+                LOGGER.debug("Job %s waits: %s", candidate.id, worker_reason)
+                continue
             fits, _reason = allocation_fits(allocation, totals=totals, config=resource_config)
             if fits:
                 if reserved_allocation is not None:
@@ -881,9 +897,15 @@ def update_worker_target_state(
     if target is None:
         return
 
+    target = session.scalars(select(ExecutionTarget).where(
+        ExecutionTarget.id == target.id,
+    ).with_for_update().execution_options(populate_existing=True)).one()
     now = datetime.now(timezone.utc)
     worker_instance_id = get_worker_instance_id()
     host_cpu_count, available_cpu_count = get_cpu_topology()
+    cpu_limit = positive_mb(os.getenv("DETECDIV_HUB_WORKER_CPU_LIMIT"))
+    if cpu_limit is not None:
+        available_cpu_count = min(available_cpu_count, cpu_limit)
     if current_job is None or current_job_cpu_cores is None:
         current_job_cpu_cores = 0.0
     upsert_worker_instance(
@@ -902,6 +924,16 @@ def update_worker_target_state(
         now=now,
     )
     metadata = execution_target_worker_metadata(session, target)
+    for key, env_name in (
+        ("memory_capacity_mb", "DETECDIV_HUB_WORKER_MEMORY_BUDGET_MB"),
+        ("worker_memory_limit_mb", "DETECDIV_HUB_WORKER_MEMORY_LIMIT_MB"),
+        ("worker_swap_limit_mb", "DETECDIV_HUB_WORKER_SWAP_LIMIT_MB"),
+        ("worker_cpu_limit", "DETECDIV_HUB_WORKER_CPU_LIMIT"),
+        ("worker_cpu_capacity", "DETECDIV_HUB_WORKER_CPU_BUDGET"),
+    ):
+        value = positive_mb(os.getenv(env_name))
+        if value is not None:
+            metadata[key] = value
     target.metadata_json = metadata
     if health == "error":
         target.status = "degraded"

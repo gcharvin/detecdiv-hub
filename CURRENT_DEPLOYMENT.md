@@ -78,6 +78,21 @@ The systemd override that points the worker to the VM database is:
 /etc/systemd/system/detecdiv-worker@.service.d/10-webvm-db.conf
 ```
 
+Since 2026-09-28 the compute pool uses `detecdiv-workers.slice` with a shared
+96 GiB RAM, 6 GiB swap, and 36 CPU-core budget. The remaining approximately
+29 GiB physical RAM and 2 GiB swap stay outside the pool for the 16 GiB Hub VM
+and host services. Three workers receive 32 GiB RAM, 2 GiB swap, and 12 CPU cores
+each; six receive 16 GiB RAM, 1 GiB swap, and 6 cores. Budgets are persisted in
+`/etc/systemd/system/detecdiv-worker-resources.conf` and redistributed on scaling.
+
+`detecdiv-worker-manager.service` runs on the compute host and applies the
+admin API's worker-count requests after active jobs finish. Its database
+drop-in inherits only environment directives from the worker override, never
+the worker's ExecStart. It must remain outside the worker pool slice so scaling
+does not stop the manager itself. The former global `max_concurrent_jobs=1`
+emergency setting has been cleared; worker slots and resource budgets now bound
+concurrency. See `docs/worker_resource_scheduling.md` for limits and verification.
+
 The boot-time VM orchestration service now lives in the adjacent `Webserver`
 repository because it belongs to the VM host layer, not the hub control plane.
 

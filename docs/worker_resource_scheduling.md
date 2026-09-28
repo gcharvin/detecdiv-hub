@@ -84,9 +84,62 @@ Manual Micro-Manager ingestion still runs synchronously through its admin API
 and uses the database advisory lock. It does not create a queued job, so it
 does not reserve CPU or disk units in the worker budget while it runs.
 
-System memory is not currently part of admission. The initial scheduler tracks
-CPU, GPU VRAM, and disk pressure as requested; memory measurements can inform a
-later capacity field.
+System RAM is now part of admission. The compute host has one budget shared by
+its workers, with RAM kept outside that budget for the Hub VM and host services.
+The VM's configured RAM is backed by physical host RAM, not a separate resource.
+The worker uses its host's memory measurements, never the API VM's measurements.
+Claims remain serialized by the execution-target lock. Memory reservations are
+stored alongside CPU/GPU/disk allocations; priority backfill also preserves RAM
+for waiting jobs. New claims pause when available host RAM drops below a safety
+headroom, including pressure caused by processes outside the Hub.
+
+`scripts/configure_worker_systemd.sh` accepts `--memory-budget-mb`,
+`--swap-budget-mb`, `--host-memory-reserve-mb`, and `--cpu-budget`. These totals
+are persisted in the unit directory's `detecdiv-worker-resources.conf` and reused
+when `--worker-instances N` changes. Each worker receives an integer share of
+the totals, so adding workers never increases aggregate consumption. The script
+rejects impossible budgets and slots smaller than 1 GiB or one CPU core.
+`--plan-only` prints the allocation without changing services.
+
+A shared `detecdiv-workers.slice` enforces aggregate RAM, swap, and CPU budgets;
+each service also has MemoryHigh, MemoryMax, MemorySwapMax, and CPUQuota. These
+limits include every descendant MATLAB/Python process and parallel pool worker.
+RAM above MemoryHigh can spill into the worker's swap share. Swap is a bounded
+overflow buffer, not an unlimited substitute for RAM. The defaults leave 25% of
+host swap outside the worker slice; the live server uses 6 GiB of its 8 GiB swap.
+If RAM and swap are exhausted, OOMPolicy=kill contains the kill to that worker.
+ExecStopPost marks its active job failed with a specific memory-budget message
+and releases project locks before the service restarts. It never retries an
+out-of-memory job automatically.
+
+Pipeline and legacy MATLAB jobs reserve their whole worker RAM slot by default.
+Other jobs reserve 1 GiB. An explicit `params_json.resources.memory_mb` request
+can reserve a different amount; a request exceeding a worker's RAM slot waits
+for a suitable larger worker. A job's CPU allocation is capped to its worker's
+CPU share, so increasing the count creates smaller CPU workers without leaving
+pipeline jobs stranded behind their default CPU profile. Both desired and
+allocated CPU counts are recorded with the job.
+The OS quota covers MATLAB pools even though maxNumCompThreads alone does not.
+
+The temporary global max_concurrent_jobs=1 should be cleared after installing
+these controls. The number of worker slots and resource budgets then determine
+concurrency. Scaling requires an idle/drained target because changing per-worker
+quotas restarts its services. Configure workers on the compute host, not inside
+the API VM. Linux systemd limits provide enforcement; non-systemd workers have
+admission checks but require equivalent platform limits for strict isolation.
+
+The admin worker-scale API now records a desired count instead of invoking
+systemd in the API container. `detecdiv-worker-manager.service` on the compute
+host applies requests under the same target lock used by job claims. It drains
+new jobs, waits for running/cancelling jobs to finish, reconfigures the pool,
+and restores the preceding drain setting. Failed scale requests remain drained
+and are not retried repeatedly; submit a corrected request. A fresh manager
+heartbeat is required by the API. The manager is outside the compute slice and
+uses a small separate budget; changing worker count does not restart it.
+
+`--verify-memory-isolation` runs a disposable systemd service that requests more
+than its 64 MiB RAM plus 32 MiB swap budget. It verifies an `oom-kill` confined to
+that service without changing the worker pool or creating a scientific job.
 
 ## Calibration
 
