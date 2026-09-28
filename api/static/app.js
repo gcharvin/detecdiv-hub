@@ -499,6 +499,7 @@ const els = {
 let dashboardPollHandle = null;
 let dashboardPollInFlight = false;
 let executionTargetRefreshPromise = null;
+let executionTargetJobMix = null;
 let lastPollSucceededAt = null;
 let yeastSearchDebounceHandle = null;
 const pageKind = document.body?.dataset?.page || "";
@@ -823,6 +824,7 @@ function clearDashboardState() {
   state.observedPipelines = [];
   state.executionTargets = [];
   state.jobs = [];
+  executionTargetJobMix = null;
   state.pipelineRuns = [];
   state.sessions = [];
   state.users = [];
@@ -3452,6 +3454,15 @@ function renderExecutionTargetWorkerPanels(target) {
         entry.lastUpdated = updatedAt;
       }
     }
+    if (executionTargetJobMix) {
+      grouped.clear();
+      for (const item of executionTargetJobMix.filter((row) => String(row.execution_target_id || "") === String(target.id))) {
+        const kind = jobKindGroupLabel(item.job_kind);
+        grouped.set(kind, { kind, running: item.running, queued: item.queued,
+          cancelling: item.cancelling, done: item.done, failed: item.failed,
+          lastUpdated: item.last_updated_at });
+      }
+    }
     for (const { workerHealth } of workerEntries) {
       const kind = jobKindGroupLabel(workerHealth.current_job_kind || "");
       if (!kind) {
@@ -3759,7 +3770,7 @@ async function refreshExecutionTargetsNow() {
   const requests = [apiGet("/execution-targets")];
   let includesPrioritySettings = false;
   if (pageFlags.hasExecutionTargetsView) {
-    requests.push(apiGet("/jobs?compact=true"));
+    requests.push(apiGet("/jobs/activity"));
     if (state.jobPrioritySettings === null) {
       requests.push(apiGet("/jobs/settings/priorities"));
       includesPrioritySettings = true;
@@ -3767,7 +3778,8 @@ async function refreshExecutionTargetsNow() {
   }
   const results = await Promise.all(requests);
   const targets = results[0];
-  const jobs = results[1] ?? state.jobs;
+  const jobs = results[1]?.jobs ?? state.jobs;
+  if (results[1]?.job_mix) executionTargetJobMix = results[1].job_mix;
   const prioritySettings = includesPrioritySettings ? results[2] : state.jobPrioritySettings;
   state.executionTargets = targets;
   state.jobs = jobs;

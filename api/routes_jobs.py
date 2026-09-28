@@ -2,11 +2,11 @@ from datetime import datetime, timezone
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel, Field
-from sqlalchemy import func, select
+from sqlalchemy import case, func, or_, select
 from sqlalchemy.orm import Session
 
 from api.db import get_db
-from api.models import Job, RawDatasetPosition, User
+from api.models import Job, RawDatasetPosition, User, WorkerInstance
 from api.schemas import JobCreateRequest, JobSummary
 from api.services.job_priority_settings import (
     job_priority_settings_items,
@@ -125,7 +125,7 @@ def patch_job_priority_settings(
 
 
 @router.get("", response_model=list[JobSummary])
-def list_jobs(db: Session = Depends(get_db), compact: bool = False):
+def list_jobs(db: Session = Depends(get_db), compact: bool = False, history_limit: int | None = None):
     if compact:
         def resource_projection(column):
             keys = ("cpu_cores", "requested_cpu_cores", "memory_mb", "swap_limit_mb", "gpu_required", "gpu_vram_mb", "disk_io_units")
@@ -141,11 +141,31 @@ def list_jobs(db: Session = Depends(get_db), compact: bool = False):
             "cpu_usage", Job.result_json["cpu_usage"],
             "resource_allocation", resource_projection(Job.result_json["resource_allocation"]),
         ).label("result_json")
-        return [dict(row) for row in db.execute(
-            select(*columns, params, result).order_by(Job.priority.asc(), Job.created_at.asc())
-        ).mappings()]
+        stmt = select(*columns, params, result)
+        if history_limit is not None:
+            if not 1 <= history_limit <= 1000:
+                raise HTTPException(status_code=422, detail="history_limit must be between 1 and 1000")
+            recent = select(Job.id).order_by(Job.updated_at.desc()).limit(history_limit)
+            last_worker_jobs = select(WorkerInstance.last_job_id).where(WorkerInstance.last_job_id.is_not(None))
+            stmt = stmt.where(or_(Job.status.in_(("queued", "running", "cancelling")), Job.id.in_(recent), Job.id.in_(last_worker_jobs)))
+        return [dict(row) for row in db.execute(stmt.order_by(Job.priority.asc(), Job.created_at.asc())).mappings()]
     stmt = select(Job).order_by(Job.priority.asc(), Job.created_at.asc())
     return list(db.scalars(stmt))
+
+
+@router.get("/activity")
+def job_activity(db: Session = Depends(get_db)):
+    kind = Job.params_json["job_kind"].as_string()
+    grouped_kind = case((kind.in_(("storage_optimization_scan", "storage_optimization_chunk")), "storage_optimization"), else_=func.coalesce(kind, "generic"))
+    mix = db.execute(select(
+        Job.execution_target_id, grouped_kind.label("job_kind"),
+        *[func.count().filter(Job.status == value).label(value) for value in ("running", "queued", "cancelling", "done", "failed")],
+        func.max(func.greatest(Job.heartbeat_at, Job.updated_at, Job.started_at, Job.created_at)).label("last_updated_at"),
+    ).group_by(Job.execution_target_id, grouped_kind)).mappings()
+    return {
+        "jobs": [JobSummary.model_validate(row) for row in list_jobs(db=db, compact=True, history_limit=100)],
+        "job_mix": [dict(row) for row in mix],
+    }
 
 
 @router.post("", response_model=JobSummary, status_code=status.HTTP_201_CREATED)
