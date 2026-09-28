@@ -3200,6 +3200,23 @@ function formatCpuCores(value) {
   return Number.isFinite(cores) ? cores.toFixed(1) : "";
 }
 
+function workerIsActive(workerHealth) {
+  const seen = Date.parse(workerHealth.last_seen_at || "");
+  const threshold = Math.max(Number(workerHealth.poll_interval_sec || 5) * 3, 30) * 1000;
+  return Number.isFinite(seen) && (Date.now() - seen) <= threshold;
+}
+
+function workerMemoryLabel(value) {
+  if (value === null || value === undefined) return "—";
+  return `${(Number(value) / 1024).toFixed(1)} GiB`;
+}
+
+function workerVramLabel(workerHealth) {
+  const reserved = workerMemoryLabel(workerHealth.vram_allocated_mb);
+  const shared = workerMemoryLabel(workerHealth.gpu_shared_capacity_mb);
+  return `${reserved}${workerHealth.gpu_exclusive ? " exclusive" : ""} / ${shared} shared`;
+}
+
 function workerCpuAvailabilityLabel(workerHealth) {
   const available = Number(workerHealth.available_cpu_count || 0);
   const logical = Number(workerHealth.host_cpu_count || 0);
@@ -3227,7 +3244,9 @@ function workerCpuUsageLabel(workerHealth, currentJob, targetJobs) {
 function executionTargetWorkerEntries(target) {
   const workerHealths = target?.metadata_json?.worker_healths || {};
   return Object.entries(workerHealths)
-    .map(([workerId, workerHealth]) => ({ workerId, workerHealth: workerHealth || {} }))
+    .map(([workerId, workerHealth]) => ({ workerId, workerHealth: {
+      ...(workerHealth || {}), ...(target?.metadata_json?.worker_resource_allocations?.[workerId] || {}),
+    } }))
     .sort((a, b) => String(a.workerId).localeCompare(String(b.workerId)));
 }
 
@@ -3239,13 +3258,7 @@ function executionTargetWorkerSnapshot(target) {
     ?? workerEntries.length
     ?? 0;
   const workerHealthSummary = target?.metadata_json?.worker_health_summary || {};
-  const activeWorkerEntries = workerEntries.filter((entry) => {
-    const lastSeen = entry.workerHealth.last_seen_at ? Date.parse(entry.workerHealth.last_seen_at) : NaN;
-    if (Number.isNaN(lastSeen)) {
-      return true;
-    }
-    return (Date.now() - lastSeen) <= 60000;
-  });
+  const activeWorkerEntries = workerEntries.filter((entry) => workerIsActive(entry.workerHealth));
   const activeWorkerCount = Number(workerHealthSummary.worker_count || activeWorkerEntries.length || 0);
   const registeredWorkerCount = Number(workerHealthSummary.registered_workers || workerEntries.length || 0);
   const busyWorkerCount = Number(workerHealthSummary.busy_workers || 0);
@@ -3262,11 +3275,8 @@ function executionTargetWorkerSnapshot(target) {
     ...workerEntries.map((entry) => entry.workerHealth.claimed_at)
   );
   const mismatch = [];
-  if (Number(desiredWorkers) && Number(desiredWorkers) !== registeredWorkerCount) {
-    mismatch.push(`desired ${desiredWorkers} vs registered ${registeredWorkerCount}`);
-  }
-  if (registeredWorkerCount !== activeWorkerCount) {
-    mismatch.push(`active ${activeWorkerCount}/${registeredWorkerCount}`);
+  if (Number(desiredWorkers) && Number(desiredWorkers) !== activeWorkerCount) {
+    mismatch.push(`desired ${desiredWorkers} vs active ${activeWorkerCount}`);
   }
   if (maxConcurrentJobs && busyWorkerCount > Number(maxConcurrentJobs)) {
     mismatch.push(`busy ${busyWorkerCount}/${maxConcurrentJobs}`);
@@ -3368,11 +3378,14 @@ function renderExecutionTargetWorkerPanels(target) {
       const currentProjectLink = currentProjectId
         ? ` <a href="/web/project.html?id=${encodeURIComponent(currentProjectId)}" title="Open the related project">Project</a>`
         : "";
+      const active = workerIsActive(workerHealth);
       tr.innerHTML = `
         <td>${workerId}</td>
-        <td title="Available CPUs by process affinity / host logical CPU count">${workerCpuAvailabilityLabel(workerHealth)}</td>
+        <td title="Worker CPU budget (host logical CPUs: ${Number(workerHealth.host_cpu_count || 0)})">${active ? (workerHealth.cpu_allocated_cores ?? workerHealth.available_cpu_count ?? "—") : "—"}</td>
+        <td title="Worker RAM limit; swap: ${workerMemoryLabel(workerHealth.swap_allocated_mb)}">${active ? workerMemoryLabel(workerHealth.ram_allocated_mb) : "—"}</td>
+        <td title="Current job VRAM reservation / visible shared GPU capacity; this is a scheduler reservation, not a hardware partition">${active ? workerVramLabel(workerHealth) : "—"}</td>
         <td>${workerCpuUsageLabel(workerHealth, currentJob, targetJobs)}</td>
-        <td>${workerHealth.health || "unknown"}</td>
+        <td>${active ? (workerHealth.health || "unknown") : "inactive (stale)"}</td>
         <td>${currentJobLabel}${currentProjectLink}</td>
         <td>${currentUserKey ? userLabelForKey(currentUserKey) : ""}</td>
         <td>${currentJobKind}</td>

@@ -39,6 +39,7 @@ from worker.archive_policy_scheduler import run_archive_policy_if_due
 from worker.backup_executor import BACKUP_JOB_KINDS, execute_backup_job, finalize_backup_failure
 from worker.backup_scheduler import run_backup_if_due
 from worker.cpu_usage import JobCpuMonitor, get_cpu_topology, merge_cpu_usage
+from worker.resource_reporting import worker_resource_snapshot
 from worker.gpu_arbitration import (
     GpuArbitrationError,
     execute_assistant_control_job,
@@ -934,6 +935,11 @@ def update_worker_target_state(
         value = positive_mb(os.getenv(env_name))
         if value is not None:
             metadata[key] = value
+    resources = dict(metadata.get("worker_resource_allocations") or {})
+    resources[worker_instance_id] = worker_resource_snapshot(
+        available_cpu_count=available_cpu_count, current_job=current_job, now=now,
+    )
+    metadata["worker_resource_allocations"] = resources
     target.metadata_json = metadata
     if health == "error":
         target.status = "degraded"
