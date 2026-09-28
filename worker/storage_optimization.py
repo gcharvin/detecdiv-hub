@@ -25,7 +25,7 @@ from api.services.raw_dataset_lifecycle import pick_preferred_raw_location, reso
 
 # Yield to higher-priority work after each TIFF and each directory. This keeps
 # long campaigns from occupying every worker for a whole batch at a time.
-CHUNK_FILE_LIMIT = 1
+CHUNK_FILE_LIMIT = 25
 SCAN_DIRECTORY_LIMIT = 1
 STORAGE_OPTIMIZATION_JOB_KINDS = {
     "storage_optimization",
