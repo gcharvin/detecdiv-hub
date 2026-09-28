@@ -85,11 +85,16 @@ and host services. Three workers receive 32 GiB RAM, 2 GiB swap, and 12 CPU core
 each was the initial static arrangement, now superseded by per-job sizing.
 Idle workers have 1 CPU / 512 MiB RAM. Their quotas grow to the admitted job's
 CPU/RAM request and proportional swap share, then return to idle limits.
-Changing worker count changes the available slots, not job sizes. Shared budgets
+The manager keeps six workers ready by default and grows the pool automatically
+from admissible queued resource demand, up to 36 instances. It shrinks after
+60 seconds of stable lower demand without stopping active jobs. Changing the
+baseline changes ready slots, not job sizes. Shared budgets
 remain persisted in `/etc/systemd/system/detecdiv-worker-resources.conf`.
 
-`detecdiv-worker-manager.service` runs on the compute host and applies the
-admin API's worker-count requests after active jobs finish. Its database
+`detecdiv-worker-manager.service` runs on the compute host and automatically
+adds/removes idle instances under the same admission lock as resource claims.
+The admin worker-count control sets the ready-worker baseline (default six).
+Explicit manual mode retains the drain-before-reconfiguration workflow. Its database
 drop-in inherits only environment directives from the worker override, never
 the worker's ExecStart. It must remain outside the worker pool slice so scaling
 does not stop the manager itself. The former global `max_concurrent_jobs=1`
@@ -180,7 +185,8 @@ Future agents should assume:
   cross-layer deploy and update both hosts.
 - Do not reintroduce API-side filesystem scans for server paths.
 - Do not assume the VM can see project storage.
-- The current stable worker state uses `detecdiv-worker@1`, `@2`, and `@3`.
+- The current ready pool uses `detecdiv-worker@1` through `@6`; additional
+  numbered instances start automatically when resource demand permits.
   Per-worker heartbeat state is stored in the `worker_instances` table.
 - VM autostart and host-level reboot orchestration are documented in
   `../Webserver`, not here.

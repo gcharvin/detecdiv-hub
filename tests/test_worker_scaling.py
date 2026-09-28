@@ -21,7 +21,7 @@ class Session:
 
 @pytest.fixture
 def pool(monkeypatch):
-    target = SimpleNamespace(id="00000000-0000-0000-0000-000000000001", metadata_json={"worker_scale_applied_instances": 3, "worker_instances_desired": 6, "worker_scale_requested_at": "request-1"})
+    target = SimpleNamespace(id="00000000-0000-0000-0000-000000000001", metadata_json={"worker_autoscale_enabled": False, "worker_scale_applied_instances": 3, "worker_instances_desired": 6, "worker_scale_requested_at": "request-1"})
     session = Session(target)
     @contextmanager
     def begin():
