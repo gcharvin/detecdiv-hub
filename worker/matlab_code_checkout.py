@@ -71,7 +71,7 @@ def protect_release(target):
         # all accounts, including descendants, while retaining read. Owners/admins
         # can explicitly remove the ACL for GC; ordinary writes remain denied.
         subprocess.run(["icacls", str(target), "/deny",
-                        "*S-1-1-0:(OI)(CI)(W,D,DC)", "/T", "/Q"],
+                        "*S-1-1-0:(OI)(CI)(WD,AD,WEA,WA,D,DC)", "/T", "/Q"],
                        check=True, capture_output=True, text=True)
     else:
         for path in reversed(paths):
