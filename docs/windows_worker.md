@@ -350,6 +350,15 @@ file. A path mapping translates strings for the worker; it does not create a
 Windows drive mapping. MATLAB code that directly opens `X:\...` needs `X:` to
 be mounted in the worker's own logon session.
 
+The pipeline executor also sends MATLAB a trusted
+`execution.worker_path_mappings` snapshot, separately from the client's
+canonical `run_request.paths.path_mappings`. This is needed for paths loaded
+later from a shared project JSON: all OME-Zarr/NDTiff/TIFF raw pointers and
+frame-list folders must be translated together to the worker's view. Updated
+DetecDiv clients recognize mapped-drive/UNC equivalences in their Windows
+session and prefer the configured Local root when reloading these projects.
+An accessible UNC path must not bypass that client resolution.
+
 ## Enable raw-dataset archiving on Windows
 
 The archive storage root used by the Linux workers is `/archive`, backed by

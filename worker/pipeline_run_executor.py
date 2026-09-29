@@ -76,6 +76,13 @@ def execute_pipeline_run_job(session: Session, *, job: Job) -> dict[str, Any]:
                 session, job=job, project_ref=project_ref, pipeline_ref=pipeline_ref
             )
             payload["pipeline_ref"] = pipeline_ref
+        # MATLAB also loads paths from the shared project, which were not
+        # present in this JSON. Give it the trusted execution-host mappings
+        # separately from the unchanged client-to-canonical path mappings.
+        payload.setdefault("execution", {})["worker_path_mappings"] = [
+            {"source": mapping.source, "target": mapping.target}
+            for mapping in path_mappings
+        ]
         payload = normalize_pipeline_ref_paths_for_posix(
             payload=payload,
             job=job,
