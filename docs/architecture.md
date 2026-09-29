@@ -317,12 +317,17 @@ catalog when available.
 The target direction for per-user storage is documented in
 `docs/user_home_storage_provider.md`.
 
-The short version is that DetecDiv Hub should model storage providers and user
-storage accounts generically, keep canonical locations as `storage_roots` plus
-relative paths, and treat Synology DSM as an optional provisioning/quota adapter
-rather than as a hard dependency. New users can use `/homes/<username>/DetecDiv`
-while legacy `/data` locations continue to coexist until audited migration
-workflows move them.
+The lab policy is to keep two distinct worker-visible roots: primary Synology
+homes at `/homes` for every user except Alexander, and secondary Synology homes
+at `/homes2` for Alexander. Each user's DSM home contains both personal files
+and a Hub-managed `DetecdivHub/` subtree, so DSM's per-user quota covers both.
+Hub storage accounts explicitly map a Hub user to the matching NAS and DSM
+login. Preserve legacy `/data` locations until an audited migration is approved.
+
+Do not treat the current administrator-authenticated CIFS mount as a
+quota-correct write path. The NAS session identity must match the home owner;
+see `docs/user_home_storage_provider.md` and `docs/homes2_rollout.md` for the
+per-user mount pilot and live rollout state.
 
 ### Deletion workflow
 

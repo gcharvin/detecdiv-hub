@@ -32,6 +32,7 @@ from api.services.micromanager_metadata import (
 from api.services.external_publications import ensure_publication_records
 from api.services.project_indexing import iter_orphan_raw_candidates, looks_like_raw_dataset_dir, slugify
 from api.services.raw_dataset_ingest import ingest_raw_dataset_from_directory
+from api.services.user_home_storage import has_user_scoped_synology_mount
 from api.services.users import get_or_create_user
 
 
@@ -713,6 +714,29 @@ def promote_micromanager_candidate_to_user_home(
                     "status": "skipped",
                     "reason": "owner_home_path_escapes_storage_root",
                     "storage_account_id": str(account.id),
+                },
+            },
+        )
+
+    if provider_kind == "synology_dsm" and not has_user_scoped_synology_mount(
+        provider=account.provider,
+        storage_root=account.home_storage_root,
+        home_path=home_path,
+        provider_user_key=account.provider_user_key,
+    ):
+        return PromotedDatasetPath(
+            dataset_dir=landing_dataset_dir,
+            root_path=landing_root,
+            storage_root_name=fallback_storage_root_name,
+            metadata_json={
+                **source_metadata,
+                "landing_zone_promotion": {
+                    **promotion_metadata,
+                    "status": "skipped",
+                    "reason": "owner_home_lacks_user_scoped_mount",
+                    "storage_account_id": str(account.id),
+                    "home_path": str(home_path),
+                    "provider_key": account.provider.provider_key,
                 },
             },
         )

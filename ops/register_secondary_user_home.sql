@@ -1,6 +1,9 @@
 -- One-time, idempotent catalog registration for a second Synology homes mount.
--- Pass all site-specific values with psql -v. This does not create directories,
--- queue jobs, or relocate any dataset/project locations.
+-- Pass all site-specific values with psql -v, including home_mount_source
+-- (the per-user SMB `home` share, not the aggregate `homes` share). This does
+-- not create directories, queue jobs, or relocate any dataset/project locations.
+-- Quotas are DSM per-user quotas on the Synology-managed `homes` share, not a
+-- quota on a dedicated top-level shared folder.
 \set ON_ERROR_STOP on
 
 BEGIN;
@@ -20,7 +23,8 @@ VALUES (
         'dsm_base_url', :'dsm_base_url',
         'credentials_env_prefix', :'credentials_env_prefix',
         'ssh_host', :'ssh_host',
-        'quota_share', 'homes'
+        'quota_share', 'homes',
+        'home_mount_source', :'home_mount_source'
     )
 )
 ON CONFLICT (provider_key) DO NOTHING;
@@ -31,8 +35,8 @@ INSERT INTO user_storage_accounts (
 )
 SELECT
     gen_random_uuid(), users.id, storage_providers.id, :'provider_user_key', storage_roots.id,
-    :'home_relative_path', NULL, 'unknown', 'planned',
-    '{"rollout":"pending_mount"}'::jsonb
+    :'home_relative_path', 10000000000000, 'desired', 'planned',
+    '{"rollout":"pending_worker_access","layout":"synology_home","quota_scope":"user"}'::jsonb
 FROM users
 CROSS JOIN storage_providers
 CROSS JOIN storage_roots

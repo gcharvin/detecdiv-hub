@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import re
 from datetime import datetime, timezone
-from pathlib import PurePosixPath
+from pathlib import Path, PurePosixPath
 from uuid import UUID
 
 from fastapi import HTTPException, status
@@ -70,6 +70,114 @@ def normalize_home_relative_path(value: str) -> str:
 
 def default_home_relative_path(provider_user_key: str) -> str:
     return normalize_home_relative_path(f"{storage_safe_user_key(provider_user_key)}/DetecdivHub")
+
+
+def has_user_scoped_synology_mount(
+    *,
+    provider: StorageProvider,
+    storage_root: StorageRoot,
+    home_path: Path,
+    provider_user_key: str,
+) -> bool:
+    """Require Synology writes to pass through a per-home mount below its NAS root.
+
+    A mount at the aggregate ``/homes`` or ``/homes2`` root is not sufficient:
+    it may be authenticated as an administrator and charge writes to that
+    account instead of the home owner. A nested CIFS mount must use the
+    provider's configured per-user ``home_mount_source`` and the DSM identity
+    linked to this Hub account.
+    """
+    if str(provider.provider_kind or "").strip().lower() != "synology_dsm":
+        return True
+    config = dict(provider.config_json or {})
+    expected_source = str(config.get("home_mount_source") or "").strip()
+    expected_username = str(provider_user_key or "").strip()
+    if not provider.mount_root or not expected_source or not expected_username:
+        return False
+
+    try:
+        provider_root = Path(provider.mount_root).expanduser().resolve()
+        storage_root_path = Path(storage_root.path_prefix).expanduser().resolve()
+        target_path = Path(home_path).expanduser().resolve()
+    except (OSError, RuntimeError, ValueError):
+        return False
+
+    try:
+        mountinfo_text = Path("/proc/self/mountinfo").read_text(encoding="utf-8")
+    except OSError:
+        return False
+    return synology_home_mount_matches_mountinfo(
+        provider_root=provider_root,
+        storage_root_path=storage_root_path,
+        target_path=target_path,
+        expected_source=expected_source,
+        expected_username=expected_username,
+        mountinfo_text=mountinfo_text,
+    )
+
+
+def synology_home_mount_matches_mountinfo(
+    *,
+    provider_root: Path,
+    storage_root_path: Path,
+    target_path: Path,
+    expected_source: str,
+    expected_username: str,
+    mountinfo_text: str,
+) -> bool:
+    """Check that the most specific mount serving a home is its owner's CIFS home."""
+    try:
+        provider_root = Path(provider_root).resolve()
+        storage_root_path = Path(storage_root_path).resolve()
+        target_path = Path(target_path).resolve()
+        storage_root_path.relative_to(provider_root)
+        target_path.relative_to(storage_root_path)
+    except (OSError, RuntimeError, ValueError):
+        return False
+
+    matching_mounts: list[tuple[int, Path, str, str, str]] = []
+    for line in mountinfo_text.splitlines():
+        try:
+            left, right = line.split(" - ", 1)
+            left_fields = left.split()
+            right_fields = right.split()
+            if len(left_fields) < 5 or len(right_fields) < 3:
+                continue
+            mount_path_text = re.sub(
+                r"\\([0-7]{3})",
+                lambda match: chr(int(match.group(1), 8)),
+                left_fields[4],
+            )
+            mount_path = Path(mount_path_text).resolve()
+            target_path.relative_to(mount_path)
+        except (OSError, RuntimeError, ValueError):
+            continue
+
+        mount_type, source, super_options = right_fields[:3]
+        options = {
+            option.split("=", 1)[0]: option.split("=", 1)[1]
+            for option in super_options.split(",")
+            if "=" in option
+        }
+        matching_mounts.append(
+            (len(mount_path.parts), mount_path, mount_type, source, options.get("username", ""))
+        )
+
+    if not matching_mounts:
+        return False
+    _, mount_path, mount_type, source, username = max(matching_mounts, key=lambda item: item[0])
+    try:
+        relative_mount_path = mount_path.relative_to(provider_root)
+    except ValueError:
+        return False
+
+    # Strict descent excludes the broad aggregate `homes` share itself.
+    return (
+        bool(relative_mount_path.parts)
+        and mount_type == "cifs"
+        and source == expected_source
+        and username == expected_username
+    )
 
 
 def resolve_provider(session: Session, provider_key: str) -> StorageProvider:

@@ -8,7 +8,11 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session, joinedload
 
 from api.models import Job, StorageProvider, StorageRoot, UserStorageAccount
-from api.services.user_home_storage import normalize_home_relative_path, record_provisioning_event
+from api.services.user_home_storage import (
+    has_user_scoped_synology_mount,
+    normalize_home_relative_path,
+    record_provisioning_event,
+)
 
 
 DEFAULT_USER_HOME_SUBDIRECTORIES = ["landing", "projects", "raw", "artifacts", "exports"]
@@ -117,13 +121,17 @@ def resolve_user_home_path(account: UserStorageAccount) -> Path:
         raise ValueError(f"User storage account {account.id} has no home storage root")
     if account.provider.provider_kind not in {"posix_mount", "synology_dsm"}:
         raise ValueError(f"Provider kind {account.provider.provider_kind} is not mount-backed")
-    if account.provider.provider_kind == "synology_dsm":
-        mount_root = Path(account.provider.mount_root or "")
-        if not mount_root.is_absolute() or not mount_root.is_mount():
-            raise RuntimeError(
-                f"Synology provider {account.provider.provider_key} is not mounted at {mount_root}"
-            )
-    return resolve_storage_root_relative_path(account.home_storage_root, account.home_relative_path)
+    home_path = resolve_storage_root_relative_path(account.home_storage_root, account.home_relative_path)
+    if account.provider.provider_kind == "synology_dsm" and not has_user_scoped_synology_mount(
+        provider=account.provider,
+        storage_root=account.home_storage_root,
+        home_path=home_path,
+        provider_user_key=account.provider_user_key,
+    ):
+        raise RuntimeError(
+            f"Synology provider {account.provider.provider_key} has no user-scoped home mount for {home_path}"
+        )
+    return home_path
 
 
 def resolve_storage_root_relative_path(storage_root: StorageRoot, relative_path: str | None) -> Path:

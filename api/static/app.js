@@ -1395,10 +1395,10 @@ async function ensureStorageRootsLoaded() {
   return state.storageRoots;
 }
 
-function findUserHomeStorageRoot() {
-  return state.storageRoots.find((root) => root.name === "user-homes")
-    || state.storageRoots.find((root) => root.root_type === "user_home_root" && root.path_prefix === "/homes")
-    || state.storageRoots.find((root) => root.path_prefix === "/homes");
+function findUserHomeStorageRoot(provider) {
+  const mountRoot = String(provider?.mount_root || "/homes").trim();
+  return state.storageRoots.find((root) => root.root_type === "user_home_root" && root.path_prefix === mountRoot)
+    || state.storageRoots.find((root) => root.path_prefix === mountRoot);
 }
 
 function fieldValueFromForm(form, name) {
@@ -1412,7 +1412,7 @@ function fieldValueFromForm(form, name) {
   return String(field.value || "");
 }
 
-function openFormDialog({ title, description = "", fields = [], submitLabel = "Save" }) {
+function openFormDialog({ title, description = "", fields = [], submitLabel = "Save", onOpen = null }) {
   return new Promise((resolve) => {
     const overlay = document.createElement("div");
     overlay.className = "modal-backdrop";
@@ -1446,10 +1446,11 @@ function openFormDialog({ title, description = "", fields = [], submitLabel = "S
           </label>
         `;
       }
+      const step = field.step == null ? "" : `step="${escapeHtml(field.step)}"`;
       return `
         <label class="field dialog-field">
           <span>${escapeHtml(field.label)}</span>
-          <input name="${field.name}" type="${field.type || "text"}" value="${escapeHtml(value)}" ${required} />
+          <input name="${field.name}" type="${field.type || "text"}" value="${escapeHtml(value)}" ${step} ${required} />
         </label>
       `;
     }).join("");
@@ -1471,6 +1472,9 @@ function openFormDialog({ title, description = "", fields = [], submitLabel = "S
     document.body.appendChild(overlay);
 
     const form = overlay.querySelector("form");
+    if (typeof onOpen === "function") {
+      onOpen(form);
+    }
     const close = (value) => {
       overlay.remove();
       resolve(value);
@@ -9564,8 +9568,12 @@ async function createUser() {
     throw new Error("Admin role required.");
   }
   await ensureStorageRootsLoaded();
+  const providers = (await apiGet("/storage/providers?active_only=false"))
+    .filter((provider) => provider.provider_kind === "synology_dsm");
+  const defaultProvider = providers.find((provider) => provider.provider_key === "synology-main") || providers[0];
   const values = await openFormDialog({
     title: "New account",
+    description: "Inactive NAS providers only record a storage plan; they do not create a DSM user or directories yet.",
     fields: [
       { name: "userKey", label: "User key", required: true },
       { name: "displayName", label: "Display name" },
@@ -9594,11 +9602,39 @@ async function createUser() {
       { name: "adminPortalAccess", label: "Admin portal access", type: "checkbox", value: false },
       { name: "password", label: "Hub temporary password", type: "password" },
       { name: "provisionSynology", label: "Provision Synology storage", type: "checkbox", value: true },
+      {
+        name: "storageProviderKey",
+        label: "Synology NAS",
+        type: "select",
+        value: defaultProvider?.provider_key || "",
+        options: providers.map((provider) => ({
+          value: provider.provider_key,
+          label: `${provider.display_name}${provider.is_active ? "" : " (staged only)"}`,
+        })),
+      },
       { name: "synologyUserKey", label: "Synology user key" },
       { name: "synologyInitialPassword", label: "Synology initial password", type: "password" },
-      { name: "quotaGb", label: "Synology quota GB", type: "number", value: "100" },
+      { name: "quotaGb", label: "Main NAS user quota (GiB)", type: "number", value: "100" },
+      { name: "shareQuotaTb", label: "Dedicated-share quota target (To)", type: "number", step: "0.1", value: "10" },
     ],
     submitLabel: "Create account",
+    onOpen: (form) => {
+      const providerField = form?.elements.namedItem("storageProviderKey");
+      const mainQuotaField = form?.elements.namedItem("quotaGb");
+      const shareQuotaField = form?.elements.namedItem("shareQuotaTb");
+      const updateQuotaFields = () => {
+        const provider = providers.find((item) => item.provider_key === providerField.value);
+        const dedicatedShare = provider?.config_json?.quota_scope === "shared_folder";
+        if (mainQuotaField) mainQuotaField.closest("label").hidden = dedicatedShare;
+        if (shareQuotaField) shareQuotaField.closest("label").hidden = !dedicatedShare;
+        const configuredBytes = Number(provider?.config_json?.default_quota_bytes);
+        if (dedicatedShare && configuredBytes > 0 && shareQuotaField) {
+          shareQuotaField.value = String(configuredBytes / (1000 ** 4));
+        }
+      };
+      providerField?.addEventListener("change", updateQuotaFields);
+      updateQuotaFields();
+    },
   });
   if (!values) {
     return;
@@ -9609,17 +9645,30 @@ async function createUser() {
   }
   const providerUserKey = String(values.synologyUserKey || userKey).trim();
   const provisionSynology = Boolean(values.provisionSynology);
-  const homeRoot = findUserHomeStorageRoot();
-  if (provisionSynology && !homeRoot) {
-    throw new Error("No /homes storage root is configured in the hub.");
+  const provider = providers.find((item) => item.provider_key === values.storageProviderKey);
+  const dedicatedShare = provider?.config_json?.quota_scope === "shared_folder";
+  const homeRoot = findUserHomeStorageRoot(provider);
+  if (provisionSynology && !provider) {
+    throw new Error("Choose a configured Synology NAS before provisioning storage.");
   }
-  if (provisionSynology && !String(values.synologyInitialPassword || "").trim()) {
+  if (provisionSynology && !homeRoot) {
+    throw new Error(`No storage root is configured for ${provider.display_name}.`);
+  }
+  if (provisionSynology && provider.is_active && !String(values.synologyInitialPassword || "").trim()) {
     throw new Error("Synology initial password is required when provisioning Synology storage.");
   }
-  const quotaGb = Number(values.quotaGb || 0);
-  const quotaBytes = Number.isFinite(quotaGb) && quotaGb > 0 ? Math.round(quotaGb * 1024 * 1024 * 1024) : null;
+  const quotaValue = Number(dedicatedShare ? values.shareQuotaTb : values.quotaGb);
+  if (provisionSynology && (!Number.isFinite(quotaValue) || quotaValue <= 0)) {
+    throw new Error("Storage quota target must be greater than zero.");
+  }
+  const quotaBytes = provisionSynology
+    ? Math.round(quotaValue * (dedicatedShare ? 1000 ** 4 : 1024 ** 3))
+    : null;
+  if (quotaBytes !== null && !Number.isSafeInteger(quotaBytes)) {
+    throw new Error("Storage quota target is too large.");
+  }
   const defaultPath = String(values.defaultPath || "").trim()
-    || (provisionSynology ? `/homes/${providerUserKey}/DetecDiv` : "");
+    || (provisionSynology && provider.is_active && !dedicatedShare ? `${provider.mount_root || "/homes"}/${providerUserKey}/DetecDiv` : "");
   const createdUser = await apiPost("/users", {
     user_key: userKey,
     display_name: String(values.displayName || userKey).trim() || userKey,
@@ -9633,13 +9682,23 @@ async function createUser() {
   });
   if (provisionSynology) {
     const account = await apiPost(`/storage/users/${createdUser.id}/home-account`, {
-      provider_key: "synology-main",
+      provider_key: provider.provider_key,
       provider_user_key: providerUserKey,
       home_storage_root_id: homeRoot.id,
-      home_relative_path: `${providerUserKey}/DetecDiv`,
+      home_relative_path: `${providerUserKey}/${dedicatedShare ? "DetecdivHub" : "DetecDiv"}`,
       quota_bytes: quotaBytes,
       create_missing_provider: false,
     });
+    if (dedicatedShare) {
+      await apiPatch(`/storage/user-accounts/${account.id}`, {
+        metadata_json: { layout: "dedicated_share", quota_scope: "shared_folder" },
+      });
+    }
+    if (!provider.is_active) {
+      await refreshUsers();
+      setStatus(`Created user ${userKey}. ${provider.display_name} storage and ${quotaValue} ${dedicatedShare ? "To" : "GiB"} quota are staged; no DSM user or directories were created.`);
+      return;
+    }
     const ensured = await apiPost(`/storage/user-accounts/${account.id}/synology/ensure-user`, {
       create_missing: true,
       initial_password: String(values.synologyInitialPassword || "").trim(),
@@ -9649,6 +9708,11 @@ async function createUser() {
     });
     if (!ensured.success) {
       throw new Error(ensured.message || "Synology user provisioning failed.");
+    }
+    if (dedicatedShare) {
+      await refreshUsers();
+      setStatus(`Created user ${userKey} and verified DSM user ${ensured.provider_user_key}. Dedicated share and ${quotaValue} To quota still require provisioning.`);
+      return;
     }
     if (quotaBytes) {
       await apiPost(`/storage/user-accounts/${account.id}/synology/quota`, {
@@ -9694,6 +9758,12 @@ async function queueRawStorageOptimization() {
 }
 
 async function editUser(user) {
+  const storageAccounts = hasAdminPrivileges()
+    ? await apiGet(`/storage/user-accounts?user_id=${encodeURIComponent(user.id)}`)
+    : [];
+  const mainSynologyAccount = storageAccounts.find((account) => account.provider?.provider_key === "synology-main");
+  const shareAccount = storageAccounts.find((account) => account.provider?.config_json?.quota_scope === "shared_folder"
+    || account.provider?.provider_key === "synology-secondary");
   const adminFields = hasAdminPrivileges()
     ? [
         {
@@ -9747,12 +9817,20 @@ async function editUser(user) {
           label: "Reset password",
           type: "password",
         },
-        {
+        ...(mainSynologyAccount ? [{
           name: "quotaGb",
-          label: "Synology quota GB",
+          label: "Main NAS user quota (GiB)",
           type: "number",
-          value: user.storage_quota_bytes ? String(Math.round(Number(user.storage_quota_bytes) / (1024 * 1024 * 1024))) : "",
-        },
+          value: mainSynologyAccount.quota_bytes
+            ? String(Math.round(Number(mainSynologyAccount.quota_bytes) / (1024 ** 3))) : "",
+        }] : []),
+        ...(shareAccount ? [{
+          name: "shareQuotaTb",
+          label: `${shareAccount.provider.display_name} share quota target (To; not yet applied)`,
+          type: "number",
+          step: "0.1",
+          value: String(Number(shareAccount.quota_bytes || 10 * 1000 ** 4) / (1000 ** 4)),
+        }] : []),
       ]
     : [];
   const values = await openFormDialog({
@@ -9767,6 +9845,23 @@ async function editUser(user) {
   });
   if (!values) {
     return;
+  }
+  let mainQuotaBytes = null;
+  if (hasAdminPrivileges() && mainSynologyAccount && String(values.quotaGb || "").trim()) {
+    const quotaGb = Number(values.quotaGb);
+    mainQuotaBytes = Math.round(quotaGb * 1024 ** 3);
+    if (!Number.isFinite(quotaGb) || quotaGb <= 0 || !Number.isSafeInteger(mainQuotaBytes)) {
+      throw new Error("Main NAS user quota must be greater than zero and within the supported range.");
+    }
+  }
+  let shareQuotaBytes = null;
+  if (hasAdminPrivileges() && shareAccount) {
+    const quotaText = String(values.shareQuotaTb || "").trim();
+    const quotaTb = Number(quotaText);
+    shareQuotaBytes = Math.round(quotaTb * 1000 ** 4);
+    if (!quotaText || !Number.isFinite(quotaTb) || quotaTb <= 0 || !Number.isSafeInteger(shareQuotaBytes)) {
+      throw new Error("Dedicated-share quota target must be greater than zero and within the supported range.");
+    }
   }
   const payload = {
     display_name: values.displayName.trim(),
@@ -9785,18 +9880,19 @@ async function editUser(user) {
   }
   await apiPatch(`/users/${user.id}`, payload);
   let quotaMessage = "";
-  if (hasAdminPrivileges() && user.storage_account_id) {
-    const quotaText = String(values.quotaGb || "").trim();
-    if (quotaText) {
-      const quotaGb = Number(quotaText);
-      if (!Number.isFinite(quotaGb) || quotaGb <= 0) {
-        throw new Error("Synology quota must be greater than zero.");
-      }
-      const quotaResult = await apiPost(`/storage/user-accounts/${user.storage_account_id}/synology/quota`, {
-        quota_bytes: Math.round(quotaGb * 1024 * 1024 * 1024),
-      });
-      quotaMessage = quotaResult.message ? ` ${quotaResult.message}` : "";
-    }
+  if (mainQuotaBytes !== null) {
+    const quotaResult = await apiPost(`/storage/user-accounts/${mainSynologyAccount.id}/synology/quota`, {
+      quota_bytes: mainQuotaBytes,
+    });
+    quotaMessage = quotaResult.message ? ` ${quotaResult.message}` : "";
+  }
+  if (shareQuotaBytes !== null && shareQuotaBytes !== Number(shareAccount.quota_bytes)) {
+    await apiPatch(`/storage/user-accounts/${shareAccount.id}`, {
+      quota_bytes: shareQuotaBytes,
+      quota_status: "desired",
+      metadata_json: { layout: "dedicated_share", quota_scope: "shared_folder" },
+    });
+    quotaMessage += " Dedicated-share quota target saved; it has not been applied on the NAS.";
   }
   await refreshUsers();
   setStatus(`Updated user ${user.user_key}.${quotaMessage}`);

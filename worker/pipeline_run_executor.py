@@ -128,10 +128,8 @@ def execute_pipeline_run_job(session: Session, *, job: Job) -> dict[str, Any]:
         payload_path.write_text(json.dumps(payload, indent=2), encoding="utf-8")
 
         matlab_max_threads = resolve_matlab_max_threads(session, job=job)
-        entrypoint = build_pipeline_matlab_entrypoint(payload_path, matlab_max_threads=matlab_max_threads)
-        entrypoint = entrypoint.replace("setenv('DETECDIV_ROOT', pwd); ",
-            "setenv('DETECDIV_ROOT', pwd); detecdiv_setup_path(pwd, 'DetecDivRoot', pwd); "
-            f"cd('{matlab_escape(str(tmp_path))}'); ")
+        entrypoint = build_pipeline_matlab_entrypoint(payload_path,
+            matlab_max_threads=matlab_max_threads, work_dir=tmp_path)
         command = build_matlab_batch_command(repo_root, entrypoint, matlab_command=matlab_command)
         completed = run_matlab_command(
             command,
@@ -285,9 +283,13 @@ def ensure_cancel_token_path(session: Session, *, job: Job, payload: dict[str, A
     return str(token_path)
 
 
-def build_pipeline_matlab_entrypoint(payload_path: Path, *, matlab_max_threads: int | None) -> str:
+def build_pipeline_matlab_entrypoint(payload_path: Path, *, matlab_max_threads: int | None,
+                                    work_dir: Path | None = None) -> str:
     run_command = f"detecdiv_run_pipeline_job('{matlab_escape(str(payload_path))}')"
     run_command = "setenv('DETECDIV_ROOT', pwd); " + run_command
+    if work_dir is not None:
+        run_command = "setenv('DETECDIV_ROOT', pwd); detecdiv_setup_path(pwd, 'DetecDivRoot', pwd); " + \
+            f"cd('{matlab_escape(str(work_dir))}'); detecdiv_run_pipeline_job('{matlab_escape(str(payload_path))}')"
     if matlab_max_threads is None:
         return run_command
     return f"maxNumCompThreads({matlab_max_threads}); {run_command}"

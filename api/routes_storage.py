@@ -727,6 +727,11 @@ def update_synology_user_quota_for_account(
     account = load_account(db, account_id)
     if account.provider.provider_kind != "synology_dsm":
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Storage account is not linked to a Synology DSM provider")
+    if (account.provider.config_json or {}).get("quota_scope") == "shared_folder":
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="This account uses a dedicated shared-folder quota, not a DSM user quota",
+        )
 
     quota_bytes = payload.quota_bytes
     if quota_bytes is not None and quota_bytes <= 0:

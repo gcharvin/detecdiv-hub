@@ -1,6 +1,8 @@
 from types import SimpleNamespace
+from uuid import uuid4
 
 import pytest
+from fastapi import HTTPException
 
 from api.services.storage_providers.synology_dsm import (
     SynologyDsmClient,
@@ -17,6 +19,8 @@ from api.services.storage_providers.synology_ssh import (
     build_synouser_delete_command,
 )
 from api.schemas import SynologyDsmUserQuotaResponse, StorageProviderSummary
+from api.schemas import SynologyQuotaUpdateRequest
+from api import routes_storage
 from api.services.storage_providers.provider_clients import (
     synology_dsm_client_for_provider,
     synology_ssh_client_for_provider,
@@ -57,6 +61,22 @@ def test_secondary_provider_cannot_fall_back_to_main_nas() -> None:
         synology_dsm_client_for_provider(provider)
     with pytest.raises(SynologyDsmError, match="credentials_env_prefix"):
         synology_ssh_client_for_provider(provider)
+
+
+def test_shared_folder_quota_cannot_call_dsm_user_quota_update(monkeypatch) -> None:
+    account = SimpleNamespace(
+        provider=SimpleNamespace(provider_kind="synology_dsm", config_json={"quota_scope": "shared_folder"}),
+    )
+    monkeypatch.setattr(routes_storage, "load_account", lambda _db, _account_id: account)
+    with pytest.raises(HTTPException) as exc_info:
+        routes_storage.update_synology_user_quota_for_account(
+            account_id=uuid4(),
+            payload=SynologyQuotaUpdateRequest(quota_bytes=10_000_000_000_000),
+            db=SimpleNamespace(),
+            current_user=SimpleNamespace(role="admin"),
+        )
+    assert exc_info.value.status_code == 409
+    assert "shared-folder quota" in str(exc_info.value.detail)
 
 
 def test_choose_max_version_defaults_to_one() -> None:

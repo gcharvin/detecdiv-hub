@@ -6,13 +6,35 @@ This note defines the target direction for moving DetecDiv Hub storage from a
 single shared `/data` area toward per-user home storage, while keeping the
 architecture generic enough to work outside a Synology NAS ecosystem.
 
-The immediate deployment assumption is:
+## Accepted lab policy (2026-09-28)
 
-- `detecdiv-server` has a permanent server-side mount exposing user homes as
-  `/homes/<username>`;
+- Each user has one personal Synology home for both human-generated files and
+  DetecDiv Hub data. DSM's per-user quota therefore limits the complete home,
+  not only the Hub-managed subtree.
+- All users use their home on the primary NAS (`10.20.11.250`) except
+  Alexander, whose home is on the secondary NAS (`10.20.8.250`) because of the
+  storage footprint already associated with his data.
+- On `detecdiv-server`, keep these NAS namespaces separate: primary at
+  `/homes`, secondary at `/homes2`. Alexander's Hub account is linked to DSM
+  user `maliavko`; all other Hub-to-DSM username links must be explicit in
+  `user_storage_accounts` rather than inferred from names.
+- Hub-managed files belong in a dedicated `DetecdivHub/` subtree inside the
+  user's home. Do not take over, rename, or move the user's other personal
+  folders as part of Hub provisioning.
+- This is the target placement policy, not authorization to move existing
+  datasets or projects. Existing `/data` locations remain unchanged until a
+  separately reviewed migration.
+
+The current deployment mounts these roots separately:
+
+- `detecdiv-server` exposes the primary Synology `homes` share at
+  `/homes/<username>` (`10.20.11.250`);
+- it exposes the secondary Synology `homes` share separately at
+  `/homes2/<username>` (`10.20.8.250`);
+- the host's local `/home` is not a NAS home share and is not a Hub storage root;
 - existing legacy data may remain under `/data` for a transition period;
-- new users and new data should be able to use `/homes/<username>/DetecDiv`
-  before existing data is migrated.
+- new data may use a user's selected NAS home only after the worker's NAS-side
+  identity and quota attribution have been validated.
 
 Synology DSM APIs may be used for provisioning and quota enforcement, but the
 hub data model must not become Synology-specific.
@@ -24,7 +46,8 @@ hub data model must not become Synology-specific.
 - Support a simple POSIX-only deployment with a configured mount point.
 - Support Synology as an optional provider for user provisioning and quotas.
 - Avoid storing or handling individual Synology user passwords in the hub.
-- Allow `/data` and `/homes` to coexist during development and migration.
+- Allow `/data`, primary `/homes`, and secondary `/homes2` to coexist during
+  development and migration.
 - Make migration preview-first, auditable, and reversible where practical.
 
 ## Non-Goals
@@ -64,34 +87,56 @@ remain hub responsibilities.
 
 ## Canonical Path Model
 
-For the current `/homes/<username>` mount, the recommended root is:
+Each Synology homes share has its own stable root on the worker. Do not combine
+the two NAS namespaces or make one an alias for the other:
 
 ```text
 storage_roots:
-  name = user-homes
-  root_type = user_home_root
-  host_scope = detecdiv-server
-  path_prefix = /homes
+  - name = user-homes
+    root_type = user_home_root
+    host_scope = detecdiv-server
+    path_prefix = /homes
+  - name = user-homes2
+    root_type = user_home_root
+    host_scope = detecdiv-server
+    path_prefix = /homes2
+```
+
+The namespace roots map to `//10.20.11.250/homes` and
+`//10.20.8.250/homes` respectively. For production writes, each user's
+directory beneath the namespace must be a nested per-user mount of DSM's SMB
+`home` share, authenticated as that user's mapped DSM account. `/home` is the
+Linux host's local home tree, not a third Synology root, and should not be
+registered as general Hub data storage.
+
+The provider's non-secret `config_json.home_mount_source` records the exact
+per-user SMB source expected by the worker guard:
+
+```text
+synology-main      //10.20.11.250/home
+synology-secondary //10.20.8.250/home
 ```
 
 A project location should then be stored as:
 
 ```text
 project_locations:
-  storage_root = user-homes
-  relative_path = <username>/DetecDiv/projects/<project-folder>
+  storage_root = user-homes or user-homes2
+  relative_path = <DSM username>/DetecDiv/projects/<project-folder>
 ```
 
 A raw dataset location should be stored as:
 
 ```text
 raw_dataset_locations:
-  storage_root = user-homes
-  relative_path = <username>/DetecDiv/raw/<dataset-folder>
+  storage_root = user-homes or user-homes2
+  relative_path = <DSM username>/DetecDiv/raw/<dataset-folder>
 ```
 
-This avoids storing `/homes/florian/...` repeatedly as an absolute canonical
-path. If the mount changes later, only the storage root needs to change.
+The `user_storage_accounts` mapping selects the user's provider and DSM login;
+the Hub username need not equal the DSM username. This avoids storing either
+`/homes/...` or `/homes2/...` repeatedly as an absolute canonical path. If a
+mount point changes later, only its storage root needs to change.
 
 Legacy data can continue to use a separate root:
 
@@ -149,17 +194,57 @@ normal storage access.
 The intended model is:
 
 - users authenticate to DetecDiv Hub through the hub authentication layer;
-- `detecdiv-server` keeps a permanent mount of the storage namespace;
-- worker jobs access files through `/homes/<username>/...`;
-- DSM credentials used by the hub, if any, are service credentials stored in
-  deployment secrets;
-- DSM user passwords remain outside the hub.
+- `detecdiv-server` keeps distinct mount namespaces `/homes` (primary) and
+  `/homes2` (secondary); never alias one NAS over the other;
+- worker jobs access the selected user's files through `/homes/<DSM username>/...`
+  or `/homes2/<DSM username>/...`;
+- DSM user passwords remain outside the Hub database and provider config.
 
 This is required because worker jobs, indexing, preview generation, migrations,
 and MATLAB batch execution must run non-interactively.
 
+The mount's SMB identity, not Linux `uid=`/`gid=` presentation options,
+determines NAS-side ownership and ACL enforcement. The target write path must
+therefore access each home as its DSM owner. A possible implementation to
+pilot is mounting Synology's per-user `home` SMB share at the stable path
+`/homes/<DSM username>` or `/homes2/<DSM username>` with that user's identity;
+validate it on a test account before adopting it. This should preserve the
+existing Hub path model while avoiding an administrator-authenticated write
+session. It requires a secure, root-owned worker-side credential lifecycle;
+the Hub must not collect or persist users' DSM passwords.
+
+Do not assume that CIFS `multiuser` solves this automatically: it needs
+credentials in each Linux user's session keyring, and the systemd worker does
+not automatically have the interactive Hub user's credentials
+([mount.cifs documentation](https://www.man7.org/linux/man-pages/man8/mount.cifs.8.html)).
+NFS `AUTH_SYS` is another possible route, but it requires matching numeric
+UIDs/GIDs on worker and NAS and an explicit NFS permission rule;
+"map all users to admin" would defeat per-user ownership
+([Synology NFS permissions](https://kb.synology.com/index.php/da-dk/DSM/help/DSM/AdminCenter/file_share_privilege_nfs?version=7)).
+Do not choose either mechanism until a small-file pilot confirms file owner,
+cross-user isolation, and quota charging on both NASes.
+
+Until then, do not send new Hub writes through the existing broad `Fred`
+administrator SMB mount. Keep the secondary provider inactive and its current
+aggregate `/homes2` mount read-only. The primary provider's live state and the
+current mount identity are recorded in `docs/homes2_rollout.md`.
+
+In particular, do not assume that a shared worker SMB login will consume the
+individual home owner's DSM quota: Synology's Storage Analyzer reports user
+quota usage by the files owned by each user
+([Synology documentation](https://kb.synology.com/index.php/da-dk/DSM/help/StorageAnalyzer/view_reports?version=7)). Verify the resulting NAS-side owner and charged quota with a controlled probe before allowing production writes.
+
+The Synology-managed `homes` share also has special default ACLs: the
+`administrators` group has full access, while `Everyone` is limited to
+traversing directories. Synology warns against changing those defaults because
+it can break users' home access, administrator SSH-key logins, or packages
+([Synology documentation](https://kb.synology.com/fr-fr/DSM/tutorial/default_permissions_of_homes)). Do not grant a worker broad access to the parent `homes` share as a shortcut. Any per-home service access must be tested without weakening these defaults.
+
 Synology still remains useful as the enforcement layer for quotas and storage
 accounts, but it should not become the hub's per-request authentication layer.
+Because the quota covers the user's whole home, usage reporting in the Hub must
+label Hub-indexed bytes as a subset of DSM-used bytes, not as the complete
+quota usage.
 
 ## Quota Model
 
@@ -330,13 +415,14 @@ Initial rollout should target new users first:
    - The initial password is sent to DSM for that one call and is not stored in
      the hub database.
 4. Set or verify quota if the provider supports it.
-5. Ensure `/homes/<username>/DetecDiv` and expected subdirectories exist.
+5. Ensure the selected root's `<DSM username>/DetecDiv` and expected
+   subdirectories exist.
 6. Set new project/raw default placement to the user home root.
 
 Suggested user home layout:
 
 ```text
-/homes/<username>/DetecDiv/
+<selected-root>/<DSM username>/DetecDiv/
   projects/
   raw/
   artifacts/
@@ -350,8 +436,8 @@ Migration should be delayed until the new-user path is stable.
 During the transition:
 
 - existing projects and raw datasets can remain under `/data`;
-- new data can land under `/homes/<username>/DetecDiv`;
-- both roots can be indexed and browsed by the hub;
+- new data can land under the selected NAS home (`/homes` or `/homes2`);
+- `/data`, `/homes`, and `/homes2` can be indexed and browsed as distinct roots;
 - UI filters should expose storage root and owner to make mixed state visible.
 
 Migration should be per owner, per project, or per batch:
@@ -396,14 +482,18 @@ runtime handling.
 
 ## Rollout Plan
 
-1. Add provider and user storage account schema.
-2. Add a POSIX mount provider using `/homes` without Synology-specific logic.
-3. Add admin UI/API for mapping hub users to storage homes.
-4. Route new users and new data into `/homes/<username>/DetecDiv`.
-5. Add quota snapshots based on hub-measured usage.
-6. Add Synology DSM adapter for quota and account synchronization.
-7. Add migration preview from `/data` to `/homes`.
-8. Add worker-backed migration execution.
+1. Keep distinct primary (`/homes`) and secondary (`/homes2`) roots and explicit
+   Hub-user-to-DSM-user mappings.
+2. Validate a per-user authenticated worker mount on a test user on each NAS;
+   confirm file ownership, ACL isolation, writes, and DSM quota accounting.
+3. Route all users to `synology-main` by default and Alexander to
+   `synology-secondary`; do not infer this exception from disk paths.
+4. Apply/read DSM per-user quotas only after the storage identity is verified.
+5. Place Hub-managed files in `DetecdivHub/` without managing other home data.
+6. Add quota snapshots based on Hub-measured usage, clearly separate from full
+   DSM home usage.
+7. Add migration preview from `/data` to the selected homes.
+8. Add worker-backed migration execution and restore validation.
 9. Add cleanup workflows for legacy `/data` locations.
 
 This order keeps the deployment usable if DSM API details change or are harder
