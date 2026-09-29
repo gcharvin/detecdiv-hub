@@ -116,7 +116,8 @@ repository because it belongs to the VM host layer, not the hub control plane.
 Hub commit `6afec5b` adds per-job detached Git worktrees and submission-time
 `execution.code_commit` pins. See `docs/matlab_code_versions.md` for activation
 and release publication. It has been pushed to GitHub and GitLab. The API source
-on `webserver-labo` has been staged and image `41881a30a520` built, but the running
+on `webserver-labo` has been staged and image `3ca3a9abcf8c` built (including the
+queued-job routing hardening from `eee5902`), but the running
 API container has not yet been replaced. Its old files are backed up under
 `.deploy-backups/codeversions-6afec5b` in the operational tree.
 
@@ -147,6 +148,10 @@ has been published. Otherwise new MATLAB submissions will be rejected.
 The Windows-only launcher package is staged at
 `C:\ProgramData\DetecDivHub\codeversions-windows-6afec5b.tar`; it has not been
 installed. It includes the existing trusted path-mapping patch.
+The subsequent atomic idle reservation found a new active Windows job and
+refused the operation before changing its admission state. The Windows poller
+and checkout were not modified. The staged API image imports successfully and
+exposes the new release routes; the production container still uses the old API.
 
 Once activated, future DetecDiv code releases are prepared in separate
 worktrees and published by SHA; the shared source checkout need not be pulled
