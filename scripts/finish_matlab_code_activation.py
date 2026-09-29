@@ -14,8 +14,16 @@ def remote(ssh, host, code, *, api=False):
     encoded = base64.b64encode(code.encode()).decode()
     python = "docker exec detecdiv-hub-api python" if api else "python3"
     command = f'{python} -c "import base64; exec(base64.b64decode(\'{encoded}\'))"'
-    result = subprocess.run([ssh, "-o", "BatchMode=yes", host, command],
-                            text=True, capture_output=True, timeout=60)
+    while True:
+        try:
+            result = subprocess.run([ssh, "-o", "BatchMode=yes", "-o", "ConnectTimeout=15", host, command],
+                                    text=True, capture_output=True, timeout=60)
+            if result.returncode != 255:
+                break
+        except subprocess.TimeoutExpired:
+            pass
+        print("SSH unavailable on " + host + "; rollout waits for connectivity", flush=True)
+        time.sleep(10)
     if result.returncode:
         raise RuntimeError(f"Remote rollout command failed on {host} (exit {result.returncode}); inspect host logs.")
     return json.loads(result.stdout)
@@ -43,21 +51,38 @@ with SessionLocal() as s:
     required={{'@'+str(i) for i in range(1,7)}}
     recent=[w for w in workers if w.worker_instance in required and w.last_seen_at and (datetime.now(timezone.utc)-w.last_seen_at).total_seconds()<60]
     meta=dict(t.metadata_json or {{}})
+    reservation=meta.get('matlab_code_rollout_drain') or {{}}
+    owned=reservation.get('fingerprint')=={args.fingerprint!r}
     ready=len(recent)==6 and all(w.code_fingerprint=={args.fingerprint!r} for w in recent)
     if ready:
         meta['matlab_code_isolation_ready']=True
+        meta['matlab_code_shared_cache_ready']=True
+        if owned:
+            previous=reservation['previous']
+            if previous['present']: meta['drain_new_jobs']=previous['value']
+            else: meta.pop('drain_new_jobs',None)
+            meta.pop('matlab_code_rollout_drain',None)
         t.metadata_json=meta
         s.commit()
         result={{'ready':True}}
     else:
         idle=[w.worker_instance for w in recent if w.worker_instance in {old!r} and w.current_job_id is None and w.code_fingerprint!={args.fingerprint!r}]
-        if idle and not meta.get('drain_new_jobs',False):
-            previous={{'present':'drain_new_jobs' in meta,'value':meta.get('drain_new_jobs')}}
+        if idle and (owned or not meta.get('drain_new_jobs',False)):
+            previous=reservation['previous'] if owned else {{'present':'drain_new_jobs' in meta,'value':meta.get('drain_new_jobs')}}
             meta['drain_new_jobs']=True
+            meta['matlab_code_rollout_drain']={{'fingerprint':{args.fingerprint!r},'previous':previous}}
             t.metadata_json=meta
             s.commit()
             result={{'ready':False,'idle':idle,'previous':previous}}
-        else: result={{'ready':False,'idle':[]}}
+        else:
+            if owned:
+                previous=reservation['previous']
+                if previous['present']: meta['drain_new_jobs']=previous['value']
+                else: meta.pop('drain_new_jobs',None)
+                meta.pop('matlab_code_rollout_drain',None)
+                t.metadata_json=meta
+                s.commit()
+            result={{'ready':False,'idle':[]}}
 print(json.dumps(result))
 ''', api=True)
         if reserve["ready"]:
@@ -92,8 +117,10 @@ with SessionLocal() as s:
     t=s.scalars(select(ExecutionTarget).where(ExecutionTarget.target_key=='detecdiv-server').with_for_update()).one()
     meta=dict(t.metadata_json or {{}})
     previous={previous!r}
+    assert (meta.get('matlab_code_rollout_drain') or {{}}).get('fingerprint')=={args.fingerprint!r},'Admission reservation changed'
     if previous['present']: meta['drain_new_jobs']=previous['value']
     else: meta.pop('drain_new_jobs',None)
+    meta.pop('matlab_code_rollout_drain',None)
     t.metadata_json=meta
     s.commit()
 print(json.dumps({{'admission_restored':True}}))

@@ -152,6 +152,36 @@ and published through `PUT /matlab-code/release`. No shared-checkout pull or
 worker restart is needed for a release change. Legacy targets without isolation
 retain the idle-only policy. See `docs/matlab_code_versions.md` for procedures.
 
+### Shared MATLAB release cache (2026-09-29)
+
+Worker changes `b574d69`, `f7126ca` (executor file only), and `a1295ad` are
+installed on both compute hosts. Each SHA now has one protected checkout at
+`DetecDiv-jobs/releases/<SHA>`. Job attempts use persistent directories at
+`DetecDiv-jobs/work/<job-id>/<attempt-id>`, including logs and private temporary
+files. Only the four launcher files were deployed; unrelated storage changes
+that landed in the same Git commit were not part of this rollout.
+
+Windows is active with fingerprint `463c764ab270` and admission restored.
+Repeated preparation returned the same release path successfully. NTFS uses
+a deny-write/delete ACL created through .NET without the SYNCHRONIZE denial
+introduced by icacls; Linux files have mode 444 and directories 555. Linux
+cache reuse took approximately 1.7 seconds including Python startup and Git
+validation. The default release remains `e33264d90f671fed4d27fe5d7c77171d95a5e9c4`.
+
+Five idle Linux pollers now report `7389e458c980`. Old `@3` still owns its
+original running job and was not signalled. The updated one-shot activation
+helper (initial local PID 19028) waits for it, retries interrupted SSH access,
+and records its admission reservation for recovery. Logs are now
+`C:\Users\Gilles\AppData\Local\Temp\detecdiv-shared-release-final.log`
+and the adjacent `.err` file. The old helpers have stopped. Keep the
+administration workstation running until the final readiness message.
+
+Code-cache GC runs during job preparation with a 30-day retention window.
+Published/default versions, queued/active jobs, failed/cancelled resumable jobs,
+recent completed jobs, and locally modified code are retained. Historical
+per-job worktrees are preserved until eligible; job logs are not automatically
+deleted. No scientific job was launched for this deployment.
+
 The Windows worker is an additional queue consumer, not a replacement for the
 Linux storage-visible workers. Keep its Hub checkout at
 `C:\Users\Charvin-Admin\Documents\MATLAB\detecdiv-hub` and its MATLAB
@@ -162,12 +192,13 @@ current deployment default is `/home/charvin-admin/repos/DetecDiv`). These are
 separate repositories with separate purposes; do not copy MATLAB project
 internals into the Hub repository.
 
-When a DetecDiv pipeline change is deployed, synchronize the Windows and Linux
-DetecDiv checkouts to the same approved Git commit. Record and compare
-`git rev-parse HEAD` on both hosts, check for local changes before pulling, and
-do not update either checkout while a job is using it. Restart the affected
-worker only after it is idle so the next job uses the synchronized code. The
-Hub worker code itself follows its own deployment revision and procedure.
+For a processing release, prepare and verify the same SHA in the release cache
+on both hosts, then publish it through `PUT /matlab-code/release`. Source HEADs
+may differ, and running jobs retain their pinned release. Do not modify/remove
+code directories used by a job. Legacy targets without isolation still require
+idle, clean, fast-forward-only synchronization of their source checkouts.
+The Hub worker code itself follows its own deployment revision and procedure;
+reload polling workers only when idle.
 
 The Windows MATLAB license was reported renewed on 2026-09-28; the unattended
 `matlab.exe -batch "disp(version)"` check succeeded under
