@@ -578,6 +578,47 @@ remote installation and diagnostics but is not needed by the worker itself.
 
 ## Troubleshooting recorded during the first installation
 
+### CellposeSAM Python/Windows training runtime (2026-09-29)
+
+The Windows CellposeSAM training failure was traced to two independent issues
+in the DetecDiv MATLAB/Python handoff. The Windows worker's DetecDiv checkout
+was advanced to commit `e33264d9` for the active training debug; this was a
+Windows-only code update and did not change the Hub worker or Linux MATLAB
+worker.
+
+- The Conda environment itself was not repaired by replacing packages. It
+  retained its existing NumPy/MKL and Intel OpenMP runtime. On Windows, a
+  small NumPy BLAS matrix multiplication must initialize before importing
+  PyTorch; importing PyTorch first and initializing NumPy/MKL later could load
+  conflicting Intel OpenMP DLLs and abort with `OMP Error #15`. The Cellpose
+  training script now performs that NumPy warm-up before importing `h5py` and
+  PyTorch. The preflight in `helpers/select_and_load_conda_env.m` uses the same
+  import order, exercises NumPy/SciPy, imports the runner dependencies, and
+  tests a CUDA convolution forward/backward pass when CUDA is available. Do
+  not use `KMP_DUPLICATE_LIB_OK` as a workaround; it hides the conflict instead
+  of preventing the bad load order.
+- MATLAB's JSON config writer now preserves native Windows paths for the
+  framebank, model output, log, and status files. Do not convert a UNC path
+  such as `\\server\share\...` to slash form: that can turn it into an
+  invalid `/server\share/...` path before Python opens the framebank.
+- The worker's package versions were not changed as part of this fix. A
+  standalone Python import-order check succeeded with NumPy initialized
+  first. The Hub run `train_cellpose_4_20260929_114110` later finished with
+  `run.json` status `done` at 16:30 and wrote `cellpose_4_best.pth` and
+  `cellpose_4_losses.png`; the worker becoming idle afterward was expected.
+  A separate attempt at 16:13 failed before training because Python received a
+  malformed `/10.20.11.250\DATA\...` framebank path.
+- The updated Hub worker panel reports device-wide GPU memory used and GPU
+  utilization separately from the job's scheduler VRAM reservation. A zero
+  reservation is not a zero-usage measurement; use the live GPU telemetry to
+  see memory used by the device and its processes.
+
+The relevant DetecDiv commits are `75f30443` (full runner import preflight),
+`9173e70b` (NumPy-before-PyTorch initialization), `5e8614ed` (OpenMP/CUDA
+runtime checks), and `e33264d9` (preserve UNC paths in the training config).
+Check the Windows job and worker logs before rerunning; do not restart or
+replace the worker environment while a training job is active.
+
 ### PowerShell versus `cmd.exe`
 
 The prompt `C:\Users\...>` was `cmd.exe`, not PowerShell. Commands such as

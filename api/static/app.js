@@ -3216,9 +3216,15 @@ function workerMemoryLabel(value) {
 }
 
 function workerVramLabel(workerHealth) {
-  const reserved = workerMemoryLabel(workerHealth.vram_allocated_mb);
-  const shared = workerMemoryLabel(workerHealth.gpu_shared_capacity_mb);
-  return `${reserved}${workerHealth.gpu_exclusive ? " exclusive" : ""} / ${shared} shared`;
+  const usage = workerHealth.gpu_memory_used_mb == null
+    ? "usage unavailable"
+    : `${workerMemoryLabel(workerHealth.gpu_memory_used_mb)} / ${workerMemoryLabel(workerHealth.gpu_shared_capacity_mb)} used`;
+  const utilization = workerHealth.gpu_utilization_percent != null
+    && Number.isFinite(Number(workerHealth.gpu_utilization_percent))
+    ? ` · ${Number(workerHealth.gpu_utilization_percent)}%` : "";
+  const reserved = `${workerMemoryLabel(workerHealth.vram_allocated_mb)} reserved`
+    + (workerHealth.gpu_exclusive ? " exclusive" : "");
+  return `${usage}${utilization} · ${reserved}`;
 }
 
 function workerCpuAvailabilityLabel(workerHealth) {
@@ -3387,7 +3393,7 @@ function renderExecutionTargetWorkerPanels(target) {
         <td>${workerId}</td>
         <td title="Worker CPU budget (host logical CPUs: ${Number(workerHealth.host_cpu_count || 0)})">${active ? `${workerHealth.cpu_allocated_cores ?? "—"} / ${workerHealth.cpu_limit_cores ?? "—"}` : "—"}</td>
         <td title="Worker RAM limit; swap: ${workerMemoryLabel(workerHealth.swap_allocated_mb)}">${active ? `${workerMemoryLabel(workerHealth.ram_allocated_mb)} / ${workerMemoryLabel(workerHealth.ram_limit_mb)}` : "—"}</td>
-        <td title="Current job VRAM reservation / visible shared GPU capacity; this is a scheduler reservation, not a hardware partition">${active ? workerVramLabel(workerHealth) : "—"}</td>
+        <td title="Device-wide NVIDIA GPU memory use and utilization; reservation is the scheduler allocation for this job, not a hardware partition">${active ? workerVramLabel(workerHealth) : "—"}</td>
         <td>${workerCpuUsageLabel(workerHealth, currentJob, targetJobs)}</td>
         <td>${active ? (workerHealth.health || "unknown") : "inactive (stale)"}</td>
         <td>${currentJobLabel}${currentProjectLink}</td>
