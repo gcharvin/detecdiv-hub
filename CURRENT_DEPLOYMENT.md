@@ -111,6 +111,34 @@ repository because it belongs to the VM host layer, not the hub control plane.
 
 ## Windows MATLAB Worker Deployment Policy
 
+### MATLAB code isolation rollout (2026-09-29, pending activation)
+
+Hub commit `6afec5b` adds per-job detached Git worktrees and submission-time
+`execution.code_commit` pins. See `docs/matlab_code_versions.md` for activation
+and release publication. It has been pushed to GitHub and GitLab. The API source
+on `webserver-labo` has been staged and image `41881a30a520` built, but the running
+API container has not yet been replaced. Its old files are backed up under
+`.deploy-backups/codeversions-6afec5b` in the operational tree.
+
+A separate Linux preparation worktree at commit
+`579e83d75108e96931cb3ec43371ab506f77ac25` was created successfully under
+`/home/charvin-admin/repos/DetecDiv-jobs`; the source checkout remains at
+`36bfde6c9bcbc413ceead6cf723f5f6aa10d3b27`. Active jobs `5eebb08a...` and
+`a4bdf595...` were left untouched. Staged Hub source for the new helper is under
+`/tmp/detecdiv-hub-codeversions-6afec5b` on both Linux hosts.
+
+Windows activation is being coordinated with the active Cellpose training debug
+task. At preflight its Hub checkout was at `b73bd841`, with only the known trusted
+path-mapping patch (`d7eaa6b`) uncommitted in `worker/pipeline_run_executor.py`.
+Preserve that patch when installing the launcher. Do not activate the new API
+until at least one compute target has reloaded the new launcher and has
+`metadata_json.matlab_code_isolation_ready=true`, and the initial release SHA
+has been published. Otherwise new MATLAB submissions will be rejected.
+
+Once activated, future DetecDiv code releases are prepared in separate
+worktrees and published by SHA; the shared source checkout need not be pulled
+while jobs are running. Until then, the existing checkout policy below applies.
+
 The Windows worker is an additional queue consumer, not a replacement for the
 Linux storage-visible workers. Keep its Hub checkout at
 `C:\Users\Charvin-Admin\Documents\MATLAB\detecdiv-hub` and its MATLAB
