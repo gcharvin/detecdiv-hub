@@ -318,7 +318,12 @@ de passe. La machine résout le SID du compte domaine, découvre le DC/KDC
 `srv-data-com01.gmgm.lab` (`10.20.1.150`), a un canal sécurisé sain et synchronise
 son horloge sur ce serveur. Le module PowerShell `ActiveDirectory` n'est pas
 installé, donc les attributs de compte et les appartenances AD n'ont pas été
-inspectés. Aucun réglage machine n'a été modifié pendant ce diagnostic.
+inspectés. La commande read-only `net user Charvin-Admin /domain`, exécutée
+depuis le compte local administrateur, retourne aussi `System error 5 — Access
+denied`. Un agent futur doit obtenir ces attributs via une identité autorisée
+dans le domaine (ou le module AD avec des droits de lecture) avant de modifier
+des paramètres de compte ou des appartenances de groupes. Aucun réglage machine
+n'a été modifié pendant ce diagnostic.
 
 Pour le reset post-authentification, lancer ces vérifications **read-only**
 dans PowerShell administrateur sur `10.20.11.56`. Le dernier essai du poste

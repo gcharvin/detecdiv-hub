@@ -168,9 +168,11 @@ Follow-up inspection over the working local-admin SSH account confirmed that
 controller discovery and clock synchronization to
 `srv-data-com01.gmgm.lab` (`10.20.1.150`) succeed. The ActiveDirectory
 PowerShell module is not installed, so `Charvin-Admin` account flags and AD
-group memberships remain unverified. `DEBUG3`/`LOCAL0` logging is still active
-in `sshd_config`; no remote configuration or service changes were made during
-this inspection.
+group memberships remain unverified. A read-only
+`net user Charvin-Admin /domain` query from the local-admin SSH account returned system error 5
+(Access denied), so a domain-authorized identity is needed for that inspection.
+`DEBUG3`/`LOCAL0` logging is still active in `sshd_config`; no remote
+configuration or service changes were made during this inspection.
 
 ## Data State
 
