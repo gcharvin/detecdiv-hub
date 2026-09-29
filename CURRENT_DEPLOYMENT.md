@@ -128,15 +128,26 @@ do not update either checkout while a job is using it. Restart the affected
 worker only after it is idle so the next job uses the synchronized code. The
 Hub worker code itself follows its own deployment revision and procedure.
 
-The Windows MATLAB license was reported renewed on 2026-09-28. Before making
-MATLAB job kinds eligible there, confirm that the unattended command
-`matlab.exe -batch "disp(version)"` succeeds under `GMGM\Charvin-Admin`. Then
-allow `pipeline_run` and `legacy_matlab` through the Windows worker's queue
-settings. Keep raw-data ingestion on the Linux storage-visible worker. The
-Windows archive destination is reported mounted at `Y:\archive`; resolve its
-actual UNC path and verify task-session read/write access before enabling
-archive jobs, since archive jobs can remove source data after a successful
-copy. Keep restore excluded pending a separate restore test.
+The Windows MATLAB license was reported renewed on 2026-09-28; the unattended
+`matlab.exe -batch "disp(version)"` check succeeded under
+`GMGM\Charvin-Admin`. The Windows worker `.env` was updated on 2026-09-29 to
+claim unassigned jobs of all kinds, including `pipeline_run`, `legacy_matlab`,
+and `archive_raw_dataset`; `restore_raw_dataset` remains excluded. Its readiness
+check reports three path mappings: `/data`, legacy `X:\`, and `/archive`.
+Raw-data ingestion remains on the Linux storage-visible worker.
+
+The Windows archive share is `\\10.20.11.251\archive`, mounted as `Y:` at its
+share root (`Y:\`). Read and write/delete probes succeeded in the RDP
+interactive session through both `Y:\` and the UNC path. SSH and RDP have
+different Windows logon IDs; the SSH key session had no `Y:` mapping and could
+not use that SMB connection. The worker task runs in the signed-in interactive
+session. The `.env` update does not alter a worker that is already running.
+At the 2026-09-29 check, one Abhilasha `pipeline_run` was active on Windows with
+a fresh heartbeat, so the worker was left running until the job finishes; no
+archive jobs were queued at that snapshot. Check the queue and active jobs
+before restarting. Once enabled, an unassigned archive job with
+`mark_archived=true` can delete its source after a successful copy. Keep restore
+excluded until a separate restore test.
 
 ## Data State
 

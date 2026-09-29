@@ -11,19 +11,23 @@ worker process. Le worker Python natif Windows interroge la même base PostgreSQ
 que les workers Linux ; il lance le MATLAB local avec `-batch`, et les pipelines
 peuvent appeler un environnement Python installé/configuré sur le PC.
 
-La politique voulue autorise les jobs non attribués, y compris
-`pipeline_run` et `legacy_matlab` après validation de la licence MATLAB
-renouvelée. `restore_raw_dataset` reste exclu. L'archivage reste exclu jusqu'à
-validation du chemin UNC derrière `Y:\archive`, des droits d'écriture du compte
-worker et d'un essai de copie sans suppression de la source. Les schedulers
-périodiques restent désactivés. Seuls
+La configuration Windows a été mise à jour le 2026-09-29 pour autoriser tous
+les types de jobs non attribués, dont `pipeline_run`, `legacy_matlab` et
+`archive_raw_dataset`; `restore_raw_dataset` reste exclu. La licence MATLAB a
+été vérifiée avec `matlab.exe -batch "disp(version)"`. Le partage d'archives
+est `\\10.20.11.251\archive`, monté à la racine de `Y:\`; les lectures et
+écritures temporaires ont réussi dans la session RDP. L'archive est donc
+configurée, mais le worker déjà lancé n'a pas encore rechargé son `.env` : le
+redémarrer seulement après la fin du job actif et après contrôle de la file.
+Les schedulers périodiques restent désactivés. Seuls
 les jobs avec `execution_target_id=NULL` sont partagés : un job déjà attribué à
 `detecdiv-server` n'est pas déplacé. Parmi les workers éligibles, le premier à
 réserver le job le prend ; ce n'est pas un équilibrage de charge entre machines.
 
-Ne pas autoriser sur Windows l'archivage/restauration ou l'ingestion brute tant
-que les chemins, les permissions SMB et les effets sur les données n'ont pas
-été testés sur cette machine. L'archivage peut supprimer les sources chaudes.
+`restore_raw_dataset` reste désactivé jusqu'à un test distinct. L'ingestion
+brute reste sur le worker Linux visible depuis le stockage. L'archivage peut
+supprimer les sources chaudes après copie réussie lorsque
+`mark_archived=true`; vérifier les jobs en attente avant le redémarrage.
 
 Le serveur SSH entrant sert uniquement à administrer le PC. Le worker n'en a
 pas besoin pour traiter les jobs. **C'est le PC Windows qui doit joindre
@@ -184,7 +188,7 @@ Sur le PC Windows, dans **PowerShell administrateur** après l'essai client :
 $sshd = Join-Path $env:WINDIR 'System32\OpenSSH\sshd.exe'
 Get-Service sshd
 & $sshd -t
-& $sshd -T -C 'user=GMGM\Charvin-Admin,host=CG-PCDELL01-306,addr=192.168.190.2' |
+& $sshd -T -C 'user=GMGM\Charvin-Admin,host=CG-PCDELL01-306,addr=10.20.11.59' |
     Select-String '^(authorizedkeysfile|pubkeyauthentication|passwordauthentication|loglevel)\s'
 $userKey = Join-Path $env:USERPROFILE '.ssh\authorized_keys'
 $adminKey = Join-Path $env:ProgramData 'ssh\administrators_authorized_keys'
@@ -216,15 +220,21 @@ changé. Interprétation des erreurs vues pendant la mise en place :
   séparément à sélectionner la bonne clé utilisateur après cette négociation.
 - `Connection reset` : ce message seul ne prouve pas un échec de clé. Les
   événements `Accepted publickey for GMGM\Charvin-Admin` ont été enregistrés
-  alors que le client voyait encore une coupure ; la confirmation la plus
-  récente côté serveur date du 2026-09-26 à 09:04 depuis `192.168.190.2`. Le
-  nouvel essai client du 2026-09-28 avec la clé dédiée et `IdentitiesOnly=yes`
-  affiche `Authenticated ... using "publickey"`, puis reçoit un reset avant
-  l'ouverture du canal de session. Le fingerprint client est
-  `SHA256:J1A0r8jwW5LVY3clMjP3beXWJ+JjUPeg5Dxa9Ux4PLk`. La clé est donc acceptée
-  actuellement ; ne la régénérer ni ne modifier `authorized_keys` pour corriger
-  ce symptôme. Diagnostiquer ensuite le shell/session, le service et le
-  transport côté Windows.
+  alors que le client voyait encore une coupure. Le 2026-09-29, le client a
+  forcé Windows OpenSSH et l'alias `detecdiv-windows`; `ssh -G` a confirmé
+  `10.20.11.56`, `GMGM\Charvin-Admin`, la clé dédiée
+  `C:/Users/Gilles/.ssh/id_ed25519_detecdiv_windows`, `IdentitiesOnly yes` et
+  `PreferredAuthentications publickey`. Le fingerprint de la clé proposée et
+  acceptée était `SHA256:J1A0r8jwW5LVY3clMjP3beXWJ+JjUPeg5Dxa9Ux4PLk`, identique
+  à celui du fichier public et aux événements `Accepted publickey` du serveur.
+  Le client a ensuite ouvert une demande de canal de session, puis reçu
+  `WSAECONNRESET` / `Connection reset`; une tentative SFTP a également été
+  réinitialisée après authentification. Le SSH ne se bloque donc pas à la
+  vérification de la clé : le service Windows ferme la connexion après la
+  demande du canal, avant le démarrage de la commande ou du sous-système SFTP.
+  Ne pas régénérer la clé, toucher aux ACL de
+  `authorized_keys` ou modifier les algorithmes avant d'avoir lu les journaux
+  côté serveur.
 - `Get-Service`, `Get-WinEvent`, `Select-Object` ou `&` non reconnu/inattendu :
   les commandes PowerShell ont été collées dans `cmd.exe`. Taper `powershell`
   pour ouvrir PowerShell, puis lancer les commandes sans les marqueurs `PS>`.
@@ -234,31 +244,43 @@ changé. Interprétation des erreurs vues pendant la mise en place :
   donne le chemin effectif à suivre.
 
 Un niveau `LogLevel DEBUG3` a été ajouté temporairement sur ce PC pour le
-diagnostic avec `SyslogFacility LOCAL0`. Vérifier le `sshd_config` après
-l'incident et retirer ces réglages temporaires s'ils sont encore présents,
-sans supprimer le bloc `Match User` qui sélectionne le fichier de clé. Une
-copie `.before-debug` avait été faite après la modification du chemin de clé ;
-inspecter son contenu avant toute restauration. Exécuter `sshd -t`, puis
-redémarrer `sshd` après une modification.
+diagnostic avec `SyslogFacility LOCAL0`. Vérifier le `sshd_config` et retirer
+ces réglages après l'incident s'ils sont encore présents, sans supprimer le
+bloc `Match User` qui sélectionne le fichier de clé. Une copie `.before-debug`
+avait été faite après la modification du chemin de clé ; inspecter son contenu
+avant toute restauration. Exécuter `sshd -t`, puis redémarrer `sshd` après une
+modification.
 
-Pour le reset post-authentification, lancer d'abord ces vérifications
-**read-only** dans PowerShell administrateur sur `10.20.11.56`, après un nouvel
-essai `ssh detecdiv-windows` :
+Pour le reset post-authentification, lancer ces vérifications **read-only**
+dans PowerShell administrateur sur `10.20.11.56`. Le dernier essai du poste
+client utilisant l'alias `detecdiv-windows` a eu lieu le 2026-09-29 juste avant
+le relevé : la clé a été acceptée, le client a demandé un canal de session, puis
+la connexion a été réinitialisée. Pour obtenir des événements qui correspondent
+sans ambiguïté à un nouvel essai, relancer d'abord le test SSH depuis le client
+et exécuter immédiatement ce bloc sur Windows :
 
 ```powershell
+$since = (Get-Date).AddMinutes(-10)
 Get-CimInstance Win32_Service -Filter "Name='sshd'" | Select-Object Name, State, StartMode, PathName
 $sshd = Join-Path $env:WINDIR 'System32\OpenSSH\sshd.exe'
 & $sshd -t
-& $sshd -T -C 'user=GMGM\Charvin-Admin,host=CG-PCDELL01-306,addr=192.168.190.2' | findstr /I "authorizedkeysfile pubkeyauthentication passwordauthentication loglevel forcecommand chrootdirectory"
-Get-WinEvent -LogName 'OpenSSH/Operational' -MaxEvents 20 | Select-Object TimeCreated, Id, Message | Format-List
+& $sshd -T -C 'user=GMGM\Charvin-Admin,host=CG-PCDELL01-306,addr=10.20.11.59' |
+    Select-String '^(authorizedkeysfile|pubkeyauthentication|passwordauthentication|loglevel|syslogfacility|forcecommand|chrootdirectory|permittty|maxsessions)\s'
+Get-ItemProperty 'HKLM:\SOFTWARE\OpenSSH' -ErrorAction SilentlyContinue |
+    Select-Object DefaultShell, DefaultShellCommandOption
+Get-WinEvent -FilterHashtable @{ LogName = 'OpenSSH/Operational'; StartTime = $since } -ErrorAction SilentlyContinue |
+    Select-Object -First 30 TimeCreated, Id, Message | Format-List
 ```
 
 Confirmer que `sshd` est `Running` et `StartMode` vaut `Auto`. Dans le journal,
 chercher l'événement correspondant exactement à l'essai, notamment les lignes
-après `Accepted publickey`. Renvoyer ces sorties sans le contenu des fichiers de
-clé. Ne pas restaurer `.before-debug`, toucher aux ACL, ni redémarrer le service
-avant d'avoir lu le résultat : l'authentification par clé fonctionne déjà et
-une modification aveugle peut interrompre l'accès distant.
+après `Accepted publickey`. Si l'adresse source affichée dans le journal n'est
+pas `10.20.11.59`, remplacer cette valeur dans `sshd -T -C` par l'adresse
+observée. Renvoyer ces sorties sans le contenu des fichiers de clé. Le service
+accepte la clé ; il faut maintenant identifier pourquoi il réinitialise la
+session. Ne pas restaurer `.before-debug`, toucher aux ACL, ni redémarrer le
+service avant d'avoir lu le résultat : une modification aveugle peut
+interrompre l'accès distant.
 
 ## Suite une fois SSH disponible
 

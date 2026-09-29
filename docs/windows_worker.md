@@ -67,13 +67,23 @@ tunnel task is separate and starts at system boot.
 The server's `/data` mount comes from `//10.20.11.250/DATA`.
 
 The live raw archive root is `/archive`, mounted on `detecdiv-server` from
-`//10.20.11.251/archive`. The Windows archive server is now reported mounted at
-`Y:\archive`, but the drive's underlying UNC path and access from the scheduled
-worker session still need verification. The configured archive policy can
-delete hot sources after writing the archive. Do not enable archive jobs on
-Windows until the UNC mapping, worker-session read/write access, and a copy-only
-archive test verify destination write, archive integrity, and path translation.
-Keep restore excluded pending a separate restore test.
+`//10.20.11.251/archive`. On Windows, `Y:` maps to the share root
+`\\10.20.11.251\archive` (so the share root is `Y:\`, not `Y:\archive`).
+On 2026-09-29, reading and a temporary-file write/delete succeeded in the RDP
+interactive session both through `Y:\` and through the UNC path. The Windows
+queue configuration was updated to allow archives and keep restores excluded;
+the readiness check reports three mappings and only `restore_raw_dataset` as
+excluded. The running worker has not yet reloaded that `.env`; restart it only
+after its active job finishes. Archive jobs with `mark_archived=true` can delete
+the source after successful archiving, so review pending jobs before enabling
+the worker process with the new settings.
+
+The interactive RDP and SSH sessions have different Windows logon IDs. In the
+SSH session, `Y:` was absent and access to the UNC path failed even though
+`Get-SmbConnection` listed the archive share. The same account name does not
+mean the sessions share drive mappings or SMB credentials. The worker task is
+registered with an interactive logon; validate SMB access from that signed-in
+session. Keep restore excluded pending a separate restore test.
 The worker's current path mapping is applied to pipeline execution; other
 filesystem job handlers still need per-kind validation for Windows paths and
 write access before being trusted with server-root operations.
@@ -335,32 +345,42 @@ be mounted in the worker's own logon session.
 ## Enable raw-dataset archiving on Windows
 
 The archive storage root used by the Linux workers is `/archive`, backed by
-the SMB share `\\10.20.11.251\archive`. On Windows, the mount is reported at
-`Y:\archive`; first identify its underlying UNC path and verify access from the
-worker account. The Windows lifecycle handler maps canonical `/data/...` and
+the SMB share `\\10.20.11.251\archive`. On Windows, `Y:` maps directly to that
+share root; `Y:\` corresponds to `\\10.20.11.251\archive`. The Windows
+lifecycle handler maps canonical `/data/...` and
 `/archive/...` paths to this PC's configured UNC paths for file operations,
 while it continues to store canonical `/data` and `/archive` paths in the hub
 database. The SMB login must have read access to source data and write/delete
 access in the archive share.
 
-Run these commands in **PowerShell as the same `GMGM\Charvin-Admin` account
-that runs the worker**. The existing `Y:` mapping is used for access checks;
-the worker configuration uses its underlying UNC path directly so it does not
-depend on a drive letter.
+Run these commands in **PowerShell in the interactive `GMGM\Charvin-Admin`
+session used by the worker task**. A drive mapping or SMB authentication from
+another logon session (including SSH) is not proof of access in this session.
+The confirmed `Y:` mapping points to the archive share root.
 
 ```powershell
 Get-SmbMapping -LocalPath 'Y:' | Select-Object LocalPath, RemotePath, Status
-Get-ChildItem -LiteralPath 'Y:\archive' -ErrorAction Stop | Select-Object -First 1
-$probe = Join-Path 'Y:\archive' ('.detecdiv-write-test-' + [guid]::NewGuid().ToString('N') + '.tmp')
-New-Item -ItemType File -Path $probe -ErrorAction Stop | Out-Null
-Remove-Item -LiteralPath $probe -Force -ErrorAction Stop
+$root = '\\10.20.11.251\archive'
+Get-ChildItem -LiteralPath 'Y:\' -ErrorAction Stop | Select-Object -First 1
+Get-ChildItem -LiteralPath $root -ErrorAction Stop | Select-Object -First 1
+$probe = Join-Path $root ('.detecdiv-write-test-' + [guid]::NewGuid().ToString('N') + '.tmp')
+try {
+    New-Item -ItemType File -Path $probe -ErrorAction Stop | Out-Null
+    'UNC write OK'
+}
+finally {
+    if (Test-Path -LiteralPath $probe) {
+        Remove-Item -LiteralPath $probe -Force -ErrorAction Stop
+    }
+}
 ```
 
-Use the exact UNC corresponding to `Y:\archive` as `-ArchiveSharePath`; do not
-assume that it is `\\10.20.11.251\archive` until `Get-SmbMapping` confirms it.
-The directory read and temporary-file create/delete must both succeed from the
-worker's account. Drive mappings are per logon session, so also confirm the
-scheduled worker task can access the share before relying on it.
+The `-ArchiveSharePath` argument is the share root, not a nested `archive`
+folder. Drive letters are scoped to a logon session, and SSH key authentication
+does not transfer the RDP session's SMB credentials. In this pilot, SSH could
+not access the UNC path, while the RDP session could write through both `Y:` and
+UNC. Do not use the SSH result to infer archive access for an interactive
+worker task.
 
 After confirming the queued archive jobs and their `mark_archived` settings,
 configure the worker with the UNC path. The helper verifies read access and
@@ -376,7 +396,7 @@ to canonical `/archive`:
     -EnvFile .env `
     -MatlabLicenseReady `
     -MatlabRepoRoot 'C:\Users\Charvin-Admin\Documents\GitHub\DetecDiv' `
-    -ArchiveSharePath '<UNC path corresponding to Y:\archive>' `
+    -ArchiveSharePath '\\10.20.11.251\archive' `
     -EnableArchiveJobs
 .\scripts\run_worker.ps1 -EnvFile .env -Check
 ```
@@ -387,6 +407,21 @@ archive jobs in the queue are eligible immediately. An archive job with
 `mark_archived=true` removes the source data after a successful archive, so
 review the queued jobs before restarting. `restore_raw_dataset` stays excluded;
 enable it only after separately validating restore paths and permissions.
+
+`DETECDIV_HUB_WORKER_PATH_MAPPINGS` must remain a flat JSON array of mapping
+objects. Expected first-PC entries are `/data` and `X:\` to the data share and
+`/archive` to the archive share, for three mappings total. A prior Windows
+PowerShell run nested the two existing mappings inside a sub-array when adding
+`/archive`; `run_worker.ps1 -Check` then failed because a mapping item was an
+array rather than an object. This was fixed in commit `b73bd84`; pull that
+revision before rerunning the helper on an environment with the nested value.
+
+Before a worker restart, check both active and queued jobs on the Windows
+execution target. The worker claims any unassigned job kind not listed in its
+exclusions, not only archive jobs. On 2026-09-29, no jobs were queued, but an
+Abhilasha `pipeline_run` was active on the Windows target with a fresh heartbeat;
+the worker was left running until that pipeline completed. The `.env` update
+does not change the settings already loaded by a running process.
 
 ## Database tunnel on the first PC
 
@@ -553,8 +588,14 @@ the username (`Invalid user GMGM`). Do not infer key failure from
 the Windows `OpenSSH/Operational` event log. The log recorded
 `Accepted publickey for GMGM\Charvin-Admin` during sessions that still reset;
 once the client reports `Authenticated ... using "publickey"`, the key worked
-and investigation should move to session/shell or transport behavior. Full commands are in
-[windows_worker_ssh_strategy.md](windows_worker_ssh_strategy.md).
+and investigation should move to session/shell or transport behavior. On
+2026-09-29, Windows OpenSSH selected the configured dedicated key and the
+server accepted its matching fingerprint. Both a command session and SFTP
+then reset after the client requested a session channel, before the command or
+subsystem started. Do not regenerate the key or change
+`authorized_keys` for this symptom. Collect the server's OpenSSH events from
+the exact attempt and inspect its effective session/shell settings. Full
+commands are in [windows_worker_ssh_strategy.md](windows_worker_ssh_strategy.md).
 
 Windows OpenSSH normally uses the single file
 `C:\ProgramData\ssh\administrators_authorized_keys` for administrators. Do not
@@ -586,6 +627,16 @@ the worker's actual sign-in/task. A JSON path mapping rewrites job paths; it doe
 not mount a drive or supply SMB credentials. Keep both `/data` and legacy
 `X:\` mappings pointed to the corresponding UNC share.
 
+The archive share is `\\10.20.11.251\archive`, mounted as `Y:` at its root.
+On 2026-09-29, reading and temporary-file create/delete succeeded in RDP through
+both `Y:\` and the UNC path. In SSH, `whoami /logonid` returned a different
+logon ID, `Y:` was absent, and UNC access failed. `Get-SmbConnection` listing
+the archive server did not make the share usable in that SSH session. Drive
+mappings and SMB credentials are session-specific; a public-key SSH logon does
+not delegate the interactive RDP credentials. The worker task runs as the
+signed-in user, so validate SMB access in that interactive context, not only
+from SSH.
+
 ### `.env`, readiness, queue, and scheduled task
 
 - Use `scripts/configure_windows_worker_env.ps1` to create a new `.env`. It
@@ -599,6 +650,13 @@ not mount a drive or supply SMB credentials. Keep both `/data` and legacy
   URL. The first version of this helper used `$matches`, a reserved automatic
   PowerShell variable, and failed before writing the file. This was fixed in
   commit `c546012`. After pulling that commit, the helper completed successfully.
+- To enable archive jobs, pass both `-ArchiveSharePath` and
+  `-EnableArchiveJobs`. The first run on 2026-09-29 nested the existing mappings
+  in the generated JSON, so `run_worker.ps1 -Check` failed with
+  `Each worker path mapping must have source and target strings`. Commit
+  `b73bd84` flattens the mappings; after pulling it, rerunning the helper repaired
+  `.env`. The successful check reported 3 mappings, all job kinds allowed,
+  `restore_raw_dataset` excluded, and unassigned-job claiming enabled.
 - Run the readiness check with the complete parameter spelling:
   `.\scripts\run_worker.ps1 -EnvFile .env -Check`. The truncated `-EnvFil`
   command failed with “Argument manquant”; it did not test readiness.
@@ -613,7 +671,9 @@ not mount a drive or supply SMB credentials. Keep both `/data` and legacy
   was later reported renewed. Verify `matlab.exe -batch "disp(version)"`, then
   update `.env` using `-MatlabLicenseReady` and restart the worker while idle.
 
-At the last queue inspection, all unassigned jobs were archives. With the
-default exclusions in place, it is therefore expected for the Windows worker to
-remain idle. If archive jobs are enabled, review pending jobs before restarting
-because eligible jobs can be claimed immediately.
+At the 2026-09-29 queue inspection, there were no queued jobs. One
+`pipeline_run` requested by Abhilasha was running on the Windows target with a
+fresh heartbeat, so the worker was not restarted. Inspect active and queued
+jobs before a future restart: the worker can claim any unassigned kind allowed
+by its settings, and archive jobs with `mark_archived=true` can delete their
+source after a successful archive.
