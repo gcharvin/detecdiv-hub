@@ -23,10 +23,11 @@ deploying pipeline changes. Do not confuse this repository with the separate
 `detecdiv-hub` worker checkout.
 
 The Windows OpenSSH operational log recorded `Accepted publickey` for
-`GMGM\Charvin-Admin` from `192.168.190.2` at 2026-09-26 09:04, even though some
-client sessions reset immediately after authentication. Treat that event as
-proof that key authentication succeeded; a later reset is a shell/session
-or transport issue after authentication. See the SSH troubleshooting section in
+`GMGM\Charvin-Admin` from `192.168.190.2` at 2026-09-26 09:04. A later DEBUG3
+trace (2026-09-29) confirmed the key succeeds but SSH session startup fails
+when `LsaLogonUser()` cannot create the domain account's S4U token
+(`0xC00000BB`). This is not a key or `authorized_keys` failure. See the SSH
+troubleshooting section in
 [windows_worker_ssh_strategy.md](windows_worker_ssh_strategy.md).
 
 The `windows-10-20-11-56` execution target (`a8eedb3f-85fc-47a8-b327-2aa766550f51`)
@@ -588,14 +589,17 @@ the username (`Invalid user GMGM`). Do not infer key failure from
 the Windows `OpenSSH/Operational` event log. The log recorded
 `Accepted publickey for GMGM\Charvin-Admin` during sessions that still reset;
 once the client reports `Authenticated ... using "publickey"`, the key worked
-and investigation should move to session/shell or transport behavior. On
-2026-09-29, Windows OpenSSH selected the configured dedicated key and the
-server accepted its matching fingerprint. Both a command session and SFTP
-then reset after the client requested a session channel, before the command or
-subsystem started. Do not regenerate the key or change
-`authorized_keys` for this symptom. Collect the server's OpenSSH events from
-the exact attempt and inspect its effective session/shell settings. Full
-commands are in [windows_worker_ssh_strategy.md](windows_worker_ssh_strategy.md).
+and investigation should move past key authentication. On 2026-09-29, the
+server's DEBUG3 log showed the actual failure after key acceptance:
+`LsaLogonUser()` could not create the domain user's S4U token (`0xC00000BB`),
+then `sshd` reported `fatal: fork of unprivileged child failed`. This happens
+before the command shell or SFTP subsystem starts. Do not regenerate the key
+or change `authorized_keys`; check domain S4U prerequisites and the machine's
+secure channel. The machine reports build `26200.9457`, identified by Microsoft
+as the cumulative Windows 11 25H2 update KB5129195. Win32-OpenSSH has an open
+report with the same S4U error after KB5074109, which is a strong match but not
+proof of the root cause or a confirmed fix. Full diagnostics and cautious next
+steps are in [windows_worker_ssh_strategy.md](windows_worker_ssh_strategy.md).
 
 Windows OpenSSH normally uses the single file
 `C:\ProgramData\ssh\administrators_authorized_keys` for administrators. Do not

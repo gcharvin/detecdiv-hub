@@ -229,12 +229,44 @@ changé. Interprétation des erreurs vues pendant la mise en place :
   à celui du fichier public et aux événements `Accepted publickey` du serveur.
   Le client a ensuite ouvert une demande de canal de session, puis reçu
   `WSAECONNRESET` / `Connection reset`; une tentative SFTP a également été
-  réinitialisée après authentification. Le SSH ne se bloque donc pas à la
-  vérification de la clé : le service Windows ferme la connexion après la
-  demande du canal, avant le démarrage de la commande ou du sous-système SFTP.
-  Ne pas régénérer la clé, toucher aux ACL de
-  `authorized_keys` ou modifier les algorithmes avant d'avoir lu les journaux
-  côté serveur.
+  réinitialisée après authentification. Le journal DEBUG3 du serveur a ensuite
+  établi la cause immédiate : après `Accepted publickey`, `sshd` reconnaît le
+  principal `gmgm\\charvin-admin`, mais `LsaLogonUser()` échoue pendant la
+  création du jeton S4U avec `Status: 0xC00000BB`; puis `get_user_token` échoue
+  et `sshd` termine par `fatal: fork of unprivileged child failed`. La clé et
+  son ACL fonctionnent. L'échec est dans la création du jeton de session du
+  compte de domaine, avant le shell/SFTP ; ne pas régénérer la clé ni modifier
+  `authorized_keys` pour le corriger.
+
+  Le PC rapporte `CurrentBuild=26200` et `UBR=9457`. Microsoft identifie cette
+  compilation comme Windows 11 25H2, mise à jour cumulative KB5129195 du
+  2026-09-14, même si la valeur `ProductName` du registre affiche « Windows 10
+  Pro ». Le fait que `Get-HotFix -Id KB5074109` ne retourne rien ne démontre
+  pas que cette mise à jour antérieure est absente : KB5129195 est cumulative.
+  Un ticket encore ouvert de Win32-OpenSSH décrit le même `LsaLogonUser()` /
+  `0xC00000BB` après KB5074109. C'est une correspondance forte avec le pilote,
+  pas une preuve que la mise à jour est l'unique cause ni qu'un correctif est
+  disponible. Ne pas désinstaller de mise à jour ni remplacer OpenSSH à
+  l'aveugle.
+
+  S4U dépend aussi de la relation de confiance avec le domaine et de la lecture
+  des appartenances aux groupes du compte cible. Les prérequis Windows
+  documentés indiquent notamment que le demandeur doit être un compte de
+  domaine (LOCAL_SYSTEM convient si la machine est membre du domaine) et doit
+  pouvoir lire les groupes de l'utilisateur. Avant toute modification AD,
+  vérifier en lecture seule l'appartenance au domaine et son canal sécurisé :
+
+  ```powershell
+  Get-CimInstance Win32_ComputerSystem | Select-Object PartOfDomain, Domain
+  Test-ComputerSecureChannel -Verbose
+  Get-LocalUser -Name 'detecdiv-ops' -ErrorAction SilentlyContinue | Select-Object Name, Enabled
+  ```
+
+  `Test-ComputerSecureChannel` ne répare rien sans `-Repair`; ne pas ajouter
+  de groupe ou réparer le canal sans diagnostic/autorisation de l'administrateur
+  du domaine. Le compte local `detecdiv-ops`, s'il existe et si son accès SSH
+  peut être testé séparément, permettrait de distinguer un problème S4U propre
+  au compte domaine d'un problème général de session OpenSSH.
 - `Get-Service`, `Get-WinEvent`, `Select-Object` ou `&` non reconnu/inattendu :
   les commandes PowerShell ont été collées dans `cmd.exe`. Taper `powershell`
   pour ouvrir PowerShell, puis lancer les commandes sans les marqueurs `PS>`.
@@ -244,7 +276,8 @@ changé. Interprétation des erreurs vues pendant la mise en place :
   donne le chemin effectif à suivre.
 
 Un niveau `LogLevel DEBUG3` a été ajouté temporairement sur ce PC pour le
-diagnostic avec `SyslogFacility LOCAL0`. Vérifier le `sshd_config` et retirer
+diagnostic avec `SyslogFacility LOCAL0`; il a révélé l'échec S4U ci-dessus.
+Vérifier le `sshd_config` et retirer
 ces réglages après l'incident s'ils sont encore présents, sans supprimer le
 bloc `Match User` qui sélectionne le fichier de clé. Une copie `.before-debug`
 avait été faite après la modification du chemin de clé ; inspecter son contenu
@@ -263,7 +296,8 @@ et exécuter immédiatement ce bloc sur Windows :
 $since = (Get-Date).AddMinutes(-10)
 Get-CimInstance Win32_Service -Filter "Name='sshd'" | Select-Object Name, State, StartMode, PathName
 $sshd = Join-Path $env:WINDIR 'System32\OpenSSH\sshd.exe'
-& $sshd -t
+$config = Join-Path $env:ProgramData 'ssh\sshd_config'
+& $sshd -t -f $config
 & $sshd -T -C 'user=GMGM\Charvin-Admin,host=CG-PCDELL01-306,addr=10.20.11.59' |
     Select-String '^(authorizedkeysfile|pubkeyauthentication|passwordauthentication|loglevel|syslogfacility|forcecommand|chrootdirectory|permittty|maxsessions)\s'
 Get-ItemProperty 'HKLM:\SOFTWARE\OpenSSH' -ErrorAction SilentlyContinue |
@@ -272,15 +306,18 @@ Get-WinEvent -FilterHashtable @{ LogName = 'OpenSSH/Operational'; StartTime = $s
     Select-Object -First 30 TimeCreated, Id, Message | Format-List
 ```
 
-Confirmer que `sshd` est `Running` et `StartMode` vaut `Auto`. Dans le journal,
-chercher l'événement correspondant exactement à l'essai, notamment les lignes
-après `Accepted publickey`. Si l'adresse source affichée dans le journal n'est
-pas `10.20.11.59`, remplacer cette valeur dans `sshd -T -C` par l'adresse
-observée. Renvoyer ces sorties sans le contenu des fichiers de clé. Le service
-accepte la clé ; il faut maintenant identifier pourquoi il réinitialise la
-session. Ne pas restaurer `.before-debug`, toucher aux ACL, ni redémarrer le
-service avant d'avoir lu le résultat : une modification aveugle peut
-interrompre l'accès distant.
+Confirmer que `sshd` est `Running` et `StartMode` vaut `Auto`. Le test `sshd -t`
+doit être lancé dans PowerShell administrateur et avec le fichier de
+configuration explicite ; sans élévation, `sshd -t` avait affiché `no hostkeys
+available`, alors que le test élevé avec `-f` réussissait. Dans le journal,
+chercher les lignes après `Accepted publickey`. Le diagnostic actuel montre
+`LsaLogonUser() failed ... Status: 0xC00000BB` puis l'échec de création du
+jeton S4U ; la prochaine vérification est l'état du canal sécurisé du domaine
+et, si disponible, un essai avec le compte local `detecdiv-ops`. Ne pas
+restaurer `.before-debug`, toucher aux ACL ou redémarrer `sshd` avant de
+préserver le journal détaillé. Références : [ticket Win32-OpenSSH #2422](https://github.com/PowerShell/Win32-OpenSSH/issues/2422),
+[KB5129195 / build 26200.9457](https://support.microsoft.com/en-us/servicing/os/windows-11/2026/09/kb5129195-windows-11-24h2-25h2-security-update),
+[prérequis S4U de LsaLogonUser](https://learn.microsoft.com/en-us/windows/win32/api/ntsecapi/nf-ntsecapi-lsalogonuser).
 
 ## Suite une fois SSH disponible
 
