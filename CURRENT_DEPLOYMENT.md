@@ -163,6 +163,15 @@ AD group-read prerequisites. Do not rotate the SSH key, edit its ACL, or remove
 Windows updates to address this server-side token failure. See
 [`docs/windows_worker_ssh_strategy.md`](docs/windows_worker_ssh_strategy.md).
 
+Follow-up inspection over the working local-admin SSH account confirmed that
+`sshd` runs automatically as `LocalSystem`, using OpenSSH 9.5p2. Domain
+controller discovery and clock synchronization to
+`srv-data-com01.gmgm.lab` (`10.20.1.150`) succeed. The ActiveDirectory
+PowerShell module is not installed, so `Charvin-Admin` account flags and AD
+group memberships remain unverified. `DEBUG3`/`LOCAL0` logging is still active
+in `sshd_config`; no remote configuration or service changes were made during
+this inspection.
+
 ## Data State
 
 The PostgreSQL database from the former local `detecdiv-server` deployment was

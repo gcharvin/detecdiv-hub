@@ -268,13 +268,28 @@ changé. Interprétation des erreurs vues pendant la mise en place :
   avec le même fichier de clé et vers le même serveur, `ssh -l detecdiv-ops`
   a été authentifié par clé et a ouvert un PTY et un shell (`cmd.exe`), avec
   l'invite `detecdiv-ops@CG-PCDELL01-306`. Ce compte local est actif. Cela
-  confirme que le serveur sait créer une session SSH et renforce le diagnostic
-  d'un échec propre au jeton S4U du compte domaine. Les droits locaux de
+  confirme que le serveur sait créer une session SSH. Le journal DEBUG3
+  indique aussi `LsaLogonUser Succeeded (Impersonation: 1)` pour le compte local,
+  alors que le compte domaine échoue sur cette même étape. Cela renforce le
+  diagnostic d'un échec propre au jeton S4U du compte domaine. Les droits locaux de
   `detecdiv-ops` ont été vérifiés avec `whoami /groups` :
   `BUILTIN\Administrateurs` est activé et son niveau d'intégrité est élevé.
   La session SSH de ce compte local a donc un jeton administrateur élevé. Ce
   compte est un accès SSH opérationnel de repli ; depuis sa session `cmd.exe`,
   taper `powershell` pour exécuter des commandes PowerShell.
+
+  Commande validée depuis le poste `Gilles` (l'option `-i` est nécessaire car
+  le nom de la clé n'est pas standard) :
+
+  ```powershell
+  $ssh = "$env:WINDIR\System32\OpenSSH\ssh.exe"
+  $key = Join-Path $env:USERPROFILE '.ssh\id_ed25519_detecdiv_windows'
+  & $ssh -o BatchMode=yes -o IdentitiesOnly=yes -i $key -l detecdiv-ops 10.20.11.56 "whoami && hostname"
+  ```
+
+  Cette commande renvoie `CG-PCDELL01-306\detecdiv-ops` puis
+  `CG-PCDELL01-306`. La forme courte `ssh -l detecdiv-ops 10.20.11.56` échoue
+  car le client n'essaie pas automatiquement cette clé personnalisée.
 - `Get-Service`, `Get-WinEvent`, `Select-Object` ou `&` non reconnu/inattendu :
   les commandes PowerShell ont été collées dans `cmd.exe`. Taper `powershell`
   pour ouvrir PowerShell, puis lancer les commandes sans les marqueurs `PS>`.
@@ -291,6 +306,19 @@ bloc `Match User` qui sélectionne le fichier de clé. Une copie `.before-debug`
 avait été faite après la modification du chemin de clé ; inspecter son contenu
 avant toute restauration. Exécuter `sshd -t`, puis redémarrer `sshd` après une
 modification.
+
+Lors de la vérification distante du 2026-09-29, `DEBUG3`/`LOCAL0` étaient
+encore actifs. `sshd` est `Running`, `Auto`, exécuté par `LocalSystem`, en
+version `OpenSSH_for_Windows_9.5p2`. La configuration effective n'impose ni
+`ForceCommand` ni `ChrootDirectory`, et autorise le PTY pour les deux comptes.
+`GMGM\Charvin-Admin` utilise `.ssh/authorized_keys` et l'authentification par
+mot de passe reste activée ; `detecdiv-ops` utilise
+`__PROGRAMDATA__/ssh/administrators_authorized_keys` et n'autorise pas le mot
+de passe. La machine résout le SID du compte domaine, découvre le DC/KDC
+`srv-data-com01.gmgm.lab` (`10.20.1.150`), a un canal sécurisé sain et synchronise
+son horloge sur ce serveur. Le module PowerShell `ActiveDirectory` n'est pas
+installé, donc les attributs de compte et les appartenances AD n'ont pas été
+inspectés. Aucun réglage machine n'a été modifié pendant ce diagnostic.
 
 Pour le reset post-authentification, lancer ces vérifications **read-only**
 dans PowerShell administrateur sur `10.20.11.56`. Le dernier essai du poste
