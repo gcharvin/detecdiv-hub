@@ -7,7 +7,6 @@ live below an allow-listed shared code root and its name must match its file.
 from __future__ import annotations
 
 import json
-import tempfile
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -43,10 +42,10 @@ def execute_legacy_matlab_job(session: Session, *, job: Job) -> dict:
         raise ValueError(f"legacy_matlab routine does not exist: {routine_path}")
     if not job.project_id:
         raise ValueError("legacy_matlab jobs must be attached to a DetecDiv project.")
-    from worker.matlab_code_checkout import prepare_job_checkout
+    from worker.matlab_code_checkout import prepare_job_checkout, job_workspace, job_environment
     repo_root, code_commit = prepare_job_checkout(session, job, settings)
 
-    with tempfile.TemporaryDirectory(prefix="detecdiv_legacy_matlab_") as tmpdir:
+    with job_workspace(settings, job, session) as tmpdir:
         tmp = Path(tmpdir)
         result_path = tmp / "result.json"
         payload_path = tmp / "job.json"
@@ -64,12 +63,14 @@ def execute_legacy_matlab_job(session: Session, *, job: Job) -> dict:
         entrypoint = "detecdiv_hub_run_legacy_matlab_job(" + matlab_quote(str(payload_path)) + ")"
         if matlab_max_threads is not None:
             entrypoint = f"maxNumCompThreads({matlab_max_threads}); {entrypoint}"
-        entrypoint = "setenv('DETECDIV_ROOT', pwd); detecdiv_setup_path(pwd, 'DetecDivRoot', pwd); " + entrypoint
+        entrypoint = "setenv('DETECDIV_ROOT', pwd); detecdiv_setup_path(pwd, 'DetecDivRoot', pwd); cd(" + matlab_quote(str(tmp)) + "); " + entrypoint
         command = build_matlab_batch_command(
             repo_root, entrypoint, matlab_command=str(settings.matlab_command or "matlab")
         )
         completed = run_matlab_command(
             command,
+            env=job_environment(tmp),
+            cwd=str(tmp),
             heartbeat_callback=lambda: heartbeat(session, job),
             heartbeat_interval_sec=10.0,
             stdout_path=stdout_path,
@@ -85,6 +86,7 @@ def execute_legacy_matlab_job(session: Session, *, job: Job) -> dict:
                 "engine": "matlab",
                 "repo_root": repo_root,
                 "code_commit": code_commit,
+                "work_dir": str(tmp),
                 "routine_path": str(routine_path),
                 "function_name": function_name,
                 "matlab_max_threads": matlab_max_threads,

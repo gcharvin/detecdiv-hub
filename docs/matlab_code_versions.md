@@ -5,8 +5,15 @@ New pipeline and legacy MATLAB jobs carry `execution.code_commit`, a full
 An explicit SHA selects a different version for a debug run. A retry retaining
 the same job payload retains its version; submit a new job to use a new release.
 
-Workers use detached Git worktrees in a sibling `DetecDiv-jobs` directory,
-named `<full-sha>-<job-uuid>`. Each job gets its own directory. The source
+Workers reuse one detached Git worktree per SHA and machine in the sibling
+`DetecDiv-jobs/releases/<full-sha>` directory. Release files are read-only:
+POSIX write permissions are removed on Linux; an inherited NTFS deny-write/delete
+ACL applies on Windows. This protects against accidental module writes, not
+administrators deliberately changing permissions. Each job attempt has its own
+persistent `DetecDiv-jobs/work/<job-uuid>/<attempt-uuid>` directory for payloads,
+logs, results and temporary files. MATLAB's working directory and temporary
+environment point there; `DETECDIV_ROOT` and MATLAB paths point at the release.
+The source
 checkout is never pulled, reset or switched by the job launcher. Missing
 commits are fetched from the configured remote/branch under an OS file lock.
 Git preparation is serialized on each host. An unavailable commit fails the job
@@ -82,12 +89,24 @@ It does not copy database credentials or signal MATLAB processes.
 
 ## Retention and limits
 
-No automatic deletion is enabled. Keep job checkouts for debugging. To retire
-one, first verify the job is terminal and no process or worker still uses it,
-then use `git worktree unlock <directory>` and `git worktree remove <directory>`
-from the source repo. Do not use `--force`: modified files must be preserved.
-Never prune directories belonging to queued, running, cancelling or resumable
-jobs. Preparation directories can be retired once their inspection is complete.
+Automatic code-cache cleanup runs when a MATLAB job is prepared, under the
+target admission and Git preparation locks. It considers only launcher-managed
+worktrees unused for at least 30 days. It preserves the published default,
+versions referenced by queued/running/cancelling jobs, all failed/cancelled jobs
+(conservatively treated as resumable), recent completed jobs, and any modified
+or extra files. An unfinished MATLAB job without a SHA blocks cleanup entirely.
+Historical per-job worktrees are eligible under the same rules; none is moved
+while its job is running. Job work directories and logs remain available.
+
+For an operator preview, with the worker's database configuration available:
+
+```bash
+python -m worker.matlab_code_checkout --repo-root /path/to/DetecDiv --cleanup
+```
+
+Add `--apply` to remove only eligible copies. Permissions are restored solely
+for removal, Git worktree locks are released, and removal never uses `--force`.
+A future job can recreate an expired release from its pinned commit.
 
 This freezes tracked DetecDiv code, not Python environments, external model
 bundles, mutable pipeline definitions, or external legacy routine files.

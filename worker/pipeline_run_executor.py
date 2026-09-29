@@ -62,11 +62,11 @@ def execute_pipeline_run_job(session: Session, *, job: Job) -> dict[str, Any]:
     if not repo_root:
         raise ValueError("DETECDIV_HUB_MATLAB_REPO_ROOT is required for pipeline_run jobs.")
 
-    from worker.matlab_code_checkout import prepare_job_checkout
+    from worker.matlab_code_checkout import prepare_job_checkout, job_workspace, job_environment
     repo_root, code_commit = prepare_job_checkout(session, job, settings)
     matlab_command = str(settings.matlab_command or "matlab").strip() or "matlab"
 
-    with tempfile.TemporaryDirectory(prefix="detecdiv_pipeline_job_") as tmpdir:
+    with job_workspace(settings, job, session) as tmpdir:
         tmp_path = Path(tmpdir)
         payload = normalize_pipeline_run_payload(session, job=job)
         path_mappings = parse_worker_path_mappings(settings.worker_path_mappings)
@@ -129,9 +129,14 @@ def execute_pipeline_run_job(session: Session, *, job: Job) -> dict[str, Any]:
 
         matlab_max_threads = resolve_matlab_max_threads(session, job=job)
         entrypoint = build_pipeline_matlab_entrypoint(payload_path, matlab_max_threads=matlab_max_threads)
+        entrypoint = entrypoint.replace("setenv('DETECDIV_ROOT', pwd); ",
+            "setenv('DETECDIV_ROOT', pwd); detecdiv_setup_path(pwd, 'DetecDivRoot', pwd); "
+            f"cd('{matlab_escape(str(tmp_path))}'); ")
         command = build_matlab_batch_command(repo_root, entrypoint, matlab_command=matlab_command)
         completed = run_matlab_command(
             command,
+            env=job_environment(tmp_path),
+            cwd=str(tmp_path),
             heartbeat_callback=lambda: update_job_heartbeat(session, job=job),
             progress_callback=lambda: update_pipeline_run_progress(
                 session,
@@ -187,6 +192,7 @@ def execute_pipeline_run_job(session: Session, *, job: Job) -> dict[str, Any]:
                 "command": matlab_command,
                 "repo_root": repo_root,
                 "code_commit": code_commit,
+                "work_dir": str(tmp_path),
                 "matlab_max_threads": matlab_max_threads,
                 "returncode": completed.returncode,
                 "stdout_log": str(stdout_path),

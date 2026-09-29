@@ -21,12 +21,14 @@ def run_matlab_command(
     heartbeat_interval_sec: float = 10.0,
     stdout_path: Path | None = None,
     stderr_path: Path | None = None,
+    env: dict[str, str] | None = None,
+    cwd: str | None = None,
 ) -> subprocess.CompletedProcess[str]:
     if heartbeat_callback is None:
-        return subprocess.run(command, check=False, text=True, capture_output=True)
+        return subprocess.run(command, check=False, text=True, capture_output=True, env=env, cwd=cwd)
 
     if stdout_path is None or stderr_path is None:
-        process = subprocess.Popen(command, text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        process = subprocess.Popen(command, text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, env=env, cwd=cwd)
         stdout = ""
         stderr = ""
         while True:
@@ -40,7 +42,7 @@ def run_matlab_command(
         return subprocess.CompletedProcess(command, process.returncode or 0, stdout, stderr)
 
     with stdout_path.open("w", encoding="utf-8") as stdout_file, stderr_path.open("w", encoding="utf-8") as stderr_file:
-        process = subprocess.Popen(command, text=True, stdout=stdout_file, stderr=stderr_file)
+        process = subprocess.Popen(command, text=True, stdout=stdout_file, stderr=stderr_file, env=env, cwd=cwd)
         while process.poll() is None:
             time.sleep(heartbeat_interval_sec)
             heartbeat_callback()
