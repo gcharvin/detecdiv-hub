@@ -33,8 +33,16 @@ pendant son job.** Aucun drain Linux n'était actif au relevé.
 
 ## Changements de code récents
 
+**Sens de l'évolution :** les modifications des 28–29 septembre répondent à
+des causes concrètes d'instabilité : admission RAM, limites systemd par job,
+autoscaling sans arrêt des jobs actifs, puis isolation du code MATLAB par SHA.
+Le nombre d'échecs historiques ci-dessous ne mesure pas l'efficacité de cette
+version récente : plusieurs essais ont précisément servi à diagnostiquer et
+corriger l'intégration Windows.
+
 | Changement | Effet observé ou limite |
 | --- | --- |
+| `cc3965b`, `7e09f61`, `bb9e2aa` | Réservation de RAM et de swap dans un budget partagé, quotas CPU/RAM/swap appliqués à chaque service Linux, puis autoscaling des pollers inactifs. Le job actif confirme que son quota cgroup est effectivement en place. |
 | `d7eaa6b` Hub et `45398914` DetecDiv | Mappings fiables entre chemins client, canonique et worker ; le correctif UNC est inclus dans la version publiée actuelle. |
 | `6afec5b`, `eee5902` | Le commit MATLAB est fixé à la soumission et l'admission vérifie que la cible sait lancer des versions isolées. Les anciens jobs gardent leur contexte. |
 | `b574d69`, `f7126ca`, `a1295ad` | Un checkout protégé est réutilisé par SHA et par hôte ; chaque tentative a un espace de travail persistant. Les ACL Windows ont été ajustées pour garder la synchronisation Git possible. |
@@ -67,27 +75,54 @@ une réservation, puis son unité systemd est redimensionnée en place ; la slic
 impose le plafond partagé. Le manager garde six pollers de base et peut monter
 jusqu'au budget de 36 cœurs. L'état instantané montre ces plafonds appliqués
 au job actif ; il ne prouve pas que tous les profils de jobs sont correctement
-calibrés. Les mesures GPU et RAM restent à suivre lorsque les traitements
-Cellpose et l'extraction de ROIs tournent ensemble.
+calibrés. L'isolation stricte par cgroup vaut pour les services Linux ; Windows
+utilise l'admission de ressources sans limite cgroup équivalente. Les mesures
+GPU et RAM restent à suivre lorsque Cellpose et l'extraction de ROIs tournent
+ensemble. Le correctif DetecDiv `6c6e414a` cherche précisément à réduire le
+pic de l'extraction selon le budget du job, mais n'a pas encore fait l'objet
+d'un résultat scientifique représentatif dans ce relevé.
 
-## Résultats récents et stabilité
+## Incidents de l'intégration Windows et résultats récents
 
 Sur les jobs créés dans les 24 heures avant le relevé : 96 ingestions
 Micro-Manager terminées, 2 pipelines terminés, 16 pipelines en échec,
 1 pipeline en cours et 4 archivages en échec. Les deux ingestions examinées
 dans le journal n'avaient aucun candidat ; leur succès n'évalue donc pas le
-traitement d'une acquisition réelle. Les 16 échecs de pipeline ont plusieurs
-causes visibles, notamment CellposeSAM, conflit OpenMP et extraction de ROIs.
-Les quatre archivages récents échouent sur des sources `/data` absentes ; rien
-dans ce relevé ne les rattache au déploiement du Hub. Un `401` sur un heartbeat
-de lease projet apparaît dans les logs API ; il mérite suivi s'il se répète.
+traitement d'une acquisition réelle.
 
-**Conclusion de stabilité :** l'infrastructure API/DB et les pollers inspectés
-répondent, et le job ancien a un heartbeat frais. La fiabilité des pipelines
-scientifiques ne peut pas être qualifiée de stable avec 16 échecs sur 18 jobs
-terminés en 24 heures. Il faut trier ces échecs par code MATLAB, environnement
-Python et données, sans les attribuer indistinctement au Hub. La saturation
-progressive de `/data` est le risque opérationnel immédiat mesuré.
+La ventilation par cible change la lecture du total :
+
+| Cible, sur 24 h | Pipelines terminés | Pipelines en échec | Contexte observé |
+| --- | ---: | ---: | --- |
+| Windows | 2 | 13 | Série d'essais pendant l'intégration du worker et le débogage Cellpose. |
+| Linux | 0 | 3 | Deux erreurs d'interface du préflight du worker, puis une erreur d'extraction de ROIs ; un autre pipeline historique reste actif. |
+
+Les 13 échecs Windows se répartissent, d'après leurs messages, en un problème
+de référence du bundle pipeline, quatre chargements de snapshot de classifieur,
+deux créations Conda bloquées par ses conditions d'utilisation, un contrôle
+d'installation Torch/CUDA, quatre collisions Intel OpenMP, et un autre échec
+d'entraînement Cellpose/CUDA. Cela montre des dommages collatéraux réels du
+nouveau chemin Windows (références, chemins, environnement et bibliothèques),
+pas 13 pannes indépendantes du service central. Les corrections DetecDiv ont
+ensuite introduit un préflight complet, l'initialisation NumPy avant PyTorch
+et la conservation des chemins UNC dans la configuration Python. L'essai
+Windows créé à 16:17 CEST s'est terminé à 16:30 CEST avec ses artefacts
+d'entraînement. Cette réussite valide ce cas précis ; elle ne valide pas encore
+toutes les combinaisons de jobs et de versions.
+
+Les quatre archivages en échec ont tourné **sur Linux** et signalent des
+sources `/data` absentes : ils ne doivent pas être comptés comme incidents du
+worker Windows. Un `401` sur un heartbeat de lease projet apparaît dans les
+logs API ; il mérite suivi s'il se répète.
+
+**Conclusion de stabilité :** l'API, PostgreSQL et les pollers inspectés sont
+opérationnels, et les nouveaux garde-fous ciblent des défauts observés. Le
+taux brut de 16 échecs sur 18 pipelines terminés mélange une campagne de
+débogage Windows avec des jobs Linux plus anciens ; il ne constitue pas une
+mesure de fiabilité de la release actuelle `6c6e414a`. La stabilité de cette
+release reste à mesurer sur de nouveaux jobs épinglés, par cible et par type
+de pipeline. La saturation progressive de `/data` reste un risque opérationnel
+immédiat mesuré.
 
 ## Dépôts et publication
 
@@ -110,8 +145,12 @@ sans rapport avec ce rapport. Ils ne sont pas inclus dans cette publication.
    marque Linux prêt, sans redémarrer le job.
 2. Suivre `/data` à 96 % et planifier le nettoyage ou l'extension avant que
    l'espace libre devienne bloquant.
-3. Trier les échecs Cellpose/OpenMP et l'échec d'extraction ROI ; confronter
-   les prochains jobs au nouveau commit `6c6e414a` et à leur pic RAM/VRAM.
+3. Mesurer séparément les prochains jobs Windows et Linux épinglés à
+   `6c6e414a`, avec résultat, code exact, pic RAM/VRAM et type de pipeline.
+   Rejouer seulement les scénarios représentatifs qui avaient échoué sur
+   Windows (bundle, snapshot, Conda, Torch/CUDA, OpenMP, chemins UNC) pour
+   vérifier les corrections, sans confondre leurs essais historiques avec des
+   échecs de production de la nouvelle release.
 4. Corriger ou retirer les quatre demandes d'archivage dont les sources sont
    absentes, après vérification de leurs emplacements catalogués.
 5. Vérifier séparément la mise à jour du client MATLAB d'Abhilasha ; ce bilan
