@@ -64,6 +64,22 @@ with its current operator. The new policy replaces the requirement to pull a
 shared DetecDiv checkout after future processing pushes; release publication
 still requires the SHA to be available on both compute hosts.
 
+For the remaining old Linux pollers, the one-shot administration helper
+`scripts/finish_matlab_code_activation.py` waits until each specified poller
+is idle, reserves target admission, and signals only its original PID. The
+existing systemd restart policy reloads it. The helper restores admission and
+marks the target ready once all six baseline pollers report the expected new
+fingerprint. Run it with the administration workstation's existing SSH aliases:
+
+```powershell
+python -u scripts/finish_matlab_code_activation.py --ssh C:\Windows\System32\OpenSSH\ssh.exe --fingerprint <new-worker-fingerprint> --old-poller @1=<original-pid> --old-poller @3=<original-pid>
+```
+
+Keep the administration workstation running until the helper reports readiness.
+If another deployment changes worker fingerprints, inspect the workers before
+setting readiness; this helper deliberately requires the expected fingerprint.
+It does not copy database credentials or signal MATLAB processes.
+
 ## Retention and limits
 
 No automatic deletion is enabled. Keep job checkouts for debugging. To retire

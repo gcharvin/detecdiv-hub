@@ -111,51 +111,46 @@ repository because it belongs to the VM host layer, not the hub control plane.
 
 ## Windows MATLAB Worker Deployment Policy
 
-### MATLAB code isolation rollout (2026-09-29, pending activation)
+### MATLAB code isolation rollout (2026-09-29, API and Windows active)
 
-Hub commit `6afec5b` adds per-job detached Git worktrees and submission-time
-`execution.code_commit` pins. See `docs/matlab_code_versions.md` for activation
-and release publication. It has been pushed to GitHub and GitLab. The API source
-on `webserver-labo` has been staged and image `3ca3a9abcf8c` built (including the
-queued-job routing hardening from `eee5902`), but the running
-API container has not yet been replaced. Its old files are backed up under
+Hub commits `6afec5b` and `eee5902` add per-job detached Git worktrees,
+submission-time SHA pins, and queued-job routing hardening. Both are pushed to
+GitHub and GitLab. API image `3ca3a9abcf8c` is now running on `webserver-labo`;
+health and authenticated release retrieval succeed. API fingerprint:
+`0d93ee7f38ba`. Original files are backed up under
 `.deploy-backups/codeversions-6afec5b` in the operational tree.
 
-A separate Linux preparation worktree at commit
-`579e83d75108e96931cb3ec43371ab506f77ac25` was created successfully under
-`/home/charvin-admin/repos/DetecDiv-jobs`; the source checkout remains at
-`36bfde6c9bcbc413ceead6cf723f5f6aa10d3b27`. Active jobs `5eebb08a...` and
-`a4bdf595...` were left untouched. Staged Hub source for the new helper is under
-`/tmp/detecdiv-hub-codeversions-6afec5b` on both Linux hosts.
+The published default release is
+`e33264d90f671fed4d27fe5d7c77171d95a5e9c4`. Preparation worktrees at that SHA
+were verified on both hosts. Linux shared source HEAD remains
+`36bfde6c9bcbc413ceead6cf723f5f6aa10d3b27`; Windows source HEAD equals the
+published SHA. Their HEADs need not match for isolated jobs.
 
-At 16:05 CEST the Linux launcher files were installed with backups in
-`.deploy-backups/codeversions-6afec5b`. Pollers `@2`, `@4`, `@5`, and `@6` were
-reloaded while admission was briefly drained. Direct `sudo systemctl restart`
-required a password, so their own-user idle processes received SIGTERM and
-systemd's existing `Restart=always` policy started fresh pollers. All six
-services are active. `@1` and `@3` retain their original processes started at
-11:15 CEST and their active jobs. The previous admission state was restored.
-Do not mark the Linux target `matlab_code_isolation_ready` until those two
-pollers also reload after becoming idle.
+Windows launcher files are installed, preserving the trusted path-mapping
+patch. Its poller was restarted while admission was reserved, with no active
+Windows job or MATLAB process. Fingerprint: `d99cba4190bf`. Windows now has
+`matlab_code_isolation_ready=true`, and admission has been restored. The active
+Cellpose training debug task was informed of the rollout and publication API.
 
-Windows activation is being coordinated with the active Cellpose training debug
-task. At preflight its Hub checkout was at `b73bd841`, with only the known trusted
-path-mapping patch (`d7eaa6b`) uncommitted in `worker/pipeline_run_executor.py`.
-Preserve that patch when installing the launcher. Do not activate the new API
-until at least one compute target has reloaded the new launcher and has
-`metadata_json.matlab_code_isolation_ready=true`, and the initial release SHA
-has been published. Otherwise new MATLAB submissions will be rejected.
-The Windows-only launcher package is staged at
-`C:\ProgramData\DetecDivHub\codeversions-windows-6afec5b.tar`; it has not been
-installed. It includes the existing trusted path-mapping patch.
-The subsequent atomic idle reservation found a new active Windows job and
-refused the operation before changing its admission state. The Windows poller
-and checkout were not modified. The staged API image imports successfully and
-exposes the new release routes; the production container still uses the old API.
+Linux launcher files are installed. Pollers `@2`, `@4`, `@5`, and `@6` were
+reloaded idle at 16:05 CEST; `@1` reloaded after its job finished. Fresh pollers
+report `b005cc07895f`. Old `@3` (PID 150213) continues job
+`a4bdf595-28be-4e2b-b138-91b243a7bac2` unchanged. Linux readiness remains unset
+until this final poller reloads. Versioned jobs can already run on Windows;
+explicit Linux requests are refused until Linux is ready.
 
-Once activated, future DetecDiv code releases are prepared in separate
-worktrees and published by SHA; the shared source checkout need not be pulled
-while jobs are running. Until then, the existing checkout policy below applies.
+The one-shot helper `scripts/finish_matlab_code_activation.py` runs on the
+administration workstation (initial PID 51188). It waits for old `@3` to become
+idle, reserves admission during its reload, then marks Linux ready only after
+all six baseline pollers report the expected fingerprint. Logs:
+`C:\Users\Gilles\AppData\Local\Temp\detecdiv-codeversions-finish.log` and the
+adjacent `.err` file. Keep the workstation running until completion. Inspect
+live heartbeat state before changing readiness manually.
+
+Future processing releases are prepared in separate worktrees on both hosts
+and published through `PUT /matlab-code/release`. No shared-checkout pull or
+worker restart is needed for a release change. Legacy targets without isolation
+retain the idle-only policy. See `docs/matlab_code_versions.md` for procedures.
 
 The Windows worker is an additional queue consumer, not a replacement for the
 Linux storage-visible workers. Keep its Hub checkout at
