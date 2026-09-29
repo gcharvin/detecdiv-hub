@@ -127,6 +127,16 @@ A separate Linux preparation worktree at commit
 `a4bdf595...` were left untouched. Staged Hub source for the new helper is under
 `/tmp/detecdiv-hub-codeversions-6afec5b` on both Linux hosts.
 
+At 16:05 CEST the Linux launcher files were installed with backups in
+`.deploy-backups/codeversions-6afec5b`. Pollers `@2`, `@4`, `@5`, and `@6` were
+reloaded while admission was briefly drained. Direct `sudo systemctl restart`
+required a password, so their own-user idle processes received SIGTERM and
+systemd's existing `Restart=always` policy started fresh pollers. All six
+services are active. `@1` and `@3` retain their original processes started at
+11:15 CEST and their active jobs. The previous admission state was restored.
+Do not mark the Linux target `matlab_code_isolation_ready` until those two
+pollers also reload after becoming idle.
+
 Windows activation is being coordinated with the active Cellpose training debug
 task. At preflight its Hub checkout was at `b73bd841`, with only the known trusted
 path-mapping patch (`d7eaa6b`) uncommitted in `worker/pipeline_run_executor.py`.
@@ -134,6 +144,9 @@ Preserve that patch when installing the launcher. Do not activate the new API
 until at least one compute target has reloaded the new launcher and has
 `metadata_json.matlab_code_isolation_ready=true`, and the initial release SHA
 has been published. Otherwise new MATLAB submissions will be rejected.
+The Windows-only launcher package is staged at
+`C:\ProgramData\DetecDivHub\codeversions-windows-6afec5b.tar`; it has not been
+installed. It includes the existing trusted path-mapping patch.
 
 Once activated, future DetecDiv code releases are prepared in separate
 worktrees and published by SHA; the shared source checkout need not be pulled
