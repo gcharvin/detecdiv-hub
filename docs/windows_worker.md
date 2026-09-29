@@ -30,6 +30,12 @@ when `LsaLogonUser()` cannot create the domain account's S4U token
 troubleshooting section in
 [windows_worker_ssh_strategy.md](windows_worker_ssh_strategy.md).
 
+The discriminating test succeeded with local account `detecdiv-ops`: the same
+client and key opened an interactive `cmd.exe` session on this PC. SSH session
+creation therefore works for a local account; the failure is specific to the
+domain-account S4U path. The local account's group membership still needs to
+be checked before using it for administrative commands.
+
 The `windows-10-20-11-56` execution target (`a8eedb3f-85fc-47a8-b327-2aa766550f51`)
 is now reported online. The readiness check passed under
 `GMGM\Charvin-Admin`. A scheduled task named `DetecDiv Hub Database Tunnel`
@@ -594,8 +600,11 @@ server's DEBUG3 log showed the actual failure after key acceptance:
 `LsaLogonUser()` could not create the domain user's S4U token (`0xC00000BB`),
 then `sshd` reported `fatal: fork of unprivileged child failed`. This happens
 before the command shell or SFTP subsystem starts. Do not regenerate the key
-or change `authorized_keys`; check domain S4U prerequisites and the machine's
-secure channel. The machine reports build `26200.9457`, identified by Microsoft
+or change `authorized_keys`. The same key successfully opened a shell as local
+user `detecdiv-ops`, so the SSH server and general session setup work. The
+machine's domain secure channel also tests healthy; focus the remaining
+investigation on S4U for the domain identity and its AD group-read
+prerequisites. The machine reports build `26200.9457`, identified by Microsoft
 as the cumulative Windows 11 25H2 update KB5129195. Win32-OpenSSH has an open
 report with the same S4U error after KB5074109, which is a strong match but not
 proof of the root cause or a confirmed fix. Full diagnostics and cautious next

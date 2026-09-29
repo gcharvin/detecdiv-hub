@@ -155,9 +155,12 @@ but command and SFTP sessions fail before shell startup. Server DEBUG3 logs show
 (`0xC00000BB`). Build `26200.9457` maps to Windows 11 25H2 KB5129195; an open
 Win32-OpenSSH report describes the same S4U failure after KB5074109. Treat the
 update link as a strong lead, not a confirmed root cause. Keep RDP as the
-working administration path while checking the domain secure channel and
-S4U group-read prerequisites. Do not rotate the SSH key, edit its ACL, or
-remove Windows updates to address this server-side token failure. See
+working administration path for elevated work. The same key opened an
+interactive SSH shell as local account `detecdiv-ops`, while the domain secure
+channel tests healthy; its local group membership must be checked before using
+it for administration. Focus remaining diagnosis on S4U and AD group-read
+prerequisites. Do not rotate the SSH key, edit its ACL, or remove Windows
+updates to address this server-side token failure. See
 [`docs/windows_worker_ssh_strategy.md`](docs/windows_worker_ssh_strategy.md).
 
 ## Data State

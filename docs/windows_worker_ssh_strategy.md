@@ -264,9 +264,16 @@ changé. Interprétation des erreurs vues pendant la mise en place :
 
   `Test-ComputerSecureChannel` ne répare rien sans `-Repair`; ne pas ajouter
   de groupe ou réparer le canal sans diagnostic/autorisation de l'administrateur
-  du domaine. Le compte local `detecdiv-ops`, s'il existe et si son accès SSH
-  peut être testé séparément, permettrait de distinguer un problème S4U propre
-  au compte domaine d'un problème général de session OpenSSH.
+  du domaine. Le test discriminant a ensuite réussi : depuis le même client,
+  avec le même fichier de clé et vers le même serveur, `ssh -l detecdiv-ops`
+  a été authentifié par clé et a ouvert un PTY et un shell (`cmd.exe`), avec
+  l'invite `detecdiv-ops@CG-PCDELL01-306`. Ce compte local est actif. Cela
+  confirme que le serveur sait créer une session SSH et renforce le diagnostic
+  d'un échec propre au jeton S4U du compte domaine. Les droits locaux de
+  `detecdiv-ops` ne sont pas encore vérifiés : ne pas supposer qu'il est
+  administrateur. Depuis cette session `cmd.exe`, `whoami /groups` permet de
+  vérifier ses groupes ; taper `powershell` pour exécuter des commandes
+  PowerShell.
 - `Get-Service`, `Get-WinEvent`, `Select-Object` ou `&` non reconnu/inattendu :
   les commandes PowerShell ont été collées dans `cmd.exe`. Taper `powershell`
   pour ouvrir PowerShell, puis lancer les commandes sans les marqueurs `PS>`.
