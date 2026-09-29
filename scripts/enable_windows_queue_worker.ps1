@@ -74,12 +74,27 @@ if ($archiveConfigurationRequested) {
     if ($mappingIndices.Count -eq 1) {
         $mappingJson = $lines[$mappingIndices[0]].Substring($mappingKey.Length + 1)
         try {
-            $existingMappings = @(ConvertFrom-Json -InputObject $mappingJson -ErrorAction Stop)
+            $existingMappings = ConvertFrom-Json -InputObject $mappingJson -ErrorAction Stop
         }
         catch {
             throw "Could not parse $mappingKey; .env was not changed. $($_.Exception.Message)"
         }
-        foreach ($mapping in $existingMappings) {
+
+        # Windows PowerShell 5.1 can keep a JSON array as one pipeline result.
+        # The previous @(...)/foreach combination then wrapped the existing
+        # mappings as a nested array when serializing the updated list. Flatten
+        # arrays explicitly so repeated runs preserve each mapping as an object.
+        $mappingQueue = [System.Collections.Generic.Queue[object]]::new()
+        $mappingQueue.Enqueue($existingMappings)
+        while ($mappingQueue.Count -gt 0) {
+            $mapping = $mappingQueue.Dequeue()
+            if ($null -eq $mapping) { continue }
+            if ($mapping -is [System.Array]) {
+                foreach ($nestedMapping in $mapping) {
+                    $mappingQueue.Enqueue($nestedMapping)
+                }
+                continue
+            }
             if (-not $mapping.source -or -not $mapping.target) {
                 throw "Invalid path mapping in $mappingKey; .env was not changed."
             }
