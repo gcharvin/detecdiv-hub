@@ -6,6 +6,7 @@ import subprocess
 import time
 import stat
 import json
+import base64
 from datetime import datetime, timezone, timedelta
 
 from api.services.matlab_code_versions import validate_commit
@@ -70,8 +71,21 @@ def protect_release(target):
         # NTFS read-only attributes do not prevent writes. Deny write/delete to
         # all accounts, including descendants, while retaining read. Owners/admins
         # can explicitly remove the ACL for GC; ordinary writes remain denied.
-        subprocess.run(["icacls", str(target), "/deny",
-                        "*S-1-1-0:(OI)(CI)(WD,AD,WEA,WA,D,DC)", "/T", "/Q"],
+        # icacls adds SYNCHRONIZE to write-deny ACEs, which also blocks chdir.
+        # .NET's Deny rule removes that bit, preserving read/traverse access.
+        quoted = str(target).replace("'", "''")
+        script = f"""$ErrorActionPreference='Stop'; $p='{quoted}';
+$acl=Get-Acl -LiteralPath $p;
+$sid=[System.Security.Principal.SecurityIdentifier]::new('S-1-1-0');
+$rule=[System.Security.AccessControl.FileSystemAccessRule]::new($sid,
+ [System.Security.AccessControl.FileSystemRights]0x10156,
+ [System.Security.AccessControl.InheritanceFlags]'ContainerInherit,ObjectInherit',
+ [System.Security.AccessControl.PropagationFlags]::None,
+ [System.Security.AccessControl.AccessControlType]::Deny);
+$acl.AddAccessRule($rule); Set-Acl -LiteralPath $p -AclObject $acl;
+"""
+        encoded = base64.b64encode(script.encode("utf-16-le")).decode()
+        subprocess.run(["powershell", "-NoProfile", "-NonInteractive", "-EncodedCommand", encoded],
                        check=True, capture_output=True, text=True)
     else:
         for path in reversed(paths):
