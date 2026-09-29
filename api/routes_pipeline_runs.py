@@ -228,6 +228,12 @@ def update_pipeline_run(
         merged = dict(params_json.get("client_context") or {})
         merged.update(payload.client_context)
         params_json["client_context"] = merged
+    execution = dict(params_json.get("execution") or {})
+    if execution.get("code_commit"):
+        from api.services.matlab_code_versions import versioned_target
+        job.execution_target_id = versioned_target(db, job.execution_target_id)
+        execution["execution_target_id"] = str(job.execution_target_id)
+        params_json["execution"] = execution
     job.params_json = params_json
 
     db.commit()

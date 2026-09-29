@@ -176,6 +176,7 @@ def create_job(payload: JobCreateRequest, db: Session = Depends(get_db)) -> Job:
     if params.get("job_kind") in {"pipeline_run", "legacy_matlab"}:
         params["execution"] = pin_execution(db, params.get("execution") or {})
         target_id = versioned_target(db, target_id)
+        params["execution"]["execution_target_id"] = str(target_id)
     job = Job(
         project_id=payload.project_id,
         raw_dataset_id=payload.raw_dataset_id,
