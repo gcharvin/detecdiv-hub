@@ -62,6 +62,8 @@ def execute_pipeline_run_job(session: Session, *, job: Job) -> dict[str, Any]:
     if not repo_root:
         raise ValueError("DETECDIV_HUB_MATLAB_REPO_ROOT is required for pipeline_run jobs.")
 
+    from worker.matlab_code_checkout import prepare_job_checkout
+    repo_root, code_commit = prepare_job_checkout(session, job, settings)
     matlab_command = str(settings.matlab_command or "matlab").strip() or "matlab"
 
     with tempfile.TemporaryDirectory(prefix="detecdiv_pipeline_job_") as tmpdir:
@@ -184,6 +186,7 @@ def execute_pipeline_run_job(session: Session, *, job: Job) -> dict[str, Any]:
                 "engine": "matlab",
                 "command": matlab_command,
                 "repo_root": repo_root,
+                "code_commit": code_commit,
                 "matlab_max_threads": matlab_max_threads,
                 "returncode": completed.returncode,
                 "stdout_log": str(stdout_path),
@@ -278,6 +281,7 @@ def ensure_cancel_token_path(session: Session, *, job: Job, payload: dict[str, A
 
 def build_pipeline_matlab_entrypoint(payload_path: Path, *, matlab_max_threads: int | None) -> str:
     run_command = f"detecdiv_run_pipeline_job('{matlab_escape(str(payload_path))}')"
+    run_command = "setenv('DETECDIV_ROOT', pwd); " + run_command
     if matlab_max_threads is None:
         return run_command
     return f"maxNumCompThreads({matlab_max_threads}); {run_command}"

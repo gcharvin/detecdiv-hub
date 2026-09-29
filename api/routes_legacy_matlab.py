@@ -13,6 +13,7 @@ from api.models import Job, Project, User
 from api.schemas import JobSummary
 from api.services.project_locks import ProjectLockConflict, create_server_job_lock
 from api.services.users import ensure_project_readable, get_current_user, user_can_edit_project
+from api.services.matlab_code_versions import pin_execution, versioned_target
 
 router = APIRouter(prefix="/legacy-matlab-runs", tags=["legacy-matlab"])
 
@@ -24,6 +25,7 @@ class LegacyMatlabRunRequest(BaseModel):
     arguments: list[Any] = Field(default_factory=list)
     requested_mode: str = "server"
     priority: int = 50
+    code_commit: str = ""
 
 
 @router.post("", response_model=JobSummary, status_code=status.HTTP_201_CREATED)
@@ -37,6 +39,7 @@ def submit_legacy_matlab_run(
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Project edit access required")
     job = Job(
         project_id=project.id,
+        execution_target_id=versioned_target(db),
         requested_mode=payload.requested_mode,
         priority=payload.priority,
         requested_by=current_user.user_key,
@@ -45,6 +48,7 @@ def submit_legacy_matlab_run(
             "routine_path": payload.routine_path,
             "function_name": payload.function_name,
             "arguments": payload.arguments,
+            "execution": pin_execution(db, {"code_commit": payload.code_commit}),
         },
         status="queued",
     )

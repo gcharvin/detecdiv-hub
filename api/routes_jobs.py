@@ -16,6 +16,7 @@ from api.services.job_priority_settings import (
     update_job_priority_runtime_config,
 )
 from api.services.users import get_current_user
+from api.services.matlab_code_versions import pin_execution, versioned_target
 
 
 router = APIRouter(prefix="/jobs", tags=["jobs"])
@@ -170,16 +171,21 @@ def job_activity(db: Session = Depends(get_db)):
 
 @router.post("", response_model=JobSummary, status_code=status.HTTP_201_CREATED)
 def create_job(payload: JobCreateRequest, db: Session = Depends(get_db)) -> Job:
+    params = dict(payload.params_json or {})
+    target_id = payload.execution_target_id
+    if params.get("job_kind") in {"pipeline_run", "legacy_matlab"}:
+        params["execution"] = pin_execution(db, params.get("execution") or {})
+        target_id = versioned_target(db, target_id)
     job = Job(
         project_id=payload.project_id,
         raw_dataset_id=payload.raw_dataset_id,
         pipeline_id=payload.pipeline_id,
-        execution_target_id=payload.execution_target_id,
+        execution_target_id=target_id,
         requested_mode=payload.requested_mode,
         priority=payload.priority,
         requested_by=payload.requested_by,
         requested_from_host=payload.requested_from_host,
-        params_json=payload.params_json,
+        params_json=params,
         status="queued",
     )
     db.add(job)

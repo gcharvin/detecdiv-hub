@@ -15,6 +15,9 @@ class Settings(BaseSettings):
     api_port: int = 8000
     matlab_command: str = "matlab"
     matlab_repo_root: str = ""
+    matlab_job_checkout_root: str = ""
+    matlab_git_remote: str = "origin"
+    matlab_git_branch: str = "unstable"
     indexing_target_key: str = ""
     worker_target_key: str = ""
     worker_instance: str = ""

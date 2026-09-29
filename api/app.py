@@ -18,6 +18,7 @@ from api.routes_experiments import router as experiments_router
 from api.routes_external_systems import router as external_systems_router
 from api.routes_indexing import router as indexing_router
 from api.routes_jobs import router as jobs_router
+from api.routes_matlab_code import router as matlab_code_router
 from api.routes_micromanager_ingest import router as micromanager_ingest_router
 from api.routes_migrations import router as migrations_router
 from api.routes_pipeline_runs import router as pipeline_runs_router
@@ -33,6 +34,7 @@ from api.services.system_storage import collect_disk_usage, configured_disk_path
 
 settings = get_settings()
 app = FastAPI(title=settings.app_name, version="0.1.0")
+app.include_router(matlab_code_router)
 app.include_router(auth_router)
 app.include_router(assistant_router)
 app.include_router(backup_router)

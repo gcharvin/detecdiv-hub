@@ -43,6 +43,8 @@ def execute_legacy_matlab_job(session: Session, *, job: Job) -> dict:
         raise ValueError(f"legacy_matlab routine does not exist: {routine_path}")
     if not job.project_id:
         raise ValueError("legacy_matlab jobs must be attached to a DetecDiv project.")
+    from worker.matlab_code_checkout import prepare_job_checkout
+    repo_root, code_commit = prepare_job_checkout(session, job, settings)
 
     with tempfile.TemporaryDirectory(prefix="detecdiv_legacy_matlab_") as tmpdir:
         tmp = Path(tmpdir)
@@ -62,6 +64,7 @@ def execute_legacy_matlab_job(session: Session, *, job: Job) -> dict:
         entrypoint = "detecdiv_hub_run_legacy_matlab_job(" + matlab_quote(str(payload_path)) + ")"
         if matlab_max_threads is not None:
             entrypoint = f"maxNumCompThreads({matlab_max_threads}); {entrypoint}"
+        entrypoint = "setenv('DETECDIV_ROOT', pwd); detecdiv_setup_path(pwd, 'DetecDivRoot', pwd); " + entrypoint
         command = build_matlab_batch_command(
             repo_root, entrypoint, matlab_command=str(settings.matlab_command or "matlab")
         )
@@ -80,6 +83,8 @@ def execute_legacy_matlab_job(session: Session, *, job: Job) -> dict:
             **result,
             "worker_runtime": {
                 "engine": "matlab",
+                "repo_root": repo_root,
+                "code_commit": code_commit,
                 "routine_path": str(routine_path),
                 "function_name": function_name,
                 "matlab_max_threads": matlab_max_threads,

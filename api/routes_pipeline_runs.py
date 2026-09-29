@@ -173,7 +173,7 @@ def update_pipeline_run(
     job = db.get(Job, job_id)
     if job is None or (job.params_json or {}).get("job_kind") != "pipeline_run":
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Pipeline run not found")
-    if job.status == "running":
+    if job.status in {"running", "cancelling"}:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail="Running pipeline runs cannot be edited",
@@ -194,7 +194,8 @@ def update_pipeline_run(
     if payload.pipeline_id is not None:
         job.pipeline_id = payload.pipeline_id
     if payload.execution_target_id is not None:
-        job.execution_target_id = payload.execution_target_id
+        from api.services.matlab_code_versions import versioned_target
+        job.execution_target_id = versioned_target(db, payload.execution_target_id)
     if payload.requested_mode is not None:
         job.requested_mode = payload.requested_mode
     if payload.priority is not None:
@@ -221,7 +222,8 @@ def update_pipeline_run(
     if payload.execution is not None:
         merged = dict(params_json.get("execution") or {})
         merged.update(payload.execution)
-        params_json["execution"] = merged
+        from api.services.matlab_code_versions import pin_execution
+        params_json["execution"] = pin_execution(db, merged)
     if payload.client_context is not None:
         merged = dict(params_json.get("client_context") or {})
         merged.update(payload.client_context)

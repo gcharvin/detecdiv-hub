@@ -18,6 +18,7 @@ from api.services.project_locks import (
     create_server_job_lock,
 )
 from api.services.users import ensure_project_readable, user_can_edit_project
+from api.services.matlab_code_versions import pin_execution, versioned_target
 
 
 REQUESTED_MODES = {"auto", "server", "local"}
@@ -349,10 +350,15 @@ def create_pipeline_run_job(
     if payload.project_id is not None and project is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Project not found")
 
+    preflight.normalized_payload["execution"] = pin_execution(
+        session, preflight.normalized_payload.get("execution") or {}
+    )
+    code_target_id = versioned_target(session, payload.execution_target_id)
+    preflight.normalized_payload["execution"]["execution_target_id"] = str(code_target_id)
     job = Job(
         project_id=payload.project_id,
         pipeline_id=preflight.pipeline_id,
-        execution_target_id=payload.execution_target_id,
+        execution_target_id=code_target_id,
         requested_mode=payload.requested_mode,
         priority=payload.priority,
         requested_by=payload.requested_by or current_user.user_key,
