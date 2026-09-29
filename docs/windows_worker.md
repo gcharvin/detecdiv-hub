@@ -31,10 +31,11 @@ troubleshooting section in
 [windows_worker_ssh_strategy.md](windows_worker_ssh_strategy.md).
 
 The discriminating test succeeded with local account `detecdiv-ops`: the same
-client and key opened an interactive `cmd.exe` session on this PC. SSH session
+client and key opened an interactive `cmd.exe` session on this PC. Its
+`whoami /groups` output showed `BUILTIN\Administrateurs` enabled and a high
+integrity level, so this is a working elevated SSH account. SSH session
 creation therefore works for a local account; the failure is specific to the
-domain-account S4U path. The local account's group membership still needs to
-be checked before using it for administrative commands.
+domain-account S4U path.
 
 The `windows-10-20-11-56` execution target (`a8eedb3f-85fc-47a8-b327-2aa766550f51`)
 is now reported online. The readiness check passed under
@@ -601,8 +602,9 @@ server's DEBUG3 log showed the actual failure after key acceptance:
 then `sshd` reported `fatal: fork of unprivileged child failed`. This happens
 before the command shell or SFTP subsystem starts. Do not regenerate the key
 or change `authorized_keys`. The same key successfully opened a shell as local
-user `detecdiv-ops`, so the SSH server and general session setup work. The
-machine's domain secure channel also tests healthy; focus the remaining
+user `detecdiv-ops`; `whoami /groups` confirmed enabled local Administrators
+membership and a high integrity level. This is a working elevated SSH path.
+The machine's domain secure channel also tests healthy; focus the remaining
 investigation on S4U for the domain identity and its AD group-read
 prerequisites. The machine reports build `26200.9457`, identified by Microsoft
 as the cumulative Windows 11 25H2 update KB5129195. Win32-OpenSSH has an open

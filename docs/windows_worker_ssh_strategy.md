@@ -270,10 +270,11 @@ changé. Interprétation des erreurs vues pendant la mise en place :
   l'invite `detecdiv-ops@CG-PCDELL01-306`. Ce compte local est actif. Cela
   confirme que le serveur sait créer une session SSH et renforce le diagnostic
   d'un échec propre au jeton S4U du compte domaine. Les droits locaux de
-  `detecdiv-ops` ne sont pas encore vérifiés : ne pas supposer qu'il est
-  administrateur. Depuis cette session `cmd.exe`, `whoami /groups` permet de
-  vérifier ses groupes ; taper `powershell` pour exécuter des commandes
-  PowerShell.
+  `detecdiv-ops` ont été vérifiés avec `whoami /groups` :
+  `BUILTIN\Administrateurs` est activé et son niveau d'intégrité est élevé.
+  La session SSH de ce compte local a donc un jeton administrateur élevé. Ce
+  compte est un accès SSH opérationnel de repli ; depuis sa session `cmd.exe`,
+  taper `powershell` pour exécuter des commandes PowerShell.
 - `Get-Service`, `Get-WinEvent`, `Select-Object` ou `&` non reconnu/inattendu :
   les commandes PowerShell ont été collées dans `cmd.exe`. Taper `powershell`
   pour ouvrir PowerShell, puis lancer les commandes sans les marqueurs `PS>`.
@@ -319,10 +320,11 @@ configuration explicite ; sans élévation, `sshd -t` avait affiché `no hostkey
 available`, alors que le test élevé avec `-f` réussissait. Dans le journal,
 chercher les lignes après `Accepted publickey`. Le diagnostic actuel montre
 `LsaLogonUser() failed ... Status: 0xC00000BB` puis l'échec de création du
-jeton S4U ; la prochaine vérification est l'état du canal sécurisé du domaine
-et, si disponible, un essai avec le compte local `detecdiv-ops`. Ne pas
-restaurer `.before-debug`, toucher aux ACL ou redémarrer `sshd` avant de
-préserver le journal détaillé. Références : [ticket Win32-OpenSSH #2422](https://github.com/PowerShell/Win32-OpenSSH/issues/2422),
+jeton S4U pour le compte domaine. Le canal sécurisé du domaine est sain ; le
+test avec le compte local `detecdiv-ops` a ouvert un shell administrateur
+élevé avec la même clé. Ne pas restaurer `.before-debug`, toucher aux ACL ou
+redémarrer `sshd` avant de préserver le journal détaillé. Références :
+[ticket Win32-OpenSSH #2422](https://github.com/PowerShell/Win32-OpenSSH/issues/2422),
 [KB5129195 / build 26200.9457](https://support.microsoft.com/en-us/servicing/os/windows-11/2026/09/kb5129195-windows-11-24h2-25h2-security-update),
 [prérequis S4U de LsaLogonUser](https://learn.microsoft.com/en-us/windows/win32/api/ntsecapi/nf-ntsecapi-lsalogonuser).
 
