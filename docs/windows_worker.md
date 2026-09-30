@@ -68,6 +68,14 @@ already assigned to another execution target. The database's `SKIP LOCKED`
 claim means the first eligible worker to poll an unassigned job gets it; this
 is not a least-loaded-target scheduler.
 
+Automatic pipeline runs now stay unassigned while queued. Each worker checks
+its MATLAB release support and accessible project, raw, pipeline, and linked
+classifier paths before claiming. The Windows target can list classifier
+packages that failed MATLAB validation in
+`metadata_json.unsupported_classifier_packages`; the worker skips those
+pipelines so a compatible Linux worker can claim them. An explicitly selected
+target remains fixed.
+
 The scheduled task `DetecDiv Hub Worker` was subsequently registered for
 `GMGM\Charvin-Admin` and started. It runs after that user signs in; the database
 tunnel task is separate and starts at system boot.

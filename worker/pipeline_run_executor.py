@@ -16,6 +16,7 @@ from api.models import Artifact, ExecutionTarget, Job, Pipeline, Project, Projec
 from api.services.pipeline_raw_ingest import (
     ingest_pipeline_run_raw_dataset,
     pipeline_run_requests_raw_ingest,
+    reuse_pipeline_run_raw_dataset,
 )
 from api.services.project_deletion import resolve_project_location_paths
 from api.services.project_locks import heartbeat_project_locks_for_job
@@ -91,14 +92,16 @@ def execute_pipeline_run_job(session: Session, *, job: Job) -> dict[str, Any]:
             path_mappings=path_mappings,
             runtime_dir=tmp_path if path_mappings else None,
         )
-        if os.name == "nt" and pipeline_run_requests_raw_ingest(payload):
-            raise ValueError(
-                "Raw-dataset ingestion during a pipeline run requires the Linux storage worker; "
-                "submit this job to a Linux target."
-            )
         raw_ingest = None
         if pipeline_run_requests_raw_ingest(payload):
-            raw_ingest = ingest_pipeline_run_raw_dataset(session, job=job)
+            if os.name == "nt":
+                raw_paths = dict((payload.get("run_request") or {}).get("paths") or {})
+                worker_raw_path = str(raw_paths.get("server_raw_data_path") or raw_paths.get("raw_data_path") or "")
+                if not worker_raw_path or not Path(worker_raw_path).is_dir():
+                    raise ValueError(f"Raw-data directory is not accessible on this worker: {worker_raw_path}")
+                raw_ingest = reuse_pipeline_run_raw_dataset(session, job=job)
+            else:
+                raw_ingest = ingest_pipeline_run_raw_dataset(session, job=job)
             # Keep this provenance even when the subsequent MATLAB execution fails.
             job_record = session.get(Job, job.id)
             if job_record is not None:

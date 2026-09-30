@@ -63,6 +63,7 @@ from worker.micromanager_ingest_scheduler import (
 )
 from worker.misc_storage_inventory import execute_misc_storage_inventory_job
 from worker.path_mappings import parse_worker_path_mappings
+from worker.pipeline_claim_compatibility import can_claim_automatic_pipeline
 from worker.pipeline_run_executor import PipelineRunCancelled, execute_pipeline_run_job
 from worker.storage_lifecycle import (
     execute_storage_lifecycle_job,
@@ -79,6 +80,14 @@ from worker.user_home_storage import (
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
 LOGGER = logging.getLogger("detecdiv-hub-worker")
+_REPORTED_CLAIM_BLOCKERS: set[tuple[str, str]] = set()
+
+
+def report_claim_blocker(job: Job, reason: str) -> None:
+    key = (str(job.id), reason)
+    if key not in _REPORTED_CLAIM_BLOCKERS:
+        LOGGER.info("Queued job %s remains movable: %s", job.id, reason)
+        _REPORTED_CLAIM_BLOCKERS.add(key)
 
 
 @contextmanager
@@ -308,6 +317,16 @@ def claim_next_job() -> Job | None:
         reserved_allocation = None
         job = None
         for candidate in candidates:
+            if candidate.execution_target_id is None and (candidate.params_json or {}).get("job_kind") == "pipeline_run":
+                eligible, reason = can_claim_automatic_pipeline(
+                    session,
+                    job=candidate,
+                    target=target,
+                    path_mappings=settings.worker_path_mappings,
+                )
+                if not eligible:
+                    report_claim_blocker(candidate, reason)
+                    continue
             try:
                 allocation = resolve_job_resource_allocation(
                     session,
@@ -324,9 +343,9 @@ def claim_next_job() -> Job | None:
                 continue
             worker_fits, worker_reason = worker_allocation_fits(allocation, policy=worker_memory_policy)
             if not worker_fits:
-                LOGGER.debug("Job %s waits: %s", candidate.id, worker_reason)
+                report_claim_blocker(candidate, worker_reason or "worker resource limit")
                 continue
-            fits, _reason = allocation_fits(allocation, totals=totals, config=resource_config)
+            fits, reason = allocation_fits(allocation, totals=totals, config=resource_config)
             if fits:
                 if reserved_allocation is not None:
                     # Keep both resource headroom and one slot in the bounded
@@ -355,9 +374,14 @@ def claim_next_job() -> Job | None:
                 job = candidate
                 params = dict(candidate.params_json or {})
                 params[HUB_RESOURCE_ALLOCATION_KEY] = allocation
+                if target is not None and candidate.execution_target_id is None:
+                    execution = dict(params.get("execution") or {})
+                    execution["execution_target_id"] = str(target.id)
+                    params["execution"] = execution
                 candidate.params_json = params
                 break
             if reserved_allocation is None:
+                report_claim_blocker(candidate, reason or "target resource capacity")
                 fits_when_idle, _reason = allocation_fits(allocation, totals=empty_totals, config=resource_config)
                 if fits_when_idle:
                     reserved_allocation = allocation

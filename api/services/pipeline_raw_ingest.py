@@ -2,12 +2,12 @@
 
 from __future__ import annotations
 
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 
 from sqlalchemy import select, text
 from sqlalchemy.orm import Session
 
-from api.models import Job, Project, ProjectRawLink, StorageRoot, User
+from api.models import Job, Project, ProjectRawLink, RawDataset, RawDatasetLocation, StorageRoot, User
 from api.services.project_indexing import find_existing_raw_dataset_for_path
 from api.services.raw_dataset_ingest import ingest_raw_dataset_from_directory
 
@@ -15,6 +15,47 @@ from api.services.raw_dataset_ingest import ingest_raw_dataset_from_directory
 def pipeline_run_requests_raw_ingest(params_json: dict | None) -> bool:
     run_request = dict((params_json or {}).get("run_request") or {})
     return bool(run_request.get("ingest_raw_dataset"))
+
+
+def existing_linked_raw_dataset(session: Session, *, job: Job) -> tuple[RawDataset, StorageRoot] | None:
+    """Find an already indexed source by its canonical server path, on any OS."""
+    paths = dict(((job.params_json or {}).get("run_request") or {}).get("paths") or {})
+    raw_path = str(paths.get("server_raw_data_path") or paths.get("raw_data_path") or "").strip()
+    if not raw_path or job.project_id is None:
+        return None
+    canonical = PurePosixPath(raw_path.replace("\\", "/"))
+    if not canonical.is_absolute() or ".." in canonical.parts:
+        return None
+    rows = session.execute(
+        select(RawDataset, StorageRoot, RawDatasetLocation.relative_path)
+        .join(RawDatasetLocation, RawDatasetLocation.raw_dataset_id == RawDataset.id)
+        .join(StorageRoot, StorageRoot.id == RawDatasetLocation.storage_root_id)
+        .join(ProjectRawLink, ProjectRawLink.raw_dataset_id == RawDataset.id)
+        .where(ProjectRawLink.project_id == job.project_id)
+        .where(ProjectRawLink.link_type == "source")
+        .where(RawDataset.status == "indexed")
+        .where(StorageRoot.host_scope == "server")
+    )
+    for dataset, root, relative_path in rows:
+        if PurePosixPath(root.path_prefix).joinpath(relative_path) == canonical:
+            return dataset, root
+    return None
+
+
+def reuse_pipeline_run_raw_dataset(session: Session, *, job: Job) -> dict:
+    """Windows can reuse catalogued input without scanning a POSIX server root."""
+    existing = existing_linked_raw_dataset(session, job=job)
+    if existing is None:
+        raise ValueError("Windows raw input must already be indexed and source-linked to the project.")
+    dataset, root = existing
+    paths = dict(((job.params_json or {}).get("run_request") or {}).get("paths") or {})
+    return {
+        "raw_dataset_id": str(dataset.id),
+        "catalog_action": "reused",
+        "project_link_created": False,
+        "server_raw_data_path": str(paths.get("server_raw_data_path") or paths.get("raw_data_path")),
+        "storage_root_name": root.name,
+    }
 
 
 def ingest_pipeline_run_raw_dataset(session: Session, *, job: Job) -> dict:
