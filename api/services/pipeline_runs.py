@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from typing import Any
+from uuid import UUID
 
 from fastapi import HTTPException, status
 from sqlalchemy import select
@@ -25,6 +26,21 @@ REQUESTED_MODES = {"auto", "server", "local"}
 PIPELINE_REF_PATH_KEYS = ("pipeline_bundle_uri", "pipeline_json_path", "export_manifest_uri")
 
 
+def requested_execution_target_id(payload: PipelineRunCreateRequest) -> UUID | None:
+    """Accept the target in either the API field or the MATLAB client payload."""
+    nested = (payload.execution or {}).get("execution_target_id")
+    if payload.execution_target_id is not None:
+        if nested and str(nested) != str(payload.execution_target_id):
+            raise HTTPException(status_code=422, detail="Conflicting execution target IDs.")
+        return payload.execution_target_id
+    if not nested:
+        return None
+    try:
+        return UUID(str(nested))
+    except (TypeError, ValueError) as exc:
+        raise HTTPException(status_code=422, detail="Invalid execution target ID.") from exc
+
+
 def normalized_pipeline_run_params(
     payload: PipelineRunCreateRequest,
     *,
@@ -41,8 +57,9 @@ def normalized_pipeline_run_params(
         project_ref.setdefault("project_id", str(payload.project_id))
     if payload.pipeline_id is not None:
         pipeline_ref.setdefault("pipeline_id", str(payload.pipeline_id))
-    if payload.execution_target_id is not None:
-        execution.setdefault("execution_target_id", str(payload.execution_target_id))
+    requested_target_id = requested_execution_target_id(payload)
+    if requested_target_id is not None:
+        execution["execution_target_id"] = str(requested_target_id)
 
     execution.setdefault("requested_mode", payload.requested_mode)
     execution.setdefault("allow_gui", False)
@@ -72,11 +89,8 @@ def preflight_pipeline_run_request(
 ) -> PipelineRunPreflightResult:
     issues: list[PipelineRunPreflightIssue] = []
     pipeline = resolve_pipeline_for_request(session, payload=payload)
-    target = (
-        session.get(ExecutionTarget, payload.execution_target_id)
-        if payload.execution_target_id is not None
-        else None
-    )
+    requested_target_id = requested_execution_target_id(payload)
+    target = session.get(ExecutionTarget, requested_target_id) if requested_target_id else None
     normalized = normalized_pipeline_run_params(
         payload,
         current_user=current_user,
@@ -204,7 +218,7 @@ def preflight_pipeline_run_request(
                 "Hub-submitted runs must be non-interactive.",
             )
         )
-    if requested_mode == "local" and payload.execution_target_id is None:
+    if requested_mode == "local" and requested_target_id is None:
         issues.append(
             issue(
                 "warning",
@@ -214,7 +228,7 @@ def preflight_pipeline_run_request(
             )
         )
 
-    if payload.execution_target_id is not None and target is None:
+    if requested_target_id is not None and target is None:
         issues.append(
             issue(
                 "error",
@@ -299,7 +313,7 @@ def preflight_pipeline_run_request(
         can_submit=can_submit,
         project_id=project.id if project is not None else None,
         pipeline_id=pipeline.id if pipeline is not None else payload.pipeline_id,
-        execution_target_id=payload.execution_target_id,
+        execution_target_id=requested_target_id,
         normalized_payload=normalized,
         issues=issues,
     )
@@ -353,8 +367,19 @@ def create_pipeline_run_job(
     preflight.normalized_payload["execution"] = pin_execution(
         session, preflight.normalized_payload.get("execution") or {}
     )
-    code_target_id = versioned_target(session, payload.execution_target_id)
-    preflight.normalized_payload["execution"]["execution_target_id"] = str(code_target_id)
+    requested_target_id = requested_execution_target_id(payload)
+    # Unspecified targets remain unassigned while queued. A compatible worker
+    # selects itself atomically at claim time, so changing capacity elsewhere
+    # does not require resubmitting the run or changing its pinned code SHA.
+    versioned_target(session, requested_target_id)
+    code_target_id = requested_target_id
+    context = dict(preflight.normalized_payload.get("client_context") or {})
+    context["target_selection"] = "explicit" if code_target_id else "automatic"
+    preflight.normalized_payload["client_context"] = context
+    if code_target_id:
+        preflight.normalized_payload["execution"]["execution_target_id"] = str(code_target_id)
+    else:
+        preflight.normalized_payload["execution"].pop("execution_target_id", None)
     job = Job(
         project_id=payload.project_id,
         pipeline_id=preflight.pipeline_id,
