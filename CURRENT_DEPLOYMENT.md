@@ -201,6 +201,30 @@ The dose pipeline was resubmitted as job
 `1535b10c-cc50-4301-a2d2-cbeff504f2f6`; by 07:34 CEST it had passed
 MATLAB startup and entered the data loader. Its final result remains pending.
 
+### ROI extraction memory follow-up (2026-09-30)
+
+The dose job above and pulse job `ed821a11-0b68-42c1-b58a-16f647c5a638`
+subsequently failed during `roiextract_3` with an apparent 0.8 GiB headroom
+below `memory.high`. Both were pinned to the older `6c6e414a` DetecDiv release.
+The raw frames are 2048 x 2048, five uint16 channels (40 MiB per frame), and
+the extractor caps ordinary raw blocks at 512 MiB. Live cgroup measurements
+showed that clean file cache from raw reads and HDF5 writes occupied many GiB.
+
+DetecDiv `4ab5613d` excludes clean active and inactive file cache from cgroup
+usage, while retaining shmem, dirty, and writeback pages. DetecDiv
+`cc6bce4f64bac7be343ceda23bdde961bf27a5f6` also permits a single frame
+above the 512 MiB ordinary block cap when the real memory budget allows it.
+MATLAB memory-planner tests passed. The latter SHA was prepared on both Linux
+and Windows workers and published as the default release; no polling worker
+restart was needed. It also includes `fe2a1535`, which preserves submitted FOV
+selections and deduplicates lightweight project imports.
+
+At 14:26 CEST, the replacement Linux jobs were running with 24 GiB each:
+`fd8c8501-1480-44c7-949e-aca993263580` for dose (FOV 41-50, entered ROI
+extraction) and `3ae55b05-88df-4e4c-864e-6ef90022a3f4` for pulse (raw ingest
+and dependency preflight complete). Their final results remain pending. The
+thread heartbeat `surveiller-reprises-abhilasha-roi` checks them every 10 minutes.
+
 The Windows worker is an additional queue consumer, not a replacement for the
 Linux storage-visible workers. Keep its Hub checkout at
 `C:\Users\Charvin-Admin\Documents\MATLAB\detecdiv-hub` and its MATLAB
