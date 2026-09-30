@@ -5,6 +5,11 @@ It is read by both Claude Code (`/detecdiv-hub-ops`) and Codex (`detecdiv-hub-op
 
 For the live topology (hosts, services, URLs), see `CURRENT_DEPLOYMENT.md`.
 
+For a DetecDiv MATLAB processing commit, use the versioned release command in
+`docs/matlab_code_versions.md`. It prepares protected Linux and Windows
+worktrees, then changes the default SHA for new jobs without restarting workers.
+The Hub deployment steps below apply to Hub code and configuration.
+
 ## State model
 
 Treat these as separate states unless you have explicitly synchronized them:

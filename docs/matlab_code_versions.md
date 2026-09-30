@@ -30,15 +30,30 @@ MATLAB's `DETECDIV_ROOT` points at the selected job checkout.
 
 ## Publish a fix
 
-1. Commit and push DetecDiv to the worker's configured remote and branch.
-2. Prepare the SHA on both hosts using the command below. This only fetches
-   objects and creates a separate worktree; existing job directories remain
-   untouched. Check out the same SHA on Linux and Windows.
-3. As a Hub admin, `PUT /matlab-code/release` with
-   `{"code_commit":"<full-sha>"}`. `GET /matlab-code/release` reports the default.
-   No worker restart is required for subsequent release changes.
-4. Submit the next job. It records that SHA at submission, even if it waits
-   in the queue while newer releases are published.
+From the Windows administration workstation, after committing DetecDiv on
+`unstable`, run one command from the Hub checkout:
+
+```powershell
+python scripts/deploy_detecdiv_release.py <full-40-character-sha>
+```
+
+The script uses `ops/detecdiv_release_targets.json` for the local source repo,
+Git remotes, Linux and Windows worker locations, API container, and Hub publisher.
+It checks that the SHA is on the local `unstable` branch, pushes it to `origin`
+and `gitlab` when needed without force, verifies both targets have MATLAB code
+isolation enabled, and prepares the same protected release worktree on both.
+Only after both preparations succeed does it publish the new default through
+the Hub's existing release service. It verifies the default afterwards. A
+failure leaves the previous default in place; a successful worktree preparation
+is safe to reuse on retry. An already published SHA is safe to request again.
+Use `--config` for another deployment topology or `--publisher` to override the
+recorded Hub admin/service identity.
+
+The source checkouts' HEADs do not move. No worker restart is needed. Jobs that
+were already submitted keep their pinned SHA; the next new job receives the
+published SHA at submission, even if it waits in the queue.
+
+For manual administration, prepare each target with:
 
 ```bash
 python -m worker.matlab_code_checkout --repo-root /path/to/DetecDiv --commit <full-sha>
@@ -46,6 +61,9 @@ python -m worker.matlab_code_checkout --repo-root /path/to/DetecDiv --commit <fu
 
 The command prints the directory and verified SHA. Its worktree is locked against
 accidental Git cleanup. It is a preparation directory, not a running job.
+After both preparations, an authenticated Hub admin can publish with
+`PUT /matlab-code/release` and `{"code_commit":"<full-sha>"}`;
+`GET /matlab-code/release` reports the default.
 
 Optional worker environment settings:
 

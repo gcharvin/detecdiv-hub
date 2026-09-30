@@ -219,6 +219,11 @@ idle, clean, fast-forward-only synchronization of their source checkouts.
 The Hub worker code itself follows its own deployment revision and procedure;
 reload polling workers only when idle.
 
+From the administration workstation, run
+`python scripts/deploy_detecdiv_release.py <full-sha>` for the DetecDiv release
+sequence on the current Linux and Windows workers. Its host paths and remotes are in
+`ops/detecdiv_release_targets.json`; see `docs/matlab_code_versions.md`.
+
 The Windows MATLAB license was reported renewed on 2026-09-28; the unattended
 `matlab.exe -batch "disp(version)"` check succeeded under
 `GMGM\Charvin-Admin`. The Windows worker `.env` was updated on 2026-09-29 to

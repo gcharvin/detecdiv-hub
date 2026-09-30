@@ -1,0 +1,23 @@
+{
+  "source_repo": "../DetecDiv",
+  "branch": "unstable",
+  "push_remotes": ["origin", "gitlab"],
+  "publisher": "gilles",
+  "linux": {
+    "ssh_host": "detecdiv-server",
+    "hub_root": "/home/charvin-admin/repos/detecdiv-hub-webvm",
+    "detecdiv_root": "/home/charvin-admin/repos/DetecDiv"
+  },
+  "windows": {
+    "ssh_host": "10.20.11.56",
+    "ssh_user": "detecdiv-ops",
+    "ssh_key": "~/.ssh/id_ed25519_detecdiv_windows",
+    "hub_root": "C:\\Users\\Charvin-Admin\\Documents\\MATLAB\\detecdiv-hub",
+    "detecdiv_root": "C:\\Users\\Charvin-Admin\\Documents\\GitHub\\DetecDiv"
+  },
+  "api": {
+    "ssh_host": "webserver-labo",
+    "container": "detecdiv-hub-api",
+    "target_keys": ["detecdiv-server", "windows-10-20-11-56"]
+  }
+}
