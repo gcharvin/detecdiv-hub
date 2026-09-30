@@ -32,7 +32,7 @@ def run(args, *, timeout=180, cwd=None, env=None):
 
 def git(repo, *args):
     env = {**os.environ, "GIT_TERMINAL_PROMPT": "0", "GCM_INTERACTIVE": "never",
-           "GIT_SSH_COMMAND": str(SSH)}
+           "GIT_SSH_COMMAND": SSH.as_posix()}
     return run(["git", "-C", str(repo), *args], timeout=180, env=env)
 
 

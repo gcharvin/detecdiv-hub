@@ -220,7 +220,7 @@ The Hub worker code itself follows its own deployment revision and procedure;
 reload polling workers only when idle.
 
 From the administration workstation, run
-`python scripts/deploy_detecdiv_release.py <full-sha>` for the DetecDiv release
+`.\scripts\deploy_detecdiv_release.ps1 <full-sha>` for the DetecDiv release
 sequence on the current Linux and Windows workers. Its host paths and remotes are in
 `ops/detecdiv_release_targets.json`; see `docs/matlab_code_versions.md`.
 

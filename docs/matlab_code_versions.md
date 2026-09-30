@@ -34,8 +34,12 @@ From the Windows administration workstation, after committing DetecDiv on
 `unstable`, run one command from the Hub checkout:
 
 ```powershell
-python scripts/deploy_detecdiv_release.py <full-40-character-sha>
+.\scripts\deploy_detecdiv_release.ps1 <full-40-character-sha>
 ```
+
+The PowerShell entry point finds the bundled Python runtime on this workstation
+or uses `py -3`. Set `DETECDIV_RELEASE_PYTHON` to another Python 3 executable
+when needed. The underlying Python script can also be invoked directly.
 
 The script uses `ops/detecdiv_release_targets.json` for the local source repo,
 Git remotes, Linux and Windows worker locations, API container, and Hub publisher.
