@@ -75,6 +75,9 @@ packages that failed MATLAB validation in
 `metadata_json.unsupported_classifier_packages`; the worker skips those
 pipelines so a compatible Linux worker can claim them. An explicitly selected
 target remains fixed.
+For `ingest_raw_dataset=true`, Windows reuses an already indexed raw dataset
+that is source-linked to the project. Creating a new catalog entry still
+requires the Linux storage worker.
 
 The scheduled task `DetecDiv Hub Worker` was subsequently registered for
 `GMGM\Charvin-Admin` and started. It runs after that user signs in; the database

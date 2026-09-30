@@ -230,7 +230,11 @@ The Windows MATLAB license was reported renewed on 2026-09-28; the unattended
 claim unassigned jobs of all kinds, including `pipeline_run`, `legacy_matlab`,
 and `archive_raw_dataset`; `restore_raw_dataset` remains excluded. Its readiness
 check reports three path mappings: `/data`, legacy `X:\`, and `/archive`.
-Raw-data ingestion remains on the Linux storage-visible worker.
+New raw-data catalog ingestion remains on the Linux storage-visible worker.
+The Windows pipeline worker may reuse an already indexed, source-linked raw
+dataset when its mapped input path is accessible. Automatic pipeline runs
+remain unassigned until a compatible worker claims them; explicitly selected
+targets remain fixed.
 
 The Windows archive share is `\\10.20.11.251\archive`, mounted as `Y:` at its
 share root (`Y:\`). Read and write/delete probes succeeded in the RDP
