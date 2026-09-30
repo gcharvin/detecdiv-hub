@@ -231,13 +231,34 @@ def job_workspace(settings, job, session):
     result["worker_runtime"] = runtime
     job.result_json = result
     session.commit()
-    yield str(attempt)
+    try:
+        yield str(attempt)
+    finally:
+        if os.name != "nt":
+            short_temp = _short_matlab_temp_path(attempt)
+            if short_temp.is_symlink() and short_temp.resolve() == (attempt / "tmp").resolve():
+                short_temp.unlink()
+
+
+def _short_matlab_temp_path(work_dir):
+    return Path("/tmp/dd-matlab") / Path(work_dir).name
 
 
 def job_environment(work_dir):
     temp = Path(work_dir) / "tmp"
     temp.mkdir(exist_ok=True)
-    return {**os.environ, "TMPDIR": str(temp), "TMP": str(temp), "TEMP": str(temp),
+    temp_path = temp
+    if os.name != "nt":
+        # R2024b can exit silently before -batch starts when TMPDIR contains
+        # the full job/attempt UUID path. The short alias keeps files in the
+        # persistent attempt directory without shortening its real location.
+        temp_path = _short_matlab_temp_path(work_dir)
+        temp_path.parent.mkdir(mode=0o700, exist_ok=True)
+        short_root = temp_path.parent.stat()
+        if short_root.st_uid != os.getuid() or short_root.st_mode & 0o077:
+            raise RuntimeError("MATLAB temporary alias directory must be private to the worker user")
+        temp_path.symlink_to(temp.resolve(), target_is_directory=True)
+    return {**os.environ, "TMPDIR": str(temp_path), "TMP": str(temp_path), "TEMP": str(temp_path),
             "PYTHONDONTWRITEBYTECODE": "1"}
 
 

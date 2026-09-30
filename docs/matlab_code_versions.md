@@ -13,7 +13,10 @@ administrators deliberately changing permissions. Each job attempt has its own
 persistent `DetecDiv-jobs/work/<job-uuid>/<attempt-uuid>` directory for payloads,
 logs, results and temporary files. MATLAB's working directory and temporary
 environment point there; `DETECDIV_ROOT` and MATLAB paths point at the release.
-The source
+On Linux, MATLAB receives a short `/tmp/dd-matlab/<attempt-id>` alias for the
+attempt's `tmp` directory. R2024b can exit before running `-batch` when
+`TMPDIR` contains the full work-directory path. The alias is removed after the
+job, while its temporary files remain in the attempt directory. The source
 checkout is never pulled, reset or switched by the job launcher. Missing
 commits are fetched from the configured remote/branch under an OS file lock.
 Git preparation is serialized on each host. An unavailable commit fails the job
