@@ -197,7 +197,9 @@ pollers were restarted while idle and report fingerprint `68dc9b448e76`;
 the manager stayed active. The Windows copy was synchronized, but its running
 poller was not restarted because the new branch applies only on Linux. The
 published DetecDiv release is `6c6e414a4a3b52a905f3aab7639cd0d7a935f7d5`.
-The failed scientific run has not been submitted again after this correction.
+The dose pipeline was resubmitted as job
+`1535b10c-cc50-4301-a2d2-cbeff504f2f6`; by 07:34 CEST it had passed
+MATLAB startup and entered the data loader. Its final result remains pending.
 
 The Windows worker is an additional queue consumer, not a replacement for the
 Linux storage-visible workers. Keep its Hub checkout at
