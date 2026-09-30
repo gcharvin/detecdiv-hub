@@ -182,6 +182,23 @@ recent completed jobs, and locally modified code are retained. Historical
 per-job worktrees are preserved until eligible; job logs are not automatically
 deleted. No scientific job was launched for this deployment.
 
+### MATLAB temporary-path correction (2026-09-30)
+
+The Linux rerun `9b85ac9a-39a3-4197-a284-44344f435799` used DetecDiv release
+`6c6e414a` but exited before writing any MATLAB output. An isolated
+`matlab -batch "disp(version)"` reproduced exit 1 with the long attempt-local
+`TMPDIR`; the same command succeeded with a short symlink to that directory.
+Hub commit `37fe12c` makes Linux MATLAB jobs use a private
+`/tmp/dd-matlab/<attempt-id>` alias while retaining temporary files in the
+persistent attempt directory. The alias is removed when the job ends.
+
+The changed Hub launcher file was copied to both worker hosts. All six Linux
+pollers were restarted while idle and report fingerprint `68dc9b448e76`;
+the manager stayed active. The Windows copy was synchronized, but its running
+poller was not restarted because the new branch applies only on Linux. The
+published DetecDiv release is `6c6e414a4a3b52a905f3aab7639cd0d7a935f7d5`.
+The failed scientific run has not been submitted again after this correction.
+
 The Windows worker is an additional queue consumer, not a replacement for the
 Linux storage-visible workers. Keep its Hub checkout at
 `C:\Users\Charvin-Admin\Documents\MATLAB\detecdiv-hub` and its MATLAB
