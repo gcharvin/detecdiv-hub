@@ -296,6 +296,24 @@ configuration or service changes were made during this inspection.
 
 ## Data State
 
+### ROI pattern consistency release (2026-10-05)
+
+DetecDiv commit `759de8853eb70ce2eeb099d6ad8ad5e8374b5381` is pushed to
+GitHub and GitLab, verified in protected release directories on both Linux
+and Windows, and published as the default for new MATLAB jobs. It replaces
+default `5a71907dca8d51af0f52180fa81a90764c3b4be5` without restarting workers.
+Existing submitted jobs retain their original SHA.
+
+This release invalidates outdated ROI pattern previews, preserves the source
+patch when browsing other FOVs/frames and closing either editor, pins pattern
+settings in submitted node overrides, restricts downstream ROI lists to the
+selected positions, and explicitly fails empty generation attempts. The local
+App Designer applications are synchronized; existing desktop MATLAB sessions
+must reload the applications to use the updated editor code. Four existing
+regression tests and ten new consistency tests passed, including GUI callbacks
+against temporary synthetic projects. The affected scientific project was not
+modified or rerun during the fix.
+
 The PostgreSQL database from the former local `detecdiv-server` deployment was
 restored into the VM PostgreSQL container on 2026-04-26.
 
