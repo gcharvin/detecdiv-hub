@@ -296,6 +296,25 @@ configuration or service changes were made during this inspection.
 
 ## Data State
 
+### ROI pattern library release (2026-10-06)
+
+DetecDiv commit `9535f6e46babd15efc439895038a8bb2bfd07e15` is pushed to
+GitHub and GitLab and published as the default for new MATLAB jobs, replacing
+`501775949bf659930506d2e6386ab97087574822`. The exact SHA is verified in:
+
+- Linux: `/home/charvin-admin/repos/DetecDiv-jobs/releases/9535f6e46babd15efc439895038a8bb2bfd07e15`
+- Windows: `C:\Users\Charvin-Admin\Documents\GitHub\DetecDiv-jobs\releases\9535f6e46babd15efc439895038a8bb2bfd07e15`
+
+The desktop pipeline editor now provides a thumbnail library popup, separate
+pattern creation/testing in workflow2, and explicit per-run selection. Named
+presets live beside the pipeline, replacements require confirmation and a
+revision check, and runs embed their own motif pixels and preset provenance.
+Structured runtime overrides are preserved when saving a run. Eight library
+tests and fourteen existing pattern tests passed on temporary projects; the
+popup was rendered and inspected. App Designer code is synchronized. Desktop
+MATLAB applications must reload to use the new UI. No worker restart was needed;
+previously submitted jobs retain their pinned code version.
+
 ### ROI pattern consistency release (2026-10-05)
 
 DetecDiv commit `759de8853eb70ce2eeb099d6ad8ad5e8374b5381` is pushed to
