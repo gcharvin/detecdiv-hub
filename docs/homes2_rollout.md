@@ -31,8 +31,10 @@ ownership behavior are settled.
   for the worker guard; it does not mount either per-user share or enable a
   provider.
 - Alexander has a planned account under `maliavko/DetecdivHub` on root
-  `user-homes2` (`/homes2`). Its editable 10,000,000,000,000-byte (10 decimal
-  TB) per-user quota target remains `desired`; it has not been applied on DSM.
+  `user-homes2` (`/homes2`). On 2026-10-01 the active VM database was aligned
+  to the user's selected 60,000,000,000,000-byte (60 decimal TB) quota. It remains
+  `desired`: the user reports having applied 60 TB in DSM, but the secondary
+  DSM API client has no credentials configured and cannot verify that setting.
 - The independent `Alexander` shared folder and its 10 TB shared-folder quota
   still exist on the secondary NAS, but are not the Hub mapping or the selected
   home-storage strategy. Do not delete or use that share as part of this rollout.
@@ -74,6 +76,78 @@ credentials must not be stored in `storage_providers.config_json`. Secondary
 SSH administration is disabled unless explicitly configured.
 
 ## Mount preflight on `detecdiv-server`
+
+### Interactive per-user pilot completed on 2026-10-01
+
+The current parent `/homes2` still authenticates as Fred and remains read-only.
+The account and provider are still planned/inactive. The user has separately
+verified a write/list/delete through `smbclient //10.20.8.250/home -U maliavko`.
+That interactive SMB connection does not create a worker-visible CIFS mount.
+
+The subsequent interactive helper run succeeded: `/homes2/maliavko` is now a
+read-write CIFS mount of the individual `home` share, authenticated as
+`maliavko`. The NAS probe owner was verified as `maliavko`, and the exact probe
+was removed. `DetecdivHub/projects` and `DetecdivHub/raw` exist. The aggregate
+`/homes2` mount remains read-only. `Sauvegarde` is mounted read-only at the
+path below. Persistent fstab definitions were verified; no reboot was done.
+The fstab backup is `/etc/fstab.detecdiv-homes2-20261001T083814474007Z.bak`.
+The Hub records a passed `per_user_mount_verified_20261001` audit event, but
+the provider remains inactive and the account planned: the mount test does not
+verify the DSM API quota or establish backup coverage.
+
+`scripts/ops/prepare_alexander_homes2.py` is staged, with verified SHA-256, at
+`/home/charvin-admin/prepare_alexander_homes2_20261001.py`. Run it from the
+user's own interactive terminal so Linux sudo and DSM password prompts are
+visible; do not send the password through the chat or store it in the Hub:
+
+```powershell
+ssh -tt detecdiv-server "sudo python3 /home/charvin-admin/prepare_alexander_homes2_20261001.py"
+```
+
+The helper mounts `//10.20.8.250/home` at `/homes2/maliavko`, authenticated
+as `maliavko`; verifies a worker-user write and its NAS-side owner; removes
+that probe; and prepares `DetecdivHub/projects` and `DetecdivHub/raw`.
+It also mounts `//10.20.8.250/Sauvegarde` read-only at
+`/mnt/detecdiv-secondary-sauvegarde` with the existing Fred read credentials.
+It backs up `/etc/fstab`, adds only the two new mount entries, and reloads the
+systemd unit definitions. It does not restart workers, activate the Hub
+provider, copy datasets, edit MAT files, or delete source data.
+
+The secondary NAS has 50,864,544,145,408 available bytes at the 2026-10-01
+check; the main NAS has 3,905,916,420,096 available bytes. A 60 TB quota does
+not reserve capacity. The main NAS native size scan runs at low CPU priority
+with durable progress in `reports/alexander-size-live-20261001.json`.
+Completed native inventories measure 57,319,663,161,801 bytes in
+`/volume1/DATA/Alexander` and 4,900,768,630,692 bytes in the primary
+`/volume1/homes/maliavko`. Their 62.22 TB combined apparent footprint, before
+duplicate reconciliation, exceeds both the observed secondary free capacity
+and the desired 60 TB quota. Plan migrations in verified batches.
+
+The initial 2023 project pilot is documented in
+`reports/alexander-2023-project-pilot-20261001.json`: 20 top-level MAT candidates,
+5,817,109,998 bytes, and two tiny files requiring explicit metadata review.
+Do not treat filename similarity as sufficient evidence for raw lineage.
+18 valid projects are now privately registered to Alexander with read-only
+source locations and a warning/pending-inventory status. MATLAB read their
+internal paths; one exact server-path raw relationship was registered, while
+legacy drive aliases remain candidates for review. No source was rewritten.
+A bounded copy dry-run of the smallest MAT plus its project folder completed
+(64,013,022,845 bytes); the destination was not created and nothing was copied.
+See `reports/alexander-migration-preflight-20261001.md` for the current audit.
+
+The subsequent all-years loose-project ingestion of `Sauvegarde` is complete:
+150 Alexander shallow projects, 558 Basile legacy timeLapse projects, and
+778 Sandrine legacy timeLapse projects are privately catalogued with read-only
+source locations (1,486 total). Seven empty/unrecognized/result MAT candidates
+remain unregistered and preserved; Fred's Duplicity archive was not unpacked.
+No new raw associations, data transfer, home-provider activation, or worker
+change accompanied this ingestion. See
+`reports/sauvegarde-ingestion-20261001.md` and the independently verified final
+catalog manifest. Alexander's agreement was reported on 2026-10-08. The initial
+physical phase copies/verifies only `/data/Alexander/data/2023_{1,2,3}`, retaining
+all original paths and catalog locations; see `docs/alexander_2023_transfer.md`.
+
+The following older aggregate-mount procedure is retained as historical setup.
 
 The following requires an administrator with local `sudo` access. First
 confirm the existing credentials file is still the one used for the secondary
