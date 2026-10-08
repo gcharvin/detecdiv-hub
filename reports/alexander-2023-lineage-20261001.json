@@ -1,0 +1,501 @@
+{
+  "sourceManifest": "C:/Users/Gilles/Documents/MATLAB/detecdiv-hub/reports/alexander-2023-project-pilot-20261001.json",
+  "readOnly": true,
+  "complete": true,
+  "projects": [
+    {
+      "file": "S:\\Alexander\\analysis\\anof_03112023_dhy_fobs_ah4s.mat",
+      "fileName": "anof_03112023_dhy_fobs_ah4s.mat",
+      "matBytes": 9.5673634E+7,
+      "status": "inspected",
+      "fovCount": 18,
+      "rawPaths": [
+        "X:\\maliavko\\data\\03112023_dhy_fobs_ah4s\\03112023_dhy_fobs_ah4s_1\\Pos0",
+        "X:\\maliavko\\data\\03112023_dhy_fobs_ah4s\\03112023_dhy_fobs_ah4s_1\\Pos1",
+        "X:\\maliavko\\data\\03112023_dhy_fobs_ah4s\\03112023_dhy_fobs_ah4s_1\\Pos2",
+        "X:\\maliavko\\data\\03112023_dhy_fobs_ah4s\\03112023_dhy_fobs_ah4s_1\\Pos3",
+        "X:\\maliavko\\data\\03112023_dhy_fobs_ah4s\\03112023_dhy_fobs_ah4s_1\\Pos4",
+        "X:\\maliavko\\data\\03112023_dhy_fobs_ah4s\\03112023_dhy_fobs_ah4s_1\\Pos5",
+        "X:\\maliavko\\data\\03112023_dhy_fobs_ah4s\\03112023_dhy_fobs_ah4s_1\\Pos6",
+        "X:\\maliavko\\data\\03112023_dhy_fobs_ah4s\\03112023_dhy_fobs_ah4s_1\\Pos7",
+        "X:\\maliavko\\data\\03112023_dhy_fobs_ah4s\\03112023_dhy_fobs_ah4s_1\\Pos8",
+        "X:\\maliavko\\data\\03112023_dhy_fobs_ah4s\\03112023_dhy_fobs_ah4s_1\\Pos9",
+        "X:\\maliavko\\data\\03112023_dhy_fobs_ah4s\\03112023_dhy_fobs_ah4s_1\\Pos10",
+        "X:\\maliavko\\data\\03112023_dhy_fobs_ah4s\\03112023_dhy_fobs_ah4s_1\\Pos11",
+        "X:\\maliavko\\data\\03112023_dhy_fobs_ah4s\\03112023_dhy_fobs_ah4s_1\\Pos12",
+        "X:\\maliavko\\data\\03112023_dhy_fobs_ah4s\\03112023_dhy_fobs_ah4s_1\\Pos13",
+        "X:\\maliavko\\data\\03112023_dhy_fobs_ah4s\\03112023_dhy_fobs_ah4s_1\\Pos14",
+        "X:\\maliavko\\data\\03112023_dhy_fobs_ah4s\\03112023_dhy_fobs_ah4s_1\\Pos15",
+        "X:\\maliavko\\data\\03112023_dhy_fobs_ah4s\\03112023_dhy_fobs_ah4s_1\\Pos16",
+        "X:\\maliavko\\data\\03112023_dhy_fobs_ah4s\\03112023_dhy_fobs_ah4s_1\\Pos17"
+      ],
+      "projectIo": {
+        "path": "Z:\\Alexander\\analysis\\",
+        "file": "anof_03112023_dhy_fobs_ah4s"
+      },
+      "error": ""
+    },
+    {
+      "file": "S:\\Alexander\\analysis\\anof_07122023_5354_log1724.mat",
+      "fileName": "anof_07122023_5354_log1724.mat",
+      "matBytes": 3.29256295E+8,
+      "status": "inspected",
+      "fovCount": 23,
+      "rawPaths": [
+        "Z:\\Alexander\\07122023_5354_log1724_dfcnts2_test\\07122023_5354_log1724_dfcnts2_test_4\\Pos1",
+        "Z:\\Alexander\\07122023_5354_log1724_dfcnts2_test\\07122023_5354_log1724_dfcnts2_test_4\\Pos2",
+        "Z:\\Alexander\\07122023_5354_log1724_dfcnts2_test\\07122023_5354_log1724_dfcnts2_test_4\\Pos3",
+        "Z:\\Alexander\\07122023_5354_log1724_dfcnts2_test\\07122023_5354_log1724_dfcnts2_test_4\\Pos4",
+        "Z:\\Alexander\\07122023_5354_log1724_dfcnts2_test\\07122023_5354_log1724_dfcnts2_test_4\\Pos5",
+        "Z:\\Alexander\\07122023_5354_log1724_dfcnts2_test\\07122023_5354_log1724_dfcnts2_test_4\\Pos6",
+        "Z:\\Alexander\\07122023_5354_log1724_dfcnts2_test\\07122023_5354_log1724_dfcnts2_test_4\\Pos7",
+        "Z:\\Alexander\\07122023_5354_log1724_dfcnts2_test\\07122023_5354_log1724_dfcnts2_test_4\\Pos8",
+        "Z:\\Alexander\\07122023_5354_log1724_dfcnts2_test\\07122023_5354_log1724_dfcnts2_test_4\\Pos9",
+        "Z:\\Alexander\\07122023_5354_log1724_dfcnts2_test\\07122023_5354_log1724_dfcnts2_test_4\\Pos10",
+        "Z:\\Alexander\\07122023_5354_log1724_dfcnts2_test\\07122023_5354_log1724_dfcnts2_test_4\\Pos11",
+        "Z:\\Alexander\\07122023_5354_log1724_dfcnts2_test\\07122023_5354_log1724_dfcnts2_test_4\\Pos12",
+        "Z:\\Alexander\\07122023_5354_log1724_dfcnts2_test\\07122023_5354_log1724_dfcnts2_test_4\\Pos13",
+        "Z:\\Alexander\\07122023_5354_log1724_dfcnts2_test\\07122023_5354_log1724_dfcnts2_test_4\\Pos14",
+        "Z:\\Alexander\\07122023_5354_log1724_dfcnts2_test\\07122023_5354_log1724_dfcnts2_test_4\\Pos15",
+        "Z:\\Alexander\\07122023_5354_log1724_dfcnts2_test\\07122023_5354_log1724_dfcnts2_test_4\\Pos16",
+        "Z:\\Alexander\\07122023_5354_log1724_dfcnts2_test\\07122023_5354_log1724_dfcnts2_test_4\\Pos17",
+        "Z:\\Alexander\\07122023_5354_log1724_dfcnts2_test\\07122023_5354_log1724_dfcnts2_test_4\\Pos18",
+        "Z:\\Alexander\\07122023_5354_log1724_dfcnts2_test\\07122023_5354_log1724_dfcnts2_test_4\\Pos19",
+        "Z:\\Alexander\\07122023_5354_log1724_dfcnts2_test\\07122023_5354_log1724_dfcnts2_test_4\\Pos20",
+        "Z:\\Alexander\\07122023_5354_log1724_dfcnts2_test\\07122023_5354_log1724_dfcnts2_test_4\\Pos21",
+        "Z:\\Alexander\\07122023_5354_log1724_dfcnts2_test\\07122023_5354_log1724_dfcnts2_test_4\\Pos22",
+        "Z:\\Alexander\\07122023_5354_log1724_dfcnts2_test\\07122023_5354_log1724_dfcnts2_test_4\\Pos24"
+      ],
+      "projectIo": {
+        "path": "Z:\\Alexander\\analysis\\",
+        "file": "anof_07122023_5354_log1724"
+      },
+      "error": ""
+    },
+    {
+      "file": "S:\\Alexander\\analysis\\anof_10112023_nh_dhapxs_1530.mat",
+      "fileName": "anof_10112023_nh_dhapxs_1530.mat",
+      "matBytes": 248,
+      "status": "manual_review",
+      "fovCount": 0,
+      "rawPaths": [],
+      "projectIo": [],
+      "error": ""
+    },
+    {
+      "file": "S:\\Alexander\\analysis\\anof_130723_urFIT2.mat",
+      "fileName": "anof_130723_urFIT2.mat",
+      "matBytes": 1.84277709E+8,
+      "status": "inspected",
+      "fovCount": 4,
+      "rawPaths": [
+        "Z:\\Alexander\\130723_urFIT2\\130723_urFIT2_4\\Pos2",
+        "Z:\\Alexander\\130723_urFIT2\\130723_urFIT2_4\\Pos6",
+        "Z:\\Alexander\\130723_urFIT2\\130723_urFIT2_4\\Pos13",
+        "Z:\\Alexander\\130723_urFIT2\\130723_urFIT2_4\\Pos16"
+      ],
+      "projectIo": {
+        "path": "\\\\10.20.11.250\\homes\\maliavko\\analysis\\",
+        "file": "anof_130723_urFIT2"
+      },
+      "error": ""
+    },
+    {
+      "file": "S:\\Alexander\\analysis\\anof_13122023_crelox_test.mat",
+      "fileName": "anof_13122023_crelox_test.mat",
+      "matBytes": 3.98256551E+8,
+      "status": "inspected",
+      "fovCount": 16,
+      "rawPaths": [
+        "Z:\\Alexander\\13122023_crelox_test\\13122023_crelox_test_4\\Pos1",
+        "Z:\\Alexander\\13122023_crelox_test\\13122023_crelox_test_4\\Pos4",
+        "Z:\\Alexander\\13122023_crelox_test\\13122023_crelox_test_4\\Pos5",
+        "Z:\\Alexander\\13122023_crelox_test\\13122023_crelox_test_4\\Pos8",
+        "Z:\\Alexander\\13122023_crelox_test\\13122023_crelox_test_4\\Pos9",
+        "Z:\\Alexander\\13122023_crelox_test\\13122023_crelox_test_4\\Pos12",
+        "Z:\\Alexander\\13122023_crelox_test\\13122023_crelox_test_4\\Pos13",
+        "Z:\\Alexander\\13122023_crelox_test\\13122023_crelox_test_4\\Pos16",
+        "Z:\\Alexander\\13122023_crelox_test\\13122023_crelox_test_4\\Pos17",
+        "Z:\\Alexander\\13122023_crelox_test\\13122023_crelox_test_4\\Pos20",
+        "Z:\\Alexander\\13122023_crelox_test\\13122023_crelox_test_4\\Pos21",
+        "Z:\\Alexander\\13122023_crelox_test\\13122023_crelox_test_4\\Pos24",
+        "Z:\\Alexander\\13122023_crelox_test\\13122023_crelox_test_4\\Pos25",
+        "Z:\\Alexander\\13122023_crelox_test\\13122023_crelox_test_4\\Pos28",
+        "Z:\\Alexander\\13122023_crelox_test\\13122023_crelox_test_4\\Pos29",
+        "Z:\\Alexander\\13122023_crelox_test\\13122023_crelox_test_4\\Pos32"
+      ],
+      "projectIo": {
+        "path": "/DataVault/Alexander/analysis/",
+        "file": "anof_13122023_crelox_test"
+      },
+      "error": ""
+    },
+    {
+      "file": "S:\\Alexander\\analysis\\anof_14092023_leftRDN_nhadhhap4.mat",
+      "fileName": "anof_14092023_leftRDN_nhadhhap4.mat",
+      "matBytes": 247,
+      "status": "manual_review",
+      "fovCount": 0,
+      "rawPaths": [],
+      "projectIo": [],
+      "error": ""
+    },
+    {
+      "file": "S:\\Alexander\\analysis\\anof_17102023_yam76s_APx1s.mat",
+      "fileName": "anof_17102023_yam76s_APx1s.mat",
+      "matBytes": 1.28700014E+8,
+      "status": "inspected",
+      "fovCount": 5,
+      "rawPaths": [
+        "\\\\10.20.8.250\\data\\Alexander\\after_29092023\\17102023_yam76s\\17102023_yam76s_4\\Pos3",
+        "\\\\10.20.8.250\\data\\Alexander\\after_29092023\\17102023_yam76s\\17102023_yam76s_4\\Pos6",
+        "\\\\10.20.8.250\\data\\Alexander\\after_29092023\\17102023_yam76s\\17102023_yam76s_4\\Pos9",
+        "\\\\10.20.8.250\\data\\Alexander\\after_29092023\\17102023_yam76s\\17102023_yam76s_4\\Pos14",
+        "\\\\10.20.8.250\\data\\Alexander\\after_29092023\\17102023_yam76s\\17102023_yam76s_4\\Pos18"
+      ],
+      "projectIo": {
+        "path": "/DataVault/Alexander/analysis/",
+        "file": "anof_17102023_yam76s_APx1s"
+      },
+      "error": ""
+    },
+    {
+      "file": "S:\\Alexander\\analysis\\anof_171123_apx1.mat",
+      "fileName": "anof_171123_apx1.mat",
+      "matBytes": 2.35441761E+8,
+      "status": "inspected",
+      "fovCount": 8,
+      "rawPaths": [
+        "Z:\\Alexander\\171123dhyapx1_nhgch5\\171123dhyapx1_nhgch5_4\\Pos1",
+        "Z:\\Alexander\\171123dhyapx1_nhgch5\\171123dhyapx1_nhgch5_4\\Pos2",
+        "Z:\\Alexander\\171123dhyapx1_nhgch5\\171123dhyapx1_nhgch5_4\\Pos3",
+        "Z:\\Alexander\\171123dhyapx1_nhgch5\\171123dhyapx1_nhgch5_4\\Pos4",
+        "Z:\\Alexander\\171123dhyapx1_nhgch5\\171123dhyapx1_nhgch5_4\\Pos5",
+        "Z:\\Alexander\\171123dhyapx1_nhgch5\\171123dhyapx1_nhgch5_4\\Pos6",
+        "Z:\\Alexander\\171123dhyapx1_nhgch5\\171123dhyapx1_nhgch5_4\\Pos7",
+        "Z:\\Alexander\\171123dhyapx1_nhgch5\\171123dhyapx1_nhgch5_4\\Pos8"
+      ],
+      "projectIo": {
+        "path": "/DataVault/Alexander/analysis/",
+        "file": "anof_171123_apx1"
+      },
+      "error": ""
+    },
+    {
+      "file": "S:\\Alexander\\analysis\\anof_171123_nhwt_gcn5.mat",
+      "fileName": "anof_171123_nhwt_gcn5.mat",
+      "matBytes": 4.71885353E+8,
+      "status": "inspected",
+      "fovCount": 16,
+      "rawPaths": [
+        "Z:\\Alexander\\171123dhyapx1_nhgch5\\171123dhyapx1_nhgch5_4\\Pos9",
+        "Z:\\Alexander\\171123dhyapx1_nhgch5\\171123dhyapx1_nhgch5_4\\Pos10",
+        "Z:\\Alexander\\171123dhyapx1_nhgch5\\171123dhyapx1_nhgch5_4\\Pos11",
+        "Z:\\Alexander\\171123dhyapx1_nhgch5\\171123dhyapx1_nhgch5_4\\Pos12",
+        "Z:\\Alexander\\171123dhyapx1_nhgch5\\171123dhyapx1_nhgch5_4\\Pos13",
+        "Z:\\Alexander\\171123dhyapx1_nhgch5\\171123dhyapx1_nhgch5_4\\Pos14",
+        "Z:\\Alexander\\171123dhyapx1_nhgch5\\171123dhyapx1_nhgch5_4\\Pos15",
+        "Z:\\Alexander\\171123dhyapx1_nhgch5\\171123dhyapx1_nhgch5_4\\Pos16",
+        "Z:\\Alexander\\171123dhyapx1_nhgch5\\171123dhyapx1_nhgch5_4\\Pos17",
+        "Z:\\Alexander\\171123dhyapx1_nhgch5\\171123dhyapx1_nhgch5_4\\Pos18",
+        "Z:\\Alexander\\171123dhyapx1_nhgch5\\171123dhyapx1_nhgch5_4\\Pos19",
+        "Z:\\Alexander\\171123dhyapx1_nhgch5\\171123dhyapx1_nhgch5_4\\Pos20",
+        "Z:\\Alexander\\171123dhyapx1_nhgch5\\171123dhyapx1_nhgch5_4\\Pos21",
+        "Z:\\Alexander\\171123dhyapx1_nhgch5\\171123dhyapx1_nhgch5_4\\Pos22",
+        "Z:\\Alexander\\171123dhyapx1_nhgch5\\171123dhyapx1_nhgch5_4\\Pos23",
+        "Z:\\Alexander\\171123dhyapx1_nhgch5\\171123dhyapx1_nhgch5_4\\Pos24"
+      ],
+      "projectIo": {
+        "path": "/DataVault/Alexander/analysis/",
+        "file": "anof_171123_nhwt_gcn5"
+      },
+      "error": ""
+    },
+    {
+      "file": "S:\\Alexander\\analysis\\anof_171123_RM_NTS1NGtest.mat",
+      "fileName": "anof_171123_RM_NTS1NGtest.mat",
+      "matBytes": 1.23925648E+8,
+      "status": "inspected",
+      "fovCount": 4,
+      "rawPaths": [
+        "Z:\\Alexander\\171123dhyapx1_nhgch5\\171123dhyapx1_nhgch5_4\\Pos29",
+        "Z:\\Alexander\\171123dhyapx1_nhgch5\\171123dhyapx1_nhgch5_4\\Pos30",
+        "Z:\\Alexander\\171123dhyapx1_nhgch5\\171123dhyapx1_nhgch5_4\\Pos31",
+        "Z:\\Alexander\\171123dhyapx1_nhgch5\\171123dhyapx1_nhgch5_4\\Pos32"
+      ],
+      "projectIo": {
+        "path": "/DataVault/Alexander/analysis/",
+        "file": "anof_171123_RM_NTS1NGtest"
+      },
+      "error": ""
+    },
+    {
+      "file": "S:\\Alexander\\analysis\\anof_171123_sgfhap4.mat",
+      "fileName": "anof_171123_sgfhap4.mat",
+      "matBytes": 1.23254613E+8,
+      "status": "inspected",
+      "fovCount": 4,
+      "rawPaths": [
+        "Z:\\Alexander\\171123dhyapx1_nhgch5\\171123dhyapx1_nhgch5_4\\Pos25",
+        "Z:\\Alexander\\171123dhyapx1_nhgch5\\171123dhyapx1_nhgch5_4\\Pos26",
+        "Z:\\Alexander\\171123dhyapx1_nhgch5\\171123dhyapx1_nhgch5_4\\Pos27",
+        "Z:\\Alexander\\171123dhyapx1_nhgch5\\171123dhyapx1_nhgch5_4\\Pos28"
+      ],
+      "projectIo": {
+        "path": "/DataVault/Alexander/analysis/",
+        "file": "anof_171123_sgfhap4"
+      },
+      "error": ""
+    },
+    {
+      "file": "S:\\Alexander\\analysis\\anof_190423_nh_sir2_tween.mat",
+      "fileName": "anof_190423_nh_sir2_tween.mat",
+      "matBytes": 5.47098427E+8,
+      "status": "inspected",
+      "fovCount": 28,
+      "rawPaths": [
+        "\\\\10.20.11.250\\data\\Alexander\\190423_nh_sir2_tween\\190423_nh_sir2_tween_4\\Pos1",
+        "\\\\10.20.11.250\\data\\Alexander\\190423_nh_sir2_tween\\190423_nh_sir2_tween_4\\Pos2",
+        "\\\\10.20.11.250\\data\\Alexander\\190423_nh_sir2_tween\\190423_nh_sir2_tween_4\\Pos3",
+        "\\\\10.20.11.250\\data\\Alexander\\190423_nh_sir2_tween\\190423_nh_sir2_tween_4\\Pos4",
+        "\\\\10.20.11.250\\data\\Alexander\\190423_nh_sir2_tween\\190423_nh_sir2_tween_4\\Pos5",
+        "\\\\10.20.11.250\\data\\Alexander\\190423_nh_sir2_tween\\190423_nh_sir2_tween_4\\Pos6",
+        "\\\\10.20.11.250\\data\\Alexander\\190423_nh_sir2_tween\\190423_nh_sir2_tween_4\\Pos7",
+        "\\\\10.20.11.250\\data\\Alexander\\190423_nh_sir2_tween\\190423_nh_sir2_tween_4\\Pos8",
+        "\\\\10.20.11.250\\data\\Alexander\\190423_nh_sir2_tween\\190423_nh_sir2_tween_4\\Pos9",
+        "\\\\10.20.11.250\\data\\Alexander\\190423_nh_sir2_tween\\190423_nh_sir2_tween_4\\Pos10",
+        "\\\\10.20.11.250\\data\\Alexander\\190423_nh_sir2_tween\\190423_nh_sir2_tween_4\\Pos11",
+        "\\\\10.20.11.250\\data\\Alexander\\190423_nh_sir2_tween\\190423_nh_sir2_tween_4\\Pos12",
+        "\\\\10.20.11.250\\data\\Alexander\\190423_nh_sir2_tween\\190423_nh_sir2_tween_4\\Pos13",
+        "\\\\10.20.11.250\\data\\Alexander\\190423_nh_sir2_tween\\190423_nh_sir2_tween_4\\Pos14",
+        "\\\\10.20.11.250\\data\\Alexander\\190423_nh_sir2_tween\\190423_nh_sir2_tween_4\\Pos15",
+        "\\\\10.20.11.250\\data\\Alexander\\190423_nh_sir2_tween\\190423_nh_sir2_tween_4\\Pos16",
+        "\\\\10.20.11.250\\data\\Alexander\\190423_nh_sir2_tween\\190423_nh_sir2_tween_4\\Pos17",
+        "\\\\10.20.11.250\\data\\Alexander\\190423_nh_sir2_tween\\190423_nh_sir2_tween_4\\Pos18",
+        "\\\\10.20.11.250\\data\\Alexander\\190423_nh_sir2_tween\\190423_nh_sir2_tween_4\\Pos19",
+        "\\\\10.20.11.250\\data\\Alexander\\190423_nh_sir2_tween\\190423_nh_sir2_tween_4\\Pos20",
+        "\\\\10.20.11.250\\data\\Alexander\\190423_nh_sir2_tween\\190423_nh_sir2_tween_4\\Pos21",
+        "\\\\10.20.11.250\\data\\Alexander\\190423_nh_sir2_tween\\190423_nh_sir2_tween_4\\Pos22",
+        "\\\\10.20.11.250\\data\\Alexander\\190423_nh_sir2_tween\\190423_nh_sir2_tween_4\\Pos23",
+        "\\\\10.20.11.250\\data\\Alexander\\190423_nh_sir2_tween\\190423_nh_sir2_tween_4\\Pos24",
+        "\\\\10.20.11.250\\data\\Alexander\\190423_nh_sir2_tween\\190423_nh_sir2_tween_4\\Pos25",
+        "\\\\10.20.11.250\\data\\Alexander\\190423_nh_sir2_tween\\190423_nh_sir2_tween_4\\Pos26",
+        "\\\\10.20.11.250\\data\\Alexander\\190423_nh_sir2_tween\\190423_nh_sir2_tween_4\\Pos27",
+        "\\\\10.20.11.250\\data\\Alexander\\190423_nh_sir2_tween\\190423_nh_sir2_tween_4\\Pos28"
+      ],
+      "projectIo": {
+        "path": "/DataVault/Alexander/analysis/",
+        "file": "anof_190423_nh_sir2_tween"
+      },
+      "error": ""
+    },
+    {
+      "file": "S:\\Alexander\\analysis\\anof_19092023_nhfob1t1_adhhap4.mat",
+      "fileName": "anof_19092023_nhfob1t1_adhhap4.mat",
+      "matBytes": 6.59566639E+8,
+      "status": "inspected",
+      "fovCount": 20,
+      "rawPaths": [
+        "Z:\\Alexander\\19092023_nhfob1t1_adhhap4\\19092023_nhfob1t1_adhhap4_4\\Pos1",
+        "Z:\\Alexander\\19092023_nhfob1t1_adhhap4\\19092023_nhfob1t1_adhhap4_4\\Pos2",
+        "Z:\\Alexander\\19092023_nhfob1t1_adhhap4\\19092023_nhfob1t1_adhhap4_4\\Pos3",
+        "Z:\\Alexander\\19092023_nhfob1t1_adhhap4\\19092023_nhfob1t1_adhhap4_4\\Pos4",
+        "Z:\\Alexander\\19092023_nhfob1t1_adhhap4\\19092023_nhfob1t1_adhhap4_4\\Pos5",
+        "Z:\\Alexander\\19092023_nhfob1t1_adhhap4\\19092023_nhfob1t1_adhhap4_4\\Pos6",
+        "Z:\\Alexander\\19092023_nhfob1t1_adhhap4\\19092023_nhfob1t1_adhhap4_4\\Pos7",
+        "Z:\\Alexander\\19092023_nhfob1t1_adhhap4\\19092023_nhfob1t1_adhhap4_4\\Pos8",
+        "Z:\\Alexander\\19092023_nhfob1t1_adhhap4\\19092023_nhfob1t1_adhhap4_4\\Pos9",
+        "Z:\\Alexander\\19092023_nhfob1t1_adhhap4\\19092023_nhfob1t1_adhhap4_4\\Pos10",
+        "Z:\\Alexander\\19092023_nhfob1t1_adhhap4\\19092023_nhfob1t1_adhhap4_4\\Pos11",
+        "Z:\\Alexander\\19092023_nhfob1t1_adhhap4\\19092023_nhfob1t1_adhhap4_4\\Pos12",
+        "Z:\\Alexander\\19092023_nhfob1t1_adhhap4\\19092023_nhfob1t1_adhhap4_4\\Pos13",
+        "Z:\\Alexander\\19092023_nhfob1t1_adhhap4\\19092023_nhfob1t1_adhhap4_4\\Pos14",
+        "Z:\\Alexander\\19092023_nhfob1t1_adhhap4\\19092023_nhfob1t1_adhhap4_4\\Pos15",
+        "Z:\\Alexander\\19092023_nhfob1t1_adhhap4\\19092023_nhfob1t1_adhhap4_4\\Pos16",
+        "Z:\\Alexander\\19092023_nhfob1t1_adhhap4\\19092023_nhfob1t1_adhhap4_4\\Pos21",
+        "Z:\\Alexander\\19092023_nhfob1t1_adhhap4\\19092023_nhfob1t1_adhhap4_4\\Pos22",
+        "Z:\\Alexander\\19092023_nhfob1t1_adhhap4\\19092023_nhfob1t1_adhhap4_4\\Pos23",
+        "Z:\\Alexander\\19092023_nhfob1t1_adhhap4\\19092023_nhfob1t1_adhhap4_4\\Pos24"
+      ],
+      "projectIo": {
+        "path": "/DataVault/Alexander/analysis/",
+        "file": "anof_19092023_nhfob1t1_adhhap4"
+      },
+      "error": ""
+    },
+    {
+      "file": "S:\\Alexander\\analysis\\anof_231123_newleft.mat",
+      "fileName": "anof_231123_newleft.mat",
+      "matBytes": 2.34380409E+8,
+      "status": "inspected",
+      "fovCount": 8,
+      "rawPaths": [
+        "Z:\\Alexander\\231123newleft_nh52\\231123newleft_nh52_4\\Pos1",
+        "Z:\\Alexander\\231123newleft_nh52\\231123newleft_nh52_4\\Pos2",
+        "Z:\\Alexander\\231123newleft_nh52\\231123newleft_nh52_4\\Pos3",
+        "Z:\\Alexander\\231123newleft_nh52\\231123newleft_nh52_4\\Pos4",
+        "Z:\\Alexander\\231123newleft_nh52\\231123newleft_nh52_4\\Pos5",
+        "Z:\\Alexander\\231123newleft_nh52\\231123newleft_nh52_4\\Pos6",
+        "Z:\\Alexander\\231123newleft_nh52\\231123newleft_nh52_4\\Pos7",
+        "Z:\\Alexander\\231123newleft_nh52\\231123newleft_nh52_4\\Pos8"
+      ],
+      "projectIo": {
+        "path": "/DataVault/Alexander/analysis/",
+        "file": "anof_231123_newleft"
+      },
+      "error": ""
+    },
+    {
+      "file": "S:\\Alexander\\analysis\\anof_231123_nh52.mat",
+      "fileName": "anof_231123_nh52.mat",
+      "matBytes": 4.56544001E+8,
+      "status": "inspected",
+      "fovCount": 16,
+      "rawPaths": [
+        "Z:\\Alexander\\231123newleft_nh52\\231123newleft_nh52_4\\Pos9",
+        "Z:\\Alexander\\231123newleft_nh52\\231123newleft_nh52_4\\Pos10",
+        "Z:\\Alexander\\231123newleft_nh52\\231123newleft_nh52_4\\Pos11",
+        "Z:\\Alexander\\231123newleft_nh52\\231123newleft_nh52_4\\Pos12",
+        "Z:\\Alexander\\231123newleft_nh52\\231123newleft_nh52_4\\Pos13",
+        "Z:\\Alexander\\231123newleft_nh52\\231123newleft_nh52_4\\Pos14",
+        "Z:\\Alexander\\231123newleft_nh52\\231123newleft_nh52_4\\Pos15",
+        "Z:\\Alexander\\231123newleft_nh52\\231123newleft_nh52_4\\Pos16",
+        "Z:\\Alexander\\231123newleft_nh52\\231123newleft_nh52_4\\Pos17",
+        "Z:\\Alexander\\231123newleft_nh52\\231123newleft_nh52_4\\Pos18",
+        "Z:\\Alexander\\231123newleft_nh52\\231123newleft_nh52_4\\Pos19",
+        "Z:\\Alexander\\231123newleft_nh52\\231123newleft_nh52_4\\Pos20",
+        "Z:\\Alexander\\231123newleft_nh52\\231123newleft_nh52_4\\Pos21",
+        "Z:\\Alexander\\231123newleft_nh52\\231123newleft_nh52_4\\Pos22",
+        "Z:\\Alexander\\231123newleft_nh52\\231123newleft_nh52_4\\Pos23",
+        "Z:\\Alexander\\231123newleft_nh52\\231123newleft_nh52_4\\Pos24"
+      ],
+      "projectIo": {
+        "path": "/DataVault/Alexander/analysis/",
+        "file": "anof_231123_nh52"
+      },
+      "error": ""
+    },
+    {
+      "file": "S:\\Alexander\\analysis\\anof_26102023_yam76s_100ms.mat",
+      "fileName": "anof_26102023_yam76s_100ms.mat",
+      "matBytes": 3.59993344E+8,
+      "status": "inspected",
+      "fovCount": 12,
+      "rawPaths": [
+        "/data/Alexander/data/2023_2/26102023_yam76s_100ms/26102023_yam76s_100ms_4/Pos1",
+        "/data/Alexander/data/2023_2/26102023_yam76s_100ms/26102023_yam76s_100ms_4/Pos2",
+        "/data/Alexander/data/2023_2/26102023_yam76s_100ms/26102023_yam76s_100ms_4/Pos3",
+        "/data/Alexander/data/2023_2/26102023_yam76s_100ms/26102023_yam76s_100ms_4/Pos4",
+        "/data/Alexander/data/2023_2/26102023_yam76s_100ms/26102023_yam76s_100ms_4/Pos5",
+        "/data/Alexander/data/2023_2/26102023_yam76s_100ms/26102023_yam76s_100ms_4/Pos6",
+        "/data/Alexander/data/2023_2/26102023_yam76s_100ms/26102023_yam76s_100ms_4/Pos7",
+        "/data/Alexander/data/2023_2/26102023_yam76s_100ms/26102023_yam76s_100ms_4/Pos8",
+        "/data/Alexander/data/2023_2/26102023_yam76s_100ms/26102023_yam76s_100ms_4/Pos29",
+        "/data/Alexander/data/2023_2/26102023_yam76s_100ms/26102023_yam76s_100ms_4/Pos30",
+        "/data/Alexander/data/2023_2/26102023_yam76s_100ms/26102023_yam76s_100ms_4/Pos31",
+        "/data/Alexander/data/2023_2/26102023_yam76s_100ms/26102023_yam76s_100ms_4/Pos32"
+      ],
+      "projectIo": {
+        "path": "/DataVault/Alexander/analysis/",
+        "file": "anof_26102023_yam76s_100ms"
+      },
+      "error": ""
+    },
+    {
+      "file": "S:\\Alexander\\analysis\\anof_270823_x15758_58only.mat",
+      "fileName": "anof_270823_x15758_58only.mat",
+      "matBytes": 4.9155879E+8,
+      "status": "inspected",
+      "fovCount": 12,
+      "rawPaths": [
+        "Z:\\Alexander\\270823_x15758\\270823_x15758_4\\Pos13",
+        "Z:\\Alexander\\270823_x15758\\270823_x15758_4\\Pos14",
+        "Z:\\Alexander\\270823_x15758\\270823_x15758_4\\Pos15",
+        "Z:\\Alexander\\270823_x15758\\270823_x15758_4\\Pos16",
+        "Z:\\Alexander\\270823_x15758\\270823_x15758_4\\Pos17",
+        "Z:\\Alexander\\270823_x15758\\270823_x15758_4\\Pos18",
+        "Z:\\Alexander\\270823_x15758\\270823_x15758_4\\Pos19",
+        "Z:\\Alexander\\270823_x15758\\270823_x15758_4\\Pos20",
+        "Z:\\Alexander\\270823_x15758\\270823_x15758_4\\Pos21",
+        "Z:\\Alexander\\270823_x15758\\270823_x15758_4\\Pos22",
+        "Z:\\Alexander\\270823_x15758\\270823_x15758_4\\Pos23",
+        "Z:\\Alexander\\270823_x15758\\270823_x15758_4\\Pos24"
+      ],
+      "projectIo": {
+        "path": "Z:\\Alexander\\analysis\\",
+        "file": "anof_270823_x15758_58only"
+      },
+      "error": ""
+    },
+    {
+      "file": "S:\\Alexander\\analysis\\anof_291123_nh_sgf73.mat",
+      "fileName": "anof_291123_nh_sgf73.mat",
+      "matBytes": 4.48741854E+8,
+      "status": "inspected",
+      "fovCount": 12,
+      "rawPaths": [
+        "Z:\\Alexander\\291123_nhsgf73hap4\\291123_nhsgf73hap4_4\\Pos1",
+        "Z:\\Alexander\\291123_nhsgf73hap4\\291123_nhsgf73hap4_4\\Pos2",
+        "Z:\\Alexander\\291123_nhsgf73hap4\\291123_nhsgf73hap4_4\\Pos3",
+        "Z:\\Alexander\\291123_nhsgf73hap4\\291123_nhsgf73hap4_4\\Pos4",
+        "Z:\\Alexander\\291123_nhsgf73hap4\\291123_nhsgf73hap4_4\\Pos9",
+        "Z:\\Alexander\\291123_nhsgf73hap4\\291123_nhsgf73hap4_4\\Pos10",
+        "Z:\\Alexander\\291123_nhsgf73hap4\\291123_nhsgf73hap4_4\\Pos11",
+        "Z:\\Alexander\\291123_nhsgf73hap4\\291123_nhsgf73hap4_4\\Pos12",
+        "Z:\\Alexander\\291123_nhsgf73hap4\\291123_nhsgf73hap4_4\\Pos17",
+        "Z:\\Alexander\\291123_nhsgf73hap4\\291123_nhsgf73hap4_4\\Pos18",
+        "Z:\\Alexander\\291123_nhsgf73hap4\\291123_nhsgf73hap4_4\\Pos19",
+        "Z:\\Alexander\\291123_nhsgf73hap4\\291123_nhsgf73hap4_4\\Pos20"
+      ],
+      "projectIo": {
+        "path": "/DataVault/Alexander/analysis/",
+        "file": "anof_291123_nh_sgf73"
+      },
+      "error": ""
+    },
+    {
+      "file": "S:\\Alexander\\analysis\\anof_291123_nh_sgf73hap4.mat",
+      "fileName": "anof_291123_nh_sgf73hap4.mat",
+      "matBytes": 3.02414787E+8,
+      "status": "inspected",
+      "fovCount": 8,
+      "rawPaths": [
+        "Z:\\Alexander\\291123_nhsgf73hap4\\291123_nhsgf73hap4_4\\Pos5",
+        "Z:\\Alexander\\291123_nhsgf73hap4\\291123_nhsgf73hap4_4\\Pos6",
+        "Z:\\Alexander\\291123_nhsgf73hap4\\291123_nhsgf73hap4_4\\Pos7",
+        "Z:\\Alexander\\291123_nhsgf73hap4\\291123_nhsgf73hap4_4\\Pos8",
+        "Z:\\Alexander\\291123_nhsgf73hap4\\291123_nhsgf73hap4_4\\Pos21",
+        "Z:\\Alexander\\291123_nhsgf73hap4\\291123_nhsgf73hap4_4\\Pos22",
+        "Z:\\Alexander\\291123_nhsgf73hap4\\291123_nhsgf73hap4_4\\Pos23",
+        "Z:\\Alexander\\291123_nhsgf73hap4\\291123_nhsgf73hap4_4\\Pos24"
+      ],
+      "projectIo": {
+        "path": "/DataVault/Alexander/analysis/",
+        "file": "anof_291123_nh_sgf73hap4"
+      },
+      "error": ""
+    },
+    {
+      "file": "S:\\Alexander\\analysis\\anof_291123_nh_wts.mat",
+      "fileName": "anof_291123_nh_wts.mat",
+      "matBytes": 2.26139674E+8,
+      "status": "inspected",
+      "fovCount": 8,
+      "rawPaths": [
+        "Z:\\Alexander\\291123_nhsgf73hap4\\291123_nhsgf73hap4_4\\Pos25",
+        "Z:\\Alexander\\291123_nhsgf73hap4\\291123_nhsgf73hap4_4\\Pos26",
+        "Z:\\Alexander\\291123_nhsgf73hap4\\291123_nhsgf73hap4_4\\Pos27",
+        "Z:\\Alexander\\291123_nhsgf73hap4\\291123_nhsgf73hap4_4\\Pos28",
+        "Z:\\Alexander\\291123_nhsgf73hap4\\291123_nhsgf73hap4_4\\Pos29",
+        "Z:\\Alexander\\291123_nhsgf73hap4\\291123_nhsgf73hap4_4\\Pos30",
+        "Z:\\Alexander\\291123_nhsgf73hap4\\291123_nhsgf73hap4_4\\Pos31",
+        "Z:\\Alexander\\291123_nhsgf73hap4\\291123_nhsgf73hap4_4\\Pos32"
+      ],
+      "projectIo": {
+        "path": "/DataVault/Alexander/analysis/",
+        "file": "anof_291123_nh_wts"
+      },
+      "error": ""
+    }
+  ]
+}

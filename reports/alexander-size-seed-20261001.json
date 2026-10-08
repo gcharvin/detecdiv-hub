@@ -1,0 +1,11 @@
+{
+  "source": "Native du output from the initial bounded read-only NAS scan; parent total was not reached.",
+  "completed_directories": {
+    "/volume1/DATA/Alexander/misc": 38817124922,
+    "/volume1/DATA/Alexander/WGS": 2253979903,
+    "/volume1/DATA/Alexander/code": 2035878044,
+    "/volume1/DATA/Alexander/data/collab": 541992410963,
+    "/volume1/DATA/Alexander/data/2023_1": 6316108809756,
+    "/volume1/DATA/Alexander/data/2023_2": 3583236410281
+  }
+}

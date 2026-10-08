@@ -1,0 +1,195 @@
+{
+  "applied": false,
+  "projects": [
+    {
+      "file": "anof_03112023_dhy_fobs_ah4s.mat",
+      "action": "would_register_readonly"
+    },
+    {
+      "file": "anof_07122023_5354_log1724.mat",
+      "action": "would_register_readonly"
+    },
+    {
+      "file": "anof_130723_urFIT2.mat",
+      "action": "would_register_readonly"
+    },
+    {
+      "file": "anof_13122023_crelox_test.mat",
+      "action": "would_register_readonly"
+    },
+    {
+      "file": "anof_17102023_yam76s_APx1s.mat",
+      "action": "would_register_readonly"
+    },
+    {
+      "file": "anof_171123_apx1.mat",
+      "action": "would_register_readonly"
+    },
+    {
+      "file": "anof_171123_nhwt_gcn5.mat",
+      "action": "would_register_readonly"
+    },
+    {
+      "file": "anof_171123_RM_NTS1NGtest.mat",
+      "action": "would_register_readonly"
+    },
+    {
+      "file": "anof_171123_sgfhap4.mat",
+      "action": "would_register_readonly"
+    },
+    {
+      "file": "anof_190423_nh_sir2_tween.mat",
+      "action": "would_register_readonly"
+    },
+    {
+      "file": "anof_19092023_nhfob1t1_adhhap4.mat",
+      "action": "would_register_readonly"
+    },
+    {
+      "file": "anof_231123_newleft.mat",
+      "action": "would_register_readonly"
+    },
+    {
+      "file": "anof_231123_nh52.mat",
+      "action": "would_register_readonly"
+    },
+    {
+      "file": "anof_26102023_yam76s_100ms.mat",
+      "action": "would_register_readonly"
+    },
+    {
+      "file": "anof_270823_x15758_58only.mat",
+      "action": "would_register_readonly"
+    },
+    {
+      "file": "anof_291123_nh_sgf73.mat",
+      "action": "would_register_readonly"
+    },
+    {
+      "file": "anof_291123_nh_sgf73hap4.mat",
+      "action": "would_register_readonly"
+    },
+    {
+      "file": "anof_291123_nh_wts.mat",
+      "action": "would_register_readonly"
+    }
+  ],
+  "raw_links_created": 0,
+  "scientific_files_changed": false,
+  "worker_jobs_queued": false,
+  "captured_at": "2026-10-01T08:48:15.444279+00:00",
+  "excluded_manual_review": [
+    "anof_10112023_nh_dhapxs_1530.mat",
+    "anof_14092023_leftRDN_nhadhhap4.mat"
+  ],
+  "source_evidence": [
+    {
+      "name": "anof_03112023_dhy_fobs_ah4s.mat",
+      "bytes": 95673634,
+      "mtime_ns": 1741801557810953800,
+      "paired_directory_present": true
+    },
+    {
+      "name": "anof_07122023_5354_log1724.mat",
+      "bytes": 329256295,
+      "mtime_ns": 1741801568782329200,
+      "paired_directory_present": true
+    },
+    {
+      "name": "anof_130723_urFIT2.mat",
+      "bytes": 184277709,
+      "mtime_ns": 1749197646040945600,
+      "paired_directory_present": true
+    },
+    {
+      "name": "anof_13122023_crelox_test.mat",
+      "bytes": 398256551,
+      "mtime_ns": 1751090862046300600,
+      "paired_directory_present": true
+    },
+    {
+      "name": "anof_17102023_yam76s_APx1s.mat",
+      "bytes": 128700014,
+      "mtime_ns": 1758628652727736200,
+      "paired_directory_present": true
+    },
+    {
+      "name": "anof_171123_apx1.mat",
+      "bytes": 235441761,
+      "mtime_ns": 1749638202168011500,
+      "paired_directory_present": true
+    },
+    {
+      "name": "anof_171123_nhwt_gcn5.mat",
+      "bytes": 471885353,
+      "mtime_ns": 1749638269290716400,
+      "paired_directory_present": true
+    },
+    {
+      "name": "anof_171123_RM_NTS1NGtest.mat",
+      "bytes": 123925648,
+      "mtime_ns": 1749637924314032300,
+      "paired_directory_present": true
+    },
+    {
+      "name": "anof_171123_sgfhap4.mat",
+      "bytes": 123254613,
+      "mtime_ns": 1749637662956095300,
+      "paired_directory_present": true
+    },
+    {
+      "name": "anof_190423_nh_sir2_tween.mat",
+      "bytes": 547098427,
+      "mtime_ns": 1747493616997510400,
+      "paired_directory_present": true
+    },
+    {
+      "name": "anof_19092023_nhfob1t1_adhhap4.mat",
+      "bytes": 659566639,
+      "mtime_ns": 1751094608703851800,
+      "paired_directory_present": true
+    },
+    {
+      "name": "anof_231123_newleft.mat",
+      "bytes": 234380409,
+      "mtime_ns": 1749287100743491300,
+      "paired_directory_present": true
+    },
+    {
+      "name": "anof_231123_nh52.mat",
+      "bytes": 456544001,
+      "mtime_ns": 1749287168463357500,
+      "paired_directory_present": true
+    },
+    {
+      "name": "anof_26102023_yam76s_100ms.mat",
+      "bytes": 359993344,
+      "mtime_ns": 1749541296813787600,
+      "paired_directory_present": true
+    },
+    {
+      "name": "anof_270823_x15758_58only.mat",
+      "bytes": 491558790,
+      "mtime_ns": 1741899135259585800,
+      "paired_directory_present": true
+    },
+    {
+      "name": "anof_291123_nh_sgf73.mat",
+      "bytes": 448741854,
+      "mtime_ns": 1751093568442353800,
+      "paired_directory_present": true
+    },
+    {
+      "name": "anof_291123_nh_sgf73hap4.mat",
+      "bytes": 302414787,
+      "mtime_ns": 1751092857558964600,
+      "paired_directory_present": true
+    },
+    {
+      "name": "anof_291123_nh_wts.mat",
+      "bytes": 226139674,
+      "mtime_ns": 1751093416627022900,
+      "paired_directory_present": true
+    }
+  ]
+}

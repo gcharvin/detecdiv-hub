@@ -1,0 +1,16 @@
+{
+  "verified_projects": 1486,
+  "owners": {
+    "sandrine": 778,
+    "alexander": 150,
+    "Basile": 558
+  },
+  "formats": {
+    "legacy_matlab_timelapse": 1336,
+    "detecdiv_shallow": 150
+  },
+  "all_private": true,
+  "all_source_locations_readonly": true,
+  "previous_exact_raw_link_preserved": true,
+  "raw_links_total": 1
+}

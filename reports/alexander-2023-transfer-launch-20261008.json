@@ -1,0 +1,10 @@
+{
+  "session": "alex2023-transfer",
+  "work_directory": "/home/charvin-admin/storage-transfers/alexander-2023-20261008",
+  "batch_id": "061627d8-0ef1-4e00-b572-c5b7d94d82b0",
+  "git_revision": "7467043f5e5e9a24721cc656d5ed315863fb1fa7",
+  "raw_records": 121,
+  "physical_datasets": 121,
+  "started_at": "2026-10-08T13:39:04.189332+00:00",
+  "database_paths_unchanged": true
+}

@@ -1,0 +1,449 @@
+{
+  "captured_at": "2026-10-01",
+  "phase": "read_only_preflight",
+  "owner_hub": "alexander",
+  "owner_dsm": "maliavko",
+  "catalog_registration_performed": false,
+  "source_preserved": true,
+  "raw_link_rule": "Filename matches are candidates only; internal FOV raw paths must confirm links before registration.",
+  "candidate_count": 20,
+  "mat_bytes": 5817109998,
+  "manual_review_count": 2,
+  "candidates": [
+    {
+      "file_name": "anof_03112023_dhy_fobs_ah4s.mat",
+      "mat_bytes": 95673634,
+      "source_windows": "S:\\Alexander\\analysis\\anof_03112023_dhy_fobs_ah4s.mat",
+      "source_nas": "/volume1/Sauvegarde/Alexander/analysis/anof_03112023_dhy_fobs_ah4s.mat",
+      "source_worker_planned": "/mnt/detecdiv-secondary-sauvegarde/Alexander/analysis/anof_03112023_dhy_fobs_ah4s.mat",
+      "target_worker_planned": "/homes2/maliavko/DetecdivHub/projects/anof_03112023_dhy_fobs_ah4s/anof_03112023_dhy_fobs_ah4s.mat",
+      "manual_review": false,
+      "raw_name_candidates": []
+    },
+    {
+      "file_name": "anof_07122023_5354_log1724.mat",
+      "mat_bytes": 329256295,
+      "source_windows": "S:\\Alexander\\analysis\\anof_07122023_5354_log1724.mat",
+      "source_nas": "/volume1/Sauvegarde/Alexander/analysis/anof_07122023_5354_log1724.mat",
+      "source_worker_planned": "/mnt/detecdiv-secondary-sauvegarde/Alexander/analysis/anof_07122023_5354_log1724.mat",
+      "target_worker_planned": "/homes2/maliavko/DetecdivHub/projects/anof_07122023_5354_log1724/anof_07122023_5354_log1724.mat",
+      "manual_review": false,
+      "raw_name_candidates": []
+    },
+    {
+      "file_name": "anof_10112023_nh_dhapxs_1530.mat",
+      "mat_bytes": 248,
+      "source_windows": "S:\\Alexander\\analysis\\anof_10112023_nh_dhapxs_1530.mat",
+      "source_nas": "/volume1/Sauvegarde/Alexander/analysis/anof_10112023_nh_dhapxs_1530.mat",
+      "source_worker_planned": "/mnt/detecdiv-secondary-sauvegarde/Alexander/analysis/anof_10112023_nh_dhapxs_1530.mat",
+      "target_worker_planned": "/homes2/maliavko/DetecdivHub/projects/anof_10112023_nh_dhapxs_1530/anof_10112023_nh_dhapxs_1530.mat",
+      "manual_review": true,
+      "raw_name_candidates": [
+        {
+          "id": "644e9ad0-22b0-4cf0-a0c3-25d261e405bc",
+          "label": "10112023_nh_dhapxs_1530_1",
+          "locations": [
+            "/data/Alexander/data/2023_3/10112023_nh_dhapxs_1530/10112023_nh_dhapxs_1530_1"
+          ]
+        },
+        {
+          "id": "dfc2a944-9246-4c6b-8501-d600bdd1bd3a",
+          "label": "10112023_nh_dhapxs_1530_2",
+          "locations": [
+            "/data/Alexander/data/2023_3/10112023_nh_dhapxs_1530/10112023_nh_dhapxs_1530_2"
+          ]
+        },
+        {
+          "id": "63fb551c-922a-4062-8742-4663f7862c27",
+          "label": "10112023_nh_dhapxs_1530_3",
+          "locations": [
+            "/data/Alexander/data/2023_3/10112023_nh_dhapxs_1530/10112023_nh_dhapxs_1530_3"
+          ]
+        },
+        {
+          "id": "8c928427-8265-4ea0-96a8-1cefe9e5efc4",
+          "label": "10112023_nh_dhapxs_1530_4",
+          "locations": [
+            "/data/Alexander/data/2023_3/10112023_nh_dhapxs_1530/10112023_nh_dhapxs_1530_4"
+          ]
+        }
+      ]
+    },
+    {
+      "file_name": "anof_130723_urFIT2.mat",
+      "mat_bytes": 184277709,
+      "source_windows": "S:\\Alexander\\analysis\\anof_130723_urFIT2.mat",
+      "source_nas": "/volume1/Sauvegarde/Alexander/analysis/anof_130723_urFIT2.mat",
+      "source_worker_planned": "/mnt/detecdiv-secondary-sauvegarde/Alexander/analysis/anof_130723_urFIT2.mat",
+      "target_worker_planned": "/homes2/maliavko/DetecdivHub/projects/anof_130723_urFIT2/anof_130723_urFIT2.mat",
+      "manual_review": false,
+      "raw_name_candidates": [
+        {
+          "id": "be2689f0-3a0b-4ff2-b5ab-1fb553a1a722",
+          "label": "130723_urFIT2_1",
+          "locations": [
+            "/data/Alexander/data/2023_2/130723_urFIT2/130723_urFIT2_1"
+          ]
+        },
+        {
+          "id": "1cd55dd1-1857-4523-9b6c-7d6b93d29ebf",
+          "label": "130723_urFIT2_2",
+          "locations": [
+            "/data/Alexander/data/2023_2/130723_urFIT2/130723_urFIT2_2"
+          ]
+        },
+        {
+          "id": "97adf685-885d-4c2e-92e0-bb6ba4949f87",
+          "label": "130723_urFIT2_3",
+          "locations": [
+            "/data/Alexander/data/2023_2/130723_urFIT2/130723_urFIT2_3"
+          ]
+        },
+        {
+          "id": "2d0fa3fd-be0d-4d93-8d1e-1b97c0cd1fad",
+          "label": "130723_urFIT2_4",
+          "locations": [
+            "/data/Alexander/data/2023_2/130723_urFIT2/130723_urFIT2_4"
+          ]
+        }
+      ]
+    },
+    {
+      "file_name": "anof_13122023_crelox_test.mat",
+      "mat_bytes": 398256551,
+      "source_windows": "S:\\Alexander\\analysis\\anof_13122023_crelox_test.mat",
+      "source_nas": "/volume1/Sauvegarde/Alexander/analysis/anof_13122023_crelox_test.mat",
+      "source_worker_planned": "/mnt/detecdiv-secondary-sauvegarde/Alexander/analysis/anof_13122023_crelox_test.mat",
+      "target_worker_planned": "/homes2/maliavko/DetecdivHub/projects/anof_13122023_crelox_test/anof_13122023_crelox_test.mat",
+      "manual_review": false,
+      "raw_name_candidates": [
+        {
+          "id": "1191f1c6-6deb-451a-95b6-20cc3b7016e7",
+          "label": "13122023_crelox_test_1",
+          "locations": [
+            "/data/Alexander/data/2023_3/13122023_crelox_test/13122023_crelox_test_1"
+          ]
+        },
+        {
+          "id": "99995959-db51-4dcb-91d0-4b5d27ad1af4",
+          "label": "13122023_crelox_test_2",
+          "locations": [
+            "/data/Alexander/data/2023_3/13122023_crelox_test/13122023_crelox_test_2"
+          ]
+        },
+        {
+          "id": "fa0f25d5-f924-4fb1-b41f-0b2838755b64",
+          "label": "13122023_crelox_test_3",
+          "locations": [
+            "/data/Alexander/data/2023_3/13122023_crelox_test/13122023_crelox_test_3"
+          ]
+        },
+        {
+          "id": "bfd9527c-c7c0-4310-8628-c8419e0b2dfa",
+          "label": "13122023_crelox_test_4",
+          "locations": [
+            "/data/Alexander/data/2023_3/13122023_crelox_test/13122023_crelox_test_4"
+          ]
+        }
+      ]
+    },
+    {
+      "file_name": "anof_14092023_leftRDN_nhadhhap4.mat",
+      "mat_bytes": 247,
+      "source_windows": "S:\\Alexander\\analysis\\anof_14092023_leftRDN_nhadhhap4.mat",
+      "source_nas": "/volume1/Sauvegarde/Alexander/analysis/anof_14092023_leftRDN_nhadhhap4.mat",
+      "source_worker_planned": "/mnt/detecdiv-secondary-sauvegarde/Alexander/analysis/anof_14092023_leftRDN_nhadhhap4.mat",
+      "target_worker_planned": "/homes2/maliavko/DetecdivHub/projects/anof_14092023_leftRDN_nhadhhap4/anof_14092023_leftRDN_nhadhhap4.mat",
+      "manual_review": true,
+      "raw_name_candidates": [
+        {
+          "id": "aaa98478-6fe6-475a-9279-e1620c5158ef",
+          "label": "14092023_leftRDN_nhadhhap4_1",
+          "locations": [
+            "/data/Alexander/data/2023_2/14092023_leftRDN_nhadhhap4/14092023_leftRDN_nhadhhap4_1"
+          ]
+        },
+        {
+          "id": "6d96eea4-0a41-4643-95a6-8e884bf6cb3c",
+          "label": "14092023_leftRDN_nhadhhap4_2",
+          "locations": [
+            "/data/Alexander/data/2023_2/14092023_leftRDN_nhadhhap4/14092023_leftRDN_nhadhhap4_2"
+          ]
+        },
+        {
+          "id": "1d7be1b5-4539-41c0-a452-780f2d1dd0f6",
+          "label": "14092023_leftRDN_nhadhhap4_3",
+          "locations": [
+            "/data/Alexander/data/2023_2/14092023_leftRDN_nhadhhap4/14092023_leftRDN_nhadhhap4_3"
+          ]
+        },
+        {
+          "id": "0c6f16cd-c0c2-407d-9cb6-519ff56d0ede",
+          "label": "14092023_leftRDN_nhadhhap4_4",
+          "locations": [
+            "/data/Alexander/data/2023_2/14092023_leftRDN_nhadhhap4/14092023_leftRDN_nhadhhap4_4"
+          ]
+        }
+      ]
+    },
+    {
+      "file_name": "anof_17102023_yam76s_APx1s.mat",
+      "mat_bytes": 128700014,
+      "source_windows": "S:\\Alexander\\analysis\\anof_17102023_yam76s_APx1s.mat",
+      "source_nas": "/volume1/Sauvegarde/Alexander/analysis/anof_17102023_yam76s_APx1s.mat",
+      "source_worker_planned": "/mnt/detecdiv-secondary-sauvegarde/Alexander/analysis/anof_17102023_yam76s_APx1s.mat",
+      "target_worker_planned": "/homes2/maliavko/DetecdivHub/projects/anof_17102023_yam76s_APx1s/anof_17102023_yam76s_APx1s.mat",
+      "manual_review": false,
+      "raw_name_candidates": []
+    },
+    {
+      "file_name": "anof_171123_apx1.mat",
+      "mat_bytes": 235441761,
+      "source_windows": "S:\\Alexander\\analysis\\anof_171123_apx1.mat",
+      "source_nas": "/volume1/Sauvegarde/Alexander/analysis/anof_171123_apx1.mat",
+      "source_worker_planned": "/mnt/detecdiv-secondary-sauvegarde/Alexander/analysis/anof_171123_apx1.mat",
+      "target_worker_planned": "/homes2/maliavko/DetecdivHub/projects/anof_171123_apx1/anof_171123_apx1.mat",
+      "manual_review": false,
+      "raw_name_candidates": []
+    },
+    {
+      "file_name": "anof_171123_nhwt_gcn5.mat",
+      "mat_bytes": 471885353,
+      "source_windows": "S:\\Alexander\\analysis\\anof_171123_nhwt_gcn5.mat",
+      "source_nas": "/volume1/Sauvegarde/Alexander/analysis/anof_171123_nhwt_gcn5.mat",
+      "source_worker_planned": "/mnt/detecdiv-secondary-sauvegarde/Alexander/analysis/anof_171123_nhwt_gcn5.mat",
+      "target_worker_planned": "/homes2/maliavko/DetecdivHub/projects/anof_171123_nhwt_gcn5/anof_171123_nhwt_gcn5.mat",
+      "manual_review": false,
+      "raw_name_candidates": []
+    },
+    {
+      "file_name": "anof_171123_RM_NTS1NGtest.mat",
+      "mat_bytes": 123925648,
+      "source_windows": "S:\\Alexander\\analysis\\anof_171123_RM_NTS1NGtest.mat",
+      "source_nas": "/volume1/Sauvegarde/Alexander/analysis/anof_171123_RM_NTS1NGtest.mat",
+      "source_worker_planned": "/mnt/detecdiv-secondary-sauvegarde/Alexander/analysis/anof_171123_RM_NTS1NGtest.mat",
+      "target_worker_planned": "/homes2/maliavko/DetecdivHub/projects/anof_171123_RM_NTS1NGtest/anof_171123_RM_NTS1NGtest.mat",
+      "manual_review": false,
+      "raw_name_candidates": []
+    },
+    {
+      "file_name": "anof_171123_sgfhap4.mat",
+      "mat_bytes": 123254613,
+      "source_windows": "S:\\Alexander\\analysis\\anof_171123_sgfhap4.mat",
+      "source_nas": "/volume1/Sauvegarde/Alexander/analysis/anof_171123_sgfhap4.mat",
+      "source_worker_planned": "/mnt/detecdiv-secondary-sauvegarde/Alexander/analysis/anof_171123_sgfhap4.mat",
+      "target_worker_planned": "/homes2/maliavko/DetecdivHub/projects/anof_171123_sgfhap4/anof_171123_sgfhap4.mat",
+      "manual_review": false,
+      "raw_name_candidates": []
+    },
+    {
+      "file_name": "anof_190423_nh_sir2_tween.mat",
+      "mat_bytes": 547098427,
+      "source_windows": "S:\\Alexander\\analysis\\anof_190423_nh_sir2_tween.mat",
+      "source_nas": "/volume1/Sauvegarde/Alexander/analysis/anof_190423_nh_sir2_tween.mat",
+      "source_worker_planned": "/mnt/detecdiv-secondary-sauvegarde/Alexander/analysis/anof_190423_nh_sir2_tween.mat",
+      "target_worker_planned": "/homes2/maliavko/DetecdivHub/projects/anof_190423_nh_sir2_tween/anof_190423_nh_sir2_tween.mat",
+      "manual_review": false,
+      "raw_name_candidates": [
+        {
+          "id": "ebc8fc9a-11e9-4f8f-a83b-b1291986c1b6",
+          "label": "190423_nh_sir2_tween_1",
+          "locations": [
+            "/data/Alexander/data/2023_1/190423_nh_sir2_tween/190423_nh_sir2_tween_1"
+          ]
+        },
+        {
+          "id": "8281f692-f76d-4d95-82f9-f4d52b6e7fc6",
+          "label": "190423_nh_sir2_tween_2",
+          "locations": [
+            "/data/Alexander/data/2023_1/190423_nh_sir2_tween/190423_nh_sir2_tween_2"
+          ]
+        },
+        {
+          "id": "5a3e7aa1-e4b8-4f43-855d-9fae91fbb975",
+          "label": "190423_nh_sir2_tween_3",
+          "locations": [
+            "/data/Alexander/data/2023_1/190423_nh_sir2_tween/190423_nh_sir2_tween_3"
+          ]
+        }
+      ]
+    },
+    {
+      "file_name": "anof_19092023_nhfob1t1_adhhap4.mat",
+      "mat_bytes": 659566639,
+      "source_windows": "S:\\Alexander\\analysis\\anof_19092023_nhfob1t1_adhhap4.mat",
+      "source_nas": "/volume1/Sauvegarde/Alexander/analysis/anof_19092023_nhfob1t1_adhhap4.mat",
+      "source_worker_planned": "/mnt/detecdiv-secondary-sauvegarde/Alexander/analysis/anof_19092023_nhfob1t1_adhhap4.mat",
+      "target_worker_planned": "/homes2/maliavko/DetecdivHub/projects/anof_19092023_nhfob1t1_adhhap4/anof_19092023_nhfob1t1_adhhap4.mat",
+      "manual_review": false,
+      "raw_name_candidates": [
+        {
+          "id": "9d5f4451-fe06-4a72-9ba0-34c852839fa2",
+          "label": "19092023_nhfob1t1_adhhap4_1",
+          "locations": [
+            "/data/Alexander/data/2023_2/19092023_nhfob1t1_adhhap4/19092023_nhfob1t1_adhhap4_1"
+          ]
+        },
+        {
+          "id": "a252309c-62ee-4299-beb0-d85cf6124eaa",
+          "label": "19092023_nhfob1t1_adhhap4_2",
+          "locations": [
+            "/data/Alexander/data/2023_2/19092023_nhfob1t1_adhhap4/19092023_nhfob1t1_adhhap4_2"
+          ]
+        },
+        {
+          "id": "3c9228f3-e233-4ae4-9150-a75ffcc76aa5",
+          "label": "19092023_nhfob1t1_adhhap4_3",
+          "locations": [
+            "/data/Alexander/data/2023_2/19092023_nhfob1t1_adhhap4/19092023_nhfob1t1_adhhap4_3"
+          ]
+        },
+        {
+          "id": "ae96b9bc-56bc-4e8c-89ac-c873788184bd",
+          "label": "19092023_nhfob1t1_adhhap4_4",
+          "locations": [
+            "/data/Alexander/data/2023_2/19092023_nhfob1t1_adhhap4/19092023_nhfob1t1_adhhap4_4"
+          ]
+        }
+      ]
+    },
+    {
+      "file_name": "anof_231123_newleft.mat",
+      "mat_bytes": 234380409,
+      "source_windows": "S:\\Alexander\\analysis\\anof_231123_newleft.mat",
+      "source_nas": "/volume1/Sauvegarde/Alexander/analysis/anof_231123_newleft.mat",
+      "source_worker_planned": "/mnt/detecdiv-secondary-sauvegarde/Alexander/analysis/anof_231123_newleft.mat",
+      "target_worker_planned": "/homes2/maliavko/DetecdivHub/projects/anof_231123_newleft/anof_231123_newleft.mat",
+      "manual_review": false,
+      "raw_name_candidates": []
+    },
+    {
+      "file_name": "anof_231123_nh52.mat",
+      "mat_bytes": 456544001,
+      "source_windows": "S:\\Alexander\\analysis\\anof_231123_nh52.mat",
+      "source_nas": "/volume1/Sauvegarde/Alexander/analysis/anof_231123_nh52.mat",
+      "source_worker_planned": "/mnt/detecdiv-secondary-sauvegarde/Alexander/analysis/anof_231123_nh52.mat",
+      "target_worker_planned": "/homes2/maliavko/DetecdivHub/projects/anof_231123_nh52/anof_231123_nh52.mat",
+      "manual_review": false,
+      "raw_name_candidates": []
+    },
+    {
+      "file_name": "anof_26102023_yam76s_100ms.mat",
+      "mat_bytes": 359993344,
+      "source_windows": "S:\\Alexander\\analysis\\anof_26102023_yam76s_100ms.mat",
+      "source_nas": "/volume1/Sauvegarde/Alexander/analysis/anof_26102023_yam76s_100ms.mat",
+      "source_worker_planned": "/mnt/detecdiv-secondary-sauvegarde/Alexander/analysis/anof_26102023_yam76s_100ms.mat",
+      "target_worker_planned": "/homes2/maliavko/DetecdivHub/projects/anof_26102023_yam76s_100ms/anof_26102023_yam76s_100ms.mat",
+      "manual_review": false,
+      "raw_name_candidates": [
+        {
+          "id": "6c66f871-1aa2-4b2b-9676-41e23f06fc44",
+          "label": "26102023_yam76s_100ms_1",
+          "locations": [
+            "/data/Alexander/data/2023_2/26102023_yam76s_100ms/26102023_yam76s_100ms_1"
+          ]
+        },
+        {
+          "id": "04e0e415-2838-4c6b-b315-5243fbea049d",
+          "label": "26102023_yam76s_100ms_2",
+          "locations": [
+            "/data/Alexander/data/2023_2/26102023_yam76s_100ms/26102023_yam76s_100ms_2"
+          ]
+        },
+        {
+          "id": "87a9ef20-b3b7-4635-a7ef-8c5a76061d67",
+          "label": "26102023_yam76s_100ms_3",
+          "locations": [
+            "/data/Alexander/data/2023_2/26102023_yam76s_100ms/26102023_yam76s_100ms_3"
+          ]
+        },
+        {
+          "id": "d43dff09-d53f-4d27-9264-7eef08ebb444",
+          "label": "26102023_yam76s_100ms_4",
+          "locations": [
+            "/data/Alexander/data/2023_2/26102023_yam76s_100ms/26102023_yam76s_100ms_4"
+          ]
+        }
+      ]
+    },
+    {
+      "file_name": "anof_270823_x15758_58only.mat",
+      "mat_bytes": 491558790,
+      "source_windows": "S:\\Alexander\\analysis\\anof_270823_x15758_58only.mat",
+      "source_nas": "/volume1/Sauvegarde/Alexander/analysis/anof_270823_x15758_58only.mat",
+      "source_worker_planned": "/mnt/detecdiv-secondary-sauvegarde/Alexander/analysis/anof_270823_x15758_58only.mat",
+      "target_worker_planned": "/homes2/maliavko/DetecdivHub/projects/anof_270823_x15758_58only/anof_270823_x15758_58only.mat",
+      "manual_review": false,
+      "raw_name_candidates": []
+    },
+    {
+      "file_name": "anof_291123_nh_sgf73.mat",
+      "mat_bytes": 448741854,
+      "source_windows": "S:\\Alexander\\analysis\\anof_291123_nh_sgf73.mat",
+      "source_nas": "/volume1/Sauvegarde/Alexander/analysis/anof_291123_nh_sgf73.mat",
+      "source_worker_planned": "/mnt/detecdiv-secondary-sauvegarde/Alexander/analysis/anof_291123_nh_sgf73.mat",
+      "target_worker_planned": "/homes2/maliavko/DetecdivHub/projects/anof_291123_nh_sgf73/anof_291123_nh_sgf73.mat",
+      "manual_review": false,
+      "raw_name_candidates": []
+    },
+    {
+      "file_name": "anof_291123_nh_sgf73hap4.mat",
+      "mat_bytes": 302414787,
+      "source_windows": "S:\\Alexander\\analysis\\anof_291123_nh_sgf73hap4.mat",
+      "source_nas": "/volume1/Sauvegarde/Alexander/analysis/anof_291123_nh_sgf73hap4.mat",
+      "source_worker_planned": "/mnt/detecdiv-secondary-sauvegarde/Alexander/analysis/anof_291123_nh_sgf73hap4.mat",
+      "target_worker_planned": "/homes2/maliavko/DetecdivHub/projects/anof_291123_nh_sgf73hap4/anof_291123_nh_sgf73hap4.mat",
+      "manual_review": false,
+      "raw_name_candidates": [
+        {
+          "id": "20a78f49-eefa-4812-b6df-a097e455697b",
+          "label": "291123_nhsgf73hap4_1",
+          "locations": [
+            "/data/Alexander/data/2023_3/291123_nhsgf73hap4/291123_nhsgf73hap4_1"
+          ]
+        },
+        {
+          "id": "e915e211-398f-4e78-87b3-c5c90b37fcb7",
+          "label": "291123_nhsgf73hap4_2",
+          "locations": [
+            "/data/Alexander/data/2023_3/291123_nhsgf73hap4/291123_nhsgf73hap4_2"
+          ]
+        },
+        {
+          "id": "02e51eb3-16a8-4dc0-9fb7-0a45eec11704",
+          "label": "291123_nhsgf73hap4_3",
+          "locations": [
+            "/data/Alexander/data/2023_3/291123_nhsgf73hap4/291123_nhsgf73hap4_3"
+          ]
+        },
+        {
+          "id": "2fd52116-9240-4230-9d4a-ece42f1d1581",
+          "label": "291123_nhsgf73hap4_4",
+          "locations": [
+            "/data/Alexander/data/2023_3/291123_nhsgf73hap4/291123_nhsgf73hap4_4"
+          ]
+        }
+      ]
+    },
+    {
+      "file_name": "anof_291123_nh_wts.mat",
+      "mat_bytes": 226139674,
+      "source_windows": "S:\\Alexander\\analysis\\anof_291123_nh_wts.mat",
+      "source_nas": "/volume1/Sauvegarde/Alexander/analysis/anof_291123_nh_wts.mat",
+      "source_worker_planned": "/mnt/detecdiv-secondary-sauvegarde/Alexander/analysis/anof_291123_nh_wts.mat",
+      "target_worker_planned": "/homes2/maliavko/DetecdivHub/projects/anof_291123_nh_wts/anof_291123_nh_wts.mat",
+      "manual_review": false,
+      "raw_name_candidates": []
+    }
+  ],
+  "sample_findings": {
+    "project": "anof_03112023_dhy_fobs_ah4s.mat",
+    "project_io_legacy": "Z:\\Alexander\\analysis\\anof_03112023_dhy_fobs_ah4s",
+    "fov_count": 18,
+    "raw_prefix_legacy": "X:\\maliavko\\data\\03112023_dhy_fobs_ah4s",
+    "raw_root_server_verified": "/homes/maliavko/data/03112023_dhy_fobs_ah4s",
+    "raw_root_nas_verified": "/volume1/homes/maliavko/data/03112023_dhy_fobs_ah4s",
+    "matches_in_owned_raw_catalog": 0,
+    "global_drive_letter_replacement_safe": false
+  }
+}

@@ -1,0 +1,443 @@
+{
+  "source": "S:/Alexander/analysis",
+  "readOnly": true,
+  "candidates": [
+    {
+      "file": "S:\\Alexander\\analysis\\anof_03112023_dhy_fobs_ah4s.mat",
+      "matBytes": 9.5673634E+7,
+      "variables": {
+        "name": "shallowObj",
+        "size": [
+          1,
+          1
+        ],
+        "bytes": 8,
+        "class": "shallow",
+        "global": false,
+        "sparse": false,
+        "complex": false,
+        "nesting": {
+          "function": "",
+          "level": 0
+        },
+        "persistent": false
+      },
+      "review": ""
+    },
+    {
+      "file": "S:\\Alexander\\analysis\\anof_07122023_5354_log1724.mat",
+      "matBytes": 3.29256295E+8,
+      "variables": {
+        "name": "shallowObj",
+        "size": [
+          1,
+          1
+        ],
+        "bytes": 8,
+        "class": "shallow",
+        "global": false,
+        "sparse": false,
+        "complex": false,
+        "nesting": {
+          "function": "",
+          "level": 0
+        },
+        "persistent": false
+      },
+      "review": ""
+    },
+    {
+      "file": "S:\\Alexander\\analysis\\anof_10112023_nh_dhapxs_1530.mat",
+      "matBytes": 248,
+      "variables": [],
+      "review": "No shallow variable in the MAT header"
+    },
+    {
+      "file": "S:\\Alexander\\analysis\\anof_130723_urFIT2.mat",
+      "matBytes": 1.84277709E+8,
+      "variables": {
+        "name": "shallowObj",
+        "size": [
+          1,
+          1
+        ],
+        "bytes": 8,
+        "class": "shallow",
+        "global": false,
+        "sparse": false,
+        "complex": false,
+        "nesting": {
+          "function": "",
+          "level": 0
+        },
+        "persistent": false
+      },
+      "review": ""
+    },
+    {
+      "file": "S:\\Alexander\\analysis\\anof_13122023_crelox_test.mat",
+      "matBytes": 3.98256551E+8,
+      "variables": {
+        "name": "shallowObj",
+        "size": [
+          1,
+          1
+        ],
+        "bytes": 8,
+        "class": "shallow",
+        "global": false,
+        "sparse": false,
+        "complex": false,
+        "nesting": {
+          "function": "",
+          "level": 0
+        },
+        "persistent": false
+      },
+      "review": ""
+    },
+    {
+      "file": "S:\\Alexander\\analysis\\anof_14092023_leftRDN_nhadhhap4.mat",
+      "matBytes": 247,
+      "variables": [],
+      "review": "No shallow variable in the MAT header"
+    },
+    {
+      "file": "S:\\Alexander\\analysis\\anof_17102023_yam76s_APx1s.mat",
+      "matBytes": 1.28700014E+8,
+      "variables": {
+        "name": "shallowObj",
+        "size": [
+          1,
+          1
+        ],
+        "bytes": 8,
+        "class": "shallow",
+        "global": false,
+        "sparse": false,
+        "complex": false,
+        "nesting": {
+          "function": "",
+          "level": 0
+        },
+        "persistent": false
+      },
+      "review": ""
+    },
+    {
+      "file": "S:\\Alexander\\analysis\\anof_171123_RM_NTS1NGtest.mat",
+      "matBytes": 1.23925648E+8,
+      "variables": {
+        "name": "shallowObj",
+        "size": [
+          1,
+          1
+        ],
+        "bytes": 8,
+        "class": "shallow",
+        "global": false,
+        "sparse": false,
+        "complex": false,
+        "nesting": {
+          "function": "",
+          "level": 0
+        },
+        "persistent": false
+      },
+      "review": ""
+    },
+    {
+      "file": "S:\\Alexander\\analysis\\anof_171123_apx1.mat",
+      "matBytes": 2.35441761E+8,
+      "variables": {
+        "name": "shallowObj",
+        "size": [
+          1,
+          1
+        ],
+        "bytes": 8,
+        "class": "shallow",
+        "global": false,
+        "sparse": false,
+        "complex": false,
+        "nesting": {
+          "function": "",
+          "level": 0
+        },
+        "persistent": false
+      },
+      "review": ""
+    },
+    {
+      "file": "S:\\Alexander\\analysis\\anof_171123_nhwt_gcn5.mat",
+      "matBytes": 4.71885353E+8,
+      "variables": {
+        "name": "shallowObj",
+        "size": [
+          1,
+          1
+        ],
+        "bytes": 8,
+        "class": "shallow",
+        "global": false,
+        "sparse": false,
+        "complex": false,
+        "nesting": {
+          "function": "",
+          "level": 0
+        },
+        "persistent": false
+      },
+      "review": ""
+    },
+    {
+      "file": "S:\\Alexander\\analysis\\anof_171123_sgfhap4.mat",
+      "matBytes": 1.23254613E+8,
+      "variables": {
+        "name": "shallowObj",
+        "size": [
+          1,
+          1
+        ],
+        "bytes": 8,
+        "class": "shallow",
+        "global": false,
+        "sparse": false,
+        "complex": false,
+        "nesting": {
+          "function": "",
+          "level": 0
+        },
+        "persistent": false
+      },
+      "review": ""
+    },
+    {
+      "file": "S:\\Alexander\\analysis\\anof_190423_nh_sir2_tween.mat",
+      "matBytes": 5.47098427E+8,
+      "variables": {
+        "name": "shallowObj",
+        "size": [
+          1,
+          1
+        ],
+        "bytes": 8,
+        "class": "shallow",
+        "global": false,
+        "sparse": false,
+        "complex": false,
+        "nesting": {
+          "function": "",
+          "level": 0
+        },
+        "persistent": false
+      },
+      "review": ""
+    },
+    {
+      "file": "S:\\Alexander\\analysis\\anof_19092023_nhfob1t1_adhhap4.mat",
+      "matBytes": 6.59566639E+8,
+      "variables": {
+        "name": "shallowObj",
+        "size": [
+          1,
+          1
+        ],
+        "bytes": 8,
+        "class": "shallow",
+        "global": false,
+        "sparse": false,
+        "complex": false,
+        "nesting": {
+          "function": "",
+          "level": 0
+        },
+        "persistent": false
+      },
+      "review": ""
+    },
+    {
+      "file": "S:\\Alexander\\analysis\\anof_231123_newleft.mat",
+      "matBytes": 2.34380409E+8,
+      "variables": {
+        "name": "shallowObj",
+        "size": [
+          1,
+          1
+        ],
+        "bytes": 8,
+        "class": "shallow",
+        "global": false,
+        "sparse": false,
+        "complex": false,
+        "nesting": {
+          "function": "",
+          "level": 0
+        },
+        "persistent": false
+      },
+      "review": ""
+    },
+    {
+      "file": "S:\\Alexander\\analysis\\anof_231123_nh52.mat",
+      "matBytes": 4.56544001E+8,
+      "variables": {
+        "name": "shallowObj",
+        "size": [
+          1,
+          1
+        ],
+        "bytes": 8,
+        "class": "shallow",
+        "global": false,
+        "sparse": false,
+        "complex": false,
+        "nesting": {
+          "function": "",
+          "level": 0
+        },
+        "persistent": false
+      },
+      "review": ""
+    },
+    {
+      "file": "S:\\Alexander\\analysis\\anof_26102023_yam76s_100ms.mat",
+      "matBytes": 3.59993344E+8,
+      "variables": {
+        "name": "shallowObj",
+        "size": [
+          1,
+          1
+        ],
+        "bytes": 8,
+        "class": "shallow",
+        "global": false,
+        "sparse": false,
+        "complex": false,
+        "nesting": {
+          "function": "",
+          "level": 0
+        },
+        "persistent": false
+      },
+      "review": ""
+    },
+    {
+      "file": "S:\\Alexander\\analysis\\anof_270823_x15758_58only.mat",
+      "matBytes": 4.9155879E+8,
+      "variables": {
+        "name": "shallowObj",
+        "size": [
+          1,
+          1
+        ],
+        "bytes": 8,
+        "class": "shallow",
+        "global": false,
+        "sparse": false,
+        "complex": false,
+        "nesting": {
+          "function": "",
+          "level": 0
+        },
+        "persistent": false
+      },
+      "review": ""
+    },
+    {
+      "file": "S:\\Alexander\\analysis\\anof_291123_nh_sgf73.mat",
+      "matBytes": 4.48741854E+8,
+      "variables": {
+        "name": "shallowObj",
+        "size": [
+          1,
+          1
+        ],
+        "bytes": 8,
+        "class": "shallow",
+        "global": false,
+        "sparse": false,
+        "complex": false,
+        "nesting": {
+          "function": "",
+          "level": 0
+        },
+        "persistent": false
+      },
+      "review": ""
+    },
+    {
+      "file": "S:\\Alexander\\analysis\\anof_291123_nh_sgf73hap4.mat",
+      "matBytes": 3.02414787E+8,
+      "variables": {
+        "name": "shallowObj",
+        "size": [
+          1,
+          1
+        ],
+        "bytes": 8,
+        "class": "shallow",
+        "global": false,
+        "sparse": false,
+        "complex": false,
+        "nesting": {
+          "function": "",
+          "level": 0
+        },
+        "persistent": false
+      },
+      "review": ""
+    },
+    {
+      "file": "S:\\Alexander\\analysis\\anof_291123_nh_wts.mat",
+      "matBytes": 2.26139674E+8,
+      "variables": {
+        "name": "shallowObj",
+        "size": [
+          1,
+          1
+        ],
+        "bytes": 8,
+        "class": "shallow",
+        "global": false,
+        "sparse": false,
+        "complex": false,
+        "nesting": {
+          "function": "",
+          "level": 0
+        },
+        "persistent": false
+      },
+      "review": ""
+    }
+  ],
+  "sample": {
+    "file": "S:\\Alexander\\analysis\\anof_03112023_dhy_fobs_ah4s.mat",
+    "class": "shallow",
+    "projectIo": {
+      "path": "Z:\\Alexander\\analysis\\",
+      "file": "anof_03112023_dhy_fobs_ah4s"
+    },
+    "fovCount": 18,
+    "rawPaths": [
+      "X:\\maliavko\\data\\03112023_dhy_fobs_ah4s\\03112023_dhy_fobs_ah4s_1\\Pos0",
+      "X:\\maliavko\\data\\03112023_dhy_fobs_ah4s\\03112023_dhy_fobs_ah4s_1\\Pos1",
+      "X:\\maliavko\\data\\03112023_dhy_fobs_ah4s\\03112023_dhy_fobs_ah4s_1\\Pos2",
+      "X:\\maliavko\\data\\03112023_dhy_fobs_ah4s\\03112023_dhy_fobs_ah4s_1\\Pos3",
+      "X:\\maliavko\\data\\03112023_dhy_fobs_ah4s\\03112023_dhy_fobs_ah4s_1\\Pos4",
+      "X:\\maliavko\\data\\03112023_dhy_fobs_ah4s\\03112023_dhy_fobs_ah4s_1\\Pos5",
+      "X:\\maliavko\\data\\03112023_dhy_fobs_ah4s\\03112023_dhy_fobs_ah4s_1\\Pos6",
+      "X:\\maliavko\\data\\03112023_dhy_fobs_ah4s\\03112023_dhy_fobs_ah4s_1\\Pos7",
+      "X:\\maliavko\\data\\03112023_dhy_fobs_ah4s\\03112023_dhy_fobs_ah4s_1\\Pos8",
+      "X:\\maliavko\\data\\03112023_dhy_fobs_ah4s\\03112023_dhy_fobs_ah4s_1\\Pos9",
+      "X:\\maliavko\\data\\03112023_dhy_fobs_ah4s\\03112023_dhy_fobs_ah4s_1\\Pos10",
+      "X:\\maliavko\\data\\03112023_dhy_fobs_ah4s\\03112023_dhy_fobs_ah4s_1\\Pos11",
+      "X:\\maliavko\\data\\03112023_dhy_fobs_ah4s\\03112023_dhy_fobs_ah4s_1\\Pos12",
+      "X:\\maliavko\\data\\03112023_dhy_fobs_ah4s\\03112023_dhy_fobs_ah4s_1\\Pos13",
+      "X:\\maliavko\\data\\03112023_dhy_fobs_ah4s\\03112023_dhy_fobs_ah4s_1\\Pos14",
+      "X:\\maliavko\\data\\03112023_dhy_fobs_ah4s\\03112023_dhy_fobs_ah4s_1\\Pos15",
+      "X:\\maliavko\\data\\03112023_dhy_fobs_ah4s\\03112023_dhy_fobs_ah4s_1\\Pos16",
+      "X:\\maliavko\\data\\03112023_dhy_fobs_ah4s\\03112023_dhy_fobs_ah4s_1\\Pos17"
+    ]
+  }
+}

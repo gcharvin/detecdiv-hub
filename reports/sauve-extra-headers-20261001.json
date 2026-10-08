@@ -1,0 +1,31 @@
+{
+  "sourceManifest": "/home/charvin-admin/sauve-extra-discovery-20261001.json",
+  "scientificFilesReadOnly": true,
+  "complete": true,
+  "candidates": {
+    "relativePath": "Alumni/basile/180426/merce_glu_gal_cont_galglu_switch/merce_glu_gal_cont_galglu_switch-project.mat",
+    "matBytes": 9142,
+    "mtimeNs": 1.526920581E+18,
+    "status": "valid_project_header",
+    "variables": {
+      "name": "timeLapse",
+      "size": [
+        1,
+        1
+      ],
+      "bytes": 394215,
+      "class": "struct",
+      "global": true,
+      "sparse": false,
+      "complex": false,
+      "nesting": {
+        "function": "",
+        "level": 0
+      },
+      "persistent": false
+    },
+    "projectKind": "legacy_matlab_timelapse",
+    "review": "",
+    "warning": ""
+  }
+}

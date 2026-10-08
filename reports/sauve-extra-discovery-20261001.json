@@ -1,0 +1,14 @@
+{
+  "read_only": true,
+  "complete": true,
+  "candidates": [
+    {
+      "relative_path": "Alumni/basile/180426/merce_glu_gal_cont_galglu_switch/merce_glu_gal_cont_galglu_switch-project.mat",
+      "mat_bytes": 9142,
+      "mtime_ns": 1526920581000000000,
+      "paired_directory_present": false,
+      "legacy_filename": true,
+      "project_dir_relative": "Alumni/basile/180426/merce_glu_gal_cont_galglu_switch"
+    }
+  ]
+}
