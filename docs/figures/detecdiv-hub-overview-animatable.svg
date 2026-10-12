@@ -1,0 +1,189 @@
+<svg xmlns="http://www.w3.org/2000/svg" id="hub-diagram" width="100%" height="100%" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid meet" role="img" aria-labelledby="svg-title svg-description">
+<title id="svg-title">DetecDiv Hub: clients, catalogue, worker targets and shared storage</title>
+<desc id="svg-description">Landscape diagram with stable group IDs for animation. Linux workers run on detecdiv-server. The additional Windows worker runs on CG-PCDELL01-306, consumes eligible unassigned jobs from the same PostgreSQL queue, and processes one job at a time. Dashed future worker targets and Qwen project and scripting tools are planned. Hub filesystem indexing remains on Linux workers. Large image files move through shared storage. The archive share stores Restic backups and raw dataset bundles.</desc>
+<metadata id="animation-map">{"format":"detecdiv-hub-animation.v1","canvas":[1600,900],"steps":{"1":"acquisition","2":"storage and desktop access","3":"Hub catalogue and API","4":"Labguru and GitLab","5":"Linux execution","6":"additional Windows worker","7":"backup and archive","8":"planned Qwen agent","9":"future worker targets"}}</metadata>
+<style>text{font-family:Arial,Helvetica,sans-serif}.flow-path{stroke-linejoin:round;stroke-linecap:butt}#hub-diagram{shape-rendering:geometricPrecision}.worker-target{isolation:isolate}</style>
+<rect id="slide-background" width="1600" height="900" fill="#FFFFFF"/>
+<g id="diagram-title" aria-label="DetecDiv Hub" class="">
+<text fill="#182437" font-size="44" font-weight="700"><tspan x="40" y="67">DetecDiv Hub</tspan></text>
+<text fill="#52637A" font-size="25" font-weight="400"><tspan x="955" y="62">Acquire · catalogue · process · protect</tspan></text>
+</g>
+<g id="clients" aria-label="Microscope and user clients" class="" data-step="1">
+<rect x="40" y="115" width="350" height="265" rx="12" fill="#FFF8EB" stroke="#D97706" stroke-width="2"/>
+<text fill="#92400E" font-size="27" font-weight="700"><tspan x="60" y="159">Microscope &amp; users</tspan></text>
+<g id="acquisition-client" aria-label="pymmcore-gui microscope acquisition" class="" data-step="1">
+<rect x="60" y="177" width="310" height="77" rx="12" fill="#FFFFFF" stroke="#EDD1A2" stroke-width="2"/>
+<text fill="#182437" font-size="24" font-weight="700"><tspan x="75" y="213">pymmcore-gui</tspan></text>
+<text fill="#182437" font-size="20" font-weight="400"><tspan x="75" y="244">Microscope acquisition</tspan></text>
+</g>
+<g id="desktop-client" aria-label="Browser and local DetecDiv" class="" data-step="2">
+<rect x="60" y="271" width="310" height="88" rx="12" fill="#FFFFFF" stroke="#EDD1A2" stroke-width="2"/>
+<text fill="#182437" font-size="23" font-weight="700"><tspan x="75" y="303">User workstation</tspan></text>
+<text fill="#182437" font-size="19" font-weight="400"><tspan x="75" y="332">Browser + DetecDiv local</tspan><tspan x="75" y="355.75">Optional local MATLAB runs</tspan></text>
+</g>
+</g>
+<g id="hub-vm" aria-label="Hub VM webserver-labo" class="" data-step="3">
+<rect x="470" y="115" width="655" height="265" rx="12" fill="#EDF4FF" stroke="#2563EB" stroke-width="2"/>
+<text fill="#1D4ED8" font-size="28" font-weight="700"><tspan x="490" y="160">Hub VM · webserver-labo</tspan></text>
+<g id="hub-api" aria-label="Web UI and Hub API" class="">
+<rect x="490" y="177" width="260" height="180" rx="12" fill="#FFFFFF" stroke="#BFD4F5" stroke-width="2"/>
+<text fill="#182437" font-size="25" font-weight="700"><tspan x="507" y="216">Web UI + API</tspan></text>
+<text fill="#182437" font-size="22" font-weight="400"><tspan x="507" y="260">User access</tspan><tspan x="507" y="287.5">Dataset browser</tspan><tspan x="507" y="315">Job / assistant API</tspan></text>
+</g>
+<g id="hub-database" aria-label="PostgreSQL catalogue and job queue" class="">
+<rect x="770" y="177" width="335" height="180" rx="12" fill="#FFFFFF" stroke="#BFD4F5" stroke-width="2"/>
+<text fill="#182437" font-size="25" font-weight="700"><tspan x="790" y="216">PostgreSQL</tspan></text>
+<text fill="#182437" font-size="21" font-weight="400"><tspan x="790" y="259">Dataset / project catalogue</tspan><tspan x="790" y="285.25">Job queue &amp; execution state</tspan><tspan x="790" y="311.5">Labguru links + code commits</tspan></text>
+</g>
+</g>
+<g id="integrations" aria-label="Connected systems" class="" data-step="4">
+<rect x="1205" y="115" width="355" height="265" rx="12" fill="#FFFAE8" stroke="#B77909" stroke-width="2"/>
+<text fill="#85590B" font-size="27" font-weight="700"><tspan x="1225" y="159">Connected systems</tspan></text>
+<g id="labguru" aria-label="Labguru experiment and biological catalogue" class="">
+<rect x="1225" y="177" width="315" height="78" rx="12" fill="#FFFFFF" stroke="#E4D39C" stroke-width="2"/>
+<text fill="#182437" font-size="24" font-weight="700"><tspan x="1240" y="211">Labguru</tspan></text>
+<text fill="#182437" font-size="20" font-weight="400"><tspan x="1240" y="244">Experiments · strains · stocks</tspan></text>
+</g>
+<g id="gitlab" aria-label="GitLab versioned code and releases" class="">
+<rect x="1225" y="275" width="315" height="82" rx="12" fill="#FFFFFF" stroke="#E4D39C" stroke-width="2"/>
+<text fill="#182437" font-size="24" font-weight="700"><tspan x="1240" y="309">GitLab</tspan></text>
+<text fill="#182437" font-size="20" font-weight="400"><tspan x="1240" y="341">Versioned code + releases</tspan></text>
+</g>
+</g>
+<g id="storage" aria-label="Shared storage on two NAS machines" class="" data-step="2">
+<rect x="40" y="455" width="570" height="340" rx="12" fill="#F1FAF3" stroke="#16A34A" stroke-width="2"/>
+<text fill="#126A32" font-size="28" font-weight="700"><tspan x="60" y="502">Shared storage · Synology NAS</tspan></text>
+<g id="primary-nas" aria-label="Primary NAS data and homes" class="">
+<rect x="60" y="522" width="530" height="111" rx="12" fill="#FFFFFF" stroke="#B9DCC3" stroke-width="2"/>
+<text fill="#182437" font-size="25" font-weight="700"><tspan x="78" y="559">Primary NAS · 10.20.11.250</tspan></text>
+<text fill="#182437" font-size="22" font-weight="400"><tspan x="78" y="595">/data — existing projects + raw data</tspan><tspan x="78" y="622.5">/homes — user homes + Hub folders</tspan></text>
+</g>
+<g id="secondary-nas" aria-label="Secondary NAS homes2" class="">
+<rect x="60" y="652" width="530" height="121" rx="12" fill="#FFFFFF" stroke="#B9DCC3" stroke-width="2"/>
+<text fill="#182437" font-size="25" font-weight="700"><tspan x="78" y="689">Secondary NAS · 10.20.8.250</tspan></text>
+<text fill="#182437" font-size="22" font-weight="400"><tspan x="78" y="726">/homes2 — Alexander's home</tspan><tspan x="78" y="753.5">Read-only · write setup pending</tspan></text>
+</g>
+</g>
+<g id="execution-targets" aria-label="Worker targets sharing the Hub job queue" class="" data-step="5">
+<rect x="690" y="455" width="435" height="340" rx="12" fill="#F6F1FF" stroke="#7C3AED" stroke-width="2"/>
+<text fill="#6D28D9" font-size="28" font-weight="700"><tspan x="710" y="500">Execution targets</tspan></text>
+<text fill="#52637A" font-size="18" font-weight="400"><tspan x="710" y="526">Shared queue · separate machines</tspan></text>
+<g id="linux-host" aria-label="Primary Linux compute host" class="worker-target linux-target" data-step="5">
+<rect x="710" y="538" width="395" height="110" rx="12" fill="#FFFFFF" stroke="#CBB6F1" stroke-width="2"/>
+<g id="linux-workers" aria-label="Linux worker pool on detecdiv-server" class="">
+<text fill="#6D28D9" font-size="24" font-weight="700"><tspan x="727" y="570">Linux · detecdiv-server</tspan></text>
+<text fill="#182437" font-size="19.5" font-weight="400"><tspan x="727" y="598.5">MATLAB / Python · primary pool</tspan></text>
+</g>
+<g id="qwen-assistant" aria-label="Planned local Qwen agent" class="" data-step="8" data-status="planned">
+<rect x="726" y="609" width="363" height="29" rx="6" fill="#FFF9F2" stroke="#D17B28" stroke-width="2" stroke-dasharray="7 5"/>
+<text fill="#92561D" font-size="17.5" font-weight="700"><tspan x="735" y="629.5">Qwen · projects + scripts (planned)</tspan></text>
+</g>
+</g>
+<g id="windows-worker" aria-label="Supplemental native Windows worker" class="worker-target windows-target" data-step="6" data-status="additional">
+<rect x="710" y="660" width="395" height="74" rx="12" fill="#EAFBFE" stroke="#0891B2" stroke-width="2"/>
+<text fill="#087D99" font-size="22" font-weight="700"><tspan x="727" y="689">Windows · additional worker</tspan></text>
+<text fill="#182437" font-size="18.5" font-weight="400"><tspan x="727" y="717.5">CG-PCDELL01-306 · one job at a time</tspan></text>
+</g>
+<g id="future-workers" aria-label="Future worker targets" class="worker-target future-target" data-step="9" data-status="planned">
+<rect x="710" y="746" width="395" height="28" rx="6" fill="#FFFFFF" stroke="#94A3B8" stroke-width="2" stroke-dasharray="7 5"/>
+<text fill="#52637A" font-size="17.5" font-weight="400"><tspan x="727" y="766.5">+ Future targets · join the same queue</tspan></text>
+</g>
+</g>
+<g id="archive-storage" aria-label="Dedicated archive share" class="" data-step="7">
+<rect x="1205" y="455" width="355" height="340" rx="12" fill="#FFF0F6" stroke="#DB2777" stroke-width="2"/>
+<text fill="#B32169" font-size="28" font-weight="700"><tspan x="1225" y="502">Archive storage</tspan></text>
+<text fill="#182437" font-size="22" font-weight="700"><tspan x="1225" y="546">10.20.11.251 · /archive</tspan></text>
+<g id="backup-task" aria-label="Restic backup snapshots" class="">
+<text fill="#B32169" font-size="20" font-weight="700"><tspan x="1225" y="593">BACKUP</tspan></text>
+<text fill="#182437" font-size="22" font-weight="400"><tspan x="1225" y="626">Restic snapshots</tspan><tspan x="1225" y="653.5">Projects + raw datasets</tspan></text>
+</g>
+<g id="archive-task" aria-label="Raw dataset archiving" class="">
+<text fill="#B32169" font-size="20" font-weight="700"><tspan x="1225" y="700">ARCHIVE</tspan></text>
+<text fill="#182437" font-size="19" font-weight="400"><tspan x="1225" y="730">ZIP / tar.gz bundles</tspan><tspan x="1225" y="753.75">Optional cleanup after success</tspan></text>
+</g>
+</g>
+<g id="flows" aria-label="Data and control flows" class="">
+<g id="flow-api" aria-label="API" class="flow control-flow" data-step="3">
+<path id="flow-api-path" class="flow-path" d="M 390 231 L 470 231" fill="none" stroke="#2563EB" stroke-width="3" stroke-dasharray="7 5"/>
+<g id="flow-api-heads" aria-label="Arrowheads" class="">
+<polygon points="470,231 459,226 459,236" fill="#2563EB"/>
+<polygon points="390,231 401,236 401,226" fill="#2563EB"/>
+</g>
+<g id="flow-api-label" aria-label="API" class="">
+<text fill="#2563EB" font-size="18" font-weight="700"><tspan x="406" y="213">API</tspan></text>
+</g>
+</g>
+<g id="flow-labguru" aria-label="links" class="flow catalogue-flow" data-step="4">
+<path id="flow-labguru-path" class="flow-path" d="M 1205 222 L 1125 222" fill="none" stroke="#B77909" stroke-width="3" stroke-dasharray="7 5"/>
+<g id="flow-labguru-heads" aria-label="Arrowheads" class="">
+<polygon points="1125,222 1136,227 1136,217" fill="#B77909"/>
+<polygon points="1205,222 1194,217 1194,227" fill="#B77909"/>
+</g>
+<g id="flow-labguru-label" aria-label="links" class="">
+<text fill="#B77909" font-size="18" font-weight="700"><tspan x="1142" y="202">links</tspan></text>
+</g>
+</g>
+<g id="flow-client-files" aria-label="Images / Samba files" class="flow data-flow" data-step="2">
+<path id="flow-client-files-path" class="flow-path" d="M 230 380 L 230 455" fill="none" stroke="#16A34A" stroke-width="3"/>
+<g id="flow-client-files-heads" aria-label="Arrowheads" class="">
+<polygon points="230,455 235,444 225,444" fill="#16A34A"/>
+</g>
+<g id="flow-client-files-label" aria-label="Images / Samba files" class="">
+<text fill="#16A34A" font-size="18" font-weight="700"><tspan x="244" y="421">Images / Samba files</tspan></text>
+</g>
+</g>
+<g id="flow-assistant" aria-label="assistant" class="flow assistant-flow" data-step="8">
+<path id="flow-assistant-path" class="flow-path" d="M 735 380 L 735 455" fill="none" stroke="#2563EB" stroke-width="3" stroke-dasharray="7 5"/>
+<g id="flow-assistant-heads" aria-label="Arrowheads" class="">
+<polygon points="735,455 740,444 730,444" fill="#2563EB"/>
+<polygon points="735,380 730,391 740,391" fill="#2563EB"/>
+</g>
+<g id="flow-assistant-label" aria-label="assistant" class="">
+<text fill="#2563EB" font-size="18" font-weight="700"><tspan x="748" y="421">assistant</tspan></text>
+</g>
+</g>
+<g id="flow-jobs" aria-label="jobs" class="flow queue-flow" data-step="5">
+<path id="flow-jobs-path" class="flow-path" d="M 950 380 L 950 455" fill="none" stroke="#2563EB" stroke-width="3" stroke-dasharray="7 5"/>
+<g id="flow-jobs-heads" aria-label="Arrowheads" class="">
+<polygon points="950,455 955,444 945,444" fill="#2563EB"/>
+</g>
+<g id="flow-jobs-label" aria-label="jobs" class="">
+<text fill="#2563EB" font-size="18" font-weight="700"><tspan x="965" y="421">jobs</tspan></text>
+</g>
+</g>
+<g id="flow-code-release" aria-label="code release" class="flow code-flow" data-step="5">
+<path id="flow-code-release-path" class="flow-path" d="M 1315 380 L 1315 421 L 1080 421 L 1080 455" fill="none" stroke="#B77909" stroke-width="3" stroke-dasharray="7 5"/>
+<g id="flow-code-release-heads" aria-label="Arrowheads" class="">
+<polygon points="1080,455 1085,444 1075,444" fill="#B77909"/>
+</g>
+<g id="flow-code-release-label" aria-label="code release" class="">
+<text fill="#B77909" font-size="18" font-weight="700"><tspan x="1130" y="411">code release</tspan></text>
+</g>
+</g>
+<g id="flow-worker-files" aria-label="files" class="flow data-flow" data-step="5">
+<path id="flow-worker-files-path" class="flow-path" d="M 690 582 L 610 582" fill="none" stroke="#16A34A" stroke-width="3"/>
+<g id="flow-worker-files-heads" aria-label="Arrowheads" class="">
+<polygon points="610,582 621,587 621,577" fill="#16A34A"/>
+<polygon points="690,582 679,577 679,587" fill="#16A34A"/>
+</g>
+<g id="flow-worker-files-label" aria-label="files" class="">
+<text fill="#16A34A" font-size="18" font-weight="700"><tspan x="628" y="562">files</tspan></text>
+</g>
+</g>
+<g id="flow-protection" aria-label="backup /
+archive" class="flow protection-flow" data-step="7">
+<path id="flow-protection-path" class="flow-path" d="M 1125 623 L 1205 623" fill="none" stroke="#DB2777" stroke-width="3"/>
+<g id="flow-protection-heads" aria-label="Arrowheads" class="">
+<polygon points="1205,623 1194,618 1194,628" fill="#DB2777"/>
+</g>
+<g id="flow-protection-label" aria-label="backup /
+archive" class="">
+<text fill="#DB2777" font-size="17" font-weight="700"><tspan x="1134" y="581">backup /</tspan><tspan x="1134" y="602.25">archive</tspan></text>
+</g>
+</g>
+</g>
+<g id="footer" aria-label="Summary and planned feature note" class="">
+<text fill="#182437" font-size="25" font-weight="700"><tspan x="40" y="848">Images on NAS · shared Hub queue · Linux and Windows workers · code in GitLab</tspan></text>
+<text fill="#69778A" font-size="16.5" font-weight="400"><tspan x="40" y="882.5">Dashed boxes = planned. Windows claims eligible unassigned jobs. Scheduled Restic backups were disabled at the last documented check.</tspan></text>
+</g>
+</svg>
