@@ -432,6 +432,25 @@ final report will cover all six block boundaries, classification, HDF5/MAT
 raw-channel equality, and exact roi.results reload. Completion remains to
 be verified by the monitor.
 
+Final monitoring on 2026-10-14 found a status inconsistency for the 88-frame
+job: Hub Job.status is `done`, but both MATLAB result and run.json are
+`cancelled`. The job-specific cancel token was created at 11:02:47 UTC
+(13:02:47 CEST); API access logs corroborate a POST to this exact job's cancel
+endpoint. The requester identity was not inferred from the proxy address.
+MATLAB honoured the cancellation after legacy extraction and returned code
+0; the worker therefore marked done despite result.status=cancelled. This
+worker status defect is diagnosed, not changed during monitoring.
+
+All six extraction blocks are logged. Fresh MATLAB inspection verified the
+persisted/extracted image dimensions 171 x 171 x 6 x 517 and nonempty frames
+at every block boundary. Classification did not start, and roi.results.div_1
+still contains the preceding 30 predictions. The full cold-reload verifier
+failed its 517-prediction assertion. The run's results_reload_verification.json
+records `status=incomplete` and `completeVerificationPassed=false`; do not
+report the full run as successful. The heartbeat is now paused after diagnosis
+and notification. No job was resubmitted and no scientific data was modified
+by this final monitoring pass.
+
 ## Data State
 
 ### ROI pattern library release (2026-10-06)
