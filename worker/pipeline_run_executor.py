@@ -154,16 +154,10 @@ def execute_pipeline_run_job(session: Session, *, job: Job) -> dict[str, Any]:
             except json.JSONDecodeError:
                 result_json = {}
 
-        if completed.returncode != 0:
-            error_text = build_pipeline_run_error(
-                completed.returncode,
-                completed.stdout or "",
-                completed.stderr or "",
-                result_json,
-            )
-            if is_pipeline_cancelled(session, job=job, result_json=result_json, error_text=error_text):
-                raise PipelineRunCancelled(error_text)
-            raise RuntimeError(error_text)
+        validate_pipeline_run_result(
+            session, job=job, returncode=completed.returncode,
+            result_json=result_json, stdout=completed.stdout or "", stderr=completed.stderr or "",
+        )
 
         if not result_json:
             result_json = {
@@ -688,8 +682,24 @@ def is_path_like_key(key: str | None) -> bool:
     return "path" in lowered or "file" in lowered or "dir" in lowered or "folder" in lowered
 
 
+def validate_pipeline_run_result(
+    session: Session, *, job: Job, returncode: int, result_json: dict[str, Any],
+    stdout: str = "", stderr: str = "",
+) -> None:
+    """MATLAB's zero exit code does not guarantee a completed pipeline."""
+    result_status = str(result_json.get("status") or "").strip().lower()
+    error_text = str(result_json.get("error") or "")
+    if is_pipeline_cancelled(session, job=job, result_json=result_json, error_text=error_text):
+        raise PipelineRunCancelled(build_pipeline_run_error(returncode, stdout, stderr, result_json))
+    if returncode != 0 or result_status in {"failed", "error", "incomplete"}:
+        raise RuntimeError(build_pipeline_run_error(returncode, stdout, stderr, result_json))
+
+
 def build_pipeline_run_error(returncode: int, stdout: str, stderr: str, result_json: dict[str, Any]) -> str:
     parts = [f"pipeline_run MATLAB batch failed with exit code {returncode}."]
+    if returncode == 0:
+        status = str(result_json.get("status") or "cancelled")
+        parts = [f"pipeline_run MATLAB reported status {status} with exit code 0."]
     result_error = str(result_json.get("error") or "").strip()
     if result_error:
         parts.append(result_error)

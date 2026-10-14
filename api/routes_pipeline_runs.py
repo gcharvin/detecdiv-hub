@@ -145,6 +145,8 @@ def cancel_pipeline_run(
     result_json["status"] = "cancelling" if job.status == "running" else "cancelled"
     result_json["message"] = "Cancellation requested by user."
     result_json["cancel_requested_at"] = now.isoformat()
+    result_json["cancel_requested_by"] = current_user.user_key
+    result_json["cancel_requested_by_user_id"] = str(current_user.id)
     job.result_json = result_json
 
     if job.status == "queued":

@@ -1,4 +1,5 @@
 import json
+from contextlib import nullcontext
 from types import SimpleNamespace
 
 import pytest
@@ -8,7 +9,7 @@ from worker import pipeline_run_executor as executor
 
 @pytest.mark.parametrize("worker_mappings", [[], [{"source": "/data", "target": "//test-storage/DATA"}]])
 def test_matlab_receives_trusted_worker_mappings_without_rewriting_client_identity(
-    monkeypatch, worker_mappings
+    monkeypatch, worker_mappings, tmp_path
 ):
     client_mappings = [{"localRoot": "Z:\\", "remoteRoot": "/data"}]
     payload = {
@@ -24,6 +25,10 @@ def test_matlab_receives_trusted_worker_mappings_without_rewriting_client_identi
         )
     )
     monkeypatch.setattr(executor, "normalize_pipeline_run_payload", lambda *args, **kwargs: payload)
+    monkeypatch.setattr("worker.matlab_code_checkout.prepare_job_checkout",
+                        lambda *args: ("test-runtime", "a" * 40))
+    monkeypatch.setattr("worker.matlab_code_checkout.job_workspace",
+                        lambda *args: nullcontext(str(tmp_path)))
     monkeypatch.setattr(executor, "resolve_pipeline_ref_for_server", lambda *args, **kwargs: None)
     monkeypatch.setattr(executor, "normalize_pipeline_ref_paths_for_posix", lambda **kwargs: kwargs["payload"])
     captured = {}
