@@ -365,16 +365,30 @@ only new legacy-script behavior change is its block-size default, marked
 `roi.save` are unchanged. Ten integration tests pass on Windows and Linux.
 The prior version is retained in `.deploy-backups/20261014-cut176-a0143f0`.
 
-Replacement job `99b96d64-3812-4ee0-a2ea-1a58ed49bd5d`, run
-`alex_xtra_full_all_frames_cut176_20261014`, is now running on Linux with
+The first 24-GiB replacement, `99b96d64-3812-4ee0-a2ea-1a58ed49bd5d`, run
+`alex_xtra_full_all_frames_cut176_20261014`, started on Linux with
 `requested_by=alexander`, as explicitly requested by Gilles. Submission is
 still authenticated as Gilles, and the client context records the authorized
 resubmission. The original FOV 1 / ROI 1 selection and all 517 frames are
 retained, in blocks 176 + 176 + 165. The worker's actual allocation was
 verified as 24576 MiB; the core release remains
 `da89797e0df58971f59dea1fedd746f7b8ddc867`. Existing jobs and worker services
-were left running. Completion and all-frame results reload remain unverified
-while this replacement job executes.
+were left running. This attempt then failed before raw extraction because the legacy routine
+counted `srclist{1}` before lazy source metadata had been hydrated.
+
+DetecDiv-plugins `7eaf0ade17b86d743b6045b99f93ff4dbb9cf945` is pushed to
+GitHub and GitLab and deployed as extraction version 0.1.4 / pipeline 1.4.
+The adapter now calls `fov.readImage(1,1)` for selected FOVs with an empty raw
+file list before invoking the legacy all-frame routine. The new regression
+reproduces lazy Micro-Manager source discovery; eleven tests pass on Windows
+and Linux. The historical default remains 176, with no further legacy-script
+change. Backup: `.deploy-backups/20261014-cut176-lazy-7eaf0ad`.
+
+Job `ad0d3610-9c71-4693-99c7-f50af0c80bf1`, run
+`alex_xtra_full_all_frames_cut176_retry_20261014`, is running on Linux as
+`alexander`, with an actual 24576-MiB allocation, FOV 1 / ROI 1, all frames,
+and `cut=176`. The same core SHA remains pinned. Full-run completion and
+all-frame results reload remain unverified while the job executes.
 
 ## Data State
 
