@@ -81,3 +81,36 @@ charvin-admin ALL=(root) NOPASSWD: /usr/bin/systemctl start detecdiv-qwen.servic
 
 The setting is off by default. Do not enable CUDA MPS until the baseline
 stop/start policy has been measured with representative workloads.
+
+## Read-only agent evaluation pilot
+
+`scripts/evaluate_qwen_runs.py` evaluates diagnosis of recorded failures,
+interpretation of successful runs, and progress of active jobs. It provides two
+recorded tools, `get_job_evidence` and `get_progress_history`. These are evaluation
+tools, not yet public assistant endpoints. Administrator captures stay in the
+chosen local report directory; they are not part of the committed test fixtures.
+
+From the administration workstation:
+
+```powershell
+& .venv/Scripts/python.exe scripts/evaluate_qwen_runs.py collect --output reports/qwen-pilot
+# Collect again after a useful interval to establish an output trend.
+& .venv/Scripts/python.exe scripts/evaluate_qwen_runs.py collect --output reports/qwen-pilot
+& .venv/Scripts/python.exe scripts/evaluate_qwen_runs.py models --output reports/qwen-pilot
+& .venv/Scripts/python.exe scripts/evaluate_qwen_runs.py benchmark --output reports/qwen-pilot
+```
+
+The benchmark never starts an inference service or changes scientific jobs. It
+exits with code 2 if GPU jobs are active/queued, other compute processes own the
+GPU, resource checks fail, or the served model is unavailable. GPU utilization
+of zero does not override a job reservation. The served endpoint must support
+automatic tool choice with the appropriate Qwen parser; the current basic chat
+launcher does not enable it. Alternate test services must use the existing GPU
+admission/arbitration and a controlled cleanup lifecycle.
+
+Reuse the same frozen corpus for each checkpoint and set `--model`, `--label`
+and, if needed, `--base-url`. Results include tool traces, token usage and request
+latency; diagnosis quality still requires human review. Checkpoint sizes in
+`model-plan.json` describe disk weights, not measured VRAM. A worker heartbeat
+does not prove scientific progress, and local step fractions do not establish
+whole-job completion or an ETA.
