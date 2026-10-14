@@ -15,6 +15,7 @@ import html
 import json
 import re
 import subprocess
+import time
 import urllib.request
 from datetime import UTC, datetime
 from pathlib import Path
@@ -242,7 +243,8 @@ with SessionLocal() as db:
   allocation=params.get('_hub_resource_allocation') or {}
   # Missing allocation on a GPU-capable target is conservatively reserved.
   required=allocation.get('gpu_required',bool(t is None or t.supports_gpu))
-  if required: blocked.append({'id':str(j.id),'status':j.status})
+  if required: blocked.append({'id':str(j.id),'status':j.status,
+                               'gpu_vram_mb':allocation.get('gpu_vram_mb')})
  print(json.dumps(blocked))
 ''', api=True)
     physical = remote(args, args.compute_host, '''
@@ -252,8 +254,38 @@ if r.returncode: raise RuntimeError('nvidia-smi unavailable')
 other=[line for line in r.stdout.splitlines() if line.strip() and not any(name in line.lower() for name in ['vllm','qwen'])]
 print(json.dumps(other))
 ''')
-    return {"checked_at": now(), "gpu_jobs": active, "other_gpu_processes": physical,
-            "available": not active and not physical}
+    guard = {"checked_at": now(), "gpu_jobs": active, "other_gpu_processes": physical,
+             "available": not active and not physical}
+    owner = getattr(args, "coexistence_owner", None)
+    if owner:
+        admission = remote(args, args.api_host, '''
+import json,pathlib
+print(pathlib.Path('/tmp/qwen-pilot-coexistence-20261014/state.json').read_text())
+''', api=True)
+        watched = remote(args, args.compute_host, '''
+import json,pathlib,time,hashlib
+root=pathlib.Path('/home/charvin-admin/.cache/detecdiv-qwen/pilot-coexistence-20261014')
+m=json.loads((root/'manifest.json').read_text())
+s=json.loads((root/'watchdog-state.json').read_text())
+s['manifest_owner']=m['owner']
+s['max_service_mib']=m['max_service_mib']
+s['lease_valid']=time.time()<m['expires_at']
+s['launcher_owned']=hashlib.sha256(pathlib.Path(m['launcher']).read_bytes()).hexdigest()==m['pilot_sha256']
+print(json.dumps(s))
+''')
+        reserved = sum(job.get("gpu_vram_mb") or 24576 for job in active)
+        guard["coexistence"] = {key: value for key, value in watched.items() if key != "samples"}
+        guard["available"] = bool(
+            watched["owner"] == owner == watched["manifest_owner"]
+            and watched["status"] == "watching" and watched["lease_valid"]
+            and watched["launcher_owned"] and time.time() - watched["checked_at"] < 10
+            and admission['owner'] == owner and admission['status'] == 'locked'
+            and not admission.get('cancel_requested')
+            and time.time() - admission['checked_at'] < 10
+            and watched.get("service_mib", 0) <= watched["max_service_mib"]
+            and not any(job["status"] == "queued" for job in active)
+            and reserved + watched["max_service_mib"] + 2048 <= 24576)
+    return guard
 
 
 def evidence(corpus, tool_name, job_id):
@@ -310,6 +342,17 @@ def benchmark(args):
     report = {"started_at": now(), "status": "pending", "label": args.label,
               "model": args.model, "corpus_sha256": hashlib.sha256(corpus_path.read_bytes()).hexdigest(),
             "mode": "recorded read-only tools; quality requires human review", "cases": []}
+    if result_path.exists():
+        previous = json.loads(result_path.read_text(encoding="utf-8"))
+        if previous["model"] != args.model or previous["corpus_sha256"] != report["corpus_sha256"]:
+            raise ValueError("Existing label belongs to a different checkpoint or corpus")
+        if previous["status"] == "complete_needs_review":
+            print(json.dumps({"status": "already_complete", "results": str(result_path)}))
+            return 0
+        report["cases"] = previous.get("cases", [])
+        report["started_at"] = previous["started_at"]
+        report["resumed_at"] = now()
+    completed_ids = {trial["job_id"] for trial in report["cases"]}
     try:
         guard = gpu_guard(args)
     except (RuntimeError, OSError, ValueError, subprocess.TimeoutExpired) as exc:
@@ -330,6 +373,8 @@ def benchmark(args):
         if args.model not in [item["id"] for item in models.get("data", [])]:
             raise RuntimeError("Requested checkpoint is not the served model")
         for case in corpus["cases"].values():
+            if case["job_id"] in completed_ids:
+                continue
             guard = gpu_guard(args)
             if not guard["available"]:
                 report["status"] = "interrupted_gpu_busy"
@@ -340,6 +385,8 @@ def benchmark(args):
             trial = {"job_id": case["job_id"], "question": case["question"], "calls": [],
                      "review_criteria": case["review_criteria"], "review": "pending"}
             for _ in range(4):
+                if not gpu_guard(args)["available"]:
+                    raise RuntimeError("GPU guard changed during tool calls")
                 payload = completion(args, messages)
                 reply = payload["choices"][0]["message"]
                 trial.setdefault("metrics", []).append({"latency_seconds": payload["_latency_seconds"],
@@ -406,6 +453,25 @@ td:first-child{font:12px monospace}pre{white-space:pre-wrap;overflow-wrap:anywhe
 La collecte de preuves est distincte de l'évaluation du modèle. Aucun score de qualité sans réponse Qwen et revue humaine.</p>
 <table><tr><th>Job</th><th>Projet</th><th>État</th><th>Captures</th><th>Erreur observée</th><th>Évolution des logs</th></tr>"""
     page += "".join(rows) + "</table>" + (results_html or "<p>Inférence Qwen non exécutée.</p>")
+    review_path = output / "coexistence-qualitative-review.json"
+    if review_path.exists():
+        review = json.loads(review_path.read_text(encoding="utf-8"))
+        memory = review["vram"]
+        latency = review["provider_latency_seconds"]
+        section = "<h2>Essai partagé Qwen3-4B AWQ : résultats mesurés</h2>"
+        section += (f"<p>{review['cases_completed']} conversations terminées ; pic Qwen "
+                    f"{memory['service_peak_gib']:.2f} Gio ; pic total GPU "
+                    f"{memory['total_peak_mib']/1024:.2f} Gio ; médiane des durées d'inférence "
+                    f"{latency['median']:.1f} s par conversation (hors SSH et contrôles). "
+                    "Contexte 8192, une requête à la fois, enveloppe vLLM 0,23.</p>")
+        section += "<p>Relecture qualitative par Codex sur les preuves enregistrées, "
+        section += "sans validation biologique indépendante. L'essai 4B ne remplace pas la comparaison 8B/14B.</p>"
+        section += "<table><tr><th>Job</th><th>Constat de la relecture</th><th>Preuve / limite</th></tr>"
+        for item in review["case_reviews"]:
+            section += "<tr>" + "".join("<td>" + html.escape(str(value)) + "</td>" for value in (
+                item["job_id"], item["judgement"], item.get("answer_issue", item.get("finding", "")))) + "</tr>"
+        section += "</table><p>" + html.escape(review["recommendation"]) + "</p>"
+        page = page.replace("<table><tr><th>Job</th>", section + "<table><tr><th>Job</th>", 1)
     plan_path = output / "model-plan.json"
     if plan_path.exists():
         plan = json.loads(plan_path.read_text(encoding="utf-8"))
@@ -478,6 +544,7 @@ def main():
     parser.add_argument("--base-url", default="http://127.0.0.1:8001/v1")
     parser.add_argument("--model", default="Qwen/Qwen3-14B-AWQ")
     parser.add_argument("--label", default="qwen3-14b-awq-int4")
+    parser.add_argument("--coexistence-owner", help="Exact owner of a live managed-service watchdog")
     args = parser.parse_args()
     if not re.fullmatch(r"[a-zA-Z0-9_-]+", args.label):
         parser.error("label must be a simple file name")

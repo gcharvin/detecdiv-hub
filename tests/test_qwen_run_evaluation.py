@@ -1,4 +1,6 @@
+import hashlib
 import json
+import time
 from types import SimpleNamespace
 
 from scripts.evaluate_qwen_runs import (
@@ -6,6 +8,7 @@ from scripts.evaluate_qwen_runs import (
     compact,
     compare_progress,
     evidence,
+    gpu_guard,
     normalize_progress,
     redact,
 )
@@ -79,3 +82,49 @@ def test_large_arrays_are_explicitly_summarized_instead_of_filling_context():
     assert result["frames"]["last_item"] == 4000
     assert result["frames"]["omitted"]
     assert len(json.dumps(result)) < 200
+
+
+def test_coexistence_requires_live_owner_lock_and_preserves_reserved_vram(monkeypatch):
+    from scripts import evaluate_qwen_runs as evaluation
+    active = [{"id": "first", "status": "running", "gpu_vram_mb": 8192},
+              {"id": "second", "status": "running", "gpu_vram_mb": 8192}]
+    admission = {"owner": "pilot", "status": "locked", "checked_at": time.time()}
+    watcher = {"owner": "pilot", "manifest_owner": "pilot", "status": "watching",
+               "lease_valid": True, "launcher_owned": True, "checked_at": time.time(),
+               "service_mib": 5700, "max_service_mib": 5888}
+
+    def evaluate():
+        replies = iter([active, ["MATLAB, 2184 MiB"], admission, watcher])
+        monkeypatch.setattr(evaluation, "remote", lambda *_args, **_kwargs: next(replies))
+        return gpu_guard(SimpleNamespace(api_host="api", compute_host="compute", coexistence_owner="pilot"))
+
+    assert evaluate()["available"]
+    active.append({"id": "new", "status": "queued", "gpu_vram_mb": 8192})
+    assert not evaluate()["available"]
+    active.pop()
+    admission["cancel_requested"] = True
+    assert not evaluate()["available"]
+    admission["cancel_requested"] = False
+    watcher["launcher_owned"] = False
+    assert not evaluate()["available"]
+    watcher["launcher_owned"] = True
+    active[0]["gpu_vram_mb"] = None
+    assert not evaluate()["available"]
+
+
+def test_completed_results_are_preserved_without_gpu_or_model_access(tmp_path, monkeypatch):
+    from scripts import evaluate_qwen_runs as evaluation
+    corpus_path = tmp_path / "corpus.json"
+    corpus_path.write_text('{"cases":{}}', encoding="utf-8")
+    result_path = tmp_path / "results-int4.json"
+    original = json.dumps({"status": "complete_needs_review", "model": "Qwen/test",
+                           "corpus_sha256": hashlib.sha256(corpus_path.read_bytes()).hexdigest(),
+                           "cases": [{"job_id": "already-tested", "answer": "preserved"}]})
+    result_path.write_text(original, encoding="utf-8")
+
+    def forbidden(_args):
+        raise AssertionError("Completed run must not inspect GPU or overwrite results")
+
+    monkeypatch.setattr(evaluation, "gpu_guard", forbidden)
+    assert benchmark(SimpleNamespace(output=tmp_path, label="int4", model="Qwen/test")) == 0
+    assert result_path.read_text(encoding="utf-8") == original

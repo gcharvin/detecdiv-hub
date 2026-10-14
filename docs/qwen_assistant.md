@@ -114,3 +114,30 @@ latency; diagnosis quality still requires human review. Checkpoint sizes in
 `model-plan.json` describe disk weights, not measured VRAM. A worker heartbeat
 does not prove scientific progress, and local step fractions do not establish
 whole-job completion or an ETA.
+
+### Supplementary 4B coexistence pilot
+
+`scripts/run_qwen_coexistence_pilot.py --output reports/qwen-pilot-20261014`
+tests the separately labelled Qwen3-4B-AWQ checkpoint on the frozen corpus with
+an 8192-token context, one request at a time, eager execution and a 0.23 vLLM
+memory-utilization setting. This is an experimental arm; it does not replace the
+8B/14B quantization comparison.
+
+The pilot temporarily uses the existing managed Qwen service and backs up its
+launcher. A compute-host watchdog limits service residency to 5888 MiB, checks
+free VRAM and unexpected compute processes, expires after 600 seconds, and stops
+the service and restores the exact launcher on exit. Worker GPU arbitration
+remains enabled. An API-container transaction holds the same execution-target
+row lock used by worker admission; it changes no catalog rows and expires after
+720 seconds. New queued pipeline requests ask the controller to preempt the
+pilot. The controller releases admission only after verifying that Qwen is
+stopped and the launcher is restored. The transaction also releases on process
+exit. Admission may therefore wait briefly for an in-flight inference request
+to finish; the controller must not hold the lock across unrelated work.
+
+`--coexistence-owner` on the evaluator requires a matching, fresh watchdog and
+admission owner; it is not a general GPU-guard bypass. Known scientific VRAM
+reservations plus the pilot ceiling and 2048 MiB of headroom must fit the card.
+Unknown reservations, new queued requests, stale leases and lost ownership
+refuse inference. Controller state and measured residency are stored in the
+local report directory. Inspect these records before attempting another pilot.
