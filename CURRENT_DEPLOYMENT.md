@@ -332,6 +332,29 @@ Pre-test artifacts are retained under the project's
 `diagnostic_backups/20261014-results-30frames-after-close`. The temporary chat
 heartbeat is paused after successful verification. No client lock was forced.
 
+A later adapter-only update, DetecDiv-plugins
+`153403b87f1f43a797069b213b8125def737ba0e`, is pushed to GitHub and GitLab.
+The extraction wrapper is version 0.1.2; Xtra remains 0.1.1. The shared
+pipeline is version 1.2 and passes the existing historical `cut=256` option.
+The added adapter code is marked with `ADAPTATION PIPELINE 2026-10-14`.
+`saveCroppedImages_X.m` and `computeDrift_X.m` were verified byte-identical to
+the previously deployed persistence fix. An intermediate adaptive-memory
+change was reverted before deployment. Ten integration tests pass on both
+Windows and Linux. Backups are in `.deploy-backups/20261014-cut256-153403b`.
+
+Job `75a7de1f-6630-42c2-bb5e-0e597c32565f`, run
+`alex_xtra_full_all_frames_20261014`, is submitted on Linux for Alex's latest
+selection: FOV 1 / ROI 1 / all 517 frames, blocks 256 + 256 + 5. It pins the
+same DetecDiv release and requests 32768 MiB through the supported per-job
+resource override, included atomically before submission commit. A synthetic
+32-frame allocation probe on the server measured roughly two resident raw
+buffers during drift-style copy-on-write; extrapolation for 256 frames gives
+24 GiB for raw buffers before MATLAB and pool overhead. At verification time
+the job is queued because the resource manager reports `memory_capacity`;
+the two existing Linux jobs continue undisturbed. No allocation or capacity
+limits were lowered to force admission. Pre-run ROI artifacts and the project
+header are backed up under `diagnostic_backups/20261014-before-all-frames`.
+
 ## Data State
 
 ### ROI pattern library release (2026-10-06)
