@@ -497,6 +497,20 @@ changed. The job-specific fresh-session verifier is
 `verify_results_517_b38095c1.m` in the run folder, with report
 `results_reload_verification_b38095c1.json` identifying the actual job and SHA.
 
+The adopted Alex job completed both nodes successfully: extraction 1118.075
+seconds and classification 51.330 seconds. A fresh MATLAB session verified
+job b38095c1-ec3a-403f-8787-5588e6e030ae: 517 predictions/labels,
+probabilities 6 x 517, fluorescence 3 x 517, images 171 x 171 x 7 x 517,
+unique channel mapping 1:7, raw channels identical to the legacy MAT, block
+boundaries nonempty, and exact roi.results reload through data-only and full
+load. The passed report results_reload_verification_b38095c1.json is also the
+canonical results_reload_verification.json; the previous incomplete report is
+archived as results_reload_verification_4fa7df14.json. The campaign state is
+complete / verification_status=passed. Its heartbeat is paused after verified
+success; the recovery CLI remains installed. No technical retry was needed
+after adopting Alex's concurrent submission. Now-idle @1 reloaded the pending
+GPU rule. Other busy Linux and Windows workers remain undisturbed.
+
 ## Data State
 
 ### ROI pattern library release (2026-10-06)
