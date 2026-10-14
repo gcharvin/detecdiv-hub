@@ -451,6 +451,52 @@ report the full run as successful. The heartbeat is now paused after diagnosis
 and notification. No job was resubmitted and no scientific data was modified
 by this final monitoring pass.
 
+### Alex monitored recovery and terminal-status fix (2026-10-14)
+
+API access logs confirm seven cancellation requests for the first 88-frame
+job between 11:02 and 11:06 UTC. The original 30 predictions were preview
+results retained because classification never ran. The old API did not retain
+requester identity, so no person was inferred from the proxy address.
+
+Hub `538aa238a9d131949774bcd7b06d0e11a14d4de7` rejects MATLAB cancelled,
+failed/error or incomplete results even when the process exits with code zero;
+the API records the authenticated cancellation actor. The API route was
+verified and rebuilt on webserver-labo; health and DB checks passed. The worker
+executor was verified on Linux and loaded by restarting only idle instances
+@1,@3,@4,@5 through their Restart=always service policy. Direct remote testing
+confirmed a zero-exit cancelled result raises PipelineRunCancelled. Busy
+Linux @2/@6 and the Windows worker were not restarted or updated during their
+ongoing analyses; Windows remains pending for this Hub runtime fix.
+
+Hub `4c714c64413e87cfb68681a528a83e84318f92ef` reserves GPU memory for custom
+processors with explicit GPU execution settings. It is deployed on Linux;
+idle @3,@4,@5 reloaded it. @1 started Alex's new job before this resource-rule
+activation and was preserved. Future recovery submissions explicitly declare
+GPU use. Existing jobs remain undisturbed.
+
+Alex independently resubmitted `b38095c1-ec3a-403f-8787-5588e6e030ae` from
+GC-DELL01-308 at 13:32 CEST, reusing run ID
+`alex_xtra_full_all_frames_cut88_20261014`. Its FOV 1 / ROI 1 / all 517-frame
+selection and cut 88 match the request, so no duplicate was submitted. It pins
+core `bd1d64ec03c6e91d972dd609e45780964e0d6203`, already prepared, and is
+currently running on @1. At inspection its six extraction blocks had been
+read and the 517-frame HDF5 channels were being saved; classification and
+final results validation are still pending.
+
+Hub `8852501e63bd8431d96c434fd29afd775d5aea3e` adds the durable campaign
+CLI and recovery runbook. Forty-four focused regression checks pass. The
+campaign state lives at the project's
+`pipeline/monitor_recovery_20261014/campaign.json`; actual Hub inspection
+through the CLI was verified. The existing 30-minute heartbeat is active and
+now authorized to diagnose, test, commit/deploy and retry technical failures,
+with project-lock/preflight checks, fresh stop paths and no duplicate jobs.
+It records attempts and permits at most three additional automatic submissions.
+Human cancellation remains explicit. It can reuse proven extraction and retry
+classification only. No scientific algorithm/model or universal roi.save was
+changed. The job-specific fresh-session verifier is
+`verify_results_517_b38095c1.m` in the run folder, with report
+`results_reload_verification_b38095c1.json` identifying the actual job and SHA.
+
 ## Data State
 
 ### ROI pattern library release (2026-10-06)
