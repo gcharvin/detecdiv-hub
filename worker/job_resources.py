@@ -311,6 +311,10 @@ def is_deep_learning_node(node: dict[str, Any], params: dict[str, Any]) -> bool:
     node_type = str(node.get("type") or "").strip().lower()
     if node_type == "classifier":
         return True
+    # External processors can explicitly declare GPU inference without a
+    # package name from the bundled classifier allowlist (e.g. legacy Xtra).
+    if node_type == "processor" and normalize_gpu_device(params) == "gpu":
+        return True
     return False
 
 
