@@ -511,6 +511,11 @@ success; the recovery CLI remains installed. No technical retry was needed
 after adopting Alex's concurrent submission. Now-idle @1 reloaded the pending
 GPU rule. Other busy Linux and Windows workers remain undisturbed.
 
+Fresh Windows MATLAB using Alex's actual X:/Alexander/code/DetecDiv_2/DetecDiv
+installation also passed exact data-only/full roi.results reload, probability
+6 x 517, image 171 x 171 x 7 x 517, and channel mapping 1:7. This consumer
+verification is recorded in both passed reports and in campaign.json.
+
 ## Data State
 
 ### ROI pattern library release (2026-10-06)
