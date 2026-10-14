@@ -174,3 +174,45 @@ temporary `/bin/true` launcher, stops it, and then restores the original launche
 This clears the service failure without loading the production checkpoint.
 Verify the launcher hash, inactive service and released admission after every
 wave. Never count startup failures as model diagnostic answers.
+
+### Main 8B/14B, AWQ/FP8 comparison
+
+The same controller accepts `--main-plan reports/qwen-pilot-20261014/model-plan.json`
+and one of the four planned `--model` values. For example:
+
+```powershell
+& .venv/Scripts/python.exe scripts/run_qwen_coexistence_pilot.py --output reports/qwen-pilot-20261014 --main-plan reports/qwen-pilot-20261014/model-plan.json --model Qwen/Qwen3-14B-AWQ
+```
+
+This mode pins the plan's revision and experimental vLLM utilization setting.
+It requires context 8192, standard evidence, output limit 1100, no explicit KV
+override and no CPU offload. Concurrency remains one; batch tokens are fixed at
+256 for all four main arms. The independent service ceiling is 22400 MiB and
+the watchdog still requires at least 2048 MiB of physical free VRAM. Main arms
+wait if any scientific GPU reservation or other compute process exists, before
+acquiring admission, and repeat that check while holding the admission lock.
+This ceiling is a safeguard, not a measured residency or promise of fit.
+
+The official checkpoints must already be complete in the local Linux cache.
+Check disk space before downloading, reuse Hugging Face blobs, and keep enough
+disk headroom; do not acquire GPU admission for a download. An index referring
+to a missing weight shard refuses startup. Validate FP8 using the installed
+runtime and a controlled launch: lack of native FP8 on the RTX 3090 alone does
+not establish incompatibility, since the runtime includes alternative kernels.
+Record the selected kernel and any launch error; an unsupported format has no
+diagnostic score.
+
+A separate admission watcher requests the compute watchdog to stop this owner
+when a new scientific request arrives, even during an in-flight model request.
+It also stops on loss of admission ownership or freshness. The main-arm watchdog
+rejects the appearance of any other compute process, including a worker's.
+Admission releases only after service stop and launcher restoration. Neither
+the watcher nor cleanup may request another owner's stop. API and worker GPU
+arbitration must be enabled before launch.
+
+Controller records preserve the corpus hash and inference settings. New records
+archive the previous wave under its label, and completed conversations are
+preserved across interruptions. Resuming with changed evidence, generation or
+recorded inference settings is refused. Review all saved answers against the
+frozen evidence before recommending a checkpoint for Hub; use measured peaks,
+latency and actual tool traces, not successful parsing as a quality score.

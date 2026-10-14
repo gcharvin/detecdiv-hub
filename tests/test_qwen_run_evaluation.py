@@ -4,6 +4,8 @@ import sys
 import time
 from types import SimpleNamespace
 
+import pytest
+
 from scripts.evaluate_qwen_runs import (
     benchmark,
     compact,
@@ -173,3 +175,60 @@ def test_watchdog_failed_state_reset_never_starts_production_model(tmp_path, mon
     watchdog.main()
     assert launcher.read_bytes() == original
     assert json.loads((tmp_path / "watchdog-state.json").read_text())["launcher_restored"]
+
+
+def test_main_plan_busy_gpu_never_acquires_admission_or_starts_service(tmp_path, monkeypatch):
+    from scripts import run_qwen_coexistence_pilot as pilot
+    (tmp_path / "corpus.json").write_text('{"cases":{}}')
+    plan = tmp_path / "plan.json"
+    plan.write_text(json.dumps({"candidates": [{"model": "Qwen/Qwen3-14B-AWQ",
+        "revision": "a" * 40, "provisional_gpu_memory_utilization": 0.55}]}))
+    monkeypatch.setattr(sys, "argv", ["pilot", "--output", str(tmp_path),
+        "--model", "Qwen/Qwen3-14B-AWQ", "--main-plan", str(plan)])
+    monkeypatch.setattr(pilot, "gpu_guard", lambda _args: {"available": False,
+        "gpu_jobs": [{"id": "science", "status": "running", "gpu_vram_mb": 8192}]})
+
+    def forbidden(*_args, **_kwargs):
+        raise AssertionError("Busy main arm must not change admission or a service")
+
+    monkeypatch.setattr(pilot, "remote", forbidden)
+    assert pilot.main() == 2
+    assert not list(tmp_path.glob("coexistence-controller*.json"))
+
+
+def test_main_plan_rejects_offload_arm_and_resume_rejects_changed_conditions(tmp_path):
+    from scripts.run_qwen_coexistence_pilot import configure_main_plan, validate_resume
+    plan = tmp_path / "plan.json"
+    plan.write_text(json.dumps({"candidates": [{"model": "Qwen/Qwen3-8B-FP8",
+        "revision": "b" * 40, "provisional_gpu_memory_utilization": 0.55}]}))
+    args = SimpleNamespace(main_plan=plan, model="Qwen/Qwen3-8B-FP8", context_tokens=8192,
+        kv_cache_mib=0, cpu_offload_gib=2.5, allocator_gc=0, disable_uva=False,
+        max_new_tokens=1100, evidence_profile="standard", label="main")
+    with pytest.raises(ValueError, match="separate supplementary arm"):
+        configure_main_plan(args)
+    args.cpu_offload_gib = 0
+    configure_main_plan(args)
+    assert args.revision == "b" * 40 and args.max_service_mib + 2048 < 24576
+    previous = {"model": args.model, "corpus_sha256": "frozen", "cases": [{"job_id": "done"}],
+                "inference_settings": {"context_tokens": 8192}}
+    with pytest.raises(ValueError, match="preserve"):
+        validate_resume(previous, args.model, "frozen", {"context_tokens": 4096})
+    with pytest.raises(ValueError, match="corpus"):
+        validate_resume(previous, args.model, "changed", {"context_tokens": 8192})
+
+
+def test_new_scientific_request_preempts_during_inflight_inference(monkeypatch):
+    import threading
+
+    from scripts import run_qwen_coexistence_pilot as pilot
+    args = SimpleNamespace(api_host="api", compute_host="compute")
+    stopped = []
+    monkeypatch.setattr(pilot, "remote", lambda *_args, **_kwargs: {
+        "owner": "campaign", "status": "locked", "cancel_requested": True,
+        "checked_at": time.time()})
+    monkeypatch.setattr(pilot, "request_compute_stop", lambda _args, owner: stopped.append(owner))
+    state = {}
+    finished = threading.Event()
+    pilot.watch_admission(args, "campaign", finished, state)
+    assert stopped == ["campaign"] and state["preemption_reason"]
+    assert not finished.is_set()  # Preemption does not wait for inference completion.

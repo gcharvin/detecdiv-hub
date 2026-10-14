@@ -226,6 +226,7 @@ print(json.dumps({'gpu':read(['nvidia-smi','--query-gpu=name,memory.total,memory
 
 
 def gpu_guard(args):
+    owner = getattr(args, "coexistence_owner", None)
     active = remote(args, args.api_host, '''
 import json
 from sqlalchemy import select, text
@@ -247,16 +248,23 @@ with SessionLocal() as db:
                                'gpu_vram_mb':allocation.get('gpu_vram_mb')})
  print(json.dumps(blocked))
 ''', api=True)
-    physical = remote(args, args.compute_host, '''
-import json, subprocess
+    physical = remote(args, args.compute_host, f'''
+import json, subprocess, pathlib
 r=subprocess.run(['nvidia-smi','--query-compute-apps=pid,process_name,used_memory','--format=csv,noheader'],capture_output=True,text=True)
 if r.returncode: raise RuntimeError('nvidia-smi unavailable')
-other=[line for line in r.stdout.splitlines() if line.strip() and not any(name in line.lower() for name in ['vllm','qwen'])]
+other=[]
+for line in r.stdout.splitlines():
+ if not line.strip(): continue
+ if {owner is not None!r}:
+  try:
+   group=pathlib.Path('/proc',line.split(',')[0].strip(),'cgroup').read_text()
+  except FileNotFoundError: continue
+  if 'detecdiv-qwen.service' in group: continue
+ other.append(line)
 print(json.dumps(other))
 ''')
     guard = {"checked_at": now(), "gpu_jobs": active, "other_gpu_processes": physical,
              "available": not active and not physical}
-    owner = getattr(args, "coexistence_owner", None)
     if owner:
         admission = remote(args, args.api_host, '''
 import json,pathlib
@@ -378,10 +386,18 @@ def benchmark(args):
             "mode": "recorded read-only tools; quality requires human review", "cases": []}
     report["evidence_profile"] = getattr(args, "evidence_profile", "standard")
     report["max_new_tokens"] = getattr(args, "max_new_tokens", 1100)
+    if getattr(args, "inference_settings", None):
+        report["inference_settings"] = args.inference_settings
     if result_path.exists():
         previous = json.loads(result_path.read_text(encoding="utf-8"))
         if previous["model"] != args.model or previous["corpus_sha256"] != report["corpus_sha256"]:
             raise ValueError("Existing label belongs to a different checkpoint or corpus")
+        if previous.get("cases"):
+            for key, default in (("evidence_profile", "standard"), ("max_new_tokens", 1100)):
+                if previous.get(key, default) != report[key]:
+                    raise ValueError("Resume must preserve evidence and generation settings")
+            if previous.get("inference_settings") not in (None, report.get("inference_settings")):
+                raise ValueError("Resume must preserve inference settings")
         if previous["status"] == "complete_needs_review":
             print(json.dumps({"status": "already_complete", "results": str(result_path)}))
             return 0

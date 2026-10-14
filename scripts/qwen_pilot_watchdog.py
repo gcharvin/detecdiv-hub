@@ -72,7 +72,7 @@ def main():
                     continue
                 if "detecdiv-qwen.service" in group:
                     own_mb += int(memory)
-                elif "detecdiv-worker@" not in group:
+                elif manifest.get("exclusive_gpu") or "detecdiv-worker@" not in group:
                     unknown.append(pid)
             total = subprocess.run(["nvidia-smi", "--query-gpu=memory.used,memory.total",
                                     "--format=csv,noheader,nounits"], capture_output=True,
