@@ -115,7 +115,7 @@ latency; diagnosis quality still requires human review. Checkpoint sizes in
 does not prove scientific progress, and local step fractions do not establish
 whole-job completion or an ETA.
 
-### Supplementary 4B coexistence pilot
+### Supplementary coexistence pilots
 
 `scripts/run_qwen_coexistence_pilot.py --output reports/qwen-pilot-20261014`
 tests the separately labelled Qwen3-4B-AWQ checkpoint on the frozen corpus with
@@ -141,3 +141,36 @@ reservations plus the pilot ceiling and 2048 MiB of headroom must fit the card.
 Unknown reservations, new queued requests, stale leases and lost ownership
 refuse inference. Controller state and measured residency are stored in the
 local report directory. Inspect these records before attempting another pilot.
+
+The controller also accepts `--model Qwen/Qwen3-8B-AWQ` with an explicit,
+separate `--label`. A reduced-context experimental arm can use
+`--context-tokens 4096 --kv-cache-mib 640 --max-new-tokens 512
+--evidence-profile compact4096`. The fixed KV allocation is in MiB and keeps
+the default cache dtype. The compact evidence view preserves error signatures,
+summary counters and scoped progress while explicitly omitting long logs and
+extra parameters. It adds the same 160-word response instruction for both
+checkpoints. Do not silently combine this arm with the 8192-token comparison.
+
+On the tested RTX 3090/vLLM runtime, reducing context and KV alone did not keep
+8B startup peaks below the coexistence ceiling. The working experimental
+configuration additionally uses `--cpu-offload-gib 2.5 --disable-uva
+--allocator-gc 0.15`. Disabling UVA selects vLLM's copy-based CPU offloader;
+this avoids the observed startup peak but makes inference considerably slower.
+CPU offloading changes latency and host RAM use, so the comparison is not a pure
+parameter-count or quantization-speed experiment. No runtime package is patched.
+Measure startup peaks as well as steady residency; utilization caps are not
+hard ceilings. The watchdog enforces the independent service ceiling.
+
+Use the same compact view, context, KV cache and generation settings for a
+paired 4B arm; CPU offloading is unnecessary for that smaller checkpoint.
+Existing completed conversations are retained when a bounded lease expires or
+a scientific request preempts the pilot. Resuming the same model/corpus/label
+runs only missing cases. Keep those runtime settings unchanged when resuming,
+and archive controller/VRAM records from each wave before reuse of the label.
+Report unequal case counts and compare the common cases explicitly.
+
+If systemd leaves a timed-out startup in `failed`, cleanup briefly starts a
+temporary `/bin/true` launcher, stops it, and then restores the original launcher.
+This clears the service failure without loading the production checkpoint.
+Verify the launcher hash, inactive service and released admission after every
+wave. Never count startup failures as model diagnostic answers.

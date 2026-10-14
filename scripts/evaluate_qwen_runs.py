@@ -315,9 +315,43 @@ def evidence(corpus, tool_name, job_id):
     return {"error": "Unknown tool"}
 
 
+def compact_evidence(corpus, tool_name, job_id):
+    """Preserve error signatures and scoped progress in a reduced-context arm."""
+    full = evidence(corpus, tool_name, job_id)
+    if tool_name == "get_progress_history":
+        for item in full.get("snapshots", []):
+            p = item.get("progress") or {}
+            item["progress"] = {"latest_event": p.get("latest_event"),
+                                "current_step": str(p.get("current_step") or "")[:220]}
+        return full
+    if "error" in full:
+        return full
+    result = {key: full.get(key) for key in
+              ("id", "status", "captured_at", "heartbeat_at", "project_name", "summary")}
+    result["error_text"] = (full.get("error_text") or "")[:1600]
+    result["allocation"] = {key: (full.get("allocation") or {}).get(key) for key in
+                            ("cpu_cores", "memory_mb", "gpu_required", "gpu_vram_mb")}
+    request = full.get("run_request") or {}
+    result["run_request"] = {key: request.get(key) for key in
+                             ("selected_nodes", "run_policy", "existing_data_policy", "available_channels")}
+    result["node_params"] = []
+    for node in request.get("node_params") or []:
+        parameters = node.get("params") or {}
+        result["node_params"].append({"id": node.get("id"), "params": {
+            key: value if isinstance(value, (int, float, bool)) or value is None else
+            value[:80] if isinstance(value, str) else {"omitted": True}
+            for key, value in list(parameters.items())[:8]}})
+    p = full.get("progress") or {}
+    result["progress"] = {"phase": p.get("phase"), "latest_event": p.get("latest_event"),
+                          "recent_stdout": [line[:180] for line in p.get("recent_stdout", [])[-2:]],
+                          "recent_stderr": [line[:180] for line in p.get("recent_stderr", [])[-2:]]}
+    result["omission_notice"] = "Reduced evidence view: extra parameters and long logs omitted, not checked."
+    return result
+
+
 def completion(args, messages, *, discover=False):
     request = {"model": args.model, "messages": messages, "tools": TOOLS,
-               "tool_choice": "auto", "temperature": 0, "max_tokens": 1100,
+               "tool_choice": "auto", "temperature": 0, "max_tokens": getattr(args, "max_new_tokens", 1100),
                "seed": 42, "chat_template_kwargs": {"enable_thinking": False}}
     return remote(args, args.compute_host, f'''
 import json, time, urllib.request
@@ -342,6 +376,8 @@ def benchmark(args):
     report = {"started_at": now(), "status": "pending", "label": args.label,
               "model": args.model, "corpus_sha256": hashlib.sha256(corpus_path.read_bytes()).hexdigest(),
             "mode": "recorded read-only tools; quality requires human review", "cases": []}
+    report["evidence_profile"] = getattr(args, "evidence_profile", "standard")
+    report["max_new_tokens"] = getattr(args, "max_new_tokens", 1100)
     if result_path.exists():
         previous = json.loads(result_path.read_text(encoding="utf-8"))
         if previous["model"] != args.model or previous["corpus_sha256"] != report["corpus_sha256"]:
@@ -382,6 +418,8 @@ def benchmark(args):
                 break
             messages = [{"role": "system", "content": SYSTEM_PROMPT},
                         {"role": "user", "content": case["question"] + " ID du job: " + case["job_id"]}]
+            if report["evidence_profile"] == "compact4096":
+                messages[0]["content"] += " Réponds en 160 mots maximum : faits, incertitudes, action utile."
             trial = {"job_id": case["job_id"], "question": case["question"], "calls": [],
                      "review_criteria": case["review_criteria"], "review": "pending"}
             for _ in range(4):
@@ -404,7 +442,8 @@ def benchmark(args):
                         parameters = json.loads(function["arguments"])
                         if parameters.get("job_id") != case["job_id"]:
                             raise ValueError("This case permits only its selected job")
-                        output = evidence(corpus, function["name"], parameters["job_id"])
+                        read = compact_evidence if report["evidence_profile"] == "compact4096" else evidence
+                        output = read(corpus, function["name"], parameters["job_id"])
                     except (ValueError, TypeError, KeyError) as exc:
                         output = {"error": str(exc)}
                     trial["calls"].append({"name": function["name"], "arguments": function["arguments"]})

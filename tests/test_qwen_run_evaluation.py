@@ -1,11 +1,13 @@
 import hashlib
 import json
+import sys
 import time
 from types import SimpleNamespace
 
 from scripts.evaluate_qwen_runs import (
     benchmark,
     compact,
+    compact_evidence,
     compare_progress,
     evidence,
     gpu_guard,
@@ -128,3 +130,46 @@ def test_completed_results_are_preserved_without_gpu_or_model_access(tmp_path, m
     monkeypatch.setattr(evaluation, "gpu_guard", forbidden)
     assert benchmark(SimpleNamespace(output=tmp_path, label="int4", model="Qwen/test")) == 0
     assert result_path.read_text(encoding="utf-8") == original
+
+
+def test_reduced_context_preserves_error_signature_and_progress_scope():
+    signature = "Index in position 4 exceeds array bounds. Index must not exceed 13."
+    capture = {"status": "running", "captured_at": "2026-10-14T10:00:00Z", "error_text": signature,
+               "run_request": {"node_params": [{"id": "tracking", "params": {"frames": list(range(4000))}}]},
+               "progress": {"latest_event": {"scope": "frame", "current": 47, "total": 100,
+                                             "localValue": 0.46, "value": 0.24}}}
+    result = compact_evidence({"cases": {"job": {"captures": [capture]}}}, "get_job_evidence", "job")
+    assert result["error_text"] == signature
+    assert result["progress"]["latest_event"]["scope"] == "frame"
+    assert result["progress"]["latest_event"]["value"] == 0.24
+    assert result["node_params"][0]["params"]["frames"] == {"omitted": True}
+    assert "omitted" in result["omission_notice"]
+
+
+def test_watchdog_failed_state_reset_never_starts_production_model(tmp_path, monkeypatch):
+    from scripts import qwen_pilot_watchdog as watchdog
+    launcher = tmp_path / "launcher.sh"
+    backup = tmp_path / "backup.sh"
+    original = b"#!/bin/sh\nexec production-model\n"
+    pilot = b"#!/bin/sh\nexec pilot-model\n"
+    backup.write_bytes(original)
+    launcher.write_bytes(pilot)
+    (tmp_path / "stop").touch()
+    manifest = tmp_path / "manifest.json"
+    manifest.write_text(json.dumps({"owner": "pilot", "launcher": str(launcher),
+        "backup": str(backup), "original_sha256": hashlib.sha256(original).hexdigest(),
+        "pilot_sha256": hashlib.sha256(pilot).hexdigest(), "original_mode": 0o755,
+        "expires_at": time.time() + 10}))
+    monkeypatch.setattr(sys, "argv", ["watchdog", str(manifest)])
+    monkeypatch.setattr(watchdog.signal, "signal", lambda *_args: None)
+
+    def service(command, **_kwargs):
+        if "start" in command:
+            assert b"exec /bin/true" in launcher.read_bytes()
+            assert b"production-model" not in launcher.read_bytes()
+        return SimpleNamespace(returncode=0, stdout="failed\n")
+
+    monkeypatch.setattr(watchdog.subprocess, "run", service)
+    watchdog.main()
+    assert launcher.read_bytes() == original
+    assert json.loads((tmp_path / "watchdog-state.json").read_text())["launcher_restored"]

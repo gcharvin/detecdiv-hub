@@ -97,6 +97,20 @@ def main():
                 capture_output=True, text=True, check=False, timeout=60)
             state["stop_exit_code"] = stopped_service.returncode
             if stopped_service.returncode == 0:
+                status = subprocess.run(["systemctl", "is-active", "detecdiv-qwen.service"],
+                                        capture_output=True, text=True, check=False).stdout.strip()
+                if status == "failed":
+                    # An interrupted startup can hit systemd's stop timeout.
+                    # A harmless successful activation clears the failed state
+                    # without loading the production model or altering the unit.
+                    launcher.write_text("#!/usr/bin/env bash\nexec /bin/true\n", encoding="utf-8")
+                    try:
+                        subprocess.run(["sudo", "-n", "/usr/bin/systemctl", "start", "detecdiv-qwen.service"],
+                                       capture_output=True, check=True, timeout=60)
+                        subprocess.run(["sudo", "-n", "/usr/bin/systemctl", "stop", "detecdiv-qwen.service"],
+                                       capture_output=True, check=True, timeout=60)
+                    except (OSError, subprocess.SubprocessError) as exc:
+                        state["reset_failed_error"] = str(exc)
                 replacement = launcher.with_name(launcher.name + ".pilot-restore")
                 replacement.write_bytes(backup.read_bytes())
                 replacement.chmod(manifest["original_mode"])
