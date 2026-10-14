@@ -403,6 +403,35 @@ entrypoints resolving inside Alex's new checkout, and `setparam.cut=176`.
 No personal plugin preferences or tracked core startup files were modified.
 The running server job continues to use its existing code directories.
 
+After the 176-frame run stalled with 23.6 GiB anonymous RAM and a full
+1.5-GiB swap allowance, Gilles explicitly requested cancellation and a fixed
+88-frame replacement. Job `ad0d3610-9c71-4693-99c7-f50af0c80bf1` is confirmed
+cancelled. The cooperative token could not interrupt the blocked legacy code;
+only its verified MATLAB PID 2452179 (matching job work directory and worker
+cgroup) was terminated with SIGTERM. No worker service or other job was stopped.
+
+DetecDiv-plugins `18ce411149c9fba85c5ab6d19540dc5d535241ac` is pushed to
+GitHub and GitLab, with extraction version 0.1.5. The shared pipeline version
+1.5, legacy default, and setparam all use `cut=88`. The only historical-script
+change since the preceding release is that fixed block size. Eleven tests
+pass on Windows and Linux. Pipeline backups are retained in
+`.deploy-backups/20261014-cut88-18ce411`. Alex's clean sibling plugin checkout
+at `X:\Alexander\code\DetecDiv_2\DetecDiv-plugins` was updated fast-forward to
+the exact SHA; fresh Windows MATLAB resolved the local module and confirmed
+`cut=88`. The universal ROI save implementation is unchanged.
+
+Job `4fa7df14-9e80-4c89-b2b0-7e1e4393186b`, run
+`alex_xtra_full_all_frames_cut88_20261014`, is running on Linux under
+`requested_by=alexander`, with 24576 MiB actually allocated, FOV 1 / ROI 1,
+and all 517 frames (five blocks of 88 plus 77). It retains the explicit
+DetecDiv pin `da89797e0df58971f59dea1fedd746f7b8ddc867`; no global core release
+was republished or rolled back. Its extraction log shows active progress
+through the first block. The existing heartbeat is active every 30 minutes
+and now tracks this new job. Its fresh-session `verify_results_517.m` and
+final report will cover all six block boundaries, classification, HDF5/MAT
+raw-channel equality, and exact roi.results reload. Completion remains to
+be verified by the monitor.
+
 ## Data State
 
 ### ROI pattern library release (2026-10-06)
