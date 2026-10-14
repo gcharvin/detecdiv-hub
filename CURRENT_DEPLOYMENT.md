@@ -1,5 +1,28 @@
 # Current Deployment
 
+## Alex worker fixes: fleet activation, 2026-10-14
+
+Hub fixes `538aa238` (MATLAB cancellation even with exit code zero, cancellation
+actor audit) and `4c714c64` (explicit GPU inference by external processors) are
+published. The API cancellation route is active on `webserver-labo`. Linux
+worker source hashes are verified; pollers `@1`, `@3`, `@4`, `@5` report runtime
+fingerprint `c0f13002d996`. Occupied pollers `@2` and `@6` still await an idle
+reload. The native Windows update is staged and passed 11 checks in its actual
+Python environment, preserving its raw-ingestion adaptation and dirty checkout.
+Its expected runtime fingerprint is `8c31b3db2d99`; it awaits completion of
+job `f9d102cc-0011-44ac-925d-2235c82078ed` before activation.
+
+Run `scripts/finish_alex_worker_fix_rollout.py` from the administration workstation
+until it reports `complete: true`. It checks every baseline worker and additional
+registered instances, reserves admission only during an idle reload, checks
+actual child processes, validates source hashes, reloads the specific poller or
+Windows scheduled worker task, confirms the new heartbeat fingerprint, and
+restores admission. It never stops an active analysis or changes MATLAB releases.
+Windows staging and backups live under its Hub checkout in
+`.deploy-staging/alex-terminal-gpu-20261014` and
+`.deploy-backups/alex-terminal-gpu-20261014`. Pending activation is followed by
+the existing Alex heartbeat; the verified 517-frame scientific run is complete.
+
 This file is the source of truth for the current live deployment target and
 runtime topology for this repository.
 

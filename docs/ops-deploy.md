@@ -17,6 +17,7 @@ Treat these as separate states unless you have explicitly synchronized them:
 - local checkout on the Windows development machine
 - deployed API copy on `webserver-labo`
 - deployed worker copy on `detecdiv-server`
+- deployed native Windows worker copy on `10.20.11.56`
 
 Do not assume that a local edit is live.
 Do not assume that restarting one side updates the other.
@@ -85,8 +86,17 @@ Examples:
 Action:
 
 - deploy on `detecdiv-server`
+- deploy on the native Windows worker as well when it uses the affected code
 - verify active jobs before restart
 - restart only the worker services
+
+An occupied worker remains a pending deployment target, never an exemption.
+Prepare and verify its update, then arrange automatic activation when it becomes
+idle. Verify the fingerprint of each running poller after activation; copying
+files alone does not update already imported Python modules. On Windows preserve
+machine-specific patches, restart only the `DetecDiv Hub Worker` scheduled task,
+and leave the database tunnel and unrelated MATLAB sessions running. See
+`windows_worker.md` for its dedicated SSH identity and task administration.
 
 ### Cross-layer
 
