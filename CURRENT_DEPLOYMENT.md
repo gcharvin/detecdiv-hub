@@ -390,6 +390,19 @@ Job `ad0d3610-9c71-4693-99c7-f50af0c80bf1`, run
 and `cut=176`. The same core SHA remains pinned. Full-run completion and
 all-frame results reload remain unverified while the job executes.
 
+Alex's local installation under `X:\Alexander\code\DetecDiv_2` (Linux
+`/data/Alexander/code/DetecDiv_2`) now includes the conventional sibling
+`DetecDiv-plugins` checkout at
+`7eaf0ade17b86d743b6045b99f93ff4dbb9cf945`, branch main. Both core and
+plugin Git checkouts are clean; core remains
+`da89797e0df58971f59dea1fedd746f7b8ddc867`. The core ROI results loader was
+compared with the committed development copy after LF/CRLF normalization.
+Fresh MATLAB sessions on Windows using the actual X: installation and on
+Linux verified automatic sibling discovery, both conservative processor
+entrypoints resolving inside Alex's new checkout, and `setparam.cut=176`.
+No personal plugin preferences or tracked core startup files were modified.
+The running server job continues to use its existing code directories.
+
 ## Data State
 
 ### ROI pattern library release (2026-10-06)
