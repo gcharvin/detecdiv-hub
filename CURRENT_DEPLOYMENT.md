@@ -294,6 +294,38 @@ group memberships remain unverified. A read-only
 `DEBUG3`/`LOCAL0` logging is still active in `sshd_config`; no remote
 configuration or service changes were made during this inspection.
 
+### Alex legacy ROI results persistence (2026-10-14)
+
+DetecDiv `da89797e0df58971f59dea1fedd746f7b8ddc867` is published as the
+default for new MATLAB jobs. The protected release directory at that full SHA
+was verified on both Linux and Windows. `roi.load` restores explicitly saved
+`results_<roi-id>.mat` sidecars; the universal `roi.save` is unchanged.
+
+DetecDiv-plugins `528bde9ceb6ab4df556692ea76489653e0210881` is pushed to
+GitHub and GitLab. Both conservative Alex wrappers are version 0.1.1. Their
+26 files were deployed and checked in
+`/data/matlab/pipelines/Alex_Xtra_FullChannels_Conservative/assets/plugins/processor`;
+the shared pipeline JSON is version 1.1. Previous packages and pipeline JSON
+are retained in `.deploy-backups/20261014-results-528bde9`.
+
+Alex's source checkout at `/data/Alexander/code/DetecDiv_2/DetecDiv`
+(`X:\Alexander\code\DetecDiv_2\DetecDiv`) was updated fast-forward to the
+same DetecDiv SHA. Its apparent dirty state consisted only of CRLF formatting;
+`core.autocrlf=true` and `core.filemode=false` preserve that Windows checkout
+format on the Linux administration host. The tracked checkout is clean.
+
+Three jobs were active before deployment, in isolated code directories. No
+worker was restarted and no active job's code directory was modified.
+Regression checks passed: 11 Windows integration/save tests, nine Linux
+integration tests, and three additional legacy-results loader tests.
+
+The requested original-project test (`alex_results_fix_30frames_20261014`,
+FOV 1 / ROI 1 / frames 1:30) is waiting for Alex's client edit lease on
+`GC-DELL01-308` to close. A chat heartbeat checks the lease, submits this run
+once it is free, and verifies cold reload through both `roi.load('data')` and
+`roi.load`. It must not force-release the client lease. Pre-test ROI artifacts
+are backed up under the project's `diagnostic_backups/20261014-results-30frames`.
+
 ## Data State
 
 ### ROI pattern library release (2026-10-06)
