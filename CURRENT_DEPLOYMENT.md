@@ -319,12 +319,18 @@ worker was restarted and no active job's code directory was modified.
 Regression checks passed: 11 Windows integration/save tests, nine Linux
 integration tests, and three additional legacy-results loader tests.
 
-The requested original-project test (`alex_results_fix_30frames_20261014`,
-FOV 1 / ROI 1 / frames 1:30) is waiting for Alex's client edit lease on
-`GC-DELL01-308` to close. A chat heartbeat checks the lease, submits this run
-once it is free, and verifies cold reload through both `roi.load('data')` and
-`roi.load`. It must not force-release the client lease. Pre-test ROI artifacts
-are backed up under the project's `diagnostic_backups/20261014-results-30frames`.
+After Alex closed his client edit lease on `GC-DELL01-308`, job
+`8fe920f8-c614-4df3-b5a1-b0ef5a986979` ran on Linux with the pinned release
+above. Run `alex_results_fix_30frames_20261014` processed FOV 1 / ROI 1 /
+frames 1:30 and finished successfully at 11:11 CEST. Its two nodes completed
+without errors. A fresh MATLAB process confirmed identical persisted
+`roi.results` through both `roi.load('data')` and full `roi.load`: fields
+`div_1`, `RLS`, and `signal`; probability size 6 x 30; fluorescence size 3 x 30;
+image size 171 x 171 x 7 x 30; channel mapping 1:7.
+The report is in the run folder as `results_reload_verification.json`.
+Pre-test artifacts are retained under the project's
+`diagnostic_backups/20261014-results-30frames-after-close`. The temporary chat
+heartbeat is paused after successful verification. No client lock was forced.
 
 ## Data State
 
