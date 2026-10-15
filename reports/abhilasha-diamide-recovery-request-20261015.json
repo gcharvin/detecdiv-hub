@@ -1,0 +1,204 @@
+{
+  "project_id": "00c01fdc-c9e9-4ba0-97b8-9770b2f89322",
+  "pipeline_id": "5403dd9b-5c3c-41fe-a1c3-848707f47d90",
+  "execution_target_id": "0d9f55dc-54ce-4527-af5b-ff4b5d0d64e9",
+  "requested_mode": "server",
+  "priority": 10,
+  "requested_by": "abhilasha",
+  "requested_from_host": "Codex: recovery requested by Gilles",
+  "project_ref": {
+    "project_id": "00c01fdc-c9e9-4ba0-97b8-9770b2f89322",
+    "project_key": "analysis_30092026_diamide_rogfp_cen_pk_by_0_5_1_diamide_ii_diamide_rogfp_cen_by_i_30092026_bbaeb1b575",
+    "project_name": "Diamide_Rogfp_CEN_BY_I_30092026",
+    "project_mat_path": "/data/Abhilasha/Analysis/30092026_Diamide_Rogfp_CEN.PK_BY_0.5_1_diamide_II/Diamide_Rogfp_CEN_BY_I_30092026.mat",
+    "local_project_mat_path": "Z:\\Abhilasha\\Analysis\\30092026_Diamide_Rogfp_CEN.PK_BY_0.5_1_diamide_II\\Diamide_Rogfp_CEN_BY_I_30092026.mat"
+  },
+  "pipeline_ref": {
+    "link_mode": "server_visible",
+    "pipeline_id": "5403dd9b-5c3c-41fe-a1c3-848707f47d90",
+    "pipeline_key": "pipelineTemplate",
+    "pipeline_json_path": "/data/Abhilasha/Analysis/pipelines/pipeline/pipeline.json",
+    "export_manifest_uri": "",
+    "pipeline_bundle_uri": ""
+  },
+  "run_request": {
+    "gpu": {
+      "mode": "module_default"
+    },
+    "masks": [],
+    "paths": {
+      "run_path": "/data/Abhilasha/Analysis/30092026_Diamide_Rogfp_CEN.PK_BY_0.5_1_diamide_II/Diamide_Rogfp_CEN_BY_I_30092026/pipeline/pipelineTemplate_1_recovery_20261015",
+      "project_path": "/data/Abhilasha/Analysis/30092026_Diamide_Rogfp_CEN.PK_BY_0.5_1_diamide_II/Diamide_Rogfp_CEN_BY_I_30092026.json",
+      "path_mappings": [
+        {
+          "localRoot": "Z:/",
+          "remoteRoot": "/data"
+        },
+        {
+          "localRoot": "Z:\\Abhilasha\\Analysis\\30092026_Diamide_Rogfp_CEN.PK_BY_0.5_1_diamide_II\\Diamide_Rogfp_CEN_BY_I_30092026",
+          "remoteRoot": "/data/Abhilasha/Analysis/30092026_Diamide_Rogfp_CEN.PK_BY_0.5_1_diamide_II/Diamide_Rogfp_CEN_BY_I_30092026"
+        },
+        {
+          "localRoot": "Z:\\Abhilasha\\Analysis",
+          "remoteRoot": "/data/Abhilasha/Analysis"
+        },
+        {
+          "localRoot": "\\\\10.20.11.250\\data",
+          "remoteRoot": "/data"
+        },
+        {
+          "localRoot": "\\\\10.20.11.250\\data\\Abhilasha\\Analysis\\30092026_Diamide_Rogfp_CEN.PK_BY_0.5_1_diamide_II\\Diamide_Rogfp_CEN_BY_I_30092026",
+          "remoteRoot": "/data/Abhilasha/Analysis/30092026_Diamide_Rogfp_CEN.PK_BY_0.5_1_diamide_II/Diamide_Rogfp_CEN_BY_I_30092026"
+        },
+        {
+          "localRoot": "\\\\10.20.11.250\\data\\Abhilasha\\Analysis",
+          "remoteRoot": "/data/Abhilasha/Analysis"
+        },
+        {
+          "localRoot": "X:\\",
+          "remoteRoot": "/data"
+        }
+      ],
+      "raw_data_path": "/data/Abhilasha/30092026_Diamide_Rogfp_CEN.PK_BY_0.5_1_diamide_I.ome.zarr",
+      "classifier_path": "",
+      "server_run_path": "/data/Abhilasha/Analysis/30092026_Diamide_Rogfp_CEN.PK_BY_0.5_1_diamide_II/Diamide_Rogfp_CEN_BY_I_30092026/pipeline/pipelineTemplate_1_recovery_20261015",
+      "server_project_path": "/data/Abhilasha/Analysis/30092026_Diamide_Rogfp_CEN.PK_BY_0.5_1_diamide_II/Diamide_Rogfp_CEN_BY_I_30092026.json",
+      "server_raw_data_path": "/data/Abhilasha/30092026_Diamide_Rogfp_CEN.PK_BY_0.5_1_diamide_I.ome.zarr",
+      "server_classifier_path": "",
+      "server_project_data_folder": "/data/Abhilasha/Analysis/30092026_Diamide_Rogfp_CEN.PK_BY_0.5_1_diamide_II/Diamide_Rogfp_CEN_BY_I_30092026"
+    },
+    "intent": "infer",
+    "python": {},
+    "run_id": "pipelineTemplate_1_recovery_20261015",
+    "control": {
+      "cancel_policy": "cooperative",
+      "resume_policy": "restart",
+      "hub_cancel_mode": "hub_job_cancel",
+      "local_cancel_mode": "file_token",
+      "hub_cancel_endpoint": "/pipeline-runs/{job_id}/cancel",
+      "progress_granularity": "roi"
+    },
+    "selection": {
+      "fovs": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36,
+        37,
+        38,
+        39,
+        40,
+        41,
+        42,
+        43,
+        44,
+        45,
+        46,
+        47,
+        48,
+        49,
+        50
+      ],
+      "rois": [],
+      "frames": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10
+      ],
+      "channels": []
+    },
+    "run_policy": "restart",
+    "data_series": [],
+    "description": "",
+    "node_params": [
+      {
+        "id": "roiextract_3",
+        "params": {
+          "existingPolicy": "skip",
+          "runPolicy": "restart"
+        }
+      }
+    ],
+    "input_source": "existing rois",
+    "roi_channels": [
+      "0 TL _z1",
+      "0 TL _z2",
+      "SB GFP10_z2",
+      "RoGFPlow10_z2",
+      "0 TL _z3"
+    ],
+    "selected_nodes": [
+      "roiextract_3",
+      "combineMultipleChannels",
+      "cellpose_sam_segmentatio",
+      "classifier_cnn_lstm_1",
+      "processor_trackmotherlineageviterbi_9",
+      "processor_computerls_2",
+      "processor_computemetrics_8"
+    ],
+    "roi_cache_policy": "auto",
+    "classifier_intent": "infer",
+    "available_channels": [
+      "0 TL _z1",
+      "0 TL _z2",
+      "SB GFP10_z2",
+      "RoGFPlow10_z2",
+      "0 TL _z3"
+    ],
+    "ingest_raw_dataset": false,
+    "existing_data_policy": "replace"
+  },
+  "execution": {
+    "allow_gui": false,
+    "code_commit": "07422ee84108dbb26f670520adcb5888348ce04d",
+    "interactive": false,
+    "write_scope": "project_update",
+    "save_project": true,
+    "requested_mode": "server"
+  },
+  "client_context": {
+    "schema": "pipeline_run_contract_v1",
+    "retry_of": "00c9a5ef-2cdb-4bb9-ace3-6710a7288878",
+    "abhilasha_recovery_key": "00c9a5ef-2cdb-4bb9-ace3-6710a7288878_recovery",
+    "reason": "Recovery after local disk exhaustion; retain completed extraction outputs"
+  }
+}

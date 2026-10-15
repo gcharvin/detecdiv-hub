@@ -1,5 +1,38 @@
 # Current Deployment
 
+## Cellpose metadata-only output fix, 2026-10-15
+
+The published MATLAB default is now
+`07422ee84108dbb26f670520adcb5888348ce04d` (previously
+`bd1d64ec03c6e91d972dd609e45780964e0d6203`). The exact protected release was
+prepared and verified on Linux and native Windows with
+`scripts/deploy_detecdiv_release.ps1`. Shared checkouts and active job pins were
+preserved; no API rebuild or worker restart was needed.
+
+CellposeSAM now materializes an output plane when project/display metadata
+advertises it but the readable HDF5 store has no corresponding dataset. It
+reuses the logical channel identity, preserves existing on-disk masks for
+partial reruns, and still propagates unreadable/corrupt-store errors. Four
+output-channel regression tests passed on Linux R2024b; nine related tests
+passed locally on Windows R2026a. Hub pilot
+`2ec1cd2d-1b51-49a5-bb66-3d3dbe26f0f1` completed successfully on the actual
+first Hyper7 ROI from failed job `e9dd1130-6815-4c75-bbba-55344c2301d9`:
+50/50 frames contain masks; the HDF5 store retains its six original datasets
+alongside the new segmentation dataset. Full Hyper7 recovery is
+`2f53acb2-370c-4683-bc20-721ddcf115f1`, pinned to the corrected SHA.
+
+The separate Diamide failure `00c9a5ef-2cdb-4bb9-ace3-6710a7288878` coincided
+with local disk exhaustion (another MATLAB job logged ENOSPC at the same
+minute). Subsequent disk cleanup restored approximately 79 GiB free (later
+cleanup increased this to approximately 207 GiB). Its 40
+completed FOVs remain present; FOVs 45–46 are partial and 47–50 are pending.
+After Abhilasha closed the project and its client edit lease cleared, recovery
+`bd3c852e-8728-4d65-a646-d5472cd1cf48` was submitted through the normal Hub
+service and started. It skips existing extraction outputs, reuses the saved
+ROI detection, and continues downstream processing. No client locks were
+overridden. Evidence: `reports/abhilasha-recovery-live-20261015.json` and
+`reports/abhilasha-failures-20261015.json`.
+
 ## Alex worker fixes: fleet activation completed, 2026-10-15
 
 Hub fixes `538aa238` (MATLAB cancellation even with exit code zero, cancellation

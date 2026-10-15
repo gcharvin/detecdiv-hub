@@ -1,0 +1,45 @@
+{
+  "date": "2026-10-15",
+  "processing_fix_commit": "07422ee84108dbb26f670520adcb5888348ce04d",
+  "previous_release": "bd1d64ec03c6e91d972dd609e45780964e0d6203",
+  "hyper7": {
+    "failed_job": "e9dd1130-6815-4c75-bbba-55344c2301d9",
+    "cause": "CellposeSAM attempted to load results_cellposeSAM_cell because display metadata advertised it, although the readable ROI HDF5 had no corresponding dataset.",
+    "fix": "Only loadFromH5_single:NotFound is recovered: initialize a zero plane at the existing logical channel ID. Existing masks still load from disk; other HDF5 errors still propagate.",
+    "pilot_job": "2ec1cd2d-1b51-49a5-bb66-3d3dbe26f0f1",
+    "pilot_status": "done",
+    "pilot_frames": 50,
+    "pilot_frames_with_masks": 50,
+    "pilot_max_instance_id": 7,
+    "original_datasets_still_present": 6,
+    "recovery_job": "2f53acb2-370c-4683-bc20-721ddcf115f1",
+    "recovery_scope": "Same FOVs, ROIs, frames, and five processing nodes as the failed submission; a fresh run ID and corrected pinned SHA."
+  },
+  "diamide": {
+    "failed_job": "00c9a5ef-2cdb-4bb9-ace3-6710a7288878",
+    "cause": "Local scratch filesystem exhaustion. H5D.write failed while growing detecdiv_roi_h5_36cc06a3-8c00-4880-b66c-3c939dc28bb8.h5; another MATLAB job logged ENOSPC at 11:58:57 server-local time, the same minute.",
+    "remediation": "Independent disk cleanup had already restored free capacity. Recovery is pinned to the corrected Cellpose release for subsequent inference.",
+    "completed_fovs": 40,
+    "empty_fovs": [4, 7, 11, 19],
+    "partial_fovs": {
+      "45": {"expected_rois": 56, "readable_complete_hdf5_files": 32},
+      "46": {"expected_rois": 56, "readable_complete_hdf5_files": 33}
+    },
+    "pending_fovs": [47, 48, 49, 50],
+    "recovery_job": "bd3c852e-8728-4d65-a646-d5472cd1cf48",
+    "recovery_scope": "Saved ROI detections reused; dataloader and roiPattern excluded; roiExtract existingPolicy=skip; original downstream nodes and 10-frame selection retained.",
+    "lock_handling": "Initial submission refused by normal preflight while client_edit_lease was held by Abhilasha on GC-DELL01-306. Submitted successfully after user confirmed project closure and preflight accepted it."
+  },
+  "verification": {
+    "windows_r2026a_tests_passed": 9,
+    "linux_r2024b_tests_passed": 4,
+    "regression_reproduced_before_fix": true,
+    "linux_release": "/home/charvin-admin/repos/DetecDiv-jobs/releases/07422ee84108dbb26f670520adcb5888348ce04d",
+    "windows_release": "C:\\Users\\Charvin-Admin\\Documents\\GitHub\\DetecDiv-jobs\\releases\\07422ee84108dbb26f670520adcb5888348ce04d",
+    "published_default_verified": true,
+    "worker_restarts": 0,
+    "api_rebuilds": 0,
+    "active_jobs_preserved": true,
+    "latest_job_snapshot": "abhilasha-recovery-live-20261015.json"
+  }
+}
