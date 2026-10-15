@@ -2,6 +2,7 @@ import importlib.util
 from pathlib import Path
 import sys
 import json
+import subprocess
 from types import SimpleNamespace
 
 import pytest
@@ -85,3 +86,38 @@ def test_admission_lock_is_rolled_back_without_reservation(monkeypatch, capsys):
     result = rollout.reserve({}, "detecdiv-server")
     assert session.rolled_back
     assert result == {"idle": [], "reserved": False, "reason": "target_admission_locked"}
+
+
+@pytest.mark.skipif(sys.platform != "win32", reason="Exercises the real Windows PowerShell guard")
+@pytest.mark.parametrize("matlab_child", [False, True])
+def test_windows_guard_includes_orphans_and_rejects_active_matlab(monkeypatch, tmp_path, matlab_child):
+    captured = []
+    def capture_copy(args, **kwargs):
+        captured.append(Path(args[-2]).read_text(encoding="utf-8"))
+    monkeypatch.setattr(rollout.release, "run", capture_copy)
+    monkeypatch.setattr(rollout.release, "remote_json", lambda *args: {"applied": True})
+    rollout.reload_windows([{"instance": "windows-10-20-11-56-main", "pid": 21}])
+    # Execute only the read-only process guard; no task/process action follows.
+    guard = captured[0].split("$task='DetecDiv Hub Worker'", 1)[0]
+    repo = r"C:\Users\Charvin-Admin\Documents\MATLAB\detecdiv-hub"
+    fixture = []
+    for wrapper, interpreter in [(10, 11), (20, 21)]:
+        fixture.extend([
+            {"ProcessId": wrapper, "ParentProcessId": 1, "Name": "python.exe",
+             "CommandLine": repo + r"\.venv\Scripts\python.exe -u -m worker.run_worker"},
+            {"ProcessId": interpreter, "ParentProcessId": wrapper, "Name": "python.exe",
+             "CommandLine": r"C:\ProgramData\DetecDivHub\python311\python.exe -u -m worker.run_worker"},
+        ])
+    if matlab_child:
+        fixture.append({"ProcessId": 22, "ParentProcessId": 11, "Name": "MATLAB.exe", "CommandLine": "MATLAB -batch analysis"})
+    setup = ("$fixture='" + json.dumps(fixture).replace("'", "''") + "' | ConvertFrom-Json\n"
+             "function Get-CimInstance { return $fixture }\nfunction Set-Location {}\n")
+    script = tmp_path / "guard.ps1"
+    script.write_text(setup + guard + "\n@($managed.ProcessId | Sort-Object) | ConvertTo-Json\n", encoding="utf-8")
+    result = subprocess.run(["powershell", "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", str(script)],
+                            capture_output=True, text=True, timeout=15)
+    if matlab_child:
+        assert result.returncode != 0 and "Worker still has child processes" in result.stderr
+    else:
+        assert result.returncode == 0, result.stderr
+        assert json.loads(result.stdout) == [10, 11, 20, 21]

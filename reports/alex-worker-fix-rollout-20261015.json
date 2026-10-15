@@ -1,0 +1,94 @@
+{
+  "verified_at": "2026-10-15T04:04:29.319192+00:00",
+  "rollout_id": "alex-terminal-gpu-20261014",
+  "complete": true,
+  "workers": [
+    {
+      "target": "windows-10-20-11-56",
+      "instance": "windows-10-20-11-56-main",
+      "job": null,
+      "pid": 53756,
+      "fingerprint": "8c31b3db2d99",
+      "seen": "2026-10-15T04:04:28.271130+00:00"
+    },
+    {
+      "target": "detecdiv-server",
+      "instance": "@5",
+      "job": null,
+      "pid": 2571588,
+      "fingerprint": "c0f13002d996",
+      "seen": "2026-10-15T04:04:26.060565+00:00"
+    },
+    {
+      "target": "detecdiv-server",
+      "instance": "@1",
+      "job": null,
+      "pid": 2579619,
+      "fingerprint": "c0f13002d996",
+      "seen": "2026-10-15T04:04:26.098565+00:00"
+    },
+    {
+      "target": "detecdiv-server",
+      "instance": "@2",
+      "job": null,
+      "pid": 2728947,
+      "fingerprint": "c0f13002d996",
+      "seen": "2026-10-15T04:04:26.910044+00:00"
+    },
+    {
+      "target": "detecdiv-server",
+      "instance": "@3",
+      "job": null,
+      "pid": 2571586,
+      "fingerprint": "c0f13002d996",
+      "seen": "2026-10-15T04:04:25.933545+00:00"
+    },
+    {
+      "target": "detecdiv-server",
+      "instance": "@4",
+      "job": null,
+      "pid": 2571587,
+      "fingerprint": "c0f13002d996",
+      "seen": "2026-10-15T04:04:25.903055+00:00"
+    },
+    {
+      "target": "detecdiv-server",
+      "instance": "@6",
+      "job": null,
+      "pid": 2843507,
+      "fingerprint": "c0f13002d996",
+      "seen": "2026-10-15T04:04:27.935608+00:00"
+    }
+  ],
+  "admission": [
+    {
+      "target": "detecdiv-server",
+      "drain": false,
+      "rollout": null
+    },
+    {
+      "target": "legacy-matlab-smoke",
+      "drain": null,
+      "rollout": null
+    },
+    {
+      "target": "windows-10-20-11-56",
+      "drain": null,
+      "rollout": null
+    }
+  ],
+  "runtime_fixes": [
+    "538aa238a9d131949774bcd7b06d0e11a14d4de7",
+    "4c714c64413e87cfb68681a528a83e84318f92ef"
+  ],
+  "local_regression_tests_passed": 19,
+  "windows_staged_checks_passed": 11,
+  "api_health": "ok",
+  "api_fingerprint": "c4a3fc462f1f",
+  "windows_task_running": true,
+  "database_tunnel_running": true,
+  "windows_poller_count": 1,
+  "windows_launcher_pid": 44188,
+  "windows_interpreter_pid": 53756,
+  "no_running_job_interrupted": true
+}

@@ -1,27 +1,43 @@
 # Current Deployment
 
-## Alex worker fixes: fleet activation, 2026-10-14
+## Alex worker fixes: fleet activation completed, 2026-10-15
 
 Hub fixes `538aa238` (MATLAB cancellation even with exit code zero, cancellation
 actor audit) and `4c714c64` (explicit GPU inference by external processors) are
-published. The API cancellation route is active on `webserver-labo`. Linux
-worker source hashes are verified; pollers `@1`, `@3`, `@4`, `@5` report runtime
-fingerprint `c0f13002d996`. Occupied pollers `@2` and `@6` still await an idle
-reload. The native Windows update is staged and passed 11 checks in its actual
-Python environment, preserving its raw-ingestion adaptation and dirty checkout.
-Its expected runtime fingerprint is `8c31b3db2d99`; it awaits completion of
-job `f9d102cc-0011-44ac-925d-2235c82078ed` before activation.
+published. The API cancellation route is active on `webserver-labo`, with healthy
+API/database and fingerprint `c4a3fc462f1f`. All six Linux pollers `@1` through
+`@6` now report runtime fingerprint `c0f13002d996`. `@2` activated at the
+2026-10-14 21:28 UTC check and `@6` at the 2026-10-15 03:58 UTC check, after their
+analyses finished. Native Windows is also active with verified fingerprint
+`8c31b3db2d99` (interpreter PID 53756, venv launcher PID 44188). Its previous
+job finished before activation. Its raw-ingestion adaptation and other local
+changes were preserved; staging passed 11 checks in its actual Python runtime.
+The final administration regression suite passed 19 tests, including real
+PowerShell guards for orphan pollers and active MATLAB child processes.
 
-Run `scripts/finish_alex_worker_fix_rollout.py` from the administration workstation
-until it reports `complete: true`. It checks every baseline worker and additional
+`scripts/finish_alex_worker_fix_rollout.py` reported `complete: true` after Windows
+activation. It checks every baseline worker and additional
 registered instances, reserves admission only during an idle reload, checks
 actual child processes, validates source hashes, reloads the specific poller or
 Windows scheduled worker task, confirms the new heartbeat fingerprint, and
-restores admission. It never stops an active analysis or changes MATLAB releases.
+restores admission. Admission lock waits are bounded at one second (SQL operations
+at ten seconds), avoiding both indefinite waits and repeated NOWAIT contention.
+On Windows the task launcher can leave Python children alive; activation checks
+all managed Python process trees for active children, stops only verified idle
+pollers, and starts one scheduled worker. The actual deployed hashes are:
+
+- Linux executor: `0464da6627d90d99a8cf1ccec89da9243254e0a08d32be205d13e5514c75d146`
+- Windows executor: `ba6fa9beb28c80ff48d9d431d5654aa74299c9f8666ddf7df903c7906e227e95`
+- Resource module on both hosts: `6450a97cf1ae178e6a1a36b665807ddee10773b9fbd97ae98aec51d4f4862ef5`
+
+The worker task and database tunnel are both running; exactly one Windows poller
+remains (its venv launcher plus interpreter). Admission was restored on both
+targets and no rollout marker remains. No active analysis or MATLAB release was
+interrupted or changed. Evidence: `reports/alex-worker-fix-rollout-20261015.json`.
 Windows staging and backups live under its Hub checkout in
 `.deploy-staging/alex-terminal-gpu-20261014` and
-`.deploy-backups/alex-terminal-gpu-20261014`. Pending activation is followed by
-the existing Alex heartbeat; the verified 517-frame scientific run is complete.
+`.deploy-backups/alex-terminal-gpu-20261014`. The Alex heartbeat is disabled after
+this verified fleet completion; the 517-frame scientific run remains complete.
 
 This file is the source of truth for the current live deployment target and
 runtime topology for this repository.

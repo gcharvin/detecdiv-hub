@@ -7,6 +7,7 @@ for analyses. No MATLAB release, scientific data, or running job is changed.
 import base64
 import json
 from pathlib import Path
+import tempfile
 import time
 
 import deploy_detecdiv_release as release
@@ -55,14 +56,15 @@ def reserve(config, target):
     return release.api_code(config, f'''
 import json
 from datetime import datetime,timezone
-from sqlalchemy import select,text
+from sqlalchemy import select,text,func
 from sqlalchemy.exc import OperationalError
 from api.db import SessionLocal
-from api.models import ExecutionTarget,WorkerInstance
+from api.models import ExecutionTarget,WorkerInstance,Job
 with SessionLocal() as s:
  s.execute(text("SET LOCAL statement_timeout = '10s'"))
+ s.execute(text("SET LOCAL lock_timeout = '1s'"))
  try:
-  t=s.scalars(select(ExecutionTarget).where(ExecutionTarget.target_key=={target!r}).with_for_update(nowait=True)).one()
+  t=s.scalars(select(ExecutionTarget).where(ExecutionTarget.target_key=={target!r}).with_for_update()).one()
  except OperationalError as exc:
   s.rollback()
   if (getattr(exc.orig,'sqlstate',None) or getattr(exc.orig,'pgcode',None))!='55P03': raise
@@ -75,6 +77,11 @@ with SessionLocal() as s:
  idle=[{{'instance':w.worker_instance,'pid':w.process_id}} for w in ws
        if w.code_fingerprint!={TARGETS[target]['fingerprint']!r} and not w.current_job_id
        and w.last_seen_at and (now-w.last_seen_at).total_seconds()<30]
+ # A previous scheduled-task stop can leave an orphan poller with the same
+ # instance key. Also require the Windows target to have no active job.
+ if {target!r}=='windows-10-20-11-56':
+  active=s.scalar(select(func.count(Job.id)).where(Job.execution_target_id==t.id,Job.status.in_(('running','cancelling'))))
+  if active: idle=[]
  if idle and (owner or not meta.get('drain_new_jobs')):
   previous=owner.get('previous') or {{'present':'drain_new_jobs' in meta,'value':meta.get('drain_new_jobs')}}
   meta['drain_new_jobs']=True; meta['alex_worker_fix_rollout']={{'id':{ROLLOUT!r},'previous':previous}}
@@ -174,23 +181,50 @@ $workerPid={int(selected[0]['pid'])}
 $processes=@(Get-CimInstance Win32_Process)
 $worker=$processes | Where-Object ProcessId -eq $workerPid
 if (!$worker -or $worker.Name -ne 'python.exe' -or $worker.CommandLine -notmatch 'worker.run_worker') {{throw 'Worker process changed'}}
-$descendants=@($workerPid)
+$repoPattern=[regex]::Escape($repo)
+$wrappers=@($processes | Where-Object {{ $_.Name -eq 'python.exe' -and ([string]$_.CommandLine).Replace([char]92,[char]47) -match $repoPattern -and $_.CommandLine -match '-m worker.run_worker' }})
+if (!$wrappers.Count) {{throw 'Managed Python launcher not found'}}
+$descendants=@($workerPid)+@($wrappers | ForEach-Object ProcessId)
 do {{
  $next=@($processes | Where-Object {{ $_.ParentProcessId -in $descendants -and $_.ProcessId -notin $descendants }})
  $descendants+=@($next | ForEach-Object ProcessId)
 }} while ($next.Count)
 if (@($processes | Where-Object {{ $_.ProcessId -in $descendants -and $_.Name -ne 'python.exe' }}).Count) {{throw 'Worker still has child processes'}}
+$managed=@($processes | Where-Object {{ $_.ProcessId -in $descendants }})
 $task='DetecDiv Hub Worker'
 Stop-ScheduledTask -TaskName $task
+$fullyStopped=$false
 try {{
  Start-Sleep -Seconds 2
+ # Task Scheduler may stop its PowerShell launcher while leaving the venv
+ # Python wrapper and its real interpreter alive. Stop only these verified,
+ # idle Python processes, including an orphan from an earlier task instance.
+ foreach ($expected in @($managed | Sort-Object ParentProcessId -Descending)) {{
+  $current=Get-CimInstance Win32_Process -Filter "ProcessId = $($expected.ProcessId)"
+  if ($current) {{
+   if ($current.CreationDate -ne $expected.CreationDate -or $current.Name -ne 'python.exe' -or $current.CommandLine -ne $expected.CommandLine) {{throw 'Worker PID identity changed'}}
+   Stop-Process -Id $current.ProcessId -Force -ErrorAction Stop
+  }}
+ }}
+ Start-Sleep -Seconds 1
  if (@(Get-CimInstance Win32_Process | Where-Object {{ $_.ProcessId -in $descendants }}).Count) {{throw 'Worker did not stop'}}
+ $fullyStopped=$true
  & ./.venv/Scripts/python.exe -c "import base64;exec(base64.b64decode('{encoded_code}'))"
  if ($LASTEXITCODE -ne 0) {{throw 'Staged source validation failed'}}
-}} finally {{Start-ScheduledTask -TaskName $task}}
+}} finally {{if ($fullyStopped) {{Start-ScheduledTask -TaskName $task}}}}
 '''
-    encoded = base64.b64encode(ps.encode("utf-16-le")).decode()
-    return release.remote_json(WINDOWS, f"powershell -NoProfile -EncodedCommand {encoded}")
+    # A full EncodedCommand exceeds the Windows OpenSSH cmd.exe argument limit.
+    # Transfer the run-scoped script, then invoke its short, fixed path.
+    remote_path = ("C:/Users/Charvin-Admin/Documents/MATLAB/detecdiv-hub/"
+                   ".deploy-staging/alex-terminal-gpu-20261014/activate_worker.ps1")
+    with tempfile.TemporaryDirectory(prefix="alex-worker-activation-") as work:
+        local = Path(work) / "activate_worker.ps1"
+        local.write_text(ps, encoding="utf-8")
+        release.run([str(Path(release.SSH).with_name("scp.exe")), "-o", "BatchMode=yes",
+                     "-o", "IdentitiesOnly=yes", "-i", WINDOWS["ssh_key"], str(local),
+                     f"{WINDOWS['ssh_user']}@{WINDOWS['ssh_host']}:{remote_path}"], timeout=60)
+    return release.remote_json(WINDOWS,
+        f"powershell -NoProfile -ExecutionPolicy Bypass -File {remote_path}")
 
 
 def main():
