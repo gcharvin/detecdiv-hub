@@ -69,5 +69,10 @@
       "existing_contract_smoke": 29
     }
   },
-  "temporary_windows_verification_task_removed": true
+  "temporary_windows_verification_task_removed": true,
+  "complete": true,
+  "alex_core_checkout_clean": true,
+  "alex_core_updated_files_verified": 94,
+  "alex_live_project_dry_run_verified": true,
+  "alex_live_validation_report": "reports/alex-channel-contract-live-validation-20261015.json"
 }
