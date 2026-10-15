@@ -1,10 +1,37 @@
 # Current Deployment
 
+## Cellpose failed-inference metadata rollback, 2026-10-15
+
+The published MATLAB default is
+`6c86c83cda16a7accaa2e4a5d20cd74507e52286`, prepared and verified in protected
+release directories on Linux and native Windows. This extends `07422ee8` by
+restoring the ROI image cache, logical channel mapping, and display metadata
+when Cellpose inference raises an error or cancellation. The Hub can then save
+the project after a node failure without exporting newly prepared but
+uncommitted Cellpose output channels. Existing masks and prior completed ROIs
+are preserved.
+
+The source was reproduced with a first inference that creates a blank output
+plane before failing: without rollback, the normal light-project exporter
+records its name although the HDF5 store still contains only raw input. This
+matches Windows attempt `f9d102cc-0011-44ac-925d-2235c82078ed`, submitted on
+October 13 and failed on October 15 at 05:51 CEST after Python could not open
+its configuration path. Both the blank-output creation and the subsequent
+project metadata save are visible in the execution path/logs. Output
+preallocation dates to February; September's output-cache reload change later
+made the metadata-only result fatal on resume.
+
+Eleven related tests passed on Windows R2026a, including two new regressions
+that failed before the fix. Both new regressions also passed on Linux R2024b.
+No workers were restarted or API images rebuilt. Already submitted/running
+jobs keep their existing code pins. Evidence:
+`reports/abhilasha-ghost-source-20261015.json` and
+`reports/abhilasha-ghost-origin-job-20261015.json`.
+
 ## Cellpose metadata-only output fix, 2026-10-15
 
-The published MATLAB default is now
-`07422ee84108dbb26f670520adcb5888348ce04d` (previously
-`bd1d64ec03c6e91d972dd609e45780964e0d6203`). The exact protected release was
+MATLAB release `07422ee84108dbb26f670520adcb5888348ce04d` was published earlier
+today (previously `bd1d64ec03c6e91d972dd609e45780964e0d6203`). Its protected release was
 prepared and verified on Linux and native Windows with
 `scripts/deploy_detecdiv_release.ps1`. Shared checkouts and active job pins were
 preserved; no API rebuild or worker restart was needed.

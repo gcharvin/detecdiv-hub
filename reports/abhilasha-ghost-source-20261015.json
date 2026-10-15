@@ -1,0 +1,55 @@
+{
+  "date": "2026-10-15",
+  "fix_commit": "6c86c83cda16a7accaa2e4a5d20cd74507e52286",
+  "previous_repair_commit": "07422ee84108dbb26f670520adcb5888348ce04d",
+  "source_mechanism": [
+    "cellposesam.classify prepares a zero-filled results channel on the shared ROI handle before invoking Python.",
+    "Python throws before returning masks; classifyData never reaches ROIManagement/roi.save, so no segmentation dataset is installed.",
+    "detecdiv_run_pipeline_job catches the node error and intentionally saves project metadata to retain earlier completed work.",
+    "shallowProjectToStruct serializes the failed ROI display.channel and channelid as they stand, exporting the uncommitted output name.",
+    "A subsequent partial input load preserves this logical display metadata. loadExistingOutputChannel then tries to load the absent dataset."
+  ],
+  "historical_evidence": {
+    "job_id": "f9d102cc-0011-44ac-925d-2235c82078ed",
+    "worker": "native Windows",
+    "submitted_utc": "2026-10-13T09:47:13.497870Z",
+    "failed_utc": "2026-10-15T03:51:26.732909Z",
+    "failure": "MATLAB:Python:PyException / FileNotFoundError opening classify_cellposesam_config.json in the shared UNC run directory",
+    "failed_roi": "23092027_Hyper7_BY_dose_0_0.1_0.2_0.3_0.4_H2O2.ome_1_1_1",
+    "observed_log_sequence": [
+      "First of 2743 ROIs enters Cellpose classification with a single loaded input plane.",
+      "Cellpose proceeds past output-channel allocation and writes tmp.mat plus configuration.",
+      "Python load_config fails; node_failed is logged without successful mask integration or HDF5 output save.",
+      "Light project manifest saved is logged after the node failure."
+    ],
+    "metadata_scope": "Only the first ROI advertised the segmentation name; checked other sampled ROI metadata contained the five raw channels plus CombinedChannel.",
+    "limitation": "The pre-repair sidecar has since been overwritten by legitimate project saves; attribution combines retained execution logs, source control flow, the first-ROI scope and an exact mechanism reproduction."
+  },
+  "history": {
+    "preallocation": "Present since February 2026 (2700c5c8f / f56403278).",
+    "strict_output_reload": "Introduced September 7 in 3ed84b19155a3ad025c0bd43f5fc46cb50106767; this exposed the earlier incomplete metadata state on resume."
+  },
+  "fix": {
+    "behavior": "Snapshot the input image cache, channelid and display at Cellpose entry; restore these fields and rethrow the original exception if inference fails.",
+    "success_behavior": "Successful inference and subsequent persistence use their existing path.",
+    "previous_ghosts": "The earlier 07422ee8 recovery remains in place for metadata-only outputs already saved by older versions.",
+    "scope": "Cellpose inference exceptions/cancellation. This does not add a general transaction around every processor or handle a separate later persistence failure."
+  },
+  "validation": {
+    "reproduced_before_fix": true,
+    "windows_r2026a_passed": 11,
+    "linux_r2024b_new_regressions_passed": 2,
+    "checks": [
+      "After failed first inference, ROI fields equal their original values and exported JSON has only the raw channel; HDF5 has only raw input.",
+      "After failed partial rerun, the original compact cache/display mapping is restored and existing on-disk masks are byte-equivalent as arrays."
+    ]
+  },
+  "deployment": {
+    "published_default": "6c86c83cda16a7accaa2e4a5d20cd74507e52286",
+    "linux_verified": true,
+    "windows_verified": true,
+    "worker_restarts": 0,
+    "api_rebuilds": 0,
+    "existing_job_pins_changed": false
+  }
+}
