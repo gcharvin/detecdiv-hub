@@ -1,0 +1,170 @@
+{
+  "commit": "700c95ac2bbabf4c0e04e4afd2ff81bcb5cdbc29",
+  "linux_release": "/home/charvin-admin/repos/DetecDiv-plugins-releases/700c95ac2bbabf4c0e04e4afd2ff81bcb5cdbc29",
+  "linux_source_head_preserved": "29f3b94e8c51570dc8e5a8bea0f788dd33f80f26",
+  "protected_current_run_files": {
+    "/data/matlab/pipelines/Alex_Xtra_FullChannels_Conservative/pipeline/pipeline.json": "34877ccc509e0fdc3a3d31aeb4ba01da93ea8f26465dc8f75029a0277872f8c1",
+    "/data/matlab/pipelines/Alex_Xtra_FullChannels_Conservative/assets/plugins/processor/+xtraFullChannelsConservative/README.md": "55d606eaa22b491fc7ccefb7d708f3c36c4faf037c7be765af30f1f36c51b4dc",
+    "/data/matlab/pipelines/Alex_Xtra_FullChannels_Conservative/assets/plugins/processor/+xtraFullChannelsConservative/combine_plus_classi_Xtra_full_channels_7.m": "84c75d5ada6ce004a51d934e629742df055c319407cc85ce707abdf23cbbce0c",
+    "/data/matlab/pipelines/Alex_Xtra_FullChannels_Conservative/assets/plugins/processor/+xtraFullChannelsConservative/compute_mother_maskedFluo.m": "1397c1138532026c52b2c63e7fe65543cb19409fcc4078d5a0aad9217e3546ac",
+    "/data/matlab/pipelines/Alex_Xtra_FullChannels_Conservative/assets/plugins/processor/+xtraFullChannelsConservative/executionSpec.m": "eef228aa2aa2d1b082997bc0a9b5898d54c2da569923128dea201de3c9d4e5b3",
+    "/data/matlab/pipelines/Alex_Xtra_FullChannels_Conservative/assets/plugins/processor/+xtraFullChannelsConservative/findSEP.m": "14b26d6a2a811dcc65463ca500c34a1d51296df82ab8d136f4b3248ff79935fb",
+    "/data/matlab/pipelines/Alex_Xtra_FullChannels_Conservative/assets/plugins/processor/+xtraFullChannelsConservative/loadLegacyInputs.m": "515224787611d1c6ff35d352a50dc9656d051d1df3ffd6bc3c2ce478e0f23094",
+    "/data/matlab/pipelines/Alex_Xtra_FullChannels_Conservative/assets/plugins/processor/+xtraFullChannelsConservative/measureRLS_X.m": "e01c9cc2afb8738ee3739c47631723ea59b88baeb27ab7f5234894dc9bae5429",
+    "/data/matlab/pipelines/Alex_Xtra_FullChannels_Conservative/assets/plugins/processor/+xtraFullChannelsConservative/modelPaths.m": "bfce90d8ecad70c6ee016894f49e69a05025955e9e9d85b4b643a34dca142e33",
+    "/data/matlab/pipelines/Alex_Xtra_FullChannels_Conservative/assets/plugins/processor/+xtraFullChannelsConservative/plugin.json": "8cace353c581cf40ee8f9c746106fd3eb70a98a6c410f6d48745334e82f3c88b",
+    "/data/matlab/pipelines/Alex_Xtra_FullChannels_Conservative/assets/plugins/processor/+xtraFullChannelsConservative/post.m": "daac074f7e206c6f716f037949eef2d71b382a084b7230ee447e1f463c72ae30",
+    "/data/matlab/pipelines/Alex_Xtra_FullChannels_Conservative/assets/plugins/processor/+xtraFullChannelsConservative/process.m": "a6e72686f3b40356b3cb3148060227a257387fe92fc66ef5028ebc59b9c96944",
+    "/data/matlab/pipelines/Alex_Xtra_FullChannels_Conservative/assets/plugins/processor/+xtraFullChannelsConservative/saveResults.m": "ed816158cd9e64141ac5d9d311bb51c2c48f5f6eff89deb123981169652e2a05",
+    "/data/matlab/pipelines/Alex_Xtra_FullChannels_Conservative/assets/plugins/processor/+xtraFullChannelsConservative/setSegmentationChannel.m": "effff2b361862a9efd208d8a2a08006d25f374f869c9c13d4d0e8971edfde0a1",
+    "/data/matlab/pipelines/Alex_Xtra_FullChannels_Conservative/assets/plugins/processor/+xtraFullChannelsConservative/setparam.m": "3fcd01856c0aa690cef515ce2cc74e8acffe6dece904bf4e980e11770a2362e7",
+    "/home/charvin-admin/repos/DetecDiv-jobs/work/23df4d34-af78-4cef-b084-a2a410e56930/e9002293-6e4b-4c75-b5c1-73882839f61e/pipeline_run_job.json": "2c72b5d316d8520a4fc49517457f5a3eaf2703bcdac5d2ccac41d2f414608550"
+  },
+  "shared_package_base_verified": 14,
+  "shared_package": "/data/matlab/pipelines/Alex_Xtra_FullChannels_Conservative/assets/plugins/processor/+saveCroppedImagesXConservative",
+  "immutable_package": "/data/matlab/pipelines/Alex_Xtra_FullChannels_Conservative/assets/releases/700c95ac2bbabf4c0e04e4afd2ff81bcb5cdbc29/plugins/processor/+saveCroppedImagesXConservative",
+  "package_files_sha256_lf": {
+    "openReadPool.m": "f0a095ba2abe6c0719315234988f543fdd526c62d5a2e72fa47aa7a6f1d9e1b6",
+    "computeDrift_X.m": "3af4df2199493c23e472f14b0b123955ac58691572e0e5c1da5b590ffb1dafdf",
+    "README.md": "6bd1ceb711ecf78d2d1dcb9912c2d18fd74753953638e5ca5a594bf6f4cd1d12",
+    "readPoolCapacity.m": "cbe588a42a585cf3cccdb4ae7ad58255d29e46ca675d09d326e630631c53ba7c",
+    "saveCroppedImages_X.m": "6afab48089984e9375429a05ebbb3c8a796ef3c4aaae675868d9a5f1e3050f02",
+    "executionSpec.m": "9de03863ea09f7d3153f35c914b04b75d80071ae8018c76324d8013ad9eeb03a",
+    "requireWholeFovRoiSelection.m": "0bd64d6047ad3643a5b04f0a76fc19cb5581349d1a1e32368c74e0ba69ebc7ac",
+    "plugin.json": "440907d20a92019c89b70754e24331d396c5139e46d11f44c880b94d09293e86",
+    "selectedFovIndices.m": "e293bacd7f728a495c88d4deb1df1d8fc7be7908e0e893bef3c048840b6e249b",
+    "readWorkerInfo.m": "291b0397c6d72e60c3e577a640f47af398f8797cc7290b86690b5d1c24e25417",
+    "loadLegacyOutput.m": "c1c40b553bfbc5282b1d8db3549fb068a4c10b65763375dac0366830509ab174",
+    "planReadPool.m": "ef7d56937f499998b6f365e8ea931d4da2a1227600d277e4be4d9351a2792238",
+    "runLegacyOnce.m": "8bc19c3929920cc85470e77cdb1ae761fa93c15850069c0997ff47552b837162",
+    "process.m": "d9f76d226fef43e8701656dd4cbaef857121b04c535ba36e2720f8a1fa54c990",
+    "blockSizeArguments.m": "c845748c675746b0bdf197c21240305d983cdf9fb5faa56c77bd4aa942510ad9",
+    "selectedFrames.m": "39dcf721ab8a744d0a271405b584212e6ad84f90c9b999b7e5d6bede17a88204",
+    "prepareAllFrames.m": "0caf1f7a0c8648574c03acc3fd2e16ef176655abd883bd618fe6a0c7e469e770",
+    "setparam.m": "0873684f8c00a8153ebe9e8cc3be6e71d9e9a6b7af25f0e30eb19dcc74163ce5"
+  },
+  "backup": "/data/matlab/pipelines/Alex_Xtra_FullChannels_Conservative/.deploy-backups/20261015-readpool-700c95a",
+  "classification_and_pipeline_unchanged": true,
+  "alex_checkout": "/data/Alexander/code/DetecDiv_2/DetecDiv-plugins",
+  "alex_previous_commit": "18ce411149c9fba85c5ab6d19540dc5d535241ac",
+  "alex_commit": "700c95ac2bbabf4c0e04e4afd2ff81bcb5cdbc29",
+  "linux_instances": [
+    "@1",
+    "@2",
+    "@3",
+    "@4",
+    "@5",
+    "@6"
+  ],
+  "activated_utc": "2026-10-15T12:27:01Z",
+  "previous_read_pool_commit": "e2b21e5a4548b4f6d7d22696787d594a6786c413",
+  "windows_runtime_verification": {
+    "success": true,
+    "sharedAdapter": "\\\\10.20.11.250\\data\\matlab\\pipelines\\Alex_Xtra_FullChannels_Conservative\\assets\\plugins\\processor\\+saveCroppedImagesXConservative\\openReadPool.m",
+    "pool": {
+      "workers": 2,
+      "owned": true,
+      "workerPids": [
+        6020,
+        29728
+      ],
+      "workerThreads": [
+        1,
+        1
+      ]
+    },
+    "poolClosed": true,
+    "matlabVersion": "25.2.0.3055257 (R2025b) Update 2"
+  },
+  "windows_runtime_account": "GMGM\\Charvin-Admin",
+  "windows_release": "C:/Users/Charvin-Admin/Documents/GitHub/DetecDiv-plugins-releases/700c95ac2bbabf4c0e04e4afd2ff81bcb5cdbc29",
+  "verified_workers": [
+    "@1",
+    "@2",
+    "@3",
+    "@4",
+    "@5",
+    "@6",
+    "windows-10-20-11-56-main"
+  ],
+  "worker_services_restarted": false,
+  "global_matlab_release_changed": false,
+  "verification_task_removed": true,
+  "complete": true,
+  "real_raw_read_verification": {
+    "success": true,
+    "plan": {
+      "workers": 2,
+      "cpuLimit": 8,
+      "availableBytes": 20615843020.800003,
+      "clientReserveBytes": 14187248312.0,
+      "workerReserveBytes": 2348810240.0,
+      "blockBytes": 4429185024.0,
+      "frameBytes": 50331648.0,
+      "framesPerBlock": 88,
+      "memoryNote": "host available 95.69 GiB; worker environment cap 24.00 GiB; usable 19.20 GiB (20% reserve, swap excluded)"
+    },
+    "actualPool": {
+      "workers": 2,
+      "owned": true,
+      "workerPids": [
+        2989018.0,
+        2989020.0
+      ],
+      "workerThreads": [
+        1,
+        1
+      ]
+    },
+    "frames": [
+      1,
+      88,
+      89,
+      176,
+      440,
+      517
+    ],
+    "channels": 6,
+    "exactPixelEquality": true,
+    "parforPids": [
+      2989018.0,
+      2989020.0,
+      2989020.0,
+      2989018.0,
+      2989018.0,
+      2989020.0
+    ],
+    "poolClosed": true,
+    "autoCreate": false,
+    "tested_commit": "e2b21e5a4548b4f6d7d22696787d594a6786c413"
+  },
+  "adapter_smoke": {
+    "success": true,
+    "frames": 5,
+    "blocks": 3,
+    "channels": 6,
+    "exactPixels": true,
+    "poolClosed": true,
+    "autoCreateBefore": false,
+    "autoCreateAfter": false,
+    "fixtureRoot": "/tmp/tp9dbc0527_ed74_448a_9a03_f82c00809de2",
+    "tested_commit": "e2b21e5a4548b4f6d7d22696787d594a6786c413"
+  },
+  "tests": {
+    "Linux_R2024b": {
+      "read_pool": 6,
+      "persistence": 11,
+      "read_pool_log": "/home/charvin-admin/alex-readpool-tests-linux-final-20261015.log"
+    },
+    "local_Windows_R2026a": {
+      "read_pool": 6,
+      "persistence": 11,
+      "read_pool_log": "C:/Users/Gilles/AppData/Local/Temp/alex-readpool-tests-windows-final.log"
+    },
+    "native_Windows_R2025b": {
+      "read_pool": 6,
+      "actual_worker_session_shared_package": true,
+      "read_pool_log": "C:/Users/Charvin-Admin/Documents/MATLAB/detecdiv-hub/.deploy-staging/alex-readpool-20261015/native-windows-tests-final.log"
+    }
+  }
+}

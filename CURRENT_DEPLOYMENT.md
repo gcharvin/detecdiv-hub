@@ -1,5 +1,44 @@
 # Current Deployment
 
+## Alex extraction read pool, 2026-10-15
+
+DetecDiv-plugins `700c95ac2bbabf4c0e04e4afd2ff81bcb5cdbc29`
+(`saveCroppedImagesXConservative` 0.1.7) is published on GitHub and GitLab.
+The extraction adapter explicitly opens a process pool before the historical
+frame-reading `parfor`, independently of `Pool.AutoCreate`. CPU admission uses
+the job environment, matching Hub attempt allocation and MATLAB thread ceiling;
+RAM admission reserves the raw
+block/crop/drift buffers and each process's baseline and serialized image cache.
+Workers use one compute thread each. An owned pool closes on success or failure;
+an incompatible caller-owned pool is preserved and reported. The historical
+script, fixed `cut=88`, scientific calculations and universal `roi.save` are
+unchanged. For Alex's actual 2048-by-2048 six-channel inputs, the 24-GiB budget
+admits two read workers within the eight-CPU ceiling.
+
+The exact plugin SHA is prepared in detached worktrees on both compute hosts:
+Linux `/home/charvin-admin/repos/DetecDiv-plugins-releases/<SHA>` and Windows
+`C:/Users/Charvin-Admin/Documents/GitHub/DetecDiv-plugins-releases/<SHA>`.
+The shared extraction package under
+`/data/matlab/pipelines/Alex_Xtra_FullChannels_Conservative/assets/plugins/processor`
+is updated for all six Linux workers and native Windows; an immutable copy is
+under that pipeline's `assets/releases/<SHA>/plugins/processor`. Alex's clean
+`X:/Alexander/code/DetecDiv_2/DetecDiv-plugins` checkout was fast-forwarded to
+the same SHA. The live classification package, pipeline definition and active
+job payload were verified unchanged. No global core release or worker service
+was changed, and no analysis was restarted.
+
+Six read-pool tests passed on Linux R2024b, local Windows R2026a and native
+Windows R2025b, including real process workers, exact multi-block TIFF crops,
+CPU/RAM limits (including a job smaller than the Windows worker capacity),
+existing-pool preservation and failure cleanup. Eleven existing
+ROI persistence tests passed on Linux and local Windows. Six actual frames
+(1, 88, 89, 176, 440, 517), across all six channels, were read on two processes
+and compared pixel-for-pixel with sequential reads. In the actual Windows
+worker account `GMGM\Charvin-Admin`, a temporary verification task loaded the
+shared UNC package, verified all 18 file hashes and started/closed two workers;
+the task was removed afterwards. Evidence:
+`reports/alex-readpool-deployment-20261015.json`.
+
 ## Cellpose failed-inference metadata rollback, 2026-10-15
 
 The published MATLAB default is
