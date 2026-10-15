@@ -1,0 +1,73 @@
+{
+  "core_commit": "dce3ca768bcae597224424620abc46ede0788a12",
+  "plugins_commit": "2b13ecb7f43085f2b0e211e95dd1d109ec5c0e0e",
+  "plugin_version": "0.1.8",
+  "alex_core": "/data/Alexander/code/DetecDiv_2/DetecDiv",
+  "alex_plugins": "/data/Alexander/code/DetecDiv_2/DetecDiv-plugins",
+  "linux_plugin_release": "/home/charvin-admin/repos/DetecDiv-plugins-releases/2b13ecb7f43085f2b0e211e95dd1d109ec5c0e0e",
+  "shared_package": "/data/matlab/pipelines/Alex_Xtra_FullChannels_Conservative/assets/plugins/processor/+saveCroppedImagesXConservative",
+  "immutable_package": "/data/matlab/pipelines/Alex_Xtra_FullChannels_Conservative/assets/releases/2b13ecb7f43085f2b0e211e95dd1d109ec5c0e0e/plugins/processor/+saveCroppedImagesXConservative",
+  "files_verified": 18,
+  "protected_sha256": {
+    "/data/matlab/pipelines/Alex_Xtra_FullChannels_Conservative/pipeline/pipeline.json": "34877ccc509e0fdc3a3d31aeb4ba01da93ea8f26465dc8f75029a0277872f8c1",
+    "/data/matlab/pipelines/Alex_Xtra_FullChannels_Conservative/pipeline/pipeline_2/pipeline.json": "7297d7c7e6aaf30fce5ddf7b2649fe09429f792a276eca214447ddbc3a17eaf6",
+    "/data/matlab/pipelines/Alex_Xtra_FullChannels_Conservative/assets/plugins/processor/+xtraFullChannelsConservative/setSegmentationChannel.m": "effff2b361862a9efd208d8a2a08006d25f374f869c9c13d4d0e8971edfde0a1",
+    "/data/matlab/pipelines/Alex_Xtra_FullChannels_Conservative/assets/plugins/processor/+xtraFullChannelsConservative/saveResults.m": "ed816158cd9e64141ac5d9d311bb51c2c48f5f6eff89deb123981169652e2a05",
+    "/data/matlab/pipelines/Alex_Xtra_FullChannels_Conservative/assets/plugins/processor/+xtraFullChannelsConservative/modelPaths.m": "bfce90d8ecad70c6ee016894f49e69a05025955e9e9d85b4b643a34dca142e33",
+    "/data/matlab/pipelines/Alex_Xtra_FullChannels_Conservative/assets/plugins/processor/+xtraFullChannelsConservative/README.md": "55d606eaa22b491fc7ccefb7d708f3c36c4faf037c7be765af30f1f36c51b4dc",
+    "/data/matlab/pipelines/Alex_Xtra_FullChannels_Conservative/assets/plugins/processor/+xtraFullChannelsConservative/findSEP.m": "14b26d6a2a811dcc65463ca500c34a1d51296df82ab8d136f4b3248ff79935fb",
+    "/data/matlab/pipelines/Alex_Xtra_FullChannels_Conservative/assets/plugins/processor/+xtraFullChannelsConservative/measureRLS_X.m": "e01c9cc2afb8738ee3739c47631723ea59b88baeb27ab7f5234894dc9bae5429",
+    "/data/matlab/pipelines/Alex_Xtra_FullChannels_Conservative/assets/plugins/processor/+xtraFullChannelsConservative/loadLegacyInputs.m": "515224787611d1c6ff35d352a50dc9656d051d1df3ffd6bc3c2ce478e0f23094",
+    "/data/matlab/pipelines/Alex_Xtra_FullChannels_Conservative/assets/plugins/processor/+xtraFullChannelsConservative/executionSpec.m": "eef228aa2aa2d1b082997bc0a9b5898d54c2da569923128dea201de3c9d4e5b3",
+    "/data/matlab/pipelines/Alex_Xtra_FullChannels_Conservative/assets/plugins/processor/+xtraFullChannelsConservative/plugin.json": "8cace353c581cf40ee8f9c746106fd3eb70a98a6c410f6d48745334e82f3c88b",
+    "/data/matlab/pipelines/Alex_Xtra_FullChannels_Conservative/assets/plugins/processor/+xtraFullChannelsConservative/post.m": "daac074f7e206c6f716f037949eef2d71b382a084b7230ee447e1f463c72ae30",
+    "/data/matlab/pipelines/Alex_Xtra_FullChannels_Conservative/assets/plugins/processor/+xtraFullChannelsConservative/process.m": "a6e72686f3b40356b3cb3148060227a257387fe92fc66ef5028ebc59b9c96944",
+    "/data/matlab/pipelines/Alex_Xtra_FullChannels_Conservative/assets/plugins/processor/+xtraFullChannelsConservative/combine_plus_classi_Xtra_full_channels_7.m": "84c75d5ada6ce004a51d934e629742df055c319407cc85ce707abdf23cbbce0c",
+    "/data/matlab/pipelines/Alex_Xtra_FullChannels_Conservative/assets/plugins/processor/+xtraFullChannelsConservative/compute_mother_maskedFluo.m": "1397c1138532026c52b2c63e7fe65543cb19409fcc4078d5a0aad9217e3546ac",
+    "/data/matlab/pipelines/Alex_Xtra_FullChannels_Conservative/assets/plugins/processor/+xtraFullChannelsConservative/setparam.m": "3fcd01856c0aa690cef515ce2cc74e8acffe6dece904bf4e980e11770a2362e7"
+  },
+  "backup": "/data/matlab/pipelines/Alex_Xtra_FullChannels_Conservative/.deploy-backups/20261015-channel-contract-2b13ecb",
+  "updated_at": "2026-10-15T17:40:03.519475+00:00",
+  "scientific_job_submitted": false,
+  "windows_worker_account": {
+    "hashes": {
+      "plugin.json": "e775d16436a80e474a81b26b18f2faa632f66812c1386b56e658502cf0d7ee26",
+      "README.md": "3af73aab748599717620c293bc7c71d8e498bdbc57006481c8913ac09ca55f16",
+      "executionSpec.m": "783bfec74251a171afc9696678bef0777c76e408c50541649e3b44e2e3dd9d92"
+    },
+    "ok": true,
+    "user": "GMGM\\Charvin-Admin",
+    "version": "0.1.8"
+  },
+  "windows_core_release": "C:/Users/Charvin-Admin/Documents/GitHub/DetecDiv-jobs/releases/dce3ca768bcae597224424620abc46ede0788a12",
+  "windows_plugin_release": "C:/Users/Charvin-Admin/Documents/GitHub/DetecDiv-plugins-releases/2b13ecb7f43085f2b0e211e95dd1d109ec5c0e0e",
+  "published_default": "dce3ca768bcae597224424620abc46ede0788a12",
+  "workers_covered": [
+    "@1",
+    "@2",
+    "@3",
+    "@4",
+    "@5",
+    "@6",
+    "windows-10-20-11-56-main"
+  ],
+  "tests": {
+    "local_R2026a": {
+      "new_core": 3,
+      "alex_pipeline": 4,
+      "existing_contract_smoke": 29
+    },
+    "Linux_R2024b": {
+      "new_core": 3,
+      "alex_pipeline": 4,
+      "existing_contract_smoke": 29,
+      "actual_project_dry_run": true
+    },
+    "native_Windows_R2025b": {
+      "new_core": 3,
+      "alex_pipeline": 4,
+      "existing_contract_smoke": 29
+    }
+  },
+  "temporary_windows_verification_task_removed": true
+}

@@ -1,0 +1,10 @@
+{
+    "hashes":  {
+                   "plugin.json":  "e775d16436a80e474a81b26b18f2faa632f66812c1386b56e658502cf0d7ee26",
+                   "README.md":  "3af73aab748599717620c293bc7c71d8e498bdbc57006481c8913ac09ca55f16",
+                   "executionSpec.m":  "783bfec74251a171afc9696678bef0777c76e408c50541649e3b44e2e3dd9d92"
+               },
+    "ok":  true,
+    "user":  "GMGM\\Charvin-Admin",
+    "version":  "0.1.8"
+}

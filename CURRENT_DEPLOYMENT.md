@@ -1,5 +1,34 @@
 # Current Deployment
 
+## Alex fresh-ROI extraction validation, 2026-10-15
+
+DetecDiv `dce3ca768bcae597224424620abc46ede0788a12` is the published
+MATLAB default, prepared and verified on both compute hosts. DetecDiv-plugins
+`2b13ecb7f43085f2b0e211e95dd1d109ec5c0e0e` updates the extraction adapter
+to 0.1.8. Its explicit `imagesToRoi` contract lets semantic validation and typed
+resource binding project the raw channels through a processor extraction node.
+The standard ROI extractor retains its existing-project inventory policy.
+
+Alex's new `anof_071026_X54445_LOGEB_2` project exposes six raw source channels
+but newly identified ROIs still advertise only `Channel 1`. Previously the
+combined extraction/classification dry run rejected this provisional inventory.
+Earlier first-project runs already exposed six ROI channels at validation time,
+masking this missing transfer declaration. The analysis still requires six
+channels; this fix changes no image processing, pool sizing, block size or saves.
+
+Both of Alex's clean core/plugin checkouts under
+`X:/Alexander/code/DetecDiv_2` and the shared extraction package are updated;
+an immutable plugin release is retained under pipeline `assets/releases/<SHA>`.
+All six Linux workers and native Windows use the prepared default/shared package
+for new jobs. Existing jobs and pipeline definitions were preserved. Three new
+core tests, four Alex pipeline tests and 29 existing contract tests passed on
+local Windows R2026a, Linux R2024b and native Windows R2025b. The exact new
+project passed dry-run validation. Windows account `GMGM\Charvin-Admin`
+verified the shared package version and changed file hashes through a temporary
+verification task, subsequently removed. Evidence:
+`reports/alex-channel-contract-deployment-20261015.json` and
+`reports/alex-channel-contract-validation-20261015.json`.
+
 ## Alex extraction read pool, 2026-10-15
 
 DetecDiv-plugins `700c95ac2bbabf4c0e04e4afd2ff81bcb5cdbc29`
