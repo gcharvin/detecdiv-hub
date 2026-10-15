@@ -177,6 +177,11 @@ wave. Never count startup failures as model diagnostic answers.
 
 ### Main 8B/14B, AWQ/FP8 comparison
 
+The completed 15 October 2026 campaign is documented in the
+[anonymized benchmark report](reports/qwen-assistant-benchmark-2026-10-15.md),
+with exact aggregate metrics and a qualitative review of all 44 outputs.
+Raw scientific captures, responses and operational traces remain private.
+
 The same controller accepts `--main-plan reports/qwen-pilot-20261014/model-plan.json`
 and one of the four planned `--model` values. For example:
 

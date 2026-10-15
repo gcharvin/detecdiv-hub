@@ -1,0 +1,319 @@
+{
+  "report_date": "2026-10-15",
+  "status": "complete_reviewed",
+  "corpus_sha256": "e3fc6d927b24cbb18bf2b936d7405e4bd7b42eadee0be76c2dbc6ea216e276ce",
+  "corpus_cases": 11,
+  "total_outputs_reviewed": 44,
+  "complete_outputs": 42,
+  "truncated_outputs": 2,
+  "method": "Relecture qualitative de chaque réponse et des preuves figées par Codex. Aucun score automatique par mots-clés. Les captures du 14 octobre sont historiques, jamais un état live.",
+  "case_order": [
+    {
+      "case": "C01",
+      "category": "Succès technique A"
+    },
+    {
+      "case": "C02",
+      "category": "Succès technique B"
+    },
+    {
+      "case": "C03",
+      "category": "Succès avec compteurs contradictoires"
+    },
+    {
+      "case": "C04",
+      "category": "OOM RAM/swap"
+    },
+    {
+      "case": "C05",
+      "category": "Extraction legacy et sélection de frames"
+    },
+    {
+      "case": "C06",
+      "category": "Suivi avec nouvelles sorties"
+    },
+    {
+      "case": "C07",
+      "category": "Suivi avec pourcentage local croissant"
+    },
+    {
+      "case": "C08",
+      "category": "Suivi avec compteur de frames non comparable"
+    },
+    {
+      "case": "C09",
+      "category": "Erreur de dimensions de table"
+    },
+    {
+      "case": "C10",
+      "category": "Erreur du quatrième sous-indice"
+    },
+    {
+      "case": "C11",
+      "category": "Canal Cellpose non configuré"
+    }
+  ],
+  "arms": [
+    {
+      "label": "qwen3-14b-awq-int4",
+      "model": "Qwen/Qwen3-14B-AWQ",
+      "revision": "31c69efc29464b6bb0aee1398b5a7b50a99340c3",
+      "cases": 11,
+      "response_status_counts": {
+        "answer_returned": 11
+      },
+      "quality_summary": "RAM et nœuds fautifs généralement bien identifiés ; aucune ETA inventée. Trois erreurs matérielles : succès partiel surinterprété, quatrième dimension confondue avec indice 4, canal Cellpose déduit d'un autre nœud. Aucun historique consulté pour les trois suivis.",
+      "reviewed_cases": 11,
+      "latency_seconds": {
+        "median_conversation_provider": 17.717120120069012,
+        "min": 11.75407908204943,
+        "max": 22.987158658914268,
+        "sum": 189.693359951023,
+        "case_values": [
+          22.987158658914268,
+          21.69530942896381,
+          16.221294317860156,
+          12.264541229000315,
+          18.350988435093313,
+          11.75407908204943,
+          13.107329935999587,
+          15.101629025069997,
+          18.687328812899068,
+          21.806580905104056,
+          17.717120120069012
+        ]
+      },
+      "tokens": {
+        "prompt_tokens": 48461,
+        "completion_tokens": 5343,
+        "total_tokens": 53804
+      },
+      "tool_calls": {
+        "get_job_evidence": 11
+      },
+      "provider_requests": 22,
+      "vram_mib": {
+        "loading_peak_sampled": 13488,
+        "residence_median_after_ready": 13552,
+        "residence_peak_after_ready": 13552,
+        "service_peak_sampled": 13552,
+        "physical_peak": 13634,
+        "physical_minimum_free": 10942
+      },
+      "weight_loading_memory_gib_runtime": 9.44,
+      "inference_settings": {
+        "revision": "31c69efc29464b6bb0aee1398b5a7b50a99340c3",
+        "context_tokens": 8192,
+        "kv_cache_mib": 0,
+        "cpu_offload_gib": 0,
+        "allocator_gc": 0,
+        "disable_uva": false,
+        "max_new_tokens": 1100,
+        "evidence_profile": "standard",
+        "gpu_memory_utilization": 0.55,
+        "max_service_mib": 22400
+      },
+      "cleanup_verified": true
+    },
+    {
+      "label": "qwen3-14b-fp8",
+      "model": "Qwen/Qwen3-14B-FP8",
+      "revision": "9a283b4a5efbc09ce247e0ae5b02b744739e525a",
+      "cases": 11,
+      "response_status_counts": {
+        "answer_returned": 11
+      },
+      "quality_summary": "Pas de gain net sur AWQ : même confusion position 4 et canal Cellpose, contradiction du succès partiel non signalée, piste .mat non causale. Aucun ETA chiffré inventé, mais aucun historique réellement appelé.",
+      "reviewed_cases": 11,
+      "latency_seconds": {
+        "median_conversation_provider": 21.713662789203227,
+        "min": 14.313286218093708,
+        "max": 38.69142545503564,
+        "sum": 240.62567911972292,
+        "case_values": [
+          23.61052587116137,
+          21.713662789203227,
+          38.69142545503564,
+          14.313286218093708,
+          22.925471453228965,
+          16.936971633927897,
+          20.791734183905646,
+          15.354243919020519,
+          19.367517116013914,
+          24.362735050031915,
+          22.558105430100113
+        ]
+      },
+      "tokens": {
+        "prompt_tokens": 48461,
+        "completion_tokens": 6428,
+        "total_tokens": 54889
+      },
+      "tool_calls": {
+        "get_job_evidence": 11
+      },
+      "provider_requests": 22,
+      "vram_mib": {
+        "loading_peak_sampled": 19516,
+        "residence_median_after_ready": 19538,
+        "residence_peak_after_ready": 19538,
+        "service_peak_sampled": 19538,
+        "physical_peak": 19620,
+        "physical_minimum_free": 4956
+      },
+      "weight_loading_memory_gib_runtime": 15.54,
+      "inference_settings": {
+        "revision": "9a283b4a5efbc09ce247e0ae5b02b744739e525a",
+        "context_tokens": 8192,
+        "kv_cache_mib": 0,
+        "cpu_offload_gib": 0,
+        "allocator_gc": 0,
+        "disable_uva": false,
+        "max_new_tokens": 1100,
+        "evidence_profile": "standard",
+        "gpu_memory_utilization": 0.8,
+        "max_service_mib": 22400
+      },
+      "cleanup_verified": true
+    },
+    {
+      "label": "qwen3-8b-awq-int4",
+      "model": "Qwen/Qwen3-8B-AWQ",
+      "revision": "4da05a8edb55c6046cce958586c33b61da07bb79",
+      "cases": 11,
+      "response_status_counts": {
+        "answer_returned": 10,
+        "truncated": 1
+      },
+      "quality_summary": "VRAM basse, mais réponses longues (une tronquée), succès partiel surinterprété et 86,3% local transformé en avancement global. Historique appelé sur trois échecs, jamais sur les trois suivis ; pas d’ETA chiffrée inventée.",
+      "reviewed_cases": 11,
+      "latency_seconds": {
+        "median_conversation_provider": 19.447932033101097,
+        "min": 15.048574890941381,
+        "max": 34.903789984062314,
+        "sum": 242.55403704871424,
+        "case_values": [
+          26.645082453964278,
+          34.903789984062314,
+          26.781240286072716,
+          26.189535065786913,
+          18.282055964926258,
+          16.015123213175684,
+          15.048574890941381,
+          19.447932033101097,
+          26.560080777853727,
+          16.840241834986955,
+          15.840380543842912
+        ]
+      },
+      "tokens": {
+        "prompt_tokens": 61321,
+        "completion_tokens": 7831,
+        "total_tokens": 69152
+      },
+      "tool_calls": {
+        "get_job_evidence": 11,
+        "get_progress_history": 3
+      },
+      "provider_requests": 25,
+      "vram_mib": {
+        "loading_peak_sampled": 9866,
+        "residence_median_after_ready": 8710.0,
+        "residence_peak_after_ready": 8710,
+        "service_peak_sampled": 9866,
+        "physical_peak": 9948,
+        "physical_minimum_free": 14628
+      },
+      "weight_loading_memory_gib_runtime": 5.71,
+      "inference_settings": {
+        "revision": "4da05a8edb55c6046cce958586c33b61da07bb79",
+        "context_tokens": 8192,
+        "kv_cache_mib": 0,
+        "cpu_offload_gib": 0,
+        "allocator_gc": 0,
+        "disable_uva": false,
+        "max_new_tokens": 1100,
+        "evidence_profile": "standard",
+        "gpu_memory_utilization": 0.35,
+        "max_service_mib": 22400
+      },
+      "cleanup_verified": true
+    },
+    {
+      "label": "qwen3-8b-fp8",
+      "model": "Qwen/Qwen3-8B-FP8",
+      "revision": "220b46e3b2180893580a4454f21f22d3ebb187d3",
+      "cases": 11,
+      "response_status_counts": {
+        "answer_returned": 10,
+        "truncated": 1
+      },
+      "quality_summary": "Consulte réellement les trois historiques de suivi et évite les ETA chiffrées, mais transforme encore des pourcentages locaux en progrès global et infère un ralentissement non démontré. Surinterprète le succès partiel et impose un canal non prouvé. Une réponse tronquée. Aucun gain global de fiabilité établi face à AWQ.",
+      "reviewed_cases": 11,
+      "latency_seconds": {
+        "median_conversation_provider": 25.05544509505853,
+        "min": 20.884986416902393,
+        "max": 35.932779466034845,
+        "sum": 284.78602571296506,
+        "case_values": [
+          23.643318563699722,
+          26.001027672784403,
+          35.932779466034845,
+          27.990764274727553,
+          26.2135567269288,
+          20.884986416902393,
+          24.967597702983767,
+          21.063519147923216,
+          29.618438977748156,
+          23.41459166817367,
+          25.05544509505853
+        ]
+      },
+      "tokens": {
+        "prompt_tokens": 64721,
+        "completion_tokens": 8835,
+        "total_tokens": 73556
+      },
+      "tool_calls": {
+        "get_job_evidence": 11,
+        "get_progress_history": 6
+      },
+      "provider_requests": 25,
+      "vram_mib": {
+        "loading_peak_sampled": 13494,
+        "residence_median_after_ready": 13538.0,
+        "residence_peak_after_ready": 13538,
+        "service_peak_sampled": 13538,
+        "physical_peak": 13620,
+        "physical_minimum_free": 10956
+      },
+      "weight_loading_memory_gib_runtime": 8.9,
+      "inference_settings": {
+        "revision": "220b46e3b2180893580a4454f21f22d3ebb187d3",
+        "context_tokens": 8192,
+        "kv_cache_mib": 0,
+        "cpu_offload_gib": 0,
+        "allocator_gc": 0,
+        "disable_uva": false,
+        "max_new_tokens": 1100,
+        "evidence_profile": "standard",
+        "gpu_memory_utilization": 0.55,
+        "max_service_mib": 22400
+      },
+      "cleanup_verified": true
+    }
+  ],
+  "kernel_selection": {
+    "AWQ": "MarlinLinearKernel",
+    "FP8": "MarlinFP8ScaledMMLinearKernel, weight-only compression on SM86"
+  },
+  "limits": [
+    "11 cas historiques, une conversation déterministe par cas et par bras ; aucune estimation statistique de supériorité.",
+    "Latence = somme des durées HTTP provider par conversation : préfill, sélection d’outils et génération inclus ; exécution locale des outils, SSH, gardes et démarrage exclus.",
+    "Longueur des réponses et préfixes mis en cache varient. Une durée plus faible ne mesure pas seule la vitesse du noyau.",
+    "Caps vLLM différents selon le plan ; le cache KV automatique et le format changent la VRAM. Ne pas attribuer tout écart aux seuls poids.",
+    "Mesures VRAM par cgroups et nvidia-smi environ toutes les secondes : des transitoires plus courts peuvent échapper aux pics échantillonnés.",
+    "FP8 sur SM86 utilise Marlin avec compression des poids ; aucun calcul FP8 natif. Résultat propre à RTX3090/vLLM0.29.0.",
+    "Aucun test de coexistence scientifique pour ces bras principaux exclusifs. Aucun modèle validé pour lancer ou corriger une analyse sans supervision."
+  ]
+}
