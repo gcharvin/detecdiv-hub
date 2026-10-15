@@ -1,6 +1,8 @@
 import importlib.util
 from pathlib import Path
 import sys
+import json
+from types import SimpleNamespace
 
 import pytest
 
@@ -56,3 +58,30 @@ def test_reload_failure_restores_admission(monkeypatch):
     with pytest.raises(RuntimeError, match="Source changed"):
         rollout.main()
     assert restored == ["detecdiv-server"]
+
+
+def test_admission_lock_is_rolled_back_without_reservation(monkeypatch, capsys):
+    from sqlalchemy.exc import OperationalError
+    from api import db
+
+    class LockedSession:
+        rolled_back = False
+        def __enter__(self): return self
+        def __exit__(self, *args): pass
+        def execute(self, statement): pass
+        def scalars(self, statement):
+            raise OperationalError("target locked", {}, SimpleNamespace(pgcode="55P03"))
+        def rollback(self): self.rolled_back = True
+        def commit(self): pytest.fail("A locked target must not acquire admission")
+
+    session = LockedSession()
+    monkeypatch.setattr(db, "SessionLocal", lambda: session)
+    def execute_remote(config, code):
+        with pytest.raises(SystemExit) as result:
+            exec(code, {})
+        assert result.value.code == 0
+        return json.loads(capsys.readouterr().out)
+    monkeypatch.setattr(rollout.release, "api_code", execute_remote)
+    result = rollout.reserve({}, "detecdiv-server")
+    assert session.rolled_back
+    assert result == {"idle": [], "reserved": False, "reason": "target_admission_locked"}

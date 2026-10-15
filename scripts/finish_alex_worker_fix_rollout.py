@@ -55,11 +55,19 @@ def reserve(config, target):
     return release.api_code(config, f'''
 import json
 from datetime import datetime,timezone
-from sqlalchemy import select
+from sqlalchemy import select,text
+from sqlalchemy.exc import OperationalError
 from api.db import SessionLocal
 from api.models import ExecutionTarget,WorkerInstance
 with SessionLocal() as s:
- t=s.scalars(select(ExecutionTarget).where(ExecutionTarget.target_key=={target!r}).with_for_update()).one()
+ s.execute(text("SET LOCAL statement_timeout = '10s'"))
+ try:
+  t=s.scalars(select(ExecutionTarget).where(ExecutionTarget.target_key=={target!r}).with_for_update(nowait=True)).one()
+ except OperationalError as exc:
+  s.rollback()
+  if (getattr(exc.orig,'sqlstate',None) or getattr(exc.orig,'pgcode',None))!='55P03': raise
+  print(json.dumps({{'idle':[],'reserved':False,'reason':'target_admission_locked'}}))
+  raise SystemExit(0)
  meta=dict(t.metadata_json or {{}}); owner=meta.get('alex_worker_fix_rollout') or {{}}
  assert not owner or owner.get('id')=={ROLLOUT!r},'Another rollout owns admission'
  ws=s.scalars(select(WorkerInstance).where(WorkerInstance.execution_target_id==t.id)).all()
@@ -79,11 +87,18 @@ with SessionLocal() as s:
 def restore(config, target):
     return release.api_code(config, f'''
 import json
-from sqlalchemy import select
+from sqlalchemy import select,text
 from api.db import SessionLocal
 from api.models import ExecutionTarget
 with SessionLocal() as s:
+ s.execute(text("SET LOCAL statement_timeout = '10s'"))
+ s.execute(text("SET LOCAL lock_timeout = '5s'"))
+ t=s.scalars(select(ExecutionTarget).where(ExecutionTarget.target_key=={target!r})).one()
+ if not (t.metadata_json or {{}}).get('alex_worker_fix_rollout'):
+  print(json.dumps({{'restored':True}}))
+  raise SystemExit(0)
  t=s.scalars(select(ExecutionTarget).where(ExecutionTarget.target_key=={target!r}).with_for_update()).one()
+ s.refresh(t)
  meta=dict(t.metadata_json or {{}}); owner=meta.get('alex_worker_fix_rollout') or {{}}
  if owner:
   assert owner['id']=={ROLLOUT!r},'Admission ownership changed'
@@ -182,12 +197,15 @@ def main():
     config = json.loads(release.DEFAULT_CONFIG.read_text(encoding="utf-8"))
     rows = snapshot(config)
     actions = []
+    deferred = []
     for target in TARGETS:
         if not pending_workers(rows, target):
             restore(config, target)  # Recover an interrupted final cleanup.
             continue
         reservation = reserve(config, target)
         if not reservation["reserved"]:
+            if reservation.get("reason"):
+                deferred.append({"target": target, "reason": reservation["reason"]})
             continue
         try:
             selected = reservation["idle"]
@@ -209,7 +227,7 @@ def main():
     rows = snapshot(config)
     pending = {t: pending_workers(rows, t) for t in TARGETS}
     print(json.dumps({"rollout_id": ROLLOUT, "complete": not any(pending.values()),
-                      "pending": pending, "actions": actions}, indent=2))
+                      "pending": pending, "actions": actions, "deferred": deferred}, indent=2))
 
 
 if __name__ == "__main__":
