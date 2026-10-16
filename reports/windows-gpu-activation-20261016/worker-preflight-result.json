@@ -1,0 +1,24 @@
+{
+  "status": "passed",
+  "fingerprint": "957aa209126d",
+  "allocation": {
+    "cpu_cores": 8,
+    "requested_cpu_cores": 8,
+    "memory_mb": 24576,
+    "swap_limit_mb": 0,
+    "gpu_permitted": true,
+    "gpu_required": true,
+    "gpu_vram_mb": 8192,
+    "disk_io_units": 3,
+    "source": "conservative_pipeline_fallback",
+    "pipeline_gpu_profile": {
+      "status": "unknown",
+      "reason": "pipeline_nodes_unavailable",
+      "selected_node_ids": [],
+      "deep_learning_node_ids": []
+    }
+  },
+  "target_gpu_capacity_mib": 14336,
+  "package": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\code\\releases\\45f68ffc19e6faee2d727506a6bd4fa3b41f3a82\\classifier\\+phaseCellposeSAM",
+  "mapped_pipeline": "C:\\ProgramData\\DetecDivHub\\gpu-validation-20261016\\.detecdiv_runtime_pipeline_43637ab4-4044-443d-b8f9-3372935f8356.json"
+}

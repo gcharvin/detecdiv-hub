@@ -1,0 +1,23 @@
+{
+  "status": "passed",
+  "pid": 29956,
+  "account": "gmgm\\charvin-admin",
+  "versions": {
+    "cellpose": "4.2.1.1",
+    "torch": "2.7.0+cu118",
+    "torchvision": "0.22.0+cu118",
+    "numpy": "2.2.6",
+    "h5py": "3.15.1",
+    "scipy": "1.17.1"
+  },
+  "cuda": "11.8",
+  "device": "NVIDIA RTX 2000 Ada Generation",
+  "cuda_forward_backward": "passed",
+  "verified_dataset_frames": 100,
+  "protocol_sha256": "e5fa7b4a0c6d84005ac7fce6e0a9796f3338aeb90155f99acacede4f4480fb2c",
+  "training_started_before": false,
+  "shared_output_write": "passed",
+  "cellposesam_gpu_inference": "passed",
+  "peak_cuda_allocated_mib": 1163,
+  "training_started_after": false
+}

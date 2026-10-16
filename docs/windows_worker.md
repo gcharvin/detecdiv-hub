@@ -42,6 +42,13 @@ fixes that priority in both mapping directions. The release is prepared on both
 compute hosts and published; the pilot's retry explicitly pins it. Its failed
 pre-training attempt is retained in the same job's audit history.
 
+The complete pipeline dry run passed in the worker session. The same job was
+requeued at 07:57 UTC; actual GPU training started at 07:58 UTC and its first
+epoch completed without error. Final evidence showed one pilot launch, 87%
+GPU utilization and 9847 MiB total VRAM use. The summary report is
+`reports/windows-gpu-activation-20261016.json`; it records that training and
+paired evaluation were still in progress at handoff.
+
 This procedure prepares one native Windows worker, initially on `10.20.11.56`.
 For the SSH server setup and an overview of the pilot strategy, see
 [windows_worker_ssh_strategy.md](windows_worker_ssh_strategy.md).

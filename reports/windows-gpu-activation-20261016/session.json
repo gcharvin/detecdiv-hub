@@ -1,0 +1,15 @@
+{
+    "started_at":  "2026-10-16T09:46:53.4677833+02:00",
+    "account":  "GMGM\\Charvin-Admin",
+    "session_id":  1,
+    "worker_processes":  [
+                             {
+                                 "ProcessId":  47264,
+                                 "SessionId":  1
+                             },
+                             {
+                                 "ProcessId":  43428,
+                                 "SessionId":  1
+                             }
+                         ]
+}

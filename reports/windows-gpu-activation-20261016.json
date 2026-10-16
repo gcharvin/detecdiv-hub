@@ -1,0 +1,108 @@
+{
+  "checked_at_utc": "2026-10-16T08:00:02.828998+00:00",
+  "status": "operational; existing job training on Windows GPU",
+  "job": {
+    "id": "43637ab4-4044-443d-b8f9-3372935f8356",
+    "status": "running",
+    "target": "windows-10-20-11-56",
+    "started_at": "2026-10-16 07:57:06.526867+00:00",
+    "heartbeat_at": "2026-10-16 07:59:51.197020+00:00",
+    "allocation": {
+      "source": "conservative_pipeline_fallback",
+      "cpu_cores": 8,
+      "memory_mb": 24576,
+      "gpu_vram_mb": 8192,
+      "gpu_required": true,
+      "disk_io_units": 3,
+      "gpu_permitted": true,
+      "swap_limit_mb": 0,
+      "requested_cpu_cores": 8,
+      "pipeline_gpu_profile": {
+        "reason": "pipeline_nodes_unavailable",
+        "status": "unknown",
+        "selected_node_ids": [],
+        "deep_learning_node_ids": []
+      }
+    },
+    "workers": [
+      {
+        "host": "CG-PCDELL01-306",
+        "instance": "windows-10-20-11-56-main",
+        "pid": 31820,
+        "seen": "2026-10-16 07:59:51.350480+00:00",
+        "fingerprint": "957aa209126d"
+      }
+    ],
+    "other_jobs_same_run": []
+  },
+  "no_duplicate": {
+    "same_job_id_preserved": true,
+    "other_jobs_same_run": 0,
+    "windows_pilot_launches": 1,
+    "prior_failed_pretraining_attempts_retained": 1
+  },
+  "validation": {
+    "account": "GMGM\\Charvin-Admin",
+    "session_id": 1,
+    "matlab_gpu_device": "passed",
+    "cuda_forward_backward": "passed",
+    "cellposesam_gpu_inference": "passed",
+    "dataset_frames_verified": 100,
+    "shared_output_write": "passed",
+    "full_pipeline_dryrun": "passed",
+    "hub_tests_passed": 14,
+    "hoct_pilot_tests_passed": 9,
+    "mapping_regressions_passed_each_platform": 4
+  },
+  "configuration": {
+    "supports_gpu": true,
+    "gpu_vram_admission_budget_mib": 14336,
+    "max_concurrent_jobs": 1,
+    "python": "C:/ProgramData/DetecDivHub/cellpose-gpu-v1/Scripts/python.exe",
+    "worker_fingerprint": "957aa209126d",
+    "hub_commit": "58b3d18",
+    "core_commit": "594217dd37bfa9b2b529f7f2204253d9901340bf",
+    "launcher_commit": "45f68ffc19e6faee2d727506a6bd4fa3b41f3a82"
+  },
+  "scientific_run_request_unchanged": true,
+  "protocol_sha256": "e5fa7b4a0c6d84005ac7fce6e0a9796f3338aeb90155f99acacede4f4480fb2c",
+  "training": {
+    "training_started": {
+      "schema_version": 1,
+      "created_at": "2026-10-16T07:58:35.640913+00:00",
+      "versions": {
+        "cellpose": "4.2.1.1",
+        "torch": "2.7.0+cu118",
+        "numpy": "2.2.6",
+        "h5py": "3.15.1"
+      },
+      "protocol_sha256": "e5fa7b4a0c6d84005ac7fce6e0a9796f3338aeb90155f99acacede4f4480fb2c",
+      "gpu": "NVIDIA RTX 2000 Ada Generation",
+      "label_authority": "weak supervision from human-edited tracking masks, inherited automatic contours"
+    },
+    "python_log_tail": "|1         | 1/70 [00:00<00:08,  8.59it/s]\n  6%|5         | 4/70 [00:00<00:03, 18.75it/s]\n  9%|8         | 6/70 [00:00<00:03, 16.81it/s]\n 13%|#2        | 9/70 [00:00<00:02, 20.73it/s]\n 19%|#8        | 13/70 [00:00<00:02, 26.09it/s]\n 24%|##4       | 17/70 [00:00<00:02, 26.48it/s]\n 29%|##8       | 20/70 [00:00<00:02, 24.63it/s]\n 34%|###4      | 24/70 [00:00<00:01, 28.00it/s]\n 39%|###8      | 27/70 [00:01<00:01, 28.21it/s]\n 43%|####2     | 30/70 [00:01<00:01, 26.19it/s]\n 49%|####8     | 34/70 [00:01<00:01, 29.66it/s]\n 54%|#####4    | 38/70 [00:01<00:01, 30.51it/s]\n 60%|######    | 42/70 [00:01<00:00, 28.20it/s]\n 64%|######4   | 45/70 [00:01<00:00, 28.49it/s]\n 70%|#######   | 49/70 [00:01<00:00, 23.16it/s]\n 74%|#######4  | 52/70 [00:02<00:00, 21.89it/s]\n 79%|#######8  | 55/70 [00:02<00:00, 19.55it/s]\n 84%|########4 | 59/70 [00:02<00:00, 23.63it/s]\n 89%|########8 | 62/70 [00:02<00:00, 24.72it/s]\n 93%|#########2| 65/70 [00:02<00:00, 21.60it/s]\n 99%|#########8| 69/70 [00:02<00:00, 25.11it/s]\n100%|##########| 70/70 [00:02<00:00, 24.67it/s]\n2026-10-16 09:58:49,462 [dynamics INFO] computing flows for labels\n\n  0%|          | 0/15 [00:00<?, ?it/s]\n 13%|#3        | 2/15 [00:00<00:00, 19.71it/s]\n 27%|##6       | 4/15 [00:00<00:01, 10.05it/s]\n 53%|#####3    | 8/15 [00:00<00:00, 17.94it/s]\n 80%|########  | 12/15 [00:00<00:00, 23.10it/s]\n100%|##########| 15/15 [00:00<00:00, 24.75it/s]\n100%|##########| 15/15 [00:00<00:00, 21.05it/s]\n2026-10-16 09:58:50,193 [train INFO] >>> computing diameters\n\n  0%|          | 0/70 [00:00<?, ?it/s]\n100%|##########| 70/70 [00:00<00:00, 1090.94it/s]\n\n  0%|          | 0/15 [00:00<?, ?it/s]\n100%|##########| 15/15 [00:00<00:00, 1050.38it/s]\n2026-10-16 09:58:50,293 [train INFO] >>> normalizing {'lowhigh': None, 'percentile': None, 'normalize': True, 'norm3D': True, 'sharpen_radius': 0, 'smooth_radius': 0, 'tile_norm_blocksize': 0, 'tile_norm_smooth3D': 1, 'invert': False}\n2026-10-16 09:58:51,133 [train INFO] >>> n_epochs=20, n_train=70, n_test=15, bsize=256, batch_size=1, nimg_per_epoch=70\n2026-10-16 09:58:51,138 [train INFO] >>> AdamW, learning_rate=0.00010, weight_decay=0.00001\n2026-10-16 09:58:51,158 [train INFO] >>> saving model to \\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\fit_v001\\models\\phase_cellposesam_final\n2026-10-16 09:59:25,728 [train INFO] 0, train_loss=0.1950, test_loss=0.2024, LR=0.000000, time 34.59s\n",
+    "protocol_sha256": "e5fa7b4a0c6d84005ac7fce6e0a9796f3338aeb90155f99acacede4f4480fb2c",
+    "final_manifest_present": false
+  },
+  "windows_runtime": {
+    "pilot_launch_count": 1,
+    "pilot_processes": [
+      {
+        "ProcessId": 52412,
+        "ParentProcessId": 32960,
+        "SessionId": 1,
+        "ExecutablePath": "C:\\ProgramData\\DetecDivHub\\cellpose-gpu-v1\\Scripts\\python.exe"
+      },
+      {
+        "ProcessId": 45216,
+        "ParentProcessId": 52412,
+        "SessionId": 1,
+        "ExecutablePath": "C:\\ProgramData\\DetecDivHub\\python311\\python.exe"
+      }
+    ],
+    "gpu_usage_csv": "9847, 87",
+    "temporary_tasks_remaining": 0
+  },
+  "evidence_directory": "reports/windows-gpu-activation-20261016",
+  "note": "The first real attempt failed during path validation before any training. It is retained in the same job history. Full training and paired evaluation remain in progress."
+}

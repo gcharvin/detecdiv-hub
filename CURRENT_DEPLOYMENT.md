@@ -1,5 +1,38 @@
 # Current Deployment
 
+## Native Windows GPU activation, 2026-10-16
+
+`windows-10-20-11-56` now declares `supports_gpu=true` for its RTX 2000 Ada
+(16380 MiB). Its target-specific admission budget is 14336 MiB, preserving
+display headroom; one concurrent job remains the limit. Windows poller
+fingerprint `957aa209126d` includes that budget and external classifier package
+path mapping, preserving its existing local adaptations.
+
+The isolated phase CellposeSAM runtime is
+`C:/ProgramData/DetecDivHub/cellpose-gpu-v1/Scripts/python.exe`, selected by
+`DETECDIV_PHASE_CELLPOSE_PYTHON`. Validation passed in `GMGM\Charvin-Admin`'s
+actual worker session: MATLAB GPU detection, Python CUDA forward/backward,
+CellposeSAM inference with pinned weights, 100 input fingerprints and shared
+output access. Temporary installation/validation tasks are removed after use.
+
+The existing pilot job `43637ab4-4044-443d-b8f9-3372935f8356` was reserved on
+Windows while drained; no duplicate job was created. Its first real attempt
+stopped before training because client path specificity overrode trusted worker
+mapping. DetecDiv `594217dd37bfa9b2b529f7f2204253d9901340bf` corrects that
+priority, is prepared on both hosts, and is the published default. Running jobs
+keep their earlier pins. The pilot uses a versioned Windows launcher (HOCT
+`45f68ffc19e6faee2d727506a6bd4fa3b41f3a82`) with unchanged scientific protocol
+and Python pilot hashes. See `reports/windows-gpu-activation-20261016/` and
+`docs/windows_worker.md` for evidence and environment details.
+
+After the complete dry run passed in the worker session, the same job was
+requeued at 07:57 UTC with its first failure retained in `attempt_history`.
+The actual GPU training started at 07:58 UTC and completed its first epoch
+without error. At final verification the RTX reported 87% utilization and
+9847 MiB total VRAM use; exactly one pilot launch was present. The original
+scientific run request and frozen protocol hash are unchanged. Summary:
+`reports/windows-gpu-activation-20261016.json`.
+
 ## Alex fresh-ROI extraction validation, 2026-10-15
 
 DetecDiv `dce3ca768bcae597224424620abc46ede0788a12` is the published
