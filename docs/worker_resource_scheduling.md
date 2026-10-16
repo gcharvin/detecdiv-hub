@@ -55,6 +55,13 @@ the target supports one and GPU use is allowed. The resolved node classification
 and allocation are stored with the job for audit; GPU arbitration uses that same
 allocation when pausing or resuming Qwen.
 
+Execution-target metadata may set `gpu_vram_capacity_mb` to a positive per-host
+budget, including headroom for display/desktop use. The worker uses the smaller
+of that budget and the global VRAM capacity; a global zero still means exclusive
+GPU admission. This lets a 16-GiB Windows GPU use a 14-GiB budget while the Linux
+GPU retains its 24-GiB capacity. This is admission accounting, not a CUDA memory
+allocator limit. Deploy the worker change before setting this metadata.
+
 The resource-profile list includes every current queued job kind. TIFF storage
 optimization, project indexing, Micro-Manager landing ingestion, raw-data
 archive and restore, backup, deletion, inventory, preview, ELN sync, and

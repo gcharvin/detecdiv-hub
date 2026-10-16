@@ -1,5 +1,47 @@
 # Windows MATLAB worker pilot
 
+## GPU activation (2026-10-16)
+
+The native target `windows-10-20-11-56` now declares `supports_gpu=true`.
+Its RTX 2000 Ada has 16380 MiB VRAM. Target metadata
+`gpu_vram_capacity_mb=14336` leaves display/desktop headroom and caps admission
+below the global Linux GPU budget. Keep `max_concurrent_jobs=1`.
+
+Validation ran through a temporary interactive scheduled task using the worker's
+own principal, `GMGM\Charvin-Admin`, in the same Windows session as the poller.
+MATLAB R2025b `gpuDevice`, CUDA forward/backward, CellposeSAM inference with the
+pilot's pinned weights, all 100 input fingerprints, and shared-output write
+access passed. The temporary installation and validation tasks were removed.
+
+The phase CellposeSAM pilot uses the isolated runtime
+`C:\ProgramData\DetecDivHub\cellpose-gpu-v1\Scripts\python.exe`, selected by
+`DETECDIV_PHASE_CELLPOSE_PYTHON` in the worker's protected `.env`. It contains
+Cellpose 4.2.1.1, PyTorch 2.7.0+cu118, torchvision 0.22.0+cu118, NumPy 2.2.6,
+and h5py 3.15.1. The lock file and validation evidence are in
+`reports/windows-gpu-activation-20261016/`. It avoids the duplicate Intel OpenMP
+runtime encountered when directly importing Cellpose from the older Conda
+environment; no duplicate-runtime bypass was enabled. Existing Conda settings
+and desktop MATLAB sessions were preserved.
+
+The Windows poller fingerprint after activation is `957aa209126d`. Its local
+adaptations are preserved. It includes per-target VRAM admission and mapping of
+external classifier `customPackageRoot` / `customPackageDir` links. Backups of
+changed worker files and the protected environment are retained in its checkout
+under `.deploy-backups/windows-gpu-20261016`.
+
+The existing job `43637ab4-4044-443d-b8f9-3372935f8356` was held on the drained
+Windows target during validation, then released through the same job record.
+No replacement job was created. Its scientific protocol and Python pilot hashes
+remain unchanged; a separate versioned MATLAB launcher and runtime amendment
+record the Windows adaptation (HOCT commit `45f68ffc19e6faee2d727506a6bd4fa3b41f3a82`).
+
+The first real attempt stopped during MATLAB validation, before entering the
+training module: a longer client mapping could override the worker's trusted
+UNC mapping. DetecDiv release `594217dd37bfa9b2b529f7f2204253d9901340bf`
+fixes that priority in both mapping directions. The release is prepared on both
+compute hosts and published; the pilot's retry explicitly pins it. Its failed
+pre-training attempt is retained in the same job's audit history.
+
 This procedure prepares one native Windows worker, initially on `10.20.11.56`.
 For the SSH server setup and an overview of the pilot strategy, see
 [windows_worker_ssh_strategy.md](windows_worker_ssh_strategy.md).

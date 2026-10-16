@@ -97,6 +97,8 @@ def _is_absolute_path(path_text: str) -> bool:
 
 def _is_path_field(key: str) -> bool:
     lowered = key.lower()
+    if lowered in {"custompackageroot", "custompackagedir"}:
+        return True
     return any(part in lowered for part in ("path", "file", "directory", "folder", "uri"))
 
 

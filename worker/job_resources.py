@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import os
+from dataclasses import replace
 from pathlib import Path
 from typing import Any
 
@@ -27,6 +28,21 @@ DEEP_LEARNING_MODULES = {
     "cnn",
 }
 GPU_DEVICE_KEYS = ("executionEnvironment", "execution_environment", "device")
+
+
+def resource_config_for_target(
+    config: JobResourceRuntimeConfig, target: ExecutionTarget | None,
+) -> JobResourceRuntimeConfig:
+    """Apply a host's VRAM budget without enlarging the shared admission limit.
+
+    A zero global limit denotes exclusive GPU admission and must retain that
+    meaning. Target metadata can reserve headroom for desktop/display use.
+    """
+    metadata = (target.metadata_json or {}) if target is not None else {}
+    capacity = positive_mb(metadata.get("gpu_vram_capacity_mb"))
+    if capacity is None or config.gpu_vram_capacity_mb == 0:
+        return config
+    return replace(config, gpu_vram_capacity_mb=min(config.gpu_vram_capacity_mb, capacity))
 
 
 def resolve_job_resource_allocation(

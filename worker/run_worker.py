@@ -54,6 +54,7 @@ from worker.job_resources import (
     allocation_fits,
     allocation_fits_with_reservation,
     resolve_job_resource_allocation,
+    resource_config_for_target,
 )
 from worker.legacy_matlab_executor import execute_legacy_matlab_job
 from worker.memory_resources import memory_policy, positive_mb, worker_allocation_fits
@@ -268,7 +269,7 @@ def claim_next_job() -> Job | None:
                     )
                     return None
         priority_config = resolve_job_priority_runtime_config(session)
-        resource_config = resolve_job_resource_runtime_config(session)
+        resource_config = resource_config_for_target(resolve_job_resource_runtime_config(session), target)
         effective_priority = effective_job_priority_expression(priority_config)
         stmt = (
             select(Job)
