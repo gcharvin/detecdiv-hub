@@ -1,5 +1,48 @@
 # Current Deployment
 
+## Automatic ROI extraction memory rollout, 2026-10-19
+
+The Linux worker tree now includes automatic admission for runs selecting only
+the standard streaming `roiExtract.process`: preferred 49152 MiB, conservative
+minimum 24576 MiB (or a higher configured pipeline profile), smaller admitted
+budgets when shared capacity is occupied, and queuing below the minimum.
+The existing MATLAB block/FOV planners consume the job's applied service limits.
+Explicit requests and mixed/legacy/non-dynamic runs keep fixed budgets.
+
+Five idle Linux pollers (`@1,@2,@3,@5,@6`) and the independent worker manager
+were reloaded. Fresh poller fingerprint is `c367c1f32f1e`. Worker `@4` continues
+its existing analysis with PID 2571587 and fingerprint `c0f13002d996`; it must
+not be interrupted. A user systemd timer
+`detecdiv-roi-memory-activation-20261019.timer` checks every 30 seconds and
+reloads it only after a fresh idle heartbeat and an empty child-process tree.
+It stops itself when all poller fingerprints match.
+
+Windows remains on active fingerprint `957aa209126d` while its analysis runs
+(PID 31820). The merged update is prepared and verified under
+`.deploy-staging/roi-auto-memory-20261019` in its Hub checkout; intended
+fingerprint is `89081645c071`. Host-specific claim compatibility, diagnostics,
+target assignment and GPU/path adaptations are preserved. Automatic memory
+remains disabled on Windows, retaining its current 24576-MiB pipeline default.
+The SYSTEM task `DetecDiv Hub ROI Memory Activation 20261019` checks each
+minute, activates only after the target has no active jobs and the managed
+Python tree has no children, verifies fresh fingerprints on subsequent checks,
+and unregisters itself after completion. The database tunnel and unrelated
+MATLAB sessions are preserved.
+
+Both activation paths briefly reserve admission under the target-row lock and
+restore its preceding drain state. Original worker files are retained under
+`.deploy-backups/roi-auto-memory-20261019`. No API rebuild, database migration,
+MATLAB release change or scientific job submission was needed.
+
+Verification: 65 targeted tests passed in isolated runtime copies on each
+compute host, and 83 local Python tests passed. A read-only production-policy
+probe confirmed Linux allocations of 48 and 30 GiB, and queuing with less than
+24 GiB remaining. The Windows staged policy retained fixed 24-GiB requests.
+Both active jobs kept their PIDs, parameter hashes, allocations and start times,
+with advancing heartbeats. Evidence and activation helpers:
+`reports/roi-auto-memory-deployment-20261019/`. Busy-poller activation remains
+pending until those analyses finish; prepared files alone are not activation.
+
 ## Native Windows GPU activation, 2026-10-16
 
 `windows-10-20-11-56` now declares `supports_gpu=true` for its RTX 2000 Ada

@@ -1,0 +1,28 @@
+{
+  "complete": false,
+  "actions": [
+    {
+      "instance": "@3",
+      "reloaded_pid": 2571586
+    },
+    {
+      "instance": "@6",
+      "reloaded_pid": 2843507
+    },
+    {
+      "instance": "@5",
+      "reloaded_pid": 2571588
+    },
+    {
+      "instance": "@1",
+      "reloaded_pid": 2579619
+    },
+    {
+      "instance": "@2",
+      "reloaded_pid": 2728947
+    }
+  ],
+  "fingerprint": "c367c1f32f1e",
+  "awaiting_fresh_heartbeats": true,
+  "checked_at": "2026-10-19T11:09:33.041377+00:00"
+}

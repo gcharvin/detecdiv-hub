@@ -17,8 +17,8 @@ from api.services.external_eln import sync_external_eln_system
 from api.services.indexing_jobs import execute_indexing_job
 from api.services.job_priority_settings import (
     effective_job_priority_expression,
-    resolve_job_resource_runtime_config,
     resolve_job_priority_runtime_config,
+    resolve_job_resource_runtime_config,
 )
 from api.services.project_deletion import (
     execute_project_deletion_job,
@@ -39,8 +39,8 @@ from worker.archive_policy_scheduler import run_archive_policy_if_due
 from worker.backup_executor import BACKUP_JOB_KINDS, execute_backup_job, finalize_backup_failure
 from worker.backup_scheduler import run_backup_if_due
 from worker.cpu_usage import JobCpuMonitor, get_cpu_topology, merge_cpu_usage
-from worker.resource_reporting import worker_resource_snapshot
-from worker.dynamic_resources import apply_job_limits, enabled as dynamic_resources_enabled
+from worker.dynamic_resources import apply_job_limits
+from worker.dynamic_resources import enabled as dynamic_resources_enabled
 from worker.gpu_arbitration import (
     GpuArbitrationError,
     execute_assistant_control_job,
@@ -65,6 +65,8 @@ from worker.micromanager_ingest_scheduler import (
 from worker.misc_storage_inventory import execute_misc_storage_inventory_job
 from worker.path_mappings import parse_worker_path_mappings
 from worker.pipeline_run_executor import PipelineRunCancelled, execute_pipeline_run_job
+from worker.resource_reporting import worker_resource_snapshot
+from worker.roi_extraction_resources import minimum_allocation
 from worker.storage_lifecycle import (
     execute_storage_lifecycle_job,
     finalize_storage_lifecycle_failure,
@@ -315,6 +317,8 @@ def claim_next_job() -> Job | None:
                     job=candidate,
                     target=target,
                     config=resource_config,
+                    totals=totals,
+                    reserved_allocation=reserved_allocation,
                 )
             except ValueError as exc:
                 candidate.status = "failed"
@@ -359,9 +363,10 @@ def claim_next_job() -> Job | None:
                 candidate.params_json = params
                 break
             if reserved_allocation is None:
-                fits_when_idle, _reason = allocation_fits(allocation, totals=empty_totals, config=resource_config)
+                waiting_allocation = minimum_allocation(allocation)
+                fits_when_idle, _reason = allocation_fits(waiting_allocation, totals=empty_totals, config=resource_config)
                 if fits_when_idle:
-                    reserved_allocation = allocation
+                    reserved_allocation = waiting_allocation
         if job is None:
             update_worker_target_state(
                 session,

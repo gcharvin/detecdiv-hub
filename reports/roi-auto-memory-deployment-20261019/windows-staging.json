@@ -1,0 +1,26 @@
+{
+  "files": {
+    "worker/job_resources.py": {
+      "before": "2e423935fc9571d53ce16e2ad773b9e9f9d4ae85119e9504adab08a41687ced0",
+      "after": "41d7416e72430563a7a41b4bc2667f6403b105fc3a3b61b9b2c84fb259e74539"
+    },
+    "worker/memory_resources.py": {
+      "before": "ef1b8cf7f469e2ab7cec9d1d69b45d962effa5efcf519a826562a80c5a973af5",
+      "after": "2ee9ad2ae213eaa47f9b6877cdaf97c8642d32b8d471e013900a0b79b3c5b4a2"
+    },
+    "worker/run_worker.py": {
+      "before": "b7c19ac27105e2ae2181dba6c96fc5db9fbd70ae6b00293bd9d9d931aaa9c88d",
+      "after": "6206ea3202c8b2722eab64fedea4a481e4bebdd7f694d0352908041db8181fb8"
+    },
+    "worker/autoscaling.py": {
+      "before": "c66882476fdfaf96037acb478bb0d00ec21aed8bb264f914b9fc0be53f649c2c",
+      "after": "c939879eba2580ad0fda5dc9bb2239c354cb6fd6f226c07634e89d059911f6cf"
+    },
+    "worker/roi_extraction_resources.py": {
+      "before": null,
+      "after": "b63b96bcaef616c9428a841d24e5e3d323736c0677146883497b928d713a7fe1"
+    }
+  },
+  "expected_fingerprint": "89081645c071",
+  "pytest": ".................................................................        [100%]\n65 passed in 1.89s"
+}

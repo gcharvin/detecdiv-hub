@@ -1,0 +1,84 @@
+{
+  "policy": {
+    "dynamic": false,
+    "capacity_mb": 25964,
+    "worker_limit_mb": null,
+    "available_mb": 12831,
+    "headroom_mb": 3245
+  },
+  "checks": [
+    {
+      "busy_mb": 0,
+      "memory_mb": 24576,
+      "mode": null,
+      "fit": [
+        true,
+        null
+      ],
+      "worker_fit": [
+        true,
+        null
+      ],
+      "inspection": {
+        "eligible": true,
+        "selected_node_ids": [
+          "extract"
+        ]
+      }
+    },
+    {
+      "busy_mb": 49152,
+      "memory_mb": 24576,
+      "mode": null,
+      "fit": [
+        false,
+        "memory_capacity"
+      ],
+      "worker_fit": [
+        true,
+        null
+      ],
+      "inspection": {
+        "eligible": true,
+        "selected_node_ids": [
+          "extract"
+        ]
+      }
+    },
+    {
+      "busy_mb": 56320,
+      "memory_mb": 24576,
+      "mode": null,
+      "fit": [
+        false,
+        "memory_capacity"
+      ],
+      "worker_fit": [
+        true,
+        null
+      ],
+      "inspection": {
+        "eligible": true,
+        "selected_node_ids": [
+          "extract"
+        ]
+      }
+    }
+  ],
+  "live_hashes": {
+    "worker/job_resources.py": "2e423935fc9571d53ce16e2ad773b9e9f9d4ae85119e9504adab08a41687ced0",
+    "worker/memory_resources.py": "ef1b8cf7f469e2ab7cec9d1d69b45d962effa5efcf519a826562a80c5a973af5",
+    "worker/run_worker.py": "b7c19ac27105e2ae2181dba6c96fc5db9fbd70ae6b00293bd9d9d931aaa9c88d",
+    "worker/autoscaling.py": "c66882476fdfaf96037acb478bb0d00ec21aed8bb264f914b9fc0be53f649c2c",
+    "worker/roi_extraction_resources.py": null
+  },
+  "expected_fingerprint": "89081645c071",
+  "activation": {
+    "complete": false,
+    "deferred": [
+      "windows-10-20-11-56-main"
+    ],
+    "reason": "busy_or_stale",
+    "checked_at": "2026-10-19T11:11:13.088706+00:00"
+  }
+}

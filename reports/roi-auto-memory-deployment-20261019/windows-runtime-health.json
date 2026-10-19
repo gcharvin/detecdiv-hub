@@ -1,0 +1,29 @@
+{
+  "pollers": [
+    {
+      "repoPath": true,
+      "parent": 6948,
+      "pid": 38076
+    },
+    {
+      "repoPath": false,
+      "parent": 38076,
+      "pid": 31820
+    }
+  ],
+  "state": "Ready",
+  "tunnelState": "Running",
+  "lastResult": 0,
+  "lastRun": "2026-10-19T13:12:11.0000000+02:00",
+  "workerState": "Ready",
+  "principalSid": "S-1-5-18",
+  "nextRun": "2026-10-19T13:13:10.0000000+02:00",
+  "activation": {
+    "complete": false,
+    "deferred": [
+      "windows-10-20-11-56-main"
+    ],
+    "reason": "busy_or_stale",
+    "checked_at": "2026-10-19T11:12:13.938327+00:00"
+  }
+}

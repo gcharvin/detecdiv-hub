@@ -1,0 +1,29 @@
+{
+  "manager": {
+    "exit_code": 0,
+    "output": "MainPID=227704\nActiveState=active\n",
+    "stderr": ""
+  },
+  "manager_activation": {
+    "old_pid": 357608,
+    "at": "2026-10-19T11:09:32.659730+00:00"
+  },
+  "timer": {
+    "exit_code": 0,
+    "output": "LastTriggerUSec=Mon 2026-10-19 13:12:43 CEST\nActiveState=active\n",
+    "stderr": ""
+  },
+  "activation": {
+    "complete": false,
+    "deferred": [
+      "@4"
+    ],
+    "reason": "busy_or_stale",
+    "checked_at": "2026-10-19T11:12:44.225205+00:00"
+  },
+  "journal": {
+    "exit_code": 0,
+    "output": "oct. 19 13:11:42 GC-CALCUL-306 python[228494]: {\"complete\": false, \"deferred\": [\"@4\"], \"reason\": \"busy_or_stale\", \"checked_at\": \"2026-10-19T11:11:42.192630+00:00\"}\noct. 19 13:12:12 GC-CALCUL-306 systemd[309084]: Started detecdiv-roi-memory-activation-20261019.service - /home/charvin-admin/repos/detecdiv-hub-webvm/.venv/bin/python /home/charvin-admin/repos/detecdiv-hub-webvm/.deploy-staging/roi-auto-memory-20261019/activate_when_idle.py linux.\noct. 19 13:12:13 GC-CALCUL-306 python[228517]: {\"complete\": false, \"deferred\": [\"@4\"], \"reason\": \"busy_or_stale\", \"checked_at\": \"2026-10-19T11:12:13.218150+00:00\"}\noct. 19 13:12:43 GC-CALCUL-306 systemd[309084]: Started detecdiv-roi-memory-activation-20261019.service - /home/charvin-admin/repos/detecdiv-hub-webvm/.venv/bin/python /home/charvin-admin/repos/detecdiv-hub-webvm/.deploy-staging/roi-auto-memory-20261019/activate_when_idle.py linux.\noct. 19 13:12:44 GC-CALCUL-306 python[228740]: {\"complete\": false, \"deferred\": [\"@4\"], \"reason\": \"busy_or_stale\", \"checked_at\": \"2026-10-19T11:12:44.225205+00:00\"}\n",
+    "stderr": ""
+  }
+}

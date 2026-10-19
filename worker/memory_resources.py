@@ -5,6 +5,8 @@ import os
 
 import psutil
 
+from worker.roi_extraction_resources import ROI_EXTRACT_MEMORY_MODE
+
 
 def positive_mb(value: object) -> int | None:
     try:
@@ -67,5 +69,8 @@ def worker_allocation_fits(allocation: dict, *, policy: dict) -> tuple[bool, str
     if cpu_limit is not None and allocation["cpu_cores"] > cpu_limit:
         return False, "worker_cpu_capacity"
     if policy["available_mb"] < policy["headroom_mb"]:
+        return False, "host_memory_pressure"
+    if (allocation.get("memory_allocation_mode") == ROI_EXTRACT_MEMORY_MODE
+            and allocation["memory_mb"] > policy["available_mb"] - policy["headroom_mb"]):
         return False, "host_memory_pressure"
     return True, None

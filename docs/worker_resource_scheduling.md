@@ -166,6 +166,55 @@ uses a small separate budget; changing worker count does not restart it.
 than its 64 MiB RAM plus 32 MiB swap budget. It verifies an `oom-kill` confined to
 that service without changing the worker pool or creating a scientific job.
 
+## Automatic memory for standard ROI extraction
+
+On dynamic Linux workers, new `pipeline_run` admissions whose enabled selected
+nodes are exclusively the standard `roiExtract.process` use an automatic memory
+budget. No client setting is required. The desired allocation is 49152 MiB
+(48 GiB). It shrinks to the remaining shared admission capacity, the worker
+ceiling, and measured host headroom, while preserving any older job's priority
+reservation. CPU, GPU and disk admission still apply independently.
+
+The initial conservative minimum is 24576 MiB (24 GiB), retaining the existing
+MATLAB profile rather than estimating a smaller safe floor from incomplete
+image metadata. A larger administrator-configured pipeline RAM profile raises
+this floor. Profiles above 48 GiB remain fixed. If the minimum cannot fit, the
+job stays queued; a priority reservation protects only that minimum, not the
+optional surplus. For example, with 78 GiB of usable job capacity, an extraction
+can start at 48 GiB, a second at 30 GiB, and subsequent extractions wait.
+
+This minimum is a conservative scheduling profile, not a proof of peak usage
+for arbitrary image geometry, ROI scaling or project size. Unusual inputs may
+still require a larger explicit/profile budget. Deriving smaller per-dataset
+minimums requires trustworthy geometry and process-footprint measurements.
+
+The worker and autoscaler use the same sizing function under the existing
+execution-target admission lock. The chosen allocation, minimum, preferred
+budget, sizing reason and proportional swap allowance are saved with the job.
+The allocation stays fixed for that attempt; active jobs are never shrunk or
+restarted to admit another job. The idle overhead reserve is unchanged.
+
+The existing MATLAB `roiExtract.availableMemoryBytes`, `planFovWorkers` and
+`planFrameBlock` use the job service's cgroup limits and inherited memory cap.
+They account for remaining RAM, fixed drift workspaces and parallel FOVs, and
+replan frame blocks before every read. The 512 MiB ordinary raw-block cap and
+scientific settings remain unchanged; additional RAM may allow more FOV tasks,
+and does not necessarily enlarge blocks already at their useful cap.
+
+Explicit `params_json.resources.memory_mb` requests retain fixed semantics.
+Unknown/unreadable pipelines, mixed selected modules, external/historical
+extractors with fixed blocks, ingestion within a run, in-memory ROI caching,
+non-dynamic workers and Windows retain their existing profiles. Selecting only
+the standard extraction node within a larger pipeline enables automatic sizing
+for that run. Other modules require their own adaptive-memory contract before
+a mixed run can be resized safely.
+
+Validation: `tests/test_roi_extraction_resources.py` covers admission, queuing,
+priority reservation, autoscaling, host pressure and fixed-profile fallbacks.
+With the companion DetecDiv checkout on MATLAB's path,
+`tests/matlab/testRoiAutomaticMemory.m` verifies that two synthetic job budgets
+produce different block sizes with identical extracted HDF5 pixels.
+
 ## Calibration
 
 The disk capacity and per-kind weights should be tuned from observed storage

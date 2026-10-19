@@ -1,0 +1,84 @@
+{
+  "policy": {
+    "dynamic": true,
+    "capacity_mb": 79872,
+    "worker_limit_mb": 79872,
+    "available_mb": 101574,
+    "headroom_mb": 8192
+  },
+  "checks": [
+    {
+      "busy_mb": 0,
+      "memory_mb": 49152,
+      "mode": "roi_extract_auto_v1",
+      "fit": [
+        true,
+        null
+      ],
+      "worker_fit": [
+        true,
+        null
+      ],
+      "inspection": {
+        "eligible": true,
+        "selected_node_ids": [
+          "extract"
+        ]
+      }
+    },
+    {
+      "busy_mb": 49152,
+      "memory_mb": 30720,
+      "mode": "roi_extract_auto_v1",
+      "fit": [
+        true,
+        null
+      ],
+      "worker_fit": [
+        true,
+        null
+      ],
+      "inspection": {
+        "eligible": true,
+        "selected_node_ids": [
+          "extract"
+        ]
+      }
+    },
+    {
+      "busy_mb": 56320,
+      "memory_mb": 24576,
+      "mode": "roi_extract_auto_v1",
+      "fit": [
+        false,
+        "memory_capacity"
+      ],
+      "worker_fit": [
+        true,
+        null
+      ],
+      "inspection": {
+        "eligible": true,
+        "selected_node_ids": [
+          "extract"
+        ]
+      }
+    }
+  ],
+  "live_hashes": {
+    "worker/job_resources.py": "41d7416e72430563a7a41b4bc2667f6403b105fc3a3b61b9b2c84fb259e74539",
+    "worker/memory_resources.py": "2ee9ad2ae213eaa47f9b6877cdaf97c8642d32b8d471e013900a0b79b3c5b4a2",
+    "worker/run_worker.py": "5572178e97a2b28209eb1a4d11c0784c64821d022e0c1922580df6c0b68a22d7",
+    "worker/autoscaling.py": "c939879eba2580ad0fda5dc9bb2239c354cb6fd6f226c07634e89d059911f6cf",
+    "worker/roi_extraction_resources.py": "b63b96bcaef616c9428a841d24e5e3d323736c0677146883497b928d713a7fe1"
+  },
+  "expected_fingerprint": "c367c1f32f1e",
+  "activation": {
+    "complete": false,
+    "deferred": [
+      "@4"
+    ],
+    "reason": "busy_or_stale",
+    "checked_at": "2026-10-19T11:11:11.226480+00:00"
+  }
+}

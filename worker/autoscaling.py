@@ -5,14 +5,19 @@ from sqlalchemy import func, select
 
 from api.models import Job, WorkerInstance
 from api.services.job_priority_settings import (
-    effective_job_priority_expression, resolve_job_priority_runtime_config,
+    effective_job_priority_expression,
+    resolve_job_priority_runtime_config,
     resolve_job_resource_runtime_config,
 )
 from worker.job_resources import (
-    active_resource_totals, allocation_fits, allocation_fits_with_reservation,
-    normalize_allocation, resolve_job_resource_allocation,
+    active_resource_totals,
+    allocation_fits,
+    allocation_fits_with_reservation,
+    normalize_allocation,
+    resolve_job_resource_allocation,
 )
 from worker.memory_resources import memory_policy, worker_allocation_fits
+from worker.roi_extraction_resources import minimum_allocation
 
 
 def plan_workers(session, *, target, settings, baseline: int) -> dict:
@@ -45,7 +50,8 @@ def plan_workers(session, *, target, settings, baseline: int) -> dict:
     for job in waiting:
         try:
             allocation = normalize_allocation(resolve_job_resource_allocation(
-                session, job=job, target=target, config=config), config=config)
+                session, job=job, target=target, config=config, totals=totals,
+                reserved_allocation=reserved), config=config)
         except ValueError:
             blocked["invalid_request"] = blocked.get("invalid_request", 0) + 1
             continue
@@ -58,8 +64,9 @@ def plan_workers(session, *, target, settings, baseline: int) -> dict:
             reason = "priority_reservation" if not fits else None
         if not fits:
             blocked[reason or "capacity"] = blocked.get(reason or "capacity", 0) + 1
-            if reserved is None and allocation_fits(allocation, totals=empty, config=config)[0]:
-                reserved = allocation
+            minimum = minimum_allocation(allocation)
+            if reserved is None and allocation_fits(minimum, totals=empty, config=config)[0]:
+                reserved = minimum
             continue
         if active_count + admitted >= ceiling:
             break

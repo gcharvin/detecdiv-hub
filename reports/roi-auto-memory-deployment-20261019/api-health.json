@@ -1,0 +1,33 @@
+{
+  "status": "ok",
+  "service": "detecdiv-hub",
+  "database_status": "ok",
+  "database_message": null,
+  "hostname": "7468e0be206a",
+  "deployment_version": "fp-c4a3fc462f1f",
+  "version_source": "fingerprint",
+  "code_fingerprint": "c4a3fc462f1f",
+  "disk_warning_threshold_percent": 95,
+  "disk_usage": [
+    {
+      "path": "/",
+      "label": "VM system disk",
+      "total_bytes": 84225998848,
+      "used_bytes": 48081117184,
+      "free_bytes": 32276414464,
+      "used_percent": 60.0,
+      "status": "ok",
+      "message": null
+    },
+    {
+      "path": "/data",
+      "label": "Shared data storage",
+      "total_bytes": 94009274970112,
+      "used_bytes": 88684221571072,
+      "free_bytes": 5325053399040,
+      "used_percent": 95.0,
+      "status": "warning",
+      "message": null
+    }
+  ]
+}

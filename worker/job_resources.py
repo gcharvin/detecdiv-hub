@@ -8,13 +8,19 @@ from typing import Any
 
 from api.config import get_settings
 from api.models import ExecutionTarget, Job
-from worker.memory_resources import memory_policy, positive_mb, requested_memory_mb
 from api.services.job_priority_settings import (
     JobResourceRuntimeConfig,
     job_resource_profile_for_kind,
     resolve_job_resource_runtime_config,
 )
-
+from worker.memory_resources import memory_policy, positive_mb, requested_memory_mb
+from worker.roi_extraction_resources import (
+    ROI_EXTRACT_MEMORY_MODE,
+    ROI_EXTRACT_MIN_MEMORY_MB,
+    ROI_EXTRACT_PREFERRED_MEMORY_MB,
+    fit_memory_to_capacity,
+    inspect_roi_extraction,
+)
 
 HUB_RESOURCE_ALLOCATION_KEY = "_hub_resource_allocation"
 DEEP_LEARNING_MODULES = {
@@ -51,6 +57,8 @@ def resolve_job_resource_allocation(
     job: Job,
     target: ExecutionTarget | None,
     config: JobResourceRuntimeConfig | None = None,
+    totals: dict[str, Any] | None = None,
+    reserved_allocation: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     config = config or resolve_job_resource_runtime_config(session)
     job_kind = str((job.params_json or {}).get("job_kind") or "generic").strip() or "generic"
@@ -62,7 +70,8 @@ def resolve_job_resource_allocation(
     if not isinstance(requested_cpu, int) or isinstance(requested_cpu, bool) or not 1 <= requested_cpu <= 36:
         raise ValueError("Job resources.cpu_cores must be an integer between 1 and 36")
     memory_mb = requested_memory_mb(job, policy=policy, default_mb=profile.memory_mb)
-    swap_mb = positive_mb(os.getenv("DETECDIV_HUB_WORKER_SWAP_BUDGET_MB")) or 0
+    swap_budget_mb = positive_mb(os.getenv("DETECDIV_HUB_WORKER_SWAP_BUDGET_MB")) or 0
+    swap_mb = swap_budget_mb
     pool_mb = positive_mb(os.getenv("DETECDIV_HUB_WORKER_MEMORY_BUDGET_MB")) or policy["capacity_mb"]
     swap_mb = swap_mb * memory_mb // max(1, pool_mb) if policy.get("dynamic") else (positive_mb(os.getenv("DETECDIV_HUB_WORKER_SWAP_LIMIT_MB")) or 0)
     allocation: dict[str, Any] = {
@@ -99,6 +108,22 @@ def resolve_job_resource_allocation(
             )
             allocation["gpu_vram_mb"] = profile.gpu_vram_mb if allocation["gpu_required"] else 0
             allocation["source"] = "conservative_pipeline_fallback"
+        extraction = pipeline.get("roi_extraction") or {}
+        minimum = max(ROI_EXTRACT_MIN_MEMORY_MB, profile.memory_mb)
+        # Only new admissions are elastic. Reconstructing a legacy active job
+        # without a saved allocation must retain its historical fixed profile.
+        if (totals is not None and policy.get("dynamic") and extraction.get("eligible")
+                and "memory_mb" not in resources and minimum <= ROI_EXTRACT_PREFERRED_MEMORY_MB):
+            allocation.update(
+                memory_allocation_mode=ROI_EXTRACT_MEMORY_MODE,
+                memory_min_mb=minimum,
+                memory_preferred_mb=ROI_EXTRACT_PREFERRED_MEMORY_MB,
+                memory_pool_mb=pool_mb,
+                memory_pool_swap_mb=swap_budget_mb,
+            )
+            allocation = fit_memory_to_capacity(
+                allocation, totals=totals, policy=policy, reserved_allocation=reserved_allocation,
+            )
     return allocation
 
 
@@ -244,8 +269,8 @@ def inspect_pipeline_gpu_requirements(
     target: ExecutionTarget | None,
 ) -> dict[str, Any]:
     try:
-        from worker.pipeline_run_executor import normalize_pipeline_run_payload
         from worker.path_mappings import map_payload_path_fields, parse_worker_path_mappings
+        from worker.pipeline_run_executor import normalize_pipeline_run_payload
 
         settings = get_settings()
         payload = normalize_pipeline_run_payload(session, job=job)
@@ -304,6 +329,7 @@ def inspect_pipeline_gpu_requirements(
         return {
             "status": "known",
             "source": pipeline_path,
+            "roi_extraction": inspect_roi_extraction(pipeline_data, payload),
             "selected_node_ids": selected_node_ids,
             "deep_learning_node_ids": deep_learning_node_ids,
             "gpu_node_ids": gpu_node_ids,

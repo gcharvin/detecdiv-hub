@@ -85,7 +85,7 @@ def test_oom_exit_is_attributed_only_to_its_active_job(monkeypatch):
     monkeypatch.setenv("SERVICE_RESULT", "oom-kill")
     monkeypatch.setenv("DETECDIV_HUB_WORKER_MEMORY_LIMIT_MB", "32768")
     monkeypatch.setenv("DETECDIV_HUB_WORKER_SWAP_LIMIT_MB", "2048")
-    job = SimpleNamespace(id="own-job", status="running")
+    job = SimpleNamespace(id="own-job", status="running", params_json={})
     session = SimpleNamespace(scalars=lambda s: SimpleNamespace(first=lambda: SimpleNamespace(current_job_id=job.id)), get=lambda *a: job)
     @contextmanager
     def scope():

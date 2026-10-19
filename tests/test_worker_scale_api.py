@@ -20,7 +20,7 @@ def call(metadata, count=6):
 
 
 def test_scale_records_request_for_compute_manager_and_drains_new_jobs():
-    target, response = call({"worker_manager_enabled": True, "worker_manager_seen_at": datetime.now(timezone.utc).isoformat(), "worker_cpu_capacity": 36})
+    target, response = call({"worker_manager_enabled": True, "worker_manager_seen_at": datetime.now(timezone.utc).isoformat(), "worker_cpu_capacity": 36, "worker_autoscale_enabled": False})
     assert target.metadata_json["worker_instances_desired"] == 6
     assert target.metadata_json["drain_new_jobs"]
     assert target.metadata_json["worker_scale_state"] == "requested"

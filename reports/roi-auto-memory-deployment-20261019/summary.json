@@ -1,0 +1,52 @@
+{
+  "as_of": "2026-10-19T11:14:32.502919+00:00",
+  "status": "linux_policy_active_busy_pollers_deferred",
+  "linux": {
+    "active_instances": [
+      "@1",
+      "@2",
+      "@3",
+      "@5",
+      "@6"
+    ],
+    "pending_instances": [
+      "@4"
+    ],
+    "fingerprint": "c367c1f32f1e",
+    "auto_memory_mib": {
+      "minimum": 24576,
+      "preferred": 49152
+    },
+    "idle_activation": "systemd user timer every 30 seconds"
+  },
+  "windows": {
+    "status": "merged_staged_and_verified_busy_activation_deferred",
+    "active_fingerprint": "957aa209126d",
+    "intended_fingerprint": "89081645c071",
+    "dynamic_memory": false,
+    "default_memory_mib": 24576,
+    "idle_activation": "SYSTEM scheduled task every minute; self-removes after verification"
+  },
+  "protected_jobs": [
+    "137eec41-3bfc-4c7a-bbbf-03d5a948a329",
+    "f4150ff1-f1bf-4c89-8483-1b7e26c8726e"
+  ],
+  "preservation_verified": [
+    "poller PIDs",
+    "job parameter hashes",
+    "resource allocations",
+    "start times",
+    "advancing heartbeats"
+  ],
+  "tests": {
+    "local_python_passed": 83,
+    "linux_staged_targeted_passed": 65,
+    "windows_staged_targeted_passed": 65,
+    "matlab_previous_implementation_passed": 11
+  },
+  "test_scope": "Targeted resource admission and adjacent worker tests; not the complete remote test suite. Broader probes encountered existing host-version mismatches in unchanged reporting, cancellation and audit modules.",
+  "policy_probe": "Read-only DB transaction; real deployed Linux modules and merged staged Windows modules; no queued synthetic or scientific jobs",
+  "api": "not updated; health and DB status verified OK",
+  "rollback": "host-local .deploy-backups/roi-auto-memory-20261019; activation manifests preserve exact before/after hashes",
+  "pending_activation_is_not_complete": true
+}
