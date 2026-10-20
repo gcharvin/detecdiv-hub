@@ -61,7 +61,7 @@ def test_duplicate_archive_reuses_valid_completed_artifact_when_source_is_gone(t
         },
     )
     completed = []
-    monkeypatch.setattr(lifecycle, "get_settings", lambda: SimpleNamespace(default_archive_compression="zip", default_archive_root=""))
+    monkeypatch.setattr(lifecycle, "get_settings", lambda: SimpleNamespace(default_archive_compression="zip", default_archive_root="", worker_path_mappings="[]"))
     monkeypatch.setattr(lifecycle, "load_raw_dataset_for_job", lambda *_args, **_kwargs: raw_dataset)
     monkeypatch.setattr(lifecycle, "resolve_requested_by_user", lambda *_args, **_kwargs: None)
     monkeypatch.setattr(lifecycle, "pick_preferred_raw_location", lambda *_args, **_kwargs: object())
@@ -95,7 +95,7 @@ def test_existing_unverified_archive_is_never_overwritten(tmp_path, monkeypatch)
         archive_status="archive_queued",
         archive_compression="zip",
     )
-    monkeypatch.setattr(lifecycle, "get_settings", lambda: SimpleNamespace(default_archive_compression="zip", default_archive_root=""))
+    monkeypatch.setattr(lifecycle, "get_settings", lambda: SimpleNamespace(default_archive_compression="zip", default_archive_root="", worker_path_mappings="[]"))
     monkeypatch.setattr(lifecycle, "load_raw_dataset_for_job", lambda *_args, **_kwargs: raw_dataset)
     monkeypatch.setattr(lifecycle, "resolve_requested_by_user", lambda *_args, **_kwargs: None)
     monkeypatch.setattr(lifecycle, "pick_preferred_raw_location", lambda *_args, **_kwargs: object())

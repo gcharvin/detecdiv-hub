@@ -35,9 +35,8 @@ def test_resolve_preview_output_dir_defaults_inside_dataset_folder():
         ),
     )
 
-    assert output_dir == Path(
-        r"X:\Florian\Microscopy\2026_04_16_YAM853_switch_1_0001\.detecdiv-previews\raw_2026_04_16_yam853_switch_1_0001_041732f6ff"
-    )
+    assert output_dir == (Path(r"X:\Florian\Microscopy\2026_04_16_YAM853_switch_1_0001")
+                          / ".detecdiv-previews" / raw_dataset.external_key)
 
 
 def test_resolve_preview_output_dir_honors_configured_root():
@@ -64,7 +63,7 @@ def test_resolve_preview_output_dir_honors_configured_root():
         ),
     )
 
-    assert output_dir == Path(r"X:\tmp\previews\raw_2026_04_16_yam853_switch_1_0001_041732f6ff")
+    assert output_dir == Path(r"X:\tmp\previews") / raw_dataset.external_key
 
 
 def test_raw_dataset_position_summary_includes_preview_version():

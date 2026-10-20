@@ -3,18 +3,20 @@ from types import SimpleNamespace
 from worker.gpu_arbitration import job_requires_gpu, pause_qwen_for_gpu_job
 
 
-def test_pipeline_job_requires_gpu_when_mode_is_forced():
+def test_pipeline_job_uses_scheduler_gpu_reservation_even_for_cpu_mode():
     job = SimpleNamespace(
-        params_json={"job_kind": "pipeline_run", "run_request": {"gpu": {"mode": "force_gpu"}}},
+        params_json={"job_kind": "pipeline_run", "run_request": {"gpu": {"mode": "force_cpu"}},
+                     "_hub_resource_allocation": {"gpu_required": True}},
         execution_target_id=None,
     )
 
     assert job_requires_gpu(None, job=job) is True
 
 
-def test_pipeline_job_with_cpu_mode_does_not_require_gpu():
+def test_pipeline_job_without_gpu_reservation_does_not_pause_assistant():
     job = SimpleNamespace(
-        params_json={"job_kind": "pipeline_run", "run_request": {"gpu": {"mode": "force_cpu"}}},
+        params_json={"job_kind": "pipeline_run", "run_request": {"gpu": {"mode": "force_gpu"}},
+                     "_hub_resource_allocation": {"gpu_required": False}},
         execution_target_id=None,
     )
 

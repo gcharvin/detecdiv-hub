@@ -35,6 +35,9 @@ class DummyScalarResult:
     def __iter__(self):
         return iter(self._items)
 
+    def first(self):
+        return next(iter(self._items), None)
+
 
 class DummySession:
     def __init__(self, storage_roots):
@@ -187,8 +190,8 @@ def test_classify_project_candidate_accepts_in_place_project_mat(tmp_path: Path)
 
 
 def test_classify_project_candidate_ignores_non_project_legacy_mat_files(tmp_path: Path):
-    for file_name in ("temp-project.mat", "BK-project.mat", "bk-PROJECT.MAT"):
-        dataset_dir = tmp_path / file_name.replace(".", "_")
+    for index, file_name in enumerate(("temp-project.mat", "BK-project.mat", "bk-PROJECT.MAT")):
+        dataset_dir = tmp_path / f"{index}_{file_name.replace('.', '_')}"
         dataset_dir.mkdir()
         mat_path = dataset_dir / file_name
         mat_path.write_text("mat", encoding="utf-8")
