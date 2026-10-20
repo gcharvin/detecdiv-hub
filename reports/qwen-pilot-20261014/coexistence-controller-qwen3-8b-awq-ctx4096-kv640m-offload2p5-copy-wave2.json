@@ -1,0 +1,72 @@
+{
+  "owner": "qwen-coex-30b30d9b-996b-4552-b007-8bfccedef5b6",
+  "status": "finished",
+  "started_at": 1791976320.3303375,
+  "model": "Qwen/Qwen3-8B-AWQ",
+  "context_tokens": 4096,
+  "kv_cache_mib": 640,
+  "cpu_offload_gib": 2.5,
+  "allocator_gc": 0.15,
+  "disable_uva": true,
+  "max_new_tokens": 512,
+  "evidence_profile": "compact4096",
+  "preflight_guard": {
+    "checked_at": "2026-10-14T11:12:09.203369+00:00",
+    "gpu_jobs": [
+      {
+        "id": "5cbf3dca-a43b-45c1-9135-cfc9d1966403",
+        "status": "running",
+        "gpu_vram_mb": 8192
+      },
+      {
+        "id": "e2a1b570-be3b-42f9-a911-ee4231d707a5",
+        "status": "running",
+        "gpu_vram_mb": 8192
+      }
+    ],
+    "other_gpu_processes": [
+      "2231158, /usr/local/MATLAB/R2024b/interprocess/bin/glnxa64/pycli/MATLABPyHost, 2184 MiB"
+    ],
+    "available": false
+  },
+  "setup": {
+    "watchdog_pid": 2527530,
+    "manifest": {
+      "owner": "qwen-coex-30b30d9b-996b-4552-b007-8bfccedef5b6",
+      "launcher": "/home/charvin-admin/repos/detecdiv-hub-webvm/ops/scripts/run-qwen-server.sh",
+      "backup": "/home/charvin-admin/.cache/detecdiv-qwen/pilot-coexistence-20261014/launcher-qwen-coex-30b30d9b-996b-4552-b007-8bfccedef5b6.sh",
+      "original_mode": 493,
+      "original_sha256": "0e681f73e64b5bc571b96b513d47789cef25e366b9059b08e0144e98cb33824c",
+      "pilot_sha256": "8894db250e77ef57f1f39cea245074f9ce443c3a32355bda95550f9ded7dfaa3",
+      "expires_at": 1791976930.669813,
+      "max_service_mib": 5888,
+      "initial_service": "inactive"
+    }
+  },
+  "benchmark_exit": 0,
+  "cleanup": {
+    "owner": "qwen-coex-30b30d9b-996b-4552-b007-8bfccedef5b6",
+    "pid": 2527530,
+    "status": "stopped",
+    "peak_service_mib": 5698,
+    "started_at": 1791976330.7301407,
+    "checked_at": 1791976665.4637573,
+    "service_mib": 4384,
+    "free_mib": 17915,
+    "reason": "stop requested or lease expired",
+    "stop_exit_code": 0,
+    "launcher_restored": true,
+    "finished_at": 1791976667.1207893,
+    "service_status": "inactive",
+    "original_hash_restored": true
+  },
+  "admission": {
+    "owner": "qwen-coex-30b30d9b-996b-4552-b007-8bfccedef5b6",
+    "pid": 15649,
+    "status": "released",
+    "queued_jobs": [],
+    "cancel_requested": false,
+    "checked_at": 1791976671.234379
+  },
+  "finished_at": 1791976673.2267394
+}

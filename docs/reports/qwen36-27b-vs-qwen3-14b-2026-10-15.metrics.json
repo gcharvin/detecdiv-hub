@@ -1,0 +1,126 @@
+{
+  "status": "complete_reviewed",
+  "corpus_sha256": "e3fc6d927b24cbb18bf2b936d7405e4bd7b42eadee0be76c2dbc6ea216e276ce",
+  "cases": 11,
+  "responses_reviewed": 22,
+  "baseline": {
+    "model": "Qwen/Qwen3-14B-AWQ",
+    "revision": "31c69efc29464b6bb0aee1398b5a7b50a99340c3",
+    "latency_seconds": {
+      "median_conversation_provider": 17.717120120069012,
+      "min": 11.75407908204943,
+      "max": 22.987158658914268,
+      "sum": 189.693359951023,
+      "case_values": [
+        22.987158658914268,
+        21.69530942896381,
+        16.221294317860156,
+        12.264541229000315,
+        18.350988435093313,
+        11.75407908204943,
+        13.107329935999587,
+        15.101629025069997,
+        18.687328812899068,
+        21.806580905104056,
+        17.717120120069012
+      ]
+    },
+    "vram_mib": {
+      "loading_peak_sampled": 13488,
+      "residence_median_after_ready": 13552,
+      "residence_peak_after_ready": 13552,
+      "service_peak_sampled": 13552,
+      "physical_peak": 13634,
+      "physical_minimum_free": 10942
+    },
+    "tokens": {
+      "prompt_tokens": 48461,
+      "completion_tokens": 5343,
+      "total_tokens": 53804
+    },
+    "provider_requests": 22,
+    "tool_calls": {
+      "get_job_evidence": 11
+    },
+    "response_status_counts": {
+      "answer_returned": 11
+    }
+  },
+  "qwen36": {
+    "model": "Alennnndy/Qwen3.6-27B-AWQ-4bit",
+    "revision": "e13b92a483e9114f49541c09478dcff9db8ce3d6",
+    "latency_seconds": {
+      "median": 81.63966328185052,
+      "min": 69.10439324215986,
+      "max": 115.58738656993955,
+      "sum": 978.2770979416091,
+      "case_values": [
+        76.8480719870422,
+        81.4648933049757,
+        81.63966328185052,
+        69.10439324215986,
+        107.8445896320045,
+        74.92010658816434,
+        94.31198408314958,
+        79.62818382610567,
+        95.32840412924998,
+        101.5994212969672,
+        115.58738656993955
+      ]
+    },
+    "vram_mib": {
+      "loading_peak_sampled": 19508,
+      "residence_median_after_ready": 19548.0,
+      "service_peak_sampled": 19550,
+      "physical_minimum_free": 4944
+    },
+    "tokens": {
+      "prompt_tokens": 68090,
+      "completion_tokens": 10747,
+      "total_tokens": 78837
+    },
+    "provider_requests": 25,
+    "tool_calls": {
+      "get_job_evidence": 11,
+      "get_progress_history": 11
+    },
+    "response_status_counts": {
+      "answer_returned": 9,
+      "truncated": 2
+    },
+    "inference_settings": {
+      "revision": "e13b92a483e9114f49541c09478dcff9db8ce3d6",
+      "context_tokens": 8192,
+      "kv_cache_mib": 0,
+      "cpu_offload_gib": 0,
+      "allocator_gc": 0,
+      "disable_uva": false,
+      "max_new_tokens": 1100,
+      "evidence_profile": "standard",
+      "gpu_memory_utilization": 0.8,
+      "max_service_mib": 22400,
+      "tool_call_parser": "qwen3_coder",
+      "language_model_only": true
+    },
+    "case_labels": [
+      "C01",
+      "C02",
+      "C03",
+      "C04",
+      "C05",
+      "C06",
+      "C07",
+      "C08",
+      "C09",
+      "C10",
+      "C11"
+    ]
+  },
+  "limits": [
+    "Community quantization, different model generation and architecture, different tool parser and text-only mode.",
+    "Provider duration excludes SSH and startup; output length and tool calls differ; JIT inside inference included.",
+    "Completed conversations only; interrupted requests excluded from latency and token totals.",
+    "Sampled VRAM peaks; no guarantee at other context/concurrency settings.",
+    "Eleven cases, unblinded review, one generation per case, no statistical significance claim."
+  ]
+}

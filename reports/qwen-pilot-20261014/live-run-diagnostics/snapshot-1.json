@@ -1,0 +1,224 @@
+{
+  "captured_at": "2026-10-14T13:35:26.720290+00:00",
+  "jobs": [
+    {
+      "id": "5cbf3dca-a43b-45c1-9135-cfc9d1966403",
+      "status": "running",
+      "started_at": "2026-10-13 08:29:40.201079+00:00",
+      "heartbeat_at": "2026-10-14 13:35:22.622172+00:00",
+      "finished_at": null,
+      "error_text": null,
+      "project_name": "Diamide_Rogfp_CEN_BY_II_30092026",
+      "allocation": {
+        "source": "pipeline_nodes_and_job_resource_settings",
+        "cpu_cores": 8,
+        "memory_mb": 24576,
+        "gpu_vram_mb": 8192,
+        "gpu_required": true,
+        "disk_io_units": 3,
+        "gpu_permitted": true,
+        "swap_limit_mb": 1536,
+        "requested_cpu_cores": 8,
+        "pipeline_gpu_profile": {
+          "source": "/data/Abhilasha/Analysis/pipelines/pipeline/pipeline.json",
+          "status": "known",
+          "gpu_node_ids": [
+            "cellpose_sam_segmentatio",
+            "classifier_cnn_lstm_1"
+          ],
+          "gpu_required": true,
+          "run_gpu_mode": "module_default",
+          "selected_node_ids": [
+            "roipattern_4",
+            "roiextract_3",
+            "combineMultipleChannels",
+            "cellpose_sam_segmentatio",
+            "classifier_cnn_lstm_1",
+            "processor_trackmotherlineageviterbi_9",
+            "processor_computerls_2",
+            "processor_computemetrics_8"
+          ],
+          "deep_learning_node_ids": [
+            "cellpose_sam_segmentatio",
+            "classifier_cnn_lstm_1"
+          ]
+        }
+      },
+      "progress": {
+        "phase": "matlab_running",
+        "updated_at": "2026-10-14T13:35:20.647370+00:00",
+        "current_step": "CellposeSAM termine. Champs sauvegardes:",
+        "last_message": "CellposeSAM termine. Champs sauvegardes:",
+        "recent_stderr": [],
+        "recent_stdout": [
+          "@@DETECDIV_PROGRESS@@ {\"protocol\":\"detecdiv.progress.v1\",\"value\":0.7735417335473515,\"localValue\":0.98,\"message\":\"Segmented frame 98/100 (3 objects)\",\"status\":\"running\",\"scope\":\"frame\",\"indeterminate\":false,\"current\":98,\"total\":100}",
+          "@@DETECDIV_PROGRESS@@ {\"protocol\":\"detecdiv.progress.v1\",\"value\":0.7735417335473515,\"localValue\":0.98,\"message\":\"Segmenting frame 99/100\",\"status\":\"running\",\"scope\":\"frame\",\"indeterminate\":false,\"current\":99,\"total\":100}",
+          "[PY] Frame 99/100 start (frame_id=99)",
+          "[PY] Frame 99/100 done (frame_id=99, objects=3)",
+          "@@DETECDIV_PROGRESS@@ {\"protocol\":\"detecdiv.progress.v1\",\"value\":0.773548555377207,\"localValue\":0.99,\"message\":\"Segmented frame 99/100 (3 objects)\",\"status\":\"running\",\"scope\":\"frame\",\"indeterminate\":false,\"current\":99,\"total\":100}",
+          "@@DETECDIV_PROGRESS@@ {\"protocol\":\"detecdiv.progress.v1\",\"value\":0.773548555377207,\"localValue\":0.99,\"message\":\"Segmenting frame 100/100\",\"status\":\"running\",\"scope\":\"frame\",\"indeterminate\":false,\"current\":100,\"total\":100}",
+          "[PY] Frame 100/100 start (frame_id=100)",
+          "[PY] Frame 100/100 done (frame_id=100, objects=3)",
+          "@@DETECDIV_PROGRESS@@ {\"protocol\":\"detecdiv.progress.v1\",\"value\":0.7735553772070626,\"localValue\":1.0,\"message\":\"Segmented frame 100/100 (3 objects)\",\"status\":\"running\",\"scope\":\"frame\",\"indeterminate\":false,\"current\":100,\"total\":100}",
+          "CellposeSAM termine. Champs sauvegardes:"
+        ]
+      },
+      "cpu_usage": null,
+      "worker_runtime": {
+        "engine": "matlab",
+        "work_dir": "/home/charvin-admin/repos/DetecDiv-jobs/work/5cbf3dca-a43b-45c1-9135-cfc9d1966403/a810e519-7eb1-4761-b249-ff75c8d1debb",
+        "repo_root": "/home/charvin-admin/repos/DetecDiv-jobs/releases/f671bd294762ffef9ea599c6088b74414d487911",
+        "stderr_log": "/home/charvin-admin/repos/DetecDiv-jobs/work/5cbf3dca-a43b-45c1-9135-cfc9d1966403/a810e519-7eb1-4761-b249-ff75c8d1debb/matlab_stderr.log",
+        "stdout_log": "/home/charvin-admin/repos/DetecDiv-jobs/work/5cbf3dca-a43b-45c1-9135-cfc9d1966403/a810e519-7eb1-4761-b249-ff75c8d1debb/matlab_stdout.log",
+        "code_commit": "f671bd294762ffef9ea599c6088b74414d487911"
+      },
+      "prepared_run": {
+        "execution": {
+          "allow_gui": false,
+          "code_commit": "f671bd294762ffef9ea599c6088b74414d487911",
+          "interactive": false,
+          "write_scope": "project_update",
+          "save_project": true,
+          "requested_mode": "server",
+          "console_log_path": "/data/Abhilasha/Analysis/30092026_Diamide_Rogfp_CEN.PK_BY_0.5_1_diamide_II/Diamide_Rogfp_CEN_BY_II_30092026/pipeline/pipelineTemplate_2/worker_console.log",
+          "progress_json_path": "/data/Abhilasha/Analysis/30092026_Diamide_Rogfp_CEN.PK_BY_0.5_1_diamide_II/Diamide_Rogfp_CEN_BY_II_30092026/pipeline/pipelineTemplate_2/progress.json",
+          "execution_target_id": "0d9f55dc-54ce-4527-af5b-ff4b5d0d64e9",
+          "worker_path_mappings": []
+        },
+        "project_ref": {
+          "project_id": "a944ef4a-4bcf-4b5a-8109-797e1e3e1537",
+          "project_key": "analysis_30092026_diamide_rogfp_cen_pk_by_0_5_1_diamide_ii_diamide_rogfp_cen_by_ii_30092026_583dd73282",
+          "project_name": "Diamide_Rogfp_CEN_BY_II_30092026",
+          "project_mat_path": "/data/Abhilasha/Analysis/30092026_Diamide_Rogfp_CEN.PK_BY_0.5_1_diamide_II/Diamide_Rogfp_CEN_BY_II_30092026.mat",
+          "local_project_mat_path": "/data/Abhilasha/Analysis/30092026_Diamide_Rogfp_CEN.PK_BY_0.5_1_diamide_II/Diamide_Rogfp_CEN_BY_II_30092026.mat"
+        },
+        "pipeline_ref": {
+          "link_mode": "server_visible",
+          "pipeline_id": "5403dd9b-5c3c-41fe-a1c3-848707f47d90",
+          "pipeline_key": "pipelineTemplate",
+          "pipeline_json_path": "/data/Abhilasha/Analysis/pipelines/pipeline/pipeline.json",
+          "export_manifest_uri": "",
+          "pipeline_bundle_uri": ""
+        },
+        "normalized_pipeline_path": "/data/Abhilasha/Analysis/pipelines/pipeline/pipeline.json",
+        "pipeline_resolution_method": null
+      },
+      "summary": null,
+      "run_id": null,
+      "result_keys": [
+        "progress",
+        "preflight",
+        "prepared_run",
+        "worker_runtime",
+        "dependency_audit"
+      ]
+    },
+    {
+      "id": "e2a1b570-be3b-42f9-a911-ee4231d707a5",
+      "status": "running",
+      "started_at": "2026-10-13 09:25:03.294352+00:00",
+      "heartbeat_at": "2026-10-14 13:35:26.411046+00:00",
+      "finished_at": null,
+      "error_text": null,
+      "project_name": "new_project",
+      "allocation": {
+        "source": "pipeline_nodes_and_job_resource_settings",
+        "cpu_cores": 8,
+        "memory_mb": 24576,
+        "gpu_vram_mb": 8192,
+        "gpu_required": true,
+        "disk_io_units": 3,
+        "gpu_permitted": true,
+        "swap_limit_mb": 1536,
+        "requested_cpu_cores": 8,
+        "pipeline_gpu_profile": {
+          "source": "/data/Gilles/analysis/pipelines/lifespan/pipeline.json",
+          "status": "known",
+          "gpu_node_ids": [
+            "classifier_cnn_lstm_4"
+          ],
+          "gpu_required": true,
+          "run_gpu_mode": "module_default",
+          "selected_node_ids": [
+            "dataloader_1",
+            "roipattern_2",
+            "roiextract_3",
+            "combine_channels",
+            "classifier_cnn_lstm_4",
+            "processor_computerls_5"
+          ],
+          "deep_learning_node_ids": [
+            "classifier_cnn_lstm_4"
+          ]
+        }
+      },
+      "progress": {
+        "phase": "matlab_running",
+        "updated_at": "2026-10-14T13:35:26.457596+00:00",
+        "current_step": "[combineChannels] final matrix size=[118 137 3 855] class=uint16",
+        "last_message": "[combineChannels] final matrix size=[118 137 3 855] class=uint16",
+        "recent_stderr": [],
+        "recent_stdout": [
+          "[combineChannels] pre-adjust (frame1) min=740 max=12727",
+          "[combineChannels] post-adjust (frame1) min=740 max=12727",
+          "[combineChannels] rgb spec size=[1 3]",
+          "[combineChannels] -- i=3/3, query=\"channel000_z002\" -> pix2=3",
+          "[combineChannels] imtmp slice size=[118 137 1 855] class=uint16",
+          "[combineChannels] levels=[0 65535]",
+          "[combineChannels] pre-adjust (frame1) min=693 max=10952",
+          "[combineChannels] post-adjust (frame1) min=693 max=10952",
+          "[combineChannels] rgb spec size=[1 3]",
+          "[combineChannels] final matrix size=[118 137 3 855] class=uint16"
+        ]
+      },
+      "cpu_usage": null,
+      "worker_runtime": {
+        "engine": "matlab",
+        "work_dir": "/home/charvin-admin/repos/DetecDiv-jobs/work/e2a1b570-be3b-42f9-a911-ee4231d707a5/6717f537-8180-40a7-9a5b-37a7c4f4795f",
+        "repo_root": "/home/charvin-admin/repos/DetecDiv-jobs/releases/f671bd294762ffef9ea599c6088b74414d487911",
+        "stderr_log": "/home/charvin-admin/repos/DetecDiv-jobs/work/e2a1b570-be3b-42f9-a911-ee4231d707a5/6717f537-8180-40a7-9a5b-37a7c4f4795f/matlab_stderr.log",
+        "stdout_log": "/home/charvin-admin/repos/DetecDiv-jobs/work/e2a1b570-be3b-42f9-a911-ee4231d707a5/6717f537-8180-40a7-9a5b-37a7c4f4795f/matlab_stdout.log",
+        "code_commit": "f671bd294762ffef9ea599c6088b74414d487911"
+      },
+      "prepared_run": {
+        "execution": {
+          "allow_gui": false,
+          "code_commit": "f671bd294762ffef9ea599c6088b74414d487911",
+          "interactive": false,
+          "write_scope": "project_update",
+          "save_project": true,
+          "requested_mode": "server",
+          "console_log_path": "/data/Luis/analysis/x2026_10_06_S99/new_project/pipeline/lifespan_2/worker_console.log",
+          "progress_json_path": "/data/Luis/analysis/x2026_10_06_S99/new_project/pipeline/lifespan_2/progress.json",
+          "execution_target_id": "0d9f55dc-54ce-4527-af5b-ff4b5d0d64e9",
+          "worker_path_mappings": []
+        },
+        "project_ref": {
+          "project_id": "c6ef4e6d-4d09-4044-b18b-02919e8d62e2",
+          "project_key": "analysis_x2026_10_06_s99_new_project_ab1eca884d",
+          "project_name": "new_project",
+          "project_mat_path": "/data/Luis/analysis/x2026_10_06_S99/new_project.mat",
+          "local_project_mat_path": "/data/Luis/analysis/x2026_10_06_S99/new_project.mat"
+        },
+        "pipeline_ref": {
+          "link_mode": "server_visible",
+          "pipeline_key": "lifespan",
+          "pipeline_json_path": "/data/Gilles/analysis/pipelines/lifespan/pipeline.json",
+          "export_manifest_uri": "",
+          "pipeline_bundle_uri": ""
+        },
+        "normalized_pipeline_path": "/data/Gilles/analysis/pipelines/lifespan/pipeline.json",
+        "pipeline_resolution_method": null
+      },
+      "summary": null,
+      "run_id": null,
+      "result_keys": [
+        "progress",
+        "preflight",
+        "prepared_run",
+        "worker_runtime",
+        "raw_dataset_ingest"
+      ]
+    }
+  ]
+}

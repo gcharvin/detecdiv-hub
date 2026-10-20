@@ -1,0 +1,40 @@
+{
+  "checked_at": "2026-10-15T06:46:21.650492+00:00",
+  "guard": {
+    "checked_at": "2026-10-15T06:46:19.253936+00:00",
+    "gpu_jobs": [],
+    "other_gpu_processes": [],
+    "available": true
+  },
+  "api": {
+    "jobs": [],
+    "arbitration": "true",
+    "admission": {
+      "owner": "qwen-coex-65073cb6-260e-4b31-822e-64a019131be5",
+      "pid": 10189,
+      "status": "released",
+      "queued_jobs": [],
+      "cancel_requested": false,
+      "checked_at": 1792046758.8537905
+    }
+  },
+  "compute": {
+    "gpu": {
+      "exit": 0,
+      "output": "NVIDIA GeForce RTX 3090, 24576 MiB, 74 MiB, 0 %"
+    },
+    "processes": {
+      "exit": 0,
+      "output": ""
+    },
+    "process_owners": [],
+    "service": {
+      "exit": 0,
+      "output": "active"
+    },
+    "launcher_sha256": "0e681f73e64b5bc571b96b513d47789cef25e366b9059b08e0144e98cb33824c"
+  },
+  "activity_since": "2026-10-15T06:41:02.809254+00:00",
+  "activity_deltas": [],
+  "action": "ready_for_main"
+}

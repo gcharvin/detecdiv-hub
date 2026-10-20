@@ -1,0 +1,203 @@
+{
+  "owner": "qwen-coex-70319f51-4df7-46f2-b980-03f75e95ce0f",
+  "pid": 2505089,
+  "status": "stopped",
+  "peak_service_mib": 6910,
+  "samples": [
+    {
+      "time": 1791975241.9107897,
+      "service_mib": 0,
+      "total_used_mib": 2266
+    },
+    {
+      "time": 1791975242.9932806,
+      "service_mib": 0,
+      "total_used_mib": 2266
+    },
+    {
+      "time": 1791975244.0719054,
+      "service_mib": 0,
+      "total_used_mib": 2266
+    },
+    {
+      "time": 1791975245.1449645,
+      "service_mib": 0,
+      "total_used_mib": 2266
+    },
+    {
+      "time": 1791975246.22529,
+      "service_mib": 0,
+      "total_used_mib": 2266
+    },
+    {
+      "time": 1791975247.3024592,
+      "service_mib": 0,
+      "total_used_mib": 2266
+    },
+    {
+      "time": 1791975248.3764641,
+      "service_mib": 0,
+      "total_used_mib": 2266
+    },
+    {
+      "time": 1791975249.4611394,
+      "service_mib": 0,
+      "total_used_mib": 2266
+    },
+    {
+      "time": 1791975250.5429642,
+      "service_mib": 0,
+      "total_used_mib": 2266
+    },
+    {
+      "time": 1791975251.624085,
+      "service_mib": 0,
+      "total_used_mib": 2266
+    },
+    {
+      "time": 1791975252.7039275,
+      "service_mib": 0,
+      "total_used_mib": 2266
+    },
+    {
+      "time": 1791975253.789075,
+      "service_mib": 0,
+      "total_used_mib": 2266
+    },
+    {
+      "time": 1791975254.8681953,
+      "service_mib": 0,
+      "total_used_mib": 2266
+    },
+    {
+      "time": 1791975255.9513679,
+      "service_mib": 0,
+      "total_used_mib": 2266
+    },
+    {
+      "time": 1791975257.0333529,
+      "service_mib": 0,
+      "total_used_mib": 2266
+    },
+    {
+      "time": 1791975258.1093287,
+      "service_mib": 0,
+      "total_used_mib": 2266
+    },
+    {
+      "time": 1791975259.1885552,
+      "service_mib": 0,
+      "total_used_mib": 2266
+    },
+    {
+      "time": 1791975260.271478,
+      "service_mib": 0,
+      "total_used_mib": 2266
+    },
+    {
+      "time": 1791975261.3558319,
+      "service_mib": 0,
+      "total_used_mib": 2266
+    },
+    {
+      "time": 1791975262.4380317,
+      "service_mib": 0,
+      "total_used_mib": 2266
+    },
+    {
+      "time": 1791975263.5194554,
+      "service_mib": 0,
+      "total_used_mib": 2266
+    },
+    {
+      "time": 1791975264.5943408,
+      "service_mib": 0,
+      "total_used_mib": 2266
+    },
+    {
+      "time": 1791975265.6845515,
+      "service_mib": 0,
+      "total_used_mib": 2266
+    },
+    {
+      "time": 1791975266.7622108,
+      "service_mib": 0,
+      "total_used_mib": 2266
+    },
+    {
+      "time": 1791975267.8348384,
+      "service_mib": 0,
+      "total_used_mib": 2266
+    },
+    {
+      "time": 1791975268.909483,
+      "service_mib": 0,
+      "total_used_mib": 2266
+    },
+    {
+      "time": 1791975269.9926534,
+      "service_mib": 0,
+      "total_used_mib": 2266
+    },
+    {
+      "time": 1791975271.0812042,
+      "service_mib": 10,
+      "total_used_mib": 2291
+    },
+    {
+      "time": 1791975272.1559296,
+      "service_mib": 1580,
+      "total_used_mib": 3851
+    },
+    {
+      "time": 1791975273.2270973,
+      "service_mib": 1654,
+      "total_used_mib": 3925
+    },
+    {
+      "time": 1791975274.3050637,
+      "service_mib": 1654,
+      "total_used_mib": 3927
+    },
+    {
+      "time": 1791975275.389557,
+      "service_mib": 1654,
+      "total_used_mib": 3929
+    },
+    {
+      "time": 1791975276.470569,
+      "service_mib": 1654,
+      "total_used_mib": 3931
+    },
+    {
+      "time": 1791975277.555362,
+      "service_mib": 3612,
+      "total_used_mib": 5889
+    },
+    {
+      "time": 1791975278.6483533,
+      "service_mib": 4596,
+      "total_used_mib": 6893
+    },
+    {
+      "time": 1791975279.7250032,
+      "service_mib": 5736,
+      "total_used_mib": 8053
+    },
+    {
+      "time": 1791975280.8102136,
+      "service_mib": 6910,
+      "total_used_mib": 9571
+    }
+  ],
+  "started_at": 1791975241.826403,
+  "checked_at": 1791975280.7258446,
+  "service_mib": 6910,
+  "free_mib": 15005,
+  "reason": "VRAM limit, free margin, or unmanaged compute process",
+  "stop_exit_code": 0,
+  "launcher_restored": true,
+  "finished_at": 1791975326.3008628,
+  "service_status": "inactive",
+  "original_hash_restored": true
+}

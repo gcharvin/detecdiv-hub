@@ -1,0 +1,55 @@
+{
+  "checked_at": "2026-10-15T03:08:58.394532+00:00",
+  "cache": [
+    {
+      "model": "Qwen/Qwen3-14B-AWQ",
+      "revision": "31c69efc29464b6bb0aee1398b5a7b50a99340c3",
+      "shards": 2,
+      "complete": true
+    },
+    {
+      "model": "Qwen/Qwen3-14B-FP8",
+      "revision": "9a283b4a5efbc09ce247e0ae5b02b744739e525a",
+      "shards": 4,
+      "complete": true
+    },
+    {
+      "model": "Qwen/Qwen3-8B-AWQ",
+      "revision": "4da05a8edb55c6046cce958586c33b61da07bb79",
+      "shards": 2,
+      "complete": true
+    },
+    {
+      "model": "Qwen/Qwen3-8B-FP8",
+      "revision": "220b46e3b2180893580a4454f21f22d3ebb187d3",
+      "shards": 2,
+      "complete": true
+    }
+  ],
+  "disk_free_bytes": 29932597248,
+  "manifest.json": {
+    "owner": "qwen-coex-5b058446-e8a1-442f-882d-8dfc6174e6e0",
+    "launcher": "/home/charvin-admin/repos/detecdiv-hub-webvm/ops/scripts/run-qwen-server.sh",
+    "backup": "/home/charvin-admin/.cache/detecdiv-qwen/pilot-coexistence-20261014/launcher-qwen-coex-5b058446-e8a1-442f-882d-8dfc6174e6e0.sh",
+    "original_mode": 493,
+    "original_sha256": "0e681f73e64b5bc571b96b513d47789cef25e366b9059b08e0144e98cb33824c",
+    "pilot_sha256": "baffd88e7ce3b9035a8a4f385a7a1c6cea7896363ffd3d6524eaaaa977085586",
+    "expires_at": 1791978053.4595757,
+    "max_service_mib": 5888,
+    "initial_service": "inactive"
+  },
+  "watchdog-state.json": {
+    "owner": "qwen-coex-5b058446-e8a1-442f-882d-8dfc6174e6e0",
+    "pid": 2559717,
+    "status": "stopped",
+    "peak_service_mib": 4492,
+    "started_at": 1791977453.5175953,
+    "checked_at": 1791977538.2565618,
+    "service_mib": 3648,
+    "free_mib": 18657,
+    "reason": "stop requested or lease expired",
+    "stop_exit_code": 0,
+    "launcher_restored": true,
+    "finished_at": 1791977539.0306683
+  }
+}

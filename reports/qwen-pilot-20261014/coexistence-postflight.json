@@ -1,0 +1,22 @@
+{
+  "jobs": [
+    {
+      "id": "5cbf3dca-a43b-45c1-9135-cfc9d1966403",
+      "status": "running",
+      "heartbeat_at": "2026-10-14 10:27:21.490636+00:00"
+    },
+    {
+      "id": "e2a1b570-be3b-42f9-a911-ee4231d707a5",
+      "status": "running",
+      "heartbeat_at": "2026-10-14 10:27:22.649388+00:00"
+    }
+  ],
+  "admission": {
+    "owner": "qwen-coex-902449ce-7c0b-4ae9-bc6a-c8c07dec0981",
+    "pid": 14616,
+    "status": "released",
+    "queued_jobs": [],
+    "cancel_requested": false,
+    "checked_at": 1791973488.9473972
+  }
+}

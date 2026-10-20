@@ -1,0 +1,21 @@
+{
+  "observed_at": "2026-10-15T06:10:29.889089+00:00",
+  "owner": "qwen36-prefetch-c81073c0-ea4e-45bf-9bf7-87da8275a9f7",
+  "status": "downloading",
+  "pid": 2854445,
+  "started_at": 1792044240.3715146,
+  "completed": [
+    "README.md",
+    "chat_template.jinja",
+    "config.json",
+    "generation_config.json",
+    "processor_config.json",
+    "tokenizer.json",
+    "tokenizer_config.json"
+  ],
+  "current": "model.safetensors",
+  "checked_at": 1792044243.9734752,
+  "downloaded_gib": 14.53,
+  "elapsed_s": 390,
+  "free_gib": 13.2
+}

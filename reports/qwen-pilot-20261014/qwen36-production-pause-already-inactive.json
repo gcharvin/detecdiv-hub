@@ -1,0 +1,10 @@
+{
+  "checked_at": "2026-10-15T06:58:49.762661+00:00",
+  "guard": {
+    "checked_at": "2026-10-15T06:58:49.353025+00:00",
+    "gpu_jobs": [],
+    "other_gpu_processes": [],
+    "available": true
+  },
+  "initial_service": "inactive"
+}

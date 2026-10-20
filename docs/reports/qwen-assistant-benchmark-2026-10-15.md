@@ -385,7 +385,7 @@ Présente doneNodes=0,totalNodes=1 et la phase matlab_running comme des signes d
 
 **C04 — OOM RAM/swap — Diagnostic principal fondé, réserves**
 
-Identifie correctement le budget RAM 24576 MiB et swap 1536 MiB, sans confusion avec la VRAM. Réduire pool/batch ou augmenter le budget sont des pistes fondées. Ajoute des images 2048x2048 16 bits non établies pour ce cas et propose une réduction de résolution sans justification scientifique. Historique effectivement consulté.
+Identifie correctement le budget RAM 24576 MiB et swap 1536 MiB, sans confusion avec la VRAM. Réduire pool/batch ou augmenter le budget sont des pistes fondées. La taille 2048x2048 uint16 est bien présente dans recent_stdout ; correction de la revue initiale qui la disait non prouvée. La réduction de résolution proposée reste un changement scientifique à valider. Historique effectivement consulté.
 
 **C05 — Extraction legacy et sélection de frames — Diagnostic principal fondé, correction incomplète**
 

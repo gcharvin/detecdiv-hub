@@ -1,0 +1,60 @@
+{
+  "method": "Relecture qualitative de chaque réponse contre les preuves figées, pas de score automatique par mots-clés. Comparaison au 14B AWQ déjà relu sur le même corpus.",
+  "cases": [
+    {
+      "job_prefix": "224d2cc4",
+      "judgement": "Succès technique et limites reconnus",
+      "finding": "Reconnaît doneNodes 2/2, code retour zéro et avertissement dependency_audit.json réellement présent. Demande une validation des sorties et biologique. Présente la sélection de canaux/FOV/ROI comme traitée sans preuve indépendante du contenu des fichiers ; réserve mineure. Historique consulté alors que le job est terminal."
+    },
+    {
+      "job_prefix": "bf584f70",
+      "judgement": "Succès technique et limites reconnus",
+      "finding": "Résume correctement 2/2 nœuds terminés et distingue explicitement exécution technique, fichiers à vérifier et qualité biologique non établie. Avertissement de préflight correctement attribué. La sélection est encore décrite comme volume effectivement traité ; ne remplace pas la vérification des sorties. Historique appelé sur un cas terminal."
+    },
+    {
+      "job_prefix": "941c7b37",
+      "judgement": "Erreur materielle : succes partiel surinterprete",
+      "finding": "Affirme que les deux noeuds selectionnes ont ete traites et les canaux extraits, sans preuve suffisante. Repere doneNodes=0,totalNodes=1 mais invente un possible noeud de rapport non comptabilise pour expliquer cette contradiction. Le statut done, la phase matlab_running et un affichage de structure ne prouvent pas cette execution. Demande cependant verification des sorties et validation biologique."
+    },
+    {
+      "job_prefix": "909a5d12",
+      "judgement": "Diagnostic RAM fonde, reserve sur le parametrage",
+      "finding": "Identifie correctement OOM RAM/swap et les budgets 24576/1536 MiB, sans confusion VRAM. Pool/batch ou hausse RAM sont des pistes fondees. La taille 2048x2048 uint16 est bien prouvee par recent_stdout. maxNumCompThreads ne configure pas directement la taille du pool MATLAB : le reglage propose demande une validation du parametre reel."
+    },
+    {
+      "job_prefix": "7aa140d5",
+      "judgement": "Mecanisme principal mieux explique, reponse tronquee",
+      "finding": "Explique correctement allocation par nombre de frames puis index absolu et exige un prefixe contigu 1:N, y compris exclusion des trous : meilleure correction que le 14B AWQ. Distingue le message No data file de la cause principale, mais demande encore ce fichier comme prealable non etabli. Interprete frames=265 comme un nombre de frames, alors que cet affichage scalaire ne prouve pas ce comptage. Sortie tronquee au plafond 1100."
+    },
+    {
+      "job_prefix": "f9d102cc",
+      "judgement": "Historique utilise, absence de blocage trop affirmee",
+      "finding": "Consulte vraiment les deux captures, cite computeDrift DONE sur 12 frames et refuse toute ETA globale. Mais output_changed et heartbeat ne prouvent pas absence de blocage scientifique : confirme pourtant que le worker n est pas bloque. L hypothese attend une entree est non etayee. Decrit encore des allocations CPU/RAM comme des consommations mesurees."
+    },
+    {
+      "job_prefix": "e2a1b570",
+      "judgement": "Erreur materielle de portee et diagnostic de blocage non demontre",
+      "finding": "Consulte les deux outils mais transforme encore 86.3% de parallel_fov en completion globale. A partir de deux captures proches et de FOV paralleles inegalement avances, infere un ralentissement ou blocage du FOV8, des ressources saturees et des causes RAM/VRAM/I-O non demontrees. Les budgets alloues sont presentes comme usage reel. Refuse une ETA chiffree, mais conclut pourtant a un ralentissement notable. Le 14B AWQ respectait mieux la portee locale sur ce cas."
+    },
+    {
+      "job_prefix": "5cbf3dca",
+      "judgement": "Historique compare, heartbeat encore confondu avec progres",
+      "finding": "Cite correctement les deux captures et refuse une extrapolation de duree a partir de 58 puis 47. Mais repond Le job avance ? Oui sur le seul heartbeat/statut running. N etablit pas que les compteurs portent sur la meme ROI ; suggere fortement une reexecution ou un traitement non sequentiel alors qu un changement normal de perimetre local est aussi possible. Aucune ETA chiffree inventee."
+    },
+    {
+      "job_prefix": "d72dbbfd",
+      "judgement": "Noeud reconnu, correction potentiellement dangereuse",
+      "finding": "Identifie classifier_cnn_lstm_1, FOV8/ROI1, RowDimensionMismatch et dotAssign:508. Les hypotheses de features, segmentation atypique, corruption ou incompatibilite ne sont pas etablies par le journal. Propose de supprimer des donnees intermediaires du FOV8 pour regenerer proprement sans preuve de cause ni validation de reprise : ne pas appliquer automatiquement. La cause exacte de l affectation de table reste a diagnostiquer."
+    },
+    {
+      "job_prefix": "de164c62",
+      "judgement": "Erreur materielle MATLAB et correction scientifique non fondee",
+      "finding": "Identifie le noeud de tracking mais affirme encore que l indice 4 depasse la taille 13. La position 4 designe le quatrieme sous-indice, et sa valeur fautive reste inconnue. Attribue sans preuve la cause a la segmentation/classification puis recommande d exclure la ROI ou modifier ces parametres ; ne pas appliquer sans diagnostic et validation scientifique. Confond egalement nombre de FOV et nombre de ROI dans la strategie de reprise."
+    },
+    {
+      "job_prefix": "393f1350",
+      "judgement": "Cause principale reconnue, canal attribué sans preuve et réponse tronquée",
+      "finding": "Identifie correctement le nœud Cellpose et aucun canal entrée configuré. Mais attribue probablement 0 TL _z2 à Cellpose alors que cette valeur appartient à roipattern_4 ; disponibilité des canaux bruts, absence de fichier ROI et fallback ne prouvent pas cette cause. Propose de corriger le paramètre du nœud, piste fondée seulement après validation de sa valeur réelle, puis suggère exclusion de ROI sans diagnostic établi. La réussite antérieure citée ne prouve pas une cause propre à cette ROI. Réponse tronquée au plafond 1100 tokens."
+    }
+  ]
+}

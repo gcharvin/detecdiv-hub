@@ -1,0 +1,13 @@
+{
+  "status": "complete_reviewed",
+  "completed_at": "2026-10-15T03:52:08.190481+00:00",
+  "responses_reviewed": 44,
+  "complete_responses": 42,
+  "truncated_responses": 2,
+  "corpus_sha256": "e3fc6d927b24cbb18bf2b936d7405e4bd7b42eadee0be76c2dbc6ea216e276ce",
+  "report": "main-comparison.html",
+  "verification": "main-final-verification.json",
+  "verification_at": "2026-10-15T03:53:26.041206+00:00",
+  "automation": "qwen-gpu-libre-et-comparaison-des-quantifications",
+  "automation_status": "PAUSED"
+}

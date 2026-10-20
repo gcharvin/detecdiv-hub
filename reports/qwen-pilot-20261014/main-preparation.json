@@ -1,0 +1,11 @@
+{
+  "checked_at": "2026-10-14T12:01:15.214408+00:00",
+  "code_commit": "58b0544",
+  "tests_passed": 17,
+  "live": {
+    "service": "inactive",
+    "launcher_sha256": "0e681f73e64b5bc571b96b513d47789cef25e366b9059b08e0144e98cb33824c",
+    "gpu": "NVIDIA GeForce RTX 3090, 24576 MiB, 2266 MiB, 26 %"
+  },
+  "state": "waiting_for_scientific_reservations"
+}

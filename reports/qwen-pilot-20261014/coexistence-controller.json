@@ -1,0 +1,45 @@
+{
+  "owner": "qwen-coex-902449ce-7c0b-4ae9-bc6a-c8c07dec0981",
+  "status": "finished",
+  "started_at": 1791972985.1968913,
+  "setup": {
+    "watchdog_pid": 2462652,
+    "manifest": {
+      "owner": "qwen-coex-902449ce-7c0b-4ae9-bc6a-c8c07dec0981",
+      "launcher": "/home/charvin-admin/repos/detecdiv-hub-webvm/ops/scripts/run-qwen-server.sh",
+      "backup": "/home/charvin-admin/.cache/detecdiv-qwen/pilot-coexistence-20261014/launcher-qwen-coex-902449ce-7c0b-4ae9-bc6a-c8c07dec0981.sh",
+      "original_mode": 493,
+      "original_sha256": "0e681f73e64b5bc571b96b513d47789cef25e366b9059b08e0144e98cb33824c",
+      "pilot_sha256": "6c610df788c203966519012c40cd52308dbc8267430f2b20febf355aebe8983c",
+      "expires_at": 1791973592.1220393,
+      "max_service_mib": 5888,
+      "initial_service": "inactive"
+    }
+  },
+  "benchmark_exit": 0,
+  "cleanup": {
+    "owner": "qwen-coex-902449ce-7c0b-4ae9-bc6a-c8c07dec0981",
+    "pid": 2462652,
+    "status": "stopped",
+    "peak_service_mib": 5810,
+    "started_at": 1791972992.1809971,
+    "checked_at": 1791973483.5062904,
+    "service_mib": 5810,
+    "free_mib": 16495,
+    "reason": "stop requested or lease expired",
+    "stop_exit_code": 0,
+    "launcher_restored": true,
+    "finished_at": 1791973484.4580848,
+    "service_status": "inactive",
+    "original_hash_restored": true
+  },
+  "admission": {
+    "owner": "qwen-coex-902449ce-7c0b-4ae9-bc6a-c8c07dec0981",
+    "pid": 14616,
+    "status": "released",
+    "queued_jobs": [],
+    "cancel_requested": false,
+    "checked_at": 1791973488.9473972
+  },
+  "finished_at": 1791973491.2782147
+}

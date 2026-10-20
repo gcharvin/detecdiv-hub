@@ -1,0 +1,770 @@
+{
+  "journal": "Started detecdiv-qwen.service - DetecDiv Hub local Qwen inference service.\n(APIServer pid=2797102) INFO 10-15 05:27:35 [api_utils.py:347]\n(APIServer pid=2797102) INFO 10-15 05:27:35 [api_utils.py:347]        █     █     █▄   ▄█\n(APIServer pid=2797102) INFO 10-15 05:27:35 [api_utils.py:347]  ▄▄ ▄█ █     █     █ ▀▄▀ █  version 0.29.0\n(APIServer pid=2797102) INFO 10-15 05:27:35 [api_utils.py:347]   █▄█▀ █     █     █     █  model   /home/charvin-admin/.cache/detecdiv-qwen/huggingface/hub/models--Qwen--Qwen3-8B-AWQ/snapshots/4da05a8edb55c6046cce958586c33b61da07bb79\n(APIServer pid=2797102) INFO 10-15 05:27:35 [api_utils.py:347]    ▀▀  ▀▀▀▀▀ ▀▀▀▀▀ ▀     ▀\n(APIServer pid=2797102) INFO 10-15 05:27:35 [api_utils.py:347]\n(APIServer pid=2797102) INFO 10-15 05:27:35 [api_utils.py:286] non-default args: {'model_tag': '/home/charvin-admin/.cache/detecdiv-qwen/huggingface/hub/models--Qwen--Qwen3-8B-AWQ/snapshots/4da05a8edb55c6046cce958586c33b61da07bb79', 'enable_auto_tool_choice': True, 'tool_call_parser': 'hermes', 'host': '127.0.0.1', 'port': 8002, 'model': '/home/charvin-admin/.cache/detecdiv-qwen/huggingface/hub/models--Qwen--Qwen3-8B-AWQ/snapshots/4da05a8edb55c6046cce958586c33b61da07bb79', 'max_model_len': 8192, 'enforce_eager': True, 'served_model_name': ['Qwen/Qwen3-8B-AWQ'], 'gpu_memory_utilization': 0.35, 'max_num_batched_tokens': 256, 'max_num_seqs': 1}\n(APIServer pid=2797102) INFO 10-15 05:27:35 [model.py:684] Resolved architecture: Qwen3ForCausalLM\n(APIServer pid=2797102) INFO 10-15 05:27:35 [model.py:2021] Using max model len 8192\n(APIServer pid=2797102) INFO 10-15 05:27:36 [scheduler.py:277] Chunked prefill is enabled with max_num_batched_tokens=256.\n(APIServer pid=2797102) WARNING 10-15 05:27:36 [vllm.py:1371] Enforce eager set, disabling torch.compile and CUDAGraphs. This is equivalent to setting -cc.mode=none -cc.cudagraph_mode=none\n(APIServer pid=2797102) WARNING 10-15 05:27:36 [vllm.py:1406] Inductor compilation was disabled by user settings, optimizations settings that are only active during inductor compilation will be ignored.\n(APIServer pid=2797102) INFO 10-15 05:27:36 [kernel.py:369] Final IR op priority after setting platform defaults: IrOpPriorityConfig(rms_norm=['vllm_c', 'native'], fused_add_rms_norm=['vllm_c', 'native'])\n(APIServer pid=2797102) INFO 10-15 05:27:36 [vllm.py:1585] Cudagraph is disabled under eager mode\n(APIServer pid=2797102) INFO 10-15 05:27:36 [compilation.py:329] Enabled custom fusions: norm_quant, act_quant\n(EngineCore pid=2797745) INFO 10-15 05:27:47 [core.py:123] Initializing a V1 LLM engine (v0.29.0) with config: model='/home/charvin-admin/.cache/detecdiv-qwen/huggingface/hub/models--Qwen--Qwen3-8B-AWQ/snapshots/4da05a8edb55c6046cce958586c33b61da07bb79', speculative_config=None, tokenizer='/home/charvin-admin/.cache/detecdiv-qwen/huggingface/hub/models--Qwen--Qwen3-8B-AWQ/snapshots/4da05a8edb55c6046cce958586c33b61da07bb79', skip_tokenizer_init=False, tokenizer_mode=auto, revision=None, tokenizer_revision=None, trust_remote_code=False, dtype=torch.float16, max_seq_len=8192, download_dir=None, load_format=auto, tensor_parallel_size=1, pipeline_parallel_size=1, data_parallel_size=1, decode_context_parallel_size=1, dcp_comm_backend=ag_rs, disable_custom_all_reduce=False, quantization=auto_awq, quantization_config=None, enforce_eager=True, enable_return_routed_experts=False, kv_cache_dtype=auto, device_config=cuda, structured_outputs_config=StructuredOutputsConfig(backend='auto', disable_any_whitespace=False, disable_additional_properties=False, reasoning_parser='', reasoning_parser_plugin='', enable_in_reasoning=False), observability_config=ObservabilityConfig(show_hidden_metrics_for_version=None, otlp_traces_endpoint=None, collect_detailed_traces=None, per_request_spec_decode_metrics='none', kv_cache_metrics=False, kv_cache_metrics_sample=0.01, cudagraph_metrics=False, enable_layerwise_nvtx_tracing=False, enable_mfu_metrics=False, enable_mm_processor_stats=False, enable_logging_iteration_details=False, jit_monitor_mode='warn', jit_monitor_verbose=False), seed=0, served_model_name=Qwen/Qwen3-8B-AWQ, enable_prefix_caching=True, enable_chunked_prefill=True, pooler_config=None, compilation_config={'mode': <CompilationMode.NONE: 0>, 'debug_dump_path': None, 'cache_dir': '', 'compile_cache_save_format': 'binary', 'backend': 'inductor', 'custom_ops': ['all'], 'ir_enable_torch_wrap': False, 'splitting_ops': [], 'compile_mm_encoder': False, 'cudagraph_mm_encoder': False, 'encoder_cudagraph_token_budgets': [], 'encoder_cudagraph_max_vision_items_per_batch': 0, 'encoder_cudagraph_max_frames_per_batch': None, 'compile_sizes': [], 'compile_ranges_endpoints': [256], 'inductor_compile_config': {'enable_auto_functionalized_v2': False, 'combo_kernels': True, 'benchmark_combo_kernel': True}, 'inductor_passes': {}, 'cudagraph_mode': <CUDAGraphMode.NONE: 0>, 'cudagraph_num_of_warmups': 0, 'cudagraph_capture_sizes': [], 'cudagraph_copy_inputs': False, 'cudagraph_specialize_lora': True, 'use_inductor_graph_partition': False, 'pass_config': {'fuse_norm_quant': True, 'fuse_act_quant': True, 'fuse_attn_quant': False, 'enable_sp': False, 'fuse_gemm_comms': False, 'fuse_allreduce_rms': False, 'enable_qk_norm_rope_fusion': False, 'fuse_rope_kvcache_cat_mla': False, 'fuse_act_padding': False, 'fuse_qk_norm_rope_kvcache': False}, 'max_cudagraph_capture_size': 0, 'dynamic_shapes_config': {'type': <DynamicShapesType.BACKED: 'backed'>, 'evaluate_guards': False, 'assume_32_bit_indexing': False}, 'local_cache_dir': None, 'fast_moe_cold_start': False, 'static_all_moe_layers': []}, kernel_config=KernelConfig(ir_op_priority=IrOpPriorityConfig(rms_norm=['vllm_c', 'native'], fused_add_rms_norm=['vllm_c', 'native']), enable_flashinfer_autotune=True, enable_cutedsl_warmup=True, enable_jit_warmup=True, enable_bf16x3_router_gemm=False, moe_backend='auto', linear_backend='auto')\n(EngineCore pid=2797745) INFO 10-15 05:27:48 [parallel_state.py:1775] world_size=1 rank=0 local_rank=0 distributed_init_method=file:///tmp/vllm_dist_c9d428e3dcc94824bce6f51b6ddbd79d backend=nccl\n(EngineCore pid=2797745) INFO 10-15 05:27:48 [parallel_state.py:2119] rank 0 in world size 1 is assigned as DP rank 0, PP rank 0, PCP rank 0, TP rank 0, EP rank N/A, EPLB rank N/A\n(EngineCore pid=2797745) INFO 10-15 05:27:48 [gpu_worker.py:429] Using V2 Model Runner\n(EngineCore pid=2797745) INFO 10-15 05:27:49 [model_runner.py:382] Loading model from scratch...\n(EngineCore pid=2797745) INFO 10-15 05:27:49 [auto_awq.py:448] Using MarlinLinearKernel for AutoAWQMarlinLinearMethod\n(EngineCore pid=2797745) INFO 10-15 05:27:49 [cuda.py:492] Using FLASH_ATTN attention backend out of potential backends: ['FLASH_ATTN', 'FLASHINFER', 'TRITON_ATTN', 'FLEX_ATTENTION'].\n(EngineCore pid=2797745) INFO 10-15 05:27:49 [flash_attn.py:897] Using FlashAttention version 2\n(EngineCore pid=2797745) INFO 10-15 05:27:50 [weight_utils.py:863] Filesystem type for checkpoints: EXT4. Checkpoint size: 5.68 GiB. Available RAM: 103.45 GiB.\n(EngineCore pid=2797745) INFO 10-15 05:27:50 [weight_utils.py:886] Auto-prefetch is disabled because the filesystem (EXT4) is not a recognized network FS (NFS/Lustre). If you want to force prefetching, start vLLM with --safetensors-load-strategy=prefetch.\n[40, 69, 110, 103, 105, 110, 101, 67, 111, 114, 101, 32, 112, 105, 100, 61, 50, 55, 57, 55, 55, 52, 53, 41, 32, 13, 76, 111, 97, 100, 105, 110, 103, 32, 115, 97, 102, 101, 116, 101, 110, 115, 111, 114, 115, 32, 99, 104, 101, 99, 107, 112, 111, 105, 110, 116, 32, 115, 104, 97, 114, 100, 115, 58, 32, 32, 32, 48, 37, 32, 67, 111, 109, 112, 108, 101, 116, 101, 100, 32, 124, 32, 48, 47, 50, 32, 91, 48, 48, 58, 48, 48, 60, 63, 44, 32, 63, 105, 116, 47, 115, 93]\n[40, 69, 110, 103, 105, 110, 101, 67, 111, 114, 101, 32, 112, 105, 100, 61, 50, 55, 57, 55, 55, 52, 53, 41, 32, 13, 76, 111, 97, 100, 105, 110, 103, 32, 115, 97, 102, 101, 116, 101, 110, 115, 111, 114, 115, 32, 99, 104, 101, 99, 107, 112, 111, 105, 110, 116, 32, 115, 104, 97, 114, 100, 115, 58, 32, 32, 53, 48, 37, 32, 67, 111, 109, 112, 108, 101, 116, 101, 100, 32, 124, 32, 49, 47, 50, 32, 91, 48, 48, 58, 48, 51, 60, 48, 48, 58, 48, 51, 44, 32, 32, 51, 46, 51, 48, 115, 47, 105, 116, 93]\n[40, 69, 110, 103, 105, 110, 101, 67, 111, 114, 101, 32, 112, 105, 100, 61, 50, 55, 57, 55, 55, 52, 53, 41, 32, 13, 76, 111, 97, 100, 105, 110, 103, 32, 115, 97, 102, 101, 116, 101, 110, 115, 111, 114, 115, 32, 99, 104, 101, 99, 107, 112, 111, 105, 110, 116, 32, 115, 104, 97, 114, 100, 115, 58, 32, 49, 48, 48, 37, 32, 67, 111, 109, 112, 108, 101, 116, 101, 100, 32, 124, 32, 50, 47, 50, 32, 91, 48, 48, 58, 48, 52, 60, 48, 48, 58, 48, 48, 44, 32, 32, 49, 46, 56, 55, 115, 47, 105, 116, 93]\n[40, 69, 110, 103, 105, 110, 101, 67, 111, 114, 101, 32, 112, 105, 100, 61, 50, 55, 57, 55, 55, 52, 53, 41, 32, 13, 76, 111, 97, 100, 105, 110, 103, 32, 115, 97, 102, 101, 116, 101, 110, 115, 111, 114, 115, 32, 99, 104, 101, 99, 107, 112, 111, 105, 110, 116, 32, 115, 104, 97, 114, 100, 115, 58, 32, 49, 48, 48, 37, 32, 67, 111, 109, 112, 108, 101, 116, 101, 100, 32, 124, 32, 50, 47, 50, 32, 91, 48, 48, 58, 48, 52, 60, 48, 48, 58, 48, 48, 44, 32, 32, 50, 46, 48, 56, 115, 47, 105, 116, 93]\n(EngineCore pid=2797745)\n(EngineCore pid=2797745) INFO 10-15 05:27:54 [default_loader.py:430] Loading weights took 4.22 seconds\n(EngineCore pid=2797745) INFO 10-15 05:27:55 [model_runner.py:404] Model loading took 5.71 GiB memory and 6.971911 seconds\n(EngineCore pid=2797745) INFO 10-15 05:27:55 [topk_topp_sampler.py:46] FlashInfer top-p/top-k sampling disabled via VLLM_USE_FLASHINFER_SAMPLER=0.\n(EngineCore pid=2797745) INFO 10-15 05:27:55 [utils.py:306] Using LBNHC KV cache layout.\n(EngineCore pid=2797745) INFO 10-15 05:27:58 [gpu_worker.py:625] Available KV cache memory: 2.4 GiB\n(EngineCore pid=2797745) INFO 10-15 05:27:58 [kv_cache_utils.py:2032] GPU KV cache size: 17,472 tokens, Maximum concurrency for 8,192 tokens per request: 2.13x\n(EngineCore pid=2797745) INFO 10-15 05:27:58 [kernel_warmup.py:124] JIT kernel warmup starting.\n(EngineCore pid=2797745) INFO 10-15 05:27:58 [kernel_warmup.py:134] JIT kernel warmup finished in 0.00s.\n(EngineCore pid=2797745) INFO 10-15 05:27:58 [gpu_worker.py:860] Free memory on device (23.22/23.55 GiB) on startup. Desired GPU memory utilization is (0.35, 8.24 GiB). Actual usage is 5.82 GiB for consumed memory (weights + non-torch), 0.02 GiB for peak activation, and 0.0 GiB for CUDAGraph memory. Replace gpu_memory_utilization config with `--kv-cache-memory=2421264794` (2.25 GiB) to fit into requested memory, or `--kv-cache-memory=18504349696` (17.23 GiB) to fully utilize gpu memory. Current kv cache memory in use is 2.4 GiB.\n(EngineCore pid=2797745) INFO 10-15 05:27:59 [jit_monitor.py:85] Kernel JIT monitor activated; monitored JIT compilations during inference will use mode=warn.\n(EngineCore pid=2797745) INFO 10-15 05:27:59 [torch_utils.py:277] Reducing Torch threads from 24 to 1 for serving. Set OMP_NUM_THREADS in the external environment to override.\n(EngineCore pid=2797745) INFO 10-15 05:27:59 [core.py:368] init engine (profile, create kv cache, warmup model) took 3.90 s\n(EngineCore pid=2797745) WARNING 10-15 05:28:00 [vllm.py:1371] Enforce eager set, disabling torch.compile and CUDAGraphs. This is equivalent to setting -cc.mode=none -cc.cudagraph_mode=none\n(EngineCore pid=2797745) WARNING 10-15 05:28:00 [vllm.py:1406] Inductor compilation was disabled by user settings, optimizations settings that are only active during inductor compilation will be ignored.\n(EngineCore pid=2797745) INFO 10-15 05:28:00 [kernel.py:369] Final IR op priority after setting platform defaults: IrOpPriorityConfig(rms_norm=['vllm_c', 'native'], fused_add_rms_norm=['vllm_c', 'native'])\n(EngineCore pid=2797745) INFO 10-15 05:28:00 [vllm.py:1585] Cudagraph is disabled under eager mode\n(EngineCore pid=2797745) INFO 10-15 05:28:00 [compilation.py:329] Enabled custom fusions: norm_quant, act_quant\n(APIServer pid=2797102) INFO 10-15 05:28:00 [entry.py:135] Supported tasks: ['generate']\n(APIServer pid=2797102) INFO 10-15 05:28:00 [parser_manager.py:36] \"auto\" tool choice has been enabled.\n(APIServer pid=2797102) INFO 10-15 05:28:00 [hf.py:547] Detected the chat template content format to be 'string'. You can set `--chat-template-content-format` to override this.\n(APIServer pid=2797102) WARNING 10-15 05:28:00 [model.py:1759] Default vLLM sampling parameters have been overridden by the model's `generation_config.json`: `{'temperature': 0.6, 'top_k': 20, 'top_p': 0.95}`. If this is not intended, please relaunch vLLM instance with `--generation-config vllm`.\n(APIServer pid=2797102) INFO 10-15 05:28:00 [entry.py:139] Starting vLLM server on http://127.0.0.1:8002\n(APIServer pid=2797102) INFO 10-15 05:28:00 [launcher.py:61] Available routes are:\n(APIServer pid=2797102) INFO 10-15 05:28:00 [launcher.py:70] Route: /openapi.json, Methods: GET, HEAD\n(APIServer pid=2797102) INFO 10-15 05:28:00 [launcher.py:70] Route: /docs, Methods: GET, HEAD\n(APIServer pid=2797102) INFO 10-15 05:28:00 [launcher.py:70] Route: /docs/oauth2-redirect, Methods: GET, HEAD\n(APIServer pid=2797102) INFO 10-15 05:28:00 [launcher.py:70] Route: /redoc, Methods: GET, HEAD\n(APIServer pid=2797102) INFO 10-15 05:28:00 [launcher.py:70] Route: /load, Methods: GET\n(APIServer pid=2797102) INFO 10-15 05:28:00 [launcher.py:70] Route: /version, Methods: GET\n(APIServer pid=2797102) INFO 10-15 05:28:00 [launcher.py:70] Route: /health, Methods: GET\n(APIServer pid=2797102) INFO 10-15 05:28:00 [launcher.py:70] Route: /metrics, Methods: GET\n(APIServer pid=2797102) INFO 10-15 05:28:00 [launcher.py:70] Route: /tokenize, Methods: POST\n(APIServer pid=2797102) INFO 10-15 05:28:00 [launcher.py:70] Route: /detokenize, Methods: POST\n(APIServer pid=2797102) INFO 10-15 05:28:00 [launcher.py:70] Route: /v1/models, Methods: GET\n(APIServer pid=2797102) INFO 10-15 05:28:00 [launcher.py:70] Route: /ping, Methods: GET\n(APIServer pid=2797102) INFO 10-15 05:28:00 [launcher.py:70] Route: /ping, Methods: POST\n(APIServer pid=2797102) INFO 10-15 05:28:00 [launcher.py:70] Route: /invocations, Methods: POST\n(APIServer pid=2797102) INFO 10-15 05:28:00 [launcher.py:70] Route: /v1/chat/completions, Methods: POST\n(APIServer pid=2797102) INFO 10-15 05:28:00 [launcher.py:70] Route: /v1/chat/completions/batch, Methods: POST\n(APIServer pid=2797102) INFO 10-15 05:28:00 [launcher.py:70] Route: /v1/responses, Methods: POST\n(APIServer pid=2797102) INFO 10-15 05:28:00 [launcher.py:70] Route: /v1/responses/{response_id}, Methods: GET\n(APIServer pid=2797102) INFO 10-15 05:28:00 [launcher.py:70] Route: /v1/responses/{response_id}/cancel, Methods: POST\n(APIServer pid=2797102) INFO 10-15 05:28:00 [launcher.py:70] Route: /v1/completions, Methods: POST\n(APIServer pid=2797102) INFO 10-15 05:28:00 [launcher.py:70] Route: /v1/messages, Methods: POST\n(APIServer pid=2797102) INFO 10-15 05:28:00 [launcher.py:70] Route: /v1/messages/count_tokens, Methods: POST\n(APIServer pid=2797102) INFO 10-15 05:28:00 [launcher.py:70] Route: /generative_scoring, Methods: POST\n(APIServer pid=2797102) INFO 10-15 05:28:00 [launcher.py:70] Route: /scale_elastic_ep, Methods: POST\n(APIServer pid=2797102) INFO 10-15 05:28:00 [launcher.py:70] Route: /is_scaling_elastic_ep, Methods: POST\n(APIServer pid=2797102) INFO 10-15 05:28:00 [launcher.py:70] Route: /v1/chat/completions/render, Methods: POST\n(APIServer pid=2797102) INFO 10-15 05:28:00 [launcher.py:70] Route: /v1/messages/render, Methods: POST\n(APIServer pid=2797102) INFO 10-15 05:28:00 [launcher.py:70] Route: /v1/completions/render, Methods: POST\n(APIServer pid=2797102) INFO 10-15 05:28:00 [launcher.py:70] Route: /v1/chat/completions/derender, Methods: POST\n(APIServer pid=2797102) INFO 10-15 05:28:00 [launcher.py:70] Route: /v1/completions/derender, Methods: POST\n(APIServer pid=2797102) INFO 10-15 05:28:00 [launcher.py:70] Route: /inference/v1/generate, Methods: POST\n(APIServer pid=2797102) INFO:     Started server process [2797102]\n(APIServer pid=2797102) INFO:     Waiting for application startup.\n(APIServer pid=2797102) INFO:     Application startup complete.\n(APIServer pid=2797102) INFO:     127.0.0.1:55194 - \"GET /v1/models HTTP/1.1\" 200 OK\n(APIServer pid=2797102) INFO:     127.0.0.1:56096 - \"GET /v1/models HTTP/1.1\" 200 OK\n(APIServer pid=2797102) INFO:     127.0.0.1:55526 - \"POST /v1/chat/completions HTTP/1.1\" 200 OK\n(APIServer pid=2797102) INFO 10-15 05:28:31 [loggers.py:310] Engine 000: Avg prompt throughput: 51.7 tokens/s, Avg generation throughput: 5.4 tokens/s, Running: 0 reqs, Waiting: 0 reqs, GPU KV cache usage: 0.0%, Prefix cache hit rate: 0.0%\n(APIServer pid=2797102) INFO 10-15 05:28:41 [loggers.py:310] Engine 000: Avg prompt throughput: 218.2 tokens/s, Avg generation throughput: 27.3 tokens/s, Running: 1 reqs, Waiting: 0 reqs, GPU KV cache usage: 17.0%, Prefix cache hit rate: 15.9%\n(APIServer pid=2797102) INFO 10-15 05:28:51 [loggers.py:310] Engine 000: Avg prompt throughput: 0.0 tokens/s, Avg generation throughput: 34.0 tokens/s, Running: 1 reqs, Waiting: 0 reqs, GPU KV cache usage: 19.0%, Prefix cache hit rate: 15.9%\n(APIServer pid=2797102) INFO:     127.0.0.1:51004 - \"POST /v1/chat/completions HTTP/1.1\" 200 OK\n(APIServer pid=2797102) INFO 10-15 05:29:01 [loggers.py:310] Engine 000: Avg prompt throughput: 0.0 tokens/s, Avg generation throughput: 20.7 tokens/s, Running: 0 reqs, Waiting: 0 reqs, GPU KV cache usage: 0.0%, Prefix cache hit rate: 15.9%\n(APIServer pid=2797102) INFO:     127.0.0.1:51602 - \"POST /v1/chat/completions HTTP/1.1\" 200 OK\n(APIServer pid=2797102) INFO 10-15 05:29:11 [loggers.py:310] Engine 000: Avg prompt throughput: 5.4 tokens/s, Avg generation throughput: 5.6 tokens/s, Running: 0 reqs, Waiting: 0 reqs, GPU KV cache usage: 0.0%, Prefix cache hit rate: 26.2%\n(APIServer pid=2797102) INFO 10-15 05:29:21 [loggers.py:310] Engine 000: Avg prompt throughput: 220.2 tokens/s, Avg generation throughput: 11.3 tokens/s, Running: 1 reqs, Waiting: 0 reqs, GPU KV cache usage: 16.2%, Prefix cache hit rate: 23.1%\n(APIServer pid=2797102) INFO 10-15 05:29:31 [loggers.py:310] Engine 000: Avg prompt throughput: 0.0 tokens/s, Avg generation throughput: 33.2 tokens/s, Running: 1 reqs, Waiting: 0 reqs, GPU KV cache usage: 18.1%, Prefix cache hit rate: 23.1%\n(APIServer pid=2797102) INFO 10-15 05:29:41 [loggers.py:310] Engine 000: Avg prompt throughput: 0.0 tokens/s, Avg generation throughput: 33.8 tokens/s, Running: 1 reqs, Waiting: 0 reqs, GPU KV cache usage: 20.1%, Prefix cache hit rate: 23.1%\n(APIServer pid=2797102) INFO:     127.0.0.1:33240 - \"POST /v1/chat/completions HTTP/1.1\" 200 OK\n(APIServer pid=2797102) INFO 10-15 05:29:51 [loggers.py:310] Engine 000: Avg prompt throughput: 0.0 tokens/s, Avg generation throughput: 31.7 tokens/s, Running: 0 reqs, Waiting: 0 reqs, GPU KV cache usage: 0.0%, Prefix cache hit rate: 23.1%\n(APIServer pid=2797102) INFO 10-15 05:30:01 [loggers.py:310] Engine 000: Avg prompt throughput: 0.0 tokens/s, Avg generation throughput: 0.0 tokens/s, Running: 0 reqs, Waiting: 0 reqs, GPU KV cache usage: 0.0%, Prefix cache hit rate: 23.1%\n(APIServer pid=2797102) INFO:     127.0.0.1:59522 - \"POST /v1/chat/completions HTTP/1.1\" 200 OK\n(APIServer pid=2797102) INFO 10-15 05:30:11 [loggers.py:310] Engine 000: Avg prompt throughput: 5.2 tokens/s, Avg generation throughput: 5.3 tokens/s, Running: 0 reqs, Waiting: 0 reqs, GPU KV cache usage: 0.0%, Prefix cache hit rate: 28.1%\n(APIServer pid=2797102) INFO 10-15 05:30:21 [loggers.py:310] Engine 000: Avg prompt throughput: 215.6 tokens/s, Avg generation throughput: 25.2 tokens/s, Running: 1 reqs, Waiting: 0 reqs, GPU KV cache usage: 16.8%, Prefix cache hit rate: 25.6%\n(APIServer pid=2797102) INFO 10-15 05:30:31 [loggers.py:310] Engine 000: Avg prompt throughput: 0.0 tokens/s, Avg generation throughput: 34.2 tokens/s, Running: 1 reqs, Waiting: 0 reqs, GPU KV cache usage: 18.7%, Prefix cache hit rate: 25.6%\n(APIServer pid=2797102) INFO:     127.0.0.1:34864 - \"POST /v1/chat/completions HTTP/1.1\" 200 OK\n(APIServer pid=2797102) INFO 10-15 05:30:41 [loggers.py:310] Engine 000: Avg prompt throughput: 0.0 tokens/s, Avg generation throughput: 23.9 tokens/s, Running: 0 reqs, Waiting: 0 reqs, GPU KV cache usage: 0.0%, Prefix cache hit rate: 25.6%\n(APIServer pid=2797102) INFO 10-15 05:30:51 [loggers.py:310] Engine 000: Avg prompt throughput: 7.3 tokens/s, Avg generation throughput: 2.8 tokens/s, Running: 1 reqs, Waiting: 0 reqs, GPU KV cache usage: 3.2%, Prefix cache hit rate: 28.7%\n(APIServer pid=2797102) INFO:     127.0.0.1:44040 - \"POST /v1/chat/completions HTTP/1.1\" 200 OK\n(APIServer pid=2797102) INFO:     127.0.0.1:44056 - \"POST /v1/chat/completions HTTP/1.1\" 200 OK\n(APIServer pid=2797102) INFO 10-15 05:31:01 [loggers.py:310] Engine 000: Avg prompt throughput: 231.9 tokens/s, Avg generation throughput: 7.7 tokens/s, Running: 0 reqs, Waiting: 0 reqs, GPU KV cache usage: 0.0%, Prefix cache hit rate: 26.4%\n(APIServer pid=2797102) INFO 10-15 05:31:11 [loggers.py:310] Engine 000: Avg prompt throughput: 58.1 tokens/s, Avg generation throughput: 13.9 tokens/s, Running: 1 reqs, Waiting: 0 reqs, GPU KV cache usage: 20.3%, Prefix cache hit rate: 38.1%\n(APIServer pid=2797102) INFO 10-15 05:31:21 [loggers.py:310] Engine 000: Avg prompt throughput: 0.0 tokens/s, Avg generation throughput: 34.5 tokens/s, Running: 1 reqs, Waiting: 0 reqs, GPU KV cache usage: 22.3%, Prefix cache hit rate: 38.1%\n(APIServer pid=2797102) INFO:     127.0.0.1:58182 - \"POST /v1/chat/completions HTTP/1.1\" 200 OK\n(APIServer pid=2797102) INFO 10-15 05:31:31 [loggers.py:310] Engine 000: Avg prompt throughput: 0.0 tokens/s, Avg generation throughput: 27.6 tokens/s, Running: 0 reqs, Waiting: 0 reqs, GPU KV cache usage: 0.0%, Prefix cache hit rate: 38.1%\n(APIServer pid=2797102) INFO 10-15 05:31:41 [loggers.py:310] Engine 000: Avg prompt throughput: 4.2 tokens/s, Avg generation throughput: 0.4 tokens/s, Running: 1 reqs, Waiting: 0 reqs, GPU KV cache usage: 3.0%, Prefix cache hit rate: 39.8%\n(APIServer pid=2797102) INFO:     127.0.0.1:58774 - \"POST /v1/chat/completions HTTP/1.1\" 200 OK\n(APIServer pid=2797102) INFO 10-15 05:31:51 [loggers.py:310] Engine 000: Avg prompt throughput: 427.4 tokens/s, Avg generation throughput: 8.6 tokens/s, Running: 1 reqs, Waiting: 0 reqs, GPU KV cache usage: 27.7%, Prefix cache hit rate: 33.4%\n(APIServer pid=2797102) INFO:     127.0.0.1:58778 - \"POST /v1/chat/completions HTTP/1.1\" 200 OK\n(APIServer pid=2797102) INFO 10-15 05:32:01 [loggers.py:310] Engine 000: Avg prompt throughput: 55.1 tokens/s, Avg generation throughput: 11.9 tokens/s, Running: 1 reqs, Waiting: 0 reqs, GPU KV cache usage: 31.1%, Prefix cache hit rate: 44.4%\n(APIServer pid=2797102) INFO 10-15 05:32:11 [loggers.py:310] Engine 000: Avg prompt throughput: 0.0 tokens/s, Avg generation throughput: 33.0 tokens/s, Running: 1 reqs, Waiting: 0 reqs, GPU KV cache usage: 33.0%, Prefix cache hit rate: 44.4%\n(APIServer pid=2797102) INFO:     127.0.0.1:52800 - \"POST /v1/chat/completions HTTP/1.1\" 200 OK\n(APIServer pid=2797102) INFO 10-15 05:32:21 [loggers.py:310] Engine 000: Avg prompt throughput: 0.0 tokens/s, Avg generation throughput: 2.0 tokens/s, Running: 0 reqs, Waiting: 0 reqs, GPU KV cache usage: 0.0%, Prefix cache hit rate: 44.4%\n(APIServer pid=2797102) INFO:     127.0.0.1:33932 - \"POST /v1/chat/completions HTTP/1.1\" 200 OK\n(APIServer pid=2797102) INFO 10-15 05:32:31 [loggers.py:310] Engine 000: Avg prompt throughput: 7.3 tokens/s, Avg generation throughput: 5.5 tokens/s, Running: 0 reqs, Waiting: 0 reqs, GPU KV cache usage: 0.0%, Prefix cache hit rate: 45.2%\n(APIServer pid=2797102) INFO 10-15 05:32:41 [loggers.py:310] Engine 000: Avg prompt throughput: 321.3 tokens/s, Avg generation throughput: 28.6 tokens/s, Running: 1 reqs, Waiting: 0 reqs, GPU KV cache usage: 23.0%, Prefix cache hit rate: 41.5%\n(APIServer pid=2797102) INFO:     127.0.0.1:56328 - \"POST /v1/chat/completions HTTP/1.1\" 200 OK\n(APIServer pid=2797102) INFO 10-15 05:32:51 [loggers.py:310] Engine 000: Avg prompt throughput: 0.0 tokens/s, Avg generation throughput: 17.4 tokens/s, Running: 0 reqs, Waiting: 0 reqs, GPU KV cache usage: 0.0%, Prefix cache hit rate: 41.5%\n(APIServer pid=2797102) INFO:     127.0.0.1:38458 - \"POST /v1/chat/completions HTTP/1.1\" 200 OK\n(APIServer pid=2797102) INFO 10-15 05:33:01 [loggers.py:310] Engine 000: Avg prompt throughput: 5.6 tokens/s, Avg generation throughput: 5.4 tokens/s, Running: 0 reqs, Waiting: 0 reqs, GPU KV cache usage: 0.0%, Prefix cache hit rate: 42.3%\n(APIServer pid=2797102) INFO 10-15 05:33:11 [loggers.py:310] Engine 000: Avg prompt throughput: 386.7 tokens/s, Avg generation throughput: 12.8 tokens/s, Running: 1 reqs, Waiting: 0 reqs, GPU KV cache usage: 25.8%, Prefix cache hit rate: 38.6%\n(APIServer pid=2797102) INFO:     127.0.0.1:35958 - \"POST /v1/chat/completions HTTP/1.1\" 200 OK\n(APIServer pid=2797102) INFO 10-15 05:33:21 [loggers.py:310] Engine 000: Avg prompt throughput: 0.0 tokens/s, Avg generation throughput: 28.9 tokens/s, Running: 0 reqs, Waiting: 0 reqs, GPU KV cache usage: 0.0%, Prefix cache hit rate: 38.6%\n(APIServer pid=2797102) INFO 10-15 05:33:31 [loggers.py:310] Engine 000: Avg prompt throughput: 0.0 tokens/s, Avg generation throughput: 0.0 tokens/s, Running: 0 reqs, Waiting: 0 reqs, GPU KV cache usage: 0.0%, Prefix cache hit rate: 38.6%\n(APIServer pid=2797102) INFO:     127.0.0.1:53506 - \"POST /v1/chat/completions HTTP/1.1\" 200 OK\n(APIServer pid=2797102) INFO 10-15 05:33:41 [loggers.py:310] Engine 000: Avg prompt throughput: 333.5 tokens/s, Avg generation throughput: 7.0 tokens/s, Running: 1 reqs, Waiting: 0 reqs, GPU KV cache usage: 21.8%, Prefix cache hit rate: 36.9%\n(APIServer pid=2797102) INFO 10-15 05:33:51 [loggers.py:310] Engine 000: Avg prompt throughput: 0.0 tokens/s, Avg generation throughput: 33.8 tokens/s, Running: 1 reqs, Waiting: 0 reqs, GPU KV cache usage: 23.8%, Prefix cache hit rate: 36.9%\n(APIServer pid=2797102) INFO:     127.0.0.1:38786 - \"POST /v1/chat/completions HTTP/1.1\" 200 OK\n(APIServer pid=2797102) INFO 10-15 05:34:01 [loggers.py:310] Engine 000: Avg prompt throughput: 0.0 tokens/s, Avg generation throughput: 21.6 tokens/s, Running: 0 reqs, Waiting: 0 reqs, GPU KV cache usage: 0.0%, Prefix cache hit rate: 36.9%\n(APIServer pid=2797102) INFO:     127.0.0.1:51660 - \"POST /v1/chat/completions HTTP/1.1\" 200 OK\n(APIServer pid=2797102) INFO 10-15 05:34:11 [loggers.py:310] Engine 000: Avg prompt throughput: 4.0 tokens/s, Avg generation throughput: 5.3 tokens/s, Running: 0 reqs, Waiting: 0 reqs, GPU KV cache usage: 0.0%, Prefix cache hit rate: 37.6%\n(APIServer pid=2797102) INFO:     127.0.0.1:42822 - \"POST /v1/chat/completions HTTP/1.1\" 200 OK\n(APIServer pid=2797102) INFO 10-15 05:34:21 [loggers.py:310] Engine 000: Avg prompt throughput: 297.7 tokens/s, Avg generation throughput: 5.2 tokens/s, Running: 0 reqs, Waiting: 0 reqs, GPU KV cache usage: 0.0%, Prefix cache hit rate: 35.8%\n(APIServer pid=2797102) INFO 10-15 05:34:31 [loggers.py:310] Engine 000: Avg prompt throughput: 67.2 tokens/s, Avg generation throughput: 17.8 tokens/s, Running: 1 reqs, Waiting: 0 reqs, GPU KV cache usage: 24.8%, Prefix cache hit rate: 39.9%\n(APIServer pid=2797102) INFO 10-15 05:34:41 [loggers.py:310] Engine 000: Avg prompt throughput: 0.0 tokens/s, Avg generation throughput: 34.3 tokens/s, Running: 1 reqs, Waiting: 0 reqs, GPU KV cache usage: 26.8%, Prefix cache hit rate: 39.9%\n(APIServer pid=2797102) INFO:     127.0.0.1:58340 - \"POST /v1/chat/completions HTTP/1.1\" 200 OK\n(APIServer pid=2797102) INFO 10-15 05:34:51 [loggers.py:310] Engine 000: Avg prompt throughput: 0.0 tokens/s, Avg generation throughput: 24.4 tokens/s, Running: 0 reqs, Waiting: 0 reqs, GPU KV cache usage: 0.0%, Prefix cache hit rate: 39.9%\n(APIServer pid=2797102) INFO 10-15 05:35:01 [loggers.py:310] Engine 000: Avg prompt throughput: 3.6 tokens/s, Avg generation throughput: 1.4 tokens/s, Running: 1 reqs, Waiting: 0 reqs, GPU KV cache usage: 3.1%, Prefix cache hit rate: 40.4%\n(APIServer pid=2797102) INFO:     127.0.0.1:37302 - \"POST /v1/chat/completions HTTP/1.1\" 200 OK\n(APIServer pid=2797102) INFO 10-15 05:35:11 [loggers.py:310] Engine 000: Avg prompt throughput: 507.7 tokens/s, Avg generation throughput: 7.6 tokens/s, Running: 1 reqs, Waiting: 0 reqs, GPU KV cache usage: 32.3%, Prefix cache hit rate: 37.2%\n(APIServer pid=2797102) INFO 10-15 05:35:21 [loggers.py:310] Engine 000: Avg prompt throughput: 0.0 tokens/s, Avg generation throughput: 34.2 tokens/s, Running: 1 reqs, Waiting: 0 reqs, GPU KV cache usage: 34.3%, Prefix cache hit rate: 37.2%\n(APIServer pid=2797102) INFO:     127.0.0.1:37314 - \"POST /v1/chat/completions HTTP/1.1\" 200 OK\n(APIServer pid=2797102) INFO 10-15 05:35:31 [loggers.py:310] Engine 000: Avg prompt throughput: 0.0 tokens/s, Avg generation throughput: 9.3 tokens/s, Running: 0 reqs, Waiting: 0 reqs, GPU KV cache usage: 0.0%, Prefix cache hit rate: 37.2%\n(APIServer pid=2797102) INFO:     127.0.0.1:34412 - \"POST /v1/chat/completions HTTP/1.1\" 200 OK\n(APIServer pid=2797102) INFO 10-15 05:35:41 [loggers.py:310] Engine 000: Avg prompt throughput: 3.9 tokens/s, Avg generation throughput: 5.1 tokens/s, Running: 0 reqs, Waiting: 0 reqs, GPU KV cache usage: 0.0%, Prefix cache hit rate: 37.7%\n(APIServer pid=2797102) INFO 10-15 05:35:51 [loggers.py:310] Engine 000: Avg prompt throughput: 557.1 tokens/s, Avg generation throughput: 21.4 tokens/s, Running: 1 reqs, Waiting: 0 reqs, GPU KV cache usage: 36.1%, Prefix cache hit rate: 34.8%\n(APIServer pid=2797102) INFO:     127.0.0.1:38040 - \"POST /v1/chat/completions HTTP/1.1\" 200 OK\nStopping detecdiv-qwen.service - DetecDiv Hub local Qwen inference service...\n(APIServer pid=2797102) INFO 10-15 05:35:59 [launcher.py:124] [shutdown] API server: shutdown triggered\n(APIServer pid=2797102) INFO 10-15 05:35:59 [launcher.py:140] [shutdown] API server: stopping engine client mode=abort timeout=0s\n(EngineCore pid=2797745) INFO 10-15 05:35:59 [core.py:1350] [shutdown] EngineCore: trigger received signal=SIGTERM\n(EngineCore pid=2797745) INFO 10-15 05:35:59 [core.py:1501] [shutdown] EngineCore: start mode=abort timeout=0s\n(EngineCore pid=2797745) INFO 10-15 05:35:59 [core.py:1532] [shutdown] EngineCore: request processing complete; starting resource teardown\n(EngineCore pid=2797745) INFO 10-15 05:35:59 [core.py:1363] [shutdown] EngineCore: exiting busy loop\n(APIServer pid=2797102) INFO 10-15 05:35:59 [core_client.py:689] [shutdown] MPClient: start timeout=0s\n(APIServer pid=2797102) INFO 10-15 05:35:59 [core_client.py:691] [shutdown] MPClient: stopping engine manager\n(APIServer pid=2797102) INFO 10-15 05:35:59 [utils.py:620] [shutdown] Process manager: send sigterm to process EngineCore\n(APIServer pid=2797102) WARNING 10-15 05:35:59 [utils.py:640] [shutdown] Process manager: force killing remaining processes count=1\n(APIServer pid=2797102) WARNING 10-15 05:35:59 [utils.py:645] [shutdown] Process manager: force killing remaining process EngineCore pid 2797745\n(APIServer pid=2797102) INFO 10-15 05:35:59 [core_client.py:693] [shutdown] MPClient: engine manager stopped\n(APIServer pid=2797102) INFO 10-15 05:35:59 [core_client.py:694] [shutdown] MPClient: cleaning up background resources\n(APIServer pid=2797102) INFO 10-15 05:35:59 [core_client.py:696] [shutdown] MPClient: complete\n(APIServer pid=2797102) INFO 10-15 05:35:59 [launcher.py:149] [shutdown] API server: engine client stopped\n(APIServer pid=2797102) INFO 10-15 05:35:59 [launcher.py:152] [shutdown] API server: signalling HTTP server shutdown\n(APIServer pid=2797102) INFO 10-15 05:35:59 [launcher.py:173] [shutdown] API server: shutting down FastAPI HTTP server\n(APIServer pid=2797102) INFO:     Shutting down\n(APIServer pid=2797102) INFO:     Waiting for application shutdown.\n(APIServer pid=2797102) INFO:     Application shutdown complete.\n/usr/lib/python3.12/multiprocessing/resource_tracker.py:254: UserWarning: resource_tracker: There appear to be 1 leaked semaphore objects to clean up at shutdown\n  warnings.warn('resource_tracker: There appear to be %d '\ndetecdiv-qwen.service: Deactivated successfully.\nStopped detecdiv-qwen.service - DetecDiv Hub local Qwen inference service.\ndetecdiv-qwen.service: Consumed 6min 25.274s CPU time.\nStarted detecdiv-qwen.service - DetecDiv Hub local Qwen inference service.",
+  "journal_records": [
+    {
+      "time": 1792034846.107609,
+      "message": "Started detecdiv-qwen.service - DetecDiv Hub local Qwen inference service."
+    },
+    {
+      "time": 1792034855.591257,
+      "message": "(APIServer pid=2797102) INFO 10-15 05:27:35 [api_utils.py:347]"
+    },
+    {
+      "time": 1792034855.591257,
+      "message": "(APIServer pid=2797102) INFO 10-15 05:27:35 [api_utils.py:347]        █     █     █▄   ▄█"
+    },
+    {
+      "time": 1792034855.591257,
+      "message": "(APIServer pid=2797102) INFO 10-15 05:27:35 [api_utils.py:347]  ▄▄ ▄█ █     █     █ ▀▄▀ █  version 0.29.0"
+    },
+    {
+      "time": 1792034855.591257,
+      "message": "(APIServer pid=2797102) INFO 10-15 05:27:35 [api_utils.py:347]   █▄█▀ █     █     █     █  model   /home/charvin-admin/.cache/detecdiv-qwen/huggingface/hub/models--Qwen--Qwen3-8B-AWQ/snapshots/4da05a8edb55c6046cce958586c33b61da07bb79"
+    },
+    {
+      "time": 1792034855.591257,
+      "message": "(APIServer pid=2797102) INFO 10-15 05:27:35 [api_utils.py:347]    ▀▀  ▀▀▀▀▀ ▀▀▀▀▀ ▀     ▀"
+    },
+    {
+      "time": 1792034855.591257,
+      "message": "(APIServer pid=2797102) INFO 10-15 05:27:35 [api_utils.py:347]"
+    },
+    {
+      "time": 1792034855.59807,
+      "message": "(APIServer pid=2797102) INFO 10-15 05:27:35 [api_utils.py:286] non-default args: {'model_tag': '/home/charvin-admin/.cache/detecdiv-qwen/huggingface/hub/models--Qwen--Qwen3-8B-AWQ/snapshots/4da05a8edb55c6046cce958586c33b61da07bb79', 'enable_auto_tool_choice': True, 'tool_call_parser': 'hermes', 'host': '127.0.0.1', 'port': 8002, 'model': '/home/charvin-admin/.cache/detecdiv-qwen/huggingface/hub/models--Qwen--Qwen3-8B-AWQ/snapshots/4da05a8edb55c6046cce958586c33b61da07bb79', 'max_model_len': 8192, 'enforce_eager': True, 'served_model_name': ['Qwen/Qwen3-8B-AWQ'], 'gpu_memory_utilization': 0.35, 'max_num_batched_tokens': 256, 'max_num_seqs': 1}"
+    },
+    {
+      "time": 1792034855.607509,
+      "message": "(APIServer pid=2797102) INFO 10-15 05:27:35 [model.py:684] Resolved architecture: Qwen3ForCausalLM"
+    },
+    {
+      "time": 1792034855.607809,
+      "message": "(APIServer pid=2797102) INFO 10-15 05:27:35 [model.py:2021] Using max model len 8192"
+    },
+    {
+      "time": 1792034856.227646,
+      "message": "(APIServer pid=2797102) INFO 10-15 05:27:36 [scheduler.py:277] Chunked prefill is enabled with max_num_batched_tokens=256."
+    },
+    {
+      "time": 1792034856.247966,
+      "message": "(APIServer pid=2797102) WARNING 10-15 05:27:36 [vllm.py:1371] Enforce eager set, disabling torch.compile and CUDAGraphs. This is equivalent to setting -cc.mode=none -cc.cudagraph_mode=none"
+    },
+    {
+      "time": 1792034856.248203,
+      "message": "(APIServer pid=2797102) WARNING 10-15 05:27:36 [vllm.py:1406] Inductor compilation was disabled by user settings, optimizations settings that are only active during inductor compilation will be ignored."
+    },
+    {
+      "time": 1792034856.248541,
+      "message": "(APIServer pid=2797102) INFO 10-15 05:27:36 [kernel.py:369] Final IR op priority after setting platform defaults: IrOpPriorityConfig(rms_norm=['vllm_c', 'native'], fused_add_rms_norm=['vllm_c', 'native'])"
+    },
+    {
+      "time": 1792034856.248736,
+      "message": "(APIServer pid=2797102) INFO 10-15 05:27:36 [vllm.py:1585] Cudagraph is disabled under eager mode"
+    },
+    {
+      "time": 1792034856.275062,
+      "message": "(APIServer pid=2797102) INFO 10-15 05:27:36 [compilation.py:329] Enabled custom fusions: norm_quant, act_quant"
+    },
+    {
+      "time": 1792034867.740543,
+      "message": "(EngineCore pid=2797745) INFO 10-15 05:27:47 [core.py:123] Initializing a V1 LLM engine (v0.29.0) with config: model='/home/charvin-admin/.cache/detecdiv-qwen/huggingface/hub/models--Qwen--Qwen3-8B-AWQ/snapshots/4da05a8edb55c6046cce958586c33b61da07bb79', speculative_config=None, tokenizer='/home/charvin-admin/.cache/detecdiv-qwen/huggingface/hub/models--Qwen--Qwen3-8B-AWQ/snapshots/4da05a8edb55c6046cce958586c33b61da07bb79', skip_tokenizer_init=False, tokenizer_mode=auto, revision=None, tokenizer_revision=None, trust_remote_code=False, dtype=torch.float16, max_seq_len=8192, download_dir=None, load_format=auto, tensor_parallel_size=1, pipeline_parallel_size=1, data_parallel_size=1, decode_context_parallel_size=1, dcp_comm_backend=ag_rs, disable_custom_all_reduce=False, quantization=auto_awq, quantization_config=None, enforce_eager=True, enable_return_routed_experts=False, kv_cache_dtype=auto, device_config=cuda, structured_outputs_config=StructuredOutputsConfig(backend='auto', disable_any_whitespace=False, disable_additional_properties=False, reasoning_parser='', reasoning_parser_plugin='', enable_in_reasoning=False), observability_config=ObservabilityConfig(show_hidden_metrics_for_version=None, otlp_traces_endpoint=None, collect_detailed_traces=None, per_request_spec_decode_metrics='none', kv_cache_metrics=False, kv_cache_metrics_sample=0.01, cudagraph_metrics=False, enable_layerwise_nvtx_tracing=False, enable_mfu_metrics=False, enable_mm_processor_stats=False, enable_logging_iteration_details=False, jit_monitor_mode='warn', jit_monitor_verbose=False), seed=0, served_model_name=Qwen/Qwen3-8B-AWQ, enable_prefix_caching=True, enable_chunked_prefill=True, pooler_config=None, compilation_config={'mode': <CompilationMode.NONE: 0>, 'debug_dump_path': None, 'cache_dir': '', 'compile_cache_save_format': 'binary', 'backend': 'inductor', 'custom_ops': ['all'], 'ir_enable_torch_wrap': False, 'splitting_ops': [], 'compile_mm_encoder': False, 'cudagraph_mm_encoder': False, 'encoder_cudagraph_token_budgets': [], 'encoder_cudagraph_max_vision_items_per_batch': 0, 'encoder_cudagraph_max_frames_per_batch': None, 'compile_sizes': [], 'compile_ranges_endpoints': [256], 'inductor_compile_config': {'enable_auto_functionalized_v2': False, 'combo_kernels': True, 'benchmark_combo_kernel': True}, 'inductor_passes': {}, 'cudagraph_mode': <CUDAGraphMode.NONE: 0>, 'cudagraph_num_of_warmups': 0, 'cudagraph_capture_sizes': [], 'cudagraph_copy_inputs': False, 'cudagraph_specialize_lora': True, 'use_inductor_graph_partition': False, 'pass_config': {'fuse_norm_quant': True, 'fuse_act_quant': True, 'fuse_attn_quant': False, 'enable_sp': False, 'fuse_gemm_comms': False, 'fuse_allreduce_rms': False, 'enable_qk_norm_rope_fusion': False, 'fuse_rope_kvcache_cat_mla': False, 'fuse_act_padding': False, 'fuse_qk_norm_rope_kvcache': False}, 'max_cudagraph_capture_size': 0, 'dynamic_shapes_config': {'type': <DynamicShapesType.BACKED: 'backed'>, 'evaluate_guards': False, 'assume_32_bit_indexing': False}, 'local_cache_dir': None, 'fast_moe_cold_start': False, 'static_all_moe_layers': []}, kernel_config=KernelConfig(ir_op_priority=IrOpPriorityConfig(rms_norm=['vllm_c', 'native'], fused_add_rms_norm=['vllm_c', 'native']), enable_flashinfer_autotune=True, enable_cutedsl_warmup=True, enable_jit_warmup=True, enable_bf16x3_router_gemm=False, moe_backend='auto', linear_backend='auto')"
+    },
+    {
+      "time": 1792034868.35032,
+      "message": "(EngineCore pid=2797745) INFO 10-15 05:27:48 [parallel_state.py:1775] world_size=1 rank=0 local_rank=0 distributed_init_method=file:///tmp/vllm_dist_c9d428e3dcc94824bce6f51b6ddbd79d backend=nccl"
+    },
+    {
+      "time": 1792034868.368005,
+      "message": "(EngineCore pid=2797745) INFO 10-15 05:27:48 [parallel_state.py:2119] rank 0 in world size 1 is assigned as DP rank 0, PP rank 0, PCP rank 0, TP rank 0, EP rank N/A, EPLB rank N/A"
+    },
+    {
+      "time": 1792034868.368005,
+      "message": "(EngineCore pid=2797745) INFO 10-15 05:27:48 [gpu_worker.py:429] Using V2 Model Runner"
+    },
+    {
+      "time": 1792034869.105912,
+      "message": "(EngineCore pid=2797745) INFO 10-15 05:27:49 [model_runner.py:382] Loading model from scratch..."
+    },
+    {
+      "time": 1792034869.107961,
+      "message": "(EngineCore pid=2797745) INFO 10-15 05:27:49 [auto_awq.py:448] Using MarlinLinearKernel for AutoAWQMarlinLinearMethod"
+    },
+    {
+      "time": 1792034869.881336,
+      "message": "(EngineCore pid=2797745) INFO 10-15 05:27:49 [cuda.py:492] Using FLASH_ATTN attention backend out of potential backends: ['FLASH_ATTN', 'FLASHINFER', 'TRITON_ATTN', 'FLEX_ATTENTION']."
+    },
+    {
+      "time": 1792034869.881643,
+      "message": "(EngineCore pid=2797745) INFO 10-15 05:27:49 [flash_attn.py:897] Using FlashAttention version 2"
+    },
+    {
+      "time": 1792034870.041051,
+      "message": "(EngineCore pid=2797745) INFO 10-15 05:27:50 [weight_utils.py:863] Filesystem type for checkpoints: EXT4. Checkpoint size: 5.68 GiB. Available RAM: 103.45 GiB."
+    },
+    {
+      "time": 1792034870.041515,
+      "message": "(EngineCore pid=2797745) INFO 10-15 05:27:50 [weight_utils.py:886] Auto-prefetch is disabled because the filesystem (EXT4) is not a recognized network FS (NFS/Lustre). If you want to force prefetching, start vLLM with --safetensors-load-strategy=prefetch."
+    },
+    {
+      "time": 1792034870.042158,
+      "message": "[40, 69, 110, 103, 105, 110, 101, 67, 111, 114, 101, 32, 112, 105, 100, 61, 50, 55, 57, 55, 55, 52, 53, 41, 32, 13, 76, 111, 97, 100, 105, 110, 103, 32, 115, 97, 102, 101, 116, 101, 110, 115, 111, 114, 115, 32, 99, 104, 101, 99, 107, 112, 111, 105, 110, 116, 32, 115, 104, 97, 114, 100, 115, 58, 32, 32, 32, 48, 37, 32, 67, 111, 109, 112, 108, 101, 116, 101, 100, 32, 124, 32, 48, 47, 50, 32, 91, 48, 48, 58, 48, 48, 60, 63, 44, 32, 63, 105, 116, 47, 115, 93]"
+    },
+    {
+      "time": 1792034873.345885,
+      "message": "[40, 69, 110, 103, 105, 110, 101, 67, 111, 114, 101, 32, 112, 105, 100, 61, 50, 55, 57, 55, 55, 52, 53, 41, 32, 13, 76, 111, 97, 100, 105, 110, 103, 32, 115, 97, 102, 101, 116, 101, 110, 115, 111, 114, 115, 32, 99, 104, 101, 99, 107, 112, 111, 105, 110, 116, 32, 115, 104, 97, 114, 100, 115, 58, 32, 32, 53, 48, 37, 32, 67, 111, 109, 112, 108, 101, 116, 101, 100, 32, 124, 32, 49, 47, 50, 32, 91, 48, 48, 58, 48, 51, 60, 48, 48, 58, 48, 51, 44, 32, 32, 51, 46, 51, 48, 115, 47, 105, 116, 93]"
+    },
+    {
+      "time": 1792034874.211847,
+      "message": "[40, 69, 110, 103, 105, 110, 101, 67, 111, 114, 101, 32, 112, 105, 100, 61, 50, 55, 57, 55, 55, 52, 53, 41, 32, 13, 76, 111, 97, 100, 105, 110, 103, 32, 115, 97, 102, 101, 116, 101, 110, 115, 111, 114, 115, 32, 99, 104, 101, 99, 107, 112, 111, 105, 110, 116, 32, 115, 104, 97, 114, 100, 115, 58, 32, 49, 48, 48, 37, 32, 67, 111, 109, 112, 108, 101, 116, 101, 100, 32, 124, 32, 50, 47, 50, 32, 91, 48, 48, 58, 48, 52, 60, 48, 48, 58, 48, 48, 44, 32, 32, 49, 46, 56, 55, 115, 47, 105, 116, 93]"
+    },
+    {
+      "time": 1792034874.212127,
+      "message": "[40, 69, 110, 103, 105, 110, 101, 67, 111, 114, 101, 32, 112, 105, 100, 61, 50, 55, 57, 55, 55, 52, 53, 41, 32, 13, 76, 111, 97, 100, 105, 110, 103, 32, 115, 97, 102, 101, 116, 101, 110, 115, 111, 114, 115, 32, 99, 104, 101, 99, 107, 112, 111, 105, 110, 116, 32, 115, 104, 97, 114, 100, 115, 58, 32, 49, 48, 48, 37, 32, 67, 111, 109, 112, 108, 101, 116, 101, 100, 32, 124, 32, 50, 47, 50, 32, 91, 48, 48, 58, 48, 52, 60, 48, 48, 58, 48, 48, 44, 32, 32, 50, 46, 48, 56, 115, 47, 105, 116, 93]"
+    },
+    {
+      "time": 1792034874.212127,
+      "message": "(EngineCore pid=2797745)"
+    },
+    {
+      "time": 1792034874.254435,
+      "message": "(EngineCore pid=2797745) INFO 10-15 05:27:54 [default_loader.py:430] Loading weights took 4.22 seconds"
+    },
+    {
+      "time": 1792034875.805916,
+      "message": "(EngineCore pid=2797745) INFO 10-15 05:27:55 [model_runner.py:404] Model loading took 5.71 GiB memory and 6.971911 seconds"
+    },
+    {
+      "time": 1792034875.812127,
+      "message": "(EngineCore pid=2797745) INFO 10-15 05:27:55 [topk_topp_sampler.py:46] FlashInfer top-p/top-k sampling disabled via VLLM_USE_FLASHINFER_SAMPLER=0."
+    },
+    {
+      "time": 1792034875.81309,
+      "message": "(EngineCore pid=2797745) INFO 10-15 05:27:55 [utils.py:306] Using LBNHC KV cache layout."
+    },
+    {
+      "time": 1792034878.220848,
+      "message": "(EngineCore pid=2797745) INFO 10-15 05:27:58 [gpu_worker.py:625] Available KV cache memory: 2.4 GiB"
+    },
+    {
+      "time": 1792034878.222304,
+      "message": "(EngineCore pid=2797745) INFO 10-15 05:27:58 [kv_cache_utils.py:2032] GPU KV cache size: 17,472 tokens, Maximum concurrency for 8,192 tokens per request: 2.13x"
+    },
+    {
+      "time": 1792034878.268351,
+      "message": "(EngineCore pid=2797745) INFO 10-15 05:27:58 [kernel_warmup.py:124] JIT kernel warmup starting."
+    },
+    {
+      "time": 1792034878.268531,
+      "message": "(EngineCore pid=2797745) INFO 10-15 05:27:58 [kernel_warmup.py:134] JIT kernel warmup finished in 0.00s."
+    },
+    {
+      "time": 1792034878.565782,
+      "message": "(EngineCore pid=2797745) INFO 10-15 05:27:58 [gpu_worker.py:860] Free memory on device (23.22/23.55 GiB) on startup. Desired GPU memory utilization is (0.35, 8.24 GiB). Actual usage is 5.82 GiB for consumed memory (weights + non-torch), 0.02 GiB for peak activation, and 0.0 GiB for CUDAGraph memory. Replace gpu_memory_utilization config with `--kv-cache-memory=2421264794` (2.25 GiB) to fit into requested memory, or `--kv-cache-memory=18504349696` (17.23 GiB) to fully utilize gpu memory. Current kv cache memory in use is 2.4 GiB."
+    },
+    {
+      "time": 1792034879.371413,
+      "message": "(EngineCore pid=2797745) INFO 10-15 05:27:59 [jit_monitor.py:85] Kernel JIT monitor activated; monitored JIT compilations during inference will use mode=warn."
+    },
+    {
+      "time": 1792034879.716566,
+      "message": "(EngineCore pid=2797745) INFO 10-15 05:27:59 [torch_utils.py:277] Reducing Torch threads from 24 to 1 for serving. Set OMP_NUM_THREADS in the external environment to override."
+    },
+    {
+      "time": 1792034879.716821,
+      "message": "(EngineCore pid=2797745) INFO 10-15 05:27:59 [core.py:368] init engine (profile, create kv cache, warmup model) took 3.90 s"
+    },
+    {
+      "time": 1792034880.267846,
+      "message": "(EngineCore pid=2797745) WARNING 10-15 05:28:00 [vllm.py:1371] Enforce eager set, disabling torch.compile and CUDAGraphs. This is equivalent to setting -cc.mode=none -cc.cudagraph_mode=none"
+    },
+    {
+      "time": 1792034880.268092,
+      "message": "(EngineCore pid=2797745) WARNING 10-15 05:28:00 [vllm.py:1406] Inductor compilation was disabled by user settings, optimizations settings that are only active during inductor compilation will be ignored."
+    },
+    {
+      "time": 1792034880.268357,
+      "message": "(EngineCore pid=2797745) INFO 10-15 05:28:00 [kernel.py:369] Final IR op priority after setting platform defaults: IrOpPriorityConfig(rms_norm=['vllm_c', 'native'], fused_add_rms_norm=['vllm_c', 'native'])"
+    },
+    {
+      "time": 1792034880.268489,
+      "message": "(EngineCore pid=2797745) INFO 10-15 05:28:00 [vllm.py:1585] Cudagraph is disabled under eager mode"
+    },
+    {
+      "time": 1792034880.294342,
+      "message": "(EngineCore pid=2797745) INFO 10-15 05:28:00 [compilation.py:329] Enabled custom fusions: norm_quant, act_quant"
+    },
+    {
+      "time": 1792034880.298124,
+      "message": "(APIServer pid=2797102) INFO 10-15 05:28:00 [entry.py:135] Supported tasks: ['generate']"
+    },
+    {
+      "time": 1792034880.475503,
+      "message": "(APIServer pid=2797102) INFO 10-15 05:28:00 [parser_manager.py:36] \"auto\" tool choice has been enabled."
+    },
+    {
+      "time": 1792034880.920455,
+      "message": "(APIServer pid=2797102) INFO 10-15 05:28:00 [hf.py:547] Detected the chat template content format to be 'string'. You can set `--chat-template-content-format` to override this."
+    },
+    {
+      "time": 1792034880.946032,
+      "message": "(APIServer pid=2797102) WARNING 10-15 05:28:00 [model.py:1759] Default vLLM sampling parameters have been overridden by the model's `generation_config.json`: `{'temperature': 0.6, 'top_k': 20, 'top_p': 0.95}`. If this is not intended, please relaunch vLLM instance with `--generation-config vllm`."
+    },
+    {
+      "time": 1792034880.970039,
+      "message": "(APIServer pid=2797102) INFO 10-15 05:28:00 [entry.py:139] Starting vLLM server on http://127.0.0.1:8002"
+    },
+    {
+      "time": 1792034880.970177,
+      "message": "(APIServer pid=2797102) INFO 10-15 05:28:00 [launcher.py:61] Available routes are:"
+    },
+    {
+      "time": 1792034880.970177,
+      "message": "(APIServer pid=2797102) INFO 10-15 05:28:00 [launcher.py:70] Route: /openapi.json, Methods: GET, HEAD"
+    },
+    {
+      "time": 1792034880.970177,
+      "message": "(APIServer pid=2797102) INFO 10-15 05:28:00 [launcher.py:70] Route: /docs, Methods: GET, HEAD"
+    },
+    {
+      "time": 1792034880.970375,
+      "message": "(APIServer pid=2797102) INFO 10-15 05:28:00 [launcher.py:70] Route: /docs/oauth2-redirect, Methods: GET, HEAD"
+    },
+    {
+      "time": 1792034880.970375,
+      "message": "(APIServer pid=2797102) INFO 10-15 05:28:00 [launcher.py:70] Route: /redoc, Methods: GET, HEAD"
+    },
+    {
+      "time": 1792034880.970375,
+      "message": "(APIServer pid=2797102) INFO 10-15 05:28:00 [launcher.py:70] Route: /load, Methods: GET"
+    },
+    {
+      "time": 1792034880.970375,
+      "message": "(APIServer pid=2797102) INFO 10-15 05:28:00 [launcher.py:70] Route: /version, Methods: GET"
+    },
+    {
+      "time": 1792034880.970375,
+      "message": "(APIServer pid=2797102) INFO 10-15 05:28:00 [launcher.py:70] Route: /health, Methods: GET"
+    },
+    {
+      "time": 1792034880.970375,
+      "message": "(APIServer pid=2797102) INFO 10-15 05:28:00 [launcher.py:70] Route: /metrics, Methods: GET"
+    },
+    {
+      "time": 1792034880.970375,
+      "message": "(APIServer pid=2797102) INFO 10-15 05:28:00 [launcher.py:70] Route: /tokenize, Methods: POST"
+    },
+    {
+      "time": 1792034880.970375,
+      "message": "(APIServer pid=2797102) INFO 10-15 05:28:00 [launcher.py:70] Route: /detokenize, Methods: POST"
+    },
+    {
+      "time": 1792034880.970375,
+      "message": "(APIServer pid=2797102) INFO 10-15 05:28:00 [launcher.py:70] Route: /v1/models, Methods: GET"
+    },
+    {
+      "time": 1792034880.970886,
+      "message": "(APIServer pid=2797102) INFO 10-15 05:28:00 [launcher.py:70] Route: /ping, Methods: GET"
+    },
+    {
+      "time": 1792034880.970886,
+      "message": "(APIServer pid=2797102) INFO 10-15 05:28:00 [launcher.py:70] Route: /ping, Methods: POST"
+    },
+    {
+      "time": 1792034880.970886,
+      "message": "(APIServer pid=2797102) INFO 10-15 05:28:00 [launcher.py:70] Route: /invocations, Methods: POST"
+    },
+    {
+      "time": 1792034880.970886,
+      "message": "(APIServer pid=2797102) INFO 10-15 05:28:00 [launcher.py:70] Route: /v1/chat/completions, Methods: POST"
+    },
+    {
+      "time": 1792034880.970886,
+      "message": "(APIServer pid=2797102) INFO 10-15 05:28:00 [launcher.py:70] Route: /v1/chat/completions/batch, Methods: POST"
+    },
+    {
+      "time": 1792034880.970886,
+      "message": "(APIServer pid=2797102) INFO 10-15 05:28:00 [launcher.py:70] Route: /v1/responses, Methods: POST"
+    },
+    {
+      "time": 1792034880.970886,
+      "message": "(APIServer pid=2797102) INFO 10-15 05:28:00 [launcher.py:70] Route: /v1/responses/{response_id}, Methods: GET"
+    },
+    {
+      "time": 1792034880.970886,
+      "message": "(APIServer pid=2797102) INFO 10-15 05:28:00 [launcher.py:70] Route: /v1/responses/{response_id}/cancel, Methods: POST"
+    },
+    {
+      "time": 1792034880.970886,
+      "message": "(APIServer pid=2797102) INFO 10-15 05:28:00 [launcher.py:70] Route: /v1/completions, Methods: POST"
+    },
+    {
+      "time": 1792034880.970886,
+      "message": "(APIServer pid=2797102) INFO 10-15 05:28:00 [launcher.py:70] Route: /v1/messages, Methods: POST"
+    },
+    {
+      "time": 1792034880.970886,
+      "message": "(APIServer pid=2797102) INFO 10-15 05:28:00 [launcher.py:70] Route: /v1/messages/count_tokens, Methods: POST"
+    },
+    {
+      "time": 1792034880.970886,
+      "message": "(APIServer pid=2797102) INFO 10-15 05:28:00 [launcher.py:70] Route: /generative_scoring, Methods: POST"
+    },
+    {
+      "time": 1792034880.970886,
+      "message": "(APIServer pid=2797102) INFO 10-15 05:28:00 [launcher.py:70] Route: /scale_elastic_ep, Methods: POST"
+    },
+    {
+      "time": 1792034880.970886,
+      "message": "(APIServer pid=2797102) INFO 10-15 05:28:00 [launcher.py:70] Route: /is_scaling_elastic_ep, Methods: POST"
+    },
+    {
+      "time": 1792034880.970886,
+      "message": "(APIServer pid=2797102) INFO 10-15 05:28:00 [launcher.py:70] Route: /v1/chat/completions/render, Methods: POST"
+    },
+    {
+      "time": 1792034880.970886,
+      "message": "(APIServer pid=2797102) INFO 10-15 05:28:00 [launcher.py:70] Route: /v1/messages/render, Methods: POST"
+    },
+    {
+      "time": 1792034880.970886,
+      "message": "(APIServer pid=2797102) INFO 10-15 05:28:00 [launcher.py:70] Route: /v1/completions/render, Methods: POST"
+    },
+    {
+      "time": 1792034880.970886,
+      "message": "(APIServer pid=2797102) INFO 10-15 05:28:00 [launcher.py:70] Route: /v1/chat/completions/derender, Methods: POST"
+    },
+    {
+      "time": 1792034880.970886,
+      "message": "(APIServer pid=2797102) INFO 10-15 05:28:00 [launcher.py:70] Route: /v1/completions/derender, Methods: POST"
+    },
+    {
+      "time": 1792034880.970886,
+      "message": "(APIServer pid=2797102) INFO 10-15 05:28:00 [launcher.py:70] Route: /inference/v1/generate, Methods: POST"
+    },
+    {
+      "time": 1792034880.987604,
+      "message": "(APIServer pid=2797102) INFO:     Started server process [2797102]"
+    },
+    {
+      "time": 1792034880.987703,
+      "message": "(APIServer pid=2797102) INFO:     Waiting for application startup."
+    },
+    {
+      "time": 1792034881.324374,
+      "message": "(APIServer pid=2797102) INFO:     Application startup complete."
+    },
+    {
+      "time": 1792034886.644137,
+      "message": "(APIServer pid=2797102) INFO:     127.0.0.1:55194 - \"GET /v1/models HTTP/1.1\" 200 OK"
+    },
+    {
+      "time": 1792034892.86442,
+      "message": "(APIServer pid=2797102) INFO:     127.0.0.1:56096 - \"GET /v1/models HTTP/1.1\" 200 OK"
+    },
+    {
+      "time": 1792034906.454504,
+      "message": "(APIServer pid=2797102) INFO:     127.0.0.1:55526 - \"POST /v1/chat/completions HTTP/1.1\" 200 OK"
+    },
+    {
+      "time": 1792034911.327318,
+      "message": "(APIServer pid=2797102) INFO 10-15 05:28:31 [loggers.py:310] Engine 000: Avg prompt throughput: 51.7 tokens/s, Avg generation throughput: 5.4 tokens/s, Running: 0 reqs, Waiting: 0 reqs, GPU KV cache usage: 0.0%, Prefix cache hit rate: 0.0%"
+    },
+    {
+      "time": 1792034921.328432,
+      "message": "(APIServer pid=2797102) INFO 10-15 05:28:41 [loggers.py:310] Engine 000: Avg prompt throughput: 218.2 tokens/s, Avg generation throughput: 27.3 tokens/s, Running: 1 reqs, Waiting: 0 reqs, GPU KV cache usage: 17.0%, Prefix cache hit rate: 15.9%"
+    },
+    {
+      "time": 1792034931.329019,
+      "message": "(APIServer pid=2797102) INFO 10-15 05:28:51 [loggers.py:310] Engine 000: Avg prompt throughput: 0.0 tokens/s, Avg generation throughput: 34.0 tokens/s, Running: 1 reqs, Waiting: 0 reqs, GPU KV cache usage: 19.0%, Prefix cache hit rate: 15.9%"
+    },
+    {
+      "time": 1792034937.407733,
+      "message": "(APIServer pid=2797102) INFO:     127.0.0.1:51004 - \"POST /v1/chat/completions HTTP/1.1\" 200 OK"
+    },
+    {
+      "time": 1792034941.329617,
+      "message": "(APIServer pid=2797102) INFO 10-15 05:29:01 [loggers.py:310] Engine 000: Avg prompt throughput: 0.0 tokens/s, Avg generation throughput: 20.7 tokens/s, Running: 0 reqs, Waiting: 0 reqs, GPU KV cache usage: 0.0%, Prefix cache hit rate: 15.9%"
+    },
+    {
+      "time": 1792034951.23715,
+      "message": "(APIServer pid=2797102) INFO:     127.0.0.1:51602 - \"POST /v1/chat/completions HTTP/1.1\" 200 OK"
+    },
+    {
+      "time": 1792034951.329834,
+      "message": "(APIServer pid=2797102) INFO 10-15 05:29:11 [loggers.py:310] Engine 000: Avg prompt throughput: 5.4 tokens/s, Avg generation throughput: 5.6 tokens/s, Running: 0 reqs, Waiting: 0 reqs, GPU KV cache usage: 0.0%, Prefix cache hit rate: 26.2%"
+    },
+    {
+      "time": 1792034961.330858,
+      "message": "(APIServer pid=2797102) INFO 10-15 05:29:21 [loggers.py:310] Engine 000: Avg prompt throughput: 220.2 tokens/s, Avg generation throughput: 11.3 tokens/s, Running: 1 reqs, Waiting: 0 reqs, GPU KV cache usage: 16.2%, Prefix cache hit rate: 23.1%"
+    },
+    {
+      "time": 1792034971.332048,
+      "message": "(APIServer pid=2797102) INFO 10-15 05:29:31 [loggers.py:310] Engine 000: Avg prompt throughput: 0.0 tokens/s, Avg generation throughput: 33.2 tokens/s, Running: 1 reqs, Waiting: 0 reqs, GPU KV cache usage: 18.1%, Prefix cache hit rate: 23.1%"
+    },
+    {
+      "time": 1792034981.333087,
+      "message": "(APIServer pid=2797102) INFO 10-15 05:29:41 [loggers.py:310] Engine 000: Avg prompt throughput: 0.0 tokens/s, Avg generation throughput: 33.8 tokens/s, Running: 1 reqs, Waiting: 0 reqs, GPU KV cache usage: 20.1%, Prefix cache hit rate: 23.1%"
+    },
+    {
+      "time": 1792034990.584203,
+      "message": "(APIServer pid=2797102) INFO:     127.0.0.1:33240 - \"POST /v1/chat/completions HTTP/1.1\" 200 OK"
+    },
+    {
+      "time": 1792034991.334211,
+      "message": "(APIServer pid=2797102) INFO 10-15 05:29:51 [loggers.py:310] Engine 000: Avg prompt throughput: 0.0 tokens/s, Avg generation throughput: 31.7 tokens/s, Running: 0 reqs, Waiting: 0 reqs, GPU KV cache usage: 0.0%, Prefix cache hit rate: 23.1%"
+    },
+    {
+      "time": 1792035001.335394,
+      "message": "(APIServer pid=2797102) INFO 10-15 05:30:01 [loggers.py:310] Engine 000: Avg prompt throughput: 0.0 tokens/s, Avg generation throughput: 0.0 tokens/s, Running: 0 reqs, Waiting: 0 reqs, GPU KV cache usage: 0.0%, Prefix cache hit rate: 23.1%"
+    },
+    {
+      "time": 1792035006.32553,
+      "message": "(APIServer pid=2797102) INFO:     127.0.0.1:59522 - \"POST /v1/chat/completions HTTP/1.1\" 200 OK"
+    },
+    {
+      "time": 1792035011.3357,
+      "message": "(APIServer pid=2797102) INFO 10-15 05:30:11 [loggers.py:310] Engine 000: Avg prompt throughput: 5.2 tokens/s, Avg generation throughput: 5.3 tokens/s, Running: 0 reqs, Waiting: 0 reqs, GPU KV cache usage: 0.0%, Prefix cache hit rate: 28.1%"
+    },
+    {
+      "time": 1792035021.335769,
+      "message": "(APIServer pid=2797102) INFO 10-15 05:30:21 [loggers.py:310] Engine 000: Avg prompt throughput: 215.6 tokens/s, Avg generation throughput: 25.2 tokens/s, Running: 1 reqs, Waiting: 0 reqs, GPU KV cache usage: 16.8%, Prefix cache hit rate: 25.6%"
+    },
+    {
+      "time": 1792035031.336375,
+      "message": "(APIServer pid=2797102) INFO 10-15 05:30:31 [loggers.py:310] Engine 000: Avg prompt throughput: 0.0 tokens/s, Avg generation throughput: 34.2 tokens/s, Running: 1 reqs, Waiting: 0 reqs, GPU KV cache usage: 18.7%, Prefix cache hit rate: 25.6%"
+    },
+    {
+      "time": 1792035038.374758,
+      "message": "(APIServer pid=2797102) INFO:     127.0.0.1:34864 - \"POST /v1/chat/completions HTTP/1.1\" 200 OK"
+    },
+    {
+      "time": 1792035041.336984,
+      "message": "(APIServer pid=2797102) INFO 10-15 05:30:41 [loggers.py:310] Engine 000: Avg prompt throughput: 0.0 tokens/s, Avg generation throughput: 23.9 tokens/s, Running: 0 reqs, Waiting: 0 reqs, GPU KV cache usage: 0.0%, Prefix cache hit rate: 25.6%"
+    },
+    {
+      "time": 1792035051.337866,
+      "message": "(APIServer pid=2797102) INFO 10-15 05:30:51 [loggers.py:310] Engine 000: Avg prompt throughput: 7.3 tokens/s, Avg generation throughput: 2.8 tokens/s, Running: 1 reqs, Waiting: 0 reqs, GPU KV cache usage: 3.2%, Prefix cache hit rate: 28.7%"
+    },
+    {
+      "time": 1792035052.084627,
+      "message": "(APIServer pid=2797102) INFO:     127.0.0.1:44040 - \"POST /v1/chat/completions HTTP/1.1\" 200 OK"
+    },
+    {
+      "time": 1792035060.538133,
+      "message": "(APIServer pid=2797102) INFO:     127.0.0.1:44056 - \"POST /v1/chat/completions HTTP/1.1\" 200 OK"
+    },
+    {
+      "time": 1792035061.338584,
+      "message": "(APIServer pid=2797102) INFO 10-15 05:31:01 [loggers.py:310] Engine 000: Avg prompt throughput: 231.9 tokens/s, Avg generation throughput: 7.7 tokens/s, Running: 0 reqs, Waiting: 0 reqs, GPU KV cache usage: 0.0%, Prefix cache hit rate: 26.4%"
+    },
+    {
+      "time": 1792035071.339733,
+      "message": "(APIServer pid=2797102) INFO 10-15 05:31:11 [loggers.py:310] Engine 000: Avg prompt throughput: 58.1 tokens/s, Avg generation throughput: 13.9 tokens/s, Running: 1 reqs, Waiting: 0 reqs, GPU KV cache usage: 20.3%, Prefix cache hit rate: 38.1%"
+    },
+    {
+      "time": 1792035081.341452,
+      "message": "(APIServer pid=2797102) INFO 10-15 05:31:21 [loggers.py:310] Engine 000: Avg prompt throughput: 0.0 tokens/s, Avg generation throughput: 34.5 tokens/s, Running: 1 reqs, Waiting: 0 reqs, GPU KV cache usage: 22.3%, Prefix cache hit rate: 38.1%"
+    },
+    {
+      "time": 1792035089.393115,
+      "message": "(APIServer pid=2797102) INFO:     127.0.0.1:58182 - \"POST /v1/chat/completions HTTP/1.1\" 200 OK"
+    },
+    {
+      "time": 1792035091.341749,
+      "message": "(APIServer pid=2797102) INFO 10-15 05:31:31 [loggers.py:310] Engine 000: Avg prompt throughput: 0.0 tokens/s, Avg generation throughput: 27.6 tokens/s, Running: 0 reqs, Waiting: 0 reqs, GPU KV cache usage: 0.0%, Prefix cache hit rate: 38.1%"
+    },
+    {
+      "time": 1792035101.343182,
+      "message": "(APIServer pid=2797102) INFO 10-15 05:31:41 [loggers.py:310] Engine 000: Avg prompt throughput: 4.2 tokens/s, Avg generation throughput: 0.4 tokens/s, Running: 1 reqs, Waiting: 0 reqs, GPU KV cache usage: 3.0%, Prefix cache hit rate: 39.8%"
+    },
+    {
+      "time": 1792035102.798662,
+      "message": "(APIServer pid=2797102) INFO:     127.0.0.1:58774 - \"POST /v1/chat/completions HTTP/1.1\" 200 OK"
+    },
+    {
+      "time": 1792035111.344114,
+      "message": "(APIServer pid=2797102) INFO 10-15 05:31:51 [loggers.py:310] Engine 000: Avg prompt throughput: 427.4 tokens/s, Avg generation throughput: 8.6 tokens/s, Running: 1 reqs, Waiting: 0 reqs, GPU KV cache usage: 27.7%, Prefix cache hit rate: 33.4%"
+    },
+    {
+      "time": 1792035111.836436,
+      "message": "(APIServer pid=2797102) INFO:     127.0.0.1:58778 - \"POST /v1/chat/completions HTTP/1.1\" 200 OK"
+    },
+    {
+      "time": 1792035121.345473,
+      "message": "(APIServer pid=2797102) INFO 10-15 05:32:01 [loggers.py:310] Engine 000: Avg prompt throughput: 55.1 tokens/s, Avg generation throughput: 11.9 tokens/s, Running: 1 reqs, Waiting: 0 reqs, GPU KV cache usage: 31.1%, Prefix cache hit rate: 44.4%"
+    },
+    {
+      "time": 1792035131.346182,
+      "message": "(APIServer pid=2797102) INFO 10-15 05:32:11 [loggers.py:310] Engine 000: Avg prompt throughput: 0.0 tokens/s, Avg generation throughput: 33.0 tokens/s, Running: 1 reqs, Waiting: 0 reqs, GPU KV cache usage: 33.0%, Prefix cache hit rate: 44.4%"
+    },
+    {
+      "time": 1792035131.932946,
+      "message": "(APIServer pid=2797102) INFO:     127.0.0.1:52800 - \"POST /v1/chat/completions HTTP/1.1\" 200 OK"
+    },
+    {
+      "time": 1792035141.34675,
+      "message": "(APIServer pid=2797102) INFO 10-15 05:32:21 [loggers.py:310] Engine 000: Avg prompt throughput: 0.0 tokens/s, Avg generation throughput: 2.0 tokens/s, Running: 0 reqs, Waiting: 0 reqs, GPU KV cache usage: 0.0%, Prefix cache hit rate: 44.4%"
+    },
+    {
+      "time": 1792035145.751761,
+      "message": "(APIServer pid=2797102) INFO:     127.0.0.1:33932 - \"POST /v1/chat/completions HTTP/1.1\" 200 OK"
+    },
+    {
+      "time": 1792035151.348105,
+      "message": "(APIServer pid=2797102) INFO 10-15 05:32:31 [loggers.py:310] Engine 000: Avg prompt throughput: 7.3 tokens/s, Avg generation throughput: 5.5 tokens/s, Running: 0 reqs, Waiting: 0 reqs, GPU KV cache usage: 0.0%, Prefix cache hit rate: 45.2%"
+    },
+    {
+      "time": 1792035161.349056,
+      "message": "(APIServer pid=2797102) INFO 10-15 05:32:41 [loggers.py:310] Engine 000: Avg prompt throughput: 321.3 tokens/s, Avg generation throughput: 28.6 tokens/s, Running: 1 reqs, Waiting: 0 reqs, GPU KV cache usage: 23.0%, Prefix cache hit rate: 41.5%"
+    },
+    {
+      "time": 1792035166.395186,
+      "message": "(APIServer pid=2797102) INFO:     127.0.0.1:56328 - \"POST /v1/chat/completions HTTP/1.1\" 200 OK"
+    },
+    {
+      "time": 1792035171.349854,
+      "message": "(APIServer pid=2797102) INFO 10-15 05:32:51 [loggers.py:310] Engine 000: Avg prompt throughput: 0.0 tokens/s, Avg generation throughput: 17.4 tokens/s, Running: 0 reqs, Waiting: 0 reqs, GPU KV cache usage: 0.0%, Prefix cache hit rate: 41.5%"
+    },
+    {
+      "time": 1792035179.993892,
+      "message": "(APIServer pid=2797102) INFO:     127.0.0.1:38458 - \"POST /v1/chat/completions HTTP/1.1\" 200 OK"
+    },
+    {
+      "time": 1792035181.351293,
+      "message": "(APIServer pid=2797102) INFO 10-15 05:33:01 [loggers.py:310] Engine 000: Avg prompt throughput: 5.6 tokens/s, Avg generation throughput: 5.4 tokens/s, Running: 0 reqs, Waiting: 0 reqs, GPU KV cache usage: 0.0%, Prefix cache hit rate: 42.3%"
+    },
+    {
+      "time": 1792035191.351803,
+      "message": "(APIServer pid=2797102) INFO 10-15 05:33:11 [loggers.py:310] Engine 000: Avg prompt throughput: 386.7 tokens/s, Avg generation throughput: 12.8 tokens/s, Running: 1 reqs, Waiting: 0 reqs, GPU KV cache usage: 25.8%, Prefix cache hit rate: 38.6%"
+    },
+    {
+      "time": 1792035199.886998,
+      "message": "(APIServer pid=2797102) INFO:     127.0.0.1:35958 - \"POST /v1/chat/completions HTTP/1.1\" 200 OK"
+    },
+    {
+      "time": 1792035201.353195,
+      "message": "(APIServer pid=2797102) INFO 10-15 05:33:21 [loggers.py:310] Engine 000: Avg prompt throughput: 0.0 tokens/s, Avg generation throughput: 28.9 tokens/s, Running: 0 reqs, Waiting: 0 reqs, GPU KV cache usage: 0.0%, Prefix cache hit rate: 38.6%"
+    },
+    {
+      "time": 1792035211.354181,
+      "message": "(APIServer pid=2797102) INFO 10-15 05:33:31 [loggers.py:310] Engine 000: Avg prompt throughput: 0.0 tokens/s, Avg generation throughput: 0.0 tokens/s, Running: 0 reqs, Waiting: 0 reqs, GPU KV cache usage: 0.0%, Prefix cache hit rate: 38.6%"
+    },
+    {
+      "time": 1792035213.649595,
+      "message": "(APIServer pid=2797102) INFO:     127.0.0.1:53506 - \"POST /v1/chat/completions HTTP/1.1\" 200 OK"
+    },
+    {
+      "time": 1792035221.355388,
+      "message": "(APIServer pid=2797102) INFO 10-15 05:33:41 [loggers.py:310] Engine 000: Avg prompt throughput: 333.5 tokens/s, Avg generation throughput: 7.0 tokens/s, Running: 1 reqs, Waiting: 0 reqs, GPU KV cache usage: 21.8%, Prefix cache hit rate: 36.9%"
+    },
+    {
+      "time": 1792035231.355775,
+      "message": "(APIServer pid=2797102) INFO 10-15 05:33:51 [loggers.py:310] Engine 000: Avg prompt throughput: 0.0 tokens/s, Avg generation throughput: 33.8 tokens/s, Running: 1 reqs, Waiting: 0 reqs, GPU KV cache usage: 23.8%, Prefix cache hit rate: 36.9%"
+    },
+    {
+      "time": 1792035237.693102,
+      "message": "(APIServer pid=2797102) INFO:     127.0.0.1:38786 - \"POST /v1/chat/completions HTTP/1.1\" 200 OK"
+    },
+    {
+      "time": 1792035241.357225,
+      "message": "(APIServer pid=2797102) INFO 10-15 05:34:01 [loggers.py:310] Engine 000: Avg prompt throughput: 0.0 tokens/s, Avg generation throughput: 21.6 tokens/s, Running: 0 reqs, Waiting: 0 reqs, GPU KV cache usage: 0.0%, Prefix cache hit rate: 36.9%"
+    },
+    {
+      "time": 1792035251.275119,
+      "message": "(APIServer pid=2797102) INFO:     127.0.0.1:51660 - \"POST /v1/chat/completions HTTP/1.1\" 200 OK"
+    },
+    {
+      "time": 1792035251.35835,
+      "message": "(APIServer pid=2797102) INFO 10-15 05:34:11 [loggers.py:310] Engine 000: Avg prompt throughput: 4.0 tokens/s, Avg generation throughput: 5.3 tokens/s, Running: 0 reqs, Waiting: 0 reqs, GPU KV cache usage: 0.0%, Prefix cache hit rate: 37.6%"
+    },
+    {
+      "time": 1792035259.754447,
+      "message": "(APIServer pid=2797102) INFO:     127.0.0.1:42822 - \"POST /v1/chat/completions HTTP/1.1\" 200 OK"
+    },
+    {
+      "time": 1792035261.360248,
+      "message": "(APIServer pid=2797102) INFO 10-15 05:34:21 [loggers.py:310] Engine 000: Avg prompt throughput: 297.7 tokens/s, Avg generation throughput: 5.2 tokens/s, Running: 0 reqs, Waiting: 0 reqs, GPU KV cache usage: 0.0%, Prefix cache hit rate: 35.8%"
+    },
+    {
+      "time": 1792035271.361319,
+      "message": "(APIServer pid=2797102) INFO 10-15 05:34:31 [loggers.py:310] Engine 000: Avg prompt throughput: 67.2 tokens/s, Avg generation throughput: 17.8 tokens/s, Running: 1 reqs, Waiting: 0 reqs, GPU KV cache usage: 24.8%, Prefix cache hit rate: 39.9%"
+    },
+    {
+      "time": 1792035281.361773,
+      "message": "(APIServer pid=2797102) INFO 10-15 05:34:41 [loggers.py:310] Engine 000: Avg prompt throughput: 0.0 tokens/s, Avg generation throughput: 34.3 tokens/s, Running: 1 reqs, Waiting: 0 reqs, GPU KV cache usage: 26.8%, Prefix cache hit rate: 39.9%"
+    },
+    {
+      "time": 1792035288.454417,
+      "message": "(APIServer pid=2797102) INFO:     127.0.0.1:58340 - \"POST /v1/chat/completions HTTP/1.1\" 200 OK"
+    },
+    {
+      "time": 1792035291.363507,
+      "message": "(APIServer pid=2797102) INFO 10-15 05:34:51 [loggers.py:310] Engine 000: Avg prompt throughput: 0.0 tokens/s, Avg generation throughput: 24.4 tokens/s, Running: 0 reqs, Waiting: 0 reqs, GPU KV cache usage: 0.0%, Prefix cache hit rate: 39.9%"
+    },
+    {
+      "time": 1792035301.364295,
+      "message": "(APIServer pid=2797102) INFO 10-15 05:35:01 [loggers.py:310] Engine 000: Avg prompt throughput: 3.6 tokens/s, Avg generation throughput: 1.4 tokens/s, Running: 1 reqs, Waiting: 0 reqs, GPU KV cache usage: 3.1%, Prefix cache hit rate: 40.4%"
+    },
+    {
+      "time": 1792035302.393884,
+      "message": "(APIServer pid=2797102) INFO:     127.0.0.1:37302 - \"POST /v1/chat/completions HTTP/1.1\" 200 OK"
+    },
+    {
+      "time": 1792035311.365088,
+      "message": "(APIServer pid=2797102) INFO 10-15 05:35:11 [loggers.py:310] Engine 000: Avg prompt throughput: 507.7 tokens/s, Avg generation throughput: 7.6 tokens/s, Running: 1 reqs, Waiting: 0 reqs, GPU KV cache usage: 32.3%, Prefix cache hit rate: 37.2%"
+    },
+    {
+      "time": 1792035321.36653,
+      "message": "(APIServer pid=2797102) INFO 10-15 05:35:21 [loggers.py:310] Engine 000: Avg prompt throughput: 0.0 tokens/s, Avg generation throughput: 34.2 tokens/s, Running: 1 reqs, Waiting: 0 reqs, GPU KV cache usage: 34.3%, Prefix cache hit rate: 37.2%"
+    },
+    {
+      "time": 1792035324.028919,
+      "message": "(APIServer pid=2797102) INFO:     127.0.0.1:37314 - \"POST /v1/chat/completions HTTP/1.1\" 200 OK"
+    },
+    {
+      "time": 1792035331.366869,
+      "message": "(APIServer pid=2797102) INFO 10-15 05:35:31 [loggers.py:310] Engine 000: Avg prompt throughput: 0.0 tokens/s, Avg generation throughput: 9.3 tokens/s, Running: 0 reqs, Waiting: 0 reqs, GPU KV cache usage: 0.0%, Prefix cache hit rate: 37.2%"
+    },
+    {
+      "time": 1792035337.353206,
+      "message": "(APIServer pid=2797102) INFO:     127.0.0.1:34412 - \"POST /v1/chat/completions HTTP/1.1\" 200 OK"
+    },
+    {
+      "time": 1792035341.367472,
+      "message": "(APIServer pid=2797102) INFO 10-15 05:35:41 [loggers.py:310] Engine 000: Avg prompt throughput: 3.9 tokens/s, Avg generation throughput: 5.1 tokens/s, Running: 0 reqs, Waiting: 0 reqs, GPU KV cache usage: 0.0%, Prefix cache hit rate: 37.7%"
+    },
+    {
+      "time": 1792035351.369087,
+      "message": "(APIServer pid=2797102) INFO 10-15 05:35:51 [loggers.py:310] Engine 000: Avg prompt throughput: 557.1 tokens/s, Avg generation throughput: 21.4 tokens/s, Running: 1 reqs, Waiting: 0 reqs, GPU KV cache usage: 36.1%, Prefix cache hit rate: 34.8%"
+    },
+    {
+      "time": 1792035357.851848,
+      "message": "(APIServer pid=2797102) INFO:     127.0.0.1:38040 - \"POST /v1/chat/completions HTTP/1.1\" 200 OK"
+    },
+    {
+      "time": 1792035359.896653,
+      "message": "Stopping detecdiv-qwen.service - DetecDiv Hub local Qwen inference service..."
+    },
+    {
+      "time": 1792035359.896934,
+      "message": "(APIServer pid=2797102) INFO 10-15 05:35:59 [launcher.py:124] [shutdown] API server: shutdown triggered"
+    },
+    {
+      "time": 1792035359.896934,
+      "message": "(APIServer pid=2797102) INFO 10-15 05:35:59 [launcher.py:140] [shutdown] API server: stopping engine client mode=abort timeout=0s"
+    },
+    {
+      "time": 1792035359.897586,
+      "message": "(EngineCore pid=2797745) INFO 10-15 05:35:59 [core.py:1350] [shutdown] EngineCore: trigger received signal=SIGTERM"
+    },
+    {
+      "time": 1792035359.897973,
+      "message": "(EngineCore pid=2797745) INFO 10-15 05:35:59 [core.py:1501] [shutdown] EngineCore: start mode=abort timeout=0s"
+    },
+    {
+      "time": 1792035359.898068,
+      "message": "(EngineCore pid=2797745) INFO 10-15 05:35:59 [core.py:1532] [shutdown] EngineCore: request processing complete; starting resource teardown"
+    },
+    {
+      "time": 1792035359.898323,
+      "message": "(EngineCore pid=2797745) INFO 10-15 05:35:59 [core.py:1363] [shutdown] EngineCore: exiting busy loop"
+    },
+    {
+      "time": 1792035359.898536,
+      "message": "(APIServer pid=2797102) INFO 10-15 05:35:59 [core_client.py:689] [shutdown] MPClient: start timeout=0s"
+    },
+    {
+      "time": 1792035359.899078,
+      "message": "(APIServer pid=2797102) INFO 10-15 05:35:59 [core_client.py:691] [shutdown] MPClient: stopping engine manager"
+    },
+    {
+      "time": 1792035359.899513,
+      "message": "(APIServer pid=2797102) INFO 10-15 05:35:59 [utils.py:620] [shutdown] Process manager: send sigterm to process EngineCore"
+    },
+    {
+      "time": 1792035359.900751,
+      "message": "(APIServer pid=2797102) WARNING 10-15 05:35:59 [utils.py:640] [shutdown] Process manager: force killing remaining processes count=1"
+    },
+    {
+      "time": 1792035359.900904,
+      "message": "(APIServer pid=2797102) WARNING 10-15 05:35:59 [utils.py:645] [shutdown] Process manager: force killing remaining process EngineCore pid 2797745"
+    },
+    {
+      "time": 1792035359.929973,
+      "message": "(APIServer pid=2797102) INFO 10-15 05:35:59 [core_client.py:693] [shutdown] MPClient: engine manager stopped"
+    },
+    {
+      "time": 1792035359.929973,
+      "message": "(APIServer pid=2797102) INFO 10-15 05:35:59 [core_client.py:694] [shutdown] MPClient: cleaning up background resources"
+    },
+    {
+      "time": 1792035359.930219,
+      "message": "(APIServer pid=2797102) INFO 10-15 05:35:59 [core_client.py:696] [shutdown] MPClient: complete"
+    },
+    {
+      "time": 1792035359.930922,
+      "message": "(APIServer pid=2797102) INFO 10-15 05:35:59 [launcher.py:149] [shutdown] API server: engine client stopped"
+    },
+    {
+      "time": 1792035359.931051,
+      "message": "(APIServer pid=2797102) INFO 10-15 05:35:59 [launcher.py:152] [shutdown] API server: signalling HTTP server shutdown"
+    },
+    {
+      "time": 1792035359.959941,
+      "message": "(APIServer pid=2797102) INFO 10-15 05:35:59 [launcher.py:173] [shutdown] API server: shutting down FastAPI HTTP server"
+    },
+    {
+      "time": 1792035359.960172,
+      "message": "(APIServer pid=2797102) INFO:     Shutting down"
+    },
+    {
+      "time": 1792035360.061315,
+      "message": "(APIServer pid=2797102) INFO:     Waiting for application shutdown."
+    },
+    {
+      "time": 1792035360.062118,
+      "message": "(APIServer pid=2797102) INFO:     Application shutdown complete."
+    },
+    {
+      "time": 1792035360.716123,
+      "message": "/usr/lib/python3.12/multiprocessing/resource_tracker.py:254: UserWarning: resource_tracker: There appear to be 1 leaked semaphore objects to clean up at shutdown"
+    },
+    {
+      "time": 1792035360.716123,
+      "message": "  warnings.warn('resource_tracker: There appear to be %d '"
+    },
+    {
+      "time": 1792035360.730672,
+      "message": "detecdiv-qwen.service: Deactivated successfully."
+    },
+    {
+      "time": 1792035360.731508,
+      "message": "Stopped detecdiv-qwen.service - DetecDiv Hub local Qwen inference service."
+    },
+    {
+      "time": 1792035360.732,
+      "message": "detecdiv-qwen.service: Consumed 6min 25.274s CPU time."
+    },
+    {
+      "time": 1792035367.609555,
+      "message": "Started detecdiv-qwen.service - DetecDiv Hub local Qwen inference service."
+    }
+  ],
+  "watchdog": {
+    "owner": "qwen-coex-7d5e37d8-90cd-4b76-941b-f2a107f5dd7f",
+    "pid": 2797028,
+    "status": "stopped",
+    "peak_service_mib": 9866,
+    "started_at": 1792034843.4652586,
+    "checked_at": 1792035359.8633077,
+    "service_mib": 8710,
+    "free_mib": 15784,
+    "reason": "stop requested or lease expired",
+    "stop_exit_code": 0,
+    "launcher_restored": true,
+    "finished_at": 1792035360.74616
+  },
+  "checked_at": "2026-10-15T03:36:17.487874+00:00",
+  "label": "qwen3-8b-awq-int4",
+  "since": "2026-10-15 03:27:14 UTC"
+}

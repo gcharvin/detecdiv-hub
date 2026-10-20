@@ -1,0 +1,32 @@
+{
+  "checked_at": "2026-10-14T13:38:30.103189+00:00",
+  "scope": "Read-only live diagnostics; separate from frozen Qwen evaluation corpus",
+  "interval_seconds": 83.43597841262817,
+  "conclusion": "Both scientific jobs show real computation/output progression; no blockage demonstrated in sampled interval",
+  "jobs": [
+    {
+      "id": "5cbf3dca-a43b-45c1-9135-cfc9d1966403",
+      "project": "Diamide_Rogfp_CEN_BY_II_30092026",
+      "evidence": "Segmentation and tracking reach100/100 for ROI ending19_19_42, integration and HDF5 save, then further postprocess normalization. stdout grows217756bytes in83.44s; MATLAB2230610 CPU+23.07s, writes+172023808bytes.",
+      "limit": "100/100 applies to a ROI sequence, not whole pipeline completion."
+    },
+    {
+      "id": "e2a1b570-be3b-42f9-a911-ee4231d707a5",
+      "project": "new_project",
+      "evidence": "ROI extraction9/9FOV completed at15:34:40Paris; combines channels and saves HDF5, Pos1_2_6 toPos1_2_10 across83.44s; MATLAB2235170 CPU+44.2s, writes+3087392768bytes.",
+      "limit": "progress.json still shows extraction100%; later combination logs are newer and prove progress. No whole-job ETA established."
+    }
+  ],
+  "stderr_sizes": [
+    {
+      "id": "5cbf3dca-a43b-45c1-9135-cfc9d1966403",
+      "bytes": 0
+    },
+    {
+      "id": "e2a1b570-be3b-42f9-a911-ee4231d707a5",
+      "bytes": 0
+    }
+  ],
+  "gpu_note": "Main MATLAB for e2a matches worker@2. GPU PID2617662 belongs worker@4, another compute process, not this e2a job. Do not infer job identity from aggregate GPU usage.",
+  "actions": "No job/service/configuration/admission changed; Qwen comparison still waits for genuine GPU release"
+}

@@ -1,0 +1,19 @@
+{
+  "checked_at": "2026-10-14T11:58:29.490706+00:00",
+  "gpu_jobs": [
+    {
+      "id": "5cbf3dca-a43b-45c1-9135-cfc9d1966403",
+      "status": "running",
+      "gpu_vram_mb": 8192
+    },
+    {
+      "id": "e2a1b570-be3b-42f9-a911-ee4231d707a5",
+      "status": "running",
+      "gpu_vram_mb": 8192
+    }
+  ],
+  "other_gpu_processes": [
+    "2231158, /usr/local/MATLAB/R2024b/interprocess/bin/glnxa64/pycli/MATLABPyHost, 2184 MiB"
+  ],
+  "available": false
+}

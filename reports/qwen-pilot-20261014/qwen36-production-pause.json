@@ -1,0 +1,10 @@
+{
+  "checked_at": "2026-10-15T06:30:43.694201+00:00",
+  "original_pid": "2846659",
+  "requests": [
+    "vllm:num_requests_running{engine=\"0\",model_name=\"Qwen/Qwen3-14B-AWQ\"} 0.0",
+    "vllm:num_requests_waiting{engine=\"0\",model_name=\"Qwen/Qwen3-14B-AWQ\"} 0.0"
+  ],
+  "status": "inactive",
+  "reason": "Temporary authorized pause of idle original service for exclusive Qwen3.6 pilot"
+}

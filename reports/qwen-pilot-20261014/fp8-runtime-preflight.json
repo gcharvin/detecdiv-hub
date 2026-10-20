@@ -1,0 +1,94 @@
+{
+  "gpu": "NVIDIA GeForce RTX 3090, 8.6",
+  "runtime_source": [
+    {
+      "path": "/home/charvin-admin/venvs/detecdiv-qwen/lib/python3.12/site-packages/vllm/model_executor/layers/quantization/fp8.py",
+      "excerpts": [
+        {
+          "line": 143,
+          "text": "\n    @classmethod\n    def get_min_capability(cls) -> int:\n        return 75\n\n    @classmethod"
+        },
+        {
+          "line": 260,
+          "text": "        # kernel for fast weight-only FP8 quantization\n        self.marlin_input_dtype = None\n        self.use_marlin = False\n\n        if self.quant_config.use_deep_gemm is not None:\n            self.use_deep_gemm = self.quant_config.use_deep_gemm"
+        },
+        {
+          "line": 268,
+          "text": "\n        self.weight_block_size = self.quant_config.weight_block_size\n        self.block_quant = self.weight_block_size is not None\n        self.act_q_static = self.quant_config.activation_scheme == \"static\"\n\n        if self.block_quant:"
+        },
+        {
+          "line": 271,
+          "text": "        self.act_q_static = self.quant_config.activation_scheme == \"static\"\n\n        if self.block_quant:\n            assert not self.act_q_static\n            assert self.weight_block_size is not None\n"
+        },
+        {
+          "line": 310,
+          "text": "        layer.weight_block_size = None\n\n        if self.block_quant:\n            assert self.weight_block_size is not None\n            layer.weight_block_size = self.weight_block_size\n            validate_fp8_block_shape("
+        },
+        {
+          "line": 328,
+          "text": "\n        # WEIGHT SCALE\n        if not self.block_quant:\n            scale = create_fp8_scale_parameter(\n                PerTensorScaleParameter,\n                output_partition_sizes,"
+        },
+        {
+          "line": 366,
+          "text": "        )\n\n        self.use_marlin = isinstance(self.fp8_linear, MarlinFP8ScaledMMLinearKernel)\n\n    def process_weights_after_loading(self, layer: torch.nn.Module) -> None:\n        if self.use_marlin:"
+        },
+        {
+          "line": 369,
+          "text": "\n    def process_weights_after_loading(self, layer: torch.nn.Module) -> None:\n        if self.use_marlin:\n            if not self.block_quant:\n                # Canonicalize to (K, N) for the kernel.\n                replace_parameter(layer, \"weight\", layer.weight.t())"
+        },
+        {
+          "line": 370,
+          "text": "    def process_weights_after_loading(self, layer: torch.nn.Module) -> None:\n        if self.use_marlin:\n            if not self.block_quant:\n                # Canonicalize to (K, N) for the kernel.\n                replace_parameter(layer, \"weight\", layer.weight.t())\n            # Only Marlin kernels support `marlin_input_dtype`; guard to avoid"
+        },
+        {
+          "line": 382,
+          "text": "        input_scale = None\n        # TODO(rob): refactor block quant into separate class.\n        if self.block_quant:\n            assert not self.act_q_static\n\n        # If checkpoint not serialized fp8, quantize the weights."
+        },
+        {
+          "line": 425,
+          "text": "        # we will use BF16 dequant when direct FP8 is not supported.\n        if envs.VLLM_BATCH_INVARIANT:\n            if self.block_quant:\n                assert self.weight_block_size is not None\n                return self.fp8_linear.apply_weights(\n                    layer,"
+        },
+        {
+          "line": 479,
+          "text": "        self.quant_config = quant_config\n        self.weight_block_size = self.quant_config.weight_block_size\n        self.block_quant: bool = self.weight_block_size is not None\n        self.weight_scale_name = (\n            \"weight_scale_inv\" if self.block_quant else \"weight_scale\"\n        )"
+        },
+        {
+          "line": 481,
+          "text": "        self.block_quant: bool = self.weight_block_size is not None\n        self.weight_scale_name = (\n            \"weight_scale_inv\" if self.block_quant else \"weight_scale\"\n        )\n\n        self.weight_scale_refine: tuple[int, int] | None = None"
+        },
+        {
+          "line": 488,
+          "text": "\n        # Set weight key and activation key for kernel compatibility\n        if self.block_quant:\n            assert self.weight_block_size is not None\n            # TP shards the intermediate dim of the expert weights, so a\n            # per-shard size that is not a multiple of the checkpoint's block"
+        },
+        {
+          "line": 552,
+          "text": "        params_dtype = torch.float8_e4m3fn\n\n        if self.block_quant:\n            assert self.weight_block_size is not None\n            assert self.moe_block_shape is not None\n            moe_block_shape = self.moe_block_shape"
+        },
+        {
+          "line": 631,
+          "text": "\n        # WEIGHT_SCALES\n        if not self.block_quant:\n            # For per-tensor quant, the scales are per expert and weight.\n            w13_scale_data = torch.ones(\n                num_experts, self.moe.w13_num_shards, dtype=torch.float32"
+        },
+        {
+          "line": 662,
+          "text": "        extra_weight_attrs.update(\n            {\"quant_method\": FusedMoeWeightScaleSupported.BLOCK.value}\n            if self.block_quant\n            else {\"quant_method\": FusedMoeWeightScaleSupported.TENSOR.value}\n        )\n        set_weight_attrs(w13_weight_scale, extra_weight_attrs)"
+        },
+        {
+          "line": 670,
+          "text": "        # INPUT_SCALES\n        if self.quant_config.activation_scheme == \"static\":\n            assert not self.block_quant\n            w13_input_scale = torch.nn.Parameter(\n                torch.ones(num_experts, dtype=torch.float32), requires_grad=False\n            )"
+        },
+        {
+          "line": 751,
+          "text": "        # Per tensor kernels require single activation scale. Use the max.\n        if self.quant_config.activation_scheme == \"static\":\n            assert not self.block_quant\n            assert w13_input_scale is not None and w2_input_scale is not None\n            w13_input_scale, w2_input_scale = process_fp8_input_tensor_strategy_moe(\n                w13_input_scale,"
+        },
+        {
+          "line": 763,
+          "text": "        # Per tensor kernels require single weight scale for w13 per expert, but\n        # on disk there is a scale for w1 and w3. Use the max to requantize.\n        if not self.block_quant:\n            shard_size = layer.intermediate_size_per_partition\n            w13, w13_scale = process_fp8_weight_tensor_strategy_moe(\n                w13,"
+        }
+      ]
+    }
+  ],
+  "cache_free_gib": 52.81312561035156,
+  "fp8_snapshots": [],
+  "checked_at": "2026-10-14T11:48:39.241640+00:00",
+  "assessment": "Source inspection only, no GPU loading: RTX3090 SM86; FP8 runtime fallback/kernel compatibility must be confirmed at controlled startup. Native FP8 absence alone is not proof the checkpoint cannot run."
+}

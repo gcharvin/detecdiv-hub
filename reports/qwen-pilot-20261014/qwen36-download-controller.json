@@ -1,0 +1,18 @@
+{
+  "pid": 2854444,
+  "command": [
+    "nice",
+    "-n",
+    "19",
+    "ionice",
+    "-c",
+    "3",
+    "timeout",
+    "-k",
+    "30s",
+    "1800s",
+    "/home/charvin-admin/venvs/detecdiv-qwen/bin/python",
+    "/home/charvin-admin/.cache/detecdiv-qwen/pilot-qwen36-download-20261015/prefetch.py"
+  ],
+  "owner": "qwen36-prefetch-c81073c0-ea4e-45bf-9bf7-87da8275a9f7"
+}

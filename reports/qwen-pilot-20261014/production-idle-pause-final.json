@@ -1,0 +1,10 @@
+{
+  "checked_at": "2026-10-15T03:53:12.735980+00:00",
+  "reason": "Restore initial inactive service after confirmed idle production auto-resume following ingest completion",
+  "pid": "2841928",
+  "metrics": [
+    "vllm:num_requests_running{engine=\"0\",model_name=\"Qwen/Qwen3-14B-AWQ\"} 0.0",
+    "vllm:num_requests_waiting{engine=\"0\",model_name=\"Qwen/Qwen3-14B-AWQ\"} 0.0"
+  ],
+  "service": "inactive"
+}

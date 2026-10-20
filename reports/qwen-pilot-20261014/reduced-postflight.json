@@ -1,0 +1,194 @@
+{
+  "checked_at": "2026-10-14T11:34:25.101210+00:00",
+  "compute": {
+    "service": "inactive",
+    "launcher_sha256": "0e681f73e64b5bc571b96b513d47789cef25e366b9059b08e0144e98cb33824c",
+    "watchdog_status": "stopped",
+    "watchdog_process_stat": null,
+    "gpu": "NVIDIA GeForce RTX 3090, 24576 MiB, 2266 MiB, 0 %",
+    "gpu_processes": "2231158, /usr/local/MATLAB/R2024b/interprocess/bin/glnxa64/pycli/MATLABPyHost, 2184 MiB"
+  },
+  "api": {
+    "admission": {
+      "owner": "qwen-coex-5b058446-e8a1-442f-882d-8dfc6174e6e0",
+      "pid": 48,
+      "status": "released",
+      "queued_jobs": [
+        "b38095c1-ec3a-403f-8787-5588e6e030ae"
+      ],
+      "cancel_requested": true,
+      "checked_at": 1791977544.9329963
+    },
+    "admission_process_stat": "48 (python) Z 1 48 48 0 -1 4227340 16071 0 0 0 139 16 0 0 20 0 1 0 138281229 0 0 18446744073709551615 0 0 0 0 0 0 0 16781312 0 1 0 0 17 3 0 0 0 0 0 0 0 0 0 0 0 0 0\n",
+    "open_admission_transactions": 0,
+    "api_arbitration": "true",
+    "jobs": [
+      {
+        "id": "5cbf3dca-a43b-45c1-9135-cfc9d1966403",
+        "status": "running",
+        "heartbeat_at": "2026-10-14 11:34:17.491493+00:00",
+        "target_key": "detecdiv-server",
+        "allocation": {
+          "source": "pipeline_nodes_and_job_resource_settings",
+          "cpu_cores": 8,
+          "memory_mb": 24576,
+          "gpu_vram_mb": 8192,
+          "gpu_required": true,
+          "disk_io_units": 3,
+          "gpu_permitted": true,
+          "swap_limit_mb": 1536,
+          "requested_cpu_cores": 8,
+          "pipeline_gpu_profile": {
+            "source": "/data/Abhilasha/Analysis/pipelines/pipeline/pipeline.json",
+            "status": "known",
+            "gpu_node_ids": [
+              "cellpose_sam_segmentatio",
+              "classifier_cnn_lstm_1"
+            ],
+            "gpu_required": true,
+            "run_gpu_mode": "module_default",
+            "selected_node_ids": [
+              "roipattern_4",
+              "roiextract_3",
+              "combineMultipleChannels",
+              "cellpose_sam_segmentatio",
+              "classifier_cnn_lstm_1",
+              "processor_trackmotherlineageviterbi_9",
+              "processor_computerls_2",
+              "processor_computemetrics_8"
+            ],
+            "deep_learning_node_ids": [
+              "cellpose_sam_segmentatio",
+              "classifier_cnn_lstm_1"
+            ]
+          }
+        }
+      },
+      {
+        "id": "e2a1b570-be3b-42f9-a911-ee4231d707a5",
+        "status": "running",
+        "heartbeat_at": "2026-10-14 11:34:15.709481+00:00",
+        "target_key": "detecdiv-server",
+        "allocation": {
+          "source": "pipeline_nodes_and_job_resource_settings",
+          "cpu_cores": 8,
+          "memory_mb": 24576,
+          "gpu_vram_mb": 8192,
+          "gpu_required": true,
+          "disk_io_units": 3,
+          "gpu_permitted": true,
+          "swap_limit_mb": 1536,
+          "requested_cpu_cores": 8,
+          "pipeline_gpu_profile": {
+            "source": "/data/Gilles/analysis/pipelines/lifespan/pipeline.json",
+            "status": "known",
+            "gpu_node_ids": [
+              "classifier_cnn_lstm_4"
+            ],
+            "gpu_required": true,
+            "run_gpu_mode": "module_default",
+            "selected_node_ids": [
+              "dataloader_1",
+              "roipattern_2",
+              "roiextract_3",
+              "combine_channels",
+              "classifier_cnn_lstm_4",
+              "processor_computerls_5"
+            ],
+            "deep_learning_node_ids": [
+              "classifier_cnn_lstm_4"
+            ]
+          }
+        }
+      },
+      {
+        "id": "f9d102cc-0011-44ac-925d-2235c82078ed",
+        "status": "running",
+        "heartbeat_at": "2026-10-14 11:34:15.281835+00:00",
+        "target_key": "windows-10-20-11-56",
+        "allocation": {
+          "source": "pipeline_nodes_and_job_resource_settings",
+          "cpu_cores": 8,
+          "memory_mb": 24576,
+          "gpu_vram_mb": 0,
+          "gpu_required": false,
+          "disk_io_units": 3,
+          "gpu_permitted": true,
+          "swap_limit_mb": 0,
+          "requested_cpu_cores": 8,
+          "pipeline_gpu_profile": {
+            "source": "\\\\10.20.11.250\\DATA\\Abhilasha\\Analysis\\pipelines\\pipeline\\pipeline.json",
+            "status": "known",
+            "gpu_node_ids": [],
+            "gpu_required": false,
+            "run_gpu_mode": "module_default",
+            "selected_node_ids": [
+              "dataloader_5",
+              "roipattern_4",
+              "roiextract_3",
+              "combineMultipleChannels",
+              "cellpose_sam_segmentatio",
+              "classifier_cnn_lstm_1",
+              "processor_trackmotherlineageviterbi_9",
+              "processor_computerls_2",
+              "processor_computemetrics_8"
+            ],
+            "deep_learning_node_ids": [
+              "cellpose_sam_segmentatio",
+              "classifier_cnn_lstm_1"
+            ]
+          }
+        }
+      },
+      {
+        "id": "b38095c1-ec3a-403f-8787-5588e6e030ae",
+        "status": "running",
+        "heartbeat_at": "2026-10-14 11:34:17.947308+00:00",
+        "target_key": "detecdiv-server",
+        "allocation": {
+          "source": "pipeline_nodes_and_job_resource_settings",
+          "cpu_cores": 8,
+          "memory_mb": 24576,
+          "gpu_vram_mb": 0,
+          "gpu_required": false,
+          "disk_io_units": 3,
+          "gpu_permitted": true,
+          "swap_limit_mb": 1536,
+          "requested_cpu_cores": 8,
+          "pipeline_gpu_profile": {
+            "source": "/data/matlab/pipelines/Alex_Xtra_FullChannels_Conservative/pipeline/pipeline.json",
+            "status": "known",
+            "gpu_node_ids": [],
+            "gpu_required": false,
+            "run_gpu_mode": "module_default",
+            "selected_node_ids": [
+              "extract_cropped_images_legacy",
+              "xtra_full_channels_legacy"
+            ],
+            "deep_learning_node_ids": []
+          }
+        }
+      }
+    ]
+  },
+  "guard": {
+    "checked_at": "2026-10-14T11:34:25.101183+00:00",
+    "gpu_jobs": [
+      {
+        "id": "5cbf3dca-a43b-45c1-9135-cfc9d1966403",
+        "status": "running",
+        "gpu_vram_mb": 8192
+      },
+      {
+        "id": "e2a1b570-be3b-42f9-a911-ee4231d707a5",
+        "status": "running",
+        "gpu_vram_mb": 8192
+      }
+    ],
+    "other_gpu_processes": [
+      "2231158, /usr/local/MATLAB/R2024b/interprocess/bin/glnxa64/pycli/MATLABPyHost, 2184 MiB"
+    ],
+    "available": false
+  },
+  "campaign_code_commit": "307b36a"
+}

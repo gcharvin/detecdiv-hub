@@ -1,0 +1,19 @@
+{
+  "tokenizer_only_no_model_weights_loaded": true,
+  "context_limit": 8192,
+  "output_reserve": 1100,
+  "input_tokens": {
+    "224d2cc4-d3aa-4f66-b3b1-445168898c0c": 2694,
+    "bf584f70-00c1-479b-867b-b6f4360641f0": 2714,
+    "941c7b37-b4b3-4cc1-b248-d8e90f6e68ce": 2668,
+    "909a5d12-3ed0-4d75-90e0-c7df3abb9122": 2831,
+    "7aa140d5-67f4-4b8a-8087-b5d78dbe9878": 4786,
+    "f9d102cc-0011-44ac-925d-2235c82078ed": 4429,
+    "e2a1b570-be3b-42f9-a911-ee4231d707a5": 6338,
+    "5cbf3dca-a43b-45c1-9135-cfc9d1966403": 4552,
+    "d72dbbfd-4711-4486-bf6b-5bd543220746": 3490,
+    "de164c62-f1da-4c61-8bff-a832ef891aab": 5589,
+    "393f1350-8ef7-4dee-ba33-9c7dc223dec5": 6084
+  },
+  "all_fit": true
+}

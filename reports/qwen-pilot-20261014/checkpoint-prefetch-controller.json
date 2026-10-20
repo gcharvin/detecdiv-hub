@@ -1,0 +1,39 @@
+{
+  "status": "started",
+  "supervisor_pid": 2595325,
+  "command": [
+    "nice",
+    "-n",
+    "19",
+    "ionice",
+    "-c",
+    "3",
+    "timeout",
+    "-k",
+    "30s",
+    "1800s",
+    "/home/charvin-admin/venvs/detecdiv-qwen/bin/python",
+    "/home/charvin-admin/.cache/detecdiv-qwen/pilot-main-download-20261014/prefetch.py",
+    "/home/charvin-admin/.cache/detecdiv-qwen/pilot-main-download-20261014"
+  ],
+  "manifest": {
+    "owner": "qwen-prefetch-18fb71e0-489e-433d-bb9f-87b46ca6cd45",
+    "cache": "/home/charvin-admin/.cache/detecdiv-qwen/huggingface/hub",
+    "models": [
+      {
+        "model": "Qwen/Qwen3-14B-FP8",
+        "revision": "9a283b4a5efbc09ce247e0ae5b02b744739e525a",
+        "weights_gib": 15.21
+      },
+      {
+        "model": "Qwen/Qwen3-8B-FP8",
+        "revision": "220b46e3b2180893580a4454f21f22d3ebb187d3",
+        "weights_gib": 8.79
+      }
+    ],
+    "expires_at": 1791982484.112815,
+    "cpu_nice": 19,
+    "io_class": "idle",
+    "max_workers": 1
+  }
+}

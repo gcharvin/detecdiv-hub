@@ -1,0 +1,249 @@
+{
+  "method": "Relecture qualitative de chaque réponse et des preuves figées par Codex. Aucun score automatique par mots-clés. Les captures du 14 octobre sont historiques, jamais un état live.",
+  "arms": {
+    "qwen3-14b-awq-int4": {
+      "reviewed_cases": 11,
+      "summary": "RAM et nœuds fautifs généralement bien identifiés ; aucune ETA inventée. Trois erreurs matérielles : succès partiel surinterprété, quatrième dimension confondue avec indice 4, canal Cellpose déduit d'un autre nœud. Aucun historique consulté pour les trois suivis.",
+      "cases": [
+        {
+          "job_prefix": "224d2cc4",
+          "judgement": "Utilisable sous supervision",
+          "finding": "Résume correctement les deux nœuds terminés et demande une validation biologique. L'avertissement dependency_audit.json absent est bien présent dans preflight.warnings ; ne pas le confondre avec l'affichage normal dependency_audit:[1x1 struct]. Allocation décrite comme usage réel : imprécision."
+        },
+        {
+          "job_prefix": "bf584f70",
+          "judgement": "Utilisable sous supervision",
+          "finding": "Code retour zéro et doneNodes 2/2 reconnus. Validation biologique explicitement requise. Avertissement préflight correctement rapporté."
+        },
+        {
+          "job_prefix": "941c7b37",
+          "judgement": "Erreur matérielle",
+          "finding": "Affirme les deux nœuds exécutés et les canaux traités alors que report_summary donne doneNodes=0,totalNodes=1. Le statut done n'établit pas les résultats scientifiques."
+        },
+        {
+          "job_prefix": "909a5d12",
+          "judgement": "Diagnostic fondé",
+          "finding": "OOM RAM+swap identifié, budgets 24576/1536 MiB corrects, hausse RAM ou baisse pool/batch proposées. Ne confond pas RAM et VRAM."
+        },
+        {
+          "job_prefix": "7aa140d5",
+          "judgement": "Diagnostic principal fondé, réserves",
+          "finding": "Reprend le mécanisme exact allocation par nombre de frames puis index absolu et préfixe partant de 1. Transforme aussi le message No data file for ROI en vérification de fichiers manquants, sans démontrer que ce soit la cause ; garder comme vérification secondaire."
+        },
+        {
+          "job_prefix": "f9d102cc",
+          "judgement": "Prudent mais incomplet",
+          "finding": "computeDrift DONE=12 frames est local ; aucun avancement global ni ETA affirmé. Heartbeat limité à l'activité du worker. N'appelle pas get_progress_history et ne démontre donc pas une tendance."
+        },
+        {
+          "job_prefix": "e2a1b570",
+          "judgement": "Prudent mais incomplet",
+          "finding": "Rapporte 86,3% et extraction 6/9, puis précise portée locale et ETA inconnue. La première formulation processus à 86,3% reste ambiguë. Aucun historique comparé."
+        },
+        {
+          "job_prefix": "5cbf3dca",
+          "judgement": "Trop affirmatif sur l'absence de blocage",
+          "finding": "Frame 47/100 et localValue=46% correctement circonscrits, pas d'ETA. Présente value=0,245 comme correspondant à 46%, sans relation prouvée ; conclut pas de blocage sans comparer l'historique. Heartbeat prouve le worker vivant, pas l'avancement."
+        },
+        {
+          "job_prefix": "d72dbbfd",
+          "judgement": "Diagnostic prudent mais générique",
+          "finding": "classifier_cnn_lstm_1, FOV8 ROI1 et MATLAB:table:RowDimensionMismatch correctement cités. Vérification des dimensions justifiée ; cause exacte et correctif restent inconnus. Ne contextualise pas l'ancien état cancelling/orphelin."
+        },
+        {
+          "job_prefix": "de164c62",
+          "judgement": "Erreur matérielle",
+          "finding": "Nœud lineage correct, mais traduit position 4 comme indice 4 et tableau de 13 éléments. La preuve porte sur le quatrième sous-indice/dimension, valeur fautive inconnue et supérieure à 13."
+        },
+        {
+          "job_prefix": "393f1350",
+          "judgement": "Erreur matérielle",
+          "finding": "Identifie CellposeSAM et absence de canal configuré, puis impose ou suggère 0 TL _z2 sans preuve : ce paramètre appartient à roipattern_4. Le canal Cellpose doit être validé contre les canaux réellement disponibles."
+        }
+      ]
+    },
+    "qwen3-14b-fp8": {
+      "reviewed_cases": 11,
+      "summary": "Pas de gain net sur AWQ : même confusion position 4 et canal Cellpose, contradiction du succès partiel non signalée, piste .mat non causale. Aucun ETA chiffré inventé, mais aucun historique réellement appelé.",
+      "cases": [
+        {
+          "job_prefix": "224d2cc4",
+          "judgement": "Utilisable sous supervision",
+          "finding": "Deux nœuds 2/2 et code zéro correctement résumés ; sorties à vérifier et validation biologique demandée. Avertissement préflight réel."
+        },
+        {
+          "job_prefix": "bf584f70",
+          "judgement": "Utilisable sous supervision",
+          "finding": "Succès technique 2/2 correctement établi ; pas de validation biologique automatique. Allocation parfois décrite comme consommation constatée."
+        },
+        {
+          "job_prefix": "941c7b37",
+          "judgement": "Omission critique",
+          "finding": "Ne prétend plus explicitement deux nœuds terminés, mais ignore doneNodes=0,totalNodes=1 et affirme un pipeline réussi avec canaux utilisés. Longue liste de contrôles sans signaler la contradiction centrale."
+        },
+        {
+          "job_prefix": "909a5d12",
+          "judgement": "Diagnostic fondé",
+          "finding": "RAM et swap 24576/1536 MiB correctement identifiés ; hausse budget ou réduction pool/batch, pas de confusion VRAM."
+        },
+        {
+          "job_prefix": "7aa140d5",
+          "judgement": "Correctif non fondé",
+          "finding": "Cite correctement le mécanisme de sélection absolue et le préfixe depuis 1. Fait ensuite du fichier .mat absent une explication alternative puis demande sa génération, sans lien prouvé avec LegacyFrameSelectionLimit ; ne formule pas précisément 1:N contigu comme correction suffisante."
+        },
+        {
+          "job_prefix": "f9d102cc",
+          "judgement": "Prudent mais incomplet",
+          "finding": "12 frames computeDrift local ; pas de pourcentage global ni ETA. Demande permission de lire un historique déjà disponible au lieu de le consulter."
+        },
+        {
+          "job_prefix": "e2a1b570",
+          "judgement": "Trop affirmatif sur la progression",
+          "finding": "Rapporte 86,3% puis précise portée locale ; aucune ETA inventée. Semble progresser normalement et absence de blocage déduites de error_text vide, sans historique. Propose de le consulter plus tard."
+        },
+        {
+          "job_prefix": "5cbf3dca",
+          "judgement": "Prudent mais incomplet",
+          "finding": "Frame 47/100 et 46% explicitement locaux, pas de conversion du value=0,245 et pas d’ETA. Heartbeat limité au worker actif ; absence de blocage reste non prouvée, historique non consulté."
+        },
+        {
+          "job_prefix": "d72dbbfd",
+          "judgement": "Diagnostic prudent mais générique",
+          "finding": "Nœud classifier et FOV8 ROI1 corrects, RowDimensionMismatch cité. Dimensions à vérifier, cause non prouvée ; chemins et corruption sont des pistes génériques. Omet contexte historique cancelling/orphelin."
+        },
+        {
+          "job_prefix": "de164c62",
+          "judgement": "Erreur matérielle",
+          "finding": "Nœud correct et indice hors limites identifié, mais position 4 traduite comme position dans un tableau de taille 13. Ne distingue pas quatrième dimension et valeur du sous-indice inconnue."
+        },
+        {
+          "job_prefix": "393f1350",
+          "judgement": "Erreur matérielle",
+          "finding": "Nœud Cellpose et absence de canal identifiés, puis associe le canal 0 TL _z2 au mauvais nœud et recommande de le configurer ou remplacer. La provenance de roipattern_4 ne justifie pas ce choix Cellpose."
+        }
+      ]
+    },
+    "qwen3-8b-awq-int4": {
+      "reviewed_cases": 11,
+      "summary": "VRAM basse, mais réponses longues (une tronquée), succès partiel surinterprété et 86,3% local transformé en avancement global. Historique appelé sur trois échecs, jamais sur les trois suivis ; pas d’ETA chiffrée inventée.",
+      "cases": [
+        {
+          "job_prefix": "224d2cc4",
+          "judgement": "Utilisable sous supervision, imprécisions",
+          "finding": "Reconnaît 2/2 et absence d’erreur. Contrôles de sorties corrects, mais appelle run.json un répertoire possible et traite les affichages de structs comme preuve d’exécution. Pas d’affirmation explicite de validation biologique."
+        },
+        {
+          "job_prefix": "bf584f70",
+          "judgement": "Réponse tronquée",
+          "finding": "Succès technique 2/2 correct et contrôle des sorties demandé. Répétitions et chemins longs conduisent à finish_reason=length au plafond 1100 tokens ; réponse à relire malgré bon diagnostic principal."
+        },
+        {
+          "job_prefix": "941c7b37",
+          "judgement": "Erreur matérielle",
+          "finding": "Affirme deux nœuds exécutés ; cite doneNodes=0,totalNodes=1 puis le présente comme confirmation du succès. Confond fin du processus et exécution des traitements scientifiques."
+        },
+        {
+          "job_prefix": "909a5d12",
+          "judgement": "Diagnostic fondé mais verbeux",
+          "finding": "RAM/swap 24576/1536 et OOM bien identifiés, batch et budget mémoire proposés. Appelle réellement l’historique de ce cas d’échec ; aucune confusion VRAM."
+        },
+        {
+          "job_prefix": "7aa140d5",
+          "judgement": "Diagnostic partiel",
+          "finding": "Limite de frames et départ à 1 reconnus, mais ne précise pas suffisamment la contiguïté du préfixe 1:N ; repartir de 1 seul ne suffit pas pour une sélection trouée. Message de fichier .mat absent traité comme autre problème causal. Historique appelé."
+        },
+        {
+          "job_prefix": "f9d102cc",
+          "judgement": "Prudent mais incomplet",
+          "finding": "Pas d’ETA ni de progression globale fabriquée. Heartbeat et computeDrift correctement rapportés comme activité limitée ; aucun historique comparé."
+        },
+        {
+          "job_prefix": "e2a1b570",
+          "judgement": "Erreur matérielle",
+          "finding": "Annonce 86,315789% du travail total alors que la fraction est locale à parallel_fov/extraction. Pas d’ETA chiffrée, mais surestime la portée de la mesure et ne lit pas l’historique."
+        },
+        {
+          "job_prefix": "5cbf3dca",
+          "judgement": "Portée ambiguë et progression surestimée",
+          "finding": "46% présenté comme travail effectué puis précisé local. Affirme 47 frames déjà traitées et 53 restantes alors que la capture dit frame 47 en traitement. Pas d’ETA, aucun historique comparé."
+        },
+        {
+          "job_prefix": "d72dbbfd",
+          "judgement": "Diagnostic principal fondé, pistes excessives",
+          "finding": "Nœud classifier, FOV8 ROI1 et RowDimensionMismatch corrects. Ajoute des vérifications du canal 0 TL _z2, dépendances et ressources sans cause démontrée ; omet contexte cancelling. Historique réellement appelé mais pas exploité pour ce contexte."
+        },
+        {
+          "job_prefix": "de164c62",
+          "judgement": "Prudent mais peu explicatif",
+          "finding": "Cite correctement index en position 4 avec borne 13, sans affirmer que la valeur fautive est 4. Propose vérifications de dimensions et indices, mais ne dit pas explicitement quatrième sous-indice et valeur inconnue."
+        },
+        {
+          "job_prefix": "393f1350",
+          "judgement": "Erreur matérielle",
+          "finding": "Absence de canal Cellpose reconnue, puis attribue le canal de roipattern_4 à Cellpose et recommande de le configurer. Message .mat absent également présenté comme problème contributif sans démonstration."
+        }
+      ]
+    },
+    "qwen3-8b-fp8": {
+      "reviewed_cases": 11,
+      "summary": "Consulte réellement les trois historiques de suivi et évite les ETA chiffrées, mais transforme encore des pourcentages locaux en progrès global et infère un ralentissement non démontré. Surinterprète le succès partiel et impose un canal non prouvé. Une réponse tronquée. Aucun gain global de fiabilité établi face à AWQ.",
+      "cases": [
+        {
+          "job_prefix": "224d2cc4",
+          "judgement": "Utilisable sous supervision, réserves",
+          "finding": "Reconnaît doneNodes 2/2 et code retour zéro ; demande les sorties et contrôles. La phase matlab_running ne prouve pas à elle seule une exécution correcte, et les champs stdout affichent des structures normales plutôt que des journaux entièrement vides. Les allocations ne sont pas une mesure des consommations."
+        },
+        {
+          "job_prefix": "bf584f70",
+          "judgement": "Utilisable sous supervision",
+          "finding": "Reconnaît le succès technique 2/2 et distingue explicitement la validation biologique. Demande les sorties plutôt que de conclure à leur qualité. Réponse complète."
+        },
+        {
+          "job_prefix": "941c7b37",
+          "judgement": "Erreur matérielle et réponse tronquée",
+          "finding": "Présente doneNodes=0,totalNodes=1 et la phase matlab_running comme des signes de bonne exécution, sans signaler la contradiction avec le succès global. Les deux nœuds sélectionnés ne sont pas prouvés exécutés. Réponse interrompue au plafond de 1100 tokens."
+        },
+        {
+          "job_prefix": "909a5d12",
+          "judgement": "Diagnostic principal fondé, réserves",
+          "finding": "Identifie correctement le budget RAM 24576 MiB et swap 1536 MiB, sans confusion VRAM. Reduire pool/batch ou augmenter le budget sont des pistes fondees. La taille 2048x2048 uint16 est bien presente dans recent_stdout : correction de la revue initiale qui la disait non prouvee. La reduction de resolution proposee reste un changement scientifique a valider. Historique effectivement consulte."
+        },
+        {
+          "job_prefix": "7aa140d5",
+          "judgement": "Diagnostic principal fondé, correction incomplète",
+          "finding": "Identifie extract_cropped_images_legacy et le préfixe commençant à 1, mais les consignes ne précisent pas assez que le préfixe doit être contigu 1:N ; commencer à 1 avec des trous ne suffit pas. Transforme No data file for ROI en défaut à corriger alors que ce message ne prouve pas la cause. Historique consulté."
+        },
+        {
+          "job_prefix": "f9d102cc",
+          "judgement": "Historique utilisé, progrès surinterprété",
+          "finding": "Appelle réellement get_progress_history et cite correctement les deux captures. Le changement de sortie établit une nouvelle sortie observée ; les points et heartbeat ne prouvent pas une progression scientifique continue. Affirme pourtant progression continue. Aucune ETA inventée."
+        },
+        {
+          "job_prefix": "e2a1b570",
+          "judgement": "Historique utilisé, erreur de portée",
+          "finding": "Observe à juste titre la hausse locale 86.04288499 vers 86.31578947 et cite les captures. Qualifie à plusieurs reprises cette valeur de progression globale, malgré la mention contradictoire valeur locale. Le pourcentage est celui de parallel_fov, pas de tout le pipeline. Aucune ETA inventée."
+        },
+        {
+          "job_prefix": "5cbf3dca",
+          "judgement": "Historique utilisé, ralentissement non démontré",
+          "finding": "Cite les frames 58 puis 47 et valeurs locales 0.57 puis 0.46. N’établit pas un périmètre ROI identique et conclut pourtant semble ralenti. Les valeurs runtime 0.2403567 puis 0.2450971 ne sont pas prouvées globales ; frame 47 ne signifie pas 47 frames achevées. Aucune ETA inventée."
+        },
+        {
+          "job_prefix": "d72dbbfd",
+          "judgement": "Cause partiellement reconnue, pistes non étayées",
+          "finding": "Reconnaît RowDimensionMismatch et dotAssign ligne 508 mais omet le nœud classifier_cnn_lstm_1, FOV8/ROI1, dans la réponse. Affirme un échec de chargement HDF5 et propose encodage/chemins sans preuve causale. L’ancien état Hub cancelling orphelin n’établit pas une annulation par un tiers. Deux captures terminales identiques ne prouvent pas que le problème persiste après correction."
+        },
+        {
+          "job_prefix": "de164c62",
+          "judgement": "Nœud et erreur reconnus, correction générique",
+          "finding": "Identifie processor_trackmotherlineageviterbi_9 et cite index en position 4, maximum 13, sans inventer la valeur fautive 4. Plus prudent que les 14B sur ce point ; ne précise toutefois pas que la position désigne le quatrième sous-indice. La cause exacte reste à vérifier ; pistes ressources/chemins générales non causales."
+        },
+        {
+          "job_prefix": "393f1350",
+          "judgement": "Erreur matérielle de paramétrage",
+          "finding": "Reconnaît l’absence de canal d’entrée configuré pour Cellpose SAM, puis affirme que le canal requis est 0 TL _z2. Ce nom provient d’un autre nœud, roipattern_4 : son transfert au nœud fautif n’est pas prouvé. Ne pas appliquer la configuration proposée sans validation des canaux disponibles et du paramètre du nœud concerné."
+        }
+      ]
+    }
+  }
+}

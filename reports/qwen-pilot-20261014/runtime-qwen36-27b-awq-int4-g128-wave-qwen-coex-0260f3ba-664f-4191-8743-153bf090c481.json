@@ -1,0 +1,258 @@
+{
+  "journal": "Started detecdiv-qwen.service - DetecDiv Hub local Qwen inference service.\n(APIServer pid=2857260) INFO 10-15 08:31:07 [api_utils.py:347]\n(APIServer pid=2857260) INFO 10-15 08:31:07 [api_utils.py:347]        █     █     █▄   ▄█\n(APIServer pid=2857260) INFO 10-15 08:31:07 [api_utils.py:347]  ▄▄ ▄█ █     █     █ ▀▄▀ █  version 0.29.0\n(APIServer pid=2857260) INFO 10-15 08:31:07 [api_utils.py:347]   █▄█▀ █     █     █     █  model   /home/charvin-admin/.cache/detecdiv-qwen/huggingface/hub/models--Alennnndy--Qwen3.6-27B-AWQ-4bit/snapshots/e13b92a483e9114f49541c09478dcff9db8ce3d6\n(APIServer pid=2857260) INFO 10-15 08:31:07 [api_utils.py:347]    ▀▀  ▀▀▀▀▀ ▀▀▀▀▀ ▀     ▀\n(APIServer pid=2857260) INFO 10-15 08:31:07 [api_utils.py:347]\n(APIServer pid=2857260) INFO 10-15 08:31:07 [api_utils.py:286] non-default args: {'model_tag': '/home/charvin-admin/.cache/detecdiv-qwen/huggingface/hub/models--Alennnndy--Qwen3.6-27B-AWQ-4bit/snapshots/e13b92a483e9114f49541c09478dcff9db8ce3d6', 'enable_auto_tool_choice': True, 'tool_call_parser': 'qwen3_coder', 'host': '127.0.0.1', 'port': 8002, 'model': '/home/charvin-admin/.cache/detecdiv-qwen/huggingface/hub/models--Alennnndy--Qwen3.6-27B-AWQ-4bit/snapshots/e13b92a483e9114f49541c09478dcff9db8ce3d6', 'max_model_len': 8192, 'enforce_eager': True, 'served_model_name': ['Alennnndy/Qwen3.6-27B-AWQ-4bit'], 'gpu_memory_utilization': 0.8, 'language_model_only': True, 'max_num_batched_tokens': 256, 'max_num_seqs': 1}\n(APIServer pid=2857260) INFO 10-15 08:31:17 [model.py:684] Resolved architecture: Qwen3_5ForConditionalGeneration\n(APIServer pid=2857260) INFO 10-15 08:31:17 [model.py:2021] Using max model len 8192\n(APIServer pid=2857260) INFO 10-15 08:31:20 [registry.py:141] All limits of multimodal modalities supported by the model are set to 0, running in text-only mode.\n(APIServer pid=2857260) INFO 10-15 08:31:20 [model.py:887] Disabled mm_prefix attention mode because multimodal inputs are configuration-disabled. Attention backends without mm_prefix support may now be selected.\n(APIServer pid=2857260) INFO 10-15 08:31:20 [scheduler.py:277] Chunked prefill is enabled with max_num_batched_tokens=256.\n(APIServer pid=2857260) INFO 10-15 08:31:20 [config.py:625] Mamba cache mode is set to 'align' for Qwen3_5ForConditionalGeneration by default when prefix caching is enabled\n(APIServer pid=2857260) WARNING 10-15 08:31:20 [vllm.py:1371] Enforce eager set, disabling torch.compile and CUDAGraphs. This is equivalent to setting -cc.mode=none -cc.cudagraph_mode=none\n(APIServer pid=2857260) WARNING 10-15 08:31:20 [vllm.py:1406] Inductor compilation was disabled by user settings, optimizations settings that are only active during inductor compilation will be ignored.\n(APIServer pid=2857260) INFO 10-15 08:31:20 [kernel.py:369] Final IR op priority after setting platform defaults: IrOpPriorityConfig(rms_norm=['vllm_c', 'native'], fused_add_rms_norm=['vllm_c', 'native'])\n(APIServer pid=2857260) INFO 10-15 08:31:20 [vllm.py:1585] Cudagraph is disabled under eager mode\n(APIServer pid=2857260) INFO 10-15 08:31:20 [compilation.py:329] Enabled custom fusions: norm_quant, act_quant\n(EngineCore pid=2858695) INFO 10-15 08:31:33 [core.py:123] Initializing a V1 LLM engine (v0.29.0) with config: model='/home/charvin-admin/.cache/detecdiv-qwen/huggingface/hub/models--Alennnndy--Qwen3.6-27B-AWQ-4bit/snapshots/e13b92a483e9114f49541c09478dcff9db8ce3d6', speculative_config=None, tokenizer='/home/charvin-admin/.cache/detecdiv-qwen/huggingface/hub/models--Alennnndy--Qwen3.6-27B-AWQ-4bit/snapshots/e13b92a483e9114f49541c09478dcff9db8ce3d6', skip_tokenizer_init=False, tokenizer_mode=auto, revision=None, tokenizer_revision=None, trust_remote_code=False, dtype=torch.bfloat16, max_seq_len=8192, download_dir=None, load_format=auto, tensor_parallel_size=1, pipeline_parallel_size=1, data_parallel_size=1, decode_context_parallel_size=1, dcp_comm_backend=ag_rs, disable_custom_all_reduce=False, quantization=compressed-tensors, quantization_config=None, enforce_eager=True, enable_return_routed_experts=False, kv_cache_dtype=auto, device_config=cuda, structured_outputs_config=StructuredOutputsConfig(backend='auto', disable_any_whitespace=False, disable_additional_properties=False, reasoning_parser='', reasoning_parser_plugin='', enable_in_reasoning=False), observability_config=ObservabilityConfig(show_hidden_metrics_for_version=None, otlp_traces_endpoint=None, collect_detailed_traces=None, per_request_spec_decode_metrics='none', kv_cache_metrics=False, kv_cache_metrics_sample=0.01, cudagraph_metrics=False, enable_layerwise_nvtx_tracing=False, enable_mfu_metrics=False, enable_mm_processor_stats=False, enable_logging_iteration_details=False, jit_monitor_mode='warn', jit_monitor_verbose=False), seed=0, served_model_name=Alennnndy/Qwen3.6-27B-AWQ-4bit, enable_prefix_caching=True, enable_chunked_prefill=True, pooler_config=None, compilation_config={'mode': <CompilationMode.NONE: 0>, 'debug_dump_path': None, 'cache_dir': '', 'compile_cache_save_format': 'binary', 'backend': 'inductor', 'custom_ops': ['all'], 'ir_enable_torch_wrap': False, 'splitting_ops': [], 'compile_mm_encoder': False, 'cudagraph_mm_encoder': False, 'encoder_cudagraph_token_budgets': [], 'encoder_cudagraph_max_vision_items_per_batch': 0, 'encoder_cudagraph_max_frames_per_batch': None, 'compile_sizes': [], 'compile_ranges_endpoints': [256], 'inductor_compile_config': {'enable_auto_functionalized_v2': False, 'combo_kernels': True, 'benchmark_combo_kernel': True}, 'inductor_passes': {}, 'cudagraph_mode': <CUDAGraphMode.NONE: 0>, 'cudagraph_num_of_warmups': 0, 'cudagraph_capture_sizes': [], 'cudagraph_copy_inputs': False, 'cudagraph_specialize_lora': True, 'use_inductor_graph_partition': False, 'pass_config': {'fuse_norm_quant': True, 'fuse_act_quant': True, 'fuse_attn_quant': False, 'enable_sp': False, 'fuse_gemm_comms': False, 'fuse_allreduce_rms': False, 'enable_qk_norm_rope_fusion': False, 'fuse_rope_kvcache_cat_mla': False, 'fuse_act_padding': False, 'fuse_qk_norm_rope_kvcache': False}, 'max_cudagraph_capture_size': 0, 'dynamic_shapes_config': {'type': <DynamicShapesType.BACKED: 'backed'>, 'evaluate_guards': False, 'assume_32_bit_indexing': False}, 'local_cache_dir': None, 'fast_moe_cold_start': False, 'static_all_moe_layers': []}, kernel_config=KernelConfig(ir_op_priority=IrOpPriorityConfig(rms_norm=['vllm_c', 'native'], fused_add_rms_norm=['vllm_c', 'native']), enable_flashinfer_autotune=True, enable_cutedsl_warmup=True, enable_jit_warmup=True, enable_bf16x3_router_gemm=False, moe_backend='auto', linear_backend='auto')\n(EngineCore pid=2858695) INFO 10-15 08:31:35 [registry.py:141] All limits of multimodal modalities supported by the model are set to 0, running in text-only mode.\n(EngineCore pid=2858695) INFO 10-15 08:31:35 [parallel_state.py:1775] world_size=1 rank=0 local_rank=0 distributed_init_method=file:///tmp/vllm_dist_93b747a51b764ac1999827ab87bd81e3 backend=nccl\n(EngineCore pid=2858695) INFO 10-15 08:31:35 [parallel_state.py:2119] rank 0 in world size 1 is assigned as DP rank 0, PP rank 0, PCP rank 0, TP rank 0, EP rank N/A, EPLB rank N/A\n(EngineCore pid=2858695) INFO 10-15 08:31:35 [gpu_worker.py:429] Using V2 Model Runner\n(EngineCore pid=2858695) INFO 10-15 08:31:36 [model_runner.py:382] Loading model from scratch...\n(EngineCore pid=2858695) INFO 10-15 08:31:36 [cuda.py:551] Using backend AttentionBackendEnum.FLASH_ATTN for vit attention\n(EngineCore pid=2858695) INFO 10-15 08:31:36 [mm_encoder_attention.py:372] Using AttentionBackendEnum.FLASH_ATTN for MMEncoderAttention.\n(EngineCore pid=2858695) INFO 10-15 08:31:36 [compressed_tensors_wNa16.py:137] Using MarlinLinearKernel for CompressedTensorsWNA16\n(EngineCore pid=2858695) INFO 10-15 08:31:36 [qwen_gdn_linear_attn.py:167] Using Triton/FLA GDN prefill kernel (requested=auto, head_k_dim=128).\n(EngineCore pid=2858695) INFO 10-15 08:31:36 [qwen_gdn_linear_attn.py:519] GDN decode kernel: cuda\n(EngineCore pid=2858695) INFO 10-15 08:31:37 [cuda.py:492] Using FLASH_ATTN attention backend out of potential backends: ['FLASH_ATTN', 'FLASHINFER', 'TRITON_ATTN', 'FLEX_ATTENTION'].\n(EngineCore pid=2858695) INFO 10-15 08:31:37 [flash_attn.py:897] Using FlashAttention version 2\n(EngineCore pid=2858695) INFO 10-15 08:31:37 [weight_utils.py:863] Filesystem type for checkpoints: EXT4. Checkpoint size: 17.38 GiB. Available RAM: 103.65 GiB.\n(EngineCore pid=2858695) INFO 10-15 08:31:37 [weight_utils.py:886] Auto-prefetch is disabled because the filesystem (EXT4) is not a recognized network FS (NFS/Lustre). If you want to force prefetching, start vLLM with --safetensors-load-strategy=prefetch.\n[40, 69, 110, 103, 105, 110, 101, 67, 111, 114, 101, 32, 112, 105, 100, 61, 50, 56, 53, 56, 54, 57, 53, 41, 32, 13, 76, 111, 97, 100, 105, 110, 103, 32, 115, 97, 102, 101, 116, 101, 110, 115, 111, 114, 115, 32, 99, 104, 101, 99, 107, 112, 111, 105, 110, 116, 32, 115, 104, 97, 114, 100, 115, 58, 32, 32, 32, 48, 37, 32, 67, 111, 109, 112, 108, 101, 116, 101, 100, 32, 124, 32, 48, 47, 49, 32, 91, 48, 48, 58, 48, 48, 60, 63, 44, 32, 63, 105, 116, 47, 115, 93]\n[40, 69, 110, 103, 105, 110, 101, 67, 111, 114, 101, 32, 112, 105, 100, 61, 50, 56, 53, 56, 54, 57, 53, 41, 32, 13, 76, 111, 97, 100, 105, 110, 103, 32, 115, 97, 102, 101, 116, 101, 110, 115, 111, 114, 115, 32, 99, 104, 101, 99, 107, 112, 111, 105, 110, 116, 32, 115, 104, 97, 114, 100, 115, 58, 32, 49, 48, 48, 37, 32, 67, 111, 109, 112, 108, 101, 116, 101, 100, 32, 124, 32, 49, 47, 49, 32, 91, 48, 48, 58, 48, 53, 60, 48, 48, 58, 48, 48, 44, 32, 32, 53, 46, 52, 56, 115, 47, 105, 116, 93]\n[40, 69, 110, 103, 105, 110, 101, 67, 111, 114, 101, 32, 112, 105, 100, 61, 50, 56, 53, 56, 54, 57, 53, 41, 32, 13, 76, 111, 97, 100, 105, 110, 103, 32, 115, 97, 102, 101, 116, 101, 110, 115, 111, 114, 115, 32, 99, 104, 101, 99, 107, 112, 111, 105, 110, 116, 32, 115, 104, 97, 114, 100, 115, 58, 32, 49, 48, 48, 37, 32, 67, 111, 109, 112, 108, 101, 116, 101, 100, 32, 124, 32, 49, 47, 49, 32, 91, 48, 48, 58, 48, 53, 60, 48, 48, 58, 48, 48, 44, 32, 32, 53, 46, 52, 56, 115, 47, 105, 116, 93]\n(EngineCore pid=2858695)\n(EngineCore pid=2858695) INFO 10-15 08:31:44 [default_loader.py:430] Loading weights took 6.13 seconds\n(EngineCore pid=2858695) WARNING 10-15 08:31:44 [marlin_utils.py:238] Marlin requires thread-tile padding for some weight shapes in this model. Activations and/or outputs of the padded layers are padded/sliced on every forward; performance may be degraded.\n(EngineCore pid=2858695) INFO 10-15 08:31:46 [model_runner.py:404] Model loading took 16.9 GiB memory and 10.309767 seconds\n(EngineCore pid=2858695) INFO 10-15 08:31:46 [topk_topp_sampler.py:46] FlashInfer top-p/top-k sampling disabled via VLLM_USE_FLASHINFER_SAMPLER=0.\n(EngineCore pid=2858695) INFO 10-15 08:31:46 [interface.py:918] Setting attention block size to 784 tokens to ensure that attention page size is >= mamba page size.\n(EngineCore pid=2858695) INFO 10-15 08:31:46 [interface.py:942] Padding mamba page size by 0.13% to ensure that mamba page size and attention page size are exactly equal.\n(EngineCore pid=2858695) INFO 10-15 08:31:46 [utils.py:306] Using LBNHC KV cache layout.\n(EngineCore pid=2858695) INFO 10-15 08:31:48 [marlin_utils.py:625] Marlin kernel can achieve better performance for small size_n with experimental use_atomic_add feature. You can consider set environment variable VLLM_MARLIN_USE_ATOMIC_ADD to 1 if possible.\n(EngineCore pid=2858695) /home/charvin-admin/venvs/detecdiv-qwen/lib/python3.12/site-packages/triton/language/core.py:2284: UserWarning: tl.make_block_ptr is deprecated. Use TensorDescriptor or tl.make_tensor_descriptor instead.\n(EngineCore pid=2858695)   warn(\"tl.make_block_ptr is deprecated. Use TensorDescriptor or tl.make_tensor_descriptor instead.\")\nStopping detecdiv-qwen.service - DetecDiv Hub local Qwen inference service...\ndetecdiv-qwen.service: State 'stop-sigterm' timed out. Killing.\ndetecdiv-qwen.service: Killing process 2857260 (vllm) with signal SIGKILL.\ndetecdiv-qwen.service: Killing process 2858694 (python3) with signal SIGKILL.\ndetecdiv-qwen.service: Failed to kill control group /system.slice/detecdiv-qwen.service, ignoring: Invalid argument\ndetecdiv-qwen.service: Main process exited, code=killed, status=9/KILL\ndetecdiv-qwen.service: Failed with result 'timeout'.\nStopped detecdiv-qwen.service - DetecDiv Hub local Qwen inference service.\ndetecdiv-qwen.service: Consumed 3min 9.653s CPU time.\nStarted detecdiv-qwen.service - DetecDiv Hub local Qwen inference service.\ndetecdiv-qwen.service: Deactivated successfully.",
+  "journal_records": [
+    {
+      "time": 1792045856.621666,
+      "message": "Started detecdiv-qwen.service - DetecDiv Hub local Qwen inference service."
+    },
+    {
+      "time": 1792045867.550355,
+      "message": "(APIServer pid=2857260) INFO 10-15 08:31:07 [api_utils.py:347]"
+    },
+    {
+      "time": 1792045867.550355,
+      "message": "(APIServer pid=2857260) INFO 10-15 08:31:07 [api_utils.py:347]        █     █     █▄   ▄█"
+    },
+    {
+      "time": 1792045867.550355,
+      "message": "(APIServer pid=2857260) INFO 10-15 08:31:07 [api_utils.py:347]  ▄▄ ▄█ █     █     █ ▀▄▀ █  version 0.29.0"
+    },
+    {
+      "time": 1792045867.550355,
+      "message": "(APIServer pid=2857260) INFO 10-15 08:31:07 [api_utils.py:347]   █▄█▀ █     █     █     █  model   /home/charvin-admin/.cache/detecdiv-qwen/huggingface/hub/models--Alennnndy--Qwen3.6-27B-AWQ-4bit/snapshots/e13b92a483e9114f49541c09478dcff9db8ce3d6"
+    },
+    {
+      "time": 1792045867.550355,
+      "message": "(APIServer pid=2857260) INFO 10-15 08:31:07 [api_utils.py:347]    ▀▀  ▀▀▀▀▀ ▀▀▀▀▀ ▀     ▀"
+    },
+    {
+      "time": 1792045867.550355,
+      "message": "(APIServer pid=2857260) INFO 10-15 08:31:07 [api_utils.py:347]"
+    },
+    {
+      "time": 1792045867.557649,
+      "message": "(APIServer pid=2857260) INFO 10-15 08:31:07 [api_utils.py:286] non-default args: {'model_tag': '/home/charvin-admin/.cache/detecdiv-qwen/huggingface/hub/models--Alennnndy--Qwen3.6-27B-AWQ-4bit/snapshots/e13b92a483e9114f49541c09478dcff9db8ce3d6', 'enable_auto_tool_choice': True, 'tool_call_parser': 'qwen3_coder', 'host': '127.0.0.1', 'port': 8002, 'model': '/home/charvin-admin/.cache/detecdiv-qwen/huggingface/hub/models--Alennnndy--Qwen3.6-27B-AWQ-4bit/snapshots/e13b92a483e9114f49541c09478dcff9db8ce3d6', 'max_model_len': 8192, 'enforce_eager': True, 'served_model_name': ['Alennnndy/Qwen3.6-27B-AWQ-4bit'], 'gpu_memory_utilization': 0.8, 'language_model_only': True, 'max_num_batched_tokens': 256, 'max_num_seqs': 1}"
+    },
+    {
+      "time": 1792045877.98493,
+      "message": "(APIServer pid=2857260) INFO 10-15 08:31:17 [model.py:684] Resolved architecture: Qwen3_5ForConditionalGeneration"
+    },
+    {
+      "time": 1792045877.985749,
+      "message": "(APIServer pid=2857260) INFO 10-15 08:31:17 [model.py:2021] Using max model len 8192"
+    },
+    {
+      "time": 1792045880.490929,
+      "message": "(APIServer pid=2857260) INFO 10-15 08:31:20 [registry.py:141] All limits of multimodal modalities supported by the model are set to 0, running in text-only mode."
+    },
+    {
+      "time": 1792045880.491807,
+      "message": "(APIServer pid=2857260) INFO 10-15 08:31:20 [model.py:887] Disabled mm_prefix attention mode because multimodal inputs are configuration-disabled. Attention backends without mm_prefix support may now be selected."
+    },
+    {
+      "time": 1792045880.646089,
+      "message": "(APIServer pid=2857260) INFO 10-15 08:31:20 [scheduler.py:277] Chunked prefill is enabled with max_num_batched_tokens=256."
+    },
+    {
+      "time": 1792045880.646669,
+      "message": "(APIServer pid=2857260) INFO 10-15 08:31:20 [config.py:625] Mamba cache mode is set to 'align' for Qwen3_5ForConditionalGeneration by default when prefix caching is enabled"
+    },
+    {
+      "time": 1792045880.646985,
+      "message": "(APIServer pid=2857260) WARNING 10-15 08:31:20 [vllm.py:1371] Enforce eager set, disabling torch.compile and CUDAGraphs. This is equivalent to setting -cc.mode=none -cc.cudagraph_mode=none"
+    },
+    {
+      "time": 1792045880.647084,
+      "message": "(APIServer pid=2857260) WARNING 10-15 08:31:20 [vllm.py:1406] Inductor compilation was disabled by user settings, optimizations settings that are only active during inductor compilation will be ignored."
+    },
+    {
+      "time": 1792045880.647618,
+      "message": "(APIServer pid=2857260) INFO 10-15 08:31:20 [kernel.py:369] Final IR op priority after setting platform defaults: IrOpPriorityConfig(rms_norm=['vllm_c', 'native'], fused_add_rms_norm=['vllm_c', 'native'])"
+    },
+    {
+      "time": 1792045880.647789,
+      "message": "(APIServer pid=2857260) INFO 10-15 08:31:20 [vllm.py:1585] Cudagraph is disabled under eager mode"
+    },
+    {
+      "time": 1792045880.672916,
+      "message": "(APIServer pid=2857260) INFO 10-15 08:31:20 [compilation.py:329] Enabled custom fusions: norm_quant, act_quant"
+    },
+    {
+      "time": 1792045893.098016,
+      "message": "(EngineCore pid=2858695) INFO 10-15 08:31:33 [core.py:123] Initializing a V1 LLM engine (v0.29.0) with config: model='/home/charvin-admin/.cache/detecdiv-qwen/huggingface/hub/models--Alennnndy--Qwen3.6-27B-AWQ-4bit/snapshots/e13b92a483e9114f49541c09478dcff9db8ce3d6', speculative_config=None, tokenizer='/home/charvin-admin/.cache/detecdiv-qwen/huggingface/hub/models--Alennnndy--Qwen3.6-27B-AWQ-4bit/snapshots/e13b92a483e9114f49541c09478dcff9db8ce3d6', skip_tokenizer_init=False, tokenizer_mode=auto, revision=None, tokenizer_revision=None, trust_remote_code=False, dtype=torch.bfloat16, max_seq_len=8192, download_dir=None, load_format=auto, tensor_parallel_size=1, pipeline_parallel_size=1, data_parallel_size=1, decode_context_parallel_size=1, dcp_comm_backend=ag_rs, disable_custom_all_reduce=False, quantization=compressed-tensors, quantization_config=None, enforce_eager=True, enable_return_routed_experts=False, kv_cache_dtype=auto, device_config=cuda, structured_outputs_config=StructuredOutputsConfig(backend='auto', disable_any_whitespace=False, disable_additional_properties=False, reasoning_parser='', reasoning_parser_plugin='', enable_in_reasoning=False), observability_config=ObservabilityConfig(show_hidden_metrics_for_version=None, otlp_traces_endpoint=None, collect_detailed_traces=None, per_request_spec_decode_metrics='none', kv_cache_metrics=False, kv_cache_metrics_sample=0.01, cudagraph_metrics=False, enable_layerwise_nvtx_tracing=False, enable_mfu_metrics=False, enable_mm_processor_stats=False, enable_logging_iteration_details=False, jit_monitor_mode='warn', jit_monitor_verbose=False), seed=0, served_model_name=Alennnndy/Qwen3.6-27B-AWQ-4bit, enable_prefix_caching=True, enable_chunked_prefill=True, pooler_config=None, compilation_config={'mode': <CompilationMode.NONE: 0>, 'debug_dump_path': None, 'cache_dir': '', 'compile_cache_save_format': 'binary', 'backend': 'inductor', 'custom_ops': ['all'], 'ir_enable_torch_wrap': False, 'splitting_ops': [], 'compile_mm_encoder': False, 'cudagraph_mm_encoder': False, 'encoder_cudagraph_token_budgets': [], 'encoder_cudagraph_max_vision_items_per_batch': 0, 'encoder_cudagraph_max_frames_per_batch': None, 'compile_sizes': [], 'compile_ranges_endpoints': [256], 'inductor_compile_config': {'enable_auto_functionalized_v2': False, 'combo_kernels': True, 'benchmark_combo_kernel': True}, 'inductor_passes': {}, 'cudagraph_mode': <CUDAGraphMode.NONE: 0>, 'cudagraph_num_of_warmups': 0, 'cudagraph_capture_sizes': [], 'cudagraph_copy_inputs': False, 'cudagraph_specialize_lora': True, 'use_inductor_graph_partition': False, 'pass_config': {'fuse_norm_quant': True, 'fuse_act_quant': True, 'fuse_attn_quant': False, 'enable_sp': False, 'fuse_gemm_comms': False, 'fuse_allreduce_rms': False, 'enable_qk_norm_rope_fusion': False, 'fuse_rope_kvcache_cat_mla': False, 'fuse_act_padding': False, 'fuse_qk_norm_rope_kvcache': False}, 'max_cudagraph_capture_size': 0, 'dynamic_shapes_config': {'type': <DynamicShapesType.BACKED: 'backed'>, 'evaluate_guards': False, 'assume_32_bit_indexing': False}, 'local_cache_dir': None, 'fast_moe_cold_start': False, 'static_all_moe_layers': []}, kernel_config=KernelConfig(ir_op_priority=IrOpPriorityConfig(rms_norm=['vllm_c', 'native'], fused_add_rms_norm=['vllm_c', 'native']), enable_flashinfer_autotune=True, enable_cutedsl_warmup=True, enable_jit_warmup=True, enable_bf16x3_router_gemm=False, moe_backend='auto', linear_backend='auto')"
+    },
+    {
+      "time": 1792045895.824487,
+      "message": "(EngineCore pid=2858695) INFO 10-15 08:31:35 [registry.py:141] All limits of multimodal modalities supported by the model are set to 0, running in text-only mode."
+    },
+    {
+      "time": 1792045895.874027,
+      "message": "(EngineCore pid=2858695) INFO 10-15 08:31:35 [parallel_state.py:1775] world_size=1 rank=0 local_rank=0 distributed_init_method=file:///tmp/vllm_dist_93b747a51b764ac1999827ab87bd81e3 backend=nccl"
+    },
+    {
+      "time": 1792045895.892718,
+      "message": "(EngineCore pid=2858695) INFO 10-15 08:31:35 [parallel_state.py:2119] rank 0 in world size 1 is assigned as DP rank 0, PP rank 0, PCP rank 0, TP rank 0, EP rank N/A, EPLB rank N/A"
+    },
+    {
+      "time": 1792045895.892876,
+      "message": "(EngineCore pid=2858695) INFO 10-15 08:31:35 [gpu_worker.py:429] Using V2 Model Runner"
+    },
+    {
+      "time": 1792045896.621368,
+      "message": "(EngineCore pid=2858695) INFO 10-15 08:31:36 [model_runner.py:382] Loading model from scratch..."
+    },
+    {
+      "time": 1792045896.632225,
+      "message": "(EngineCore pid=2858695) INFO 10-15 08:31:36 [cuda.py:551] Using backend AttentionBackendEnum.FLASH_ATTN for vit attention"
+    },
+    {
+      "time": 1792045896.633211,
+      "message": "(EngineCore pid=2858695) INFO 10-15 08:31:36 [mm_encoder_attention.py:372] Using AttentionBackendEnum.FLASH_ATTN for MMEncoderAttention."
+    },
+    {
+      "time": 1792045896.670011,
+      "message": "(EngineCore pid=2858695) INFO 10-15 08:31:36 [compressed_tensors_wNa16.py:137] Using MarlinLinearKernel for CompressedTensorsWNA16"
+    },
+    {
+      "time": 1792045896.671884,
+      "message": "(EngineCore pid=2858695) INFO 10-15 08:31:36 [qwen_gdn_linear_attn.py:167] Using Triton/FLA GDN prefill kernel (requested=auto, head_k_dim=128)."
+    },
+    {
+      "time": 1792045896.672112,
+      "message": "(EngineCore pid=2858695) INFO 10-15 08:31:36 [qwen_gdn_linear_attn.py:519] GDN decode kernel: cuda"
+    },
+    {
+      "time": 1792045897.542766,
+      "message": "(EngineCore pid=2858695) INFO 10-15 08:31:37 [cuda.py:492] Using FLASH_ATTN attention backend out of potential backends: ['FLASH_ATTN', 'FLASHINFER', 'TRITON_ATTN', 'FLEX_ATTENTION']."
+    },
+    {
+      "time": 1792045897.543517,
+      "message": "(EngineCore pid=2858695) INFO 10-15 08:31:37 [flash_attn.py:897] Using FlashAttention version 2"
+    },
+    {
+      "time": 1792045897.909041,
+      "message": "(EngineCore pid=2858695) INFO 10-15 08:31:37 [weight_utils.py:863] Filesystem type for checkpoints: EXT4. Checkpoint size: 17.38 GiB. Available RAM: 103.65 GiB."
+    },
+    {
+      "time": 1792045897.909384,
+      "message": "(EngineCore pid=2858695) INFO 10-15 08:31:37 [weight_utils.py:886] Auto-prefetch is disabled because the filesystem (EXT4) is not a recognized network FS (NFS/Lustre). If you want to force prefetching, start vLLM with --safetensors-load-strategy=prefetch."
+    },
+    {
+      "time": 1792045897.910311,
+      "message": "[40, 69, 110, 103, 105, 110, 101, 67, 111, 114, 101, 32, 112, 105, 100, 61, 50, 56, 53, 56, 54, 57, 53, 41, 32, 13, 76, 111, 97, 100, 105, 110, 103, 32, 115, 97, 102, 101, 116, 101, 110, 115, 111, 114, 115, 32, 99, 104, 101, 99, 107, 112, 111, 105, 110, 116, 32, 115, 104, 97, 114, 100, 115, 58, 32, 32, 32, 48, 37, 32, 67, 111, 109, 112, 108, 101, 116, 101, 100, 32, 124, 32, 48, 47, 49, 32, 91, 48, 48, 58, 48, 48, 60, 63, 44, 32, 63, 105, 116, 47, 115, 93]"
+    },
+    {
+      "time": 1792045903.388188,
+      "message": "[40, 69, 110, 103, 105, 110, 101, 67, 111, 114, 101, 32, 112, 105, 100, 61, 50, 56, 53, 56, 54, 57, 53, 41, 32, 13, 76, 111, 97, 100, 105, 110, 103, 32, 115, 97, 102, 101, 116, 101, 110, 115, 111, 114, 115, 32, 99, 104, 101, 99, 107, 112, 111, 105, 110, 116, 32, 115, 104, 97, 114, 100, 115, 58, 32, 49, 48, 48, 37, 32, 67, 111, 109, 112, 108, 101, 116, 101, 100, 32, 124, 32, 49, 47, 49, 32, 91, 48, 48, 58, 48, 53, 60, 48, 48, 58, 48, 48, 44, 32, 32, 53, 46, 52, 56, 115, 47, 105, 116, 93]"
+    },
+    {
+      "time": 1792045903.396953,
+      "message": "[40, 69, 110, 103, 105, 110, 101, 67, 111, 114, 101, 32, 112, 105, 100, 61, 50, 56, 53, 56, 54, 57, 53, 41, 32, 13, 76, 111, 97, 100, 105, 110, 103, 32, 115, 97, 102, 101, 116, 101, 110, 115, 111, 114, 115, 32, 99, 104, 101, 99, 107, 112, 111, 105, 110, 116, 32, 115, 104, 97, 114, 100, 115, 58, 32, 49, 48, 48, 37, 32, 67, 111, 109, 112, 108, 101, 116, 101, 100, 32, 124, 32, 49, 47, 49, 32, 91, 48, 48, 58, 48, 53, 60, 48, 48, 58, 48, 48, 44, 32, 32, 53, 46, 52, 56, 115, 47, 105, 116, 93]"
+    },
+    {
+      "time": 1792045903.396953,
+      "message": "(EngineCore pid=2858695)"
+    },
+    {
+      "time": 1792045904.040353,
+      "message": "(EngineCore pid=2858695) INFO 10-15 08:31:44 [default_loader.py:430] Loading weights took 6.13 seconds"
+    },
+    {
+      "time": 1792045904.073108,
+      "message": "(EngineCore pid=2858695) WARNING 10-15 08:31:44 [marlin_utils.py:238] Marlin requires thread-tile padding for some weight shapes in this model. Activations and/or outputs of the padded layers are padded/sliced on every forward; performance may be degraded."
+    },
+    {
+      "time": 1792045906.652577,
+      "message": "(EngineCore pid=2858695) INFO 10-15 08:31:46 [model_runner.py:404] Model loading took 16.9 GiB memory and 10.309767 seconds"
+    },
+    {
+      "time": 1792045906.713584,
+      "message": "(EngineCore pid=2858695) INFO 10-15 08:31:46 [topk_topp_sampler.py:46] FlashInfer top-p/top-k sampling disabled via VLLM_USE_FLASHINFER_SAMPLER=0."
+    },
+    {
+      "time": 1792045906.71418,
+      "message": "(EngineCore pid=2858695) INFO 10-15 08:31:46 [interface.py:918] Setting attention block size to 784 tokens to ensure that attention page size is >= mamba page size."
+    },
+    {
+      "time": 1792045906.714275,
+      "message": "(EngineCore pid=2858695) INFO 10-15 08:31:46 [interface.py:942] Padding mamba page size by 0.13% to ensure that mamba page size and attention page size are exactly equal."
+    },
+    {
+      "time": 1792045906.715741,
+      "message": "(EngineCore pid=2858695) INFO 10-15 08:31:46 [utils.py:306] Using LBNHC KV cache layout."
+    },
+    {
+      "time": 1792045908.662825,
+      "message": "(EngineCore pid=2858695) INFO 10-15 08:31:48 [marlin_utils.py:625] Marlin kernel can achieve better performance for small size_n with experimental use_atomic_add feature. You can consider set environment variable VLLM_MARLIN_USE_ATOMIC_ADD to 1 if possible."
+    },
+    {
+      "time": 1792045908.983113,
+      "message": "(EngineCore pid=2858695) /home/charvin-admin/venvs/detecdiv-qwen/lib/python3.12/site-packages/triton/language/core.py:2284: UserWarning: tl.make_block_ptr is deprecated. Use TensorDescriptor or tl.make_tensor_descriptor instead."
+    },
+    {
+      "time": 1792045908.983113,
+      "message": "(EngineCore pid=2858695)   warn(\"tl.make_block_ptr is deprecated. Use TensorDescriptor or tl.make_tensor_descriptor instead.\")"
+    },
+    {
+      "time": 1792045986.72733,
+      "message": "Stopping detecdiv-qwen.service - DetecDiv Hub local Qwen inference service..."
+    },
+    {
+      "time": 1792046031.835867,
+      "message": "detecdiv-qwen.service: State 'stop-sigterm' timed out. Killing."
+    },
+    {
+      "time": 1792046031.83712,
+      "message": "detecdiv-qwen.service: Killing process 2857260 (vllm) with signal SIGKILL."
+    },
+    {
+      "time": 1792046031.837277,
+      "message": "detecdiv-qwen.service: Killing process 2858694 (python3) with signal SIGKILL."
+    },
+    {
+      "time": 1792046031.837764,
+      "message": "detecdiv-qwen.service: Failed to kill control group /system.slice/detecdiv-qwen.service, ignoring: Invalid argument"
+    },
+    {
+      "time": 1792046032.024028,
+      "message": "detecdiv-qwen.service: Main process exited, code=killed, status=9/KILL"
+    },
+    {
+      "time": 1792046032.024279,
+      "message": "detecdiv-qwen.service: Failed with result 'timeout'."
+    },
+    {
+      "time": 1792046032.025016,
+      "message": "Stopped detecdiv-qwen.service - DetecDiv Hub local Qwen inference service."
+    },
+    {
+      "time": 1792046032.025567,
+      "message": "detecdiv-qwen.service: Consumed 3min 9.653s CPU time."
+    },
+    {
+      "time": 1792046032.097801,
+      "message": "Started detecdiv-qwen.service - DetecDiv Hub local Qwen inference service."
+    },
+    {
+      "time": 1792046032.118485,
+      "message": "detecdiv-qwen.service: Deactivated successfully."
+    }
+  ],
+  "watchdog": {
+    "owner": "qwen-coex-0260f3ba-664f-4191-8743-153bf090c481",
+    "pid": 2857187,
+    "status": "stopped",
+    "peak_service_mib": 18762,
+    "started_at": 1792045854.2386189,
+    "checked_at": 1792045986.694449,
+    "service_mib": 17934,
+    "free_mib": 6560,
+    "reason": "stop requested or lease expired",
+    "stop_exit_code": 0,
+    "launcher_restored": true,
+    "finished_at": 1792046032.1393538
+  },
+  "checked_at": "2026-10-15T06:34:11.494051+00:00",
+  "label": "qwen36-27b-awq-int4-g128",
+  "since": "2026-10-15 06:30:46 UTC"
+}

@@ -1,0 +1,315 @@
+{
+  "corpus_sha256": "e3fc6d927b24cbb18bf2b936d7405e4bd7b42eadee0be76c2dbc6ea216e276ce",
+  "corpus_cases": 11,
+  "total_responses_reviewed": 44,
+  "method": "Relecture qualitative de chaque réponse et des preuves figées par Codex. Aucun score automatique par mots-clés. Les captures du 14 octobre sont historiques, jamais un état live.",
+  "arms": [
+    {
+      "label": "qwen3-14b-awq-int4",
+      "model": "Qwen/Qwen3-14B-AWQ",
+      "revision": "31c69efc29464b6bb0aee1398b5a7b50a99340c3",
+      "cases": 11,
+      "response_status_counts": {
+        "answer_returned": 11
+      },
+      "quality_summary": "RAM et nœuds fautifs généralement bien identifiés ; aucune ETA inventée. Trois erreurs matérielles : succès partiel surinterprété, quatrième dimension confondue avec indice 4, canal Cellpose déduit d'un autre nœud. Aucun historique consulté pour les trois suivis.",
+      "reviewed_cases": 11,
+      "latency_seconds": {
+        "median_conversation_provider": 17.717120120069012,
+        "min": 11.75407908204943,
+        "max": 22.987158658914268,
+        "sum": 189.693359951023,
+        "case_values": [
+          22.987158658914268,
+          21.69530942896381,
+          16.221294317860156,
+          12.264541229000315,
+          18.350988435093313,
+          11.75407908204943,
+          13.107329935999587,
+          15.101629025069997,
+          18.687328812899068,
+          21.806580905104056,
+          17.717120120069012
+        ]
+      },
+      "tokens": {
+        "prompt_tokens": 48461,
+        "completion_tokens": 5343,
+        "total_tokens": 53804
+      },
+      "tool_calls": {
+        "get_job_evidence": 11
+      },
+      "provider_requests": 22,
+      "vram_mib": {
+        "loading_peak_sampled": 13488,
+        "residence_median_after_ready": 13552,
+        "residence_peak_after_ready": 13552,
+        "service_peak_sampled": 13552,
+        "physical_peak": 13634,
+        "physical_minimum_free": 10942
+      },
+      "weight_loading_memory_gib_runtime": 9.44,
+      "kernel_evidence": [
+        "(EngineCore pid=2757662) INFO 10-15 05:09:48 [auto_awq.py:448] Using MarlinLinearKernel for AutoAWQMarlinLinearMethod"
+      ],
+      "ready_at_unix": 1792033805.644544,
+      "controller_duration_seconds": 460.9966959953308,
+      "inference_settings": {
+        "revision": "31c69efc29464b6bb0aee1398b5a7b50a99340c3",
+        "context_tokens": 8192,
+        "kv_cache_mib": 0,
+        "cpu_offload_gib": 0,
+        "allocator_gc": 0,
+        "disable_uva": false,
+        "max_new_tokens": 1100,
+        "evidence_profile": "standard",
+        "gpu_memory_utilization": 0.55,
+        "max_service_mib": 22400
+      },
+      "cleanup_verified": true
+    },
+    {
+      "label": "qwen3-14b-fp8",
+      "model": "Qwen/Qwen3-14B-FP8",
+      "revision": "9a283b4a5efbc09ce247e0ae5b02b744739e525a",
+      "cases": 11,
+      "response_status_counts": {
+        "answer_returned": 11
+      },
+      "quality_summary": "Pas de gain net sur AWQ : même confusion position 4 et canal Cellpose, contradiction du succès partiel non signalée, piste .mat non causale. Aucun ETA chiffré inventé, mais aucun historique réellement appelé.",
+      "reviewed_cases": 11,
+      "latency_seconds": {
+        "median_conversation_provider": 21.713662789203227,
+        "min": 14.313286218093708,
+        "max": 38.69142545503564,
+        "sum": 240.62567911972292,
+        "case_values": [
+          23.61052587116137,
+          21.713662789203227,
+          38.69142545503564,
+          14.313286218093708,
+          22.925471453228965,
+          16.936971633927897,
+          20.791734183905646,
+          15.354243919020519,
+          19.367517116013914,
+          24.362735050031915,
+          22.558105430100113
+        ]
+      },
+      "tokens": {
+        "prompt_tokens": 48461,
+        "completion_tokens": 6428,
+        "total_tokens": 54889
+      },
+      "tool_calls": {
+        "get_job_evidence": 11
+      },
+      "provider_requests": 22,
+      "vram_mib": {
+        "loading_peak_sampled": 19516,
+        "residence_median_after_ready": 19538,
+        "residence_peak_after_ready": 19538,
+        "service_peak_sampled": 19538,
+        "physical_peak": 19620,
+        "physical_minimum_free": 4956
+      },
+      "weight_loading_memory_gib_runtime": 15.54,
+      "kernel_evidence": [
+        "(EngineCore pid=2777879) INFO 10-15 05:19:03 [__init__.py:695] Selected MarlinFP8ScaledMMLinearKernel for Fp8LinearMethod",
+        "(EngineCore pid=2777879) WARNING 10-15 05:19:15 [marlin_utils_fp8.py:112] Your GPU does not have native support for FP8 computation but FP8 quantization is being used. Weight-only FP8 compression will be used leveraging the Marlin kernel. This may degrade performance for compute-heavy workloads."
+      ],
+      "ready_at_unix": 1792034363.114614,
+      "controller_duration_seconds": 512.5935707092285,
+      "inference_settings": {
+        "revision": "9a283b4a5efbc09ce247e0ae5b02b744739e525a",
+        "context_tokens": 8192,
+        "kv_cache_mib": 0,
+        "cpu_offload_gib": 0,
+        "allocator_gc": 0,
+        "disable_uva": false,
+        "max_new_tokens": 1100,
+        "evidence_profile": "standard",
+        "gpu_memory_utilization": 0.8,
+        "max_service_mib": 22400
+      },
+      "cleanup_verified": true
+    },
+    {
+      "label": "qwen3-8b-awq-int4",
+      "model": "Qwen/Qwen3-8B-AWQ",
+      "revision": "4da05a8edb55c6046cce958586c33b61da07bb79",
+      "cases": 11,
+      "response_status_counts": {
+        "answer_returned": 10,
+        "truncated": 1
+      },
+      "quality_summary": "VRAM basse, mais réponses longues (une tronquée), succès partiel surinterprété et 86,3% local transformé en avancement global. Historique appelé sur trois échecs, jamais sur les trois suivis ; pas d’ETA chiffrée inventée.",
+      "reviewed_cases": 11,
+      "latency_seconds": {
+        "median_conversation_provider": 19.447932033101097,
+        "min": 15.048574890941381,
+        "max": 34.903789984062314,
+        "sum": 242.55403704871424,
+        "case_values": [
+          26.645082453964278,
+          34.903789984062314,
+          26.781240286072716,
+          26.189535065786913,
+          18.282055964926258,
+          16.015123213175684,
+          15.048574890941381,
+          19.447932033101097,
+          26.560080777853727,
+          16.840241834986955,
+          15.840380543842912
+        ]
+      },
+      "tokens": {
+        "prompt_tokens": 61321,
+        "completion_tokens": 7831,
+        "total_tokens": 69152
+      },
+      "tool_calls": {
+        "get_job_evidence": 11,
+        "get_progress_history": 3
+      },
+      "provider_requests": 25,
+      "vram_mib": {
+        "loading_peak_sampled": 9866,
+        "residence_median_after_ready": 8710.0,
+        "residence_peak_after_ready": 8710,
+        "service_peak_sampled": 9866,
+        "physical_peak": 9948,
+        "physical_minimum_free": 14628
+      },
+      "weight_loading_memory_gib_runtime": 5.71,
+      "kernel_evidence": [
+        "(EngineCore pid=2797745) INFO 10-15 05:27:49 [auto_awq.py:448] Using MarlinLinearKernel for AutoAWQMarlinLinearMethod"
+      ],
+      "ready_at_unix": 1792034881.324374,
+      "controller_duration_seconds": 534.2562494277954,
+      "inference_settings": {
+        "revision": "4da05a8edb55c6046cce958586c33b61da07bb79",
+        "context_tokens": 8192,
+        "kv_cache_mib": 0,
+        "cpu_offload_gib": 0,
+        "allocator_gc": 0,
+        "disable_uva": false,
+        "max_new_tokens": 1100,
+        "evidence_profile": "standard",
+        "gpu_memory_utilization": 0.35,
+        "max_service_mib": 22400
+      },
+      "cleanup_verified": true
+    },
+    {
+      "label": "qwen3-8b-fp8",
+      "model": "Qwen/Qwen3-8B-FP8",
+      "revision": "220b46e3b2180893580a4454f21f22d3ebb187d3",
+      "cases": 11,
+      "response_status_counts": {
+        "answer_returned": 10,
+        "truncated": 1
+      },
+      "quality_summary": "Consulte réellement les trois historiques de suivi et évite les ETA chiffrées, mais transforme encore des pourcentages locaux en progrès global et infère un ralentissement non démontré. Surinterprète le succès partiel et impose un canal non prouvé. Une réponse tronquée. Aucun gain global de fiabilité établi face à AWQ.",
+      "reviewed_cases": 11,
+      "latency_seconds": {
+        "median_conversation_provider": 25.05544509505853,
+        "min": 20.884986416902393,
+        "max": 35.932779466034845,
+        "sum": 284.78602571296506,
+        "case_values": [
+          23.643318563699722,
+          26.001027672784403,
+          35.932779466034845,
+          27.990764274727553,
+          26.2135567269288,
+          20.884986416902393,
+          24.967597702983767,
+          21.063519147923216,
+          29.618438977748156,
+          23.41459166817367,
+          25.05544509505853
+        ]
+      },
+      "tokens": {
+        "prompt_tokens": 64721,
+        "completion_tokens": 8835,
+        "total_tokens": 73556
+      },
+      "tool_calls": {
+        "get_job_evidence": 11,
+        "get_progress_history": 6
+      },
+      "provider_requests": 25,
+      "vram_mib": {
+        "loading_peak_sampled": 13494,
+        "residence_median_after_ready": 13538.0,
+        "residence_peak_after_ready": 13538,
+        "service_peak_sampled": 13538,
+        "physical_peak": 13620,
+        "physical_minimum_free": 10956
+      },
+      "weight_loading_memory_gib_runtime": 8.9,
+      "kernel_evidence": [
+        "(EngineCore pid=2820782) INFO 10-15 05:38:09 [__init__.py:695] Selected MarlinFP8ScaledMMLinearKernel for Fp8LinearMethod",
+        "(EngineCore pid=2820782) WARNING 10-15 05:38:18 [marlin_utils_fp8.py:112] Your GPU does not have native support for FP8 computation but FP8 quantization is being used. Weight-only FP8 compression will be used leveraging the Marlin kernel. This may degrade performance for compute-heavy workloads."
+      ],
+      "ready_at_unix": 1792035505.59633,
+      "controller_duration_seconds": 571.2206251621246,
+      "inference_settings": {
+        "revision": "220b46e3b2180893580a4454f21f22d3ebb187d3",
+        "context_tokens": 8192,
+        "kv_cache_mib": 0,
+        "cpu_offload_gib": 0,
+        "allocator_gc": 0,
+        "disable_uva": false,
+        "max_new_tokens": 1100,
+        "evidence_profile": "standard",
+        "gpu_memory_utilization": 0.55,
+        "max_service_mib": 22400
+      },
+      "cleanup_verified": true
+    }
+  ],
+  "conclusions": {
+    "recommendation": [
+      "Choix provisoire pour DetecDiv Hub : Qwen/Qwen3-14B-AWQ, révision 31c69efc29464b6bb0aee1398b5a7b50a99340c3, uniquement comme assistant de diagnostic supervisé. Sur ces 11 cas, il produit les réponses les plus courtes et la plus faible médiane de conversation provider observée (17,72 s), avec 13,23 Gio de pic propre au service. Il reconnaît notamment l’OOM RAM et plusieurs nœuds fautifs. Cette préférence est un compromis opérationnel, pas une supériorité statistique démontrée.",
+      "Conserver la configuration testée : contexte 8192, concurrence 1, batch 256, gpu_memory_utilization=0,55, sortie maximale 1100 par requête, thinking désactivé, température 0, seed requête 42, Hermes et choix automatique d’outils, sans offload. Prévoir environ 15 Gio dans la planification de réservation du service, avec au moins 2 Gio réellement libres et priorité scientifique préemptive. Les 15 Gio constituent une provision proposée au-dessus du pic mesuré, pas un nouveau plafond dur déjà testé. Ne pas laisser cette réservation empiéter sur les allocations scientifiques ; aucun essai principal n’a validé la coexistence.",
+      "Si la VRAM devient prioritaire, Qwen/Qwen3-8B-AWQ est le repli possible : même contexte 8192, concurrence 1, batch 256, cap vLLM 0,35 testé, provision proposée d’environ 11 Gio pour un pic de 9,63 Gio et une résidence médiane d’environ 8,5 Gio. Sa médiane de 19,45 s n’est pas meilleure dans cette campagne et une réponse est tronquée. Une baisse de contexte, un cache KV fixe, un autre plafond de sortie ou de l’offload formeraient une nouvelle variante à évaluer séparément.",
+      "Aucun des quatre bras n’est prêt pour lancer, modifier ou relancer une analyse de façon autonome. Tous surinterprètent au moins le succès partiel ou le canal Cellpose ; les 14B confondent aussi quatrième sous-indice et valeur d’indice 4. Toute correction scientifique ou modification de paramètre doit être validée par une personne. Le statut done et le code retour zéro ne remplacent ni la vérification des sorties ni la validation biologique.",
+      "Le Hub doit récupérer de façon déterministe les preuves et l’historique pour chaque suivi actif, au lieu de dépendre du choix du modèle. Les trois premiers bras n’appellent aucun historique sur ces trois suivis ; le 8B FP8 les appelle tous, mais en tire encore des conclusions globales ou un ralentissement non démontrés. Fournir explicitement horodatage, hôte, nœud, FOV/ROI, portée locale et comparabilité des captures ; réserver le heartbeat à la vitalité du worker et interdire une ETA sans modèle de durée étayé.",
+      "Valider les paramètres par schéma et provenance avant toute proposition : distinguer RAM et VRAM, vérifier le préfixe de frames contigu 1:N, expliquer qu’index en position 4 vise le quatrième sous-indice, demander le canal du nœud Cellpose lui-même plutôt que de transférer celui de roipattern_4. Détecter les contradictions doneNodes/totalNodes et présenter les hypothèses comme telles. Ces garde-fous d’orchestration et de validation ont ici plus de valeur que le passage automatique à FP8. Aucun changement de configuration de production n’est déployé par ce rapport."
+    ],
+    "comparisons": [
+      "À taille 14B égale, FP8 passe de 17,72 à 21,71 s de médiane et de 13,23 à 19,08 Gio de pic service, soit environ +22,6 % de durée et +5,85 Gio. Les deux bras font 22 requêtes provider et 11 appels de preuves, sans historique ; FP8 génère toutefois 6428 tokens de sortie contre 5343. Aucun gain global de fiabilité n’est établi : les mêmes pièges de succès partiel, de canal et d’indexation subsistent. Le FP8 garde une marge physique minimale de 4,84 Gio, au-dessus de la limite de 2 Gio pendant ce test exclusif.",
+      "À taille 8B égale, FP8 passe de 19,45 à 25,06 s de médiane et de 9,63 à 13,22 Gio de pic, soit environ +28,8 % de durée et +3,59 Gio. Les deux bras ont 25 requêtes provider et une réponse tronquée, mais le FP8 produit 8835 tokens contre 7831 et choisit 6 appels d’historique contre 3. Le FP8 consulte les trois suivis actifs, contrairement à AWQ ; cet avantage d’accès aux preuves ne corrige pas les erreurs de portée ni l’inférence de ralentissement.",
+      "À format AWQ égal, le 14B a une médiane observée plus faible que le 8B (17,72 contre 19,45 s), au prix d’environ 3,60 Gio de pic supplémentaires. Il génère moins de tokens et n’effectue pas les trois appels d’historique supplémentaires du 8B : cette observation ne démontre pas qu’un noyau 14B est intrinsèquement plus rapide. Les deux sont utiles sur RAM/nœud fautif, mais le 14B se trompe davantage sur la formulation de l’indice du quatrième axe ; le 8B surinterprète plus explicitement certains pourcentages locaux.",
+      "À format FP8 égal, le 14B a une médiane de 21,71 s contre 25,06 s pour le 8B et consomme environ 5,86 Gio de pic supplémentaires. Le 8B consulte davantage d’historiques, génère davantage de texte et tronque un cas ; le 14B ne consulte aucun historique. Il n’existe donc pas de classement de qualité uniforme selon la taille. Les capacités de suivi exigent une orchestration identique en amont pour une prochaine comparaison ciblée.",
+      "Les deux FP8 sont réellement testables sur cette RTX 3090 SM86 avec vLLM 0.29.0 : les journaux sélectionnent MarlinFP8ScaledMMLinearKernel et annoncent une compression FP8 des poids sans calcul FP8 natif. Les AWQ utilisent MarlinLinearKernel. Empreintes de chargement des poids rapportées par vLLM : 9,44 Gio (14B AWQ), 15,54 Gio (14B FP8), 5,71 Gio (8B AWQ), 8,90 Gio (8B FP8). Ces valeurs sont distinctes de la mémoire totale du service, qui comprend notamment le cache KV automatique.",
+      "La comparaison AWQ/FP8 à taille égale mesure ces checkpoints officiels précis avec leurs noyaux et caps du plan. Elle ne permet pas d’attribuer chaque différence de réponse aux seuls 4 bits ou 8 bits : quantification, longueur générée, appels d’outils et cache de préfixes contribuent aux écarts observés. Le corpus contient seulement 11 cas et une génération par condition. Les 44 sorties ont été relues, dont 42 complètes et 2 tronquées ; aucun score de qualité n’est dérivé d’un parsing ou d’une recherche de mots-clés."
+    ],
+    "operations": [
+      "Les deux réservations scientifiques initiales sont terminées avant le premier essai : e2a1b570 à 21:09:57Z le 14 octobre et 5cbf3dca à 03:01:53Z le 15 octobre, toutes deux done. La libération a été vérifiée via tous les jobs queued/running/cancelling, leurs allocations, nvidia-smi, les processus et les cgroups ; une faible activité GPU n’a jamais servi à annuler une réservation. Un autre job 954e2708 était déjà failed à 02:58:09Z, avant la campagne principale, et n’a pas été modifié.",
+      "Les quatre bras ont été exécutés successivement, un checkpoint en VRAM à la fois, sous verrou transactionnel d’admission et watchdog bornés, avec arbitrage activé dans l’API et les six workers. Les poids officiels déjà en cache ont été vérifiés sans nouveau téléchargement. Les tentatives refusées avant admission en présence d’un Qwen de production n’ont produit aucun diagnostic et ne sont pas comptées comme des échecs de format.",
+      "Obstacle d’infrastructure identifié et contourné de façon réversible : la fin d’un job micromanager_ingest appelle la reprise de Qwen même sans GPU scientifique, car l’état désiré de l’assistant reste running. Cela a relancé le service original entre certains bras. Après vérification du hash original, des métriques d’absence de requêtes et de l’identité du service, seules ces instances de production inactives au sens des requêtes ont été arrêtées temporairement pour démarrer le bras suivant. Aucun job scientifique, worker, API, quota ou état désiré n’a été modifié. Les archives conservent ces refus et les pauses justifiées.",
+      "Vérification finale à 03:53:26Z le 15 octobre : API et base saines, six workers Linux actifs et idle avec arbitrage true, worker Windows idle. Aucun job queued/running/cancelling sur aucune cible. Aucune réservation d’essai active, admission released, processus d’admission zombie terminé sans verrou, watchdog stopped et processus disparu. Aucun processus compute GPU ni inférence ; GPU à 74 MiB de fond système. Les quatre contrôleurs confirment leur nettoyage et la restauration exacte du lanceur. La reprise automatique de production à 03:51:09Z a été attribuée à une nouvelle fin d’ingestion, puis arrêtée après contrôle du PID, du hash et de zéro requête active/en attente.",
+      "Le service Qwen est revenu à son état initial inactive ; lanceur restauré en mode 0755, SHA256 0e681f73e64b5bc571b96b513d47789cef25e366b9059b08e0144e98cb33824c. L’état désiré de production running demeure inchangé : une future fin de job peut reprendre le service original selon l’arbitrage existant. Aucun démon d’essai ni drain durable n’est laissé. Aucun redémarrage API/worker, commit de données privées ou push n’a été effectué par cette campagne.",
+      "Fichiers de preuve privés : main-final-verification.json, monitor-latest.json, runtime-<label>.json, coexistence-controller-<label>.json, coexistence-vram-measurements-<label>.json, results-<label>.json et main-quality-review.json. Les anciens contrôleurs sont archivés par vague ; le corpus et les conditions ne sont pas remplacés lors des reprises. Le champ technique complete_needs_review des captures brutes est complété par la revue manuelle achevée dans le présent bilan.",
+      "Anomalie scientifique distincte observée lors du contrôle final : le job Windows f9d102cc est passé failed à 03:51:26Z. Le journal nomme le nœud cellpose_sam_segmentatio et un FileNotFoundError dans load_config:75 pour classify_cellposesam_config.json sur le partage UNC. Le fichier était introuvable au chemin fourni au processus Python ; le journal seul ne distingue pas absence réelle, chemin mal échappé ou disponibilité du partage. Ce job tournait sur un hôte Windows distinct, n’a pas été modifié ni relancé par la campagne, et reste hors du corpus historique figé. Preuve : windows-job-final-status.json. Notification dans le bilan final.",
+      "Automatisation qwen-gpu-libre-et-comparaison-des-quantifications désactivée (PAUSED) dans l’application après production du bilan ; aucun nouveau cycle de comparaison prévu."
+    ]
+  },
+  "limits": [
+    "11 cas historiques, une conversation déterministe par cas et par bras ; aucune estimation statistique de supériorité.",
+    "Latence = somme des durées HTTP provider par conversation : préfill, sélection d’outils et génération inclus ; exécution locale des outils, SSH, gardes et démarrage exclus.",
+    "Longueur des réponses et préfixes mis en cache varient. Une durée plus faible ne mesure pas seule la vitesse du noyau.",
+    "Caps vLLM différents selon le plan ; le cache KV automatique et le format changent la VRAM. Ne pas attribuer tout écart aux seuls poids.",
+    "Mesures VRAM par cgroups et nvidia-smi environ toutes les secondes : des transitoires plus courts peuvent échapper aux pics échantillonnés.",
+    "FP8 sur SM86 utilise Marlin avec compression des poids ; aucun calcul FP8 natif. Résultat propre à RTX3090/vLLM0.29.0.",
+    "Aucun test de coexistence scientifique pour ces bras principaux exclusifs. Aucun modèle validé pour lancer ou corriger une analyse sans supervision."
+  ]
+}

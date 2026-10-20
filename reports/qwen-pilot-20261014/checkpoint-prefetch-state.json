@@ -1,0 +1,33 @@
+{
+  "owner": "qwen-prefetch-18fb71e0-489e-433d-bb9f-87b46ca6cd45",
+  "pid": 2595326,
+  "command": [
+    "/home/charvin-admin/.cache/detecdiv-qwen/pilot-main-download-20261014/prefetch.py",
+    "/home/charvin-admin/.cache/detecdiv-qwen/pilot-main-download-20261014"
+  ],
+  "status": "complete",
+  "started_at": 1791980684.4581409,
+  "models": [
+    {
+      "model": "Qwen/Qwen3-14B-FP8",
+      "revision": "9a283b4a5efbc09ce247e0ae5b02b744739e525a",
+      "status": "cached",
+      "started_at": 1791980684.4582002,
+      "disk_free_gib": 52.78144454956055,
+      "snapshot": "/home/charvin-admin/.cache/detecdiv-qwen/huggingface/hub/models--Qwen--Qwen3-14B-FP8/snapshots/9a283b4a5efbc09ce247e0ae5b02b744739e525a",
+      "finished_at": 1791980912.9172542
+    },
+    {
+      "model": "Qwen/Qwen3-8B-FP8",
+      "revision": "220b46e3b2180893580a4454f21f22d3ebb187d3",
+      "status": "cached",
+      "started_at": 1791980912.918101,
+      "disk_free_gib": 37.559974670410156,
+      "snapshot": "/home/charvin-admin/.cache/detecdiv-qwen/huggingface/hub/models--Qwen--Qwen3-8B-FP8/snapshots/220b46e3b2180893580a4454f21f22d3ebb187d3",
+      "finished_at": 1791981026.1159203
+    }
+  ],
+  "checked_at": 1791981026.1167028,
+  "finished_at": 1791981026.1167011,
+  "process_status": null
+}

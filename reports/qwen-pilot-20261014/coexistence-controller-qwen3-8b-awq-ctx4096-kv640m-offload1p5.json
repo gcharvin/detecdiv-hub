@@ -1,0 +1,47 @@
+{
+  "owner": "qwen-coex-81a0ef0c-a8ef-4b0d-8a88-25d6953ee44e",
+  "status": "finished",
+  "started_at": 1791974612.637112,
+  "model": "Qwen/Qwen3-8B-AWQ",
+  "context_tokens": 4096,
+  "kv_cache_mib": 640,
+  "cpu_offload_gib": 1.5,
+  "max_new_tokens": 512,
+  "evidence_profile": "compact4096",
+  "preflight_guard": {
+    "checked_at": "2026-10-14T10:43:41.228173+00:00",
+    "gpu_jobs": [
+      {
+        "id": "5cbf3dca-a43b-45c1-9135-cfc9d1966403",
+        "status": "running",
+        "gpu_vram_mb": 8192
+      },
+      {
+        "id": "e2a1b570-be3b-42f9-a911-ee4231d707a5",
+        "status": "running",
+        "gpu_vram_mb": 8192
+      }
+    ],
+    "other_gpu_processes": [
+      "2231158, /usr/local/MATLAB/R2024b/interprocess/bin/glnxa64/pycli/MATLABPyHost, 2184 MiB"
+    ],
+    "available": false
+  },
+  "setup": {
+    "watchdog_pid": 2491556,
+    "manifest": {
+      "owner": "qwen-coex-81a0ef0c-a8ef-4b0d-8a88-25d6953ee44e",
+      "launcher": "/home/charvin-admin/repos/detecdiv-hub-webvm/ops/scripts/run-qwen-server.sh",
+      "backup": "/home/charvin-admin/.cache/detecdiv-qwen/pilot-coexistence-20261014/launcher-qwen-coex-81a0ef0c-a8ef-4b0d-8a88-25d6953ee44e.sh",
+      "original_mode": 493,
+      "original_sha256": "0e681f73e64b5bc571b96b513d47789cef25e366b9059b08e0144e98cb33824c",
+      "pilot_sha256": "c7ee4063f2199310bdba2eff39ca2bca487b442fd2589a35332b68e4b33722f2",
+      "expires_at": 1791975222.645417,
+      "max_service_mib": 5888,
+      "initial_service": "inactive"
+    }
+  },
+  "error": "Watchdog stopped service during startup",
+  "cleanup_error": "Managed service/launcher cleanup not verified",
+  "finished_at": 1791974787.2925258
+}

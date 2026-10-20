@@ -37,6 +37,10 @@ def configure_main_plan(args):
     if not 0 < args.gpu_memory_utilization <= 0.8:
         raise ValueError("Main plan memory cap must leave scientific headroom")
     args.max_service_mib = 22400  # Independent ceiling, with >=2 GiB physical margin.
+    args.tool_call_parser = candidate.get("tool_call_parser", "hermes")
+    if args.tool_call_parser not in {"hermes", "qwen3_coder"}:
+        raise ValueError("Unsupported pilot tool parser")
+    args.language_model_only = bool(candidate.get("language_model_only", False))
     if args.label == "qwen3-4b-awq-coexistence":
         args.label = args.model.split("/")[-1].lower().replace("-awq", "-awq-int4")
 
@@ -88,7 +92,8 @@ def main():
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--model", choices=["Qwen/Qwen3-4B-AWQ", "Qwen/Qwen3-8B-AWQ",
                                           "Qwen/Qwen3-14B-AWQ", "Qwen/Qwen3-8B-FP8",
-                                          "Qwen/Qwen3-14B-FP8"], default="Qwen/Qwen3-4B-AWQ")
+                                          "Qwen/Qwen3-14B-FP8",
+                                          "Alennnndy/Qwen3.6-27B-AWQ-4bit"], default="Qwen/Qwen3-4B-AWQ")
     parser.add_argument("--main-plan", type=Path, help="Frozen main plan; requires no scientific GPU reservation/process")
     parser.add_argument("--label", default="qwen3-4b-awq-coexistence")
     parser.add_argument("--context-tokens", type=int, default=8192)
@@ -98,19 +103,25 @@ def main():
     parser.add_argument("--disable-uva", action="store_true")
     parser.add_argument("--max-new-tokens", type=int, default=1100)
     parser.add_argument("--evidence-profile", choices=["standard", "compact4096"], default="standard")
+    parser.add_argument("--startup-timeout-seconds", type=int, default=120,
+                        help="Bounded readiness window within the independent 600-second watchdog lease")
     args = parser.parse_args()
+    if not 30 <= args.startup_timeout_seconds <= 450:
+        parser.error("Startup timeout must be between 30 and 450 seconds")
     revisions = {"Qwen/Qwen3-4B-AWQ": "74d4bd2bd4bff9cafc9345221320bffb08b406a3",
                  "Qwen/Qwen3-8B-AWQ": "4da05a8edb55c6046cce958586c33b61da07bb79"}
     args.revision = revisions.get(args.model)
     args.gpu_memory_utilization = 0.23
     args.max_service_mib = 5888
+    args.tool_call_parser = "hermes"
+    args.language_model_only = False
     if args.main_plan:
         try:
             configure_main_plan(args)
         except ValueError as exc:
             parser.error(str(exc))
     elif not args.revision:
-        parser.error("14B/FP8 requires the frozen --main-plan and exclusive GPU admission")
+        parser.error("This model requires a pinned --main-plan and exclusive GPU admission")
     if not re.fullmatch(r"[a-zA-Z0-9_-]+", args.label):
         parser.error("Use a simple output label")
     args.ssh = "C:/Windows/System32/OpenSSH/ssh.exe"
@@ -122,6 +133,9 @@ def main():
     settings = {key: getattr(args, key) for key in (
         "revision", "context_tokens", "kv_cache_mib", "cpu_offload_gib", "allocator_gc",
         "disable_uva", "max_new_tokens", "evidence_profile", "gpu_memory_utilization", "max_service_mib")}
+    if args.tool_call_parser != "hermes" or args.language_model_only:
+        settings.update(tool_call_parser=args.tool_call_parser,
+                        language_model_only=args.language_model_only)
     args.inference_settings = settings
     result_path = args.output / ("results-" + args.label + ".json")
     if result_path.exists():
@@ -150,7 +164,8 @@ def main():
              "disable_uva": args.disable_uva,
              "max_new_tokens": args.max_new_tokens, "evidence_profile": args.evidence_profile,
              "corpus_sha256": corpus_sha256, "inference_settings": settings,
-             "exclusive_gpu": bool(args.main_plan)}
+             "exclusive_gpu": bool(args.main_plan),
+             "startup_timeout_seconds": args.startup_timeout_seconds}
     if args.main_plan:
         for prefix in ("coexistence-controller", "coexistence-vram-measurements"):
             old = args.output / (prefix + suffix + ".json")
@@ -166,7 +181,9 @@ def main():
                "--served-model-name", args.model, "--host", "127.0.0.1", "--port", "8002",
                "--max-model-len", str(args.context_tokens), "--max-num-seqs", "1",
                "--max-num-batched-tokens", "256", "--gpu-memory-utilization", str(args.gpu_memory_utilization),
-               "--enforce-eager", "--enable-auto-tool-choice", "--tool-call-parser", "hermes"]
+               "--enforce-eager", "--enable-auto-tool-choice", "--tool-call-parser", args.tool_call_parser]
+    if args.language_model_only:
+        command.append("--language-model-only")
     if args.kv_cache_mib:
         command.extend(["--kv-cache-memory-bytes", str(args.kv_cache_mib * 1024**2)])
     if args.cpu_offload_gib:
@@ -271,7 +288,7 @@ print(json.dumps({'started':True}))
             args=(args, owner, preempt_finished, state), daemon=True)
         preempt_thread.start()
         ready = False
-        for _ in range(24):
+        for _ in range(args.startup_timeout_seconds // 5):
             status = remote(args, args.compute_host, '''
 import pathlib,json,urllib.request
 root=pathlib.Path('/home/charvin-admin/.cache/detecdiv-qwen/pilot-coexistence-20261014')

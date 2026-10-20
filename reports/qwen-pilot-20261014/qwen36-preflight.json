@@ -1,0 +1,23 @@
+{
+  "checked_at": "2026-10-15T06:01:45.392577+00:00",
+  "disks": {
+    "exit": 0,
+    "stdout": "Sys. de fichiers    Taille Utilisé Dispo Uti% Monté sur\n/dev/md125p6          709G    645G   28G  96% /\n/dev/md125p6          709G    645G   28G  96% /\n//10.20.11.250/DATA    86T     79T  6,8T  93% /data"
+  },
+  "service": {
+    "exit": 0,
+    "stdout": "MainPID=2846659\nNRestarts=0\nActiveEnterTimestamp=Thu 2026-10-15 06:06:11 CEST"
+  },
+  "usage": {
+    "exit": 0,
+    "stdout": "42G\t/home/charvin-admin/.cache/detecdiv-qwen/huggingface/hub"
+  },
+  "flags": [
+    "--default-chat-template-kwargs DEFAULT_CHAT_TEMPLATE_KWARGS",
+    "--tool-call-parser {apertus,cohere_command3,cohere_command4,deepseek_v3,deepseek_v31,deepseek_v32,deepseek_v4,dots,ernie45,functiongemma,gemma4,gigachat3,glm45,glm47,granite,granite-20b-fc,granite4,hermes,hunyuan_a13b,hy_v3,hy_v4,inkling,internlm,jamba,kimi_k2,kimi_k3,lfm2,ling3,llama3_json,llama4_json,llama4_pythonic,longcat,mimo,minicpm5,minimax_m2,minimax_m3,mistral,muse_glimmer,olmo3,openai,phi4_mini_json,poolside_v1,pythonic,qwen3_coder,qwen3_xml,seed_oss,step3,step3p5,xlam} or name registered in --tool-parser-plugin",
+    "--reasoning-parser REASONING_PARSER",
+    "--reasoning-parser-plugin REASONING_PARSER_PLUGIN",
+    "--language-model-only, --no-language-model-only"
+  ],
+  "free_bytes": 29771345920
+}

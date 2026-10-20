@@ -1,0 +1,95 @@
+{
+  "interval_seconds": 83.43597841262817,
+  "files": [
+    {
+      "job_id": "5cbf3dca-a43b-45c1-9135-cfc9d1966403",
+      "file": "matlab_stdout.log",
+      "growth_bytes": 217756,
+      "seconds_since_write": 1.1872947216033936,
+      "content_changed": true,
+      "tail": "ent\":95,\"total\":100,\"updatedAt\":\"2026-10-14T15:37:43.674\"}\n@@DETECDIV_PROGRESS@@ {\"protocol\":\"detecdiv.progress.v1\",\"value\":0.77600160513643657,\"localValue\":0.898,\"message\":\"Normalizing mask 96/100\",\"status\":\"running\",\"scope\":\"postprocess\",\"indeterminate\":false,\"nodeId\":\"\",\"nodeIndex\":[],\"totalNodes\":[],\"current\":96,\"total\":100,\"updatedAt\":\"2026-10-14T15:37:43.693\"}\n@@DETECDIV_PROGRESS@@ {\"protocol\":\"detecdiv.progress.v1\",\"value\":0.77600200642054573,\"localValue\":0.8985,\"message\":\"Normalizing mask 97/100\",\"status\":\"running\",\"scope\":\"postprocess\",\"indeterminate\":false,\"nodeId\":\"\",\"nodeIndex\":[],\"totalNodes\":[],\"current\":97,\"total\":100,\"updatedAt\":\"2026-10-14T15:37:43.713\"}\n@@DETECDIV_PROGRESS@@ {\"protocol\":\"detecdiv.progress.v1\",\"value\":0.7760024077046549,\"localValue\":0.899,\"message\":\"Normalizing mask 98/100\",\"status\":\"running\",\"scope\":\"postprocess\",\"indeterminate\":false,\"nodeId\":\"\",\"nodeIndex\":[],\"totalNodes\":[],\"current\":98,\"total\":100,\"updatedAt\":\"2026-10-14T15:37:43.733\"}\n@@DETECDIV_PROGRESS@@ {\"protocol\":\"detecdiv.progress.v1\",\"value\":0.77600280898876406,\"localValue\":0.8995,\"message\":\"Normalizing mask 99/100\",\"status\":\"running\",\"scope\":\"postprocess\",\"indeterminate\":false,\"nodeId\":\"\",\"nodeIndex\":[],\"totalNodes\":[],\"current\":99,\"total\":100,\"updatedAt\":\"2026-10-14T15:37:44.181\"}\n"
+    },
+    {
+      "job_id": "5cbf3dca-a43b-45c1-9135-cfc9d1966403",
+      "file": "matlab_stderr.log",
+      "growth_bytes": 0,
+      "seconds_since_write": 104882.30781435966,
+      "content_changed": false,
+      "tail": ""
+    },
+    {
+      "job_id": "5cbf3dca-a43b-45c1-9135-cfc9d1966403",
+      "file": "worker_console.log",
+      "growth_bytes": 217756,
+      "seconds_since_write": 104856.74162697792,
+      "content_changed": true,
+      "tail": "ent\":95,\"total\":100,\"updatedAt\":\"2026-10-14T15:37:43.674\"}\n@@DETECDIV_PROGRESS@@ {\"protocol\":\"detecdiv.progress.v1\",\"value\":0.77600160513643657,\"localValue\":0.898,\"message\":\"Normalizing mask 96/100\",\"status\":\"running\",\"scope\":\"postprocess\",\"indeterminate\":false,\"nodeId\":\"\",\"nodeIndex\":[],\"totalNodes\":[],\"current\":96,\"total\":100,\"updatedAt\":\"2026-10-14T15:37:43.693\"}\n@@DETECDIV_PROGRESS@@ {\"protocol\":\"detecdiv.progress.v1\",\"value\":0.77600200642054573,\"localValue\":0.8985,\"message\":\"Normalizing mask 97/100\",\"status\":\"running\",\"scope\":\"postprocess\",\"indeterminate\":false,\"nodeId\":\"\",\"nodeIndex\":[],\"totalNodes\":[],\"current\":97,\"total\":100,\"updatedAt\":\"2026-10-14T15:37:43.713\"}\n@@DETECDIV_PROGRESS@@ {\"protocol\":\"detecdiv.progress.v1\",\"value\":0.7760024077046549,\"localValue\":0.899,\"message\":\"Normalizing mask 98/100\",\"status\":\"running\",\"scope\":\"postprocess\",\"indeterminate\":false,\"nodeId\":\"\",\"nodeIndex\":[],\"totalNodes\":[],\"current\":98,\"total\":100,\"updatedAt\":\"2026-10-14T15:37:43.733\"}\n@@DETECDIV_PROGRESS@@ {\"protocol\":\"detecdiv.progress.v1\",\"value\":0.77600280898876406,\"localValue\":0.8995,\"message\":\"Normalizing mask 99/100\",\"status\":\"running\",\"scope\":\"postprocess\",\"indeterminate\":false,\"nodeId\":\"\",\"nodeIndex\":[],\"totalNodes\":[],\"current\":99,\"total\":100,\"updatedAt\":\"2026-10-14T15:37:44.181\"}\n"
+    },
+    {
+      "job_id": "5cbf3dca-a43b-45c1-9135-cfc9d1966403",
+      "file": "progress.json",
+      "growth_bytes": -2,
+      "seconds_since_write": 1.6323018074035645,
+      "content_changed": true,
+      "tail": "{\n  \"protocol\": \"detecdiv.progress.v1\",\n  \"value\": 0.7760024077046549,\n  \"localValue\": 0.899,\n  \"message\": \"Normalizing mask 98/100\",\n  \"status\": \"running\",\n  \"scope\": \"postprocess\",\n  \"indeterminate\": false,\n  \"nodeId\": \"\",\n  \"nodeIndex\": [],\n  \"totalNodes\": [],\n  \"current\": 98,\n  \"total\": 100,\n  \"updatedAt\": \"14-Oct-2026 15:37:43\"\n}"
+    },
+    {
+      "job_id": "e2a1b570-be3b-42f9-a911-ee4231d707a5",
+      "file": "matlab_stdout.log",
+      "growth_bytes": 8201,
+      "seconds_since_write": 0.09627699851989746,
+      "content_changed": true,
+      "tail": "37 3 855] class=uint16 (H=118 W=137 C=3 T=855)\n[combineChannels] output mode = RGB\n[combineChannels] -- i=1/3, query=\"channel000_z000\" -> pix2=1\n[combineChannels] imtmp slice size=[118 137 1 855] class=uint16\n[combineChannels] levels=[0 65535]\n[combineChannels] pre-adjust (frame1) min=742 max=12102\n[combineChannels] post-adjust (frame1) min=742 max=12102\n[combineChannels] rgb spec size=[1 3]\n[combineChannels] -- i=2/3, query=\"channel000_z001\" -> pix2=2\n[combineChannels] imtmp slice size=[118 137 1 855] class=uint16\n[combineChannels] levels=[0 65535]\n[combineChannels] pre-adjust (frame1) min=715 max=12235\n[combineChannels] post-adjust (frame1) min=715 max=12235\n[combineChannels] rgb spec size=[1 3]\n[combineChannels] -- i=3/3, query=\"channel000_z002\" -> pix2=3\n[combineChannels] imtmp slice size=[118 137 1 855] class=uint16\n[combineChannels] levels=[0 65535]\n[combineChannels] pre-adjust (frame1) min=719 max=11870\n[combineChannels] post-adjust (frame1) min=719 max=11870\n[combineChannels] rgb spec size=[1 3]\n[combineChannels] final matrix size=[118 137 3 855] class=uint16\n[combineChannels] ---- DONE output=\"CombinedChannel\" ----\n[combineMultipleChannels] ---- DONE output=\"CombinedChannel\" ----\nProcessed Pos1_2_10\nROI #Pos1_2_10: HDF5 save of \"CombinedChannel\" (3 subchan, 855 frames).\n"
+    },
+    {
+      "job_id": "e2a1b570-be3b-42f9-a911-ee4231d707a5",
+      "file": "matlab_stderr.log",
+      "growth_bytes": 0,
+      "seconds_since_write": 101523.43197917938,
+      "content_changed": false,
+      "tail": ""
+    },
+    {
+      "job_id": "e2a1b570-be3b-42f9-a911-ee4231d707a5",
+      "file": "worker_console.log",
+      "growth_bytes": 8130,
+      "seconds_since_write": 101477.43556547165,
+      "content_changed": true,
+      "tail": "37 3 855] class=uint16 (H=118 W=137 C=3 T=855)\n[combineChannels] output mode = RGB\n[combineChannels] -- i=1/3, query=\"channel000_z000\" -> pix2=1\n[combineChannels] imtmp slice size=[118 137 1 855] class=uint16\n[combineChannels] levels=[0 65535]\n[combineChannels] pre-adjust (frame1) min=742 max=12102\n[combineChannels] post-adjust (frame1) min=742 max=12102\n[combineChannels] rgb spec size=[1 3]\n[combineChannels] -- i=2/3, query=\"channel000_z001\" -> pix2=2\n[combineChannels] imtmp slice size=[118 137 1 855] class=uint16\n[combineChannels] levels=[0 65535]\n[combineChannels] pre-adjust (frame1) min=715 max=12235\n[combineChannels] post-adjust (frame1) min=715 max=12235\n[combineChannels] rgb spec size=[1 3]\n[combineChannels] -- i=3/3, query=\"channel000_z002\" -> pix2=3\n[combineChannels] imtmp slice size=[118 137 1 855] class=uint16\n[combineChannels] levels=[0 65535]\n[combineChannels] pre-adjust (frame1) min=719 max=11870\n[combineChannels] post-adjust (frame1) min=719 max=11870\n[combineChannels] rgb spec size=[1 3]\n[combineChannels] final matrix size=[118 137 3 855] class=uint16\n[combineChannels] ---- DONE output=\"CombinedChannel\" ----\n[combineMultipleChannels] ---- DONE output=\"CombinedChannel\" ----\nProcessed Pos1_2_10\nROI #Pos1_2_10: HDF5 save of \"CombinedChannel\" (3 subchan, 855 frames).\n"
+    },
+    {
+      "job_id": "e2a1b570-be3b-42f9-a911-ee4231d707a5",
+      "file": "progress.json",
+      "growth_bytes": 0,
+      "seconds_since_write": 184.95726537704468,
+      "content_changed": false,
+      "tail": "{\n  \"protocol\": \"detecdiv.progress.v1\",\n  \"value\": 1,\n  \"localValue\": 1,\n  \"message\": \"ROI extraction 9/9 complete | FOV 2: 100%, FOV 3: 100%, FOV 4: 100%, FOV 5: 100%, FOV 6: 100%, FOV 7: 100%, FOV 8: 100%, FOV 9: 100%, FOV 10: 100% | update FOV 10: fov_done\",\n  \"status\": \"running\",\n  \"scope\": \"parallel_fov\",\n  \"indeterminate\": false,\n  \"nodeId\": \"\",\n  \"nodeIndex\": [],\n  \"totalNodes\": [],\n  \"current\": 9,\n  \"total\": 9,\n  \"updatedAt\": \"14-Oct-2026 15:34:40\"\n}"
+    }
+  ],
+  "matched_processes": [
+    {
+      "job_id": [
+        "5cbf3dca-a43b-45c1-9135-cfc9d1966403"
+      ],
+      "pid": 2230610,
+      "state": "S",
+      "cpu_seconds_gained": 23.07,
+      "average_cpu_cores": 0.2764994243359687,
+      "disk_write_bytes_gained": 172023808,
+      "disk_read_bytes_gained": 860160,
+      "rss_gib": 2.513988494873047
+    },
+    {
+      "job_id": [
+        "e2a1b570-be3b-42f9-a911-ee4231d707a5"
+      ],
+      "pid": 2235170,
+      "state": "S",
+      "cpu_seconds_gained": 44.2,
+      "average_cpu_cores": 0.5297474883246561,
+      "disk_write_bytes_gained": 3087392768,
+      "disk_read_bytes_gained": 126976,
+      "rss_gib": 2.35943603515625
+    }
+  ]
+}

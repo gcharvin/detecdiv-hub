@@ -1,0 +1,236 @@
+{
+  "status": "complete_reviewed",
+  "corpus_sha256": "e3fc6d927b24cbb18bf2b936d7405e4bd7b42eadee0be76c2dbc6ea216e276ce",
+  "responses_reviewed": 22,
+  "baseline": {
+    "label": "qwen3-14b-awq-int4",
+    "model": "Qwen/Qwen3-14B-AWQ",
+    "revision": "31c69efc29464b6bb0aee1398b5a7b50a99340c3",
+    "cases": 11,
+    "response_status_counts": {
+      "answer_returned": 11
+    },
+    "quality_summary": "RAM et nœuds fautifs généralement bien identifiés ; aucune ETA inventée. Trois erreurs matérielles : succès partiel surinterprété, quatrième dimension confondue avec indice 4, canal Cellpose déduit d'un autre nœud. Aucun historique consulté pour les trois suivis.",
+    "reviewed_cases": 11,
+    "latency_seconds": {
+      "median_conversation_provider": 17.717120120069012,
+      "min": 11.75407908204943,
+      "max": 22.987158658914268,
+      "sum": 189.693359951023,
+      "case_values": [
+        22.987158658914268,
+        21.69530942896381,
+        16.221294317860156,
+        12.264541229000315,
+        18.350988435093313,
+        11.75407908204943,
+        13.107329935999587,
+        15.101629025069997,
+        18.687328812899068,
+        21.806580905104056,
+        17.717120120069012
+      ]
+    },
+    "tokens": {
+      "prompt_tokens": 48461,
+      "completion_tokens": 5343,
+      "total_tokens": 53804
+    },
+    "tool_calls": {
+      "get_job_evidence": 11
+    },
+    "provider_requests": 22,
+    "vram_mib": {
+      "loading_peak_sampled": 13488,
+      "residence_median_after_ready": 13552,
+      "residence_peak_after_ready": 13552,
+      "service_peak_sampled": 13552,
+      "physical_peak": 13634,
+      "physical_minimum_free": 10942
+    },
+    "weight_loading_memory_gib_runtime": 9.44,
+    "kernel_evidence": [
+      "(EngineCore pid=2757662) INFO 10-15 05:09:48 [auto_awq.py:448] Using MarlinLinearKernel for AutoAWQMarlinLinearMethod"
+    ],
+    "ready_at_unix": 1792033805.644544,
+    "controller_duration_seconds": 460.9966959953308,
+    "inference_settings": {
+      "revision": "31c69efc29464b6bb0aee1398b5a7b50a99340c3",
+      "context_tokens": 8192,
+      "kv_cache_mib": 0,
+      "cpu_offload_gib": 0,
+      "allocator_gc": 0,
+      "disable_uva": false,
+      "max_new_tokens": 1100,
+      "evidence_profile": "standard",
+      "gpu_memory_utilization": 0.55,
+      "max_service_mib": 22400
+    },
+    "cleanup_verified": true
+  },
+  "qwen36": {
+    "model": "Alennnndy/Qwen3.6-27B-AWQ-4bit",
+    "label": "qwen36-27b-awq-int4-g128",
+    "revision": "e13b92a483e9114f49541c09478dcff9db8ce3d6",
+    "cases": 11,
+    "response_status_counts": {
+      "answer_returned": 9,
+      "truncated": 2
+    },
+    "latency_seconds": {
+      "median": 81.63966328185052,
+      "min": 69.10439324215986,
+      "max": 115.58738656993955,
+      "sum": 978.2770979416091,
+      "case_values": [
+        76.8480719870422,
+        81.4648933049757,
+        81.63966328185052,
+        69.10439324215986,
+        107.8445896320045,
+        74.92010658816434,
+        94.31198408314958,
+        79.62818382610567,
+        95.32840412924998,
+        101.5994212969672,
+        115.58738656993955
+      ]
+    },
+    "vram_mib": {
+      "loading_peak_sampled": 19508,
+      "residence_median_after_ready": 19548.0,
+      "service_peak_sampled": 19550,
+      "physical_minimum_free": 4944
+    },
+    "tokens": {
+      "prompt_tokens": 68090,
+      "completion_tokens": 10747,
+      "total_tokens": 78837
+    },
+    "provider_requests": 25,
+    "tool_calls": {
+      "get_job_evidence": 11,
+      "get_progress_history": 11
+    },
+    "inference_settings": {
+      "revision": "e13b92a483e9114f49541c09478dcff9db8ce3d6",
+      "context_tokens": 8192,
+      "kv_cache_mib": 0,
+      "cpu_offload_gib": 0,
+      "allocator_gc": 0,
+      "disable_uva": false,
+      "max_new_tokens": 1100,
+      "evidence_profile": "standard",
+      "gpu_memory_utilization": 0.8,
+      "max_service_mib": 22400,
+      "tool_call_parser": "qwen3_coder",
+      "language_model_only": true
+    },
+    "waves": [
+      {
+        "owner": "qwen-coex-6ba6edee-20b6-41c0-aa26-430694efbb2b",
+        "error": null,
+        "benchmark_exit": 2,
+        "duration_seconds": 657.9293794631958
+      },
+      {
+        "owner": "qwen-coex-0260f3ba-664f-4191-8743-153bf090c481",
+        "error": "Model did not become ready within startup limit",
+        "benchmark_exit": null,
+        "duration_seconds": 191.32642078399658
+      },
+      {
+        "owner": "qwen-coex-65073cb6-260e-4b31-822e-64a019131be5",
+        "error": null,
+        "benchmark_exit": 2,
+        "duration_seconds": 658.4257128238678
+      },
+      {
+        "owner": "qwen-coex-10135cbe-d3e7-4f5d-bd00-73ff7d26d249",
+        "error": null,
+        "benchmark_exit": 0,
+        "duration_seconds": 201.03419828414917
+      }
+    ]
+  },
+  "review": {
+    "method": "Relecture qualitative de chaque réponse contre les preuves figées, pas de score automatique par mots-clés. Comparaison au 14B AWQ déjà relu sur le même corpus.",
+    "cases": [
+      {
+        "job_prefix": "224d2cc4",
+        "judgement": "Succès technique et limites reconnus",
+        "finding": "Reconnaît doneNodes 2/2, code retour zéro et avertissement dependency_audit.json réellement présent. Demande une validation des sorties et biologique. Présente la sélection de canaux/FOV/ROI comme traitée sans preuve indépendante du contenu des fichiers ; réserve mineure. Historique consulté alors que le job est terminal."
+      },
+      {
+        "job_prefix": "bf584f70",
+        "judgement": "Succès technique et limites reconnus",
+        "finding": "Résume correctement 2/2 nœuds terminés et distingue explicitement exécution technique, fichiers à vérifier et qualité biologique non établie. Avertissement de préflight correctement attribué. La sélection est encore décrite comme volume effectivement traité ; ne remplace pas la vérification des sorties. Historique appelé sur un cas terminal."
+      },
+      {
+        "job_prefix": "941c7b37",
+        "judgement": "Erreur materielle : succes partiel surinterprete",
+        "finding": "Affirme que les deux noeuds selectionnes ont ete traites et les canaux extraits, sans preuve suffisante. Repere doneNodes=0,totalNodes=1 mais invente un possible noeud de rapport non comptabilise pour expliquer cette contradiction. Le statut done, la phase matlab_running et un affichage de structure ne prouvent pas cette execution. Demande cependant verification des sorties et validation biologique."
+      },
+      {
+        "job_prefix": "909a5d12",
+        "judgement": "Diagnostic RAM fonde, reserve sur le parametrage",
+        "finding": "Identifie correctement OOM RAM/swap et les budgets 24576/1536 MiB, sans confusion VRAM. Pool/batch ou hausse RAM sont des pistes fondees. La taille 2048x2048 uint16 est bien prouvee par recent_stdout. maxNumCompThreads ne configure pas directement la taille du pool MATLAB : le reglage propose demande une validation du parametre reel."
+      },
+      {
+        "job_prefix": "7aa140d5",
+        "judgement": "Mecanisme principal mieux explique, reponse tronquee",
+        "finding": "Explique correctement allocation par nombre de frames puis index absolu et exige un prefixe contigu 1:N, y compris exclusion des trous : meilleure correction que le 14B AWQ. Distingue le message No data file de la cause principale, mais demande encore ce fichier comme prealable non etabli. Interprete frames=265 comme un nombre de frames, alors que cet affichage scalaire ne prouve pas ce comptage. Sortie tronquee au plafond 1100."
+      },
+      {
+        "job_prefix": "f9d102cc",
+        "judgement": "Historique utilise, absence de blocage trop affirmee",
+        "finding": "Consulte vraiment les deux captures, cite computeDrift DONE sur 12 frames et refuse toute ETA globale. Mais output_changed et heartbeat ne prouvent pas absence de blocage scientifique : confirme pourtant que le worker n est pas bloque. L hypothese attend une entree est non etayee. Decrit encore des allocations CPU/RAM comme des consommations mesurees."
+      },
+      {
+        "job_prefix": "e2a1b570",
+        "judgement": "Erreur materielle de portee et diagnostic de blocage non demontre",
+        "finding": "Consulte les deux outils mais transforme encore 86.3% de parallel_fov en completion globale. A partir de deux captures proches et de FOV paralleles inegalement avances, infere un ralentissement ou blocage du FOV8, des ressources saturees et des causes RAM/VRAM/I-O non demontrees. Les budgets alloues sont presentes comme usage reel. Refuse une ETA chiffree, mais conclut pourtant a un ralentissement notable. Le 14B AWQ respectait mieux la portee locale sur ce cas."
+      },
+      {
+        "job_prefix": "5cbf3dca",
+        "judgement": "Historique compare, heartbeat encore confondu avec progres",
+        "finding": "Cite correctement les deux captures et refuse une extrapolation de duree a partir de 58 puis 47. Mais repond Le job avance ? Oui sur le seul heartbeat/statut running. N etablit pas que les compteurs portent sur la meme ROI ; suggere fortement une reexecution ou un traitement non sequentiel alors qu un changement normal de perimetre local est aussi possible. Aucune ETA chiffree inventee."
+      },
+      {
+        "job_prefix": "d72dbbfd",
+        "judgement": "Noeud reconnu, correction potentiellement dangereuse",
+        "finding": "Identifie classifier_cnn_lstm_1, FOV8/ROI1, RowDimensionMismatch et dotAssign:508. Les hypotheses de features, segmentation atypique, corruption ou incompatibilite ne sont pas etablies par le journal. Propose de supprimer des donnees intermediaires du FOV8 pour regenerer proprement sans preuve de cause ni validation de reprise : ne pas appliquer automatiquement. La cause exacte de l affectation de table reste a diagnostiquer."
+      },
+      {
+        "job_prefix": "de164c62",
+        "judgement": "Erreur materielle MATLAB et correction scientifique non fondee",
+        "finding": "Identifie le noeud de tracking mais affirme encore que l indice 4 depasse la taille 13. La position 4 designe le quatrieme sous-indice, et sa valeur fautive reste inconnue. Attribue sans preuve la cause a la segmentation/classification puis recommande d exclure la ROI ou modifier ces parametres ; ne pas appliquer sans diagnostic et validation scientifique. Confond egalement nombre de FOV et nombre de ROI dans la strategie de reprise."
+      },
+      {
+        "job_prefix": "393f1350",
+        "judgement": "Cause principale reconnue, canal attribué sans preuve et réponse tronquée",
+        "finding": "Identifie correctement le nœud Cellpose et aucun canal entrée configuré. Mais attribue probablement 0 TL _z2 à Cellpose alors que cette valeur appartient à roipattern_4 ; disponibilité des canaux bruts, absence de fichier ROI et fallback ne prouvent pas cette cause. Propose de corriger le paramètre du nœud, piste fondée seulement après validation de sa valeur réelle, puis suggère exclusion de ROI sans diagnostic établi. La réussite antérieure citée ne prouve pas une cause propre à cette ROI. Réponse tronquée au plafond 1100 tokens."
+      }
+    ]
+  },
+  "conclusions": {
+    "summary": [
+      "Les 11 mêmes cas ont été exécutés et les 22 réponses comparées après relecture manuelle des preuves. Ce checkpoint 27B AWQ tient sur la RTX 3090 en contexte 8192 sans offload, mais ne démontre pas de gain global de fiabilité diagnostique face au 14B AWQ.",
+      "Le 27B explique mieux le défaut legacy des indices de frames et consulte réellement l’historique. Il conserve pourtant les erreurs critiques : succès partiel surinterprété, heartbeat confondu avec progrès, pourcentage local pris pour global, quatrième sous-indice MATLAB pris pour valeur 4. Il suggère suppression de données intermédiaires ou exclusion de ROI sans cause établie. Aucune de ces propositions n’a été exécutée.",
+      "Recommandation : conserver le Qwen3-14B-AWQ actuel pour le diagnostic supervisé. Ne pas autoriser de relance ou modification scientifique autonome. Priorité à l’orchestration déterministe des outils, à la portée explicite des indicateurs et à la validation des paramètres de nœud. Ce test ne justifie pas à lui seul un changement de carte.",
+      "Mesures : médiane provider 81,64 s contre 17,72 s (4,61 fois), pic propre au service 19,09 Gio contre 13,23 Gio, marge physique minimale 4,83 Gio contre 10,69 Gio. Le 27B génère 10 747 tokens contre 5 343 et appelle l’historique sur 11 cas contre zéro : volumes et orchestration confondent la comparaison de vitesse. Deux sorties 27B sont tronquées au plafond 1100, contre zéro pour le 14B."
+    ],
+    "method": [
+      "Même corpus figé de 11 cas historiques du 14 octobre 2026 : 5 échecs, 3 succès techniques, 3 suivis. Mêmes questions, evidence standard, contexte 8192, sortie 1100, température 0, seed 42, thinking désactivé, concurrence 1, batch 256, aucun offload ni KV explicite. Une seule génération conservée par cas, y compris les sorties tronquées. Aucun score qualité par parsing ou mots-clés.",
+      "Checkpoint communautaire Alennnndy/Qwen3.6-27B-AWQ-4bit, révision e13b92a483e9114f49541c09478dcff9db8ce3d6, AWQ W4A16 asymétrique groupe 128, compressed-tensors. Il ne s’agit pas d’une quantification officielle Qwen. Comparateur Qwen/Qwen3-14B-AWQ révision 31c69efc29464b6bb0aee1398b5a7b50a99340c3.",
+      "vLLM 0.29.0 sur RTX 3090, kernels MarlinLinearKernel CompressedTensorsWNA16, GDN Triton/FLA prefill et CUDA decode, FlashAttention 2. Poids : 16,9 Gio selon le chargeur. Le runtime avertit d’un padding Marlin susceptible de dégrader la vitesse. Parser qwen3_coder et mode texte uniquement pour le 27B, contre Hermes pour le 14B ; cap vLLM 0,8. Architecture, entraînement, quantification communautaire et runtime diffèrent : impossible d’attribuer l’écart au seul nombre de paramètres.",
+      "La latence additionne les durées HTTP provider par conversation, hors SSH et chargement. Les compilations JIT intervenues pendant les requêtes sont incluses. Les outils et volumes de sortie diffèrent : ce n’est pas une comparaison pure de débit tokens/s. Mesures VRAM échantillonnées du cgroup du service ; marge physique minimale de la carte séparée. Les requêtes interrompues ne comptent pas comme réponses, mais les vagues et erreurs sont conservées.",
+      "Petit corpus de 11 cas, revue non aveugle, aucune répétition statistique ni intervalle de confiance. Conclusion limitée à ce checkpoint, cette quantification, ces réglages et ces cas. Ne préjuge pas de la qualité du modèle BF16 ou thinking activé."
+    ],
+    "operations": [
+      "Les poids ont été téléchargés et vérifiés hors réservation GPU ; aucune donnée scientifique envoyée à un modèle externe. Les requêtes scientifiques gardent la priorité via le verrou transactionnel et le watcher d’admission. Aucun job scientifique arrêté, modifié ou relancé, aucun redémarrage API/worker.",
+      "Quatre vagues : premier démarrage expiré avant disponibilité, puis 5, 5 et 1 réponses achevées. Les expirations ont libéré le service et l’admission, restauré le lanceur et conservé uniquement les cas terminés pour reprise. Le délai de démarrage a été augmenté à 360 s, sans changer les conditions d’inférence ni le watchdog de 600 s.",
+      "Vérification finale à 07:05 UTC : zéro job queued/running/cancelling, six workers actifs idle avec arbitrage, API et base saines. Service d’essai arrêté et port 8002 indisponible, watchdog terminé, admission released ; son PID terminé zombie ne détient pas de réservation active. Lanceur original SHA256 attendu et mode 0755 vérifiés. Le service initial Qwen3-14B-AWQ est à nouveau actif sur 8001 avec zéro requête en cours ou en attente, et le seul compute GPU appartient à son cgroup de production."
+    ]
+  }
+}

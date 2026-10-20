@@ -1,0 +1,18 @@
+{
+  "checked_at": "2026-10-15T06:47:09.206636+00:00",
+  "guard": {
+    "checked_at": "2026-10-15T06:47:07.788077+00:00",
+    "gpu_jobs": [],
+    "other_gpu_processes": [
+      "2885149, VLLM::EngineCore, 13266 MiB"
+    ],
+    "available": false
+  },
+  "initial_service": "active",
+  "requests": [
+    "vllm:num_requests_running{engine=\"0\",model_name=\"Qwen/Qwen3-14B-AWQ\"} 0.0",
+    "vllm:num_requests_waiting{engine=\"0\",model_name=\"Qwen/Qwen3-14B-AWQ\"} 0.0"
+  ],
+  "original_pid": "2884877",
+  "service": "inactive"
+}

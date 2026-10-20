@@ -1,0 +1,9 @@
+{
+  "checked_at": "2026-10-15T03:18:25.386335+00:00",
+  "reason": "Temporary pause of idle original service automatically resumed after scientific completion",
+  "requests": [
+    0.0,
+    0.0
+  ],
+  "service": "inactive"
+}

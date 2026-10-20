@@ -1,0 +1,9 @@
+{
+  "checked_at": "2026-10-15T03:37:30.429548+00:00",
+  "reason": "Temporary pause of idle original service resumed after micromanager_ingest completion",
+  "requests": [
+    0.0,
+    0.0
+  ],
+  "service": "inactive"
+}

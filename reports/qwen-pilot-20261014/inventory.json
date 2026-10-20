@@ -1,0 +1,32 @@
+{
+  "gpu": {
+    "exit_code": 0,
+    "output": "NVIDIA GeForce RTX 3090, 24576 MiB, 2266 MiB, 37 %"
+  },
+  "processes": {
+    "exit_code": 0,
+    "output": "2231158, /usr/local/MATLAB/R2024b/interprocess/bin/glnxa64/pycli/MATLABPyHost, 2184 MiB"
+  },
+  "service": {
+    "exit_code": 3,
+    "output": "inactive"
+  },
+  "models": [
+    {
+      "path": "/home/charvin-admin/.cache/detecdiv-qwen/huggingface/hub/models--Qwen--Qwen3-14B-AWQ/snapshots/31c69efc29464b6bb0aee1398b5a7b50a99340c3/config.json",
+      "quantization": {
+        "bits": 4,
+        "group_size": 128,
+        "modules_to_not_convert": null,
+        "quant_method": "awq",
+        "version": "gemm",
+        "zero_point": true
+      },
+      "layers": 40,
+      "kv_heads": 8,
+      "head_dim": 128,
+      "shards_present": 2
+    }
+  ],
+  "captured_at": "2026-10-14T08:48:34.727692+00:00"
+}

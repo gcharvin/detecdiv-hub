@@ -1,0 +1,16 @@
+{
+  "checked_at": "2026-10-15T06:30:17.325395+00:00",
+  "status": "complete",
+  "owner": "qwen36-prefetch-c81073c0-ea4e-45bf-9bf7-87da8275a9f7",
+  "model": "Alennnndy/Qwen3.6-27B-AWQ-4bit",
+  "revision": "e13b92a483e9114f49541c09478dcff9db8ce3d6",
+  "single_weight_file": true,
+  "weight_bytes": 18663579568,
+  "tensor_count": 2672,
+  "free_bytes": 11084791808,
+  "downloader_process": "gone_or_zombie",
+  "validation_repair": {
+    "original_error": "[Errno 2] No such file or directory: '/home/charvin-admin/.cache/detecdiv-qwen/huggingface/hub/models--Alennnndy--Qwen3.6-27B-AWQ-4bit/snapshots/e13b92a483e9114f49541c09478dcff9db8ce3d6/model.safetensors.index.json'",
+    "explanation": "This repository uses one model.safetensors file and needs no shard index; all expected file sizes and LFS hashes were verified before the index-only check."
+  }
+}

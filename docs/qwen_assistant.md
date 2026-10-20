@@ -1,5 +1,10 @@
 # Local Qwen assistant
 
+For future work on guided launches and troubleshooting, see the
+[agent perspective on Hub guardrails](assistant_guardrails_perspective.md).
+It describes proposed responsibilities, implementation stages and acceptance
+criteria; it does not describe capabilities already deployed.
+
 The Hub UI calls the authenticated API endpoints `/assistant/status` and
 `/assistant/chat`. The API is deliberately the only public-facing component;
 the inference server runs on `detecdiv-server`. Its port is restricted by the
@@ -221,3 +226,11 @@ preserved across interruptions. Resuming with changed evidence, generation or
 recorded inference settings is refused. Review all saved answers against the
 frozen evidence before recommending a checkpoint for Hub; use measured peaks,
 latency and actual tool traces, not successful parsing as a quality score.
+
+## Qwen3.6-27B follow-up
+
+The same eleven historical cases were tested with a pinned community AWQ quantization
+of Qwen3.6-27B on the RTX 3090. See the [paired report](reports/qwen36-27b-vs-qwen3-14b-2026-10-15.md)
+for provenance, all case reviews, sampled VRAM, latency and restoration checks.
+It fits at context 8192 without offload, but this pilot supports retaining the 14B
+AWQ assistant for supervised diagnosis. The private raw captures remain untracked.

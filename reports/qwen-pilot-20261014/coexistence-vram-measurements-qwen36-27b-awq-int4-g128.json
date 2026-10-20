@@ -1,0 +1,874 @@
+{
+  "owner": "qwen-coex-10135cbe-d3e7-4f5d-bd00-73ff7d26d249",
+  "pid": 2907571,
+  "status": "stopped",
+  "peak_service_mib": 19548,
+  "samples": [
+    {
+      "time": 1792047540.1806452,
+      "service_mib": 0,
+      "total_used_mib": 74
+    },
+    {
+      "time": 1792047541.2659452,
+      "service_mib": 0,
+      "total_used_mib": 74
+    },
+    {
+      "time": 1792047542.350236,
+      "service_mib": 0,
+      "total_used_mib": 74
+    },
+    {
+      "time": 1792047543.4631875,
+      "service_mib": 0,
+      "total_used_mib": 74
+    },
+    {
+      "time": 1792047544.5612764,
+      "service_mib": 0,
+      "total_used_mib": 74
+    },
+    {
+      "time": 1792047545.665433,
+      "service_mib": 0,
+      "total_used_mib": 74
+    },
+    {
+      "time": 1792047546.7622437,
+      "service_mib": 0,
+      "total_used_mib": 74
+    },
+    {
+      "time": 1792047547.8566926,
+      "service_mib": 0,
+      "total_used_mib": 74
+    },
+    {
+      "time": 1792047548.945113,
+      "service_mib": 0,
+      "total_used_mib": 74
+    },
+    {
+      "time": 1792047550.040666,
+      "service_mib": 0,
+      "total_used_mib": 74
+    },
+    {
+      "time": 1792047551.1362622,
+      "service_mib": 0,
+      "total_used_mib": 74
+    },
+    {
+      "time": 1792047552.2220514,
+      "service_mib": 0,
+      "total_used_mib": 74
+    },
+    {
+      "time": 1792047553.3205447,
+      "service_mib": 0,
+      "total_used_mib": 74
+    },
+    {
+      "time": 1792047554.4169276,
+      "service_mib": 0,
+      "total_used_mib": 77
+    },
+    {
+      "time": 1792047555.5078518,
+      "service_mib": 0,
+      "total_used_mib": 77
+    },
+    {
+      "time": 1792047556.603342,
+      "service_mib": 0,
+      "total_used_mib": 77
+    },
+    {
+      "time": 1792047557.6908011,
+      "service_mib": 0,
+      "total_used_mib": 77
+    },
+    {
+      "time": 1792047558.787064,
+      "service_mib": 0,
+      "total_used_mib": 77
+    },
+    {
+      "time": 1792047559.8727014,
+      "service_mib": 0,
+      "total_used_mib": 77
+    },
+    {
+      "time": 1792047560.9634194,
+      "service_mib": 0,
+      "total_used_mib": 77
+    },
+    {
+      "time": 1792047562.0580122,
+      "service_mib": 0,
+      "total_used_mib": 77
+    },
+    {
+      "time": 1792047563.1451707,
+      "service_mib": 0,
+      "total_used_mib": 77
+    },
+    {
+      "time": 1792047564.2382362,
+      "service_mib": 0,
+      "total_used_mib": 77
+    },
+    {
+      "time": 1792047565.3350375,
+      "service_mib": 0,
+      "total_used_mib": 77
+    },
+    {
+      "time": 1792047566.4218597,
+      "service_mib": 0,
+      "total_used_mib": 77
+    },
+    {
+      "time": 1792047567.516844,
+      "service_mib": 0,
+      "total_used_mib": 77
+    },
+    {
+      "time": 1792047568.6169696,
+      "service_mib": 0,
+      "total_used_mib": 77
+    },
+    {
+      "time": 1792047569.7148967,
+      "service_mib": 0,
+      "total_used_mib": 77
+    },
+    {
+      "time": 1792047570.81624,
+      "service_mib": 0,
+      "total_used_mib": 77
+    },
+    {
+      "time": 1792047571.9020364,
+      "service_mib": 320,
+      "total_used_mib": 402
+    },
+    {
+      "time": 1792047572.993772,
+      "service_mib": 15570,
+      "total_used_mib": 18230
+    },
+    {
+      "time": 1792047574.0923517,
+      "service_mib": 18148,
+      "total_used_mib": 18230
+    },
+    {
+      "time": 1792047575.1799607,
+      "service_mib": 18148,
+      "total_used_mib": 18230
+    },
+    {
+      "time": 1792047576.2865856,
+      "service_mib": 18148,
+      "total_used_mib": 18230
+    },
+    {
+      "time": 1792047577.3663006,
+      "service_mib": 18148,
+      "total_used_mib": 18230
+    },
+    {
+      "time": 1792047578.4644783,
+      "service_mib": 18148,
+      "total_used_mib": 18230
+    },
+    {
+      "time": 1792047579.5486073,
+      "service_mib": 18148,
+      "total_used_mib": 18230
+    },
+    {
+      "time": 1792047580.6400416,
+      "service_mib": 18614,
+      "total_used_mib": 18696
+    },
+    {
+      "time": 1792047581.7350366,
+      "service_mib": 18780,
+      "total_used_mib": 18878
+    },
+    {
+      "time": 1792047582.8256514,
+      "service_mib": 17672,
+      "total_used_mib": 17754
+    },
+    {
+      "time": 1792047583.9147892,
+      "service_mib": 17672,
+      "total_used_mib": 17754
+    },
+    {
+      "time": 1792047585.0032747,
+      "service_mib": 17712,
+      "total_used_mib": 17802
+    },
+    {
+      "time": 1792047586.0859668,
+      "service_mib": 19502,
+      "total_used_mib": 19584
+    },
+    {
+      "time": 1792047587.179753,
+      "service_mib": 19508,
+      "total_used_mib": 19590
+    },
+    {
+      "time": 1792047588.2716205,
+      "service_mib": 19508,
+      "total_used_mib": 19590
+    },
+    {
+      "time": 1792047589.3608105,
+      "service_mib": 19508,
+      "total_used_mib": 19590
+    },
+    {
+      "time": 1792047590.461281,
+      "service_mib": 19508,
+      "total_used_mib": 19590
+    },
+    {
+      "time": 1792047591.5671494,
+      "service_mib": 19508,
+      "total_used_mib": 19590
+    },
+    {
+      "time": 1792047592.6580772,
+      "service_mib": 19508,
+      "total_used_mib": 19590
+    },
+    {
+      "time": 1792047593.7480705,
+      "service_mib": 19508,
+      "total_used_mib": 19590
+    },
+    {
+      "time": 1792047594.837701,
+      "service_mib": 19508,
+      "total_used_mib": 19590
+    },
+    {
+      "time": 1792047595.9310439,
+      "service_mib": 19508,
+      "total_used_mib": 19590
+    },
+    {
+      "time": 1792047597.0198715,
+      "service_mib": 19508,
+      "total_used_mib": 19590
+    },
+    {
+      "time": 1792047598.106965,
+      "service_mib": 19508,
+      "total_used_mib": 19590
+    },
+    {
+      "time": 1792047599.2046912,
+      "service_mib": 19508,
+      "total_used_mib": 19590
+    },
+    {
+      "time": 1792047600.2914927,
+      "service_mib": 19508,
+      "total_used_mib": 19590
+    },
+    {
+      "time": 1792047601.3764226,
+      "service_mib": 19508,
+      "total_used_mib": 19590
+    },
+    {
+      "time": 1792047602.4711301,
+      "service_mib": 19508,
+      "total_used_mib": 19590
+    },
+    {
+      "time": 1792047603.55891,
+      "service_mib": 19508,
+      "total_used_mib": 19590
+    },
+    {
+      "time": 1792047604.646968,
+      "service_mib": 19508,
+      "total_used_mib": 19590
+    },
+    {
+      "time": 1792047605.7417915,
+      "service_mib": 19548,
+      "total_used_mib": 19630
+    },
+    {
+      "time": 1792047606.836316,
+      "service_mib": 19548,
+      "total_used_mib": 19630
+    },
+    {
+      "time": 1792047607.925506,
+      "service_mib": 19548,
+      "total_used_mib": 19630
+    },
+    {
+      "time": 1792047609.0179546,
+      "service_mib": 19548,
+      "total_used_mib": 19630
+    },
+    {
+      "time": 1792047610.1130006,
+      "service_mib": 19548,
+      "total_used_mib": 19630
+    },
+    {
+      "time": 1792047611.2066975,
+      "service_mib": 19548,
+      "total_used_mib": 19630
+    },
+    {
+      "time": 1792047612.283044,
+      "service_mib": 19548,
+      "total_used_mib": 19630
+    },
+    {
+      "time": 1792047613.3655896,
+      "service_mib": 19548,
+      "total_used_mib": 19630
+    },
+    {
+      "time": 1792047614.4603329,
+      "service_mib": 19548,
+      "total_used_mib": 19630
+    },
+    {
+      "time": 1792047615.5557957,
+      "service_mib": 19548,
+      "total_used_mib": 19630
+    },
+    {
+      "time": 1792047616.6300366,
+      "service_mib": 19548,
+      "total_used_mib": 19630
+    },
+    {
+      "time": 1792047617.7190862,
+      "service_mib": 19548,
+      "total_used_mib": 19630
+    },
+    {
+      "time": 1792047618.804449,
+      "service_mib": 19548,
+      "total_used_mib": 19630
+    },
+    {
+      "time": 1792047619.8994396,
+      "service_mib": 19548,
+      "total_used_mib": 19630
+    },
+    {
+      "time": 1792047621.0110762,
+      "service_mib": 19548,
+      "total_used_mib": 19630
+    },
+    {
+      "time": 1792047622.0938108,
+      "service_mib": 19548,
+      "total_used_mib": 19630
+    },
+    {
+      "time": 1792047623.1881232,
+      "service_mib": 19548,
+      "total_used_mib": 19630
+    },
+    {
+      "time": 1792047624.2840767,
+      "service_mib": 19548,
+      "total_used_mib": 19630
+    },
+    {
+      "time": 1792047625.369348,
+      "service_mib": 19548,
+      "total_used_mib": 19630
+    },
+    {
+      "time": 1792047626.4712808,
+      "service_mib": 19548,
+      "total_used_mib": 19630
+    },
+    {
+      "time": 1792047627.5599782,
+      "service_mib": 19548,
+      "total_used_mib": 19630
+    },
+    {
+      "time": 1792047628.6516187,
+      "service_mib": 19548,
+      "total_used_mib": 19630
+    },
+    {
+      "time": 1792047629.7411573,
+      "service_mib": 19548,
+      "total_used_mib": 19630
+    },
+    {
+      "time": 1792047630.845776,
+      "service_mib": 19548,
+      "total_used_mib": 19630
+    },
+    {
+      "time": 1792047631.9335144,
+      "service_mib": 19548,
+      "total_used_mib": 19630
+    },
+    {
+      "time": 1792047633.0315032,
+      "service_mib": 19548,
+      "total_used_mib": 19630
+    },
+    {
+      "time": 1792047634.1207888,
+      "service_mib": 19548,
+      "total_used_mib": 19630
+    },
+    {
+      "time": 1792047635.2130718,
+      "service_mib": 19548,
+      "total_used_mib": 19630
+    },
+    {
+      "time": 1792047636.3071697,
+      "service_mib": 19548,
+      "total_used_mib": 19630
+    },
+    {
+      "time": 1792047637.39895,
+      "service_mib": 19548,
+      "total_used_mib": 19630
+    },
+    {
+      "time": 1792047638.4910293,
+      "service_mib": 19548,
+      "total_used_mib": 19630
+    },
+    {
+      "time": 1792047639.5780275,
+      "service_mib": 19548,
+      "total_used_mib": 19630
+    },
+    {
+      "time": 1792047640.6671185,
+      "service_mib": 19548,
+      "total_used_mib": 19630
+    },
+    {
+      "time": 1792047641.772706,
+      "service_mib": 19548,
+      "total_used_mib": 19630
+    },
+    {
+      "time": 1792047642.8630264,
+      "service_mib": 19548,
+      "total_used_mib": 19630
+    },
+    {
+      "time": 1792047643.9513483,
+      "service_mib": 19548,
+      "total_used_mib": 19630
+    },
+    {
+      "time": 1792047645.0402317,
+      "service_mib": 19548,
+      "total_used_mib": 19630
+    },
+    {
+      "time": 1792047646.1322832,
+      "service_mib": 19548,
+      "total_used_mib": 19630
+    },
+    {
+      "time": 1792047647.2274652,
+      "service_mib": 19548,
+      "total_used_mib": 19630
+    },
+    {
+      "time": 1792047648.3221703,
+      "service_mib": 19548,
+      "total_used_mib": 19630
+    },
+    {
+      "time": 1792047649.4118235,
+      "service_mib": 19548,
+      "total_used_mib": 19630
+    },
+    {
+      "time": 1792047650.5119808,
+      "service_mib": 19548,
+      "total_used_mib": 19630
+    },
+    {
+      "time": 1792047651.6099448,
+      "service_mib": 19548,
+      "total_used_mib": 19630
+    },
+    {
+      "time": 1792047652.7019768,
+      "service_mib": 19548,
+      "total_used_mib": 19630
+    },
+    {
+      "time": 1792047653.7868812,
+      "service_mib": 19548,
+      "total_used_mib": 19630
+    },
+    {
+      "time": 1792047654.8835218,
+      "service_mib": 19548,
+      "total_used_mib": 19630
+    },
+    {
+      "time": 1792047655.9740596,
+      "service_mib": 19548,
+      "total_used_mib": 19630
+    },
+    {
+      "time": 1792047657.054387,
+      "service_mib": 19548,
+      "total_used_mib": 19630
+    },
+    {
+      "time": 1792047658.1400356,
+      "service_mib": 19548,
+      "total_used_mib": 19630
+    },
+    {
+      "time": 1792047659.2293265,
+      "service_mib": 19548,
+      "total_used_mib": 19630
+    },
+    {
+      "time": 1792047660.3184555,
+      "service_mib": 19548,
+      "total_used_mib": 19630
+    },
+    {
+      "time": 1792047661.406223,
+      "service_mib": 19548,
+      "total_used_mib": 19630
+    },
+    {
+      "time": 1792047662.4957879,
+      "service_mib": 19548,
+      "total_used_mib": 19630
+    },
+    {
+      "time": 1792047663.5831735,
+      "service_mib": 19548,
+      "total_used_mib": 19630
+    },
+    {
+      "time": 1792047664.6688862,
+      "service_mib": 19548,
+      "total_used_mib": 19630
+    },
+    {
+      "time": 1792047665.74694,
+      "service_mib": 19548,
+      "total_used_mib": 19630
+    },
+    {
+      "time": 1792047666.8306751,
+      "service_mib": 19548,
+      "total_used_mib": 19630
+    },
+    {
+      "time": 1792047667.9270332,
+      "service_mib": 19548,
+      "total_used_mib": 19630
+    },
+    {
+      "time": 1792047669.0174794,
+      "service_mib": 19548,
+      "total_used_mib": 19630
+    },
+    {
+      "time": 1792047670.114032,
+      "service_mib": 19548,
+      "total_used_mib": 19630
+    },
+    {
+      "time": 1792047671.1992788,
+      "service_mib": 19548,
+      "total_used_mib": 19630
+    },
+    {
+      "time": 1792047672.2860029,
+      "service_mib": 19548,
+      "total_used_mib": 19630
+    },
+    {
+      "time": 1792047673.36885,
+      "service_mib": 19548,
+      "total_used_mib": 19630
+    },
+    {
+      "time": 1792047674.4515092,
+      "service_mib": 19548,
+      "total_used_mib": 19630
+    },
+    {
+      "time": 1792047675.5348191,
+      "service_mib": 19548,
+      "total_used_mib": 19630
+    },
+    {
+      "time": 1792047676.6206234,
+      "service_mib": 19548,
+      "total_used_mib": 19630
+    },
+    {
+      "time": 1792047677.71055,
+      "service_mib": 19548,
+      "total_used_mib": 19630
+    },
+    {
+      "time": 1792047678.8040075,
+      "service_mib": 19548,
+      "total_used_mib": 19630
+    },
+    {
+      "time": 1792047679.8982828,
+      "service_mib": 19548,
+      "total_used_mib": 19630
+    },
+    {
+      "time": 1792047680.9919336,
+      "service_mib": 19548,
+      "total_used_mib": 19630
+    },
+    {
+      "time": 1792047682.0890398,
+      "service_mib": 19548,
+      "total_used_mib": 19630
+    },
+    {
+      "time": 1792047683.1932087,
+      "service_mib": 19548,
+      "total_used_mib": 19630
+    },
+    {
+      "time": 1792047684.2866874,
+      "service_mib": 19548,
+      "total_used_mib": 19630
+    },
+    {
+      "time": 1792047685.3754494,
+      "service_mib": 19548,
+      "total_used_mib": 19630
+    },
+    {
+      "time": 1792047686.4642918,
+      "service_mib": 19548,
+      "total_used_mib": 19630
+    },
+    {
+      "time": 1792047687.551738,
+      "service_mib": 19548,
+      "total_used_mib": 19630
+    },
+    {
+      "time": 1792047688.6388547,
+      "service_mib": 19548,
+      "total_used_mib": 19630
+    },
+    {
+      "time": 1792047689.7325394,
+      "service_mib": 19548,
+      "total_used_mib": 19630
+    },
+    {
+      "time": 1792047690.810745,
+      "service_mib": 19548,
+      "total_used_mib": 19630
+    },
+    {
+      "time": 1792047691.893616,
+      "service_mib": 19548,
+      "total_used_mib": 19630
+    },
+    {
+      "time": 1792047692.974117,
+      "service_mib": 19548,
+      "total_used_mib": 19630
+    },
+    {
+      "time": 1792047694.0619342,
+      "service_mib": 19548,
+      "total_used_mib": 19630
+    },
+    {
+      "time": 1792047695.1482809,
+      "service_mib": 19548,
+      "total_used_mib": 19630
+    },
+    {
+      "time": 1792047696.2462451,
+      "service_mib": 19548,
+      "total_used_mib": 19630
+    },
+    {
+      "time": 1792047697.3304064,
+      "service_mib": 19548,
+      "total_used_mib": 19630
+    },
+    {
+      "time": 1792047698.4155724,
+      "service_mib": 19548,
+      "total_used_mib": 19630
+    },
+    {
+      "time": 1792047699.500297,
+      "service_mib": 19548,
+      "total_used_mib": 19630
+    },
+    {
+      "time": 1792047700.5851877,
+      "service_mib": 19548,
+      "total_used_mib": 19630
+    },
+    {
+      "time": 1792047701.6706243,
+      "service_mib": 19548,
+      "total_used_mib": 19630
+    },
+    {
+      "time": 1792047702.7577267,
+      "service_mib": 19548,
+      "total_used_mib": 19630
+    },
+    {
+      "time": 1792047703.8442261,
+      "service_mib": 19548,
+      "total_used_mib": 19630
+    },
+    {
+      "time": 1792047704.9230804,
+      "service_mib": 19548,
+      "total_used_mib": 19630
+    },
+    {
+      "time": 1792047706.006514,
+      "service_mib": 19548,
+      "total_used_mib": 19630
+    },
+    {
+      "time": 1792047707.0926237,
+      "service_mib": 19548,
+      "total_used_mib": 19630
+    },
+    {
+      "time": 1792047708.1831267,
+      "service_mib": 19548,
+      "total_used_mib": 19630
+    },
+    {
+      "time": 1792047709.2693725,
+      "service_mib": 19548,
+      "total_used_mib": 19630
+    },
+    {
+      "time": 1792047710.3514657,
+      "service_mib": 19548,
+      "total_used_mib": 19630
+    },
+    {
+      "time": 1792047711.43566,
+      "service_mib": 19548,
+      "total_used_mib": 19630
+    },
+    {
+      "time": 1792047712.5186257,
+      "service_mib": 19548,
+      "total_used_mib": 19630
+    },
+    {
+      "time": 1792047713.615873,
+      "service_mib": 19548,
+      "total_used_mib": 19630
+    },
+    {
+      "time": 1792047714.7015822,
+      "service_mib": 19548,
+      "total_used_mib": 19630
+    },
+    {
+      "time": 1792047715.78999,
+      "service_mib": 19548,
+      "total_used_mib": 19630
+    },
+    {
+      "time": 1792047716.882445,
+      "service_mib": 19548,
+      "total_used_mib": 19630
+    },
+    {
+      "time": 1792047717.967118,
+      "service_mib": 19548,
+      "total_used_mib": 19630
+    },
+    {
+      "time": 1792047719.0548027,
+      "service_mib": 19548,
+      "total_used_mib": 19630
+    },
+    {
+      "time": 1792047720.1429973,
+      "service_mib": 19548,
+      "total_used_mib": 19630
+    },
+    {
+      "time": 1792047721.2303522,
+      "service_mib": 19548,
+      "total_used_mib": 19630
+    },
+    {
+      "time": 1792047722.32243,
+      "service_mib": 19548,
+      "total_used_mib": 19630
+    },
+    {
+      "time": 1792047723.4096248,
+      "service_mib": 19548,
+      "total_used_mib": 19630
+    },
+    {
+      "time": 1792047724.4964528,
+      "service_mib": 19548,
+      "total_used_mib": 19630
+    },
+    {
+      "time": 1792047725.5846953,
+      "service_mib": 19548,
+      "total_used_mib": 19630
+    }
+  ],
+  "started_at": 1792047540.0873973,
+  "checked_at": 1792047726.587842,
+  "service_mib": 19548,
+  "free_mib": 4946,
+  "reason": "stop requested or lease expired",
+  "stop_exit_code": 0,
+  "launcher_restored": true,
+  "finished_at": 1792047727.6615586,
+  "service_status": "inactive",
+  "original_hash_restored": true,
+  "owned": true
+}

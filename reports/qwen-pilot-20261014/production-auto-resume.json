@@ -1,0 +1,41 @@
+{
+  "checked_at": "2026-10-15T03:18:10.063441+00:00",
+  "api": {
+    "desired": "running",
+    "jobs": [
+      {
+        "id": "5cbf3dca-a43b-45c1-9135-cfc9d1966403",
+        "status": "done",
+        "finished_at": "2026-10-15 03:01:53.127480+00:00",
+        "error_text": null,
+        "kind": "pipeline_run",
+        "action": null
+      },
+      {
+        "id": "e2a1b570-be3b-42f9-a911-ee4231d707a5",
+        "status": "done",
+        "finished_at": "2026-10-14 21:09:57.699900+00:00",
+        "error_text": null,
+        "kind": "pipeline_run",
+        "action": null
+      },
+      {
+        "id": "954e2708-6d67-47ab-ad37-74f2d8f48cc8",
+        "status": "failed",
+        "finished_at": "2026-10-15 02:58:09.137560+00:00",
+        "error_text": "pipeline_run MATLAB batch failed with exit code 1.\n\nSTDOUT tail:\nLoading HDF5 image file: im_071026_X54445_LOGEB_2_4-X544_LOGEB-16_8_5.h5\nNo data file for ROI 071026_X54445_LOGEB_2_4-X544_LOGEB-16_8_5 (expected: /data/Alexander/nobackup/analysis/anof_071026_X54445_LOGEB/071026_X54445_LOGEB_2_4-X544_LOGEB-16_8/data_071026_X54445_LOGEB_2_4-X544_LOGEB-16_8_5.mat).\nProcessed 071026_X54445_LOGEB_2_4-X544_LOGEB-16_8_5\nROI #071026_X54445_LOGEB_2_4-X544_LOGEB-16_8_5: HDF5 save of \"seg\" (1 subchan, 517 frames).\nLoading HDF5 image file: im_071026_X54445_LOGEB_2_4-X544_LOGEB-16_8_6.h5\nNo data file for ROI 071026_X54445_LOGEB_2_4-X544_LOGEB-16_8_6 (expected: /data/Alexander/nobackup/analysis/anof_071026_X54445_LOGEB/071026_X54445_LOGEB_2_4-X544_LOGEB-16_8/data_071026_X54445_LOGEB_2_4-X544_LOGEB-16_8_6.mat).\nLoading HDF5 image file: im_071026_X54445_LOGEB_2_4-X544_LOGEB-16_8_6.h5\nNo data file for ROI 071026_X54445_LOGEB_2_4-X544_LOGEB-16_8_6 (expected: /data/Alexander/nobackup/analysis/anof_071026_X54445_LOGEB/071026_X54445_LOGEB_2_4-X544_LOGEB-16_8/data_071026_X54445_LOGEB_2_4-X544_LOGEB-16_8_6.mat).\nROI #071026_X54445_LOGEB_2_4-X544_LOGEB-16_8_6: HDF5 save of \"channel000_z000\" (1 subchan, 517 frames).\nROI #071026_X54445_LOGEB_2_4-X544_LOGEB-16_8_6: HDF5 save of \"channel000_z001\" (1 subchan, 517 frames).\nROI #071026_X54445_LOGEB_2_4-X544_LOGEB-16_8_6: HDF5 save of \"channel000_z002\" (1 subchan, 517 frames).\nROI #071026_X54445_LOGEB_2_4-X544_LOGEB-16_8_6: HDF5 save of \"channel001_z001\" (1 subchan, 517 frames).\nROI #071026_X54445_LOGEB_2_4-X544_LOGEB-16_8_6: HDF5 save of \"channel002_z001\" (1 subchan, 517 frames).\nROI #071026_X54445_LOGEB_2_4-X544_LOGEB-16_8_6: HDF5 save of \"channel003_z001\" (1 subchan, 517 frames).\nROI #071026_X54445_LOGEB_2_4-X544_LOGEB-16_8_6: HDF5 save of \"seg\" (1 subchan, 517 frames).\nNo data file for ROI 071026_X54445_LOGEB_2_4-X544_LOGEB-16_8_6 (expected: /data/Alexander/nobackup/analysis/anof_071026_X54445_LOGEB/071026_X54445_LOGEB_2_4-X544_LOGEB-16_8/data_071026_X54445_LOGEB_2_4-X544_LOGEB-16_8_6.mat).\nLoading HDF5 image file: im_071026_X54445_LOGEB_2_4-X544_LOGEB-16_8_6.h5\nNo data file for ROI 071026_X54445_LOGEB_2_4-X544_LOGEB-16_8_6 (expected: /data/Alexander/nobackup/analysis/anof_071026_X54445_LOGEB/071026_X54445_LOGEB_2_4-X544_LOGEB-16_8/data_071026_X54445_LOGEB_2_4-X544_LOGEB-16_8_6.mat).\nProcessed 071026_X54445_LOGEB_2_4-X544_LOGEB-16_8_6\nROI #071026_X54445_LOGEB_2_4-X544_LOGEB-16_8_6: HDF5 save of \"seg\" (1 subchan, 517 frames).\nLoading HDF5 image file: im_071026_X54445_LOGEB_2_4-X544_LOGEB-16_8_7.h5\nNo data file for ROI 071026_X54445_LOGEB_2_4-X544_LOGEB-16_8_7 (expected: /data/Alexander/nobackup/analysis/anof_071026_X54445_LOGEB/071026_X54445_LOGEB_2_4-X544_LOGEB-16_8/data_071026_X54445_LOGEB_2_4-X544_LOGEB-16_8_7.mat).\nLoading HDF5 image file: im_071026_X54445_LOGEB_2_4-X544_LOGEB-16_8_7.h5\nNo data file for ROI 071026_X54445_LOGEB_2_4-X544_LOGEB-16_8_7 (expected: /data/Alexander/nobackup/analysis/anof_071026_X54445_LOGEB/071026_X54445_LOGEB_2_4-X544_LOGEB-16_8/data_071026_X54445_LOGEB_2_4-X544_LOGEB-16_8_7.mat).\nDETECDIV_PIPELINE_PROGRESS node_failed id=xtra_full_channels_legacy type=processor index=2 total=2 elapsed=9331.157\nNo data file for ROI 071026_X54445_LOGEB_2_3-X544_LOG-9_1_1 (expected: /data/Alexander/nobackup/analysis/anof_071026_X54445_LOGEB/071026_X54445_LOGEB_2_3-X544_LOG-9_1/data_071026_X54445_LOGEB_2_3-X544_LOG-9_1_1.mat).\nNo data file for ROI 071026_X54445_LOGEB_2_3-X544_LOG-9_1_2 (expected: /data/Alexander/nobackup/analysis/anof_071026_X54445_LOGEB/071026_X54445_LOGEB_2_3-X544_LOG-9_1/data_071026_X54445_LOGEB_2_3-X544_LOG-9_1_2.mat).\nNo data file for ROI 071026_X54445_LOGEB_2_3-X544_LOG-9_1_3 (expected: /data/Alexander/nobackup/analysis/anof_071026_X54445_LOGEB/071026_X54445_LOGEB_2_3-X544_LOG-9_1/data_071026_X54445_LOGEB_2_3-X544_LOG-9_1_3.mat).\nNo data file for ROI 071026_X54445_LOGEB_2_3-X544_LOG-9_1_4 (expected: /data/Alexander/nobackup/analysis/anof_071026_X54445_LOGEB/071026_X54445_LOGEB_2_3-X544_LOG-9_1/data_071026_X54445_LOGEB_2_3-X544_LOG-9_1_4.mat).\nNo data file for ROI 071026_X54445_LOGEB_2_3-X544_LOG-9_1_5 (expected: /data/Alexander/nobackup/analysis/anof_071026_X54445_LOGEB/071026_X54445_LOGEB_2_3-X544_LOG-9_1/data_071026_X54445_LOGEB_2_3-X544_LOG-9_1_5.mat).\nNo data file for ROI 071026_X54445_LOGEB_2_3-X544_LOG-9_1_6 (expected: /data/Alexander/nobackup/analysis/anof_071026_X54445_LOGEB/071026_X54445_LOGEB_2_3-X544_LOG-9_1/data_071026_X54445_LOGEB_2_3-X544_LOG-9_1_6.mat).\nNo data file for ROI 071026_X54445_LOGEB_2_3-X544_LOG-9_1_7 (expected: /data/Alexander/nobackup/analysis/anof_071026_X54445_LOGEB/071026_X54445_LOGEB_2_3-X544_LOG-9_1/data_071026_X54445_LOGEB_2_3-X544_LOG-9_1_7.mat).\nNo data file for ROI 071026_X54445_LOGEB_2_3-X544_LOG-9_1_8 (expected: /data/Alexander/nobackup/analysis/anof_071026_X54445_LOGEB/071026_X54445_LOGEB_2_3-X544_LOG-9_1/data_071026_X54445_LOGEB_2_3-X544_LOG-9_1_8.mat).\nNo data file for ROI 071026_X54445_LOGEB_2_3-X544_LOG-9_1_9 (expected: /data/Alexander/nobackup/analysis/anof_071026_X54445_LOGEB/071026_X54445_LOGEB_2_3-X544_LOG-9_1/data_071026_X54445_LOGEB_2_3-X544_LOG-9_1_9.mat).\nNo data file for ROI 071026_X54445_LOGEB_2_3-X544_LOG-9_1_10 (expected: /data/Alexander/nobackup/analysis/anof_071026_X54445_LOGEB/071026_X54445_LOGEB_2_3-X544_LOG-9_1/data_071026_X54445_LOGEB_2_3-X544_LOG-9_1_10.mat).\nNo data file for ROI 071026_X54445_LOGEB_2_3-X544_LOG-9_1_11 (expected: /data/Alexander/nobackup/analysis/anof_071026_X54445_LOGEB/071026_X54445_LOGEB_2_3-X544_LOG-9_1/data_071026_X54445_LOGEB_2_3-X544_LOG-9_1_11.mat).\nNo data file for ROI 071026_X54445_LOGEB_2_3-X544_LOG-9_1_12 (expected: /data/Alexander/nobackup/analysis/anof_071026_X54445_LOGEB/071026_X54445_LOGEB_2_3-X544_LOG-9_1/data_071026_X54445_LOGEB_2_3-X544_LOG-9_1_12.mat).\nNo data file for ROI 071026_X54445_LOGEB_2_3-X544_LOG-9_1_13 (expected: /data/Alexander/nobackup/analysis/anof_071026_X54445_LOGEB/071026_X54445_LOGEB_2_3-X544_LOG-9_1/data_071026_X54445_LOGEB_2_3-X544_LOG-9_1_13.mat).\nNo data file for ROI 071026_X54445_LOGEB_2_3-X544_LOG-9_1_14 (expected: /data/Alexander/nobackup/analysis/anof_071026_X54445_LOGEB/071026_X54445_LOGEB_2_3-X544_LOG-9_1/data_071026_X54445_LOGEB_2_3-X544_LOG-9_1_14.mat).\nNo data file for ROI 071026_X54445_LOGEB_2_3-X544_LOG-9_1_15 (expected: /data/Alexander/nobackup/analysis/anof_071026_X54445_LOGEB/071026_X54445_LOGEB_2_3-X544_LOG",
+        "kind": "pipeline_run",
+        "action": null
+      }
+    ]
+  },
+  "compute": {
+    "service": "MainPID=2775305\nControlGroup=/system.slice/detecdiv-qwen.service\nActiveEnterTimestamp=Thu 2026-10-15 05:16:49 CEST\n",
+    "requests": [
+      "vllm:num_requests_running{engine=\"0\",model_name=\"Qwen/Qwen3-14B-AWQ\"} 0.0",
+      "vllm:num_requests_waiting{engine=\"0\",model_name=\"Qwen/Qwen3-14B-AWQ\"} 0.0",
+      "vllm:num_requests_waiting_by_reason{engine=\"0\",model_name=\"Qwen/Qwen3-14B-AWQ\",reason=\"capacity\"} 0.0",
+      "vllm:num_requests_waiting_by_reason{engine=\"0\",model_name=\"Qwen/Qwen3-14B-AWQ\",reason=\"deferred\"} 0.0"
+    ]
+  }
+}

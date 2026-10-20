@@ -1,0 +1,200 @@
+{
+  "checked_at": "2026-10-15T03:53:26.041206+00:00",
+  "api": {
+    "jobs": [],
+    "workers": [
+      {
+        "worker_instance": "windows-10-20-11-56-main",
+        "worker_host": "CG-PCDELL01-306",
+        "process_id": 26008,
+        "health": "idle",
+        "current_job_id": null,
+        "last_seen_at": "2026-10-15 03:53:22.700629+00:00"
+      },
+      {
+        "worker_instance": "@1",
+        "worker_host": "GC-CALCUL-306",
+        "process_id": 2579619,
+        "health": "idle",
+        "current_job_id": null,
+        "last_seen_at": "2026-10-15 03:53:22.107765+00:00"
+      },
+      {
+        "worker_instance": "@2",
+        "worker_host": "GC-CALCUL-306",
+        "process_id": 2728947,
+        "health": "idle",
+        "current_job_id": null,
+        "last_seen_at": "2026-10-15 03:53:22.820246+00:00"
+      },
+      {
+        "worker_instance": "@3",
+        "worker_host": "GC-CALCUL-306",
+        "process_id": 2571586,
+        "health": "idle",
+        "current_job_id": null,
+        "last_seen_at": "2026-10-15 03:53:21.919801+00:00"
+      },
+      {
+        "worker_instance": "@4",
+        "worker_host": "GC-CALCUL-306",
+        "process_id": 2571587,
+        "health": "idle",
+        "current_job_id": null,
+        "last_seen_at": "2026-10-15 03:53:21.802921+00:00"
+      },
+      {
+        "worker_instance": "@5",
+        "worker_host": "GC-CALCUL-306",
+        "process_id": 2571588,
+        "health": "idle",
+        "current_job_id": null,
+        "last_seen_at": "2026-10-15 03:53:22.072097+00:00"
+      },
+      {
+        "worker_instance": "@6",
+        "worker_host": "GC-CALCUL-306",
+        "process_id": 222592,
+        "health": "idle",
+        "current_job_id": null,
+        "last_seen_at": "2026-10-15 03:53:21.833946+00:00"
+      }
+    ],
+    "initial_science_jobs": [
+      {
+        "id": "5cbf3dca-a43b-45c1-9135-cfc9d1966403",
+        "status": "done",
+        "finished_at": "2026-10-15 03:01:53.127480+00:00"
+      },
+      {
+        "id": "e2a1b570-be3b-42f9-a911-ee4231d707a5",
+        "status": "done",
+        "finished_at": "2026-10-14 21:09:57.699900+00:00"
+      }
+    ],
+    "desired": "running",
+    "health": {
+      "status": "ok",
+      "service": "detecdiv-hub",
+      "database_status": "ok",
+      "database_message": null,
+      "hostname": "7468e0be206a",
+      "deployment_version": "fp-c4a3fc462f1f",
+      "version_source": "fingerprint",
+      "code_fingerprint": "c4a3fc462f1f",
+      "disk_warning_threshold_percent": 95,
+      "disk_usage": [
+        {
+          "path": "/",
+          "label": "VM system disk",
+          "total_bytes": 84225998848,
+          "used_bytes": 48049848320,
+          "free_bytes": 32307683328,
+          "used_percent": 60.0,
+          "status": "ok",
+          "message": null
+        },
+        {
+          "path": "/data",
+          "label": "Shared data storage",
+          "total_bytes": 94009274970112,
+          "used_bytes": 86591536832512,
+          "free_bytes": 7417738137600,
+          "used_percent": 93.0,
+          "status": "ok",
+          "message": null
+        }
+      ]
+    },
+    "arbitration": "true",
+    "admission": {
+      "owner": "qwen-coex-4792f150-16c9-414a-a439-6013a0cc7455",
+      "pid": 7972,
+      "status": "released",
+      "queued_jobs": [],
+      "cancel_requested": false,
+      "checked_at": 1792036023.333664
+    },
+    "admission_process_state": "Z"
+  },
+  "compute": {
+    "watchdog": {
+      "owner": "qwen-coex-4792f150-16c9-414a-a439-6013a0cc7455",
+      "pid": 2820064,
+      "status": "stopped",
+      "peak_service_mib": 13538,
+      "started_at": 1792035464.0058694,
+      "checked_at": 1792036017.409327,
+      "service_mib": 13538,
+      "free_mib": 10956,
+      "reason": "stop requested or lease expired",
+      "stop_exit_code": 0,
+      "launcher_restored": true,
+      "finished_at": 1792036018.2671518
+    },
+    "manifest_owner": "qwen-coex-4792f150-16c9-414a-a439-6013a0cc7455",
+    "watchdog_process_state": "gone",
+    "workers": [
+      {
+        "pid": 222592,
+        "arbitration": [
+          "true"
+        ],
+        "cgroup": "0::/detecdiv.slice/detecdiv-workers.slice/detecdiv-worker@6.service"
+      },
+      {
+        "pid": 2571586,
+        "arbitration": [
+          "true"
+        ],
+        "cgroup": "0::/detecdiv.slice/detecdiv-workers.slice/detecdiv-worker@3.service"
+      },
+      {
+        "pid": 2571587,
+        "arbitration": [
+          "true"
+        ],
+        "cgroup": "0::/detecdiv.slice/detecdiv-workers.slice/detecdiv-worker@4.service"
+      },
+      {
+        "pid": 2571588,
+        "arbitration": [
+          "true"
+        ],
+        "cgroup": "0::/detecdiv.slice/detecdiv-workers.slice/detecdiv-worker@5.service"
+      },
+      {
+        "pid": 2579619,
+        "arbitration": [
+          "true"
+        ],
+        "cgroup": "0::/detecdiv.slice/detecdiv-workers.slice/detecdiv-worker@1.service"
+      },
+      {
+        "pid": 2728947,
+        "arbitration": [
+          "true"
+        ],
+        "cgroup": "0::/detecdiv.slice/detecdiv-workers.slice/detecdiv-worker@2.service"
+      }
+    ],
+    "worker_services": {
+      "exit": 0,
+      "output": "detecdiv-worker@1.service loaded active running DetecDiv Hub Worker Instance 1\n  detecdiv-worker@2.service loaded active running DetecDiv Hub Worker Instance 2\n  detecdiv-worker@3.service loaded active running DetecDiv Hub Worker Instance 3\n  detecdiv-worker@4.service loaded active running DetecDiv Hub Worker Instance 4\n  detecdiv-worker@5.service loaded active running DetecDiv Hub Worker Instance 5\n  detecdiv-worker@6.service loaded active running DetecDiv Hub Worker Instance 6"
+    },
+    "qwen": {
+      "exit": 3,
+      "output": "inactive"
+    },
+    "gpu": {
+      "exit": 0,
+      "output": "24576 MiB, 74 MiB, 0 %"
+    },
+    "compute_processes": {
+      "exit": 0,
+      "output": ""
+    },
+    "launcher_sha256": "0e681f73e64b5bc571b96b513d47789cef25e366b9059b08e0144e98cb33824c",
+    "launcher_mode": 493
+  }
+}

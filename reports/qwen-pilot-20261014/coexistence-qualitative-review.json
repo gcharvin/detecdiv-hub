@@ -1,0 +1,96 @@
+{
+  "model": "Qwen/Qwen3-4B-AWQ",
+  "corpus_sha256": "e3fc6d927b24cbb18bf2b936d7405e4bd7b42eadee0be76c2dbc6ea216e276ce",
+  "review_kind": "Codex qualitative reading against recorded evidence; not independent biological validation",
+  "cases_completed": 11,
+  "answer_returned": 11,
+  "evidence_tool_cases": 11,
+  "provider_latency_seconds": {
+    "median": 20.92834407510236,
+    "min": 15.97356159798801,
+    "max": 23.849588908953592,
+    "note": "sum of inference request durations per conversation; excludes SSH and guard overhead"
+  },
+  "vram": {
+    "service_peak_mib": 5810,
+    "service_peak_gib": 5.673828125,
+    "baseline_total_mib": 2266,
+    "total_peak_mib": 8081,
+    "minimum_free_mib": 16495,
+    "scientific_reserved_mib": 16384,
+    "own_ceiling_mib": 5888,
+    "minimum_reserved_headroom_mib": 2048
+  },
+  "case_reviews": [
+    {
+      "job_id": "224d2cc4-d3aa-4f66-b3b1-445168898c0c",
+      "judgement": "supported technical summary; generic follow-up",
+      "evidence": "done; doneNodes=2,totalNodes=2,failedNodes=0",
+      "finding": "Recognizes completed nodes and asks for output checks; no biological validation claimed."
+    },
+    {
+      "job_id": "bf584f70-00c1-479b-867b-b6f4360641f0",
+      "judgement": "supported technical summary; generic follow-up",
+      "evidence": "done; doneNodes=2,totalNodes=2,failedNodes=0",
+      "finding": "Recognizes technical success; recommendations remain generic."
+    },
+    {
+      "job_id": "941c7b37-b4b3-4cc1-b248-d8e90f6e68ce",
+      "judgement": "misleading execution claim",
+      "evidence": "summary.report_summary: doneNodes=0,totalNodes=1,failedNodes=0",
+      "answer_issue": "Claims one node was executed and that output data was generated. The evidence provided does not establish those claims."
+    },
+    {
+      "job_id": "909a5d12-3ed0-4d75-90e0-c7df3abb9122",
+      "judgement": "supported primary diagnosis",
+      "evidence": "error_text: exhausted 24576 MiB RAM and 1536 MiB swap; systemd OOM",
+      "finding": "Correctly identifies RAM/swap exhaustion, suggests memory/pool/batch checks; memory configuration advice is generic."
+    },
+    {
+      "job_id": "7aa140d5-67f4-4b8a-8087-b5d78dbe9878",
+      "judgement": "correct error identification; unsafe ambiguity in correction",
+      "evidence": "LegacyFrameSelectionLimit; only a prefix starting at frame 1 is supported",
+      "answer_issue": "Conflates a contiguous absolute-frame prefix 1:N with using relative indices. Renumbering arbitrary requested frames is not a validated fix."
+    },
+    {
+      "job_id": "f9d102cc-0011-44ac-925d-2235c82078ed",
+      "judgement": "incomplete progress analysis",
+      "evidence": "snapshot status running, computeDrift output; a second capture exists",
+      "answer_issue": "Does not consult get_progress_history. Heartbeat proves worker liveness, not continuing scientific progress; suggests a restart condition without evidence of a stall."
+    },
+    {
+      "job_id": "e2a1b570-be3b-42f9-a911-ee4231d707a5",
+      "judgement": "scope interpreted correctly; progress proof incorrect",
+      "evidence": "latest_event scope parallel_fov; ROI extraction 6/9, localValue 0.8631578947",
+      "finding": "Keeps 86.32% local to ROI extraction and avoids ETA. Incorrectly treats the recent heartbeat as proof of real progress; does not compare snapshots."
+    },
+    {
+      "job_id": "5cbf3dca-a43b-45c1-9135-cfc9d1966403",
+      "judgement": "partly supported frame progress; ambiguous remaining work",
+      "evidence": "scope frame; current=47,total=100,localValue=0.46",
+      "answer_issue": "Acknowledges frame progress is not whole-job completion but then states 54% of work remains without keeping the scope explicit. No history consultation."
+    },
+    {
+      "job_id": "d72dbbfd-4711-4486-bf6b-5bd543220746",
+      "judgement": "supported signature; unverified repair",
+      "evidence": "classifier_cnn_lstm_1, FOV8 ROI1; MATLAB:table:RowDimensionMismatch",
+      "finding": "Identifies node and table-dimension error; generic input/model reset or update suggestions do not locate the exact failing assignment or prove a repair."
+    },
+    {
+      "job_id": "de164c62-f1da-4c61-8bff-a832ef891aab",
+      "judgement": "incorrect MATLAB interpretation",
+      "evidence": "Index in position 4 exceeds array bounds. Index must not exceed 13",
+      "answer_issue": "Says index 4 is invalid for an array of size 13 and invents failure at step 4. Position 4 refers to the fourth subscript/dimension; the actual offending index is not supplied."
+    },
+    {
+      "job_id": "393f1350-8ef7-4dee-ba33-9c7dc223dec5",
+      "judgement": "correct missing-channel category; unsupported channel-specific cause",
+      "evidence": "cellpose_sam_segmentatio: input channel not found: (no input channel configured)",
+      "answer_issue": "Turns the log into a claim that channel 0 TL _z2 is missing. A name in parameters is not evidence that this exact channel was the unresolved runtime input."
+    }
+  ],
+  "recommendation": "Feasible for a bounded shared-GPU pilot and simple log explanation. Not ready to prepare or launch runs autonomously; deterministic progress-history aggregation and parameter validation remain necessary. Compare 8B/14B on the same frozen corpus when resources permit.",
+  "limitations": "11 recorded cases, temperature 0, one checkpoint; no isolated GPU latency baseline and no completed 4/8-bit quantization comparison.",
+  "progress_history_tool_cases_any_category": 1,
+  "progress_history_tool_cases_for_active_jobs": 0
+}

@@ -1,0 +1,40 @@
+{
+  "checked_at": "2026-10-15T03:52:46.937064+00:00",
+  "api": [
+    {
+      "id": "f9d102cc-0011-44ac-925d-2235c82078ed",
+      "status": "failed",
+      "finished_at": "2026-10-15 03:51:26.732909+00:00",
+      "kind": "pipeline_run",
+      "action": null
+    },
+    {
+      "id": "632eb2ac-3c81-40b3-b664-fc8fcf9b446a",
+      "status": "done",
+      "finished_at": "2026-10-15 03:51:09.728141+00:00",
+      "kind": "micromanager_ingest",
+      "action": null
+    },
+    {
+      "id": "e512dbe9-49cb-4081-87db-0551820e039d",
+      "status": "done",
+      "finished_at": "2026-10-15 03:36:07.441159+00:00",
+      "kind": "micromanager_ingest",
+      "action": null
+    }
+  ],
+  "compute": {
+    "service": "MainPID=2841928\nNRestarts=0\nActiveEnterTimestamp=Thu 2026-10-15 05:51:09 CEST\n",
+    "metrics": [
+      "vllm:num_requests_running{engine=\"0\",model_name=\"Qwen/Qwen3-14B-AWQ\"} 0.0",
+      "vllm:num_requests_waiting{engine=\"0\",model_name=\"Qwen/Qwen3-14B-AWQ\"} 0.0"
+    ],
+    "processes": [
+      {
+        "gpu": "2842152, VLLM::EngineCore, 13266 MiB",
+        "cgroup": "0::/system.slice/detecdiv-qwen.service\n",
+        "command": "VLLM::EngineCore                                                                                                                                                      "
+      }
+    ]
+  }
+}

@@ -1,0 +1,71 @@
+{
+  "owner": "qwen-coex-70319f51-4df7-46f2-b980-03f75e95ce0f",
+  "status": "finished",
+  "started_at": 1791975231.8213556,
+  "model": "Qwen/Qwen3-8B-AWQ",
+  "context_tokens": 4096,
+  "kv_cache_mib": 640,
+  "cpu_offload_gib": 2.5,
+  "allocator_gc": 0.15,
+  "max_new_tokens": 512,
+  "evidence_profile": "compact4096",
+  "preflight_guard": {
+    "checked_at": "2026-10-14T10:54:00.368721+00:00",
+    "gpu_jobs": [
+      {
+        "id": "5cbf3dca-a43b-45c1-9135-cfc9d1966403",
+        "status": "running",
+        "gpu_vram_mb": 8192
+      },
+      {
+        "id": "e2a1b570-be3b-42f9-a911-ee4231d707a5",
+        "status": "running",
+        "gpu_vram_mb": 8192
+      }
+    ],
+    "other_gpu_processes": [
+      "2231158, /usr/local/MATLAB/R2024b/interprocess/bin/glnxa64/pycli/MATLABPyHost, 2184 MiB"
+    ],
+    "available": false
+  },
+  "setup": {
+    "watchdog_pid": 2505089,
+    "manifest": {
+      "owner": "qwen-coex-70319f51-4df7-46f2-b980-03f75e95ce0f",
+      "launcher": "/home/charvin-admin/repos/detecdiv-hub-webvm/ops/scripts/run-qwen-server.sh",
+      "backup": "/home/charvin-admin/.cache/detecdiv-qwen/pilot-coexistence-20261014/launcher-qwen-coex-70319f51-4df7-46f2-b980-03f75e95ce0f.sh",
+      "original_mode": 493,
+      "original_sha256": "0e681f73e64b5bc571b96b513d47789cef25e366b9059b08e0144e98cb33824c",
+      "pilot_sha256": "45d942089da5ac02ecefa126e313f40b0fb6468d6523783487d6ae7181245d96",
+      "expires_at": 1791975841.7807693,
+      "max_service_mib": 5888,
+      "initial_service": "inactive"
+    }
+  },
+  "error": "Watchdog stopped service during startup",
+  "cleanup": {
+    "owner": "qwen-coex-70319f51-4df7-46f2-b980-03f75e95ce0f",
+    "pid": 2505089,
+    "status": "stopped",
+    "peak_service_mib": 6910,
+    "started_at": 1791975241.826403,
+    "checked_at": 1791975280.7258446,
+    "service_mib": 6910,
+    "free_mib": 15005,
+    "reason": "VRAM limit, free margin, or unmanaged compute process",
+    "stop_exit_code": 0,
+    "launcher_restored": true,
+    "finished_at": 1791975326.3008628,
+    "service_status": "inactive",
+    "original_hash_restored": true
+  },
+  "admission": {
+    "owner": "qwen-coex-70319f51-4df7-46f2-b980-03f75e95ce0f",
+    "pid": 15220,
+    "status": "released",
+    "queued_jobs": [],
+    "cancel_requested": false,
+    "checked_at": 1791975334.482345
+  },
+  "finished_at": 1791975336.431082
+}

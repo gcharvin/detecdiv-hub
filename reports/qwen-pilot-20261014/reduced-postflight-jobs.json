@@ -1,0 +1,119 @@
+[
+  {
+    "id": "5cbf3dca-a43b-45c1-9135-cfc9d1966403",
+    "status": "running",
+    "heartbeat_at": "2026-10-14 11:26:11.838929+00:00",
+    "target_key": "detecdiv-server",
+    "allocation": {
+      "source": "pipeline_nodes_and_job_resource_settings",
+      "cpu_cores": 8,
+      "memory_mb": 24576,
+      "gpu_vram_mb": 8192,
+      "gpu_required": true,
+      "disk_io_units": 3,
+      "gpu_permitted": true,
+      "swap_limit_mb": 1536,
+      "requested_cpu_cores": 8,
+      "pipeline_gpu_profile": {
+        "source": "/data/Abhilasha/Analysis/pipelines/pipeline/pipeline.json",
+        "status": "known",
+        "gpu_node_ids": [
+          "cellpose_sam_segmentatio",
+          "classifier_cnn_lstm_1"
+        ],
+        "gpu_required": true,
+        "run_gpu_mode": "module_default",
+        "selected_node_ids": [
+          "roipattern_4",
+          "roiextract_3",
+          "combineMultipleChannels",
+          "cellpose_sam_segmentatio",
+          "classifier_cnn_lstm_1",
+          "processor_trackmotherlineageviterbi_9",
+          "processor_computerls_2",
+          "processor_computemetrics_8"
+        ],
+        "deep_learning_node_ids": [
+          "cellpose_sam_segmentatio",
+          "classifier_cnn_lstm_1"
+        ]
+      }
+    }
+  },
+  {
+    "id": "e2a1b570-be3b-42f9-a911-ee4231d707a5",
+    "status": "running",
+    "heartbeat_at": "2026-10-14 11:26:11.598762+00:00",
+    "target_key": "detecdiv-server",
+    "allocation": {
+      "source": "pipeline_nodes_and_job_resource_settings",
+      "cpu_cores": 8,
+      "memory_mb": 24576,
+      "gpu_vram_mb": 8192,
+      "gpu_required": true,
+      "disk_io_units": 3,
+      "gpu_permitted": true,
+      "swap_limit_mb": 1536,
+      "requested_cpu_cores": 8,
+      "pipeline_gpu_profile": {
+        "source": "/data/Gilles/analysis/pipelines/lifespan/pipeline.json",
+        "status": "known",
+        "gpu_node_ids": [
+          "classifier_cnn_lstm_4"
+        ],
+        "gpu_required": true,
+        "run_gpu_mode": "module_default",
+        "selected_node_ids": [
+          "dataloader_1",
+          "roipattern_2",
+          "roiextract_3",
+          "combine_channels",
+          "classifier_cnn_lstm_4",
+          "processor_computerls_5"
+        ],
+        "deep_learning_node_ids": [
+          "classifier_cnn_lstm_4"
+        ]
+      }
+    }
+  },
+  {
+    "id": "f9d102cc-0011-44ac-925d-2235c82078ed",
+    "status": "running",
+    "heartbeat_at": "2026-10-14 11:26:08.626598+00:00",
+    "target_key": "windows-10-20-11-56",
+    "allocation": {
+      "source": "pipeline_nodes_and_job_resource_settings",
+      "cpu_cores": 8,
+      "memory_mb": 24576,
+      "gpu_vram_mb": 0,
+      "gpu_required": false,
+      "disk_io_units": 3,
+      "gpu_permitted": true,
+      "swap_limit_mb": 0,
+      "requested_cpu_cores": 8,
+      "pipeline_gpu_profile": {
+        "source": "\\\\10.20.11.250\\DATA\\Abhilasha\\Analysis\\pipelines\\pipeline\\pipeline.json",
+        "status": "known",
+        "gpu_node_ids": [],
+        "gpu_required": false,
+        "run_gpu_mode": "module_default",
+        "selected_node_ids": [
+          "dataloader_5",
+          "roipattern_4",
+          "roiextract_3",
+          "combineMultipleChannels",
+          "cellpose_sam_segmentatio",
+          "classifier_cnn_lstm_1",
+          "processor_trackmotherlineageviterbi_9",
+          "processor_computerls_2",
+          "processor_computemetrics_8"
+        ],
+        "deep_learning_node_ids": [
+          "cellpose_sam_segmentatio",
+          "classifier_cnn_lstm_1"
+        ]
+      }
+    }
+  }
+]

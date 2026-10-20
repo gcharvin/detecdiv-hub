@@ -1,0 +1,35 @@
+{
+  "checked_at": "2026-10-15T06:07:52.678187+00:00",
+  "watchdog-state.json": {
+    "owner": "qwen-coex-4792f150-16c9-414a-a439-6013a0cc7455",
+    "pid": 2820064,
+    "status": "stopped",
+    "peak_service_mib": 13538,
+    "started_at": 1792035464.0058694,
+    "checked_at": 1792036017.409327,
+    "service_mib": 13538,
+    "free_mib": 10956,
+    "reason": "stop requested or lease expired",
+    "stop_exit_code": 0,
+    "launcher_restored": true,
+    "finished_at": 1792036018.2671518
+  },
+  "manifest.json": {
+    "owner": "qwen-coex-4792f150-16c9-414a-a439-6013a0cc7455",
+    "launcher": "/home/charvin-admin/repos/detecdiv-hub-webvm/ops/scripts/run-qwen-server.sh",
+    "backup": "/home/charvin-admin/.cache/detecdiv-qwen/pilot-coexistence-20261014/launcher-qwen-coex-4792f150-16c9-414a-a439-6013a0cc7455.sh",
+    "original_mode": 493,
+    "original_sha256": "0e681f73e64b5bc571b96b513d47789cef25e366b9059b08e0144e98cb33824c",
+    "pilot_sha256": "01c662ce3ce105a29bd6f0a5f49878547152ce24056b64867d499a50fa1fbad6",
+    "expires_at": 1792036063.9462612,
+    "max_service_mib": 22400,
+    "initial_service": "inactive",
+    "exclusive_gpu": true
+  },
+  "launcher_sha256": "0e681f73e64b5bc571b96b513d47789cef25e366b9059b08e0144e98cb33824c",
+  "service": "MainPID=2846659\nActiveState=active\nActiveEnterTimestamp=Thu 2026-10-15 06:06:11 CEST\n",
+  "requests": [
+    "vllm:num_requests_running{engine=\"0\",model_name=\"Qwen/Qwen3-14B-AWQ\"} 0.0",
+    "vllm:num_requests_waiting{engine=\"0\",model_name=\"Qwen/Qwen3-14B-AWQ\"} 0.0"
+  ]
+}

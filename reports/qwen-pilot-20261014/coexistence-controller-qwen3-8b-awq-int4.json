@@ -1,0 +1,75 @@
+{
+  "owner": "qwen-coex-7d5e37d8-90cd-4b76-941b-f2a107f5dd7f",
+  "status": "finished",
+  "started_at": 1792034834.3688338,
+  "model": "Qwen/Qwen3-8B-AWQ",
+  "context_tokens": 8192,
+  "kv_cache_mib": 0,
+  "cpu_offload_gib": 0,
+  "allocator_gc": 0,
+  "disable_uva": false,
+  "max_new_tokens": 1100,
+  "evidence_profile": "standard",
+  "corpus_sha256": "e3fc6d927b24cbb18bf2b936d7405e4bd7b42eadee0be76c2dbc6ea216e276ce",
+  "inference_settings": {
+    "revision": "4da05a8edb55c6046cce958586c33b61da07bb79",
+    "context_tokens": 8192,
+    "kv_cache_mib": 0,
+    "cpu_offload_gib": 0,
+    "allocator_gc": 0,
+    "disable_uva": false,
+    "max_new_tokens": 1100,
+    "evidence_profile": "standard",
+    "gpu_memory_utilization": 0.35,
+    "max_service_mib": 22400
+  },
+  "exclusive_gpu": true,
+  "preflight_guard": {
+    "checked_at": "2026-10-15T03:27:22.527941+00:00",
+    "gpu_jobs": [],
+    "other_gpu_processes": [],
+    "available": true
+  },
+  "setup": {
+    "watchdog_pid": 2797028,
+    "manifest": {
+      "owner": "qwen-coex-7d5e37d8-90cd-4b76-941b-f2a107f5dd7f",
+      "launcher": "/home/charvin-admin/repos/detecdiv-hub-webvm/ops/scripts/run-qwen-server.sh",
+      "backup": "/home/charvin-admin/.cache/detecdiv-qwen/pilot-coexistence-20261014/launcher-qwen-coex-7d5e37d8-90cd-4b76-941b-f2a107f5dd7f.sh",
+      "original_mode": 493,
+      "original_sha256": "0e681f73e64b5bc571b96b513d47789cef25e366b9059b08e0144e98cb33824c",
+      "pilot_sha256": "b862aaca0cb890ef56d8ba36372dd9ff94a304f5fdf89b75a8ebdaa0c098787e",
+      "expires_at": 1792035443.4052439,
+      "max_service_mib": 22400,
+      "initial_service": "inactive",
+      "exclusive_gpu": true
+    }
+  },
+  "benchmark_exit": 0,
+  "cleanup": {
+    "owner": "qwen-coex-7d5e37d8-90cd-4b76-941b-f2a107f5dd7f",
+    "pid": 2797028,
+    "status": "stopped",
+    "peak_service_mib": 9866,
+    "started_at": 1792034843.4652586,
+    "checked_at": 1792035359.8633077,
+    "service_mib": 8710,
+    "free_mib": 15784,
+    "reason": "stop requested or lease expired",
+    "stop_exit_code": 0,
+    "launcher_restored": true,
+    "finished_at": 1792035360.74616,
+    "service_status": "inactive",
+    "original_hash_restored": true,
+    "owned": true
+  },
+  "admission": {
+    "owner": "qwen-coex-7d5e37d8-90cd-4b76-941b-f2a107f5dd7f",
+    "pid": 6462,
+    "status": "released",
+    "queued_jobs": [],
+    "cancel_requested": false,
+    "checked_at": 1792035366.3249664
+  },
+  "finished_at": 1792035368.6250832
+}

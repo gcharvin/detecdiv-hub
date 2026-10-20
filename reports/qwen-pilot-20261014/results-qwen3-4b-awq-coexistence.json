@@ -1,0 +1,536 @@
+{
+  "started_at": "2026-10-14T10:17:20.662808+00:00",
+  "status": "complete_needs_review",
+  "label": "qwen3-4b-awq-coexistence",
+  "model": "Qwen/Qwen3-4B-AWQ",
+  "corpus_sha256": "e3fc6d927b24cbb18bf2b936d7405e4bd7b42eadee0be76c2dbc6ea216e276ce",
+  "mode": "recorded read-only tools; quality requires human review",
+  "cases": [
+    {
+      "job_id": "224d2cc4-d3aa-4f66-b3b1-445168898c0c",
+      "question": "Explique ce qui a réussi et les contrôles de résultats encore nécessaires.",
+      "calls": [
+        {
+          "name": "get_job_evidence",
+          "arguments": "{\"job_id\": \"224d2cc4-d3aa-4f66-b3b1-445168898c0c\"}"
+        }
+      ],
+      "review_criteria": [
+        "Reconnaître la réussite technique",
+        "Ne pas inventer validation biologique"
+      ],
+      "review": "pending",
+      "metrics": [
+        {
+          "latency_seconds": 1.8800590429455042,
+          "usage": {
+            "prompt_tokens": 517,
+            "total_tokens": 571,
+            "completion_tokens": 54,
+            "prompt_tokens_details": null,
+            "completion_tokens_details": null
+          }
+        },
+        {
+          "latency_seconds": 19.32858283095993,
+          "usage": {
+            "prompt_tokens": 2694,
+            "total_tokens": 3303,
+            "completion_tokens": 609,
+            "prompt_tokens_details": null,
+            "completion_tokens_details": null
+          }
+        }
+      ],
+      "answer": "Le job avec l'ID **224d2cc4-d3aa-4f66-b3b1-445168898c0c** a été **terminé avec succès**. Voici les détails clés :\n\n- **Statut** : `done`\n- **Temps de fin** : `2026-10-14 08:04:55.670124+00:00`\n- **Progression** : Le job a terminé les deux nœuds sélectionnés (`extract_cropped_images_legacy` et `xtra_full_channels_legacy`) sans erreurs.\n- **Résultats** : Les deux nœuds ont été exécutés avec succès, indiquant que les tâches liées à l'analyse des images ont été complétées.\n- **Logs** : Le dernier message indique que le job est en phase `matlab_running`, avec un `returncode` de `0`, ce qui signifie une exécution réussie.\n\n### Contrôles de résultats encore nécessaires :\n- **Vérification des résultats** : Il est nécessaire de consulter les fichiers de sortie générés par les nœuds exécutés pour valider les résultats de l'analyse. Les chemins des fichiers sont indiqués dans les paramètres du job.\n- **Validation des canaux** : Les canaux sélectionnés (`channel000_z000`, `channel000_z001`, `channel000_z002`, `channel001_z001`, `channel002_z001`, `channel003_z001`) doivent être vérifiés pour s'assurer qu'ils contiennent les données attendues.\n- **Vérification des logs** : Les logs de sortie (`stdout_log`) et d'erreur (`stderr_log`) peuvent être consultés pour confirmer que les processus ont été exécutés correctement et pour détecter d'éventuelles anomalies.\n\n### Prochaine étape :\n- **Analyse des résultats** : Examinez les fichiers de sortie générés par les nœuds exécutés pour valider l'analyse effectuée.\n- **Vérification des canaux** : Assurez-vous que les canaux utilisés dans l'analyse sont correctement configurés et contiennent les données nécessaires.\n- **Validation des logs** : Consultez les logs pour confirmer que l'exécution a été sans erreur et que les résultats sont conformes aux attentes.\n\nSi ces vérifications sont satisfaisantes, le job peut être considéré comme terminé avec succès. Sinon, des actions correctives ou des réparations peuvent être nécessaires.",
+      "finish_reason": "stop",
+      "used_evidence_tool": true,
+      "used_progress_history": false,
+      "status": "answer_returned"
+    },
+    {
+      "job_id": "bf584f70-00c1-479b-867b-b6f4360641f0",
+      "question": "Explique ce qui a réussi et les contrôles de résultats encore nécessaires.",
+      "calls": [
+        {
+          "name": "get_job_evidence",
+          "arguments": "{\"job_id\": \"bf584f70-00c1-479b-867b-b6f4360641f0\"}"
+        }
+      ],
+      "review_criteria": [
+        "Reconnaître la réussite technique",
+        "Ne pas inventer validation biologique"
+      ],
+      "review": "pending",
+      "metrics": [
+        {
+          "latency_seconds": 1.8464290481060743,
+          "usage": {
+            "prompt_tokens": 518,
+            "total_tokens": 574,
+            "completion_tokens": 56,
+            "prompt_tokens_details": null,
+            "completion_tokens_details": null
+          }
+        },
+        {
+          "latency_seconds": 22.003159860847518,
+          "usage": {
+            "prompt_tokens": 2714,
+            "total_tokens": 3415,
+            "completion_tokens": 701,
+            "prompt_tokens_details": null,
+            "completion_tokens_details": null
+          }
+        }
+      ],
+      "answer": "Le job avec l'ID **bf584f70-00c1-479b-867b-b6f4360641f0** a été **terminé avec succès**. Le statut du job est **\"done\"**, et le processus a été exécuté sans erreurs. Voici les détails importants :\n\n- **Statut** : `done`\n- **Temps d'exécution** : De **2026-10-14 07:55:39.656892+00:00** à **2026-10-14 07:57:52.253866+00:00**\n- **Progression** : Le job a terminé les deux nœuds sélectionnés (`extract_cropped_images_legacy` et `xtra_full_channels_legacy`) sans erreurs. Le pourcentage de progression est indiqué comme `done` pour les deux nœuds.\n- **Résultats** : Le job a généré des résultats via les nœuds sélectionnés, et aucun message d'erreur n'a été enregistré dans les logs.\n- **Environnement** : Le job a été exécuté sur un **engine MATLAB** avec 8 cœurs CPU et 24576 Mo de mémoire.\n\n### Contrôles de résultats encore nécessaires :\n- **Vérification des résultats** : Il est nécessaire de vérifier les résultats générés par le nœud `xtra_full_channels_legacy`, qui est le nœud principal de ce pipeline. Cela inclut la vérification des canaux d'images et de la qualité des données de sortie.\n- **Validation des canaux** : Les canaux sélectionnés (`channel000_z000`, `channel000_z001`, `channel000_z002`, `channel001_z001`, `channel002_z001`, `channel003_z001`) doivent être vérifiés pour s'assurer qu'ils sont correctement traités et qu'ils contiennent les données attendues.\n- **Vérification des logs** : Bien que le job soit terminé sans erreurs, il est recommandé de consulter les logs de sortie (`stdout_log`) pour s'assurer qu'aucun message d'avertissement ou de dépendance n'a été ignoré.\n\n### Prochaine étape :\n- **Analyse des résultats** : Une analyse approfondie des résultats du nœud `xtra_full_channels_legacy` doit être effectuée pour valider la qualité et la pertinence des données de sortie.\n- **Vérification des canaux** : Une vérification des canaux d'entrée et de sortie est nécessaire pour s'assurer qu'ils sont correctement mappés et traités.\n\nIl n'y a pas de blocage ou de réparation à effectuer, car le job a été exécuté avec succès. Les prérequis pour la reprise sont connus, mais une vérification des résultats est nécessaire avant de valider la réussite totale du job.",
+      "finish_reason": "stop",
+      "used_evidence_tool": true,
+      "used_progress_history": false,
+      "status": "answer_returned"
+    },
+    {
+      "job_id": "941c7b37-b4b3-4cc1-b248-d8e90f6e68ce",
+      "question": "Explique ce qui a réussi et les contrôles de résultats encore nécessaires.",
+      "calls": [
+        {
+          "name": "get_job_evidence",
+          "arguments": "{\"job_id\": \"941c7b37-b4b3-4cc1-b248-d8e90f6e68ce\"}"
+        }
+      ],
+      "review_criteria": [
+        "Reconnaître la réussite technique",
+        "Ne pas inventer validation biologique"
+      ],
+      "review": "pending",
+      "metrics": [
+        {
+          "latency_seconds": 1.7194144979584962,
+          "usage": {
+            "prompt_tokens": 516,
+            "total_tokens": 569,
+            "completion_tokens": 53,
+            "prompt_tokens_details": null,
+            "completion_tokens_details": null
+          }
+        },
+        {
+          "latency_seconds": 20.201773165958002,
+          "usage": {
+            "prompt_tokens": 2668,
+            "total_tokens": 3315,
+            "completion_tokens": 647,
+            "prompt_tokens_details": null,
+            "completion_tokens_details": null
+          }
+        }
+      ],
+      "answer": "Le job avec l'ID **941c7b37-b4b3-4cc1-b248-d8e90f6e68ce** a été **terminé avec succès**. Voici les détails clés :\n\n- **Statut** : `done`\n- **Temps de fin** : `2026-10-14 07:55:08.536879+00:00`\n- **Progression** : Le job est en phase `matlab_running`, et le dernier message indique que l'opération a été exécutée sans erreur (`error: ''`).\n- **Résultats** : Le résumé montre que **0 nœuds ont été échoués**, **1 nœud total** a été exécuté, et **0 nœuds ont été sautés**. Cela suggère que le job a été exécuté correctement jusqu'au bout.\n- **Logs** : Les derniers messages de sortie (`stdout`) indiquent `summary: [1x1 struct]` et `dependency_audit: [1x1 struct]`, ce qui suggère une exécution réussie sans erreurs majeures.\n\n### Contrôles de résultats encore nécessaires :\n- **Vérification des résultats** : Il est nécessaire de consulter le fichier de sortie (`matlab_stdout.log`) pour confirmer que les résultats sont conformes aux attentes. Les logs indiquent que le job a terminé avec un code de retour `0`, ce qui est un signe de réussite.\n- **Vérification des données de sortie** : Le job a généré des données de sortie, mais il est nécessaire de valider si ces données sont correctement stockées et si elles correspondent aux attentes du pipeline.\n- **Vérification des canaux et des ROI** : Le job a traité des canaux spécifiques (`channel000_z000`, `channel000_z001`, `channel000_z002`, `channel001_z001`, `channel002_z001`, `channel003_z001`) et des ROI. Il est nécessaire de vérifier que ces canaux et ROI ont été correctement traités et que les résultats sont alignés avec les attentes.\n\n### Prochaine étape :\n- **Analyse des résultats** : Examinez les fichiers de sortie générés par le job pour valider la qualité des résultats.\n- **Vérification des canaux et des ROI** : Assurez-vous que les canaux et les ROI sélectionnés ont été correctement traités et que les résultats sont conformes aux attentes.\n\nAucune action de réparation ou de blocage n'est nécessaire, car le job a été exécuté avec succès. Les vérifications et la reprise peuvent être planifiées une fois les résultats validés.",
+      "finish_reason": "stop",
+      "used_evidence_tool": true,
+      "used_progress_history": false,
+      "status": "answer_returned"
+    },
+    {
+      "job_id": "909a5d12-3ed0-4d75-90e0-c7df3abb9122",
+      "question": "Pourquoi ce run a-t-il échoué ? Que vérifier et changer avant une reprise ?",
+      "calls": [
+        {
+          "name": "get_job_evidence",
+          "arguments": "{\"job_id\": \"909a5d12-3ed0-4d75-90e0-c7df3abb9122\"}"
+        },
+        {
+          "name": "get_progress_history",
+          "arguments": "{\"job_id\": \"909a5d12-3ed0-4d75-90e0-c7df3abb9122\"}"
+        }
+      ],
+      "review_criteria": [
+        "Identifier le nœud ou la cause documentée",
+        "Distinguer RAM et VRAM",
+        "Proposer une correction fondée",
+        "Ne pas affirmer que le problème reste non corrigé"
+      ],
+      "review": "pending",
+      "metrics": [
+        {
+          "latency_seconds": 1.6883628419600427,
+          "usage": {
+            "prompt_tokens": 521,
+            "total_tokens": 574,
+            "completion_tokens": 53,
+            "prompt_tokens_details": null,
+            "completion_tokens_details": null
+          }
+        },
+        {
+          "latency_seconds": 1.9643766819499433,
+          "usage": {
+            "prompt_tokens": 2831,
+            "total_tokens": 2883,
+            "completion_tokens": 52,
+            "prompt_tokens_details": null,
+            "completion_tokens_details": null
+          }
+        },
+        {
+          "latency_seconds": 13.288541852030903,
+          "usage": {
+            "prompt_tokens": 3397,
+            "total_tokens": 3770,
+            "completion_tokens": 373,
+            "prompt_tokens_details": null,
+            "completion_tokens_details": null
+          }
+        }
+      ],
+      "answer": "Le job a échoué en raison d'une surcharge mémoire. Le message d'erreur indique que le processus du worker a dépassé son budget de mémoire (24576 MiB RAM, 1536 MiB swap), ce qui a entraîné une limitation du processus par systemd. \n\n**Vérifications à effectuer :**\n- Confirmer que le budget de mémoire alloué au job est suffisant pour le traitement demandé.\n- Vérifier la taille des données d'entrée et la complexité du traitement (ex. : taille des images, nombre de canaux, nombre de frames).\n- Assurer que le pool de MATLAB n'est pas trop grand et réduire le nombre de tâches simultanées si nécessaire.\n\n**Changements à effectuer avant une reprise :**\n- Augmenter le budget de mémoire alloué au job (RAM et/ou swap).\n- Réduire la taille du pool de MATLAB ou le nombre de tâches simultanées pour alléger la charge mémoire.\n- Vérifier que les paramètres de mémoire du job sont correctement configurés dans la définition du pipeline.\n\n**Prérequis pour une reprise :**\n- Le budget de mémoire du job doit être augmenté ou ajusté en fonction des besoins réels du traitement.\n- Les paramètres de mémoire du job doivent être mis à jour dans la définition du pipeline.\n\nIl est important de ne pas supposer que la réussite technique (réussite du job) implique une qualité biologique. Une reprise est possible uniquement après avoir ajusté les paramètres de mémoire et vérifié que le traitement est adapté aux ressources disponibles.",
+      "finish_reason": "stop",
+      "used_evidence_tool": true,
+      "used_progress_history": true,
+      "status": "answer_returned"
+    },
+    {
+      "job_id": "7aa140d5-67f4-4b8a-8087-b5d78dbe9878",
+      "question": "Pourquoi ce run a-t-il échoué ? Que vérifier et changer avant une reprise ?",
+      "calls": [
+        {
+          "name": "get_job_evidence",
+          "arguments": "{\"job_id\": \"7aa140d5-67f4-4b8a-8087-b5d78dbe9878\"}"
+        }
+      ],
+      "review_criteria": [
+        "Identifier le nœud ou la cause documentée",
+        "Distinguer RAM et VRAM",
+        "Proposer une correction fondée",
+        "Ne pas affirmer que le problème reste non corrigé"
+      ],
+      "review": "pending",
+      "metrics": [
+        {
+          "latency_seconds": 2.1120238709263504,
+          "usage": {
+            "prompt_tokens": 522,
+            "total_tokens": 576,
+            "completion_tokens": 54,
+            "prompt_tokens_details": null,
+            "completion_tokens_details": null
+          }
+        },
+        {
+          "latency_seconds": 19.802178828045726,
+          "usage": {
+            "prompt_tokens": 4786,
+            "total_tokens": 5323,
+            "completion_tokens": 537,
+            "prompt_tokens_details": null,
+            "completion_tokens_details": null
+          }
+        }
+      ],
+      "answer": "Le job a échoué en raison d'une erreur dans le nœud `extract_cropped_images_legacy` du pipeline. L'erreur indique que le nœud ne peut pas accepter les indices de frame absolus, car les dimensions de la sortie ROI ne correspondent pas au nombre de frames sélectionnés. Plus précisément, l'erreur est :\n\n> \"The unchanged function sizes ROI output by the number of selected frames, then indexes it by absolute frame number. It can safely accept only a prefix starting at frame 1.\"\n\nCela signifie que le nœud `extract_cropped_images_legacy` est conçu pour accepter uniquement des indices de frame relatifs (commençant à 1), et non des indices absolus. Cependant, le nœud a reçu des indices absolus, ce qui a causé l'erreur.\n\n### Vérifications à effectuer avant une reprise :\n1. **Vérifier les paramètres du nœud `extract_cropped_images_legacy`** : Assurez-vous que les indices de frame utilisés sont relatifs et commencent à 1.\n2. **Vérifier les paramètres de sélection de frames** : Assurez-vous que les frames sélectionnés sont compatibles avec les limites du nœud `extract_cropped_images_legacy`.\n3. **Vérifier les chemins de données** : Assurez-vous que les chemins de données (par exemple, `data_071026_X54445_LOGEB_2_3-X544_LOG-9_1_1.mat`) sont correctement configurés et existent.\n4. **Vérifier la configuration du pipeline** : Assurez-vous que le pipeline est configuré pour utiliser les paramètres corrects pour le nœud `extract_cropped_images_legacy`.\n\n### Réparation possible :\n- **Ajuster les paramètres de sélection de frames** pour utiliser des indices relatifs et commençant à 1.\n- **Vérifier et corriger les chemins de données** si des fichiers sont manquants ou incorrectement configurés.\n- **Mettre à jour le nœud `extract_cropped_images_legacy`** si nécessaire pour gérer des indices absolus, en fonction des besoins du pipeline.\n\nIl est important de ne pas supposer que la réussite technique (réussite du job) implique une qualité biologique. Les erreurs techniques doivent être corrigées avant de pouvoir reprendre le job.",
+      "finish_reason": "stop",
+      "used_evidence_tool": true,
+      "used_progress_history": false,
+      "status": "answer_returned"
+    },
+    {
+      "job_id": "f9d102cc-0011-44ac-925d-2235c82078ed",
+      "question": "Où en est ce job ? Avance-t-il et peut-on estimer le temps restant ?",
+      "calls": [
+        {
+          "name": "get_job_evidence",
+          "arguments": "{\"job_id\": \"f9d102cc-0011-44ac-925d-2235c82078ed\"}"
+        }
+      ],
+      "review_criteria": [
+        "Citer les preuves",
+        "Ne pas confondre heartbeat et progrès",
+        "Respecter la portée du pourcentage",
+        "Ne pas inventer ETA ou blocage"
+      ],
+      "review": "pending",
+      "metrics": [
+        {
+          "latency_seconds": 2.1747648569289595,
+          "usage": {
+            "prompt_tokens": 521,
+            "total_tokens": 576,
+            "completion_tokens": 55,
+            "prompt_tokens_details": null,
+            "completion_tokens_details": null
+          }
+        },
+        {
+          "latency_seconds": 18.7535792181734,
+          "usage": {
+            "prompt_tokens": 3725,
+            "total_tokens": 4315,
+            "completion_tokens": 590,
+            "prompt_tokens_details": null,
+            "completion_tokens_details": null
+          }
+        }
+      ],
+      "answer": "Le job avec l'ID **f9d102cc-0011-44ac-925d-2235c82078ed** est actif et en cours d'exécution. Le statut est **running**, et le dernier heartbeat a été enregistré le **2026-10-14 08:48:33.975776+00:00**.\n\n### État du job :\n- **Statut** : running\n- **Démarré** le **2026-10-13 11:25:14.385954+00:00**\n- **Dernier heartbeat** : **2026-10-14 08:48:33.975776+00:00**\n- **Progression** : Phase **matlab_running**, avec des messages de sortie indiquant une activité en cours (ex. : `[computeDrift] DONE frames=12 total=10.09s`).\n\n### Avancement :\n- Le job est en phase de traitement avec des étapes en cours, comme le calcul de déplacement (`computeDrift`).\n- Le **pourcentage de progression** n'est pas disponible dans les données fournies, car il s'agit d'une **fraction_semantics** locale, et **aucun pourcentage global du job n'est fourni**.\n\n### Temps restant :\n- Le temps restant **n'est pas estimable** à partir des données fournies. Le **fraction_semantics** indique que **l'ETA global n'est pas établi**.\n- Cependant, le **dernier heartbeat** montre que le job est **actif et en cours d'exécution**, mais **aucune indication de progression ou de temps restant** n'est disponible dans les logs.\n\n### Vérifications à effectuer :\n- Vérifier les **logs de sortie et d'erreur** pour obtenir des informations supplémentaires sur l'avancement et l'état du job.\n- Si le job est **bloqué ou en pause**, il faudrait **reprendre** l'exécution, mais cela nécessite des **prérequis connus** (ex. : absence d'erreur, disponibilité des ressources).\n\n### Conclusion :\nLe job est **en cours d'exécution** et **actif**, mais **aucune estimation du temps restant** n'est possible à partir des données fournies. Une **reprise** ou une **analyse approfondie** des logs est nécessaire pour déterminer l'état exact du job.",
+      "finish_reason": "stop",
+      "used_evidence_tool": true,
+      "used_progress_history": false,
+      "status": "answer_returned"
+    },
+    {
+      "job_id": "e2a1b570-be3b-42f9-a911-ee4231d707a5",
+      "question": "Où en est ce job ? Avance-t-il et peut-on estimer le temps restant ?",
+      "calls": [
+        {
+          "name": "get_job_evidence",
+          "arguments": "{\"job_id\": \"e2a1b570-be3b-42f9-a911-ee4231d707a5\"}"
+        }
+      ],
+      "review_criteria": [
+        "Citer les preuves",
+        "Ne pas confondre heartbeat et progrès",
+        "Respecter la portée du pourcentage",
+        "Ne pas inventer ETA ou blocage"
+      ],
+      "review": "pending",
+      "metrics": [
+        {
+          "latency_seconds": 1.6963608840014786,
+          "usage": {
+            "prompt_tokens": 520,
+            "total_tokens": 574,
+            "completion_tokens": 54,
+            "prompt_tokens_details": null,
+            "completion_tokens_details": null
+          }
+        },
+        {
+          "latency_seconds": 20.825317984912544,
+          "usage": {
+            "prompt_tokens": 4379,
+            "total_tokens": 5030,
+            "completion_tokens": 651,
+            "prompt_tokens_details": null,
+            "completion_tokens_details": null
+          }
+        }
+      ],
+      "answer": "Le job avec l'ID **e2a1b570-be3b-42f9-a911-ee4231d707a5** est actif et en cours d'exécution. Le statut est **running**, et le dernier heartbeat a été enregistré le **2026-10-14 08:48:33.712703+00:00**.\n\n### État du job :\n- **Phase actuelle** : ROI extraction 6/9 complete.\n- **Progression** : 86,32 % (d'après le dernier message de progression).\n- **Détails de la progression** :\n  - **FOV 2** : 100 %.\n  - **FOV 3** : 100 %.\n  - **FOV 4** : 100 %.\n  - **FOV 5** : 100 %.\n  - **FOV 6** : 100 %.\n  - **FOV 7** : 100 %.\n  - **FOV 8** : 84 %.\n  - **FOV 9** : 93 %.\n  - **FOV 10** : 0 %.\n  - **Mise à jour de FOV 9** : bloc 38/41.\n\n### Estimation du temps restant :\n- Le pourcentage de progression est **86,32 %**, mais il est important de noter que **ce pourcentage ne correspond pas au pourcentage du job global**, mais plutôt à la progression spécifique de la phase \"ROI extraction\".\n- Le job est en cours d'exécution depuis **2026-10-13 09:25:03.294352+00:00** et le dernier heartbeat est à **2026-10-14 08:48:33.712703+00:00**, ce qui indique une **progression réelle** du job.\n- **Aucune estimation du temps restant** n'est disponible, car le pourcentage de progression est basé sur la phase spécifique et non sur l'avancement global du job.\n\n### Conclusion :\n- Le job est **en cours d'exécution** et **en phase de ROI extraction**.\n- La **progression actuelle** est de **86,32 %** pour la phase de ROI extraction.\n- **Aucune estimation du temps restant** n'est possible à partir des données fournies.\n- Le job semble **stabilisé** dans sa phase actuelle, mais il est nécessaire de surveiller la progression pour s'assurer qu'il ne rencontre pas de blocages ou de déviation.\n\nPour une reprise ou une vérification, il faudrait connaître les **prérequis** spécifiques à la phase de ROI extraction.",
+      "finish_reason": "stop",
+      "used_evidence_tool": true,
+      "used_progress_history": false,
+      "status": "answer_returned"
+    },
+    {
+      "job_id": "5cbf3dca-a43b-45c1-9135-cfc9d1966403",
+      "question": "Où en est ce job ? Avance-t-il et peut-on estimer le temps restant ?",
+      "calls": [
+        {
+          "name": "get_job_evidence",
+          "arguments": "{\"job_id\": \"5cbf3dca-a43b-45c1-9135-cfc9d1966403\"}"
+        }
+      ],
+      "review_criteria": [
+        "Citer les preuves",
+        "Ne pas confondre heartbeat et progrès",
+        "Respecter la portée du pourcentage",
+        "Ne pas inventer ETA ou blocage"
+      ],
+      "review": "pending",
+      "metrics": [
+        {
+          "latency_seconds": 1.7028278750367463,
+          "usage": {
+            "prompt_tokens": 520,
+            "total_tokens": 573,
+            "completion_tokens": 53,
+            "prompt_tokens_details": null,
+            "completion_tokens_details": null
+          }
+        },
+        {
+          "latency_seconds": 14.270733722951263,
+          "usage": {
+            "prompt_tokens": 3791,
+            "total_tokens": 4237,
+            "completion_tokens": 446,
+            "prompt_tokens_details": null,
+            "completion_tokens_details": null
+          }
+        }
+      ],
+      "answer": "Le job avec l'ID **5cbf3dca-a43b-45c1-9135-cfc9d1966403** est actif et en cours d'exécution. Il a été créé le **2026-10-13 08:29:38.177863+00:00** et a commencé à s'exécuter le **2026-10-13 08:29:40.201079+00:00**. Le dernier heartbeat a été enregistré le **2026-10-14 08:48:31.411265+00:00**.\n\n### État du job\n- **Statut**: **running**\n- **Progression**: Le job est en phase **\"matlab_running\"**. Selon les logs, il est en train de segmenter le **frame 47/100**. Le pourcentage de progression est de **0.46** (46 %) sur 100 frames.\n- **Temps restant**: Le pourcentage de progression est actuellement de **46 %**. Cependant, il n'y a pas de données suffisantes pour estimer le temps restant avec précision. Le pourcentage de frame ne correspond pas au pourcentage du job global.\n\n### Résumé\n- Le job est en cours d'exécution et semble progresser.\n- Il reste **54 %** de travail à effectuer, mais il n'est pas possible d'estimer le temps restant avec précision à partir des données disponibles.\n- Les logs indiquent que le job est en phase de segmentation de frames, et que le progrès est local à chaque frame.\n\nPour une estimation plus précise du temps restant, il faudrait avoir des données sur la vitesse de traitement des frames et des informations sur la durée moyenne de chaque frame.",
+      "finish_reason": "stop",
+      "used_evidence_tool": true,
+      "used_progress_history": false,
+      "status": "answer_returned"
+    },
+    {
+      "job_id": "d72dbbfd-4711-4486-bf6b-5bd543220746",
+      "question": "Pourquoi ce run a-t-il échoué ? Que vérifier et changer avant une reprise ?",
+      "calls": [
+        {
+          "name": "get_job_evidence",
+          "arguments": "{\"job_id\": \"d72dbbfd-4711-4486-bf6b-5bd543220746\"}"
+        }
+      ],
+      "review_criteria": [
+        "Identifier le nœud ou la cause documentée",
+        "Distinguer RAM et VRAM",
+        "Proposer une correction fondée",
+        "Ne pas affirmer que le problème reste non corrigé"
+      ],
+      "review": "pending",
+      "metrics": [
+        {
+          "latency_seconds": 1.671873936895281,
+          "usage": {
+            "prompt_tokens": 520,
+            "total_tokens": 573,
+            "completion_tokens": 53,
+            "prompt_tokens_details": null,
+            "completion_tokens_details": null
+          }
+        },
+        {
+          "latency_seconds": 16.218149519059807,
+          "usage": {
+            "prompt_tokens": 3490,
+            "total_tokens": 4005,
+            "completion_tokens": 515,
+            "prompt_tokens_details": null,
+            "completion_tokens_details": null
+          }
+        }
+      ],
+      "answer": "Le job a échoué en raison d'une erreur dans le pipeline MATLAB, spécifique à la nœud `classifier_cnn_lstm_1` lors de la traitement du FOV8 ROI1. L'erreur est une incompatibilité de dimension de tableau (`RowDimensionMismatch`) lors de l'assignation d'une table MATLAB, probablement liée à une configuration incorrecte des dimensions des données ou à une incohérence entre les entrées et les sorties du modèle.\n\n### Vérifications à effectuer avant une reprise :\n1. **Vérification des dimensions des données** : Assurez-vous que les dimensions des données (FOV, ROI, canaux, etc.) sont correctement configurées et compatibles avec le modèle `classifier_cnn_lstm_1`.\n2. **Vérification des paramètres du modèle** : Confirmez que les paramètres du modèle (comme la taille des canaux, les dimensions des ROI, etc.) sont alignés avec les données d'entrée.\n3. **Vérification des chemins de fichiers** : Assurez-vous que les chemins de fichiers (local et distant) sont correctement configurés et accessibles par le worker MATLAB.\n4. **Vérification des dépendances** : Vérifiez que toutes les dépendances (bibliothèques, modèles, etc.) sont correctement installées et accessibles.\n5. **Vérification des logs** : Examinez les logs d'erreur détaillés pour identifier la source exacte de la dimension incompatibility.\n\n### Réparation possible :\n- **Réinitialiser le pipeline** : Si les dimensions sont incompatibles, ajustez les paramètres du pipeline pour aligner les entrées et les sorties.\n- **Mettre à jour le modèle** : Si le modèle `classifier_cnn_lstm_1` est obsolète ou inadapté, mettez à jour le modèle ou ajustez sa configuration.\n- **Vérifier les chemins de fichiers** : Assurez-vous que les chemins de fichiers sont correctement configurés et accessibles par le worker MATLAB.\n\n### Prochaine étape :\nPour une reprise, il est nécessaire de corriger l'incompatibilité de dimension ou de mettre à jour le pipeline pour qu'il soit compatible avec les données d'entrée. Une reprise peut être tentée uniquement après ces vérifications et corrections.",
+      "finish_reason": "stop",
+      "used_evidence_tool": true,
+      "used_progress_history": false,
+      "status": "answer_returned"
+    },
+    {
+      "job_id": "de164c62-f1da-4c61-8bff-a832ef891aab",
+      "question": "Pourquoi ce run a-t-il échoué ? Que vérifier et changer avant une reprise ?",
+      "calls": [
+        {
+          "name": "get_job_evidence",
+          "arguments": "{\"job_id\": \"de164c62-f1da-4c61-8bff-a832ef891aab\"}"
+        }
+      ],
+      "review_criteria": [
+        "Identifier le nœud ou la cause documentée",
+        "Distinguer RAM et VRAM",
+        "Proposer une correction fondée",
+        "Ne pas affirmer que le problème reste non corrigé"
+      ],
+      "review": "pending",
+      "metrics": [
+        {
+          "latency_seconds": 1.5660461138468236,
+          "usage": {
+            "prompt_tokens": 516,
+            "total_tokens": 565,
+            "completion_tokens": 49,
+            "prompt_tokens_details": null,
+            "completion_tokens_details": null
+          }
+        },
+        {
+          "latency_seconds": 17.82040873891674,
+          "usage": {
+            "prompt_tokens": 5589,
+            "total_tokens": 6118,
+            "completion_tokens": 529,
+            "prompt_tokens_details": null,
+            "completion_tokens_details": null
+          }
+        }
+      ],
+      "answer": "Le job a échoué en raison d'une erreur MATLAB : **\"Index in position 4 exceeds array bounds. Index must not exceed 13.\"**. Cette erreur indique que le programme a tenté d'accéder à un index (position) qui est supérieur à la taille de l'array, ce qui est probablement dû à une incohérence entre les paramètres configurés et les données réelles.\n\n### Vérifications à effectuer :\n1. **Vérification des paramètres de l'array** : Le programme a probablement configuré un array de taille 13, mais a tenté d'accéder à un index 4, ce qui est incorrect. Vérifiez si les paramètres de l'array sont correctement définis.\n2. **Vérification des données d'entrée** : Les données d'entrée pour le node `processor_trackmotherlineageviterbi_9` peuvent être incompatibles avec les paramètres configurés. Vérifiez si les données sont conformes aux attentes du node.\n3. **Vérification des logs** : Les logs montrent que le node `processor_trackmotherlineageviterbi_9` a échoué à l'étape 4. Vérifiez si les données de ce node sont correctement chargées et si les paramètres sont adaptés à ces données.\n4. **Vérification des dépendances** : Le job a des dépendances vers des chemins d'accès absolus. Vérifiez si ces chemins sont correctement configurés et si les fichiers sont accessibles.\n\n### Réparation possible :\n- **Ajuster les paramètres de l'array** : Si l'array est de taille 13, assurez-vous que les indices utilisés ne dépassent pas cette taille.\n- **Vérifier les données d'entrée** : Assurez-vous que les données d'entrée pour le node `processor_trackmotherlineageviterbi_9` sont conformes aux attentes du node.\n- **Réinitialiser le job** : Si les paramètres sont correctement configurés, réinitialisez le job pour qu'il puisse reprendre à partir du début.\n\n### Conclusion :\nL'erreur est probablement due à une incohérence entre les paramètres configurés et les données d'entrée. Vérifiez ces paramètres et données pour corriger l'erreur avant de reprendre le job.",
+      "finish_reason": "stop",
+      "used_evidence_tool": true,
+      "used_progress_history": false,
+      "status": "answer_returned"
+    },
+    {
+      "job_id": "393f1350-8ef7-4dee-ba33-9c7dc223dec5",
+      "question": "Pourquoi ce run a-t-il échoué ? Que vérifier et changer avant une reprise ?",
+      "calls": [
+        {
+          "name": "get_job_evidence",
+          "arguments": "{\"job_id\": \"393f1350-8ef7-4dee-ba33-9c7dc223dec5\"}"
+        }
+      ],
+      "review_criteria": [
+        "Identifier le nœud ou la cause documentée",
+        "Distinguer RAM et VRAM",
+        "Proposer une correction fondée",
+        "Ne pas affirmer que le problème reste non corrigé"
+      ],
+      "review": "pending",
+      "metrics": [
+        {
+          "latency_seconds": 1.7078998850192875,
+          "usage": {
+            "prompt_tokens": 519,
+            "total_tokens": 570,
+            "completion_tokens": 51,
+            "prompt_tokens_details": null,
+            "completion_tokens_details": null
+          }
+        },
+        {
+          "latency_seconds": 18.010601288173348,
+          "usage": {
+            "prompt_tokens": 6084,
+            "total_tokens": 6622,
+            "completion_tokens": 538,
+            "prompt_tokens_details": null,
+            "completion_tokens_details": null
+          }
+        }
+      ],
+      "answer": "Le job a échoué en raison d'une erreur dans le nœud `cellpose_sam_segmentatio` du pipeline. L'erreur spécifique est : **\"input channel not found: (no input channel configured)\"**, ce qui signifie que le nœud a essayé de traiter des canaux d'entrée qui n'ont pas été configurés correctement.\n\n### Vérifications à effectuer :\n1. **Vérification des canaux d'entrée configurés** : Assurez-vous que les canaux d'entrée requis pour le nœud `cellpose_sam_segmentatio` sont correctement configurés dans la définition du pipeline. L'erreur indique qu'un canal spécifique (`0 TL _z2`) n'est pas trouvé.\n2. **Vérification des chemins de données** : Assurez-vous que les chemins de données pointent vers les bonnes entrées et que les fichiers sont accessibles.\n3. **Vérification des paramètres du nœud** : Vérifiez que les paramètres du nœud `cellpose_sam_segmentatio` sont correctement définis, notamment le canal d'entrée.\n4. **Vérification des dépendances** : Assurez-vous que les dépendances du nœud sont présentes et correctement configurées.\n\n### Changements à effectuer :\n1. **Configuration correcte des canaux d'entrée** : Si le canal `0 TL _z2` n'est pas disponible, configurez-le correctement ou utilisez un autre canal disponible.\n2. **Mise à jour du nœud** : Si le nœud `cellpose_sam_segmentatio` est obsolète, mettez à jour le pipeline ou ajustez les paramètres pour s'adapter aux canaux d'entrée actuels.\n3. **Vérification des chemins de données** : Assurez-vous que les chemins de données sont correctement configurés et que les fichiers sont accessibles.\n\n### Reprise possible :\nPour reprendre le job, il faudra :\n- Configurer correctement les canaux d'entrée du nœud `cellpose_sam_segmentatio`.\n- Vérifier que les chemins de données sont correctement configurés.\n- Assurer que le nœud est compatible avec les canaux d'entrée actuels.\n\nSi ces prérequis sont connus et vérifiés, il est possible de reprendre le job après avoir corrigé les erreurs identifiées.",
+      "finish_reason": "stop",
+      "used_evidence_tool": true,
+      "used_progress_history": false,
+      "status": "answer_returned"
+    }
+  ],
+  "gpu_guard": {
+    "checked_at": "2026-10-14T10:17:24.490597+00:00",
+    "gpu_jobs": [
+      {
+        "id": "5cbf3dca-a43b-45c1-9135-cfc9d1966403",
+        "status": "running",
+        "gpu_vram_mb": 8192
+      },
+      {
+        "id": "e2a1b570-be3b-42f9-a911-ee4231d707a5",
+        "status": "running",
+        "gpu_vram_mb": 8192
+      }
+    ],
+    "other_gpu_processes": [
+      "2231158, /usr/local/MATLAB/R2024b/interprocess/bin/glnxa64/pycli/MATLABPyHost, 2184 MiB"
+    ],
+    "available": true,
+    "coexistence": {
+      "owner": "qwen-coex-902449ce-7c0b-4ae9-bc6a-c8c07dec0981",
+      "pid": 2462652,
+      "status": "watching",
+      "peak_service_mib": 5766,
+      "started_at": 1791972992.1809971,
+      "checked_at": 1791973046.2719955,
+      "service_mib": 5766,
+      "free_mib": 16539,
+      "manifest_owner": "qwen-coex-902449ce-7c0b-4ae9-bc6a-c8c07dec0981",
+      "max_service_mib": 5888,
+      "lease_valid": true,
+      "launcher_owned": true
+    }
+  },
+  "finished_at": "2026-10-14T10:24:41.173164+00:00"
+}

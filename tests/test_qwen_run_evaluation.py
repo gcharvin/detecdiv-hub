@@ -232,3 +232,38 @@ def test_new_scientific_request_preempts_during_inflight_inference(monkeypatch):
     pilot.watch_admission(args, "campaign", finished, state)
     assert stopped == ["campaign"] and state["preemption_reason"]
     assert not finished.is_set()  # Preemption does not wait for inference completion.
+
+
+def test_qwen36_plan_pins_family_parser_and_preserves_scientific_limits(tmp_path):
+    from scripts.run_qwen_coexistence_pilot import configure_main_plan, validate_resume
+    model = "Alennnndy/Qwen3.6-27B-AWQ-4bit"
+    candidate = {"model": model, "revision": "c" * 40,
+                 "provisional_gpu_memory_utilization": 0.8,
+                 "tool_call_parser": "qwen3_coder", "language_model_only": True}
+    plan = tmp_path / "qwen36.json"
+    plan.write_text(json.dumps({"candidates": [candidate]}))
+    args = SimpleNamespace(main_plan=plan, model=model, context_tokens=8192,
+        kv_cache_mib=0, cpu_offload_gib=0, allocator_gc=0, disable_uva=False,
+        max_new_tokens=1100, evidence_profile="standard", label="qwen36")
+    configure_main_plan(args)
+    assert args.tool_call_parser == "qwen3_coder" and args.language_model_only
+    assert args.revision == "c" * 40 and args.max_service_mib == 22400
+    original = {"tool_call_parser": "qwen3_coder", "language_model_only": True}
+    previous = {"model": model, "corpus_sha256": "frozen", "cases": [{"job_id": "saved"}],
+                "inference_settings": original}
+    with pytest.raises(ValueError, match="preserve"):
+        validate_resume(previous, model, "frozen", {**original, "tool_call_parser": "hermes"})
+    candidate["tool_call_parser"] = "unvalidated-parser"
+    plan.write_text(json.dumps({"candidates": [candidate]}))
+    with pytest.raises(ValueError, match="Unsupported pilot tool parser"):
+        configure_main_plan(args)
+
+
+def test_startup_window_cannot_exhaust_the_watchdog_lease(tmp_path, monkeypatch):
+    from scripts import run_qwen_coexistence_pilot as pilot
+    monkeypatch.setattr(sys, "argv", ["pilot", "--output", str(tmp_path),
+                                     "--startup-timeout-seconds", "600"])
+    with pytest.raises(SystemExit) as exc:
+        pilot.main()
+    assert exc.value.code == 2
+    assert not list(tmp_path.iterdir())
