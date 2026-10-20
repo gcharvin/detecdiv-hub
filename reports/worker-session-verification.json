@@ -1,0 +1,1 @@
+{"success":true,"sharedAdapter":"\\\\10.20.11.250\\data\\matlab\\pipelines\\Alex_Xtra_FullChannels_Conservative\\assets\\plugins\\processor\\+saveCroppedImagesXConservative\\openReadPool.m","pool":{"workers":2,"owned":true,"workerPids":[6020,29728],"workerThreads":[1,1]},"poolClosed":true,"matlabVersion":"25.2.0.3055257 (R2025b) Update 2"}

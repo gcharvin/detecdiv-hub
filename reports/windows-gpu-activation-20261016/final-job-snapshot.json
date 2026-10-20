@@ -1,0 +1,299 @@
+{
+  "at": "2026-10-16T07:59:55.289856+00:00",
+  "id": "43637ab4-4044-443d-b8f9-3372935f8356",
+  "status": "running",
+  "target": "windows-10-20-11-56",
+  "started_at": "2026-10-16 07:57:06.526867+00:00",
+  "heartbeat_at": "2026-10-16 07:59:51.197020+00:00",
+  "error": null,
+  "allocation": {
+    "source": "conservative_pipeline_fallback",
+    "cpu_cores": 8,
+    "memory_mb": 24576,
+    "gpu_vram_mb": 8192,
+    "gpu_required": true,
+    "disk_io_units": 3,
+    "gpu_permitted": true,
+    "swap_limit_mb": 0,
+    "requested_cpu_cores": 8,
+    "pipeline_gpu_profile": {
+      "reason": "pipeline_nodes_unavailable",
+      "status": "unknown",
+      "selected_node_ids": [],
+      "deep_learning_node_ids": []
+    }
+  },
+  "result": {
+    "progress": {
+      "phase": "matlab_running",
+      "updated_at": "2026-10-16T07:59:47.525953+00:00",
+      "current_step": "2026-10-16 09:59:25,728 [train INFO] 0, train_loss=0.1950, test_loss=0.2024, LR=0.000000, time 34.59s",
+      "last_message": "2026-10-16 09:59:25,728 [train INFO] 0, train_loss=0.1950, test_loss=0.2024, LR=0.000000, time 34.59s",
+      "recent_stderr": [],
+      "recent_stdout": [
+        "2026-10-16 09:58:50,193 [train INFO] >>> computing diameters",
+        "0%|          | 0/70 [00:00<?, ?it/s]",
+        "100%|##########| 70/70 [00:00<00:00, 1090.94it/s]",
+        "0%|          | 0/15 [00:00<?, ?it/s]",
+        "100%|##########| 15/15 [00:00<00:00, 1050.38it/s]",
+        "2026-10-16 09:58:50,293 [train INFO] >>> normalizing {'lowhigh': None, 'percentile': None, 'normalize': True, 'norm3D': True, 'sharpen_radius': 0, 'smooth_radius': 0, 'tile_norm_blocksize': 0, 'tile_norm_smooth3D': 1, 'invert': False}",
+        "2026-10-16 09:58:51,133 [train INFO] >>> n_epochs=20, n_train=70, n_test=15, bsize=256, batch_size=1, nimg_per_epoch=70",
+        "2026-10-16 09:58:51,138 [train INFO] >>> AdamW, learning_rate=0.00010, weight_decay=0.00001",
+        "2026-10-16 09:58:51,158 [train INFO] >>> saving model to \\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\fit_v001\\models\\phase_cellposesam_final",
+        "2026-10-16 09:59:25,728 [train INFO] 0, train_loss=0.1950, test_loss=0.2024, LR=0.000000, time 34.59s"
+      ]
+    },
+    "preflight": {
+      "errors": [],
+      "reason": "dependency_audit_missing",
+      "status": "skipped",
+      "warnings": [
+        "No dependency_audit.json was found for pipeline payload."
+      ]
+    },
+    "prepared_run": {
+      "execution": {
+        "allow_gui": false,
+        "code_commit": "594217dd37bfa9b2b529f7f2204253d9901340bf",
+        "interactive": false,
+        "write_scope": "classifier_update",
+        "save_project": false,
+        "requested_mode": "server",
+        "console_log_path": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\pipeline_runs\\train_phase_cellposesam_v001\\worker_console.log",
+        "cancel_token_file": "C:\\Users\\CHARVI~1\\AppData\\Local\\Temp\\detecdiv-hub\\cancel-tokens\\43637ab4-4044-443d-b8f9-3372935f8356.cancel",
+        "progress_json_path": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\pipeline_runs\\train_phase_cellposesam_v001\\progress.json",
+        "execution_target_id": "a8eedb3f-85fc-47a8-b327-2aa766550f51",
+        "worker_path_mappings": [
+          {
+            "source": "/data/matlab/ClassiRepository/latent-v54-budneck-gated-gt-bootstrap-v008-runtime",
+            "target": "C:\\ProgramData\\DetecDivHub\\m\\lm54v008"
+          },
+          {
+            "source": "/data/matlab/ClassiRepository/latent-v54-budneck-gated-gt-bootstrap-v007-runtime",
+            "target": "C:\\ProgramData\\DetecDivHub\\m\\lm54v007"
+          },
+          {
+            "source": "/data/matlab/ClassiRepository/latent-v54-budneck-gated-gt-bootstrap-v006-runtime",
+            "target": "C:\\ProgramData\\DetecDivHub\\m\\lm54v006"
+          },
+          {
+            "source": "X:\\matlab\\ClassiRepository\\latent-v54-budneck-gated-gt-bootstrap-v008-runtime",
+            "target": "C:\\ProgramData\\DetecDivHub\\m\\lm54v008"
+          },
+          {
+            "source": "X:\\matlab\\ClassiRepository\\latent-v54-budneck-gated-gt-bootstrap-v007-runtime",
+            "target": "C:\\ProgramData\\DetecDivHub\\m\\lm54v007"
+          },
+          {
+            "source": "X:\\matlab\\ClassiRepository\\latent-v54-budneck-gated-gt-bootstrap-v006-runtime",
+            "target": "C:\\ProgramData\\DetecDivHub\\m\\lm54v006"
+          },
+          {
+            "source": "/archive",
+            "target": "//10.20.11.251/archive"
+          },
+          {
+            "source": "/data",
+            "target": "//10.20.11.250/DATA"
+          },
+          {
+            "source": "X:\\",
+            "target": "//10.20.11.250/DATA"
+          }
+        ]
+      },
+      "project_ref": {
+        "type": "classi",
+        "scope": "classifier",
+        "project_name": "phase_cellposesam_v001_1",
+        "classifier_id": "phase_cellposesam_v001_1",
+        "classifier_path": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1"
+      },
+      "pipeline_ref": {
+        "link_mode": "server_visible",
+        "pipeline_key": "train_phase_cellposesam_v001",
+        "path_normalization": "worker_local_paths",
+        "pipeline_json_path": "C:\\Users\\Charvin-Admin\\Documents\\GitHub\\DetecDiv-jobs\\work\\43637ab4-4044-443d-b8f9-3372935f8356\\5d31825d-56b4-4db8-9705-848b533b4a15\\.detecdiv_runtime_pipeline_43637ab4-4044-443d-b8f9-3372935f8356.json",
+        "export_manifest_uri": "",
+        "pipeline_bundle_uri": "",
+        "pipeline_json_path_original": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\pipeline_templates\\train_phase_cellposesam_v001\\windows_gpu_v1\\pipeline.json"
+      },
+      "normalized_pipeline_path": "C:\\Users\\Charvin-Admin\\Documents\\GitHub\\DetecDiv-jobs\\work\\43637ab4-4044-443d-b8f9-3372935f8356\\5d31825d-56b4-4db8-9705-848b533b4a15\\.detecdiv_runtime_pipeline_43637ab4-4044-443d-b8f9-3372935f8356.json",
+      "pipeline_resolution_method": null
+    },
+    "retry_reason": "Fix authoritative worker mapping priority; first attempt failed before training",
+    "worker_runtime": {
+      "engine": "matlab",
+      "work_dir": "C:\\Users\\Charvin-Admin\\Documents\\GitHub\\DetecDiv-jobs\\work\\43637ab4-4044-443d-b8f9-3372935f8356\\5d31825d-56b4-4db8-9705-848b533b4a15",
+      "repo_root": "C:\\Users\\Charvin-Admin\\Documents\\GitHub\\DetecDiv-jobs\\releases\\594217dd37bfa9b2b529f7f2204253d9901340bf",
+      "stderr_log": "C:\\Users\\Charvin-Admin\\Documents\\GitHub\\DetecDiv-jobs\\work\\43637ab4-4044-443d-b8f9-3372935f8356\\5d31825d-56b4-4db8-9705-848b533b4a15\\matlab_stderr.log",
+      "stdout_log": "C:\\Users\\Charvin-Admin\\Documents\\GitHub\\DetecDiv-jobs\\work\\43637ab4-4044-443d-b8f9-3372935f8356\\5d31825d-56b4-4db8-9705-848b533b4a15\\matlab_stdout.log",
+      "code_commit": "594217dd37bfa9b2b529f7f2204253d9901340bf"
+    },
+    "attempt_history": [
+      {
+        "error": "pipeline_run MATLAB batch failed with exit code 1.\n\nError using runPipelineStructured (line 64)\nPipeline validation failed: Classifier node phase_cellposesam_v001_1 linked classifier is not runnable. Linked classifier folder is not\naccessible for Hub/server execution. Configured modulePath: \\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1. For\nHub/server execution, relink the classifier to an accessible folder, export/copy the classifier module with its *_classification.mat and\nmodel .mat files, or set a run override modulePath to the server-visible classifier folder.\n\nError in runPipelineDetecDiv (line 6)\n    [ctxOut, report] = runPipelineStructured(pipeObj, ctx);\n                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nError in detecdiv_run_pipeline_job (line 85)\n        [ctxOut, report] = runPipelineDetecDiv(pipeObj, ctx);\n                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n\nSTDOUT tail:\n  \"conda_prefix\": \"C:\\\\ProgramData\\\\miniconda3\",\n  \"av_data_dir\": \"C:\\\\ProgramData\\\\miniconda3\\\\etc\\\\conda\",\n  \"av_metad ... [truncated]\n[DEBUG] Env \"detecdiv_python\" exists: C:\\Users\\Charvin-Admin\\.conda\\envs\\detecdiv_python\n[Detecdiv]   - CellposeSAM/Trackastra runner imports verified.\n[Detecdiv]   - Verifying torch execution...\n[DEBUG] runConda: cmd /c \"\"C:\\ProgramData\\miniconda3\\Scripts\\conda.exe\" run -n detecdiv_python python -c \"import torch; print('torch', torch.__version__); print('cuda_version', getattr(torch.version,'cuda',None)); avail=torch.cuda.is_available(); print('cuda_available', avail); cap=torch.cuda.get_device_capability(0) if avail else (0,0); sm=(f'sm_{cap[0]}{cap[1]}') if avail else ''; arch=list(torch.cuda.get_arch_list()) if avail else []; print('cuda_device', torch.cuda.get_device_name(0) if avail else ''); print('cuda_capability', sm); print('cuda_arch_list', arch); print('cuda_exact_arch_listed', (sm in arch) if arch else 'unknown'); model=torch.nn.Conv2d(1,2,3).cuda() if avail else None; inp=torch.ones((1,1,8,8),device='cuda',requires_grad=avail) if avail else torch.ones((1,1,8,8)); out=model(inp) if avail else inp; out.sum().backward() if avail else None; torch.cuda.synchronize() if avail else None; x=float(out[0,0,0,0].item()); print('cuda_tensor_ok', x);\"\"\n[DEBUG] rc=0\n[DEBUG] out: torch 2.7.0+cu118\ncuda_version 11.8\ncuda_available True\ncuda_device NVIDIA RTX 2000 Ada Generation\ncuda_capability sm_89\ncuda_arch_list ['sm_37', 'sm_50', 'sm_60', 'sm_61', 'sm_70', 'sm_75', 'sm_80', 'sm_86', 'sm_90', 'compute_37']\ncuda_exact_arch_listed False\ncuda_tensor_ok 0.3047046661376953\n[Detecdiv]   - torch verification OK:\ntorch 2.7.0+cu118\ncuda_version 11.8\ncuda_available True\ncuda_device NVIDIA RTX 2000 Ada Generation\ncuda_capability sm_89\ncuda_arch_list ['sm_37', 'sm_50', 'sm_60', 'sm_61', 'sm_70', 'sm_75', 'sm_80', 'sm_86', 'sm_90', 'compute_37']\ncuda_exact_arch_listed False\ncuda_tensor_ok 0.3047046661376953\n[Detecdiv] Step 4/5: Configuring MATLAB pyenv (OutOfProcess)...\n[Detecdiv] Step 5/5: Final checks (sys + torch import in MATLAB)...\n[DEBUG] sys.version: 3.10.21 | packaged by Anaconda, Inc. | (main, Aug 27 2026, 14:35:39) [MSC v.1942 64 bit (AMD64)]\nsys:1: UserWarning: TypedStorage is deprecated. It will be removed in the future and UntypedStorage will be the only storage class. This should only matter to you if you are using storages directly.  To access UntypedStorage directly, use tensor.untyped_storage() instead of tensor.storage()\n[DEBUG] torch.__version__: 2.7.0+cu118 | torch.version.cuda: 11.8 | cuda.is_available(): true\n=== MATLAB Python Configuration (Detecdiv) ===\nPython exe     : C:\\Users\\Charvin-Admin\\.conda\\envs\\detecdiv_python\\python.exe\npyenv.Status   : Loaded\npyenv.Mode     : OutOfProcess\npyenv.Version  : 3.10\nPython (sys)   : 3.10.21 | packaged by Anaconda, Inc. | (main, Aug 27 2026, 14:35:39) [MSC v.1942 64 bit (AMD64)]\nTorch          : 2.7.0+cu118 | CUDA: 11.8 | cuda.is_available(): true\n=============================================\nPipeline run saved: \\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\pipeline_runs\\train_phase_cellposesam_v001\\run.json\n[worker] Finished 16-Oct-2026 09:51:57\n\nSTDERR tail:\nError using runPipelineStructured (line 64)\nPipeline validation failed: Classifier node phase_cellposesam_v001_1 linked classifier is not runnable. Linked classifier folder is not\naccessible for Hub/server execution. Configured modulePath: \\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1. For\nHub/server execution, relink the classifier to an accessible folder, export/copy the classifier module with its *_classification.mat and\nmodel .mat files, or set a run override modulePath to the server-visible classifier folder.\nError in runPipelineDetecDiv (line 6)\n    [ctxOut, report] = runPipelineStructured(pipeObj, ctx);\n                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nError in detecdiv_run_pipeline_job (line 85)\n        [ctxOut, report] = runPipelineDetecDiv(pipeObj, ctx);\n                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n{\bError using detecdiv_run_pipeline_job (line 211)\nPipeline validation failed: Classifier node phase_cellposesam_v001_1 linked classifier is not runnable. Linked classifier folder is not\naccessible for Hub/server execution. Configured modulePath: \\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1. For\nHub/server execution, relink the classifier to an accessible folder, export/copy the classifier module with its *_classification.mat and\nmodel .mat files, or set a run override modulePath to the server-visible classifier folder.\n}\b \nERROR: MATLAB error Exit Status: 0x00000001",
+        "result": {
+          "progress": {
+            "phase": "matlab_running",
+            "updated_at": "2026-10-16T07:52:11.051958+00:00",
+            "current_step": "phase_cellposesam_v001_1",
+            "last_message": "ERROR: MATLAB error Exit Status: 0x00000001",
+            "recent_stderr": [
+              "Error in detecdiv_run_pipeline_job (line 85)",
+              "[ctxOut, report] = runPipelineDetecDiv(pipeObj, ctx);",
+              "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^",
+              "{Error using detecdiv_run_pipeline_job (line 211)",
+              "Pipeline validation failed: Classifier node phase_cellposesam_v001_1 linked classifier is not runnable. Linked classifier folder is not",
+              "accessible for Hub/server execution. Configured modulePath: \\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1. For",
+              "Hub/server execution, relink the classifier to an accessible folder, export/copy the classifier module with its *_classification.mat and",
+              "model .mat files, or set a run override modulePath to the server-visible classifier folder.",
+              "}",
+              "ERROR: MATLAB error Exit Status: 0x00000001"
+            ],
+            "recent_stdout": [
+              "=== MATLAB Python Configuration (Detecdiv) ===",
+              "Python exe     : C:\\Users\\Charvin-Admin\\.conda\\envs\\detecdiv_python\\python.exe",
+              "pyenv.Status   : Loaded",
+              "pyenv.Mode     : OutOfProcess",
+              "pyenv.Version  : 3.10",
+              "Python (sys)   : 3.10.21 | packaged by Anaconda, Inc. | (main, Aug 27 2026, 14:35:39) [MSC v.1942 64 bit (AMD64)]",
+              "Torch          : 2.7.0+cu118 | CUDA: 11.8 | cuda.is_available(): true",
+              "=============================================",
+              "Pipeline run saved: \\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\pipeline_runs\\train_phase_cellposesam_v001\\run.json",
+              "[worker] Finished 16-Oct-2026 09:51:57"
+            ]
+          },
+          "cpu_usage": {
+            "peak_cores": 5.591,
+            "cpu_seconds": 60.703,
+            "sample_count": 169,
+            "wall_seconds": 86.875,
+            "average_cores": 0.699,
+            "host_cpu_count": 20,
+            "allocated_cores": 8,
+            "available_cpu_count": 20,
+            "sample_interval_seconds": 0.5
+          },
+          "preflight": {
+            "errors": [],
+            "reason": "dependency_audit_missing",
+            "status": "skipped",
+            "warnings": [
+              "No dependency_audit.json was found for pipeline payload."
+            ]
+          },
+          "prepared_run": {
+            "execution": {
+              "allow_gui": false,
+              "code_commit": "dce3ca768bcae597224424620abc46ede0788a12",
+              "interactive": false,
+              "write_scope": "classifier_update",
+              "save_project": false,
+              "requested_mode": "server",
+              "console_log_path": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\pipeline_runs\\train_phase_cellposesam_v001\\worker_console.log",
+              "progress_json_path": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\pipeline_runs\\train_phase_cellposesam_v001\\progress.json",
+              "execution_target_id": "a8eedb3f-85fc-47a8-b327-2aa766550f51",
+              "worker_path_mappings": [
+                {
+                  "source": "/data/matlab/ClassiRepository/latent-v54-budneck-gated-gt-bootstrap-v008-runtime",
+                  "target": "C:\\ProgramData\\DetecDivHub\\m\\lm54v008"
+                },
+                {
+                  "source": "/data/matlab/ClassiRepository/latent-v54-budneck-gated-gt-bootstrap-v007-runtime",
+                  "target": "C:\\ProgramData\\DetecDivHub\\m\\lm54v007"
+                },
+                {
+                  "source": "/data/matlab/ClassiRepository/latent-v54-budneck-gated-gt-bootstrap-v006-runtime",
+                  "target": "C:\\ProgramData\\DetecDivHub\\m\\lm54v006"
+                },
+                {
+                  "source": "X:\\matlab\\ClassiRepository\\latent-v54-budneck-gated-gt-bootstrap-v008-runtime",
+                  "target": "C:\\ProgramData\\DetecDivHub\\m\\lm54v008"
+                },
+                {
+                  "source": "X:\\matlab\\ClassiRepository\\latent-v54-budneck-gated-gt-bootstrap-v007-runtime",
+                  "target": "C:\\ProgramData\\DetecDivHub\\m\\lm54v007"
+                },
+                {
+                  "source": "X:\\matlab\\ClassiRepository\\latent-v54-budneck-gated-gt-bootstrap-v006-runtime",
+                  "target": "C:\\ProgramData\\DetecDivHub\\m\\lm54v006"
+                },
+                {
+                  "source": "/archive",
+                  "target": "//10.20.11.251/archive"
+                },
+                {
+                  "source": "/data",
+                  "target": "//10.20.11.250/DATA"
+                },
+                {
+                  "source": "X:\\",
+                  "target": "//10.20.11.250/DATA"
+                }
+              ]
+            },
+            "project_ref": {
+              "type": "classi",
+              "scope": "classifier",
+              "project_name": "phase_cellposesam_v001_1",
+              "classifier_id": "phase_cellposesam_v001_1",
+              "classifier_path": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1"
+            },
+            "pipeline_ref": {
+              "link_mode": "server_visible",
+              "pipeline_key": "train_phase_cellposesam_v001",
+              "path_normalization": "worker_local_paths",
+              "pipeline_json_path": "C:\\Users\\Charvin-Admin\\Documents\\GitHub\\DetecDiv-jobs\\work\\43637ab4-4044-443d-b8f9-3372935f8356\\2484a125-cc01-4b17-8533-f32355a79566\\.detecdiv_runtime_pipeline_43637ab4-4044-443d-b8f9-3372935f8356.json",
+              "export_manifest_uri": "",
+              "pipeline_bundle_uri": "",
+              "pipeline_json_path_original": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\pipeline_templates\\train_phase_cellposesam_v001\\windows_gpu_v1\\pipeline.json"
+            },
+            "normalized_pipeline_path": "C:\\Users\\Charvin-Admin\\Documents\\GitHub\\DetecDiv-jobs\\work\\43637ab4-4044-443d-b8f9-3372935f8356\\2484a125-cc01-4b17-8533-f32355a79566\\.detecdiv_runtime_pipeline_43637ab4-4044-443d-b8f9-3372935f8356.json",
+            "pipeline_resolution_method": null
+          },
+          "worker_runtime": {
+            "engine": "matlab",
+            "work_dir": "C:\\Users\\Charvin-Admin\\Documents\\GitHub\\DetecDiv-jobs\\work\\43637ab4-4044-443d-b8f9-3372935f8356\\2484a125-cc01-4b17-8533-f32355a79566",
+            "repo_root": "C:\\Users\\Charvin-Admin\\Documents\\GitHub\\DetecDiv-jobs\\releases\\dce3ca768bcae597224424620abc46ede0788a12",
+            "stderr_log": "C:\\Users\\Charvin-Admin\\Documents\\GitHub\\DetecDiv-jobs\\work\\43637ab4-4044-443d-b8f9-3372935f8356\\2484a125-cc01-4b17-8533-f32355a79566\\matlab_stderr.log",
+            "stdout_log": "C:\\Users\\Charvin-Admin\\Documents\\GitHub\\DetecDiv-jobs\\work\\43637ab4-4044-443d-b8f9-3372935f8356\\2484a125-cc01-4b17-8533-f32355a79566\\matlab_stdout.log",
+            "code_commit": "dce3ca768bcae597224424620abc46ede0788a12"
+          },
+          "resource_allocation": {
+            "source": "conservative_pipeline_fallback",
+            "cpu_cores": 8,
+            "memory_mb": 24576,
+            "gpu_vram_mb": 8192,
+            "gpu_required": true,
+            "disk_io_units": 3,
+            "gpu_permitted": true,
+            "swap_limit_mb": 0,
+            "requested_cpu_cores": 8,
+            "pipeline_gpu_profile": {
+              "reason": "pipeline_nodes_unavailable",
+              "status": "unknown",
+              "selected_node_ids": [],
+              "deep_learning_node_ids": []
+            }
+          }
+        },
+        "status": "failed",
+        "started_at": "2026-10-16 07:50:44.769735+00:00",
+        "finished_at": "2026-10-16 07:52:11.781812+00:00",
+        "training_started": false
+      }
+    ],
+    "retry_authorized_by": "gilles"
+  },
+  "workers": [
+    {
+      "host": "CG-PCDELL01-306",
+      "instance": "windows-10-20-11-56-main",
+      "pid": 31820,
+      "seen": "2026-10-16 07:59:51.350480+00:00",
+      "fingerprint": "957aa209126d"
+    }
+  ],
+  "other_jobs_same_run": []
+}

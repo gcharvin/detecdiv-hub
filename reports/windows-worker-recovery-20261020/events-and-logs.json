@@ -1,0 +1,1044 @@
+{
+  "task": {
+    "Events": [
+      {
+        "Time": "2026-10-19T09:48:39.3154420+02:00",
+        "Id": 329,
+        "Message": "Le Planificateur de t\u00e2ches a interrompu l\u2019instance \u00ab\u00a0{92a452f3-0639-4234-92af-5c0d868fef6a}\u00a0\u00bb de la t\u00e2che \u00ab\u00a0\\DetecDiv Hub Worker\u00a0\u00bb, en raison du d\u00e9passement du temps allou\u00e9 pour l\u2019ex\u00e9cution, tel que configur\u00e9 dans la d\u00e9finition de la t\u00e2che. Action de l\u2019utilisateur\u00a0: augmenter le d\u00e9lai d\u2019attente configur\u00e9 de la t\u00e2che ou rechercher des causes externes pour le retard.",
+        "Xml": "<Event xmlns='http://schemas.microsoft.com/win/2004/08/events/event'><System><Provider Name='Microsoft-Windows-TaskScheduler' Guid='{de7b24ea-73c8-4a09-985d-5bdadcfa9017}'/><EventID>329</EventID><Version>0</Version><Level>4</Level><Task>329</Task><Opcode>0</Opcode><Keywords>0x8000000000000000</Keywords><TimeCreated SystemTime='2026-10-19T07:48:39.3154420Z'/><EventRecordID>512552</EventRecordID><Correlation ActivityID='{92a452f3-0639-4234-92af-5c0d868fef6a}'/><Execution ProcessID='3220' ThreadID='102784'/><Channel>Microsoft-Windows-TaskScheduler/Operational</Channel><Computer>CG-PCDELL01-306.gmgm.lab</Computer><Security UserID='S-1-5-18'/></System><EventData Name='StoppedOnTimeout'><Data Name='TaskName'>\\DetecDiv Hub Worker</Data><Data Name='TaskInstanceId'>{92a452f3-0639-4234-92af-5c0d868fef6a}</Data></EventData></Event>"
+      },
+      {
+        "Time": "2026-10-19T09:48:39.3153933+02:00",
+        "Id": 102,
+        "Message": "Le Planificateur de t\u00e2ches a termin\u00e9 l\u2019instance \u00ab\u00a0{92a452f3-0639-4234-92af-5c0d868fef6a}\u00a0\u00bb de la t\u00e2che \u00ab\u00a0\\DetecDiv Hub Worker\u00a0\u00bb pour l\u2019utilisateur \u00ab\u00a0GMGM\\Charvin-Admin\u00a0\u00bb.",
+        "Xml": "<Event xmlns='http://schemas.microsoft.com/win/2004/08/events/event'><System><Provider Name='Microsoft-Windows-TaskScheduler' Guid='{de7b24ea-73c8-4a09-985d-5bdadcfa9017}'/><EventID>102</EventID><Version>0</Version><Level>4</Level><Task>102</Task><Opcode>2</Opcode><Keywords>0x8000000000000001</Keywords><TimeCreated SystemTime='2026-10-19T07:48:39.3153933Z'/><EventRecordID>512551</EventRecordID><Correlation ActivityID='{92a452f3-0639-4234-92af-5c0d868fef6a}'/><Execution ProcessID='3220' ThreadID='102784'/><Channel>Microsoft-Windows-TaskScheduler/Operational</Channel><Computer>CG-PCDELL01-306.gmgm.lab</Computer><Security UserID='S-1-5-18'/></System><EventData Name='TaskSuccessEvent'><Data Name='TaskName'>\\DetecDiv Hub Worker</Data><Data Name='UserContext'>GMGM\\Charvin-Admin</Data><Data Name='InstanceId'>{92a452f3-0639-4234-92af-5c0d868fef6a}</Data></EventData></Event>"
+      },
+      {
+        "Time": "2026-10-19T09:48:39.3144614+02:00",
+        "Id": 201,
+        "Message": "Le Planificateur de t\u00e2ches a termin\u00e9 la t\u00e2che \u00ab\u00a0\\DetecDiv Hub Worker\u00a0\u00bb, instance \u00ab\u00a0{92a452f3-0639-4234-92af-5c0d868fef6a}\u00a0\u00bb, action \u00ab\u00a0C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe\u00a0\u00bb avec le code de retour 2147943691.",
+        "Xml": "<Event xmlns='http://schemas.microsoft.com/win/2004/08/events/event'><System><Provider Name='Microsoft-Windows-TaskScheduler' Guid='{de7b24ea-73c8-4a09-985d-5bdadcfa9017}'/><EventID>201</EventID><Version>2</Version><Level>4</Level><Task>201</Task><Opcode>2</Opcode><Keywords>0x8000000000000000</Keywords><TimeCreated SystemTime='2026-10-19T07:48:39.3144614Z'/><EventRecordID>512550</EventRecordID><Correlation ActivityID='{92a452f3-0639-4234-92af-5c0d868fef6a}'/><Execution ProcessID='3220' ThreadID='102784'/><Channel>Microsoft-Windows-TaskScheduler/Operational</Channel><Computer>CG-PCDELL01-306.gmgm.lab</Computer><Security UserID='S-1-5-18'/></System><EventData Name='ActionSuccess'><Data Name='TaskName'>\\DetecDiv Hub Worker</Data><Data Name='TaskInstanceId'>{92a452f3-0639-4234-92af-5c0d868fef6a}</Data><Data Name='ActionName'>C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe</Data><Data Name='ResultCode'>2147943691</Data><Data Name='EnginePID'>6948</Data></EventData></Event>"
+      }
+    ],
+    "Principal": {
+      "CimClass": {
+        "CimSuperClassName": "MSFT_TaskPrincipal",
+        "CimSuperClass": {
+          "CimSuperClassName": null,
+          "CimSuperClass": null,
+          "CimClassProperties": [
+            {
+              "Name": "DisplayName",
+              "Value": null,
+              "CimType": 14,
+              "Flags": "Property, NullValue",
+              "Qualifiers": "",
+              "ReferenceClassName": null
+            },
+            {
+              "Name": "GroupId",
+              "Value": null,
+              "CimType": 14,
+              "Flags": "Property, NullValue",
+              "Qualifiers": "",
+              "ReferenceClassName": null
+            },
+            {
+              "Name": "Id",
+              "Value": null,
+              "CimType": 14,
+              "Flags": "Property, NullValue",
+              "Qualifiers": "",
+              "ReferenceClassName": null
+            },
+            {
+              "Name": "LogonType",
+              "Value": null,
+              "CimType": 7,
+              "Flags": "Property, ReadOnly, NullValue",
+              "Qualifiers": "read = True ValueMap = ... Values = ...",
+              "ReferenceClassName": null
+            },
+            {
+              "Name": "RunLevel",
+              "Value": null,
+              "CimType": 7,
+              "Flags": "Property, NullValue",
+              "Qualifiers": "",
+              "ReferenceClassName": null
+            },
+            {
+              "Name": "UserId",
+              "Value": null,
+              "CimType": 14,
+              "Flags": "Property, NullValue",
+              "Qualifiers": "",
+              "ReferenceClassName": null
+            }
+          ],
+          "CimClassQualifiers": [],
+          "CimClassMethods": [],
+          "CimSystemProperties": {
+            "Namespace": "ROOT/Microsoft/Windows/TaskScheduler",
+            "ServerName": "CG-PCDELL01-306",
+            "ClassName": "MSFT_TaskPrincipal",
+            "Path": null
+          }
+        },
+        "CimClassProperties": [
+          {
+            "Name": "DisplayName",
+            "Value": null,
+            "CimType": 14,
+            "Flags": "Property, NullValue",
+            "Qualifiers": [],
+            "ReferenceClassName": null
+          },
+          {
+            "Name": "GroupId",
+            "Value": null,
+            "CimType": 14,
+            "Flags": "Property, NullValue",
+            "Qualifiers": [],
+            "ReferenceClassName": null
+          },
+          {
+            "Name": "Id",
+            "Value": null,
+            "CimType": 14,
+            "Flags": "Property, NullValue",
+            "Qualifiers": [],
+            "ReferenceClassName": null
+          },
+          {
+            "Name": "LogonType",
+            "Value": null,
+            "CimType": 7,
+            "Flags": "Property, ReadOnly, NullValue",
+            "Qualifiers": [
+              "read = True",
+              "ValueMap = ...",
+              "Values = ..."
+            ],
+            "ReferenceClassName": null
+          },
+          {
+            "Name": "RunLevel",
+            "Value": null,
+            "CimType": 7,
+            "Flags": "Property, NullValue",
+            "Qualifiers": [],
+            "ReferenceClassName": null
+          },
+          {
+            "Name": "UserId",
+            "Value": null,
+            "CimType": 14,
+            "Flags": "Property, NullValue",
+            "Qualifiers": [],
+            "ReferenceClassName": null
+          },
+          {
+            "Name": "ProcessTokenSidType",
+            "Value": null,
+            "CimType": 7,
+            "Flags": "Property, ReadOnly, NullValue",
+            "Qualifiers": [
+              "read = True",
+              "ValueMap = ...",
+              "Values = ..."
+            ],
+            "ReferenceClassName": null
+          },
+          {
+            "Name": "RequiredPrivilege",
+            "Value": null,
+            "CimType": 30,
+            "Flags": "Property, NullValue",
+            "Qualifiers": [],
+            "ReferenceClassName": null
+          }
+        ],
+        "CimClassQualifiers": [],
+        "CimClassMethods": [],
+        "CimSystemProperties": {
+          "Namespace": "Root/Microsoft/Windows/TaskScheduler",
+          "ServerName": "CG-PCDELL01-306",
+          "ClassName": "MSFT_TaskPrincipal2",
+          "Path": null
+        }
+      },
+      "CimInstanceProperties": [
+        {
+          "Name": "DisplayName",
+          "Value": null,
+          "CimType": 14,
+          "Flags": "Property, NotModified, NullValue",
+          "IsValueModified": false
+        },
+        {
+          "Name": "GroupId",
+          "Value": null,
+          "CimType": 14,
+          "Flags": "Property, NotModified, NullValue",
+          "IsValueModified": false
+        },
+        {
+          "Name": "Id",
+          "Value": "Author",
+          "CimType": 14,
+          "Flags": "Property, NotModified",
+          "IsValueModified": false
+        },
+        {
+          "Name": "LogonType",
+          "Value": 3,
+          "CimType": 7,
+          "Flags": "Property, ReadOnly, NotModified",
+          "IsValueModified": false
+        },
+        {
+          "Name": "RunLevel",
+          "Value": 0,
+          "CimType": 7,
+          "Flags": "Property, NotModified",
+          "IsValueModified": false
+        },
+        {
+          "Name": "UserId",
+          "Value": "Charvin-Admin",
+          "CimType": 14,
+          "Flags": "Property, NotModified",
+          "IsValueModified": false
+        },
+        {
+          "Name": "ProcessTokenSidType",
+          "Value": 2,
+          "CimType": 7,
+          "Flags": "Property, ReadOnly, NotModified",
+          "IsValueModified": false
+        },
+        {
+          "Name": "RequiredPrivilege",
+          "Value": null,
+          "CimType": 30,
+          "Flags": "Property, NotModified, NullValue",
+          "IsValueModified": false
+        }
+      ],
+      "CimSystemProperties": {
+        "Namespace": "Root/Microsoft/Windows/TaskScheduler",
+        "ServerName": "CG-PCDELL01-306",
+        "ClassName": "MSFT_TaskPrincipal2",
+        "Path": null
+      }
+    },
+    "Settings": {
+      "CimClass": {
+        "CimSuperClassName": "MSFT_TaskSettings2",
+        "CimSuperClass": {
+          "CimSuperClassName": "MSFT_TaskSettings",
+          "CimSuperClass": {
+            "CimSuperClassName": null,
+            "CimSuperClass": null,
+            "CimClassProperties": [
+              "AllowDemandStart",
+              "AllowHardTerminate",
+              "Compatibility",
+              "DeleteExpiredTaskAfter",
+              "DisallowStartIfOnBatteries",
+              "Enabled",
+              "ExecutionTimeLimit",
+              "Hidden",
+              "IdleSettings",
+              "MultipleInstances",
+              "NetworkSettings",
+              "Priority",
+              "RestartCount",
+              "RestartInterval",
+              "RunOnlyIfIdle",
+              "RunOnlyIfNetworkAvailable",
+              "StartWhenAvailable",
+              "StopIfGoingOnBatteries",
+              "WakeToRun"
+            ],
+            "CimClassQualifiers": [],
+            "CimClassMethods": [],
+            "CimSystemProperties": {
+              "Namespace": "ROOT/Microsoft/Windows/TaskScheduler",
+              "ServerName": "CG-PCDELL01-306",
+              "ClassName": "MSFT_TaskSettings",
+              "Path": null
+            }
+          },
+          "CimClassProperties": [
+            {
+              "Name": "AllowDemandStart",
+              "Value": null,
+              "CimType": 1,
+              "Flags": "Property, NullValue",
+              "Qualifiers": "",
+              "ReferenceClassName": null
+            },
+            {
+              "Name": "AllowHardTerminate",
+              "Value": null,
+              "CimType": 1,
+              "Flags": "Property, NullValue",
+              "Qualifiers": "",
+              "ReferenceClassName": null
+            },
+            {
+              "Name": "Compatibility",
+              "Value": null,
+              "CimType": 7,
+              "Flags": "Property, ReadOnly, NullValue",
+              "Qualifiers": "read = True ValueMap = ... Values = ...",
+              "ReferenceClassName": null
+            },
+            {
+              "Name": "DeleteExpiredTaskAfter",
+              "Value": null,
+              "CimType": 14,
+              "Flags": "Property, NullValue",
+              "Qualifiers": "",
+              "ReferenceClassName": null
+            },
+            {
+              "Name": "DisallowStartIfOnBatteries",
+              "Value": null,
+              "CimType": 1,
+              "Flags": "Property, NullValue",
+              "Qualifiers": "",
+              "ReferenceClassName": null
+            },
+            {
+              "Name": "Enabled",
+              "Value": null,
+              "CimType": 1,
+              "Flags": "Property, NullValue",
+              "Qualifiers": "",
+              "ReferenceClassName": null
+            },
+            {
+              "Name": "ExecutionTimeLimit",
+              "Value": null,
+              "CimType": 14,
+              "Flags": "Property, NullValue",
+              "Qualifiers": "",
+              "ReferenceClassName": null
+            },
+            {
+              "Name": "Hidden",
+              "Value": null,
+              "CimType": 1,
+              "Flags": "Property, NullValue",
+              "Qualifiers": "",
+              "ReferenceClassName": null
+            },
+            {
+              "Name": "IdleSettings",
+              "Value": null,
+              "CimType": 16,
+              "Flags": "Property, NullValue",
+              "Qualifiers": "EmbeddedInstance = \"MSFT_TaskIdleSettings\"",
+              "ReferenceClassName": "MSFT_TaskIdleSettings"
+            },
+            {
+              "Name": "MultipleInstances",
+              "Value": null,
+              "CimType": 7,
+              "Flags": "Property, ReadOnly, NullValue",
+              "Qualifiers": "read = True ValueMap = ... Values = ...",
+              "ReferenceClassName": null
+            },
+            {
+              "Name": "NetworkSettings",
+              "Value": null,
+              "CimType": 16,
+              "Flags": "Property, NullValue",
+              "Qualifiers": "EmbeddedInstance = \"MSFT_TaskNetworkSettings\"",
+              "ReferenceClassName": "MSFT_TaskNetworkSettings"
+            },
+            {
+              "Name": "Priority",
+              "Value": null,
+              "CimType": 6,
+              "Flags": "Property, NullValue",
+              "Qualifiers": "",
+              "ReferenceClassName": null
+            },
+            {
+              "Name": "RestartCount",
+              "Value": null,
+              "CimType": 6,
+              "Flags": "Property, NullValue",
+              "Qualifiers": "",
+              "ReferenceClassName": null
+            },
+            {
+              "Name": "RestartInterval",
+              "Value": null,
+              "CimType": 14,
+              "Flags": "Property, NullValue",
+              "Qualifiers": "",
+              "ReferenceClassName": null
+            },
+            {
+              "Name": "RunOnlyIfIdle",
+              "Value": null,
+              "CimType": 1,
+              "Flags": "Property, NullValue",
+              "Qualifiers": "",
+              "ReferenceClassName": null
+            },
+            {
+              "Name": "RunOnlyIfNetworkAvailable",
+              "Value": null,
+              "CimType": 1,
+              "Flags": "Property, NullValue",
+              "Qualifiers": "",
+              "ReferenceClassName": null
+            },
+            {
+              "Name": "StartWhenAvailable",
+              "Value": null,
+              "CimType": 1,
+              "Flags": "Property, NullValue",
+              "Qualifiers": "",
+              "ReferenceClassName": null
+            },
+            {
+              "Name": "StopIfGoingOnBatteries",
+              "Value": null,
+              "CimType": 1,
+              "Flags": "Property, NullValue",
+              "Qualifiers": "",
+              "ReferenceClassName": null
+            },
+            {
+              "Name": "WakeToRun",
+              "Value": null,
+              "CimType": 1,
+              "Flags": "Property, NullValue",
+              "Qualifiers": "",
+              "ReferenceClassName": null
+            },
+            {
+              "Name": "DisallowStartOnRemoteAppSession",
+              "Value": null,
+              "CimType": 1,
+              "Flags": "Property, NullValue",
+              "Qualifiers": "",
+              "ReferenceClassName": null
+            },
+            {
+              "Name": "UseUnifiedSchedulingEngine",
+              "Value": null,
+              "CimType": 1,
+              "Flags": "Property, NullValue",
+              "Qualifiers": "",
+              "ReferenceClassName": null
+            }
+          ],
+          "CimClassQualifiers": [],
+          "CimClassMethods": [],
+          "CimSystemProperties": {
+            "Namespace": "ROOT/Microsoft/Windows/TaskScheduler",
+            "ServerName": "CG-PCDELL01-306",
+            "ClassName": "MSFT_TaskSettings2",
+            "Path": null
+          }
+        },
+        "CimClassProperties": [
+          {
+            "Name": "AllowDemandStart",
+            "Value": null,
+            "CimType": 1,
+            "Flags": "Property, NullValue",
+            "Qualifiers": [],
+            "ReferenceClassName": null
+          },
+          {
+            "Name": "AllowHardTerminate",
+            "Value": null,
+            "CimType": 1,
+            "Flags": "Property, NullValue",
+            "Qualifiers": [],
+            "ReferenceClassName": null
+          },
+          {
+            "Name": "Compatibility",
+            "Value": null,
+            "CimType": 7,
+            "Flags": "Property, ReadOnly, NullValue",
+            "Qualifiers": [
+              "read = True",
+              "ValueMap = ...",
+              "Values = ..."
+            ],
+            "ReferenceClassName": null
+          },
+          {
+            "Name": "DeleteExpiredTaskAfter",
+            "Value": null,
+            "CimType": 14,
+            "Flags": "Property, NullValue",
+            "Qualifiers": [],
+            "ReferenceClassName": null
+          },
+          {
+            "Name": "DisallowStartIfOnBatteries",
+            "Value": null,
+            "CimType": 1,
+            "Flags": "Property, NullValue",
+            "Qualifiers": [],
+            "ReferenceClassName": null
+          },
+          {
+            "Name": "Enabled",
+            "Value": null,
+            "CimType": 1,
+            "Flags": "Property, NullValue",
+            "Qualifiers": [],
+            "ReferenceClassName": null
+          },
+          {
+            "Name": "ExecutionTimeLimit",
+            "Value": null,
+            "CimType": 14,
+            "Flags": "Property, NullValue",
+            "Qualifiers": [],
+            "ReferenceClassName": null
+          },
+          {
+            "Name": "Hidden",
+            "Value": null,
+            "CimType": 1,
+            "Flags": "Property, NullValue",
+            "Qualifiers": [],
+            "ReferenceClassName": null
+          },
+          {
+            "Name": "IdleSettings",
+            "Value": null,
+            "CimType": 16,
+            "Flags": "Property, NullValue",
+            "Qualifiers": [
+              "EmbeddedInstance = \"MSFT_TaskIdleSettings\""
+            ],
+            "ReferenceClassName": "MSFT_TaskIdleSettings"
+          },
+          {
+            "Name": "MultipleInstances",
+            "Value": null,
+            "CimType": 7,
+            "Flags": "Property, ReadOnly, NullValue",
+            "Qualifiers": [
+              "read = True",
+              "ValueMap = ...",
+              "Values = ..."
+            ],
+            "ReferenceClassName": null
+          },
+          {
+            "Name": "NetworkSettings",
+            "Value": null,
+            "CimType": 16,
+            "Flags": "Property, NullValue",
+            "Qualifiers": [
+              "EmbeddedInstance = \"MSFT_TaskNetworkSettings\""
+            ],
+            "ReferenceClassName": "MSFT_TaskNetworkSettings"
+          },
+          {
+            "Name": "Priority",
+            "Value": null,
+            "CimType": 6,
+            "Flags": "Property, NullValue",
+            "Qualifiers": [],
+            "ReferenceClassName": null
+          },
+          {
+            "Name": "RestartCount",
+            "Value": null,
+            "CimType": 6,
+            "Flags": "Property, NullValue",
+            "Qualifiers": [],
+            "ReferenceClassName": null
+          },
+          {
+            "Name": "RestartInterval",
+            "Value": null,
+            "CimType": 14,
+            "Flags": "Property, NullValue",
+            "Qualifiers": [],
+            "ReferenceClassName": null
+          },
+          {
+            "Name": "RunOnlyIfIdle",
+            "Value": null,
+            "CimType": 1,
+            "Flags": "Property, NullValue",
+            "Qualifiers": [],
+            "ReferenceClassName": null
+          },
+          {
+            "Name": "RunOnlyIfNetworkAvailable",
+            "Value": null,
+            "CimType": 1,
+            "Flags": "Property, NullValue",
+            "Qualifiers": [],
+            "ReferenceClassName": null
+          },
+          {
+            "Name": "StartWhenAvailable",
+            "Value": null,
+            "CimType": 1,
+            "Flags": "Property, NullValue",
+            "Qualifiers": [],
+            "ReferenceClassName": null
+          },
+          {
+            "Name": "StopIfGoingOnBatteries",
+            "Value": null,
+            "CimType": 1,
+            "Flags": "Property, NullValue",
+            "Qualifiers": [],
+            "ReferenceClassName": null
+          },
+          {
+            "Name": "WakeToRun",
+            "Value": null,
+            "CimType": 1,
+            "Flags": "Property, NullValue",
+            "Qualifiers": [],
+            "ReferenceClassName": null
+          },
+          {
+            "Name": "DisallowStartOnRemoteAppSession",
+            "Value": null,
+            "CimType": 1,
+            "Flags": "Property, NullValue",
+            "Qualifiers": [],
+            "ReferenceClassName": null
+          },
+          {
+            "Name": "UseUnifiedSchedulingEngine",
+            "Value": null,
+            "CimType": 1,
+            "Flags": "Property, NullValue",
+            "Qualifiers": [],
+            "ReferenceClassName": null
+          },
+          {
+            "Name": "MaintenanceSettings",
+            "Value": null,
+            "CimType": 16,
+            "Flags": "Property, NullValue",
+            "Qualifiers": [
+              "EmbeddedInstance = \"MSFT_TaskMaintenanceSettings\""
+            ],
+            "ReferenceClassName": "MSFT_TaskMaintenanceSettings"
+          },
+          {
+            "Name": "volatile",
+            "Value": null,
+            "CimType": 1,
+            "Flags": "Property, NullValue",
+            "Qualifiers": [],
+            "ReferenceClassName": null
+          }
+        ],
+        "CimClassQualifiers": [],
+        "CimClassMethods": [],
+        "CimSystemProperties": {
+          "Namespace": "Root/Microsoft/Windows/TaskScheduler",
+          "ServerName": "CG-PCDELL01-306",
+          "ClassName": "MSFT_TaskSettings3",
+          "Path": null
+        }
+      },
+      "CimInstanceProperties": [
+        {
+          "Name": "AllowDemandStart",
+          "Value": true,
+          "CimType": 1,
+          "Flags": "Property, NotModified",
+          "IsValueModified": false
+        },
+        {
+          "Name": "AllowHardTerminate",
+          "Value": true,
+          "CimType": 1,
+          "Flags": "Property, NotModified",
+          "IsValueModified": false
+        },
+        {
+          "Name": "Compatibility",
+          "Value": 3,
+          "CimType": 7,
+          "Flags": "Property, ReadOnly, NotModified",
+          "IsValueModified": false
+        },
+        {
+          "Name": "DeleteExpiredTaskAfter",
+          "Value": null,
+          "CimType": 14,
+          "Flags": "Property, NotModified, NullValue",
+          "IsValueModified": false
+        },
+        {
+          "Name": "DisallowStartIfOnBatteries",
+          "Value": true,
+          "CimType": 1,
+          "Flags": "Property, NotModified",
+          "IsValueModified": false
+        },
+        {
+          "Name": "Enabled",
+          "Value": true,
+          "CimType": 1,
+          "Flags": "Property, NotModified",
+          "IsValueModified": false
+        },
+        {
+          "Name": "ExecutionTimeLimit",
+          "Value": "PT72H",
+          "CimType": 14,
+          "Flags": "Property, NotModified",
+          "IsValueModified": false
+        },
+        {
+          "Name": "Hidden",
+          "Value": false,
+          "CimType": 1,
+          "Flags": "Property, NotModified",
+          "IsValueModified": false
+        },
+        {
+          "Name": "IdleSettings",
+          "Value": {
+            "CimClass": {
+              "CimSuperClassName": null,
+              "CimSuperClass": null,
+              "CimClassProperties": "IdleDuration RestartOnIdle StopOnIdleEnd WaitTimeout",
+              "CimClassQualifiers": "",
+              "CimClassMethods": "",
+              "CimSystemProperties": "Microsoft.Management.Infrastructure.CimSystemProperties"
+            },
+            "CimInstanceProperties": [
+              "IdleDuration = \"PT10M\"",
+              "RestartOnIdle = False",
+              "StopOnIdleEnd = True",
+              "WaitTimeout = \"PT1H\""
+            ],
+            "CimSystemProperties": {
+              "Namespace": "Root/Microsoft/Windows/TaskScheduler",
+              "ServerName": "CG-PCDELL01-306",
+              "ClassName": "MSFT_TaskIdleSettings",
+              "Path": null
+            }
+          },
+          "CimType": 16,
+          "Flags": "Property, NotModified",
+          "IsValueModified": false
+        },
+        {
+          "Name": "MultipleInstances",
+          "Value": 2,
+          "CimType": 7,
+          "Flags": "Property, ReadOnly, NotModified",
+          "IsValueModified": false
+        },
+        {
+          "Name": "NetworkSettings",
+          "Value": {
+            "CimClass": {
+              "CimSuperClassName": null,
+              "CimSuperClass": null,
+              "CimClassProperties": "Id Name",
+              "CimClassQualifiers": "",
+              "CimClassMethods": "",
+              "CimSystemProperties": "Microsoft.Management.Infrastructure.CimSystemProperties"
+            },
+            "CimInstanceProperties": [
+              "Id",
+              "Name"
+            ],
+            "CimSystemProperties": {
+              "Namespace": "Root/Microsoft/Windows/TaskScheduler",
+              "ServerName": "CG-PCDELL01-306",
+              "ClassName": "MSFT_TaskNetworkSettings",
+              "Path": null
+            }
+          },
+          "CimType": 16,
+          "Flags": "Property, NotModified",
+          "IsValueModified": false
+        },
+        {
+          "Name": "Priority",
+          "Value": 7,
+          "CimType": 6,
+          "Flags": "Property, NotModified",
+          "IsValueModified": false
+        },
+        {
+          "Name": "RestartCount",
+          "Value": 3,
+          "CimType": 6,
+          "Flags": "Property, NotModified",
+          "IsValueModified": false
+        },
+        {
+          "Name": "RestartInterval",
+          "Value": "PT1M",
+          "CimType": 14,
+          "Flags": "Property, NotModified",
+          "IsValueModified": false
+        },
+        {
+          "Name": "RunOnlyIfIdle",
+          "Value": false,
+          "CimType": 1,
+          "Flags": "Property, NotModified",
+          "IsValueModified": false
+        },
+        {
+          "Name": "RunOnlyIfNetworkAvailable",
+          "Value": false,
+          "CimType": 1,
+          "Flags": "Property, NotModified",
+          "IsValueModified": false
+        },
+        {
+          "Name": "StartWhenAvailable",
+          "Value": false,
+          "CimType": 1,
+          "Flags": "Property, NotModified",
+          "IsValueModified": false
+        },
+        {
+          "Name": "StopIfGoingOnBatteries",
+          "Value": true,
+          "CimType": 1,
+          "Flags": "Property, NotModified",
+          "IsValueModified": false
+        },
+        {
+          "Name": "WakeToRun",
+          "Value": false,
+          "CimType": 1,
+          "Flags": "Property, NotModified",
+          "IsValueModified": false
+        },
+        {
+          "Name": "DisallowStartOnRemoteAppSession",
+          "Value": false,
+          "CimType": 1,
+          "Flags": "Property, NotModified",
+          "IsValueModified": false
+        },
+        {
+          "Name": "UseUnifiedSchedulingEngine",
+          "Value": true,
+          "CimType": 1,
+          "Flags": "Property, NotModified",
+          "IsValueModified": false
+        },
+        {
+          "Name": "MaintenanceSettings",
+          "Value": null,
+          "CimType": 16,
+          "Flags": "Property, NotModified, NullValue",
+          "IsValueModified": false
+        },
+        {
+          "Name": "volatile",
+          "Value": false,
+          "CimType": 1,
+          "Flags": "Property, NotModified",
+          "IsValueModified": false
+        }
+      ],
+      "CimSystemProperties": {
+        "Namespace": "Root/Microsoft/Windows/TaskScheduler",
+        "ServerName": "CG-PCDELL01-306",
+        "ClassName": "MSFT_TaskSettings3",
+        "Path": null
+      }
+    },
+    "Actions": [
+      {
+        "CimClass": {
+          "CimSuperClassName": "MSFT_TaskAction",
+          "CimSuperClass": {
+            "CimSuperClassName": null,
+            "CimSuperClass": null,
+            "CimClassProperties": [
+              "Id"
+            ],
+            "CimClassQualifiers": [],
+            "CimClassMethods": [],
+            "CimSystemProperties": {
+              "Namespace": "ROOT/Microsoft/Windows/TaskScheduler",
+              "ServerName": "CG-PCDELL01-306",
+              "ClassName": "MSFT_TaskAction",
+              "Path": null
+            }
+          },
+          "CimClassProperties": [
+            {
+              "Name": "Id",
+              "Value": null,
+              "CimType": 14,
+              "Flags": "Property, NullValue",
+              "Qualifiers": "",
+              "ReferenceClassName": null
+            },
+            {
+              "Name": "Arguments",
+              "Value": null,
+              "CimType": 14,
+              "Flags": "Property, NullValue",
+              "Qualifiers": "",
+              "ReferenceClassName": null
+            },
+            {
+              "Name": "Execute",
+              "Value": null,
+              "CimType": 14,
+              "Flags": "Property, NullValue",
+              "Qualifiers": "",
+              "ReferenceClassName": null
+            },
+            {
+              "Name": "WorkingDirectory",
+              "Value": null,
+              "CimType": 14,
+              "Flags": "Property, NullValue",
+              "Qualifiers": "",
+              "ReferenceClassName": null
+            }
+          ],
+          "CimClassQualifiers": [],
+          "CimClassMethods": [],
+          "CimSystemProperties": {
+            "Namespace": "Root/Microsoft/Windows/TaskScheduler",
+            "ServerName": "CG-PCDELL01-306",
+            "ClassName": "MSFT_TaskExecAction",
+            "Path": null
+          }
+        },
+        "CimInstanceProperties": [
+          {
+            "Name": "Id",
+            "Value": null,
+            "CimType": 14,
+            "Flags": "Property, NotModified, NullValue",
+            "IsValueModified": false
+          },
+          {
+            "Name": "Arguments",
+            "Value": "-NoProfile -ExecutionPolicy Bypass -File \"C:\\Users\\Charvin-Admin\\Documents\\MATLAB\\detecdiv-hub\\scripts\\run_worker.ps1\" -EnvFile \"C:\\Users\\Charvin-Admin\\Documents\\MATLAB\\detecdiv-hub\\.env\" -LogFile \"C:\\Users\\Charvin-Admin\\Documents\\MATLAB\\detecdiv-hub\\logs\\windows-worker.log\"",
+            "CimType": 14,
+            "Flags": "Property, NotModified",
+            "IsValueModified": false
+          },
+          {
+            "Name": "Execute",
+            "Value": "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+            "CimType": 14,
+            "Flags": "Property, NotModified",
+            "IsValueModified": false
+          },
+          {
+            "Name": "WorkingDirectory",
+            "Value": null,
+            "CimType": 14,
+            "Flags": "Property, NotModified, NullValue",
+            "IsValueModified": false
+          }
+        ],
+        "CimSystemProperties": {
+          "Namespace": "Root/Microsoft/Windows/TaskScheduler",
+          "ServerName": "CG-PCDELL01-306",
+          "ClassName": "MSFT_TaskExecAction",
+          "Path": null
+        }
+      }
+    ]
+  },
+  "files": [
+    {
+      "path": ".deploy-staging\\alex-channel-contract-20261015\\verify.ps1",
+      "size": 1039,
+      "modified": 1792086126.07169
+    },
+    {
+      "path": ".deploy-staging\\alex-readpool-20261015\\alex_readpool_worker_session.ps1",
+      "size": 1542,
+      "modified": 1792066650.53851
+    },
+    {
+      "path": ".deploy-staging\\alex-readpool-20261015\\native-windows-tests-final.log",
+      "size": 19134,
+      "modified": 1792067162.9554045
+    },
+    {
+      "path": ".deploy-staging\\alex-readpool-20261015\\native-windows-tests.log",
+      "size": 17813,
+      "modified": 1792066336.0130594
+    },
+    {
+      "path": ".deploy-staging\\alex-readpool-20261015\\worker-session-tests.log",
+      "size": 33978,
+      "modified": 1792067257.8476903
+    },
+    {
+      "path": ".deploy-staging\\alex-terminal-gpu-20261014\\activate_worker.ps1",
+      "size": 4095,
+      "modified": 1792036954.3920534
+    },
+    {
+      "path": ".deploy-staging\\job-force-stop-20261020\\activate.ps1",
+      "size": 446,
+      "modified": 1792502179.149031
+    },
+    {
+      "path": ".deploy-staging\\job-force-stop-20261020\\pytest.log",
+      "size": 115,
+      "modified": 1792502010.309788
+    },
+    {
+      "path": ".deploy-staging\\roi-auto-memory-20261019\\activate.ps1",
+      "size": 447,
+      "modified": 1792408209.8522153
+    },
+    {
+      "path": ".deploy-staging\\roi-auto-memory-20261019\\pytest.log",
+      "size": 101,
+      "modified": 1792408042.403257
+    },
+    {
+      "path": ".deploy-staging\\roi-auto-memory-20261019\\test-dependency-install.log",
+      "size": 1461,
+      "modified": 1792407960.77959
+    }
+  ],
+  "job_logs": {
+    "stdout_log": {
+      "exists": true,
+      "size": 11199743,
+      "modified": 1792502474.9624045,
+      "tail": "0_0.1_0.3_H2O2.ome_19_15 frame=138 channel=5\r\n[readImage] mode=OME-Zarr dataset=\\\\10.20.11.250\\DATA\\Abhilasha\\04082026_Hyper7_CEN.PK_Pulse_0.4to0_0.1_0.3_H2O2.ome.zarr entry=\r\n[readImage] loaded FOV=04082026_Hyper7_CEN.PK_Pulse_0.4to0_0.1_0.3_H2O2.ome_19_15 channel=5 frame=138 mode=OME-Zarr size=[2048 2048] class=uint16 source=\\\\10.20.11.250\\DATA\\Abhilasha\\04082026_Hyper7_CEN.PK_Pulse_0.4to0_0.1_0.3_H2O2.ome.zarr\r\n\r    [====================================    ] 54/60  90% ETA 00:01 ch5 frame 6/12[readImage] request FOV=04082026_Hyper7_CEN.PK_Pulse_0.4to0_0.1_0.3_H2O2.ome_19_15 frame=139 channel=5\r\n[readImage] mode=OME-Zarr dataset=\\\\10.20.11.250\\DATA\\Abhilasha\\04082026_Hyper7_CEN.PK_Pulse_0.4to0_0.1_0.3_H2O2.ome.zarr entry=\r\n[readImage] loaded FOV=04082026_Hyper7_CEN.PK_Pulse_0.4to0_0.1_0.3_H2O2.ome_19_15 channel=5 frame=139 mode=OME-Zarr size=[2048 2048] class=uint16 source=\\\\10.20.11.250\\DATA\\Abhilasha\\04082026_Hyper7_CEN.PK_Pulse_0.4to0_0.1_0.3_H2O2.ome.zarr\r\n\r    [=====================================   ] 55/60  92% ETA 00:01 ch5 frame 7/12[readImage] request FOV=04082026_Hyper7_CEN.PK_Pulse_0.4to0_0.1_0.3_H2O2.ome_19_15 frame=140 channel=5\r\n[readImage] mode=OME-Zarr dataset=\\\\10.20.11.250\\DATA\\Abhilasha\\04082026_Hyper7_CEN.PK_Pulse_0.4to0_0.1_0.3_H2O2.ome.zarr entry=\r\n[readImage] loaded FOV=04082026_Hyper7_CEN.PK_Pulse_0.4to0_0.1_0.3_H2O2.ome_19_15 channel=5 frame=140 mode=OME-Zarr size=[2048 2048] class=uint16 source=\\\\10.20.11.250\\DATA\\Abhilasha\\04082026_Hyper7_CEN.PK_Pulse_0.4to0_0.1_0.3_H2O2.ome.zarr\r\n\r    [=====================================   ] 56/60  93% ETA 00:01 ch5 frame 8/12[readImage] request FOV=04082026_Hyper7_CEN.PK_Pulse_0.4to0_0.1_0.3_H2O2.ome_19_15 frame=141 channel=5\r\n[readImage] mode=OME-Zarr dataset=\\\\10.20.11.250\\DATA\\Abhilasha\\04082026_Hyper7_CEN.PK_Pulse_0.4to0_0.1_0.3_H2O2.ome.zarr entry=\r\n[readImage] loaded FOV=04082026_Hyper7_CEN.PK_Pulse_0.4to0_0.1_0.3_H2O2.ome_19_15 channel=5 frame=141 mode=OME-Zarr size=[2048 2048] class=uint16 source=\\\\10.20.11.250\\DATA\\Abhilasha\\04082026_Hyper7_CEN.PK_Pulse_0.4to0_0.1_0.3_H2O2.ome.zarr\r\n\r    [======================================  ] 57/60  95% ETA 00:01 ch5 frame 9/12[readImage] request FOV=04082026_Hyper7_CEN.PK_Pulse_0.4to0_0.1_0.3_H2O2.ome_19_15 frame=142 channel=5\r\n[readImage] mode=OME-Zarr dataset=\\\\10.20.11.250\\DATA\\Abhilasha\\04082026_Hyper7_CEN.PK_Pulse_0.4to0_0.1_0.3_H2O2.ome.zarr entry=\r\n[readImage] loaded FOV=04082026_Hyper7_CEN.PK_Pulse_0.4to0_0.1_0.3_H2O2.ome_19_15 channel=5 frame=142 mode=OME-Zarr size=[2048 2048] class=uint16 source=\\\\10.20.11.250\\DATA\\Abhilasha\\04082026_Hyper7_CEN.PK_Pulse_0.4to0_0.1_0.3_H2O2.ome.zarr\r\n\r    [======================================= ] 58/60  97% ETA 00:00 ch5 frame 10/12[readImage] request FOV=04082026_Hyper7_CEN.PK_Pulse_0.4to0_0.1_0.3_H2O2.ome_19_15 frame=143 channel=5\r\n[readImage] mode=OME-Zarr dataset=\\\\10.20.11.250\\DATA\\Abhilasha\\04082026_Hyper7_CEN.PK_Pulse_0.4to0_0.1_0.3_H2O2.ome.zarr entry=\r\n[readImage] loaded FOV=04082026_Hyper7_CEN.PK_Pulse_0.4to0_0.1_0.3_H2O2.ome_19_15 channel=5 frame=143 mode=OME-Zarr size=[2048 2048] class=uint16 source=\\\\10.20.11.250\\DATA\\Abhilasha\\04082026_Hyper7_CEN.PK_Pulse_0.4to0_0.1_0.3_H2O2.ome.zarr\r\n\r    [======================================= ] 59/60  98% ETA 00:00 ch5 frame 11/12[readImage] request FOV=04082026_Hyper7_CEN.PK_Pulse_0.4to0_0.1_0.3_H2O2.ome_19_15 frame=144 channel=5\r\n[readImage] mode=OME-Zarr dataset=\\\\10.20.11.250\\DATA\\Abhilasha\\04082026_Hyper7_CEN.PK_Pulse_0.4to0_0.1_0.3_H2O2.ome.zarr entry=\r\n[readImage] loaded FOV=04082026_Hyper7_CEN.PK_Pulse_0.4to0_0.1_0.3_H2O2.ome_19_15 channel=5 frame=144 mode=OME-Zarr size=[2048 2048] class=uint16 source=\\\\10.20.11.250\\DATA\\Abhilasha\\04082026_Hyper7_CEN.PK_Pulse_0.4to0_0.1_0.3_H2O2.ome.zarr\r\n\r    [========================================] 60/60 100% ETA 00:00 ch5 frame 12/12\r\nComputing drift....\r\n[computeDrift] (simple+residual) mode=block method=robust ref=fixed chan=1 frames=12 crop=1 subpixel=1 maxshift=20 hipass=3 apodize=1 mask=0 | PSR(rad=6,min=10) maxStep=10 reject=hold | smooth=0(median,step) | stitch=1\r\n[computeDrift] 1/12 frame=133 raw(row,col)=(14,-17.1) step(row,col)=(-0.701,-0.0335) cum=(14,-17.1) PSR=8.56 decision=ok method=robust ref=fixed\r\n[computeDrift] 2/12 frame=134 raw(row,col)=(15,-17.8) step(row,col)=(0.948,-0.665) cum=(15,-17.8) residual(row,col)=(-0.788,0.688)|1.05px PSR=11.6 decision=ok method=robust ref=fixed\r\n[computeDrift] 3/12 frame=135 raw(row,col)=(13.2,-17.2) step(row,col)=(-1.71,0.58) cum=(13.2,-17.2) residual(row,col)=(-0.0938,-0.032)|0.0991px PSR=13.1 decision=ok method=robust ref=fixed\r\n[computeDrift] 4/12 frame=136 raw(row,col)=(13.8,-17) step(row,col)=(0.574,0.181) cum=(13.8,-17) residual(row,col)=(-0.658,-0.0531)|0.661px PSR=11.4 decision=ok method=robust ref=fixed\r\n[computeDrift] 5/12 frame=137 raw(row,col)=(13.9,-16.5) step(row,col)=(0.0803,0.506) cum=(13.9,-16.5) residual(row,col)=(0.0156,-0.221)|0.221px PSR=11.4 decision=ok method=robust ref=fixed\r\n[computeDrift] 6/12 frame=138 raw(row,col)=(14.7,-16.2) step(row,col)=(0.813,0.317) cum=(14.7,-16.2) residual(row,col)=(-0.612,-0.161)|0.633px PSR=10.2 decision=ok method=robust ref=fixed\r\n[computeDrift] 7/12 frame=139 raw(row,col)=(13.1,-16) step(row,col)=(-1.59,0.17) cum=(13.1,-16) residual(row,col)=(0.451,0.176)|0.484px PSR=10 decision=ok method=robust ref=fixed\r\n[computeDrift] 8/12 frame=140 raw(row,col)=(13.5,-16) step(row,col)=(0.352,0.0249) cum=(13.5,-16) residual(row,col)=(-0.176,-0.0648)|0.187px PSR=9.5 decision=ok method=robust ref=fixed\r\n[computeDrift] 9/12 frame=141 raw(row,col)=(13.2,-15.8) step(row,col)=(-0.26,0.137) cum=(13.2,-15.8) residual(row,col)=(0.0533,0.0772)|0.0939px PSR=9.52 decision=ok method=robust ref=fixed\r\n[computeDrift] 10/12 frame=142 raw(row,col)=(14.1,-16.3) step(row,col)=(0.858,-0.43) cum=(14.1,-16.3) residual(row,col)=(-0.721,0.0551)|0.723px PSR=8.46 decision=ok method=robust ref=fixed\r\n[computeDrift] 11/12 frame=143 raw(row,col)=(14.1,-16.1) step(row,col)=(0.0549,0.206) cum=(14.1,-16.1) residual(row,col)=(0.013,-0.0454)|0.0472px PSR=8.66 decision=ok method=robust ref=fixed\r\n[computeDrift] 12/12 frame=144 raw(row,col)=(14.2,-17) step(row,col)=(0.0963,-0.939) cum=(14.2,-17) residual(row,col)=(-0.0958,0.794)|0.799px PSR=16.4 decision=ok method=robust ref=fixed\r\n[computeDrift] DONE frames=12 total=21.31s | prepRef=0.05s regCfg=0.00s load=0.06s prep=0.65s estimate=13.75s apply=3.87s residual=2.85s\r\n.................................................."
+    },
+    "stderr_log": {
+      "exists": true,
+      "size": 0,
+      "modified": 1792331098.0839398,
+      "tail": ""
+    }
+  }
+}

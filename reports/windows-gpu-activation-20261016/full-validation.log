@@ -1,0 +1,27 @@
+[path] Catalog root : C:\Users\Charvin-Admin\Documents\GitHub\DetecDiv-jobs\releases\594217dd37bfa9b2b529f7f2204253d9901340bf
+[path] DetecDiv root: C:\Users\Charvin-Admin\Documents\GitHub\DetecDiv-jobs\releases\594217dd37bfa9b2b529f7f2204253d9901340bf
+[path] Runtime mode: embedded catalog fallback
+[path] Added 55 folder(s).
+Running testWorkerModuleMappingPriority
+....
+Done testWorkerModuleMappingPriority
+__________
+
+[path] Catalog root : C:\Users\Charvin-Admin\Documents\GitHub\DetecDiv-jobs\releases\594217dd37bfa9b2b529f7f2204253d9901340bf
+[path] DetecDiv root: C:\Users\Charvin-Admin\Documents\GitHub\DetecDiv-jobs\releases\594217dd37bfa9b2b529f7f2204253d9901340bf
+[path] Runtime mode: embedded catalog fallback
+[path] Added 55 folder(s).
+[detecdiv_run_pipeline_job] repoRoot: C:\Users\Charvin-Admin\Documents\GitHub\DetecDiv-jobs\releases\594217dd37bfa9b2b529f7f2204253d9901340bf
+[detecdiv_run_pipeline_job] runPipelineStructured: C:\Users\Charvin-Admin\Documents\GitHub\DetecDiv-jobs\releases\594217dd37bfa9b2b529f7f2204253d9901340bf\structure\io\runPipelineStructured.m
+[detecdiv_run_pipeline_job] sam31.train: C:\Users\Charvin-Admin\Documents\GitHub\DetecDiv-jobs\releases\594217dd37bfa9b2b529f7f2204253d9901340bf\engine\classification\+sam31\train.m
+[worker] Started 16-Oct-2026 09:55:45
+===============================================================
+[CLASSI LOAD] NEW PACKAGE FRAMEWORK: phaseCellposeSAM
+[CLASSI LOAD] ID: phase_cellposesam_v001_1
+===============================================================
+Successfully loaded classification \\10.20.11.250\DATA\Gilles\analysis\classifiers\phase_cellposesam_v001_1\phase_cellposesam_v001_1_classification.mat!
+Pipeline run saved: C:\ProgramData\DetecDivHub\gpu-validation-20261016\dryrun\run.json
+Pipeline run saved: C:\ProgramData\DetecDivHub\gpu-validation-20261016\dryrun\run.json
+PIPELINE_RUN_RESULT_JSON C:\ProgramData\DetecDivHub\gpu-validation-20261016\pipeline-dryrun-result.json
+[worker] Finished 16-Oct-2026 09:55:57
+WINDOWS_FULL_PIPELINE_DRYRUN_PASSED

@@ -1,0 +1,20 @@
+{
+    "planReadPool.m":  "ef7d56937f499998b6f365e8ea931d4da2a1227600d277e4be4d9351a2792238",
+    "README.md":  "6bd1ceb711ecf78d2d1dcb9912c2d18fd74753953638e5ca5a594bf6f4cd1d12",
+    "executionSpec.m":  "9de03863ea09f7d3153f35c914b04b75d80071ae8018c76324d8013ad9eeb03a",
+    "blockSizeArguments.m":  "c845748c675746b0bdf197c21240305d983cdf9fb5faa56c77bd4aa942510ad9",
+    "process.m":  "d9f76d226fef43e8701656dd4cbaef857121b04c535ba36e2720f8a1fa54c990",
+    "setparam.m":  "0873684f8c00a8153ebe9e8cc3be6e71d9e9a6b7af25f0e30eb19dcc74163ce5",
+    "requireWholeFovRoiSelection.m":  "0bd64d6047ad3643a5b04f0a76fc19cb5581349d1a1e32368c74e0ba69ebc7ac",
+    "prepareAllFrames.m":  "0caf1f7a0c8648574c03acc3fd2e16ef176655abd883bd618fe6a0c7e469e770",
+    "loadLegacyOutput.m":  "c1c40b553bfbc5282b1d8db3549fb068a4c10b65763375dac0366830509ab174",
+    "computeDrift_X.m":  "3af4df2199493c23e472f14b0b123955ac58691572e0e5c1da5b590ffb1dafdf",
+    "saveCroppedImages_X.m":  "6afab48089984e9375429a05ebbb3c8a796ef3c4aaae675868d9a5f1e3050f02",
+    "readWorkerInfo.m":  "291b0397c6d72e60c3e577a640f47af398f8797cc7290b86690b5d1c24e25417",
+    "plugin.json":  "440907d20a92019c89b70754e24331d396c5139e46d11f44c880b94d09293e86",
+    "runLegacyOnce.m":  "8bc19c3929920cc85470e77cdb1ae761fa93c15850069c0997ff47552b837162",
+    "readPoolCapacity.m":  "cbe588a42a585cf3cccdb4ae7ad58255d29e46ca675d09d326e630631c53ba7c",
+    "openReadPool.m":  "f0a095ba2abe6c0719315234988f543fdd526c62d5a2e72fa47aa7a6f1d9e1b6",
+    "selectedFrames.m":  "39dcf721ab8a744d0a271405b584212e6ad84f90c9b999b7e5d6bede17a88204",
+    "selectedFovIndices.m":  "e293bacd7f728a495c88d4deb1df1d8fc7be7908e0e893bef3c048840b6e249b"
+}

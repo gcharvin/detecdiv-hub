@@ -1,0 +1,39 @@
+CUDADevice with properties:
+
+   Identity
+                      Name: 'NVIDIA RTX 2000 Ada Generation'
+                      UUID: 'GPU-09d4d9f5-08a5-a99d-9036-39867f3add13'
+                     Index: 1 (of 1)
+
+   State
+            DeviceSelected: true
+           DeviceAvailable: true
+           DeviceSupported: true
+              LastAccessed: 16-Oct-2026 09:47:00
+
+   Memory
+               TotalMemory: 17175150592 (17.18 GB)
+           AvailableMemory: 16015949824 (16.02 GB)
+               CachePolicy: 'balanced'
+
+   Driver
+     GraphicsDriverVersion: '596.71'
+               DriverModel: 'WDDM'
+               ComputeMode: 'Default'
+    KernelExecutionTimeout: true
+
+   Capabilities
+         ComputeCapability: '8.9'
+       MultiprocessorCount: 22
+              ClockRateKHz: 2130000
+         SingleDoubleRatio: 64
+
+   Kernel Programming
+        MaxThreadsPerBlock: 1024
+          MaxShmemPerBlock: 49152 (49.15 KB)
+        MaxThreadBlockSize: [1024 1024 64]
+               MaxGridSize: [2.1475e+09 65535 65535]
+                 SIMDWidth: 32
+            ToolkitVersion: 12.2000
+
+WINDOWS_GPU_MATLAB_AND_PYTHON_PASSED

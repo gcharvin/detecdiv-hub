@@ -620,6 +620,15 @@ Get-Content .\logs\windows-worker.log -Tail 60
 Stop the manually launched worker before starting the task so that only one
 process writes the instance heartbeat.
 
+The worker task must have `ExecutionTimeLimit=PT0S` (unlimited). Task Scheduler's
+default is 72 hours, which is unsuitable for a long-running poller and can
+terminate its launcher during a calculation. The registration helper sets this
+explicitly. For an existing task, inspect and update only its settings, preserving
+its principal, action and triggers; changing the time limit does not require
+stopping the task. A missing worker with a stale Hub job requires inspecting
+actual compute processes before starting another poller, since orphan recovery
+can mark the old job failed and release its locks.
+
 For an unattended machine, have the Windows administrator replace the logon
 task with a dedicated service account and verify its MATLAB license, network
 share permissions, and startup behavior. An SSH server on the PC is useful for

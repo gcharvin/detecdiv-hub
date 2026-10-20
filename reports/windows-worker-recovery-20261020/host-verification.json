@@ -1,0 +1,33 @@
+{
+  "task": {
+    "State": "Running",
+    "Limit": "PT0S",
+    "Principal": "Charvin-Admin",
+    "LastResult": 267009,
+    "ActivationWatcherPresent": false
+  },
+  "preserved_matlab": [
+    {
+      "pid": 44220,
+      "created_at_unix": 1792492906.3146248,
+      "cpu_before": 79.765625,
+      "cpu_after": 80.296875
+    },
+    {
+      "pid": 78836,
+      "created_at_unix": 1792493409.6413808,
+      "cpu_before": 3250.125,
+      "cpu_after": 3363.109375
+    },
+    {
+      "pid": 81028,
+      "created_at_unix": 1792492906.6693704,
+      "cpu_before": 377.78125,
+      "cpu_after": 382.953125
+    }
+  ],
+  "worker_pid": 45124,
+  "worker_children": [],
+  "tunnel_alive": true,
+  "worker_log_tail": "le \"C:\\Users\\Charvin-Admin\\Documents\\MATLAB\\detecdiv-hub\\worker\\run_worker.py\", line 857, in run_forever\r\n    result_json = execute_job(job)\r\n                  ^^^^^^^^^^^^^^^^\r\n  File \"C:\\Users\\Charvin-Admin\\Documents\\MATLAB\\detecdiv-hub\\worker\\run_worker.py\", line 622, in execute_job\r\n    result_json = execute_pipeline_run_job(session, job=job_record)\r\n                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\r\n  File \"C:\\Users\\Charvin-Admin\\Documents\\MATLAB\\detecdiv-hub\\worker\\pipeline_run_executor.py\", line 174, in \r\nexecute_pipeline_run_job\r\n    validate_pipeline_run_result(\r\n  File \"C:\\Users\\Charvin-Admin\\Documents\\MATLAB\\detecdiv-hub\\worker\\pipeline_run_executor.py\", line 734, in \r\nvalidate_pipeline_run_result\r\n    raise RuntimeError(build_pipeline_run_error(returncode, stdout, stderr, result_json))\r\nRuntimeError: pipeline_run MATLAB batch failed with exit code 1.\r\n\r\nError using runPipelineStructured (line 64)\r\nPipeline validation failed: Classifier node hoct_024 linked classifier is not runnable. Linked classifier folder is \r\nnot accessible for\r\nHub/server execution. Configured modulePath: \r\nC:/ProgramData/DetecDiv/HOCT/hub_checks/p59_024_v003/classifier/hoct_p59_1. For Hub/server\r\nexecution, relink the classifier to an accessible folder, export/copy the classifier module with its \r\n*_classification.mat and model .mat\r\nfiles, or set a run override modulePath to the server-visible classifier folder.\r\n\r\nError in runPipelineDetecDiv (line 6)\r\n    [ctxOut, report] = runPipelineStructured(pipeObj, ctx);\r\n                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\r\nError in detecdiv_run_pipeline_job (line 85)\r\n        [ctxOut, report] = runPipelineDetecDiv(pipeObj, ctx);\r\n                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\r\n\r\nSTDOUT tail:\r\n[path] Catalog root : \r\nC:\\Users\\Charvin-Admin\\Documents\\GitHub\\DetecDiv-jobs\\releases\\2abc8f2ee32ab10cf204c2fe11be63d87c728764\r\n[path] DetecDiv root: \r\nC:\\Users\\Charvin-Admin\\Documents\\GitHub\\DetecDiv-jobs\\releases\\2abc8f2ee32ab10cf204c2fe11be63d87c728764\r\n[path] Runtime mode: embedded catalog fallback\r\n[path] Added 55 folder(s).\r\n[path] Catalog root : \r\nC:\\Users\\Charvin-Admin\\Documents\\GitHub\\DetecDiv-jobs\\releases\\2abc8f2ee32ab10cf204c2fe11be63d87c728764\r\n[path] DetecDiv root: \r\nC:\\Users\\Charvin-Admin\\Documents\\GitHub\\DetecDiv-jobs\\releases\\2abc8f2ee32ab10cf204c2fe11be63d87c728764\r\n[path] Runtime mode: embedded catalog fallback\r\n[path] Added 55 folder(s).\r\n[detecdiv_run_pipeline_job] repoRoot: \r\nC:\\Users\\Charvin-Admin\\Documents\\GitHub\\DetecDiv-jobs\\releases\\2abc8f2ee32ab10cf204c2fe11be63d87c728764\r\n[detecdiv_run_pipeline_job] runPipelineStructured: C:\\Users\\Charvin-Admin\\Documents\\GitHub\\DetecDiv-jobs\\releases\\2abc8\r\nf2ee32ab10cf204c2fe11be63d87c728764\\structure\\io\\runPipelineStructured.m\r\n[detecdiv_run_pipeline_job] sam31.train: C:\\Users\\Charvin-Admin\\Documents\\GitHub\\DetecDiv-jobs\\releases\\2abc8f2ee32ab10\r\ncf204c2fe11be63d87c728764\\engine\\classification\\+sam31\\train.m\r\n===============================================================\r\n[CLASSI LOAD] NEW PACKAGE FRAMEWORK: hoctModel\r\n[CLASSI LOAD] ID: hoct_p59_1\r\n===============================================================\r\nSuccessfully loaded classification \r\nC:\\ProgramData\\DetecDiv\\HOCT\\hub_checks\\p59_024_v003\\classifier\\hoct_p59_1\\hoct_p59_1_classification.mat!\r\nPipeline run saved: C:\\ProgramData\\DetecDiv\\HOCT\\hub_checks\\p59_024_v003\\run\\run.json\r\nPipeline run saved: C:\\ProgramData\\DetecDiv\\HOCT\\hub_checks\\p59_024_v003\\run\\run.json\r\n\r\nSTDERR tail:\r\nError using runPipelineStructured (line 64)\r\nPipeline validation failed: Classifier node hoct_024 linked classifier is not runnable. Linked classifier folder is \r\nnot accessible for\r\nHub/server execution. Configured modulePath: \r\nC:/ProgramData/DetecDiv/HOCT/hub_checks/p59_024_v003/classifier/hoct_p59_1. For Hub/server\r\nexecution, relink the classifier to an accessible folder, export/copy the classifier module with its \r\n*_classification.mat and model .mat\r\nfiles, or set a run override modulePath to the server-visible classifier folder.\r\nError in runPipelineDetecDiv (line 6)\r\n    [ctxOut, report] = runPipelineStructured(pipeObj, ctx);\r\n                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\r\nError in detecdiv_run_pipeline_job (line 85)\r\n        [ctxOut, report] = runPipelineDetecDiv(pipeObj, ctx);\r\n                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\r\n{\bError using detecdiv_run_pipeline_job (line 211)\r\nPipeline validation failed: Classifier node hoct_024 linked classifier is not runnable. Linked classifier folder is \r\nnot accessible for\r\nHub/server execution. Configured modulePath: \r\nC:/ProgramData/DetecDiv/HOCT/hub_checks/p59_024_v003/classifier/hoct_p59_1. For Hub/server\r\nexecution, relink the classifier to an accessible folder, export/copy the classifier module with its \r\n*_classification.mat and model .mat\r\nfiles, or set a run override modulePath to the server-visible classifier folder.\r\n}\b \r\nERROR: MATLAB error Exit Status: 0x00000001\r\n"
+}

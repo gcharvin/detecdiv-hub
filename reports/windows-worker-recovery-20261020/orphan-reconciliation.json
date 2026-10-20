@@ -1,0 +1,13 @@
+{
+  "job_id": "f4150ff1-f1bf-4c89-8483-1b7e26c8726e",
+  "status": "failed",
+  "audit": {
+    "actor": "gilles",
+    "at": "2026-10-20T14:03:06.474603+00:00",
+    "reason": "Worker process disappeared; no matching batch MATLAB or Python job process remains. Existing guest-session MATLAB processes were preserved.",
+    "previous_status": "running",
+    "last_heartbeat_at": "2026-10-20T13:21:16.910078+00:00",
+    "evidence": "reports/windows-worker-recovery-20261020",
+    "requeued": false
+  }
+}

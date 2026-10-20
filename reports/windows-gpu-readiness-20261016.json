@@ -1,0 +1,58 @@
+{
+  "checked_at_utc": "2026-10-16T07:34:42Z",
+  "scope": "Read-only live diagnosis; no job routing, configuration or service changes; tiny temporary CUDA computation only",
+  "windows_host": "CG-PCDELL01-306 / 10.20.11.56",
+  "execution_target": "windows-10-20-11-56",
+  "target_id": "a8eedb3f-85fc-47a8-b327-2aa766550f51",
+  "hub_state": {
+    "supports_gpu": false,
+    "supports_matlab": true,
+    "supports_python": true,
+    "health": "online",
+    "current_job_count": 0,
+    "worker_code_fingerprint": "8c31b3db2d99",
+    "max_concurrent_jobs": 1,
+    "reported_gpu_capacity_mib": 16380,
+    "global_gpu_admission_capacity_mib": 24576,
+    "pipeline_default_gpu_reservation_mib": 8192
+  },
+  "nvidia_smi": {
+    "name": "NVIDIA RTX 2000 Ada Generation",
+    "driver": "596.71",
+    "memory_total_mib": 16380,
+    "memory_used_mib": 1147,
+    "gpu_utilization_percent": 0
+  },
+  "python_probe": {
+    "account": "detecdiv-ops via Windows OpenSSH; worker runs as GMGM\\Charvin-Admin and still needs an end-to-end check in its own session",
+    "executable": "C:\\Users\\Charvin-Admin\\.conda\\envs\\detecdiv_python\\python.exe",
+    "torch": "2.7.0+cu118",
+    "torch_cuda": "11.8",
+    "cuda_available": true,
+    "cellpose": "4.2.1.1",
+    "numpy": "2.2.5",
+    "h5py": "3.16.0",
+    "cuda_computation": "sum(arange(16, device='cuda') ** 2) == 1240; synchronize succeeded; process exit 0",
+    "pilot_dependency_import": "import h5py; import numpy as np; import torch; from cellpose import models,train,io,metrics",
+    "pilot_dependency_import_result": "OMP Error #15: libiomp5md.dll already initialized; process exit 3; no duplicate-runtime workaround used"
+  },
+  "queued_pilot": {
+    "job_id": "43637ab4-4044-443d-b8f9-3372935f8356",
+    "status": "queued",
+    "target_key": "detecdiv-server",
+    "target_selection": "explicit",
+    "gpu_mode": "force_gpu",
+    "launcher_server_path": "/data/Gilles/analysis/classifiers/phase_cellposesam_v001_1/code/classifier/+phaseCellposeSAM/train.m",
+    "launcher_line_11": "python = '/home/charvin-admin/anaconda3/envs/detecdiv_python/bin/python';",
+    "launcher_lines_12_14": "if ispc; error('phaseCellposeSAM:LinuxPilot','This pilot is pinned to the Linux Hub GPU runtime.'); end",
+    "frozen_provenance": "protocol_frozen.json includes train.m hash and exact pilot.py hash; pilot.py verifies its own hash"
+  },
+  "remaining_work": [
+    "Resolve the Python OpenMP runtime conflict and validate Cellpose imports plus a minimal GPU workload under the actual worker account/session.",
+    "For this specific pilot, make train.m select a Windows Python interpreter and support Windows rather than rejecting ispc; preserve and update versioned provenance appropriately.",
+    "Validate access to classifier data, weights and output paths from the scheduled worker session.",
+    "Declare supports_gpu=true through the execution-target administration API after validation.",
+    "Bound VRAM admission by the Windows device's real capacity and available headroom; the global 24576 MiB setting exceeds its 16380 MiB capacity.",
+    "Explicitly submit or reassign the pilot to the Windows target through the normal audited job workflow, preventing duplicate execution; the current Linux assignment cannot be stolen by Windows."
+  ]
+}

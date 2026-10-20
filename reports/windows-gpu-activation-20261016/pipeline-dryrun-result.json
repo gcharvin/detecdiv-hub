@@ -1,0 +1,827 @@
+{
+  "status": "done",
+  "job_id": "43637ab4-4044-443d-b8f9-3372935f8356",
+  "run_id": "windows_gpu_validation_20261016",
+  "project_mat_path": "",
+  "pipeline_json_path": "C:\\Users\\Charvin-Admin\\Documents\\GitHub\\DetecDiv-jobs\\work\\43637ab4-4044-443d-b8f9-3372935f8356\\2484a125-cc01-4b17-8533-f32355a79566\\.detecdiv_runtime_pipeline_43637ab4-4044-443d-b8f9-3372935f8356.json",
+  "run_json_path": "C:\\ProgramData\\DetecDivHub\\gpu-validation-20261016\\dryrun\\run.json",
+  "artifacts": [
+    {
+      "kind": "run_json",
+      "path": "C:\\ProgramData\\DetecDivHub\\gpu-validation-20261016\\dryrun\\run.json"
+    },
+    {
+      "kind": "run_summary",
+      "path": "C:\\ProgramData\\DetecDivHub\\gpu-validation-20261016\\dryrun\\run_summary.txt"
+    },
+    {
+      "kind": "run_log",
+      "path": "C:\\ProgramData\\DetecDivHub\\gpu-validation-20261016\\dryrun\\run_log.txt"
+    }
+  ],
+  "mutation_manifest": {
+    "protocol": "detecdiv.roi-mutations.v1",
+    "committedAt": "2026-10-16T09:55:47.483***",
+    "runId": "windows_gpu_validation_20261016",
+    "status": "done",
+    "scope": "classi",
+    "classifierPath": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1",
+    "projectPath": "",
+    "roiIds": [
+      "pos1_1_1__f0039",
+      "pos1_1_1__f0081",
+      "pos19_19_1__f0041",
+      "pos19_19_1__f0092",
+      "pos23_23_1__f0052",
+      "pos23_23_1__f0003",
+      "pos2_2_1__f0078",
+      "pos2_2_1__f0029",
+      "pos20_20_1__f0141",
+      "pos20_20_1__f0054",
+      "pos24_24_1__f0095",
+      "pos24_24_1__f0084",
+      "pos9_9_1__f0034",
+      "pos9_9_1__f0140",
+      "pos12_12_1__f0120",
+      "pos12_12_1__f0032",
+      "pos21_21_1__f0074",
+      "pos18_18_1__f0108",
+      "pos13_13_1__f0147",
+      "pos15_15_1__f0034",
+      "pos17_17_1__f0063",
+      "pos6_6_1__f0119",
+      "pos14_14_1__f0017",
+      "pos16_16_1__f0098",
+      "project59__pos5_5_1__f0106",
+      "project59__pos5_5_1__f0096",
+      "project59__pos5_5_1__f0125",
+      "project59__pos5_5_1__f0049",
+      "project59__pos5_5_1__f0075",
+      "project59__pos5_5_1__f0017",
+      "project59__pos5_5_1__f0033",
+      "project59__pos5_5_1__f0002",
+      "project59__pos2_2_1__f0110",
+      "project59__pos2_2_1__f0050",
+      "project59__pos2_2_1__f0088",
+      "project59__pos2_2_1__f0150",
+      "project59__pos2_2_1__f0011",
+      "project59__pos2_2_1__f0073",
+      "project59__pos2_2_1__f0100",
+      "project59__pos2_2_1__f0122",
+      "project59__pos3_3_1__f0150",
+      "project59__pos3_3_1__f0040",
+      "project59__pos3_3_1__f0117",
+      "project59__pos3_3_1__f0016",
+      "project59__pos3_3_1__f0064",
+      "project59__pos3_3_1__f0102",
+      "project59__pos3_3_1__f0050",
+      "postdoc13122006__pos3_3_1__f0115",
+      "postdoc13122006__pos3_3_1__f0237",
+      "postdoc13122006__pos3_3_1__f0056",
+      "postdoc13122006__pos3_3_1__f0206",
+      "postdoc13122006__pos3_3_1__f0073",
+      "postdoc13122006__pos3_3_1__f0219",
+      "postdoc13122006__pos3_3_1__f0131",
+      "postdoc13122006__pos3_3_1__f0089",
+      "postdoc13122006__pos3_3_1__f0163",
+      "postdoc13122006__pos3_3_1__f0101",
+      "postdoc13122006__pos3_3_1__f0024",
+      "postdoc13122006__pos3_3_1__f0039",
+      "postdoc13122006__pos4_4_1__f0146",
+      "postdoc13122006__pos4_4_1__f0065",
+      "postdoc13122006__pos4_4_1__f0191",
+      "postdoc13122006__pos4_4_1__f0081",
+      "postdoc13122006__pos4_4_1__f0054",
+      "postdoc13122006__pos4_4_1__f0221",
+      "postdoc13122006__pos4_4_1__f0109",
+      "postdoc13122006__pos4_4_1__f0099",
+      "postdoc13122006__pos4_4_1__f0120",
+      "postdoc13122006__pos4_4_1__f0021",
+      "postdoc13122006__pos4_4_1__f0001"
+    ],
+    "outputs": [],
+    "rois": [
+      {
+        "id": "pos1_1_1__f0039",
+        "path": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\",
+        "h5File": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\im_pos1_1_1__f0039.h5",
+        "dataFile": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\data_pos1_1_1__f0039.mat",
+        "channels": [],
+        "dataSeries": [],
+        "reloadData": false
+      },
+      {
+        "id": "pos1_1_1__f0081",
+        "path": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\",
+        "h5File": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\im_pos1_1_1__f0081.h5",
+        "dataFile": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\data_pos1_1_1__f0081.mat",
+        "channels": [],
+        "dataSeries": [],
+        "reloadData": false
+      },
+      {
+        "id": "pos19_19_1__f0041",
+        "path": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\",
+        "h5File": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\im_pos19_19_1__f0041.h5",
+        "dataFile": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\data_pos19_19_1__f0041.mat",
+        "channels": [],
+        "dataSeries": [],
+        "reloadData": false
+      },
+      {
+        "id": "pos19_19_1__f0092",
+        "path": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\",
+        "h5File": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\im_pos19_19_1__f0092.h5",
+        "dataFile": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\data_pos19_19_1__f0092.mat",
+        "channels": [],
+        "dataSeries": [],
+        "reloadData": false
+      },
+      {
+        "id": "pos23_23_1__f0052",
+        "path": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\",
+        "h5File": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\im_pos23_23_1__f0052.h5",
+        "dataFile": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\data_pos23_23_1__f0052.mat",
+        "channels": [],
+        "dataSeries": [],
+        "reloadData": false
+      },
+      {
+        "id": "pos23_23_1__f0003",
+        "path": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\",
+        "h5File": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\im_pos23_23_1__f0003.h5",
+        "dataFile": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\data_pos23_23_1__f0003.mat",
+        "channels": [],
+        "dataSeries": [],
+        "reloadData": false
+      },
+      {
+        "id": "pos2_2_1__f0078",
+        "path": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\",
+        "h5File": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\im_pos2_2_1__f0078.h5",
+        "dataFile": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\data_pos2_2_1__f0078.mat",
+        "channels": [],
+        "dataSeries": [],
+        "reloadData": false
+      },
+      {
+        "id": "pos2_2_1__f0029",
+        "path": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\",
+        "h5File": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\im_pos2_2_1__f0029.h5",
+        "dataFile": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\data_pos2_2_1__f0029.mat",
+        "channels": [],
+        "dataSeries": [],
+        "reloadData": false
+      },
+      {
+        "id": "pos20_20_1__f0141",
+        "path": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\",
+        "h5File": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\im_pos20_20_1__f0141.h5",
+        "dataFile": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\data_pos20_20_1__f0141.mat",
+        "channels": [],
+        "dataSeries": [],
+        "reloadData": false
+      },
+      {
+        "id": "pos20_20_1__f0054",
+        "path": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\",
+        "h5File": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\im_pos20_20_1__f0054.h5",
+        "dataFile": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\data_pos20_20_1__f0054.mat",
+        "channels": [],
+        "dataSeries": [],
+        "reloadData": false
+      },
+      {
+        "id": "pos24_24_1__f0095",
+        "path": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\",
+        "h5File": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\im_pos24_24_1__f0095.h5",
+        "dataFile": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\data_pos24_24_1__f0095.mat",
+        "channels": [],
+        "dataSeries": [],
+        "reloadData": false
+      },
+      {
+        "id": "pos24_24_1__f0084",
+        "path": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\",
+        "h5File": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\im_pos24_24_1__f0084.h5",
+        "dataFile": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\data_pos24_24_1__f0084.mat",
+        "channels": [],
+        "dataSeries": [],
+        "reloadData": false
+      },
+      {
+        "id": "pos9_9_1__f0034",
+        "path": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\",
+        "h5File": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\im_pos9_9_1__f0034.h5",
+        "dataFile": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\data_pos9_9_1__f0034.mat",
+        "channels": [],
+        "dataSeries": [],
+        "reloadData": false
+      },
+      {
+        "id": "pos9_9_1__f0140",
+        "path": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\",
+        "h5File": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\im_pos9_9_1__f0140.h5",
+        "dataFile": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\data_pos9_9_1__f0140.mat",
+        "channels": [],
+        "dataSeries": [],
+        "reloadData": false
+      },
+      {
+        "id": "pos12_12_1__f0120",
+        "path": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\",
+        "h5File": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\im_pos12_12_1__f0120.h5",
+        "dataFile": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\data_pos12_12_1__f0120.mat",
+        "channels": [],
+        "dataSeries": [],
+        "reloadData": false
+      },
+      {
+        "id": "pos12_12_1__f0032",
+        "path": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\",
+        "h5File": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\im_pos12_12_1__f0032.h5",
+        "dataFile": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\data_pos12_12_1__f0032.mat",
+        "channels": [],
+        "dataSeries": [],
+        "reloadData": false
+      },
+      {
+        "id": "pos21_21_1__f0074",
+        "path": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\",
+        "h5File": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\im_pos21_21_1__f0074.h5",
+        "dataFile": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\data_pos21_21_1__f0074.mat",
+        "channels": [],
+        "dataSeries": [],
+        "reloadData": false
+      },
+      {
+        "id": "pos18_18_1__f0108",
+        "path": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\",
+        "h5File": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\im_pos18_18_1__f0108.h5",
+        "dataFile": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\data_pos18_18_1__f0108.mat",
+        "channels": [],
+        "dataSeries": [],
+        "reloadData": false
+      },
+      {
+        "id": "pos13_13_1__f0147",
+        "path": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\",
+        "h5File": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\im_pos13_13_1__f0147.h5",
+        "dataFile": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\data_pos13_13_1__f0147.mat",
+        "channels": [],
+        "dataSeries": [],
+        "reloadData": false
+      },
+      {
+        "id": "pos15_15_1__f0034",
+        "path": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\",
+        "h5File": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\im_pos15_15_1__f0034.h5",
+        "dataFile": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\data_pos15_15_1__f0034.mat",
+        "channels": [],
+        "dataSeries": [],
+        "reloadData": false
+      },
+      {
+        "id": "pos17_17_1__f0063",
+        "path": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\",
+        "h5File": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\im_pos17_17_1__f0063.h5",
+        "dataFile": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\data_pos17_17_1__f0063.mat",
+        "channels": [],
+        "dataSeries": [],
+        "reloadData": false
+      },
+      {
+        "id": "pos6_6_1__f0119",
+        "path": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\",
+        "h5File": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\im_pos6_6_1__f0119.h5",
+        "dataFile": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\data_pos6_6_1__f0119.mat",
+        "channels": [],
+        "dataSeries": [],
+        "reloadData": false
+      },
+      {
+        "id": "pos14_14_1__f0017",
+        "path": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\",
+        "h5File": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\im_pos14_14_1__f0017.h5",
+        "dataFile": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\data_pos14_14_1__f0017.mat",
+        "channels": [],
+        "dataSeries": [],
+        "reloadData": false
+      },
+      {
+        "id": "pos16_16_1__f0098",
+        "path": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\",
+        "h5File": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\im_pos16_16_1__f0098.h5",
+        "dataFile": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\data_pos16_16_1__f0098.mat",
+        "channels": [],
+        "dataSeries": [],
+        "reloadData": false
+      },
+      {
+        "id": "project59__pos5_5_1__f0106",
+        "path": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\",
+        "h5File": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\im_project59__pos5_5_1__f0106.h5",
+        "dataFile": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\data_project59__pos5_5_1__f0106.mat",
+        "channels": [],
+        "dataSeries": [],
+        "reloadData": false
+      },
+      {
+        "id": "project59__pos5_5_1__f0096",
+        "path": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\",
+        "h5File": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\im_project59__pos5_5_1__f0096.h5",
+        "dataFile": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\data_project59__pos5_5_1__f0096.mat",
+        "channels": [],
+        "dataSeries": [],
+        "reloadData": false
+      },
+      {
+        "id": "project59__pos5_5_1__f0125",
+        "path": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\",
+        "h5File": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\im_project59__pos5_5_1__f0125.h5",
+        "dataFile": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\data_project59__pos5_5_1__f0125.mat",
+        "channels": [],
+        "dataSeries": [],
+        "reloadData": false
+      },
+      {
+        "id": "project59__pos5_5_1__f0049",
+        "path": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\",
+        "h5File": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\im_project59__pos5_5_1__f0049.h5",
+        "dataFile": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\data_project59__pos5_5_1__f0049.mat",
+        "channels": [],
+        "dataSeries": [],
+        "reloadData": false
+      },
+      {
+        "id": "project59__pos5_5_1__f0075",
+        "path": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\",
+        "h5File": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\im_project59__pos5_5_1__f0075.h5",
+        "dataFile": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\data_project59__pos5_5_1__f0075.mat",
+        "channels": [],
+        "dataSeries": [],
+        "reloadData": false
+      },
+      {
+        "id": "project59__pos5_5_1__f0017",
+        "path": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\",
+        "h5File": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\im_project59__pos5_5_1__f0017.h5",
+        "dataFile": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\data_project59__pos5_5_1__f0017.mat",
+        "channels": [],
+        "dataSeries": [],
+        "reloadData": false
+      },
+      {
+        "id": "project59__pos5_5_1__f0033",
+        "path": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\",
+        "h5File": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\im_project59__pos5_5_1__f0033.h5",
+        "dataFile": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\data_project59__pos5_5_1__f0033.mat",
+        "channels": [],
+        "dataSeries": [],
+        "reloadData": false
+      },
+      {
+        "id": "project59__pos5_5_1__f0002",
+        "path": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\",
+        "h5File": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\im_project59__pos5_5_1__f0002.h5",
+        "dataFile": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\data_project59__pos5_5_1__f0002.mat",
+        "channels": [],
+        "dataSeries": [],
+        "reloadData": false
+      },
+      {
+        "id": "project59__pos2_2_1__f0110",
+        "path": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\",
+        "h5File": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\im_project59__pos2_2_1__f0110.h5",
+        "dataFile": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\data_project59__pos2_2_1__f0110.mat",
+        "channels": [],
+        "dataSeries": [],
+        "reloadData": false
+      },
+      {
+        "id": "project59__pos2_2_1__f0050",
+        "path": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\",
+        "h5File": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\im_project59__pos2_2_1__f0050.h5",
+        "dataFile": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\data_project59__pos2_2_1__f0050.mat",
+        "channels": [],
+        "dataSeries": [],
+        "reloadData": false
+      },
+      {
+        "id": "project59__pos2_2_1__f0088",
+        "path": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\",
+        "h5File": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\im_project59__pos2_2_1__f0088.h5",
+        "dataFile": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\data_project59__pos2_2_1__f0088.mat",
+        "channels": [],
+        "dataSeries": [],
+        "reloadData": false
+      },
+      {
+        "id": "project59__pos2_2_1__f0150",
+        "path": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\",
+        "h5File": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\im_project59__pos2_2_1__f0150.h5",
+        "dataFile": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\data_project59__pos2_2_1__f0150.mat",
+        "channels": [],
+        "dataSeries": [],
+        "reloadData": false
+      },
+      {
+        "id": "project59__pos2_2_1__f0011",
+        "path": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\",
+        "h5File": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\im_project59__pos2_2_1__f0011.h5",
+        "dataFile": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\data_project59__pos2_2_1__f0011.mat",
+        "channels": [],
+        "dataSeries": [],
+        "reloadData": false
+      },
+      {
+        "id": "project59__pos2_2_1__f0073",
+        "path": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\",
+        "h5File": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\im_project59__pos2_2_1__f0073.h5",
+        "dataFile": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\data_project59__pos2_2_1__f0073.mat",
+        "channels": [],
+        "dataSeries": [],
+        "reloadData": false
+      },
+      {
+        "id": "project59__pos2_2_1__f0100",
+        "path": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\",
+        "h5File": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\im_project59__pos2_2_1__f0100.h5",
+        "dataFile": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\data_project59__pos2_2_1__f0100.mat",
+        "channels": [],
+        "dataSeries": [],
+        "reloadData": false
+      },
+      {
+        "id": "project59__pos2_2_1__f0122",
+        "path": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\",
+        "h5File": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\im_project59__pos2_2_1__f0122.h5",
+        "dataFile": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\data_project59__pos2_2_1__f0122.mat",
+        "channels": [],
+        "dataSeries": [],
+        "reloadData": false
+      },
+      {
+        "id": "project59__pos3_3_1__f0150",
+        "path": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\",
+        "h5File": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\im_project59__pos3_3_1__f0150.h5",
+        "dataFile": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\data_project59__pos3_3_1__f0150.mat",
+        "channels": [],
+        "dataSeries": [],
+        "reloadData": false
+      },
+      {
+        "id": "project59__pos3_3_1__f0040",
+        "path": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\",
+        "h5File": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\im_project59__pos3_3_1__f0040.h5",
+        "dataFile": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\data_project59__pos3_3_1__f0040.mat",
+        "channels": [],
+        "dataSeries": [],
+        "reloadData": false
+      },
+      {
+        "id": "project59__pos3_3_1__f0117",
+        "path": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\",
+        "h5File": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\im_project59__pos3_3_1__f0117.h5",
+        "dataFile": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\data_project59__pos3_3_1__f0117.mat",
+        "channels": [],
+        "dataSeries": [],
+        "reloadData": false
+      },
+      {
+        "id": "project59__pos3_3_1__f0016",
+        "path": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\",
+        "h5File": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\im_project59__pos3_3_1__f0016.h5",
+        "dataFile": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\data_project59__pos3_3_1__f0016.mat",
+        "channels": [],
+        "dataSeries": [],
+        "reloadData": false
+      },
+      {
+        "id": "project59__pos3_3_1__f0064",
+        "path": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\",
+        "h5File": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\im_project59__pos3_3_1__f0064.h5",
+        "dataFile": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\data_project59__pos3_3_1__f0064.mat",
+        "channels": [],
+        "dataSeries": [],
+        "reloadData": false
+      },
+      {
+        "id": "project59__pos3_3_1__f0102",
+        "path": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\",
+        "h5File": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\im_project59__pos3_3_1__f0102.h5",
+        "dataFile": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\data_project59__pos3_3_1__f0102.mat",
+        "channels": [],
+        "dataSeries": [],
+        "reloadData": false
+      },
+      {
+        "id": "project59__pos3_3_1__f0050",
+        "path": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\",
+        "h5File": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\im_project59__pos3_3_1__f0050.h5",
+        "dataFile": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\data_project59__pos3_3_1__f0050.mat",
+        "channels": [],
+        "dataSeries": [],
+        "reloadData": false
+      },
+      {
+        "id": "postdoc13122006__pos3_3_1__f0115",
+        "path": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\",
+        "h5File": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\im_postdoc13122006__pos3_3_1__f0115.h5",
+        "dataFile": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\data_postdoc13122006__pos3_3_1__f0115.mat",
+        "channels": [],
+        "dataSeries": [],
+        "reloadData": false
+      },
+      {
+        "id": "postdoc13122006__pos3_3_1__f0237",
+        "path": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\",
+        "h5File": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\im_postdoc13122006__pos3_3_1__f0237.h5",
+        "dataFile": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\data_postdoc13122006__pos3_3_1__f0237.mat",
+        "channels": [],
+        "dataSeries": [],
+        "reloadData": false
+      },
+      {
+        "id": "postdoc13122006__pos3_3_1__f0056",
+        "path": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\",
+        "h5File": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\im_postdoc13122006__pos3_3_1__f0056.h5",
+        "dataFile": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\data_postdoc13122006__pos3_3_1__f0056.mat",
+        "channels": [],
+        "dataSeries": [],
+        "reloadData": false
+      },
+      {
+        "id": "postdoc13122006__pos3_3_1__f0206",
+        "path": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\",
+        "h5File": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\im_postdoc13122006__pos3_3_1__f0206.h5",
+        "dataFile": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\data_postdoc13122006__pos3_3_1__f0206.mat",
+        "channels": [],
+        "dataSeries": [],
+        "reloadData": false
+      },
+      {
+        "id": "postdoc13122006__pos3_3_1__f0073",
+        "path": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\",
+        "h5File": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\im_postdoc13122006__pos3_3_1__f0073.h5",
+        "dataFile": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\data_postdoc13122006__pos3_3_1__f0073.mat",
+        "channels": [],
+        "dataSeries": [],
+        "reloadData": false
+      },
+      {
+        "id": "postdoc13122006__pos3_3_1__f0219",
+        "path": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\",
+        "h5File": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\im_postdoc13122006__pos3_3_1__f0219.h5",
+        "dataFile": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\data_postdoc13122006__pos3_3_1__f0219.mat",
+        "channels": [],
+        "dataSeries": [],
+        "reloadData": false
+      },
+      {
+        "id": "postdoc13122006__pos3_3_1__f0131",
+        "path": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\",
+        "h5File": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\im_postdoc13122006__pos3_3_1__f0131.h5",
+        "dataFile": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\data_postdoc13122006__pos3_3_1__f0131.mat",
+        "channels": [],
+        "dataSeries": [],
+        "reloadData": false
+      },
+      {
+        "id": "postdoc13122006__pos3_3_1__f0089",
+        "path": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\",
+        "h5File": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\im_postdoc13122006__pos3_3_1__f0089.h5",
+        "dataFile": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\data_postdoc13122006__pos3_3_1__f0089.mat",
+        "channels": [],
+        "dataSeries": [],
+        "reloadData": false
+      },
+      {
+        "id": "postdoc13122006__pos3_3_1__f0163",
+        "path": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\",
+        "h5File": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\im_postdoc13122006__pos3_3_1__f0163.h5",
+        "dataFile": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\data_postdoc13122006__pos3_3_1__f0163.mat",
+        "channels": [],
+        "dataSeries": [],
+        "reloadData": false
+      },
+      {
+        "id": "postdoc13122006__pos3_3_1__f0101",
+        "path": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\",
+        "h5File": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\im_postdoc13122006__pos3_3_1__f0101.h5",
+        "dataFile": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\data_postdoc13122006__pos3_3_1__f0101.mat",
+        "channels": [],
+        "dataSeries": [],
+        "reloadData": false
+      },
+      {
+        "id": "postdoc13122006__pos3_3_1__f0024",
+        "path": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\",
+        "h5File": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\im_postdoc13122006__pos3_3_1__f0024.h5",
+        "dataFile": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\data_postdoc13122006__pos3_3_1__f0024.mat",
+        "channels": [],
+        "dataSeries": [],
+        "reloadData": false
+      },
+      {
+        "id": "postdoc13122006__pos3_3_1__f0039",
+        "path": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\",
+        "h5File": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\im_postdoc13122006__pos3_3_1__f0039.h5",
+        "dataFile": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\data_postdoc13122006__pos3_3_1__f0039.mat",
+        "channels": [],
+        "dataSeries": [],
+        "reloadData": false
+      },
+      {
+        "id": "postdoc13122006__pos4_4_1__f0146",
+        "path": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\",
+        "h5File": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\im_postdoc13122006__pos4_4_1__f0146.h5",
+        "dataFile": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\data_postdoc13122006__pos4_4_1__f0146.mat",
+        "channels": [],
+        "dataSeries": [],
+        "reloadData": false
+      },
+      {
+        "id": "postdoc13122006__pos4_4_1__f0065",
+        "path": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\",
+        "h5File": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\im_postdoc13122006__pos4_4_1__f0065.h5",
+        "dataFile": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\data_postdoc13122006__pos4_4_1__f0065.mat",
+        "channels": [],
+        "dataSeries": [],
+        "reloadData": false
+      },
+      {
+        "id": "postdoc13122006__pos4_4_1__f0191",
+        "path": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\",
+        "h5File": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\im_postdoc13122006__pos4_4_1__f0191.h5",
+        "dataFile": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\data_postdoc13122006__pos4_4_1__f0191.mat",
+        "channels": [],
+        "dataSeries": [],
+        "reloadData": false
+      },
+      {
+        "id": "postdoc13122006__pos4_4_1__f0081",
+        "path": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\",
+        "h5File": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\im_postdoc13122006__pos4_4_1__f0081.h5",
+        "dataFile": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\data_postdoc13122006__pos4_4_1__f0081.mat",
+        "channels": [],
+        "dataSeries": [],
+        "reloadData": false
+      },
+      {
+        "id": "postdoc13122006__pos4_4_1__f0054",
+        "path": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\",
+        "h5File": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\im_postdoc13122006__pos4_4_1__f0054.h5",
+        "dataFile": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\data_postdoc13122006__pos4_4_1__f0054.mat",
+        "channels": [],
+        "dataSeries": [],
+        "reloadData": false
+      },
+      {
+        "id": "postdoc13122006__pos4_4_1__f0221",
+        "path": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\",
+        "h5File": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\im_postdoc13122006__pos4_4_1__f0221.h5",
+        "dataFile": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\data_postdoc13122006__pos4_4_1__f0221.mat",
+        "channels": [],
+        "dataSeries": [],
+        "reloadData": false
+      },
+      {
+        "id": "postdoc13122006__pos4_4_1__f0109",
+        "path": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\",
+        "h5File": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\im_postdoc13122006__pos4_4_1__f0109.h5",
+        "dataFile": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\data_postdoc13122006__pos4_4_1__f0109.mat",
+        "channels": [],
+        "dataSeries": [],
+        "reloadData": false
+      },
+      {
+        "id": "postdoc13122006__pos4_4_1__f0099",
+        "path": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\",
+        "h5File": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\im_postdoc13122006__pos4_4_1__f0099.h5",
+        "dataFile": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\data_postdoc13122006__pos4_4_1__f0099.mat",
+        "channels": [],
+        "dataSeries": [],
+        "reloadData": false
+      },
+      {
+        "id": "postdoc13122006__pos4_4_1__f0120",
+        "path": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\",
+        "h5File": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\im_postdoc13122006__pos4_4_1__f0120.h5",
+        "dataFile": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\data_postdoc13122006__pos4_4_1__f0120.mat",
+        "channels": [],
+        "dataSeries": [],
+        "reloadData": false
+      },
+      {
+        "id": "postdoc13122006__pos4_4_1__f0021",
+        "path": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\",
+        "h5File": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\im_postdoc13122006__pos4_4_1__f0021.h5",
+        "dataFile": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\data_postdoc13122006__pos4_4_1__f0021.mat",
+        "channels": [],
+        "dataSeries": [],
+        "reloadData": false
+      },
+      {
+        "id": "postdoc13122006__pos4_4_1__f0001",
+        "path": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\",
+        "h5File": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\im_postdoc13122006__pos4_4_1__f0001.h5",
+        "dataFile": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\data_postdoc13122006__pos4_4_1__f0001.mat",
+        "channels": [],
+        "dataSeries": [],
+        "reloadData": false
+      }
+    ]
+  },
+  "summary": {
+    "node_count": 1,
+    "selected_node_count": 1,
+    "report_summary": {}
+  },
+  "error": "",
+  "dependency_audit": {
+    "status": "ok",
+    "mode": "run",
+    "targetHost": "",
+    "source": "C:\\Users\\Charvin-Admin\\Documents\\GitHub\\DetecDiv-jobs\\work\\43637ab4-4044-443d-b8f9-3372935f8356\\2484a125-cc01-4b17-8533-f32355a79566",
+    "pipelineName": "train_phase_cellposesam_v001",
+    "pipelineRoot": "C:\\Users\\Charvin-Admin\\Documents\\GitHub\\DetecDiv-jobs\\work\\43637ab4-4044-443d-b8f9-3372935f8356\\2484a125-cc01-4b17-8533-f32355a79566",
+    "summary": {
+      "dependency_count": 1,
+      "embedded_count": 0,
+      "linked_count": 1,
+      "derived_count": 0,
+      "ephemeral_count": 0,
+      "required_count": 1,
+      "required_missing_count": 0,
+      "legacy_count": 1,
+      "malformed_count": 0,
+      "rewrite_candidate_count": 0
+    },
+    "dependencies": {
+      "node_index": 1,
+      "node_id": "phase_cellposesam_v001_1",
+      "node_type": "classifier",
+      "module_id": "phase_cellposesam_v001_1",
+      "module_kind": "classifier",
+      "dependency_mode": "linked",
+      "locator_kind": "external_path",
+      "required_for": [
+        "run"
+      ],
+      "is_required_for_run": true,
+      "is_resolved": true,
+      "is_portable": false,
+      "is_legacy": true,
+      "is_malformed": false,
+      "source": {
+        "configured_path": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1",
+        "resolved_path": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1",
+        "path_exists": true,
+        "path_is_relative": false,
+        "path_under_pipeline": false,
+        "module_id": "phase_cellposesam_v001_1",
+        "module_kind": "classifier"
+      },
+      "assets": {
+        "inference": {
+          "count": 3,
+          "sample": [
+            "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\phase_cellposesam_v001_1_classification.mat",
+            "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\reference_weights\\local_20260908.pth",
+            "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\reference_weights\\server_20260929.pth"
+          ]
+        },
+        "training": {
+          "count": 2,
+          "sample": [
+            "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\dataset.json",
+            "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1\\pilot_dataset\\manifest.json"
+          ]
+        },
+        "definition": {
+          "count": 0,
+          "sample": []
+        }
+      },
+      "normalization": {
+        "action": "",
+        "normalized_reference": "\\\\10.20.11.250\\DATA\\Gilles\\analysis\\classifiers\\phase_cellposesam_v001_1"
+      },
+      "issues": [],
+      "warnings": [],
+      "contract": {
+        "definitionAssets": false,
+        "inferenceAssets": true,
+        "trainingAssets": true,
+        "trainingRois": true
+      }
+    },
+    "errors": [],
+    "warnings": [
+      "1 legacy absolute-path dependency(ies) remain."
+    ],
+    "suggestedFixes": [],
+    "pipelineStatus": "linked_resolvable"
+  }
+}

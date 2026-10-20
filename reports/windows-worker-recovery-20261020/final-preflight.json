@@ -1,0 +1,57 @@
+{
+  "task": {
+    "State": "Ready",
+    "Limit": "PT72H",
+    "User": "Charvin-Admin",
+    "LastRun": "2026-10-16T09:48:41.0000000+02:00",
+    "LastResult": 267014,
+    "Matlab": [
+      {
+        "Pid": 44220,
+        "Session": 3,
+        "User": "guest",
+        "Domain": "CG-PCDELL01-306"
+      },
+      {
+        "Pid": 81028,
+        "Session": 3,
+        "User": "guest",
+        "Domain": "CG-PCDELL01-306"
+      },
+      {
+        "Pid": 78836,
+        "Session": 3,
+        "User": "guest",
+        "Domain": "CG-PCDELL01-306"
+      }
+    ]
+  },
+  "preserved_matlab": [
+    {
+      "pid": 44220,
+      "created_at_unix": 1792492906.3146248,
+      "cpu_seconds": 79.765625
+    },
+    {
+      "pid": 78836,
+      "created_at_unix": 1792493409.6413808,
+      "cpu_seconds": 3250.125
+    },
+    {
+      "pid": 81028,
+      "created_at_unix": 1792492906.6693704,
+      "cpu_seconds": 377.78125
+    }
+  ],
+  "db_connection": "ok",
+  "current_runtime": {
+    "deployment_version": "fp-957aa209126d",
+    "version_source": "fingerprint",
+    "code_fingerprint": "957aa209126d"
+  },
+  "prepared_fingerprint": "a1fffd69452e",
+  "old_stdout": {
+    "modified": 1792502474.9624045,
+    "size": 11199743
+  }
+}

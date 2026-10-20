@@ -1,0 +1,43 @@
+{
+  "jobs": [
+    {
+      "id": "68f5bb54-f98d-4975-a84f-1515be8988f2",
+      "status": "failed",
+      "started_at": "2026-10-20 14:03:24.997578+00:00",
+      "finished_at": "2026-10-20 14:03:45.362994+00:00",
+      "error": "pipeline_run MATLAB batch failed with exit code 1.\n\nError using runPipelineStructured (line 64)\nPipeline validation failed: Classifier node hoct_024 linked classifier is not runnable. Linked classifier folder is not accessible for\nHub/server execution. Configured modulePath: C:/ProgramData/DetecDiv/HOCT/hub_checks/p59_024_v003/classifier/hoct_p59_1. For Hub/server\nexecution, relink the classifier ",
+      "runtime": {
+        "engine": "matlab",
+        "work_dir": "C:\\Users\\Charvin-Admin\\Documents\\GitHub\\DetecDiv-jobs\\work\\68f5bb54-f98d-4975-a84f-1515be8988f2\\9949aa20-5b3f-4ce1-ad25-c6a4b2d59939",
+        "repo_root": "C:\\Users\\Charvin-Admin\\Documents\\GitHub\\DetecDiv-jobs\\releases\\2abc8f2ee32ab10cf204c2fe11be63d87c728764",
+        "stderr_log": "C:\\Users\\Charvin-Admin\\Documents\\GitHub\\DetecDiv-jobs\\work\\68f5bb54-f98d-4975-a84f-1515be8988f2\\9949aa20-5b3f-4ce1-ad25-c6a4b2d59939\\matlab_stderr.log",
+        "stdout_log": "C:\\Users\\Charvin-Admin\\Documents\\GitHub\\DetecDiv-jobs\\work\\68f5bb54-f98d-4975-a84f-1515be8988f2\\9949aa20-5b3f-4ce1-ad25-c6a4b2d59939\\matlab_stdout.log",
+        "code_commit": "2abc8f2ee32ab10cf204c2fe11be63d87c728764",
+        "process_scope": "windows_job_object",
+        "supervisor_pid": 83396,
+        "force_stop_supported": true
+      }
+    },
+    {
+      "id": "f4150ff1-f1bf-4c89-8483-1b7e26c8726e",
+      "status": "failed",
+      "started_at": "2026-10-18 13:44:54.151175+00:00",
+      "finished_at": "2026-10-20 14:03:06.474603+00:00",
+      "error": "Worker process disappeared and its compute processes are no longer running. The interrupted run was not restarted automatically; existing outputs and logs were preserved.",
+      "runtime": {
+        "engine": "matlab",
+        "work_dir": "C:\\Users\\Charvin-Admin\\Documents\\GitHub\\DetecDiv-jobs\\work\\f4150ff1-f1bf-4c89-8483-1b7e26c8726e\\596ae302-0436-4908-8574-6e68d678977a",
+        "repo_root": "C:\\Users\\Charvin-Admin\\Documents\\GitHub\\DetecDiv-jobs\\releases\\594217dd37bfa9b2b529f7f2204253d9901340bf",
+        "stderr_log": "C:\\Users\\Charvin-Admin\\Documents\\GitHub\\DetecDiv-jobs\\work\\f4150ff1-f1bf-4c89-8483-1b7e26c8726e\\596ae302-0436-4908-8574-6e68d678977a\\matlab_stderr.log",
+        "stdout_log": "C:\\Users\\Charvin-Admin\\Documents\\GitHub\\DetecDiv-jobs\\work\\f4150ff1-f1bf-4c89-8483-1b7e26c8726e\\596ae302-0436-4908-8574-6e68d678977a\\matlab_stdout.log",
+        "code_commit": "594217dd37bfa9b2b529f7f2204253d9901340bf"
+      }
+    }
+  ],
+  "locks": [
+    {
+      "job_id": "f4150ff1-f1bf-4c89-8483-1b7e26c8726e",
+      "status": "released"
+    }
+  ]
+}

@@ -15,7 +15,9 @@ $argument = "-NoProfile -ExecutionPolicy Bypass -File `"$workerScript`" -EnvFile
 $action = New-ScheduledTaskAction -Execute $powerShell -Argument $argument
 $trigger = New-ScheduledTaskTrigger -AtLogOn -User $userId
 $principal = New-ScheduledTaskPrincipal -UserId $userId -LogonType Interactive -RunLevel Limited
-$settings = New-ScheduledTaskSettingsSet -MultipleInstances IgnoreNew -RestartCount 3 -RestartInterval (New-TimeSpan -Minutes 1)
+# A polling worker is expected to run indefinitely; Task Scheduler otherwise
+# applies its default 72-hour limit, which can terminate a live calculation.
+$settings = New-ScheduledTaskSettingsSet -MultipleInstances IgnoreNew -RestartCount 3 -RestartInterval (New-TimeSpan -Minutes 1) -ExecutionTimeLimit ([TimeSpan]::Zero)
 
 Register-ScheduledTask -TaskName $TaskName -Action $action -Trigger $trigger -Principal $principal -Settings $settings -Force | Out-Null
 Write-Host "Registered '$TaskName' for $userId. It starts after this user signs in."
