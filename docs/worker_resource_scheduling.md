@@ -209,6 +209,54 @@ the standard extraction node within a larger pipeline enables automatic sizing
 for that run. Other modules require their own adaptive-memory contract before
 a mixed run can be resized safely.
 
+### Project-specific pipeline defaults
+
+The API can apply an explicit resource default to new pipeline runs of one
+project without changing the global profile or any active job. Set
+`detecdiv_projects.metadata_json.pipeline_run_resources` to an object such as
+`{"memory_mb": 30720}`. Optional `cpu_cores` must be an integer from 1 to 36;
+`memory_mb` must be an integer from 512 to 262144 MiB. Unknown keys, booleans,
+strings and fractional values fail preflight. An absent or empty object leaves
+the ordinary resource profile unchanged. Projectless runs have no such default.
+
+Preflight copies these values to `params_json.resources` and records
+`client_context.resource_defaults_source=project`. Both browser submissions and
+prepared MATLAB submissions use this path. Existing runs keep their recorded
+allocation. Admission still enforces target capacity and queues a request that
+cannot fit. This setting is administered through project metadata; it is not
+currently exposed as a per-project form control.
+
+The allocation includes MATLAB, the poller and all child processes; it is not
+the amount available to image buffers. On Linux `MemoryHigh` is 90% of the
+allocation. The MATLAB memory planner subtracts existing usage and retains a
+further 20% safety reserve. For example, a 24-GiB allocation can yield only about
+16.2 GiB of usable image RAM. Size a fixed-block extractor from its measured
+client reserve plus at least one read worker, retaining these safety margins.
+Do not opt a historical fixed-block extractor into the streaming policy above.
+
+### Matching the loaded NVIDIA driver during a deferred reboot
+
+An unattended driver package update can replace user-space libraries while the
+old NVIDIA kernel module stays loaded for existing GPU clients. New compute
+processes can then fail CUDA initialization despite ongoing CPU work and fresh
+Hub heartbeats. A controlled maintenance reboot is the normal way to align the
+installed and loaded versions; do not reset or reload a GPU used by other jobs.
+
+For a deferred reboot, operators may stage a checksum-verified matching Ubuntu
+compute package by extraction only under
+`.nvidia-runtime/<loaded-driver-version>/` in the worker checkout. This is a
+host-local runtime cache, excluded from Git. The package layout must contain
+`usr/lib/x86_64-linux-gnu/libcuda.so.1` and `libnvidia-ml.so.1`. Preserve a source
+URL and package digest alongside it and validate a real MATLAB GPU calculation.
+No driver package is installed and no system library is replaced.
+
+`worker.nvidia_runtime` reads the loaded module version from `/proc`, chooses
+only an exact staged match and prepends that directory to the environment of
+new MATLAB children, including their pools and Python descendants. A different
+loaded version never reuses the old runtime. Incomplete matching runtimes fail
+closed. Windows is unchanged. Already running children keep their original
+libraries; refreshing idle pollers does not repair those active processes.
+
 Validation: `tests/test_roi_extraction_resources.py` covers admission, queuing,
 priority reservation, autoscaling, host pressure and fixed-profile fallbacks.
 With the companion DetecDiv checkout on MATLAB's path,

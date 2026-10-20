@@ -1,0 +1,248 @@
+{
+  "at": "2026-10-19T13:01:23.638575+00:00",
+  "workers": [
+    {
+      "target": "detecdiv-server",
+      "instance": "@3",
+      "pid": 227707,
+      "job": null,
+      "fingerprint": "c367c1f32f1e",
+      "health": "idle",
+      "heartbeat_age_seconds": 2.211822,
+      "last_error": null
+    },
+    {
+      "target": "detecdiv-server",
+      "instance": "@6",
+      "pid": 227709,
+      "job": null,
+      "fingerprint": "c367c1f32f1e",
+      "health": "idle",
+      "heartbeat_age_seconds": 0.807345,
+      "last_error": null
+    },
+    {
+      "target": "detecdiv-server",
+      "instance": "@4",
+      "pid": 2571587,
+      "job": "137eec41-3bfc-4c7a-bbbf-03d5a948a329",
+      "fingerprint": "c0f13002d996",
+      "health": "busy",
+      "heartbeat_age_seconds": 3.97993,
+      "last_error": null
+    },
+    {
+      "target": "detecdiv-server",
+      "instance": "@5",
+      "pid": 227708,
+      "job": null,
+      "fingerprint": "c367c1f32f1e",
+      "health": "idle",
+      "heartbeat_age_seconds": 1.895438,
+      "last_error": null
+    },
+    {
+      "target": "windows-10-20-11-56",
+      "instance": "windows-10-20-11-56-main",
+      "pid": 31820,
+      "job": "f4150ff1-f1bf-4c89-8483-1b7e26c8726e",
+      "fingerprint": "957aa209126d",
+      "health": "busy",
+      "heartbeat_age_seconds": 6.030174,
+      "last_error": null
+    },
+    {
+      "target": "detecdiv-server",
+      "instance": "@1",
+      "pid": 227710,
+      "job": null,
+      "fingerprint": "c367c1f32f1e",
+      "health": "idle",
+      "heartbeat_age_seconds": 3.091348,
+      "last_error": null
+    },
+    {
+      "target": "detecdiv-server",
+      "instance": "@2",
+      "pid": 227706,
+      "job": null,
+      "fingerprint": "c367c1f32f1e",
+      "health": "idle",
+      "heartbeat_age_seconds": 0.845695,
+      "last_error": null
+    }
+  ],
+  "jobs": [
+    {
+      "id": "137eec41-3bfc-4c7a-bbbf-03d5a948a329",
+      "target": "detecdiv-server",
+      "status": "running",
+      "started": "2026-10-17 03:40:04.326491+00:00",
+      "finished": "None",
+      "heartbeat_age_seconds": 3.98829,
+      "error": null,
+      "progress": {
+        "phase": "matlab_running",
+        "updated_at": "2026-10-19T13:01:18.587970+00:00",
+        "current_step": "@@DETECDIV_PROGRESS@@ {\"protocol\":\"detecdiv.progress.v1\",\"value\":0.22863636363636367,\"localValue\":0.22863636363636367,\"message\":\"ROI extraction 10/50 complete | FOV 1: 100%, FOV 2: 100%, FOV 3: 100%, FOV 4: 100%, FOV 5: 100%, FOV 6: 100%, FOV 7: 100%, FOV 8: 100%, FOV 9: 100%, FOV 10: 100%, FOV 11: 73%, FOV 12: 70%, FOV 13: 0%, FOV 14: 0%, FOV 15: 0%, FOV 16: 0%, FOV 17: 0%, FOV 18: 0%, FOV 19: 0%, FOV 20: 0%, FOV 21: 0%, FOV 22: 0%, FOV 23: 0%, FOV 24: 0%, FOV 25: 0%, FOV 26: 0%, FOV 27: 0%, FOV 28: 0%, FOV 29: 0%, FOV 30: 0%, FOV 31: 0%, FOV 32: 0%, FOV 33: 0%, FOV 34: 0%, FOV 35: 0%, FOV 36: 0%, FOV 37: 0%, FOV 38: 0%, FOV 39: 0%, FOV 40: 0%, FOV 41: 0%, FOV 42: 0%, FOV 43: 0%, FOV 44: 0%, FOV 45: 0%, FOV 46: 0%, FOV 47: 0%, FOV 48: 0%, FOV 49: 0%, FOV 50: 0% | update FOV 11: block 23/32\",\"status\":\"running\",\"scope\":\"parallel_fov\",\"indeterminate\":false,\"nodeId\":\"\",\"nodeIndex\":[],\"totalNodes\":[],\"current\":10,\"total\":50,\"updatedAt\":\"2026-10-19T15:01:10.741\"}",
+        "last_message": "@@DETECDIV_PROGRESS@@ {\"protocol\":\"detecdiv.progress.v1\",\"value\":0.22863636363636367,\"localValue\":0.22863636363636367,\"message\":\"ROI extraction 10/50 complete | FOV 1: 100%, FOV 2: 100%, FOV 3: 100%, FOV 4: 100%, FOV 5: 100%, FOV 6: 100%, FOV 7: 100%, FOV 8: 100%, FOV 9: 100%, FOV 10: 100%, FOV 11: 73%, FOV 12: 70%, FOV 13: 0%, FOV 14: 0%, FOV 15: 0%, FOV 16: 0%, FOV 17: 0%, FOV 18: 0%, FOV 19: 0%, FOV 20: 0%, FOV 21: 0%, FOV 22: 0%, FOV 23: 0%, FOV 24: 0%, FOV 25: 0%, FOV 26: 0%, FOV 27: 0%, FOV 28: 0%, FOV 29: 0%, FOV 30: 0%, FOV 31: 0%, FOV 32: 0%, FOV 33: 0%, FOV 34: 0%, FOV 35: 0%, FOV 36: 0%, FOV 37: 0%, FOV 38: 0%, FOV 39: 0%, FOV 40: 0%, FOV 41: 0%, FOV 42: 0%, FOV 43: 0%, FOV 44: 0%, FOV 45: 0%, FOV 46: 0%, FOV 47: 0%, FOV 48: 0%, FOV 49: 0%, FOV 50: 0% | update FOV 11: block 23/32\",\"status\":\"running\",\"scope\":\"parallel_fov\",\"indeterminate\":false,\"nodeId\":\"\",\"nodeIndex\":[],\"totalNodes\":[],\"current\":10,\"total\":50,\"updatedAt\":\"2026-10-19T15:01:10.741\"}",
+        "recent_stderr": [],
+        "recent_stdout": [
+          "@@DETECDIV_PROGRESS@@ {\"protocol\":\"detecdiv.progress.v1\",\"value\":0.22290909090909089,\"localValue\":0.22290909090909089,\"message\":\"ROI extraction 10/50 complete | FOV 1: 100%, FOV 2: 100%, FOV 3: 100%, FOV 4: 100%, FOV 5: 100%, FOV 6: 100%, FOV 7: 100%, FOV 8: 100%, FOV 9: 100%, FOV 10: 100%, FOV 11: 57%, FOV 12: 57%, FOV 13: 0%, FOV 14: 0%, FOV 15: 0%, FOV 16: 0%, FOV 17: 0%, FOV 18: 0%, FOV 19: 0%, FOV 20: 0%, FOV 21: 0%, FOV 22: 0%, FOV 23: 0%, FOV 24: 0%, FOV 25: 0%, FOV 26: 0%, FOV 27: 0%, FOV 28: 0%, FOV 29: 0%, FOV 30: 0%, FOV 31: 0%, FOV 32: 0%, FOV 33: 0%, FOV 34: 0%, FOV 35: 0%, FOV 36: 0%, FOV 37: 0%, FOV 38: 0%, FOV 39: 0%, FOV 40: 0%, FOV 41: 0%, FOV 42: 0%, FOV 43: 0%, FOV 44: 0%, FOV 45: 0%, FOV 46: 0%, FOV 47: 0%, FOV 48: 0%, FOV 49: 0%, FOV 50: 0% | update FOV 12: block 18/32\",\"status\":\"running\",\"scope\":\"parallel_fov\",\"indeterminate\":false,\"nodeId\":\"\",\"nodeIndex\":[],\"totalNodes\":[],\"current\":10,\"total\":50,\"updatedAt\":\"2026-10-19T13:05:05.182\"}",
+          "@@DETECDIV_PROGRESS@@ {\"protocol\":\"detecdiv.progress.v1\",\"value\":0.22354545454545455,\"localValue\":0.22354545454545455,\"message\":\"ROI extraction 10/50 complete | FOV 1: 100%, FOV 2: 100%, FOV 3: 100%, FOV 4: 100%, FOV 5: 100%, FOV 6: 100%, FOV 7: 100%, FOV 8: 100%, FOV 9: 100%, FOV 10: 100%, FOV 11: 60%, FOV 12: 57%, FOV 13: 0%, FOV 14: 0%, FOV 15: 0%, FOV 16: 0%, FOV 17: 0%, FOV 18: 0%, FOV 19: 0%, FOV 20: 0%, FOV 21: 0%, FOV 22: 0%, FOV 23: 0%, FOV 24: 0%, FOV 25: 0%, FOV 26: 0%, FOV 27: 0%, FOV 28: 0%, FOV 29: 0%, FOV 30: 0%, FOV 31: 0%, FOV 32: 0%, FOV 33: 0%, FOV 34: 0%, FOV 35: 0%, FOV 36: 0%, FOV 37: 0%, FOV 38: 0%, FOV 39: 0%, FOV 40: 0%, FOV 41: 0%, FOV 42: 0%, FOV 43: 0%, FOV 44: 0%, FOV 45: 0%, FOV 46: 0%, FOV 47: 0%, FOV 48: 0%, FOV 49: 0%, FOV 50: 0% | update FOV 11: block 19/32\",\"status\":\"running\",\"scope\":\"parallel_fov\",\"indeterminate\":false,\"nodeId\":\"\",\"nodeIndex\":[],\"totalNodes\":[],\"current\":10,\"total\":50,\"updatedAt\":\"2026-10-19T13:30:42.327\"}",
+          "@@DETECDIV_PROGRESS@@ {\"protocol\":\"detecdiv.progress.v1\",\"value\":0.2241818181818182,\"localValue\":0.2241818181818182,\"message\":\"ROI extraction 10/50 complete | FOV 1: 100%, FOV 2: 100%, FOV 3: 100%, FOV 4: 100%, FOV 5: 100%, FOV 6: 100%, FOV 7: 100%, FOV 8: 100%, FOV 9: 100%, FOV 10: 100%, FOV 11: 60%, FOV 12: 60%, FOV 13: 0%, FOV 14: 0%, FOV 15: 0%, FOV 16: 0%, FOV 17: 0%, FOV 18: 0%, FOV 19: 0%, FOV 20: 0%, FOV 21: 0%, FOV 22: 0%, FOV 23: 0%, FOV 24: 0%, FOV 25: 0%, FOV 26: 0%, FOV 27: 0%, FOV 28: 0%, FOV 29: 0%, FOV 30: 0%, FOV 31: 0%, FOV 32: 0%, FOV 33: 0%, FOV 34: 0%, FOV 35: 0%, FOV 36: 0%, FOV 37: 0%, FOV 38: 0%, FOV 39: 0%, FOV 40: 0%, FOV 41: 0%, FOV 42: 0%, FOV 43: 0%, FOV 44: 0%, FOV 45: 0%, FOV 46: 0%, FOV 47: 0%, FOV 48: 0%, FOV 49: 0%, FOV 50: 0% | update FOV 12: block 19/32\",\"status\":\"running\",\"scope\":\"parallel_fov\",\"indeterminate\":false,\"nodeId\":\"\",\"nodeIndex\":[],\"totalNodes\":[],\"current\":10,\"total\":50,\"updatedAt\":\"2026-10-19T13:31:52.934\"}",
+          "@@DETECDIV_PROGRESS@@ {\"protocol\":\"detecdiv.progress.v1\",\"value\":0.22481818181818183,\"localValue\":0.22481818181818183,\"message\":\"ROI extraction 10/50 complete | FOV 1: 100%, FOV 2: 100%, FOV 3: 100%, FOV 4: 100%, FOV 5: 100%, FOV 6: 100%, FOV 7: 100%, FOV 8: 100%, FOV 9: 100%, FOV 10: 100%, FOV 11: 64%, FOV 12: 60%, FOV 13: 0%, FOV 14: 0%, FOV 15: 0%, FOV 16: 0%, FOV 17: 0%, FOV 18: 0%, FOV 19: 0%, FOV 20: 0%, FOV 21: 0%, FOV 22: 0%, FOV 23: 0%, FOV 24: 0%, FOV 25: 0%, FOV 26: 0%, FOV 27: 0%, FOV 28: 0%, FOV 29: 0%, FOV 30: 0%, FOV 31: 0%, FOV 32: 0%, FOV 33: 0%, FOV 34: 0%, FOV 35: 0%, FOV 36: 0%, FOV 37: 0%, FOV 38: 0%, FOV 39: 0%, FOV 40: 0%, FOV 41: 0%, FOV 42: 0%, FOV 43: 0%, FOV 44: 0%, FOV 45: 0%, FOV 46: 0%, FOV 47: 0%, FOV 48: 0%, FOV 49: 0%, FOV 50: 0% | update FOV 11: block 20/32\",\"status\":\"running\",\"scope\":\"parallel_fov\",\"indeterminate\":false,\"nodeId\":\"\",\"nodeIndex\":[],\"totalNodes\":[],\"current\":10,\"total\":50,\"updatedAt\":\"2026-10-19T13:58:56.124\"}",
+          "@@DETECDIV_PROGRESS@@ {\"protocol\":\"detecdiv.progress.v1\",\"value\":0.22545454545454546,\"localValue\":0.22545454545454546,\"message\":\"ROI extraction 10/50 complete | FOV 1: 100%, FOV 2: 100%, FOV 3: 100%, FOV 4: 100%, FOV 5: 100%, FOV 6: 100%, FOV 7: 100%, FOV 8: 100%, FOV 9: 100%, FOV 10: 100%, FOV 11: 64%, FOV 12: 64%, FOV 13: 0%, FOV 14: 0%, FOV 15: 0%, FOV 16: 0%, FOV 17: 0%, FOV 18: 0%, FOV 19: 0%, FOV 20: 0%, FOV 21: 0%, FOV 22: 0%, FOV 23: 0%, FOV 24: 0%, FOV 25: 0%, FOV 26: 0%, FOV 27: 0%, FOV 28: 0%, FOV 29: 0%, FOV 30: 0%, FOV 31: 0%, FOV 32: 0%, FOV 33: 0%, FOV 34: 0%, FOV 35: 0%, FOV 36: 0%, FOV 37: 0%, FOV 38: 0%, FOV 39: 0%, FOV 40: 0%, FOV 41: 0%, FOV 42: 0%, FOV 43: 0%, FOV 44: 0%, FOV 45: 0%, FOV 46: 0%, FOV 47: 0%, FOV 48: 0%, FOV 49: 0%, FOV 50: 0% | update FOV 12: block 20/32\",\"status\":\"running\",\"scope\":\"parallel_fov\",\"indeterminate\":false,\"nodeId\":\"\",\"nodeIndex\":[],\"totalNodes\":[],\"current\":10,\"total\":50,\"updatedAt\":\"2026-10-19T14:00:26.733\"}",
+          "@@DETECDIV_PROGRESS@@ {\"protocol\":\"detecdiv.progress.v1\",\"value\":0.22609090909090909,\"localValue\":0.22609090909090909,\"message\":\"ROI extraction 10/50 complete | FOV 1: 100%, FOV 2: 100%, FOV 3: 100%, FOV 4: 100%, FOV 5: 100%, FOV 6: 100%, FOV 7: 100%, FOV 8: 100%, FOV 9: 100%, FOV 10: 100%, FOV 11: 67%, FOV 12: 64%, FOV 13: 0%, FOV 14: 0%, FOV 15: 0%, FOV 16: 0%, FOV 17: 0%, FOV 18: 0%, FOV 19: 0%, FOV 20: 0%, FOV 21: 0%, FOV 22: 0%, FOV 23: 0%, FOV 24: 0%, FOV 25: 0%, FOV 26: 0%, FOV 27: 0%, FOV 28: 0%, FOV 29: 0%, FOV 30: 0%, FOV 31: 0%, FOV 32: 0%, FOV 33: 0%, FOV 34: 0%, FOV 35: 0%, FOV 36: 0%, FOV 37: 0%, FOV 38: 0%, FOV 39: 0%, FOV 40: 0%, FOV 41: 0%, FOV 42: 0%, FOV 43: 0%, FOV 44: 0%, FOV 45: 0%, FOV 46: 0%, FOV 47: 0%, FOV 48: 0%, FOV 49: 0%, FOV 50: 0% | update FOV 11: block 21/32\",\"status\":\"running\",\"scope\":\"parallel_fov\",\"indeterminate\":false,\"nodeId\":\"\",\"nodeIndex\":[],\"totalNodes\":[],\"current\":10,\"total\":50,\"updatedAt\":\"2026-10-19T14:22:03.063\"}",
+          "@@DETECDIV_PROGRESS@@ {\"protocol\":\"detecdiv.progress.v1\",\"value\":0.22672727272727272,\"localValue\":0.22672727272727272,\"message\":\"ROI extraction 10/50 complete | FOV 1: 100%, FOV 2: 100%, FOV 3: 100%, FOV 4: 100%, FOV 5: 100%, FOV 6: 100%, FOV 7: 100%, FOV 8: 100%, FOV 9: 100%, FOV 10: 100%, FOV 11: 67%, FOV 12: 67%, FOV 13: 0%, FOV 14: 0%, FOV 15: 0%, FOV 16: 0%, FOV 17: 0%, FOV 18: 0%, FOV 19: 0%, FOV 20: 0%, FOV 21: 0%, FOV 22: 0%, FOV 23: 0%, FOV 24: 0%, FOV 25: 0%, FOV 26: 0%, FOV 27: 0%, FOV 28: 0%, FOV 29: 0%, FOV 30: 0%, FOV 31: 0%, FOV 32: 0%, FOV 33: 0%, FOV 34: 0%, FOV 35: 0%, FOV 36: 0%, FOV 37: 0%, FOV 38: 0%, FOV 39: 0%, FOV 40: 0%, FOV 41: 0%, FOV 42: 0%, FOV 43: 0%, FOV 44: 0%, FOV 45: 0%, FOV 46: 0%, FOV 47: 0%, FOV 48: 0%, FOV 49: 0%, FOV 50: 0% | update FOV 12: block 21/32\",\"status\":\"running\",\"scope\":\"parallel_fov\",\"indeterminate\":false,\"nodeId\":\"\",\"nodeIndex\":[],\"totalNodes\":[],\"current\":10,\"total\":50,\"updatedAt\":\"2026-10-19T14:23:27.084\"}",
+          "@@DETECDIV_PROGRESS@@ {\"protocol\":\"detecdiv.progress.v1\",\"value\":0.22736363636363635,\"localValue\":0.22736363636363635,\"message\":\"ROI extraction 10/50 complete | FOV 1: 100%, FOV 2: 100%, FOV 3: 100%, FOV 4: 100%, FOV 5: 100%, FOV 6: 100%, FOV 7: 100%, FOV 8: 100%, FOV 9: 100%, FOV 10: 100%, FOV 11: 70%, FOV 12: 67%, FOV 13: 0%, FOV 14: 0%, FOV 15: 0%, FOV 16: 0%, FOV 17: 0%, FOV 18: 0%, FOV 19: 0%, FOV 20: 0%, FOV 21: 0%, FOV 22: 0%, FOV 23: 0%, FOV 24: 0%, FOV 25: 0%, FOV 26: 0%, FOV 27: 0%, FOV 28: 0%, FOV 29: 0%, FOV 30: 0%, FOV 31: 0%, FOV 32: 0%, FOV 33: 0%, FOV 34: 0%, FOV 35: 0%, FOV 36: 0%, FOV 37: 0%, FOV 38: 0%, FOV 39: 0%, FOV 40: 0%, FOV 41: 0%, FOV 42: 0%, FOV 43: 0%, FOV 44: 0%, FOV 45: 0%, FOV 46: 0%, FOV 47: 0%, FOV 48: 0%, FOV 49: 0%, FOV 50: 0% | update FOV 11: block 22/32\",\"status\":\"running\",\"scope\":\"parallel_fov\",\"indeterminate\":false,\"nodeId\":\"\",\"nodeIndex\":[],\"totalNodes\":[],\"current\":10,\"total\":50,\"updatedAt\":\"2026-10-19T14:46:58.825\"}",
+          "@@DETECDIV_PROGRESS@@ {\"protocol\":\"detecdiv.progress.v1\",\"value\":0.22799999999999998,\"localValue\":0.22799999999999998,\"message\":\"ROI extraction 10/50 complete | FOV 1: 100%, FOV 2: 100%, FOV 3: 100%, FOV 4: 100%, FOV 5: 100%, FOV 6: 100%, FOV 7: 100%, FOV 8: 100%, FOV 9: 100%, FOV 10: 100%, FOV 11: 70%, FOV 12: 70%, FOV 13: 0%, FOV 14: 0%, FOV 15: 0%, FOV 16: 0%, FOV 17: 0%, FOV 18: 0%, FOV 19: 0%, FOV 20: 0%, FOV 21: 0%, FOV 22: 0%, FOV 23: 0%, FOV 24: 0%, FOV 25: 0%, FOV 26: 0%, FOV 27: 0%, FOV 28: 0%, FOV 29: 0%, FOV 30: 0%, FOV 31: 0%, FOV 32: 0%, FOV 33: 0%, FOV 34: 0%, FOV 35: 0%, FOV 36: 0%, FOV 37: 0%, FOV 38: 0%, FOV 39: 0%, FOV 40: 0%, FOV 41: 0%, FOV 42: 0%, FOV 43: 0%, FOV 44: 0%, FOV 45: 0%, FOV 46: 0%, FOV 47: 0%, FOV 48: 0%, FOV 49: 0%, FOV 50: 0% | update FOV 12: block 22/32\",\"status\":\"running\",\"scope\":\"parallel_fov\",\"indeterminate\":false,\"nodeId\":\"\",\"nodeIndex\":[],\"totalNodes\":[],\"current\":10,\"total\":50,\"updatedAt\":\"2026-10-19T14:47:51.834\"}",
+          "@@DETECDIV_PROGRESS@@ {\"protocol\":\"detecdiv.progress.v1\",\"value\":0.22863636363636367,\"localValue\":0.22863636363636367,\"message\":\"ROI extraction 10/50 complete | FOV 1: 100%, FOV 2: 100%, FOV 3: 100%, FOV 4: 100%, FOV 5: 100%, FOV 6: 100%, FOV 7: 100%, FOV 8: 100%, FOV 9: 100%, FOV 10: 100%, FOV 11: 73%, FOV 12: 70%, FOV 13: 0%, FOV 14: 0%, FOV 15: 0%, FOV 16: 0%, FOV 17: 0%, FOV 18: 0%, FOV 19: 0%, FOV 20: 0%, FOV 21: 0%, FOV 22: 0%, FOV 23: 0%, FOV 24: 0%, FOV 25: 0%, FOV 26: 0%, FOV 27: 0%, FOV 28: 0%, FOV 29: 0%, FOV 30: 0%, FOV 31: 0%, FOV 32: 0%, FOV 33: 0%, FOV 34: 0%, FOV 35: 0%, FOV 36: 0%, FOV 37: 0%, FOV 38: 0%, FOV 39: 0%, FOV 40: 0%, FOV 41: 0%, FOV 42: 0%, FOV 43: 0%, FOV 44: 0%, FOV 45: 0%, FOV 46: 0%, FOV 47: 0%, FOV 48: 0%, FOV 49: 0%, FOV 50: 0% | update FOV 11: block 23/32\",\"status\":\"running\",\"scope\":\"parallel_fov\",\"indeterminate\":false,\"nodeId\":\"\",\"nodeIndex\":[],\"totalNodes\":[],\"current\":10,\"total\":50,\"updatedAt\":\"2026-10-19T15:01:10.741\"}"
+        ]
+      },
+      "resource_allocation": {
+        "source": "pipeline_nodes_and_job_resource_settings",
+        "cpu_cores": 8,
+        "memory_mb": 24576,
+        "gpu_vram_mb": 8192,
+        "gpu_required": true,
+        "disk_io_units": 3,
+        "gpu_permitted": true,
+        "swap_limit_mb": 1536,
+        "requested_cpu_cores": 8,
+        "pipeline_gpu_profile": {
+          "source": "/data/Abhilasha/Analysis/pipelines/pipeline/pipeline.json",
+          "status": "known",
+          "gpu_node_ids": [
+            "cellpose_sam_segmentatio",
+            "classifier_cnn_lstm_1"
+          ],
+          "gpu_required": true,
+          "run_gpu_mode": "module_default",
+          "selected_node_ids": [
+            "dataloader_5",
+            "roipattern_4",
+            "roiextract_3",
+            "combineMultipleChannels",
+            "cellpose_sam_segmentatio",
+            "classifier_cnn_lstm_1",
+            "processor_trackmotherlineageviterbi_9",
+            "processor_computerls_2",
+            "processor_computemetrics_8"
+          ],
+          "deep_learning_node_ids": [
+            "cellpose_sam_segmentatio",
+            "classifier_cnn_lstm_1"
+          ]
+        }
+      },
+      "params_hash": "307449ab828e20f5abbdcd747606cfe9de672d8d8cc7138c3828c213c8741fd6",
+      "result_keys": [
+        "progress",
+        "preflight",
+        "prepared_run",
+        "worker_runtime",
+        "dependency_audit",
+        "raw_dataset_ingest"
+      ]
+    },
+    {
+      "id": "f4150ff1-f1bf-4c89-8483-1b7e26c8726e",
+      "target": "windows-10-20-11-56",
+      "status": "running",
+      "started": "2026-10-18 13:44:54.151175+00:00",
+      "finished": "None",
+      "heartbeat_age_seconds": 6.079348,
+      "error": null,
+      "progress": {
+        "phase": "matlab_running",
+        "updated_at": "2026-10-19T13:01:17.468366+00:00",
+        "current_step": ".......................................................",
+        "last_message": ".......................................................",
+        "recent_stderr": [],
+        "recent_stdout": [
+          "[computeDrift] 5/12 frame=113 raw(row,col)=(14.6,-15.3) step(row,col)=(1.16,2.23) cum=(14.6,-15.3) residual(row,col)=(0.115,-0.00826)|0.115px PSR=12.9 decision=ok method=robust ref=fixed",
+          "[computeDrift] 6/12 frame=114 raw(row,col)=(13.1,-16.9) step(row,col)=(-1.46,-1.64) cum=(13.1,-16.9) residual(row,col)=(0.1,0.0265)|0.104px PSR=24.9 decision=ok method=robust ref=fixed",
+          "[computeDrift] 7/12 frame=115 raw(row,col)=(13.9,-18) step(row,col)=(0.757,-1.02) cum=(13.9,-18) residual(row,col)=(-0.761,0.772)|1.08px PSR=17 decision=ok method=robust ref=fixed",
+          "[computeDrift] 8/12 frame=116 raw(row,col)=(13.9,-16.5) step(row,col)=(0.0818,1.5) cum=(13.9,-16.5) residual(row,col)=(0.0632,-0.643)|0.646px PSR=7.44 decision=ok method=robust ref=fixed",
+          "[computeDrift] 9/12 frame=117 raw(row,col)=(13.1,-16) step(row,col)=(-0.87,0.446) cum=(13.1,-16) residual(row,col)=(0.679,-0.134)|0.692px PSR=28.2 decision=ok method=robust ref=fixed",
+          "[computeDrift] 10/12 frame=118 raw(row,col)=(12.6,-15.3) step(row,col)=(-0.461,0.73) cum=(12.6,-15.3) residual(row,col)=(0.144,-0.641)|0.657px PSR=28.8 decision=ok method=robust ref=fixed",
+          "[computeDrift] 11/12 frame=119 raw(row,col)=(13.6,-15.5) step(row,col)=(0.956,-0.21) cum=(13.6,-15.5) residual(row,col)=(-0.758,0.126)|0.768px PSR=15.5 decision=ok method=robust ref=fixed",
+          "[computeDrift] 12/12 frame=120 raw(row,col)=(13.6,-17) step(row,col)=(0.05,-1.52) cum=(13.6,-17) residual(row,col)=(-0.0479,0.9)|0.901px PSR=9.07 decision=ok method=robust ref=fixed",
+          "[computeDrift] DONE frames=12 total=21.49s | prepRef=0.07s regCfg=0.00s load=0.06s prep=0.62s estimate=13.65s apply=4.15s residual=2.80s",
+          "......................................................."
+        ]
+      },
+      "resource_allocation": {
+        "source": "pipeline_nodes_and_job_resource_settings",
+        "cpu_cores": 8,
+        "memory_mb": 24576,
+        "gpu_vram_mb": 8192,
+        "gpu_required": true,
+        "disk_io_units": 3,
+        "gpu_permitted": true,
+        "swap_limit_mb": 0,
+        "requested_cpu_cores": 8,
+        "pipeline_gpu_profile": {
+          "source": "\\\\10.20.11.250\\DATA\\Abhilasha\\Analysis\\pipelines\\pipeline\\pipeline.json",
+          "status": "known",
+          "gpu_node_ids": [
+            "cellpose_sam_segmentatio",
+            "classifier_cnn_lstm_1"
+          ],
+          "gpu_required": true,
+          "run_gpu_mode": "module_default",
+          "selected_node_ids": [
+            "dataloader_5",
+            "roipattern_4",
+            "roiextract_3",
+            "combineMultipleChannels",
+            "cellpose_sam_segmentatio",
+            "classifier_cnn_lstm_1",
+            "processor_trackmotherlineageviterbi_9",
+            "processor_computerls_2",
+            "processor_computemetrics_8"
+          ],
+          "deep_learning_node_ids": [
+            "cellpose_sam_segmentatio",
+            "classifier_cnn_lstm_1"
+          ]
+        }
+      },
+      "params_hash": "893a5c27680a76235765f8d3f502d4ec0ae3bbf9e6ad253b10f2411d15388dec",
+      "result_keys": [
+        "progress",
+        "preflight",
+        "prepared_run",
+        "worker_runtime",
+        "dependency_audit",
+        "raw_dataset_ingest"
+      ]
+    }
+  ],
+  "targets": {
+    "detecdiv-server": {
+      "drain_new_jobs": false,
+      "roi_memory_rollout": null,
+      "worker_dynamic_resources": true,
+      "worker_manager_seen_at": "2026-10-19T13:01:23.680051+00:00",
+      "worker_autoscale_plan": {
+        "blocked": {},
+        "ceiling": 36,
+        "desired": 6,
+        "baseline": 6,
+        "planned_at": "2026-10-19T13:01:23.680088+00:00",
+        "active_jobs": 1,
+        "queue_sample": 0,
+        "admissible_queued_jobs": 0
+      }
+    },
+    "windows-10-20-11-56": {
+      "drain_new_jobs": false,
+      "roi_memory_rollout": null,
+      "worker_dynamic_resources": false,
+      "worker_manager_seen_at": null,
+      "worker_autoscale_plan": null
+    }
+  }
+}

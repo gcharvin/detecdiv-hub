@@ -1,0 +1,11 @@
+{
+  "job_id": "4bd92189-f80c-4a28-8ad1-00d6fe863d3e",
+  "status": "queued",
+  "resources": {
+    "memory_mb": 30720
+  },
+  "released_leases": [
+    "10f3d611-9dbe-4c29-a820-9a73d59ae09f"
+  ],
+  "run_id": "pipeline_2_1"
+}

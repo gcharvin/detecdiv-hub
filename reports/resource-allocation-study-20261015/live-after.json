@@ -1,0 +1,379 @@
+{
+  "checked_at": "2026-10-15T19:59:09.422854+00:00",
+  "read_only": true,
+  "targets": [
+    {
+      "id": "a8eedb3f-85fc-47a8-b327-2aa766550f51",
+      "key": "windows-10-20-11-56",
+      "metadata": {
+        "max_concurrent_jobs": 1,
+        "worker_dynamic_resources": false
+      }
+    },
+    {
+      "id": "0d9f55dc-54ce-4527-af5b-ff4b5d0d64e9",
+      "key": "detecdiv-server",
+      "metadata": {
+        "drain_new_jobs": false,
+        "memory_capacity_mb": 98304,
+        "max_concurrent_jobs": null,
+        "worker_cpu_capacity": 36,
+        "worker_autoscale_enabled": true,
+        "worker_dynamic_resources": true,
+        "worker_instances_desired": 6
+      }
+    }
+  ],
+  "jobs": [
+    {
+      "id": "bd3c852e-8728-4d65-a646-d5472cd1cf48",
+      "owner": "abhilasha",
+      "status": "running",
+      "target": "0d9f55dc-54ce-4527-af5b-ff4b5d0d64e9",
+      "code_commit": "07422ee84108dbb26f670520adcb5888348ce04d",
+      "allocation": {
+        "source": "pipeline_nodes_and_job_resource_settings",
+        "cpu_cores": 8,
+        "memory_mb": 24576,
+        "gpu_vram_mb": 8192,
+        "gpu_required": true,
+        "disk_io_units": 3,
+        "gpu_permitted": true,
+        "swap_limit_mb": 1536,
+        "requested_cpu_cores": 8,
+        "pipeline_gpu_profile": {
+          "source": "/data/Abhilasha/Analysis/pipelines/pipeline/pipeline.json",
+          "status": "known",
+          "gpu_node_ids": [
+            "cellpose_sam_segmentatio",
+            "classifier_cnn_lstm_1"
+          ],
+          "gpu_required": true,
+          "run_gpu_mode": "module_default",
+          "selected_node_ids": [
+            "roiextract_3",
+            "combineMultipleChannels",
+            "cellpose_sam_segmentatio",
+            "classifier_cnn_lstm_1",
+            "processor_trackmotherlineageviterbi_9",
+            "processor_computerls_2",
+            "processor_computemetrics_8"
+          ],
+          "deep_learning_node_ids": [
+            "cellpose_sam_segmentatio",
+            "classifier_cnn_lstm_1"
+          ]
+        }
+      },
+      "runtime": {
+        "engine": "matlab",
+        "work_dir": "/home/charvin-admin/repos/DetecDiv-jobs/work/bd3c852e-8728-4d65-a646-d5472cd1cf48/b7f4fd63-9d5c-4640-a2ed-ddb4bcafcb55",
+        "repo_root": "/home/charvin-admin/repos/DetecDiv-jobs/releases/07422ee84108dbb26f670520adcb5888348ce04d",
+        "stderr_log": "/home/charvin-admin/repos/DetecDiv-jobs/work/bd3c852e-8728-4d65-a646-d5472cd1cf48/b7f4fd63-9d5c-4640-a2ed-ddb4bcafcb55/matlab_stderr.log",
+        "stdout_log": "/home/charvin-admin/repos/DetecDiv-jobs/work/bd3c852e-8728-4d65-a646-d5472cd1cf48/b7f4fd63-9d5c-4640-a2ed-ddb4bcafcb55/matlab_stdout.log",
+        "code_commit": "07422ee84108dbb26f670520adcb5888348ce04d"
+      },
+      "cpu_usage": null
+    },
+    {
+      "id": "87f55cec-264d-4d1a-b575-4adc979d7f5c",
+      "owner": "abhilasha",
+      "status": "running",
+      "target": "0d9f55dc-54ce-4527-af5b-ff4b5d0d64e9",
+      "code_commit": "79a3166c1c1826709b36c33c194c51623d399833",
+      "allocation": {
+        "source": "pipeline_nodes_and_job_resource_settings",
+        "cpu_cores": 8,
+        "memory_mb": 24576,
+        "gpu_vram_mb": 8192,
+        "gpu_required": true,
+        "disk_io_units": 3,
+        "gpu_permitted": true,
+        "swap_limit_mb": 1536,
+        "requested_cpu_cores": 8,
+        "pipeline_gpu_profile": {
+          "source": "/data/Abhilasha/Analysis/pipelines/pipeline/pipeline.json",
+          "status": "known",
+          "gpu_node_ids": [
+            "cellpose_sam_segmentatio",
+            "classifier_cnn_lstm_1"
+          ],
+          "gpu_required": true,
+          "run_gpu_mode": "module_default",
+          "selected_node_ids": [
+            "cellpose_sam_segmentatio",
+            "classifier_cnn_lstm_1",
+            "processor_trackmotherlineageviterbi_9",
+            "processor_computerls_2",
+            "processor_computemetrics_8"
+          ],
+          "deep_learning_node_ids": [
+            "cellpose_sam_segmentatio",
+            "classifier_cnn_lstm_1"
+          ]
+        }
+      },
+      "runtime": {
+        "engine": "matlab",
+        "work_dir": "/home/charvin-admin/repos/DetecDiv-jobs/work/87f55cec-264d-4d1a-b575-4adc979d7f5c/325de3d7-bdfe-43da-b3da-4b85233f2b42",
+        "repo_root": "/home/charvin-admin/repos/DetecDiv-jobs/releases/79a3166c1c1826709b36c33c194c51623d399833",
+        "stderr_log": "/home/charvin-admin/repos/DetecDiv-jobs/work/87f55cec-264d-4d1a-b575-4adc979d7f5c/325de3d7-bdfe-43da-b3da-4b85233f2b42/matlab_stderr.log",
+        "stdout_log": "/home/charvin-admin/repos/DetecDiv-jobs/work/87f55cec-264d-4d1a-b575-4adc979d7f5c/325de3d7-bdfe-43da-b3da-4b85233f2b42/matlab_stdout.log",
+        "code_commit": "79a3166c1c1826709b36c33c194c51623d399833"
+      },
+      "cpu_usage": null
+    },
+    {
+      "id": "8d23a039-3082-46a7-913a-1feb097522f1",
+      "owner": "alexander",
+      "status": "running",
+      "target": "0d9f55dc-54ce-4527-af5b-ff4b5d0d64e9",
+      "code_commit": "dce3ca768bcae597224424620abc46ede0788a12",
+      "allocation": {
+        "source": "pipeline_nodes_and_job_resource_settings",
+        "cpu_cores": 8,
+        "memory_mb": 24576,
+        "gpu_vram_mb": 8192,
+        "gpu_required": true,
+        "disk_io_units": 3,
+        "gpu_permitted": true,
+        "swap_limit_mb": 1536,
+        "requested_cpu_cores": 8,
+        "pipeline_gpu_profile": {
+          "source": "/data/Alexander/nobackup/analysis/anof_071026_X54445_LOGEB_2/pipeline/alex_logeb2_full_auto_gpu_20261015/pipeline_snapshot.json",
+          "status": "known",
+          "gpu_node_ids": [
+            "processor_savecroppedimagesxconservative_2",
+            "processor_xtrafullchannelsconservative_4"
+          ],
+          "gpu_required": true,
+          "run_gpu_mode": "force_gpu",
+          "selected_node_ids": [
+            "processor_savecroppedimagesxconservative_2",
+            "processor_xtrafullchannelsconservative_4"
+          ],
+          "deep_learning_node_ids": [
+            "processor_savecroppedimagesxconservative_2",
+            "processor_xtrafullchannelsconservative_4"
+          ]
+        }
+      },
+      "runtime": {
+        "engine": "matlab",
+        "work_dir": "/home/charvin-admin/repos/DetecDiv-jobs/work/8d23a039-3082-46a7-913a-1feb097522f1/63f4ea48-f025-4352-9f84-91c5fbb78e4d",
+        "repo_root": "/home/charvin-admin/repos/DetecDiv-jobs/releases/dce3ca768bcae597224424620abc46ede0788a12",
+        "stderr_log": "/home/charvin-admin/repos/DetecDiv-jobs/work/8d23a039-3082-46a7-913a-1feb097522f1/63f4ea48-f025-4352-9f84-91c5fbb78e4d/matlab_stderr.log",
+        "stdout_log": "/home/charvin-admin/repos/DetecDiv-jobs/work/8d23a039-3082-46a7-913a-1feb097522f1/63f4ea48-f025-4352-9f84-91c5fbb78e4d/matlab_stdout.log",
+        "code_commit": "dce3ca768bcae597224424620abc46ede0788a12"
+      },
+      "cpu_usage": null
+    }
+  ],
+  "settings": {
+    "job_priority_settings": {
+      "priorities": {
+        "generic": 100,
+        "pipeline_run": 10,
+        "legacy_matlab": 10,
+        "backup_project": 200,
+        "init_backup_repo": 200,
+        "project_deletion": 22,
+        "project_indexing": 30,
+        "external_eln_sync": 100,
+        "list_snapshot_dir": 200,
+        "raw_preview_video": 100,
+        "backup_raw_dataset": 200,
+        "archive_raw_dataset": 150,
+        "micromanager_ingest": 90,
+        "restore_raw_dataset": 30,
+        "raw_dataset_deletion": 20,
+        "storage_optimization": 200,
+        "misc_storage_inventory": 30,
+        "micromanager_post_ingest": 90,
+        "assistant_service_control": 100,
+        "labguru_yeast_strain_sync": 100,
+        "prepare_user_home_storage": 80,
+        "restore_project_from_backup": 50,
+        "raw_dataset_position_deletion": 20,
+        "restore_raw_dataset_from_backup": 50
+      }
+    },
+    "job_resource_settings": {
+      "profiles": {
+        "generic": {
+          "cpu_cores": 1,
+          "memory_mb": 1024,
+          "gpu_enabled": false,
+          "gpu_vram_mb": 0,
+          "disk_io_units": 1
+        },
+        "pipeline_run": {
+          "cpu_cores": 8,
+          "memory_mb": 24576,
+          "gpu_enabled": true,
+          "gpu_vram_mb": 8192,
+          "disk_io_units": 3
+        },
+        "legacy_matlab": {
+          "cpu_cores": 8,
+          "memory_mb": 24576,
+          "gpu_enabled": false,
+          "gpu_vram_mb": 0,
+          "disk_io_units": 3
+        },
+        "backup_project": {
+          "cpu_cores": 2,
+          "memory_mb": 1024,
+          "gpu_enabled": false,
+          "gpu_vram_mb": 0,
+          "disk_io_units": 3
+        },
+        "init_backup_repo": {
+          "cpu_cores": 1,
+          "memory_mb": 1024,
+          "gpu_enabled": false,
+          "gpu_vram_mb": 0,
+          "disk_io_units": 1
+        },
+        "project_deletion": {
+          "cpu_cores": 1,
+          "memory_mb": 1024,
+          "gpu_enabled": false,
+          "gpu_vram_mb": 0,
+          "disk_io_units": 2
+        },
+        "project_indexing": {
+          "cpu_cores": 1,
+          "memory_mb": 1024,
+          "gpu_enabled": false,
+          "gpu_vram_mb": 0,
+          "disk_io_units": 2
+        },
+        "external_eln_sync": {
+          "cpu_cores": 1,
+          "memory_mb": 1024,
+          "gpu_enabled": false,
+          "gpu_vram_mb": 0,
+          "disk_io_units": 0
+        },
+        "list_snapshot_dir": {
+          "cpu_cores": 1,
+          "memory_mb": 1024,
+          "gpu_enabled": false,
+          "gpu_vram_mb": 0,
+          "disk_io_units": 1
+        },
+        "raw_preview_video": {
+          "cpu_cores": 2,
+          "memory_mb": 1024,
+          "gpu_enabled": false,
+          "gpu_vram_mb": 0,
+          "disk_io_units": 3
+        },
+        "backup_raw_dataset": {
+          "cpu_cores": 2,
+          "memory_mb": 1024,
+          "gpu_enabled": false,
+          "gpu_vram_mb": 0,
+          "disk_io_units": 3
+        },
+        "archive_raw_dataset": {
+          "cpu_cores": 1,
+          "memory_mb": 1024,
+          "gpu_enabled": false,
+          "gpu_vram_mb": 0,
+          "disk_io_units": 3
+        },
+        "micromanager_ingest": {
+          "cpu_cores": 1,
+          "memory_mb": 1024,
+          "gpu_enabled": false,
+          "gpu_vram_mb": 0,
+          "disk_io_units": 2
+        },
+        "restore_raw_dataset": {
+          "cpu_cores": 1,
+          "memory_mb": 1024,
+          "gpu_enabled": false,
+          "gpu_vram_mb": 0,
+          "disk_io_units": 3
+        },
+        "raw_dataset_deletion": {
+          "cpu_cores": 1,
+          "memory_mb": 1024,
+          "gpu_enabled": false,
+          "gpu_vram_mb": 0,
+          "disk_io_units": 2
+        },
+        "storage_optimization": {
+          "cpu_cores": 1,
+          "memory_mb": 1024,
+          "gpu_enabled": false,
+          "gpu_vram_mb": 0,
+          "disk_io_units": 2
+        },
+        "misc_storage_inventory": {
+          "cpu_cores": 1,
+          "memory_mb": 1024,
+          "gpu_enabled": false,
+          "gpu_vram_mb": 0,
+          "disk_io_units": 2
+        },
+        "micromanager_post_ingest": {
+          "cpu_cores": 1,
+          "memory_mb": 1024,
+          "gpu_enabled": false,
+          "gpu_vram_mb": 0,
+          "disk_io_units": 2
+        },
+        "assistant_service_control": {
+          "cpu_cores": 1,
+          "memory_mb": 1024,
+          "gpu_enabled": false,
+          "gpu_vram_mb": 0,
+          "disk_io_units": 0
+        },
+        "labguru_yeast_strain_sync": {
+          "cpu_cores": 1,
+          "memory_mb": 1024,
+          "gpu_enabled": false,
+          "gpu_vram_mb": 0,
+          "disk_io_units": 0
+        },
+        "prepare_user_home_storage": {
+          "cpu_cores": 1,
+          "memory_mb": 1024,
+          "gpu_enabled": false,
+          "gpu_vram_mb": 0,
+          "disk_io_units": 1
+        },
+        "restore_project_from_backup": {
+          "cpu_cores": 2,
+          "memory_mb": 1024,
+          "gpu_enabled": false,
+          "gpu_vram_mb": 0,
+          "disk_io_units": 3
+        },
+        "raw_dataset_position_deletion": {
+          "cpu_cores": 1,
+          "memory_mb": 1024,
+          "gpu_enabled": false,
+          "gpu_vram_mb": 0,
+          "disk_io_units": 1
+        },
+        "restore_raw_dataset_from_backup": {
+          "cpu_cores": 2,
+          "memory_mb": 1024,
+          "gpu_enabled": false,
+          "gpu_vram_mb": 0,
+          "disk_io_units": 3
+        }
+      },
+      "capacities": {
+        "cpu_cores": 36,
+        "gpu_vram_mb": 24576,
+        "disk_io_units": 12
+      }
+    }
+  }
+}

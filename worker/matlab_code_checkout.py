@@ -258,8 +258,12 @@ def job_environment(work_dir):
         if short_root.st_uid != os.getuid() or short_root.st_mode & 0o077:
             raise RuntimeError("MATLAB temporary alias directory must be private to the worker user")
         temp_path.symlink_to(temp.resolve(), target_is_directory=True)
-    return {**os.environ, "TMPDIR": str(temp_path), "TMP": str(temp_path), "TEMP": str(temp_path),
-            "PYTHONDONTWRITEBYTECODE": "1"}
+    environment = {**os.environ, "TMPDIR": str(temp_path), "TMP": str(temp_path),
+                   "TEMP": str(temp_path), "PYTHONDONTWRITEBYTECODE": "1"}
+    if os.name != "nt":
+        from worker.nvidia_runtime import matching_nvidia_environment
+        environment = matching_nvidia_environment(environment)
+    return environment
 
 
 def prepare_job_checkout(session, job, settings) -> tuple[str, str]:

@@ -1,0 +1,56 @@
+{
+  "at": "2026-10-19T13:01:53.918542+00:00",
+  "processes": [
+    {
+      "pid": 31820,
+      "name": "python.exe",
+      "created": 1792136924.843288,
+      "cpu_seconds": 4201.671875,
+      "read_bytes": 42960161212,
+      "write_bytes": 2078860,
+      "rss": 42070016
+    },
+    {
+      "pid": 54932,
+      "name": "matlab.exe",
+      "created": 1792331098.0856707,
+      "cpu_seconds": 1.46875,
+      "read_bytes": 7778634,
+      "write_bytes": 7778324,
+      "rss": 9416704
+    },
+    {
+      "pid": 76496,
+      "name": "MATLAB.exe",
+      "created": 1792331098.1038232,
+      "cpu_seconds": 27140.265625,
+      "read_bytes": 130805252809,
+      "write_bytes": 54786446652,
+      "rss": 1586245632
+    },
+    {
+      "pid": 96660,
+      "name": "MATLABPyHost.exe",
+      "created": 1792331166.8344195,
+      "cpu_seconds": 6.484375,
+      "read_bytes": 21589645,
+      "write_bytes": 14542092,
+      "rss": 35303424
+    }
+  ],
+  "activation": {
+    "complete": false,
+    "deferred": [
+      "windows-10-20-11-56-main"
+    ],
+    "reason": "busy_or_stale",
+    "checked_at": "2026-10-19T13:01:13.676996+00:00"
+  },
+  "task": {
+    "nextRun": "2026-10-19T15:02:10.0000000+02:00",
+    "tunnel": "Running",
+    "lastResult": 0,
+    "lastRun": "2026-10-19T15:01:11.0000000+02:00",
+    "state": "Ready"
+  }
+}

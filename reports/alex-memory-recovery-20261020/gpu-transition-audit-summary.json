@@ -1,0 +1,30 @@
+{
+  "at": "2026-10-20 16:26:28.525084+00:00",
+  "jobs": [
+    {
+      "id": "e28d8d5e-3601-4c8d-8d69-ae67fe4c8974",
+      "status": "running",
+      "heartbeat": "2026-10-20 16:26:22.650778+00:00",
+      "step": "Loading MAT (legacy) image file: im_151026_X544rep_2_2-X539_2dLOG-5_1_23.mat",
+      "error": ""
+    },
+    {
+      "id": "137eec41-3bfc-4c7a-bbbf-03d5a948a329",
+      "status": "running",
+      "heartbeat": "2026-10-20 16:26:22.893417+00:00",
+      "step": "@@DETECDIV_PROGRESS@@ {\"protocol\":\"detecdiv.progress.v1\",\"value\":0.301,\"localValue\":0.301,\"message\":\"ROI extraction 14/50 complete | FOV 1: 100%, FOV 2: 100%, FOV 3: 100%, FOV 4: 100%, FOV 5: 100%, FOV 6: 100%, FOV 7: 100%, FOV 8: 100%, FOV 9: 100%, FOV 10: 100%, FOV 11: 100%, FOV 12: 100%, FOV 13: 100%, FOV 14: 100%, FOV 15: 54%, FOV 16: 51%, FOV 17: 0%, FOV 18: 0%, FOV 19: 0%, FOV 20: 0%, FOV 21",
+      "error": "",
+      "params_unchanged": true,
+      "start_unchanged": true
+    },
+    {
+      "id": "cd39f046-677f-4794-b934-e89f08cb5aaa",
+      "status": "running",
+      "heartbeat": "2026-10-20 16:26:26.174660+00:00",
+      "step": "@@DETECDIV_PROGRESS@@ {\"protocol\":\"detecdiv.progress.v1\",\"value\":0.049586776859504127,\"localValue\":0.049586776859504127,\"message\":\"ROI extraction 0/11 complete | FOV 16: 27%, FOV 17: 27%, FOV 18: 0%, FOV 19: 0%, FOV 20: 0%, FOV 21: 0%, FOV 22: 0%, FOV 23: 0%, FOV 24: 0%, FOV 25: 0%, FOV 26: 0% | update FOV 17: block 5/19\",\"status\":\"running\",\"scope\":\"parallel_fov\",\"indeterminate\":false,\"nodeId\":\"\",",
+      "error": "",
+      "params_unchanged": true,
+      "start_unchanged": true
+    }
+  ]
+}

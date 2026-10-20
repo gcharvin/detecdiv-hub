@@ -1,0 +1,89 @@
+{
+  "activation": {
+    "complete": true,
+    "fingerprint": "5ca30c1b891c",
+    "checked_at": "2026-10-20T15:52:52.207898+00:00"
+  },
+  "workers": [
+    {
+      "worker_instance": "windows-10-20-11-56-main",
+      "process_id": 27664,
+      "current_job_id": null,
+      "last_seen_at": "2026-10-20 15:52:48.275701+00:00",
+      "code_fingerprint": "5ca30c1b891c",
+      "drain": false,
+      "rollout": null
+    }
+  ],
+  "jobs": [],
+  "host": {
+    "processes": [
+      {
+        "ProcessId": 21408,
+        "ParentProcessId": 3760,
+        "Name": "ssh.exe",
+        "CreationDate": "/Date(1792038762341)/",
+        "CommandLine": "\"C:\\Windows\\System32\\OpenSSH\\ssh.exe\" -N -T -i C:\\ProgramData\\DetecDivHub\\id_ed25519_db_tunnel -o IdentitiesOnly=yes -o BatchMode=yes -o StrictHostKeyChecking=yes -o UserKnownHostsFile=C:\\Users\\detecdiv-ops\\.ssh\\known_hosts -o ExitOnForwardFailure=yes -o ServerAliveInterval=30 -o ServerAliveCountMax=3 -L 127.0.0.1:15432:192.168.122.185:5432 charvin-admin@10.20.11.100"
+      },
+      {
+        "ProcessId": 44220,
+        "ParentProcessId": 79956,
+        "Name": "MATLAB.exe",
+        "CreationDate": "/Date(1792492906314)/",
+        "CommandLine": "\"C:\\Program Files\\MATLAB\\R2025b\\bin\\win64\\MATLAB.exe\" -useStartupFolderPref "
+      },
+      {
+        "ProcessId": 81028,
+        "ParentProcessId": 44220,
+        "Name": "MATLAB.exe",
+        "CreationDate": "/Date(1792492906669)/",
+        "CommandLine": "\"C:\\Program Files\\MATLAB\\R2025b\\bin\\win64\\MATLAB.exe\" -mpasessionid=2d3c78be-6ca0-4a26-8de6-c20aa8d6115f -catapultTransport -LaunchConnectPolicy serverStarts -NamedPipe local://path=mathworks-51aec59c-917d-450d-8b2c-39fcf8b6ae3f/protocol/catapult "
+      },
+      {
+        "ProcessId": 78836,
+        "ParentProcessId": 81028,
+        "Name": "MATLAB.exe",
+        "CreationDate": "/Date(1792493409641)/",
+        "CommandLine": "\"C:\\Program Files\\MATLAB\\R2025b\\bin\\win64\\MATLAB.exe\" -parallelserver -noFigureWindows  -r distcomp_evaluate_filetask -licmode file -c \"C:\\Users\\guest\\AppData\\Roaming\\MathWorks\\MATLAB\\R2025b_licenses;C:\\Program Files\\MATLAB\\R2025b\\licenses\\license.dat;C:\\Program Files\\MATLAB\\R2025b\\licenses\\license_CG-PCDELL01-306_40927269_R2025b.lic\" "
+      },
+      {
+        "ProcessId": 65212,
+        "ParentProcessId": 66672,
+        "Name": "python.exe",
+        "CreationDate": "/Date(1792511548934)/",
+        "CommandLine": "\"C:\\Users\\Charvin-Admin\\Documents\\MATLAB\\detecdiv-hub\\.venv\\Scripts\\python.exe\" -u -m worker.run_worker"
+      },
+      {
+        "ProcessId": 27664,
+        "ParentProcessId": 65212,
+        "Name": "python.exe",
+        "CreationDate": "/Date(1792511548942)/",
+        "CommandLine": "\"C:\\ProgramData\\DetecDivHub\\python311\\python.exe\" -u -m worker.run_worker"
+      },
+      {
+        "ProcessId": 48072,
+        "ParentProcessId": 78096,
+        "Name": "python.exe",
+        "CreationDate": "/Date(1792511569690)/",
+        "CommandLine": "\".venv\\Scripts\\python.exe\"  -"
+      },
+      {
+        "ProcessId": 45192,
+        "ParentProcessId": 48072,
+        "Name": "python.exe",
+        "CreationDate": "/Date(1792511569696)/",
+        "CommandLine": "\"C:\\ProgramData\\DetecDivHub\\python311\\python.exe\" -"
+      }
+    ],
+    "task": {
+      "ExecutionTimeLimit": "PT0S",
+      "UserId": "Charvin-Admin",
+      "State": "Running"
+    },
+    "tunnelState": "Running"
+  },
+  "sha256": "d06dea8587c264eebb6ea1bbfe6857d1a2479cb93a4b8521b2d5e8bea88b39c3",
+  "backup_sha256": "41d7416e72430563a7a41b4bc2667f6403b105fc3a3b61b9b2c84fb259e74539",
+  "git_head": "b73bd841cd795724a08dc2b45964db473851fb56",
+  "git_status_returncode": 0
+}

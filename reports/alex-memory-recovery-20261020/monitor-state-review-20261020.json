@@ -1,0 +1,54 @@
+{
+  "checked_at_utc": "2026-10-20T17:53:42.238872+00:00",
+  "current_job_id": "e28d8d5e-3601-4c8d-8d69-ae67fe4c8974",
+  "jobs": [
+    {
+      "id": "e28d8d5e-3601-4c8d-8d69-ae67fe4c8974",
+      "status": "running",
+      "heartbeat": "2026-10-20 17:52:27.411095+00:00",
+      "message": "Loading MAT (legacy) image file: im_151026_X544rep_2_2-X539_2dLOG-6_2_17.mat",
+      "error": null
+    },
+    {
+      "id": "137eec41-3bfc-4c7a-bbbf-03d5a948a329",
+      "status": "running",
+      "heartbeat": "2026-10-20 17:52:27.554993+00:00",
+      "message": "ROI extraction 14/50 complete | FOV 1: 100%, FOV 2: 100%, FOV 3: 100%, FOV 4: 100%, FOV 5: 100%, FOV 6: 100%, FOV 7: 100%, FOV 8: 100%, FOV 9: 100%, FOV 10: 100%, FOV 11: 100%, FOV 12: 100%, FOV 13: 100%, FOV 14: 100%, FOV 15: 60%, FOV 16: 54%, FOV 17: 0%, FOV 18: 0%, FOV 19: 0%, FOV 20: 0%, FOV 21: 0%, FOV 22: 0%, FOV 23: 0%, FOV 24: 0%, FOV 25: 0%, FOV 26: 0%, FOV 27: 0%, FOV 28: 0%, FOV 29: 0%, FOV 30: 0%, FOV 31: 0%, FOV 32: 0%, FOV 33: 0%, FOV 34: 0%, FOV 35: 0%, FOV 36: 0%, FOV 37: 0%, FOV 38: 0%, FOV 39: 0%, FOV 40: 0%, FOV 41: 0%, FOV 42: 0%, FOV 43: 0%, FOV 44: 0%, FOV 45: 0%, FOV 46: 0%, FOV 47: 0%, FOV 48: 0%, FOV 49: 0%, FOV 50: 0% | update FOV 15: block 19/32",
+      "error": null,
+      "parameters_and_start_preserved": true
+    },
+    {
+      "id": "cd39f046-677f-4794-b934-e89f08cb5aaa",
+      "status": "running",
+      "heartbeat": "2026-10-20 17:52:22.473180+00:00",
+      "message": "ROI extraction 0/11 complete | FOV 16: 44%, FOV 17: 44%, FOV 18: 0%, FOV 19: 0%, FOV 20: 0%, FOV 21: 0%, FOV 22: 0%, FOV 23: 0%, FOV 24: 0%, FOV 25: 0%, FOV 26: 0% | update FOV 17: block 8/19",
+      "error": null,
+      "parameters_and_start_preserved": true
+    }
+  ],
+  "alex_actual_progress": "FOV 2: drift completed through frame 707, ROI cropping; first FOV passed",
+  "outputs": [
+    {
+      "fov": "151026_X544rep_2_2-X539_2dLOG-5_1",
+      "count": 52,
+      "bytes": 16440660688,
+      "latest_mtime": 1792515723.252344
+    },
+    {
+      "fov": "151026_X544rep_2_2-X539_2dLOG-6_2",
+      "count": 52,
+      "bytes": 16440660288,
+      "latest_mtime": 1792518782.7197237
+    }
+  ],
+  "gpu": "0 %, 3673 MiB, 24576 MiB",
+  "disk_free_bytes": {
+    "/": 218960748544,
+    "/data": 4455592177664
+  },
+  "scientific_phase": "All three jobs still in extraction; no classifier CPU fallback or new CUDA failure observed",
+  "action": "No intervention; continue hourly monitoring",
+  "notify": false,
+  "snapshot": "monitor-20261020T1752Z.json",
+  "runtime_evidence": "monitor-runtime-20261020T1752Z.json"
+}

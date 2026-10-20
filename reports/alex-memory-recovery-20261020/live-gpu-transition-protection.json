@@ -1,0 +1,34 @@
+{
+  "checked_at_utc": "2026-10-20T16:26:28Z",
+  "jobs": [
+    "137eec41-3bfc-4c7a-bbbf-03d5a948a329",
+    "cd39f046-677f-4794-b934-e89f08cb5aaa"
+  ],
+  "pinned_releases": [
+    "594217dd37bfa9b2b529f7f2204253d9901340bf",
+    "c723441fe4c669f171724205ab59e7ea6ce0b7ee"
+  ],
+  "verified_existing_protection": {
+    "cellposesam": "Uses CPU when torch.cuda.is_available() is false; CUDA loading/inference errors also have CPU retries.",
+    "cnn_lstm": "GPU classify calls are inside try/catch and retry on CPU; no preceding unprotected GPU initialization was found.",
+    "other_selected_modules": "No GPU calls found in combineMultipleChannels, trackMotherLineageViterbi, computeRLS or computeMetrics."
+  },
+  "same_environment_probe_in_new_process": {
+    "python": "/home/charvin-admin/anaconda3/envs/detecdiv_python/bin/python",
+    "torch": "2.7.0+cu118",
+    "runtime": "Uncorrected system NVIDIA libraries, reproducing the exposed PyHost environment",
+    "cuda_available": false,
+    "cuda_init_error": "RuntimeError: Error 804: forward compatibility was attempted on non supported HW",
+    "cpu_tensor_result": 512.0,
+    "exit_code": 0
+  },
+  "verified_source_sha256": {
+    "cellposesam_runner.py": "c70238b3008cf61d6f04ffe9705117f24d8046e639bfb32b01beeafafc66971e",
+    "cnn_lstm_classify.m": "ed56578c47f862519c926d3499adaa6617ce86fbea3b10814bfc74f1c5a59cf4"
+  },
+  "running_processes_modified": false,
+  "job_parameters_modified": false,
+  "protected_releases_modified": false,
+  "limitation": "CPU fallback covers the observed CUDA availability failure; it does not repair CUDA libraries already mapped in active processes or guarantee GPU execution or protection from unrelated failures.",
+  "monitor": "suivi-horaire-du-job-x544rep-d-alex: hourly Alex checks now also inspect the two existing jobs and their GPU/CPU transition; no automatic interruption or restart of those two jobs is authorized."
+}

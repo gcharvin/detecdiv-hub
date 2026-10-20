@@ -1,0 +1,106 @@
+{
+  "at": "2026-10-19T13:02:26.674327+00:00",
+  "processes": [
+    {
+      "pid": 2571587,
+      "name": "python",
+      "created": 1791978338.71,
+      "cpu_seconds": 20880.07,
+      "read_bytes": 3460255744,
+      "write_bytes": 983421366272
+    },
+    {
+      "pid": 49435,
+      "name": "MATLAB",
+      "created": 1792213120.55,
+      "cpu_seconds": 1954.37,
+      "read_bytes": 16882106368,
+      "write_bytes": 410631843840
+    },
+    {
+      "pid": 49701,
+      "name": "matlab_helper",
+      "created": 1792213127.04,
+      "cpu_seconds": 0.11,
+      "read_bytes": 310546432,
+      "write_bytes": 32768
+    },
+    {
+      "pid": 49972,
+      "name": "MATLABPyHost",
+      "created": 1792213161.25,
+      "cpu_seconds": 10.61,
+      "read_bytes": 2162688,
+      "write_bytes": 0
+    },
+    {
+      "pid": 209076,
+      "name": "MATLAB",
+      "created": 1792389004.94,
+      "cpu_seconds": 6484.62,
+      "read_bytes": 1161891840,
+      "write_bytes": 30169436160
+    },
+    {
+      "pid": 209078,
+      "name": "MATLAB",
+      "created": 1792389005.2,
+      "cpu_seconds": 6466.660000000001,
+      "read_bytes": 1152507904,
+      "write_bytes": 29907283968
+    }
+  ],
+  "memory_events": "low 0\nhigh 224339\nmax 0\noom 0\noom_kill 0\noom_group_kill 0\n",
+  "changes": [
+    {
+      "pid": 2571587,
+      "name": "python",
+      "cpu_seconds_delta": 2.02,
+      "read_bytes_delta": 0,
+      "write_bytes_delta": 0
+    },
+    {
+      "pid": 49435,
+      "name": "MATLAB",
+      "cpu_seconds_delta": 0.34,
+      "read_bytes_delta": 0,
+      "write_bytes_delta": 8192
+    },
+    {
+      "pid": 49701,
+      "name": "matlab_helper",
+      "cpu_seconds_delta": 0.0,
+      "read_bytes_delta": 0,
+      "write_bytes_delta": 0
+    },
+    {
+      "pid": 49972,
+      "name": "MATLABPyHost",
+      "cpu_seconds_delta": 0.0,
+      "read_bytes_delta": 0,
+      "write_bytes_delta": 0
+    },
+    {
+      "pid": 209076,
+      "name": "MATLAB",
+      "cpu_seconds_delta": 11.48,
+      "read_bytes_delta": 2224128,
+      "write_bytes_delta": 92712960
+    },
+    {
+      "pid": 209078,
+      "name": "MATLAB",
+      "cpu_seconds_delta": 75.06,
+      "read_bytes_delta": 61440,
+      "write_bytes_delta": 3936256
+    }
+  ],
+  "memory_event_deltas": {
+    "low": 0,
+    "high": 133,
+    "max": 0,
+    "oom": 0,
+    "oom_kill": 0,
+    "oom_group_kill": 0
+  }
+}

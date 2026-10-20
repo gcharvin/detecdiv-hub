@@ -1,0 +1,32 @@
+{
+  "before": "2026-10-15T19:49:06.346438+00:00",
+  "after": "2026-10-15T19:59:09.422854+00:00",
+  "both_database_transactions_read_only": true,
+  "target_settings_unchanged": true,
+  "resource_and_priority_settings_unchanged": true,
+  "same_active_and_queued_job_ids": true,
+  "jobs": [
+    {
+      "id": "bd3c852e-8728-4d65-a646-d5472cd1cf48",
+      "status_before": "running",
+      "status_after": "running",
+      "allocation_unchanged": true,
+      "code_and_runtime_unchanged": true
+    },
+    {
+      "id": "87f55cec-264d-4d1a-b575-4adc979d7f5c",
+      "status_before": "running",
+      "status_after": "running",
+      "allocation_unchanged": true,
+      "code_and_runtime_unchanged": true
+    },
+    {
+      "id": "8d23a039-3082-46a7-913a-1feb097522f1",
+      "status_before": "running",
+      "status_after": "running",
+      "allocation_unchanged": true,
+      "code_and_runtime_unchanged": true
+    }
+  ],
+  "actions": "No submission, cancellation, deployment, service restart, quota change or scientific data write. Synthetic tests ran on the local workstation."
+}

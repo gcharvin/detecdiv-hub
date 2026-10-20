@@ -1,0 +1,70 @@
+{
+  "at": "2026-10-19T13:01:53.607342+00:00",
+  "processes": [
+    {
+      "pid": 2571587,
+      "name": "python",
+      "created": 1791978338.71,
+      "cpu_seconds": 20878.05,
+      "read_bytes": 3460255744,
+      "write_bytes": 983421366272,
+      "rss": 220180480
+    },
+    {
+      "pid": 49435,
+      "name": "MATLAB",
+      "created": 1792213120.55,
+      "cpu_seconds": 1954.0300000000002,
+      "read_bytes": 16882106368,
+      "write_bytes": 410631835648,
+      "rss": 2124410880
+    },
+    {
+      "pid": 49701,
+      "name": "matlab_helper",
+      "created": 1792213127.04,
+      "cpu_seconds": 0.11,
+      "read_bytes": 310546432,
+      "write_bytes": 32768,
+      "rss": 3395584
+    },
+    {
+      "pid": 49972,
+      "name": "MATLABPyHost",
+      "created": 1792213161.25,
+      "cpu_seconds": 10.61,
+      "read_bytes": 2162688,
+      "write_bytes": 0,
+      "rss": 563363840
+    },
+    {
+      "pid": 209076,
+      "name": "MATLAB",
+      "created": 1792389004.94,
+      "cpu_seconds": 6473.14,
+      "read_bytes": 1159667712,
+      "write_bytes": 30076723200,
+      "rss": 3020214272
+    },
+    {
+      "pid": 209078,
+      "name": "MATLAB",
+      "created": 1792389005.2,
+      "cpu_seconds": 6391.6,
+      "read_bytes": 1152446464,
+      "write_bytes": 29903347712,
+      "rss": 2531647488
+    }
+  ],
+  "activation": {
+    "complete": false,
+    "deferred": [
+      "@4"
+    ],
+    "reason": "busy_or_stale",
+    "checked_at": "2026-10-19T13:01:45.242936+00:00"
+  },
+  "timer": "LastTriggerUSec=Mon 2026-10-19 15:01:44 CEST\nActiveState=active\n",
+  "memory_events": "low 0\nhigh 224206\nmax 0\noom 0\noom_kill 0\noom_group_kill 0\n",
+  "journal_errors": "-- No entries --\n"
+}

@@ -1,0 +1,67 @@
+{
+  "at": "2026-10-19T13:02:26.941577+00:00",
+  "processes": [
+    {
+      "pid": 31820,
+      "name": "python.exe",
+      "created": 1792136924.843288,
+      "cpu_seconds": 4202.96875,
+      "read_bytes": 42983499120,
+      "write_bytes": 2078860
+    },
+    {
+      "pid": 54932,
+      "name": "matlab.exe",
+      "created": 1792331098.0856707,
+      "cpu_seconds": 1.46875,
+      "read_bytes": 7779723,
+      "write_bytes": 7779413
+    },
+    {
+      "pid": 76496,
+      "name": "MATLAB.exe",
+      "created": 1792331098.1038232,
+      "cpu_seconds": 27183.765625,
+      "read_bytes": 130838487481,
+      "write_bytes": 54818450486
+    },
+    {
+      "pid": 96660,
+      "name": "MATLABPyHost.exe",
+      "created": 1792331166.8344195,
+      "cpu_seconds": 6.484375,
+      "read_bytes": 21589645,
+      "write_bytes": 14542092
+    }
+  ],
+  "changes": [
+    {
+      "pid": 31820,
+      "name": "python.exe",
+      "cpu_seconds_delta": 1.297,
+      "read_bytes_delta": 23337908,
+      "write_bytes_delta": 0
+    },
+    {
+      "pid": 54932,
+      "name": "matlab.exe",
+      "cpu_seconds_delta": 0.0,
+      "read_bytes_delta": 1089,
+      "write_bytes_delta": 1089
+    },
+    {
+      "pid": 76496,
+      "name": "MATLAB.exe",
+      "cpu_seconds_delta": 43.5,
+      "read_bytes_delta": 33234672,
+      "write_bytes_delta": 32003834
+    },
+    {
+      "pid": 96660,
+      "name": "MATLABPyHost.exe",
+      "cpu_seconds_delta": 0.0,
+      "read_bytes_delta": 0,
+      "write_bytes_delta": 0
+    }
+  ]
+}

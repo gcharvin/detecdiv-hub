@@ -300,6 +300,8 @@ def inspect_pipeline_gpu_requirements(
         }
         gpu_settings = dict(run_request.get("gpu") or {})
         run_mode = str(gpu_settings.get("mode") or "").strip().lower()
+        if run_mode == "gpu":
+            run_mode = "force_gpu"
         if not run_mode:
             run_mode = "force_gpu" if target is not None and target.supports_gpu else "module_default"
 
@@ -312,9 +314,17 @@ def inspect_pipeline_gpu_requirements(
             node_id = str(raw_node.get("id") or f"node_{index + 1}")
             if selected_ids and node_id not in selected_ids:
                 continue
+            if raw_node.get("enabled") is False:
+                continue
             selected_node_ids.append(node_id)
             node_params = dict(raw_node.get("params") or {})
             node_params.update(node_overrides.get(node_id, {}))
+            if is_legacy_gpu_processor(raw_node):
+                # The historical extractor's drift correction calls gpuArray
+                # unconditionally, independently of run/device preferences.
+                # It needs admission even though it is not deep learning.
+                gpu_node_ids.append(node_id)
+                continue
             if not is_deep_learning_node(raw_node, node_params):
                 continue
             deep_learning_node_ids.append(node_id)
@@ -343,6 +353,16 @@ def inspect_pipeline_gpu_requirements(
             "selected_node_ids": [],
             "deep_learning_node_ids": [],
         }
+
+
+def is_legacy_gpu_processor(node: dict[str, Any]) -> bool:
+    if str(node.get("type") or "").strip().lower() != "processor":
+        return False
+    package = str(node.get("pkg") or node.get("module_kind") or "").strip().lower()
+    function = str(node.get("func") or "").strip().lower()
+    return package == "savecroppedimagesxconservative" and function in {
+        "", "savecroppedimagesxconservative.process",
+    }
 
 
 def is_deep_learning_node(node: dict[str, Any], params: dict[str, Any]) -> bool:

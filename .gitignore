@@ -10,5 +10,10 @@ build/
 *.egg-info/
 .env
 logs/
+.nvidia-runtime/
+# Mutable recovery-monitor cursor; frozen observations remain versioned.
+/reports/alex-memory-recovery-20261020/monitor_state.json
+# The historical failed merge is preserved in premerge-snapshot.zip.
+/reports/job-force-stop-deployment-20261020/api-intended/pipeline_run_executor.py.conflict
 data/
 *-audit.json

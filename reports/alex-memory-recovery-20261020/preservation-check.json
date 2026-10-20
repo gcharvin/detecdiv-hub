@@ -1,0 +1,52 @@
+{
+  "current_job_id": "e28d8d5e-3601-4c8d-8d69-ae67fe4c8974",
+  "current_status": "running",
+  "other_jobs": {
+    "137eec41-3bfc-4c7a-bbbf-03d5a948a329": {
+      "params_unchanged": true,
+      "start_unchanged": true,
+      "status": "running",
+      "heartbeat_advanced": true
+    },
+    "cd39f046-677f-4794-b934-e89f08cb5aaa": {
+      "params_unchanged": true,
+      "start_unchanged": true,
+      "status": "running",
+      "heartbeat_advanced": true
+    }
+  },
+  "scientific_request_unchanged": true,
+  "matlab_commit_unchanged": true,
+  "project_default": {
+    "memory_mb": 49152
+  },
+  "current_allocation": {
+    "source": "pipeline_nodes_and_job_resource_settings",
+    "cpu_cores": 8,
+    "memory_mb": 30720,
+    "gpu_vram_mb": 8192,
+    "gpu_required": true,
+    "disk_io_units": 3,
+    "gpu_permitted": true,
+    "swap_limit_mb": 1920,
+    "requested_cpu_cores": 8,
+    "pipeline_gpu_profile": {
+      "source": "/data/matlab/pipelines/Alex_Xtra_FullChannels_Conservative/pipeline/pipeline_2 - Copy/pipeline.json",
+      "status": "known",
+      "gpu_node_ids": [
+        "processor_savecroppedimagesxconservative_2"
+      ],
+      "gpu_required": true,
+      "run_gpu_mode": "force_gpu",
+      "roi_extraction": {
+        "reason": "non_adaptive_selected_node",
+        "eligible": false
+      },
+      "selected_node_ids": [
+        "processor_savecroppedimagesxconservative_2",
+        "processor_xtrafullchannelsconservative_4"
+      ],
+      "deep_learning_node_ids": []
+    }
+  }
+}

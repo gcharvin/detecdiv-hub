@@ -1,0 +1,12 @@
+{
+  "complete": false,
+  "actions": [
+    {
+      "instance": "windows-10-20-11-56-main",
+      "reloaded_pid": 45124
+    }
+  ],
+  "fingerprint": "5ca30c1b891c",
+  "awaiting_fresh_heartbeats": true,
+  "checked_at": "2026-10-20T15:52:26.794647+00:00"
+}

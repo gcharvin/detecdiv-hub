@@ -1,0 +1,21 @@
+{
+  "policy": {
+    "dynamic": false,
+    "capacity_mb": 25964,
+    "worker_limit_mb": null,
+    "available_mb": 14557,
+    "headroom_mb": 3245
+  },
+  "host_memory": {
+    "total": 34031251456,
+    "available": 15264874496,
+    "percent": 55.1,
+    "used": 18766376960,
+    "free": 15264874496
+  },
+  "resource_env": {
+    "DETECDIV_HUB_WORKER_PATH_MAPPINGS": "[{\"source\":\"/data/matlab/ClassiRepository/latent-v54-budneck-gated-gt-bootstrap-v008-runtime\",\"target\":\"C:\\\\ProgramData\\\\DetecDivHub\\\\m\\\\lm54v008\"},{\"source\":\"X:\\\\matlab\\\\ClassiRepository\\\\latent-v54-budneck-gated-gt-bootstrap-v008-runtime\",\"target\":\"C:\\\\ProgramData\\\\DetecDivHub\\\\m\\\\lm54v008\"},{\"source\":\"/data/matlab/ClassiRepository/latent-v54-budneck-gated-gt-bootstrap-v007-runtime\",\"target\":\"C:\\\\ProgramData\\\\DetecDivHub\\\\m\\\\lm54v007\"},{\"source\":\"X:\\\\matlab\\\\ClassiRepository\\\\latent-v54-budneck-gated-gt-bootstrap-v007-runtime\",\"target\":\"C:\\\\ProgramData\\\\DetecDivHub\\\\m\\\\lm54v007\"},{\"source\":\"/data/matlab/ClassiRepository/latent-v54-budneck-gated-gt-bootstrap-v006-runtime\",\"target\":\"C:\\\\ProgramData\\\\DetecDivHub\\\\m\\\\lm54v006\"},{\"source\":\"X:\\\\matlab\\\\ClassiRepository\\\\latent-v54-budneck-gated-gt-bootstrap-v006-runtime\",\"target\":\"C:\\\\ProgramData\\\\DetecDivHub\\\\m\\\\lm54v006\"},{\"source\":\"/data\",\"target\":\"//10.20.11.250/DATA\"},{\"source\":\"X:\\\\\",\"target\":\"//10.20.11.250/DATA\"},{\"source\":\"/archive\",\"target\":\"//10.20.11.251/archive\"}]"
+  },
+  "release_exists": true,
+  "cuda": "NVIDIA RTX 2000 Ada Generation, 596.71, 14760 MiB\n"
+}

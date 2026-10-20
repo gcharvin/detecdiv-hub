@@ -1,0 +1,15 @@
+{
+  "stage": "C:\\Users\\Charvin-Admin\\Documents\\MATLAB\\detecdiv-hub\\.deploy-staging\\legacy-gpu-admission-20261020",
+  "manifest": {
+    "files": {
+      "worker/job_resources.py": {
+        "before": "41d7416e72430563a7a41b4bc2667f6403b105fc3a3b61b9b2c84fb259e74539",
+        "after": "d06dea8587c264eebb6ea1bbfe6857d1a2479cb93a4b8521b2d5e8bea88b39c3"
+      }
+    },
+    "expected_fingerprint": "5ca30c1b891c",
+    "scope": "Legacy extractor GPU admission only",
+    "pytest": "...............                                                          [100%]\n15 passed in 0.46s\n"
+  },
+  "git_status_recorded": false
+}

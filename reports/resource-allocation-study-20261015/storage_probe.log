@@ -1,0 +1,12 @@
+legacy_mat_full cut=88 blocks=10 seconds=0.135 imageIO_MiB=94.74
+hdf5_partial cut=88 blocks=10 seconds=1.235 imageIO_MiB=4.99
+legacy_mat_full cut=64 blocks=14 seconds=0.148 imageIO_MiB=134.63
+hdf5_partial cut=64 blocks=14 seconds=1.507 imageIO_MiB=4.99
+legacy_mat_full cut=44 blocks=20 seconds=0.199 imageIO_MiB=194.47
+hdf5_partial cut=44 blocks=20 seconds=1.953 imageIO_MiB=4.99
+Running testRoiStreamingFrameSave
+..
+Done testRoiStreamingFrameSave
+__________
+
+UNIVERSAL_ROI_STREAMING_TESTS=2 PASSED

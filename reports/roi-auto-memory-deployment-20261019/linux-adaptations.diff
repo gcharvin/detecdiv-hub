@@ -1,0 +1,51 @@
+--- local-HEAD/worker/job_resources.py
++++ linux/worker/job_resources.py
+@@ -2,7 +2,6 @@
+ 
+ import json
+ import os
+-from dataclasses import replace
+ from pathlib import Path
+ from typing import Any
+ 
+@@ -28,21 +27,6 @@
+     "cnn",
+ }
+ GPU_DEVICE_KEYS = ("executionEnvironment", "execution_environment", "device")
+-
+-
+-def resource_config_for_target(
+-    config: JobResourceRuntimeConfig, target: ExecutionTarget | None,
+-) -> JobResourceRuntimeConfig:
+-    """Apply a host's VRAM budget without enlarging the shared admission limit.
+-
+-    A zero global limit denotes exclusive GPU admission and must retain that
+-    meaning. Target metadata can reserve headroom for desktop/display use.
+-    """
+-    metadata = (target.metadata_json or {}) if target is not None else {}
+-    capacity = positive_mb(metadata.get("gpu_vram_capacity_mb"))
+-    if capacity is None or config.gpu_vram_capacity_mb == 0:
+-        return config
+-    return replace(config, gpu_vram_capacity_mb=min(config.gpu_vram_capacity_mb, capacity))
+ 
+ 
+ def resolve_job_resource_allocation(
+--- local-HEAD/worker/run_worker.py
++++ linux/worker/run_worker.py
+@@ -54,7 +54,6 @@
+     allocation_fits,
+     allocation_fits_with_reservation,
+     resolve_job_resource_allocation,
+-    resource_config_for_target,
+ )
+ from worker.legacy_matlab_executor import execute_legacy_matlab_job
+ from worker.memory_resources import memory_policy, positive_mb, worker_allocation_fits
+@@ -269,7 +268,7 @@
+                     )
+                     return None
+         priority_config = resolve_job_priority_runtime_config(session)
+-        resource_config = resource_config_for_target(resolve_job_resource_runtime_config(session), target)
++        resource_config = resolve_job_resource_runtime_config(session)
+         effective_priority = effective_job_priority_expression(priority_config)
+         stmt = (
+             select(Job)

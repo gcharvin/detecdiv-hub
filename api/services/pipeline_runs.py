@@ -13,14 +13,13 @@ from api.schemas import (
     PipelineRunPreflightIssue,
     PipelineRunPreflightResult,
 )
+from api.services.matlab_code_versions import pin_execution, versioned_target
 from api.services.project_locks import (
     ProjectLockConflict,
     active_project_locks,
     create_server_job_lock,
 )
 from api.services.users import ensure_project_readable, user_can_edit_project
-from api.services.matlab_code_versions import pin_execution, versioned_target
-
 
 REQUESTED_MODES = {"auto", "server", "local"}
 PIPELINE_REF_PATH_KEYS = ("pipeline_bundle_uri", "pipeline_json_path", "export_manifest_uri")
@@ -80,6 +79,36 @@ def normalized_pipeline_run_params(
     }
 
 
+def project_pipeline_run_resources(value: Any) -> dict[str, int]:
+    """Validate explicit project defaults before copying them into a new job."""
+    if not isinstance(value, dict):
+        raise TypeError("Project pipeline_run_resources must be an object.")
+    bounds = {"memory_mb": (512, 262144), "cpu_cores": (1, 36)}
+    unknown = value.keys() - bounds.keys()
+    if unknown:
+        raise ValueError(
+            "Unknown project pipeline_run_resources keys: "
+            + ", ".join(sorted(str(key) for key in unknown))
+            + "."
+        )
+    resources = {}
+    for key, (minimum, maximum) in bounds.items():
+        if key not in value:
+            continue
+        number = value[key]
+        if (
+            isinstance(number, bool)
+            or not isinstance(number, int)
+            or not minimum <= number <= maximum
+        ):
+            raise ValueError(
+                f"Project pipeline_run_resources.{key} must be an integer "
+                f"between {minimum} and {maximum}."
+            )
+        resources[key] = number
+    return resources
+
+
 def preflight_pipeline_run_request(
     session: Session,
     *,
@@ -124,6 +153,17 @@ def preflight_pipeline_run_request(
                 "Project edit access is required to submit a run.",
             )
         )
+
+    metadata = (project.metadata_json or {}) if project is not None else {}
+    if "pipeline_run_resources" in metadata:
+        try:
+            resources = project_pipeline_run_resources(metadata["pipeline_run_resources"])
+        except (TypeError, ValueError) as exc:
+            issues.append(issue("error", "invalid_project_pipeline_run_resources", str(exc)))
+        else:
+            if resources:
+                normalized["resources"] = resources
+                normalized["client_context"]["resource_defaults_source"] = "project"
 
     project_ref = dict(normalized.get("project_ref") or {})
     if project is not None and str(project_ref.get("project_id") or "") != str(project.id):
