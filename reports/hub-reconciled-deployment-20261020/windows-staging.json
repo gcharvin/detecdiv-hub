@@ -1,0 +1,28 @@
+{
+  "commit": "01204c96829b0b676384e7f182ae54074b56aa8d",
+  "role": "Compute worker and shared services",
+  "files": {
+    "api/services/pipeline_runs.py": {
+      "before": "0d812eadddccc555f9a400da5753620ac6ee79655b064b617c7a80d4e4b070db",
+      "after": "aac5d7504a1615604f0fbe4e34e3a9d3a151ffd039186d25cf35a5cae152aaa0"
+    },
+    "api/services/project_deletion.py": {
+      "before": "5d7cbd7eb89987c0838d95367451ecef3c69df574a445b8d569a443c87a305ce",
+      "after": "2072283d0d0cc2c25116edd8a1f6c487a3bb434bd44d78c4d4e0d2cf830bd2aa"
+    },
+    "scripts/register_windows_worker_task.ps1": {
+      "before": "5a1223bb3976cbae7700be3774b9b7ed151368c54a1f26aa5b81e58f15897e8c",
+      "after": "016df78e632ecc1dbcf02721f06b008d6aafe4f5f108c68117001ce9d51ea5c9"
+    },
+    "worker/matlab_code_checkout.py": {
+      "before": "37c363eb05b950c7989f8599320618e2ffbfcead1ef0487a5208320746efd978",
+      "after": "9ed3c9676ce88738ad10e74db774a99a2fb4020217f13b60f3b6cddc9196f5ec"
+    },
+    "worker/nvidia_runtime.py": {
+      "before": null,
+      "after": "7007590a20dc8751c33906b3e22f949b7c65891da43aa64df00ff3bb037d080f"
+    }
+  },
+  "before_fingerprint": "5ca30c1b891c",
+  "expected_fingerprint": "b35b0444d5f0"
+}

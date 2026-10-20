@@ -1,0 +1,13 @@
+{
+  "activation": {
+    "complete": true,
+    "fingerprint": "b35b0444d5f0",
+    "checked_at": "2026-10-20T21:04:55.004033+00:00"
+  },
+  "tasks": {
+    "workerState": "Running",
+    "activationTaskPresent": false,
+    "workerLimit": "PT0S",
+    "tunnelState": "Running"
+  }
+}

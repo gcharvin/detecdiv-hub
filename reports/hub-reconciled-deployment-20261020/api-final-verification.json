@@ -1,0 +1,37 @@
+{
+  "proxy_health": {
+    "status": "ok",
+    "service": "detecdiv-hub",
+    "database_status": "ok",
+    "database_message": null,
+    "hostname": "af62fa10591a",
+    "deployment_version": "fp-15fed3245ae8",
+    "version_source": "fingerprint",
+    "code_fingerprint": "15fed3245ae8",
+    "disk_warning_threshold_percent": 95,
+    "disk_usage": [
+      {
+        "path": "/",
+        "label": "VM system disk",
+        "total_bytes": 84225998848,
+        "used_bytes": 51688267776,
+        "free_bytes": 28669263872,
+        "used_percent": 65.0,
+        "status": "ok",
+        "message": null
+      },
+      {
+        "path": "/data",
+        "label": "Shared data storage",
+        "total_bytes": 94009274970112,
+        "used_bytes": 89571715969024,
+        "free_bytes": 4437559001088,
+        "used_percent": 96.0,
+        "status": "warning",
+        "message": null
+      }
+    ]
+  },
+  "recent_api_log": "INFO:     127.0.0.1:53470 - \"GET /health HTTP/1.1\" 200 OK\nINFO:     192.168.122.1:56140 - \"GET /pipeline-runs/cd39f046-677f-4794-b934-e89f08cb5aaa HTTP/1.1\" 200 OK\nINFO:     192.168.122.1:56148 - \"GET /pipeline-runs/cd39f046-677f-4794-b934-e89f08cb5aaa HTTP/1.1\" 200 OK\nINFO:     192.168.122.1:56162 - \"GET /pipeline-runs/cd39f046-677f-4794-b934-e89f08cb5aaa HTTP/1.1\" 200 OK\nINFO:     192.168.122.1:56940 - \"GET /pipeline-runs/cd39f046-677f-4794-b934-e89f08cb5aaa HTTP/1.1\" 200 OK\nINFO:     192.168.122.1:56944 - \"GET /pipeline-runs/cd39f046-677f-4794-b934-e89f08cb5aaa HTTP/1.1\" 200 OK\nINFO:     192.168.122.1:56956 - \"GET /pipeline-runs/cd39f046-677f-4794-b934-e89f08cb5aaa HTTP/1.1\" 200 OK\nINFO:     192.168.122.1:59950 - \"GET /pipeline-runs/cd39f046-677f-4794-b934-e89f08cb5aaa HTTP/1.1\" 200 OK\nINFO:     192.168.122.1:59952 - \"GET /pipeline-runs/cd39f046-677f-4794-b934-e89f08cb5aaa HTTP/1.1\" 200 OK\nINFO:     192.168.122.1:59954 - \"GET /pipeline-runs/cd39f046-677f-4794-b934-e89f08cb5aaa HTTP/1.1\" 200 OK\nINFO:     192.168.122.1:59966 - \"GET /pipeline-runs?project_id=8d05fbd0-ace5-472c-997f-f0d03401d02e HTTP/1.1\" 200 OK\nINFO:     192.168.122.1:59982 - \"GET /pipeline-runs/b3435063-bdce-4aa6-9a93-60c5f97d32ed HTTP/1.1\" 200 OK\nINFO:     192.168.122.1:33930 - \"GET /pipeline-runs/cd39f046-677f-4794-b934-e89f08cb5aaa HTTP/1.1\" 200 OK\nINFO:     192.168.122.1:33946 - \"GET /health HTTP/1.1\" 200 OK\nINFO:     192.168.122.1:33962 - \"GET /pipeline-runs/cd39f046-677f-4794-b934-e89f08cb5aaa HTTP/1.1\" 200 OK\nINFO:     192.168.122.1:33974 - \"GET /pipeline-runs/cd39f046-677f-4794-b934-e89f08cb5aaa HTTP/1.1\" 200 OK\nINFO:     192.168.122.1:33988 - \"GET /health HTTP/1.1\" 200 OK\nINFO:     192.168.122.1:44122 - \"POST /projects/fd7673c1-0419-4c63-ad4b-6ed7edd2dbd6/leases/c0399c78-8ead-4a55-a01f-0981bf9164e0/heartbeat HTTP/1.1\" 200 OK\nINFO:     192.168.122.1:44130 - \"GET /health HTTP/1.1\" 200 OK\nINFO:     192.168.122.1:44140 - \"GET /pipeline-runs/cd39f046-677f-4794-b934-e89f08cb5aaa HTTP/1.1\" 200 OK\nINFO:     192.168.122.1:44156 - \"GET /health HTTP/1.1\" 200 OK\nINFO:     192.168.122.1:44166 - \"GET /pipeline-runs/cd39f046-677f-4794-b934-e89f08cb5aaa HTTP/1.1\" 200 OK\nINFO:     192.168.122.1:44178 - \"GET /pipeline-runs/cd39f046-677f-4794-b934-e89f08cb5aaa HTTP/1.1\" 200 OK\nINFO:     192.168.122.1:44190 - \"GET /health HTTP/1.1\" 200 OK\nINFO:     192.168.122.1:44198 - \"GET /health HTTP/1.1\" 200 OK\nINFO:     192.168.122.1:35234 - \"GET /pipeline-runs/cd39f046-677f-4794-b934-e89f08cb5aaa HTTP/1.1\" 200 OK\nINFO:     192.168.122.1:35242 - \"GET /pipeline-runs/cd39f046-677f-4794-b934-e89f08cb5aaa HTTP/1.1\" 200 OK\nINFO:     192.168.122.1:35258 - \"GET /pipeline-runs/cd39f046-677f-4794-b934-e89f08cb5aaa HTTP/1.1\" 200 OK\nINFO:     127.0.0.1:37126 - \"GET /health HTTP/1.1\" 200 OK\nINFO:     192.168.122.1:35274 - \"GET /health HTTP/1.1\" 200 OK\n",
+  "schema_error_in_recent_log": false
+}

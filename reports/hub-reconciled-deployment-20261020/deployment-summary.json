@@ -1,0 +1,30 @@
+{
+  "checked_at_utc": "2026-10-20T21:07:44.807321+00:00",
+  "source_commit": "01204c96829b0b676384e7f182ae54074b56aa8d",
+  "expected_fingerprints": {
+    "api": "15fed3245ae8",
+    "linux": "a2649a68b316",
+    "windows": "b35b0444d5f0"
+  },
+  "api_healthy": true,
+  "all_role_changes_installed": true,
+  "runtime_activation_complete": false,
+  "pending_linux_instances": [
+    "@3",
+    "@4",
+    "@5"
+  ],
+  "automatic_idle_activation_verified": true,
+  "preserved_original_analyses": [
+    "137eec41-3bfc-4c7a-bbbf-03d5a948a329",
+    "cd39f046-677f-4794-b934-e89f08cb5aaa",
+    "e28d8d5e-3601-4c8d-8d69-ae67fe4c8974"
+  ],
+  "admission_restored": true,
+  "matlab_default_commit": "6ed9c3e62c10a6bab3d1fa361adbfe54f9355c6b",
+  "worker_tests": {
+    "linux": 59,
+    "windows": 59
+  },
+  "api_environment_tests": 2
+}

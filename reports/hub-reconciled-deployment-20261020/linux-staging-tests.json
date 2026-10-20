@@ -1,0 +1,13 @@
+{
+  "exit": 0,
+  "output": "...........................................................              [100%]\n59 passed in 7.63s\n",
+  "stderr": "",
+  "expected_fingerprint": "a2649a68b316",
+  "test_files": [
+    "tests/test_job_force_stop.py",
+    "tests/test_pipeline_run_resource_defaults.py",
+    "tests/test_custom_processor_gpu_resources.py",
+    "tests/test_nvidia_runtime.py",
+    "tests/test_project_deletion.py"
+  ]
+}

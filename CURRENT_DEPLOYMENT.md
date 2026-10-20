@@ -1,5 +1,35 @@
 # Current Deployment
 
+## Reconciled Hub deployment, 2026-10-20
+
+At 21:07 UTC (23:07 Europe/Paris), the applicable runtime changes from Hub
+commit `01204c96829b0b676384e7f182ae54074b56aa8d` were installed with host
+adaptations preserved. The API image was rebuilt after updating one shared
+service file; its actual healthy fingerprint is `15fed3245ae8`. Force-stop
+columns, route, UI, public proxy and recent API logs were verified.
+
+The native Windows worker is active at `b35b0444d5f0`, PID `93632`, after a
+guarded idle activation of five files. Its temporary activation task removed
+itself. The database tunnel and unlimited worker-task duration were preserved.
+
+Linux source fingerprint is `a2649a68b316`, with two shared service files
+updated. Idle pollers `@1,@2,@6` are active at that fingerprint. Pollers
+`@3,@4,@5` remain on their previous loaded code while their three analyses run;
+their PIDs, starts, parameters and advancing heartbeats were preserved.
+Full runtime activation is therefore still pending for these three pollers.
+The user timer `detecdiv-hub-reconciled-activation-20261020.timer` checks every
+30 seconds, reloads only an idle poller with an empty child tree, and stops
+itself when every fingerprint matches. User lingering is enabled, so this
+continues after SSH logout. The previous maintenance timer was superseded.
+
+Tests of the exact staged host variants: 59 passed on Linux, 59 on Windows,
+and two synthetic backup-file tests passed inside the API environment. The
+matching staged NVIDIA 580.173.02 libraries were checked without GPU allocation.
+Admission was restored. MATLAB's default remains
+`6ed9c3e62c10a6bab3d1fa361adbfe54f9355c6b`.
+Details and evidence are in `docs/reports/hub-reconciled-deployment-2026-10-20.md`
+and `reports/hub-reconciled-deployment-20261020/`.
+
 ## Repository reconciliation, 2026-10-20
 
 The local backlog was reviewed, tested and grouped into commits without

@@ -1,0 +1,745 @@
+{
+  "root": "C:\\Users\\Charvin-Admin\\Documents\\MATLAB\\detecdiv-hub",
+  "files": {
+    "api/__init__.py": {
+      "sha256": "c42b244b43001c417cdf9a327db73c7fbca7c4c1b541f330e9a2acd0888360b1",
+      "lf_sha256": "28745bb6ddf730c52091ea9e1f76533005e634e5d9b0bc452cf1e047ccad845c",
+      "bytes": 35
+    },
+    "api/app.py": {
+      "sha256": "17139f6dbb18f6c14fda7577b51da5cc51d9dd98703c6196174be6c3174f4cb6",
+      "lf_sha256": "f29f585fc8bcb805b0be2f07fce0cc4c17d8fe93fa5acc459c205cf2ae9a38ec",
+      "bytes": 4237
+    },
+    "api/config.py": {
+      "sha256": "7f3af46de3feb268cc7cf5ffff0e7415dc0620cf3a8f83ff981f078ac7c8d98a",
+      "lf_sha256": "c3cc038c903571a16e944ecfd32b234d33d82ab9fa9b7c45e9504c41fdad28e8",
+      "bytes": 5908
+    },
+    "api/db.py": {
+      "sha256": "7c0d078c8de57b8ed7081a086c03cc0a4b8fe473e5334b21abdb31b80d387e81",
+      "lf_sha256": "4a23485f4f708ec63d20d9db19389aa56fb58697546255a07c4b5e6dd7ea529e",
+      "bytes": 556
+    },
+    "api/jupyterhub_auth.py": {
+      "sha256": "6c555439a14b55f6de21021bdc145b5c75cf4cae43f09bd86b30c7c71ff54ce8",
+      "lf_sha256": "ef92882ac64abc46638fc54c9733cbce4234d0f66f301109e26b71a517ea07bd",
+      "bytes": 5966
+    },
+    "api/models.py": {
+      "sha256": "33c0f0b9df846438888aa6ffb47831a999c7ff8be5d8e2426244d372fd929525",
+      "lf_sha256": "33c0f0b9df846438888aa6ffb47831a999c7ff8be5d8e2426244d372fd929525",
+      "bytes": 77811
+    },
+    "api/routes_acquisition_sessions.py": {
+      "sha256": "e42de415bf36b4edd97f2ad6523ce64ad59cc64bdd855bb0304b9f94b2bc4bf3",
+      "lf_sha256": "79b122aff38bfea263cf1768e85cb67db3bca30570f66810a25bfe4b72614f9e",
+      "bytes": 18344
+    },
+    "api/routes_assistant.py": {
+      "sha256": "5fc4840286635f6226a10ae9cb6f214ed2c82bb0d8b2dfdd5b059652994c5df5",
+      "lf_sha256": "ce034d96663c05883f582d4178640057c45bf24b3ceacda44d9ea5762e792711",
+      "bytes": 5953
+    },
+    "api/routes_auth.py": {
+      "sha256": "34114c975ba5963ccd04f1e4bb122d8ad015ba65cd266e41b73594bd858148bb",
+      "lf_sha256": "283faf52b9eee240f12a1f4efd92dc94845f38043c1cdeacf63adb01be97b938",
+      "bytes": 6187
+    },
+    "api/routes_backup.py": {
+      "sha256": "c61ab1f815e4fcfa31121fe4a802eb0f9418cdff0a037020557e9d25ead1cbff",
+      "lf_sha256": "e43bd5f7f216e10483e3f3a537f68bb105de50c4bf87f7354a60d863e7de7e3d",
+      "bytes": 26403
+    },
+    "api/routes_dashboard.py": {
+      "sha256": "9d5b94f91150142b66dd4d8018da8dcc704d739e91cbeeca87b51e8c3efd0226",
+      "lf_sha256": "77c3bc2c7a488f63dfb387f8bfeb0f5ac6e49447a094003582eb310a29f99725",
+      "bytes": 8611
+    },
+    "api/routes_execution_targets.py": {
+      "sha256": "c577c341781bee2f8448aa2d774a66fc10a8061d3d56f564b0da585380ba2d3a",
+      "lf_sha256": "ed7960a333e38d9b2d3584e70feac7c0700083ad569ea96de2a95c687eb4e29c",
+      "bytes": 7121
+    },
+    "api/routes_experiments.py": {
+      "sha256": "68a8414bf32942bdcd599d05d17c232f358ac4f2a69410eec2ab7fc4cbf6bca2",
+      "lf_sha256": "b144bc0c33e89964d1b31cf8be7307e28d421905897d0691e47084ebac3b0753",
+      "bytes": 16646
+    },
+    "api/routes_external_systems.py": {
+      "sha256": "f5635e97359852075c13714a7fbe4c233c434d09d2ce41405ce5231b24a2fbe8",
+      "lf_sha256": "bd32c45b2b4d5610578a3d62e8602ed60cd6fa3c9ac8630da2c92f4df3c7f434",
+      "bytes": 27786
+    },
+    "api/routes_indexing.py": {
+      "sha256": "6669e3d7efb5c0ac252a64468e158936cb9451dd1c4b4b87068a68e7fb5e58d1",
+      "lf_sha256": "4b0b2de499b37eeda41810ce30b585b45e6e02fbbc9d3929904478de62030584",
+      "bytes": 6153
+    },
+    "api/routes_jobs.py": {
+      "sha256": "9d16b1461c587841ce068130a9a222bccd43c973dcd63e02d4cc00ccfb44572d",
+      "lf_sha256": "f4577bd8efb94bc2457fbd019d2e75b0c2b8d1257572c37cac42c1780324f23b",
+      "bytes": 9594
+    },
+    "api/routes_legacy_matlab.py": {
+      "sha256": "e9862122d3e454895f9617ffdb4859d0541154f3160f3151354d0394dc40c9e5",
+      "lf_sha256": "039a6ee2e998105ba5fd2451eae3de19506e8130b4d459a32394f1e93b91f657",
+      "bytes": 2286
+    },
+    "api/routes_matlab_code.py": null,
+    "api/routes_micromanager_ingest.py": {
+      "sha256": "5273573374b941d5ca31229eec998a3b03a579204fcdef310d25b358a6956c41",
+      "lf_sha256": "4cf9575afdcdb8f948292a9b684a28744ce3a36ed24a5a8ccda9a1a19f7a1d19",
+      "bytes": 11179
+    },
+    "api/routes_migrations.py": {
+      "sha256": "795bc13f8b3670db4d135621c20db4d90800d7c68b5e861c4771304d61e2a145",
+      "lf_sha256": "27010269bacf367dfa61524fcd0d7b85de66072a7249f66dcb95ddf2beb92543",
+      "bytes": 10038
+    },
+    "api/routes_pipeline_runs.py": {
+      "sha256": "8d8707e68ed5bd72bee8c8c929cab953390597df3ad1f5bef42033293a7b12c7",
+      "lf_sha256": "8d8707e68ed5bd72bee8c8c929cab953390597df3ad1f5bef42033293a7b12c7",
+      "bytes": 10339
+    },
+    "api/routes_pipelines.py": {
+      "sha256": "00a3fd47d6bf8427ece1e26373ff5c00b54c92537585c0ec9b58f9836401986b",
+      "lf_sha256": "51435cd1da67fdb400c8c4724537b9fd4c9ffa4fd57944a4da5874f09ee162f9",
+      "bytes": 12132
+    },
+    "api/routes_projects.py": {
+      "sha256": "5f2d3c2b1edd61dfd987e4994815e006ce5cb6dd55f94c8499b5a741aaff97cf",
+      "lf_sha256": "16e1a2832de39027fc41e519779b8691b6b652dfc744e29a2ea827bf21aad0f7",
+      "bytes": 54572
+    },
+    "api/routes_raw_datasets.py": {
+      "sha256": "d9049ec15138947335590f130e7854431ee8322be63f6f87d01162662133b3f1",
+      "lf_sha256": "d5bddc1ab4d5be4fe9fbe26e3c3e6b55b8e0a0e867d9f9aa5605a2ab825bd3c7",
+      "bytes": 78201
+    },
+    "api/routes_storage.py": {
+      "sha256": "cfb5d615097823ab24b076bb6365277cc116bbfc2b703f40c235f64b5186773f",
+      "lf_sha256": "e3d5596871afc5626c620b318fb743dc1eea0c2056735c4e9b5fde1e7ccb4b05",
+      "bytes": 51396
+    },
+    "api/schemas.py": {
+      "sha256": "7baa1b5d85887e2cc16eb3a5fd6fadcee7e49d8fa2bfec1281e6d254aac51c01",
+      "lf_sha256": "7baa1b5d85887e2cc16eb3a5fd6fadcee7e49d8fa2bfec1281e6d254aac51c01",
+      "bytes": 62016
+    },
+    "api/services/__init__.py": {
+      "sha256": "7eb70257593da06f682a3ddda54a9d260d4fc514f645237f5ca74b08f8da61a6",
+      "lf_sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "bytes": 2
+    },
+    "api/services/acquisition_sessions.py": {
+      "sha256": "3ed7506706b841528d74711ee8baa3f78930a69e09684e3e3264e79e48cff909",
+      "lf_sha256": "715e1aed0dcff8cd673d21f51ea46706ae7589db203e7836321b3a9c0cf0bfde",
+      "bytes": 5132
+    },
+    "api/services/archive_policy.py": {
+      "sha256": "d79664a1fb5f9abdc775176ace3d5275a92673f905b923727dd95c07bd050280",
+      "lf_sha256": "121e7f3a6784aff92ea2478f0b7eaa38c3a0a0fa2e1e9a70a1598ff6d95b08ac",
+      "bytes": 12902
+    },
+    "api/services/archive_settings.py": {
+      "sha256": "3c25b577cf764ee882bcac79f2ece0e62b1831baa0e63e3d5b59259e4d5e1e77",
+      "lf_sha256": "3b5b497562167b5096e8baa74db12efda219f8887ff8969377868d4484a56f10",
+      "bytes": 3485
+    },
+    "api/services/assistant_control.py": {
+      "sha256": "eabf3218b13f81c1ff7e4f8408164c95560900b4f1e5b63f66c1d1e58ecd6b73",
+      "lf_sha256": "e969b3558063f1d736c2f2cf73d6b75c0d42e8031f8831ef27428894ac402118",
+      "bytes": 1224
+    },
+    "api/services/auth.py": {
+      "sha256": "c4b48912eb6b231782b9aa1d7d19da258b2ac959f44ccf4c503db2012a43fb6d",
+      "lf_sha256": "6f1b6d9aa7ea4ecb025ed139604ec26c60901e97e65ed72d5b1b7b0777bcf521",
+      "bytes": 4498
+    },
+    "api/services/backup.py": {
+      "sha256": "7aef817a698f65a3cf9a66ab0ed71a0a2e7c11f0921ce1f03ffc64215eb526f1",
+      "lf_sha256": "00e21f31a1c0fd7e0c142d09141b20b22122079b819362d96b2b57bccfba8130",
+      "bytes": 6941
+    },
+    "api/services/backup_policy.py": {
+      "sha256": "7ae53edaaaa52dfe22a395dbc41298a28150d884c09010923f47d39dec9b0cf5",
+      "lf_sha256": "553c66fc1d53f2b701aa06da0bfbc5a98e3b88027b1553490b5decce005c2cba",
+      "bytes": 8703
+    },
+    "api/services/backup_settings.py": {
+      "sha256": "7267528515dc0ce5597c7bff4c000dff499aeedebcbd45451bb2f2a7a3cff550",
+      "lf_sha256": "3e090d95171cedcbed834353b5dfe25be560324eaa92392ce8b4a27adfac1a60",
+      "bytes": 5701
+    },
+    "api/services/external_credentials.py": {
+      "sha256": "ca263dfff1b9f56b7fe1d73d421da4eae3c0432f8142f394198cb6b8a2c3f462",
+      "lf_sha256": "60e2094056d6a257efacd72b110766d2af23bc9879abe18b9cce5b5f514c7c88",
+      "bytes": 7519
+    },
+    "api/services/external_eln.py": {
+      "sha256": "79e73ffe58977002f848464c59517a9e5d1ddd3d8e3b2b731cfb765992adb68f",
+      "lf_sha256": "380e85f53d814ef29bad30e101d0808352c12082ee954be39ed6f1e296ffdab2",
+      "bytes": 15827
+    },
+    "api/services/external_eln_clients.py": {
+      "sha256": "f257c8bfe4bdbd9cb57cde29c76abf245b86f6b62a91d3c2233adcf1306febbf",
+      "lf_sha256": "02d602ffb9a297d5caf2640a155fd1429f381ec54f6fe5256e4f00d62acc3276",
+      "bytes": 40580
+    },
+    "api/services/external_eln_matching.py": {
+      "sha256": "d37144e041b4b252a74765bcab61b5249e764fbacbd1912bc5938cdb4e43c89e",
+      "lf_sha256": "0bc9b3f78cccb15a36b7a3f394472d78d48023bbd5dd291db7f629c26e897209",
+      "bytes": 19219
+    },
+    "api/services/external_publications.py": {
+      "sha256": "e8709d4a1b64bf28fec02189b539c727e79b0186169b736c4887950a089c53e0",
+      "lf_sha256": "2faadae4e84b404149946116a5f658d3c0699f9227a64aaf0fc97b7fd1a7a975",
+      "bytes": 1820
+    },
+    "api/services/indexing_jobs.py": {
+      "sha256": "87c39468b6866bd898c83ff40c072f797a4d5d686736493bba9c39bb1ba6e59f",
+      "lf_sha256": "b0084a6beb77672e060a9f8031b325144530103433c89747b2ca46f9bcd5e6db",
+      "bytes": 21712
+    },
+    "api/services/job_priority_settings.py": {
+      "sha256": "ae553d279d6f1525a357fb0a493f8cc1b8c90d26acbe53b0075040ff2d4bff74",
+      "lf_sha256": "87aaf89bb30dff127fcd598faa1f569e4e64b932eb34b61068b870401cb71f14",
+      "bytes": 16477
+    },
+    "api/services/labguru_yeast_strains.py": {
+      "sha256": "c2fda70d1a718766777e4a39389e6f4653a8e0e55bc4478fde39eb388d366417",
+      "lf_sha256": "1c3f2f7d4e1cc271b3c844d8e7cec6977726efc3cb570e24657572e979481d49",
+      "bytes": 33202
+    },
+    "api/services/labguru_yeast_sync_job.py": {
+      "sha256": "42636474a9c33f117b398cfaede564104d25077f2543f8f1eda66e6c17c46c7c",
+      "lf_sha256": "74e8b23daecfda1416cff9d5496d053f1812c113e6ae3c62feb7f92f28f03feb",
+      "bytes": 4496
+    },
+    "api/services/matlab_code_versions.py": {
+      "sha256": "59d818d25cf9033f87ecd3c6a3da5a762581287060051ae5833b79598a4f94a8",
+      "lf_sha256": "2958f1fb785e5e96841a3bdf444d706fcd060f287f528117ee00bed695502b72",
+      "bytes": 2077
+    },
+    "api/services/micromanager_ingest.py": {
+      "sha256": "107dd02bc39039878b357a62acd015590ba902a5f13e2537a699cb7ac9d04b78",
+      "lf_sha256": "8b06e39ef71bf6bc6299b8741c54330c18be1ea65e57d69d5f1b7eb3b89f98c3",
+      "bytes": 47865
+    },
+    "api/services/micromanager_metadata.py": {
+      "sha256": "4f58af912ff440d26d3a94e2ec251e8b0c515335b4416cb4a739b33d118ff8c3",
+      "lf_sha256": "cc346896a9be3706c774c974bed1fe0dfc1b582096b0d2d74a66d6f5a7486047",
+      "bytes": 39450
+    },
+    "api/services/migration_planning.py": {
+      "sha256": "f9adf4dfd199a8e84b82ac6ff6b943fdcee9aa50da6bdb7fb59a5e12e9622a46",
+      "lf_sha256": "e955e8325ea85873d20b79468e258da4e18c0d582a80ef35d5bf83ac5edf45c8",
+      "bytes": 13936
+    },
+    "api/services/misc_storage_inventory.py": {
+      "sha256": "d4e47bcad7867f5a94d56f86a3df46b8acfdb546311f9979d2adb3a9561e501a",
+      "lf_sha256": "a86fa7d22712657066d78c3b81879435fb50dc1b7f08f6b0927e97fddbd858ab",
+      "bytes": 17453
+    },
+    "api/services/nd2_metadata.py": {
+      "sha256": "bbf576e3cc6c64d524cd7e2f113adeb290b1545c534c95aba0335e5716d93dc9",
+      "lf_sha256": "eb0fe15de32ba72b6fdbb29fe80e6bc8fef099f111687a7fa402dbff48bfb54c",
+      "bytes": 16706
+    },
+    "api/services/ome_zarr_metadata.py": {
+      "sha256": "1440a6ee4cdbe2db956c585d05e3a400d811b81426e2538b398328ab20dc7bec",
+      "lf_sha256": "76fcad4fe487cba9d441e8dc0035a5045b36f28fb1008c603c3447b4d30a7b99",
+      "bytes": 29365
+    },
+    "api/services/path_resolution.py": {
+      "sha256": "709f6a762d5b3744d0a0ed582fb4a75aa9ed014679631754e55534a69500bb92",
+      "lf_sha256": "74d8545051d73b8bd8df4704706111ada600e73aa175eee0fe1ffb834c7d554b",
+      "bytes": 1135
+    },
+    "api/services/pipeline_raw_ingest.py": {
+      "sha256": "78279a37a36f2b8123cc5d783537fe75f09b79475f761db97e10f7cf96bc7765",
+      "lf_sha256": "f322787bab51cd81a040b0cca1d8b5eb56b7efb1478a23da06c4eff1191dcde5",
+      "bytes": 7965
+    },
+    "api/services/pipeline_runs.py": {
+      "sha256": "0d812eadddccc555f9a400da5753620ac6ee79655b064b617c7a80d4e4b070db",
+      "lf_sha256": "146aa861988996344e93528dc9d7c7f7499395ceb77e23a19c2d79d533a1318d",
+      "bytes": 17535
+    },
+    "api/services/project_deletion.py": {
+      "sha256": "5d7cbd7eb89987c0838d95367451ecef3c69df574a445b8d569a443c87a305ce",
+      "lf_sha256": "1c303dbc463800b40011240c3ec3bae02d184662f722491c999f8e3be36a3fa3",
+      "bytes": 18746
+    },
+    "api/services/project_indexing.py": {
+      "sha256": "fd75540852314e192ca2280a7688240a848c42523bff781b72463c7d357325e8",
+      "lf_sha256": "aaefca946f8ef579f839a6b704c3b349704b621d56b7428184e25330fcc900b5",
+      "bytes": 80286
+    },
+    "api/services/project_inventory.py": {
+      "sha256": "198ce7a8c24c877b959e5dc352f43f0f9c5b7c64e673833180c9fb4d4553d7d5",
+      "lf_sha256": "7557dcc62ae7d12d1847724de5e897650f74dbca2bbc64133d50949aac773557",
+      "bytes": 7690
+    },
+    "api/services/project_locks.py": {
+      "sha256": "eec322556de203c56320a37b2491811696ae39f3d33da9246341bbebd2a09ec7",
+      "lf_sha256": "9917c556c3a32bc4155cbbae3223264708752234f9401f53c25a764185a03ba5",
+      "bytes": 6923
+    },
+    "api/services/qwen_assistant.py": {
+      "sha256": "2d7100d50728b3253a6f29372abcbfb276ebaf3ee60b3feec3b281ad5505dcd0",
+      "lf_sha256": "a80c2ce7fd7c70db925eb3e8c9d8553105051c17a3c0d1321267f563e6dd9fdc",
+      "bytes": 2935
+    },
+    "api/services/raw_archive_delete.py": {
+      "sha256": "160ffb18ddbe781afb4f9c4034eae659dbaa54e65e0d0f4281617e73cd10899c",
+      "lf_sha256": "77fe89df67962974c438d380d65a9da0b63bce71c61c9952ee76ed0e8619efdf",
+      "bytes": 2829
+    },
+    "api/services/raw_dataset_deletion.py": {
+      "sha256": "7fe8b3815c49a1946d9a924f14e5813e95d3955c8307d9cae667e271c30576f0",
+      "lf_sha256": "348f09ead736e6788d348861a45b7f81289b04548f16c23af0a6eae0ad305e69",
+      "bytes": 9955
+    },
+    "api/services/raw_dataset_ingest.py": {
+      "sha256": "2f9f21688d2c7a3a0f64d5665a1a46f9f26ccc92d03f335d8f82f98fdcbeaaac",
+      "lf_sha256": "7a0125bb200732270a462a3f7cdad795b1dc11f0414847e860ee95ec0e986a36",
+      "bytes": 17159
+    },
+    "api/services/raw_dataset_lifecycle.py": {
+      "sha256": "0acdb66a54fa2876778c99983130f93b68e3f13a01198a9eba7275b3dbb537a3",
+      "lf_sha256": "c60ef45aa14c1c7379f14fbc05f5ce1ccc28e159ebbc43fd9626880fa5013f37",
+      "bytes": 23787
+    },
+    "api/services/raw_dataset_position_deletion.py": {
+      "sha256": "dfa3aca2ed89ab457af5d0494e04dcd28bcda34b276f47b4d8261712343b3551",
+      "lf_sha256": "6098055681fb24c95c802c3aa112d15a7d706829e7ddd762054f60be5828ede2",
+      "bytes": 16366
+    },
+    "api/services/raw_preview_jobs.py": {
+      "sha256": "4626fd900bcd70c1820e64f0d499a7b54a78269075ad3923b8348743c8a7a8f9",
+      "lf_sha256": "7b872c5de7ee8d178f82f53b867ba384c049a6c74973a63dec3a4afa4981ad3f",
+      "bytes": 2262
+    },
+    "api/services/raw_preview_settings.py": {
+      "sha256": "7b435e6784e2e315282110e80f36216c88f969ecb967ad8c6c29ccaaf8391755",
+      "lf_sha256": "c32931a0f5688544eecaf1a74bd323ecd08e09a153c3a44b8423b3624ef35bf1",
+      "bytes": 6209
+    },
+    "api/services/runtime_version.py": {
+      "sha256": "e9f85151a82724e6a502935860a1ccf2ae5e8a762337af027db12a0b944e433c",
+      "lf_sha256": "79f3bb29faeb8f701b662a72517b739ec8b0bdae0d59547c6e0564732903603f",
+      "bytes": 2881
+    },
+    "api/services/storage_metrics.py": {
+      "sha256": "b14c40495e152e3a3c4542964b3bc2fcea5f69dbc7bace63e43a9e5734824a35",
+      "lf_sha256": "e40f732ddc9f821cb1bcb8832c720bc1342dd002d4de894d41e693af90ecfbce",
+      "bytes": 439
+    },
+    "api/services/storage_providers/__init__.py": {
+      "sha256": "e6896b494998bf4a7efca9996a63bcfd247704820d8823ec453288e11127411b",
+      "lf_sha256": "c987eb02fc5d8171e1d514480d4f20da8f2d29285580777770bd6c9521d929df",
+      "bytes": 34
+    },
+    "api/services/storage_providers/provider_clients.py": {
+      "sha256": "87ee3000b06fccf0c650106cab322693039db1c5a59f7afb950807f2107e0d12",
+      "lf_sha256": "26dda26729c69f469dc76222081dffa043d00f5d589ce099bfe9851adebeaa09",
+      "bytes": 2792
+    },
+    "api/services/storage_providers/synology_dsm.py": {
+      "sha256": "aa85dd7f7f432604bd155dbe96e870f5e8d61a0bf0198a063a44faa2c82040dd",
+      "lf_sha256": "25b5990b062472f6053fa13f4989a75ba4054497c87624cda81978395ff3cc98",
+      "bytes": 14484
+    },
+    "api/services/storage_providers/synology_ssh.py": {
+      "sha256": "367dcd5726014f17421e10cb3138f42e239906495eb102d49e2a50be7f4ac672",
+      "lf_sha256": "736f757a7aab88f4511d7c36ef6696503b3ee10488098bf48705aa269cc1792c",
+      "bytes": 9710
+    },
+    "api/services/system_storage.py": {
+      "sha256": "b3d0f8f559d0c933d037a826dc8db0338fde4de1dbb0fbcc030d085d6c9a7ab5",
+      "lf_sha256": "9ac385e93676febba066f6f7f95b6c207e9a7bd7572fdfe5ac53ef5337b9b982",
+      "bytes": 2486
+    },
+    "api/services/user_home_storage.py": {
+      "sha256": "b43d9deee54206fdaa5fe63b64bda452b8d6370a4157714128c102ff97b3fd04",
+      "lf_sha256": "9e0e6d5dddd6606b349b87e5f3c7e701a40f0ebb1b00a9bd1e1aec8c9e94f34a",
+      "bytes": 10967
+    },
+    "api/services/users.py": {
+      "sha256": "c399d774595cca71c5546f4d1e396cd6b18c7fb89bacf2c1c4aec624f17c63d9",
+      "lf_sha256": "d414f92ae2ea22f0e59d0dc0170c342e8d7849a5784f754a231b48d47e126454",
+      "bytes": 7683
+    },
+    "api/services/worker_instances.py": {
+      "sha256": "11bb4573e6a9e5d6fd4cf25c7cb579a78f2a71908158430053168f137f0a9bb7",
+      "lf_sha256": "ce7dc6a4799eb9354f48ec42d7d3475ec9e0ac8c53a5754b4764e4199362a004",
+      "bytes": 11681
+    },
+    "api/static/admin-backup.html": {
+      "sha256": "e03440e5b6cf7b127800683f3b699eb7baec0a3c0647f9a08744068ec4048dfe",
+      "lf_sha256": "c6001fef1af15952a6aab97dd690e5a899ab3b610fb2c71b16a31ceb8d6950b7",
+      "bytes": 23956
+    },
+    "api/static/admin-execution-targets.html": {
+      "sha256": "375803c3c1ac34fa0466cb51421a1b26d1eb8f67e9e1f15d0efa14696af5ee04",
+      "lf_sha256": "1d0f7aa5b638850e65b5c4c14d39c9aadc4e3083d13cce6302951ccecf729f79",
+      "bytes": 12963
+    },
+    "api/static/admin-external-eln.html": {
+      "sha256": "3fae84f1e538199ef29a700f8939fe7a0686a2a94f6b726915ffebba2a1d3888",
+      "lf_sha256": "e4a70aa650b8c656b7e98c9d4ac576e15e427e61b08e26f2b3f328015f562fcb",
+      "bytes": 8443
+    },
+    "api/static/admin-raw-preview-quality.html": {
+      "sha256": "90ad9473ca500b695cd27744a835c6dd2bd85ab9dbec02dc7d7428366e871dc6",
+      "lf_sha256": "42b65637e9e3909fb957b6c6c807c45a22f6d28069cfe77e9a82e449393ce73c",
+      "bytes": 6296
+    },
+    "api/static/admin-sessions.html": {
+      "sha256": "7f4e9f75d3d78d81104f95d53a8a58615e6483832efbff4d3e5651467f51be45",
+      "lf_sha256": "1ba3a746ed6e78c1f04c63b239da54d25fa2518eb8ff71551a0d301bdf8c650e",
+      "bytes": 3404
+    },
+    "api/static/admin-users.html": {
+      "sha256": "09d57727faf97130a78648b38cc71e3bcf36fe1b0a8a79a038a1b3100281c0d6",
+      "lf_sha256": "d7e58f08d8cb771175cf32150bbf27cd5c5c85075fa2d845b188bed937453f3a",
+      "bytes": 4447
+    },
+    "api/static/admin-webserver-backup.html": {
+      "sha256": "89a2a75540530038dbe7a8dede6597af309ec6aa987110507eca1e1453c4c38e",
+      "lf_sha256": "1e711cc877560ce157db281332ba8a3281b337e691c0f9f1ea4870eb5da21b8b",
+      "bytes": 12058
+    },
+    "api/static/admin.html": {
+      "sha256": "4d41bd54d0e7edc91c0d9321b689852916d1e84179ff7a2d6f095b40de93c295",
+      "lf_sha256": "0343768b2c6df6f135f995bda3590390bdd8553b2a8cca9ecc735d0e30345de8",
+      "bytes": 5110
+    },
+    "api/static/app.js": {
+      "sha256": "eff1ca6d61b852d1dd22cba0e9855c5af0dc4ebc382fcd2b192086eb4d3da0c3",
+      "lf_sha256": "eff1ca6d61b852d1dd22cba0e9855c5af0dc4ebc382fcd2b192086eb4d3da0c3",
+      "bytes": 436513
+    },
+    "api/static/assistant.html": {
+      "sha256": "f446e7047ac9f86a024a44b43c6bb754a9a077a5f5613b6961ccb233c8906ead",
+      "lf_sha256": "a40af0abf949dcef248429266b67b2d0efc71579b5fda57c317eb17a8251d357",
+      "bytes": 3830
+    },
+    "api/static/assistant.js": {
+      "sha256": "53394f074c15b25eea6851c55475a3156c40305f08648da92d2001e22e593e44",
+      "lf_sha256": "d126902688e5020b60463578e54258c3c447e952438a1dacb1031ca8ac4a1225",
+      "bytes": 6757
+    },
+    "api/static/dashboard.html": {
+      "sha256": "16db4a75662bc2e2002f1443c67f8a617782368f66f3befbffb6665909cdacbd",
+      "lf_sha256": "d84cc90caccca1832a18263ecf08ca22a7ff157c4f818df7eabb7cb1d826e107",
+      "bytes": 5646
+    },
+    "api/static/external-systems.html": {
+      "sha256": "4f70ca14e5525f76948ef3740822b6f6cfb88743edf3ad6c7f6e88c7476db228",
+      "lf_sha256": "38e9004acd672ec7f51957726709f6357b5a9389b9147da3352d0cc6da08b1b7",
+      "bytes": 4096
+    },
+    "api/static/index.html": {
+      "sha256": "9fed5daef0bcb1159228fa46a8faff1a25a76c4e292aa49430a39d838cc1a779",
+      "lf_sha256": "09312c0cb97c57879cea7f5d8e0ffffbb42e13b3a040049c03e16c8264fddc24",
+      "bytes": 11873
+    },
+    "api/static/indexing.html": {
+      "sha256": "ad3a7ff18355a618906188614d0014aa3b07114788a93ad6b3301f5c0d7c575f",
+      "lf_sha256": "4c77d7715fe053025e7479526a5ec83c8db430310d301bd2bdece8a9e518f73b",
+      "bytes": 11695
+    },
+    "api/static/misc-storage.html": {
+      "sha256": "06cbcfcdf81946d4db96f176785eab351bd6d58efcf44a8d456a8f3e397c710c",
+      "lf_sha256": "104dc6e02bea71568111122f2c3b80d61cc93a04c3bb48b149508c94622a8885",
+      "bytes": 8277
+    },
+    "api/static/project.html": {
+      "sha256": "c8db12ce7f8f711e09129b26e33afd45136c6a2d4e82a9fea3e78a8a300906f0",
+      "lf_sha256": "b948c2fc37772659025b63d4e8b7d34ae3ee2119302af73f75755430a6f386e2",
+      "bytes": 9563
+    },
+    "api/static/raw-dataset.html": {
+      "sha256": "aeba7b1d35bf5b22f60fae735e2ddb909e4ebf50d49face53c753b7fecc04474",
+      "lf_sha256": "e4403958742c284046311683a8d0b0202f72c7834ca102c5c73763437182c9f4",
+      "bytes": 11611
+    },
+    "api/static/raw-datasets.html": {
+      "sha256": "d0622b4711519f77da037c9171103f04a5f9cddb52e111c12d55328b993a8085",
+      "lf_sha256": "40ec6fc0f86dbe4a7ed62f4f24c15457167ff1809efa85288832035b64b84ba2",
+      "bytes": 10950
+    },
+    "api/static/raw-ops.html": {
+      "sha256": "d33aa00a485f1a46523b9f7ac408e235927a0103e612fc098ee662d41b952f7b",
+      "lf_sha256": "6d48cdc43cda0835d40469186f6df24c603dd2b8432a078a95892761b603ec91",
+      "bytes": 14642
+    },
+    "api/static/styles.css": {
+      "sha256": "e0c73478e37eb379367a875cd03ef911505220479cdfd2a076bd435a3dbd7fce",
+      "lf_sha256": "f9ff61cbb3f46840e0e979f86c3db45721cdd14d9ed92548fc032bba775de865",
+      "bytes": 35182
+    },
+    "api/static/yeast-strains.html": {
+      "sha256": "f7e2e693c2cd506652d356de97ca64d70b697f5f733a4bbd9603cc733c959194",
+      "lf_sha256": "d1a99e24e590859a6411abcea0c85d8b40b33908f155d342b6bdca915e15c476",
+      "bytes": 7286
+    },
+    "constraints.txt": {
+      "sha256": "9e586b338f1f6acf7a1365c3e61c4fcf69e14f43e17ccc09aa80f941bf2f91b6",
+      "lf_sha256": "4545f4af2ecca7f27bec8fbb9581a04dad9d082331f042126ea330ad434e2980",
+      "bytes": 282
+    },
+    "db/migrations/20261020_job_force_stop.sql": {
+      "sha256": "593d598c4c9883e0865b5844ba8533c5df97b3d1f72bc90bcfee9e54b26835e9",
+      "lf_sha256": "593d598c4c9883e0865b5844ba8533c5df97b3d1f72bc90bcfee9e54b26835e9",
+      "bytes": 415
+    },
+    "db/schema.sql": {
+      "sha256": "8f948c285abcc57742530d546e8b547ef4ade5db639ecc6ab58e80ff6485a751",
+      "lf_sha256": "8f948c285abcc57742530d546e8b547ef4ade5db639ecc6ab58e80ff6485a751",
+      "bytes": 42995
+    },
+    "pyproject.toml": {
+      "sha256": "24590c6fab8e52b3c94bbfe5316324d39d630d4181f2994c5732f1b3cce91bc3",
+      "lf_sha256": "0515ed552d7c56712d1d2e167052fc8b60fd6d2713e9c4c860ad91f00d45e638",
+      "bytes": 1068
+    },
+    "scripts/register_windows_worker_task.ps1": {
+      "sha256": "5a1223bb3976cbae7700be3774b9b7ed151368c54a1f26aa5b81e58f15897e8c",
+      "lf_sha256": "449c725047e97035ccb5a85299965a64b293010849141b20b102b95c45ccf964",
+      "bytes": 1359
+    },
+    "worker/__init__.py": {
+      "sha256": "4ac1ec3f9c22a45554ebc2cc0f18f25093b64e3f4cc05cc56e38636f157af3c6",
+      "lf_sha256": "58aa5933741c70316b9bc3833aad27f12b59f5c97f16b59e2b4f2dff02b66879",
+      "bytes": 38
+    },
+    "worker/archive_policy_scheduler.py": {
+      "sha256": "49f720c7527e095e46cb2ec00b862e11dbd3bd11d78b6d0f1d917356886ec167",
+      "lf_sha256": "b6170e4de5bdc5b136da3acdf61d5406dab89b0396cf1dbfb28e76b0b02d46a0",
+      "bytes": 2415
+    },
+    "worker/autoscaling.py": {
+      "sha256": "c939879eba2580ad0fda5dc9bb2239c354cb6fd6f226c07634e89d059911f6cf",
+      "lf_sha256": "c939879eba2580ad0fda5dc9bb2239c354cb6fd6f226c07634e89d059911f6cf",
+      "bytes": 4719
+    },
+    "worker/backup_executor.py": {
+      "sha256": "0d163a870730013349ddb1ecdefdca084a0fd779a86918eebfe5c960e71fdf8a",
+      "lf_sha256": "3ef9f00ecd83d2486f6f283735058958a9f221c056a3dd40178d5d18a1512894",
+      "bytes": 13789
+    },
+    "worker/backup_scheduler.py": {
+      "sha256": "3f05b68cd43ef1b72f5e49c17aeb5b16353e588edab580dfc5c56c2ddd0be81d",
+      "lf_sha256": "3169795f47c30362836e7fe22a1b535554a7b9aba868cf8950ee268700c7001f",
+      "bytes": 1999
+    },
+    "worker/check_readiness.py": {
+      "sha256": "62924dfc180357799f59a6c848e0d2b1ba2cad16581e0569f3f321ebc9b2bbd0",
+      "lf_sha256": "96893570980b43780b1fb4af91cccf483dfd237e2cdf610a2b69f475adb09f3f",
+      "bytes": 2194
+    },
+    "worker/cpu_usage.py": {
+      "sha256": "ea67adadc502d7e1e64647c248ed248a7b0103cac5d65795464fcf7f334a807b",
+      "lf_sha256": "25a7ed636c4be081fccaab9f5c0bf580df364d430b0c91cc6f6dd8355d099dbf",
+      "bytes": 6549
+    },
+    "worker/dynamic_resources.py": {
+      "sha256": "3775990ec0025b3166366bc2342202d611114316de7b3ad3ff66e76e77ddf347",
+      "lf_sha256": "104979adf66bab46932cbcfb450fdd67821bf7b55c0818bfb8d12b908173ed25",
+      "bytes": 1887
+    },
+    "worker/executors/job_process_scope.py": {
+      "sha256": "c2c65f96fdc9c38cd54efabc67ed489f6b732df6e60b47f8f5aefdec7e8e2816",
+      "lf_sha256": "c2c65f96fdc9c38cd54efabc67ed489f6b732df6e60b47f8f5aefdec7e8e2816",
+      "bytes": 8425
+    },
+    "worker/executors/linux_job_supervisor.py": {
+      "sha256": "c12c955dcd1cea3e22104359f74b91f68b463a577c07fe17f6bb6739460f1980",
+      "lf_sha256": "c12c955dcd1cea3e22104359f74b91f68b463a577c07fe17f6bb6739460f1980",
+      "bytes": 1126
+    },
+    "worker/executors/matlab_executor.py": {
+      "sha256": "7478d016deb1adbc176b21c87bf55ab9ca4c48873030553f0c20f210c9c62774",
+      "lf_sha256": "7478d016deb1adbc176b21c87bf55ab9ca4c48873030553f0c20f210c9c62774",
+      "bytes": 5599
+    },
+    "worker/executors/python_executor.py": {
+      "sha256": "4ec24f22ff79f4f1fc0e10e9c8bc08013a1273fc51c991857570c63fb5ce66cd",
+      "lf_sha256": "af5ec3cf353837a2469641904975d0f2cc1167078e91793997612c5819dff3f3",
+      "bytes": 250
+    },
+    "worker/gpu_arbitration.py": {
+      "sha256": "72f32d7361177b4167bcd84977e4585aacc9860b37481a81c5e0d63d4034a3af",
+      "lf_sha256": "f6c60422d8d7e8aed1aa83b4cf8c0dce7bc5ee434460d811b077e33b3bb3cd73",
+      "bytes": 4009
+    },
+    "worker/job_resources.py": {
+      "sha256": "d06dea8587c264eebb6ea1bbfe6857d1a2479cb93a4b8521b2d5e8bea88b39c3",
+      "lf_sha256": "da5d5c89d33bc7eec72b1fc0c2d4edb2ff845f3850c6fafae7a7f5cecfe69278",
+      "bytes": 18732
+    },
+    "worker/legacy_matlab_executor.py": {
+      "sha256": "c8094d7a8a18e382e6bdb920a94e016f4c6fa6a61d5d512ef0fa8cd4ad365c86",
+      "lf_sha256": "4a746142b432fdceced72e089e2c048b4e57eb36f7a123690a3fcfef2723e97a",
+      "bytes": 5197
+    },
+    "worker/manage_workers.py": {
+      "sha256": "3ff224f54bf3c40afa2712a66a54b0e96919907ff9a2f9cd9b489dc7f7530876",
+      "lf_sha256": "b70e35a317abcadeb6c8eb4868e3c965c1c5b9c0b084368f2ea336f6460e1c29",
+      "bytes": 7904
+    },
+    "worker/matlab/legacy_matlab_jpg_preview.m": {
+      "sha256": "531258c607131c3d4d29f88a8e01d0f44641750283ce1dc98aaf8d58003bd8a9",
+      "lf_sha256": "d1d9d656e25448e5780b88492c6e29a3bf1b21757e56e5d84df7531b4888cb66",
+      "bytes": 10718
+    },
+    "worker/matlab_code_checkout.py": {
+      "sha256": "37c363eb05b950c7989f8599320618e2ffbfcead1ef0487a5208320746efd978",
+      "lf_sha256": "37c363eb05b950c7989f8599320618e2ffbfcead1ef0487a5208320746efd978",
+      "bytes": 15108
+    },
+    "worker/memory_resources.py": {
+      "sha256": "2ee9ad2ae213eaa47f9b6877cdaf97c8642d32b8d471e013900a0b79b3c5b4a2",
+      "lf_sha256": "717e288b3c5521318e577470ff15754ed2623e3a61e9f63b923a9c129f08a66e",
+      "bytes": 3805
+    },
+    "worker/micromanager_ingest_scheduler.py": {
+      "sha256": "343c3473455fe1cc57a5ae356726e367df974637fb149bd51cf8c1c7d8bce145",
+      "lf_sha256": "32b1e6a56fd6cd6f6dee2b5f37f227353127855a0f7ff7f5deed879659d547b6",
+      "bytes": 5131
+    },
+    "worker/misc_storage_inventory.py": {
+      "sha256": "a9af0fbb2fca0dcb1f91b2fd6425c61c7861f81ad42368bbc9f8a7b0c414eba9",
+      "lf_sha256": "bfc57a732b71710303037fe867121ccf04051df9282caf19e91fc2154248b3b2",
+      "bytes": 1983
+    },
+    "worker/nvidia_runtime.py": null,
+    "worker/path_mappings.py": {
+      "sha256": "73bd9e2dfb7e81e528d7bc3aea654ad35171fcb7aadba86cb4961692daa8672c",
+      "lf_sha256": "73bd9e2dfb7e81e528d7bc3aea654ad35171fcb7aadba86cb4961692daa8672c",
+      "bytes": 4193
+    },
+    "worker/pipeline_dependency_preflight.py": {
+      "sha256": "860dc0c261ca75b641a286766d22519e281f474b72f2a14a4d0eaca3f491dcd7",
+      "lf_sha256": "607471e55e7f9023c86348bc5ef174aa98f79edd67c74231b579534cf55795e0",
+      "bytes": 6730
+    },
+    "worker/pipeline_prepared_run.py": {
+      "sha256": "6938ff9b60ee08cb08d05e89ec8dec2151faa8e87bfc166a481c15a8bf7a64ae",
+      "lf_sha256": "bd85f9db1e150ebfa27cea244e70c48107d89c880b56c90889f9b608012cfde4",
+      "bytes": 3156
+    },
+    "worker/pipeline_run_executor.py": {
+      "sha256": "465fe810f771556cd7a64db0045ddc6bbd76bd6cdc0239fa629e8a65a3d92f61",
+      "lf_sha256": "465fe810f771556cd7a64db0045ddc6bbd76bd6cdc0239fa629e8a65a3d92f61",
+      "bytes": 31578
+    },
+    "worker/preview_text.py": {
+      "sha256": "45030f8557fc8b11a4e2d05117717c1dcf63f25d4a4c13328c7d108044425cb2",
+      "lf_sha256": "6854449233128d057f2c17a714f7ae952404a06c0f9d3aea96ea0d6e4d50761f",
+      "bytes": 912
+    },
+    "worker/raw_preview_video.py": {
+      "sha256": "80a86a79429a5f68a22360054b8d87a79b4a15f70867008a4209e42cfad6717e",
+      "lf_sha256": "4b6a4f3354ce613ab49fd9ced1e02a975c33425f22b0905006496b82158eb54c",
+      "bytes": 93164
+    },
+    "worker/record_worker_exit.py": {
+      "sha256": "ca2f00555212fdb92929ee9f209133431afb8f28b2853ecf2b8184b5a2d873fe",
+      "lf_sha256": "9df7c8facc067d2d74d2b780029eabd4a462e6f20378b83869615a035871239f",
+      "bytes": 1712
+    },
+    "worker/resource_reporting.py": {
+      "sha256": "3dff3bda6f4ac3ac3392edd1f973cf3e8c536a12c4156add362bf1dc0c3f77b3",
+      "lf_sha256": "b62aa1bd35b6a97581e12f8d2327bac950c175c587e990ca8daeb00e836bad38",
+      "bytes": 2241
+    },
+    "worker/roi_extraction_resources.py": {
+      "sha256": "b63b96bcaef616c9428a841d24e5e3d323736c0677146883497b928d713a7fe1",
+      "lf_sha256": "b63b96bcaef616c9428a841d24e5e3d323736c0677146883497b928d713a7fe1",
+      "bytes": 4240
+    },
+    "worker/run_worker.py": {
+      "sha256": "dfbb07b444579a4cb89927c4db6ab36bcdadf1450a29729ca978b3ad95aa7665",
+      "lf_sha256": "dfbb07b444579a4cb89927c4db6ab36bcdadf1450a29729ca978b3ad95aa7665",
+      "bytes": 44102
+    },
+    "worker/storage_lifecycle.py": {
+      "sha256": "222ad04cf150d599fe1ee4d0a15b9b2db27c81f51aeca8414d3ff79e8080a9e9",
+      "lf_sha256": "2a5248b39c4f7b8f41fdf12d52a9362b43640688ed7c79ec5448198f3aa641f3",
+      "bytes": 21687
+    },
+    "worker/storage_optimization.py": {
+      "sha256": "b8b16b410f8c3ceeb01b3336ce7c27d381d6844b3674c9a5eba52979a8724e35",
+      "lf_sha256": "b57e59cdccbc0aa8f7dee37515879a127451b4e44612d29ddc206ec97a744846",
+      "bytes": 22511
+    },
+    "worker/user_home_storage.py": {
+      "sha256": "b45b2531dd4ac1a447b1036c833cc624bce548423ac2cf8450fb7440a0599481",
+      "lf_sha256": "fa01de7513831a2fee1a5a91507d1819c364085a5eaac5061dd011195e831784",
+      "bytes": 6590
+    }
+  },
+  "extra_runtime_files": [
+    "worker/pipeline_claim_compatibility.py"
+  ],
+  "git": {
+    "head": "b73bd841cd795724a08dc2b45964db473851fb56",
+    "status": [
+      " M api/config.py",
+      " M api/models.py",
+      " M api/routes_pipeline_runs.py",
+      " M api/schemas.py",
+      " M api/services/pipeline_raw_ingest.py",
+      " M api/static/app.js",
+      " M db/schema.sql",
+      " M scripts/register_windows_worker_task.ps1",
+      " M worker/autoscaling.py",
+      " M worker/executors/matlab_executor.py",
+      " M worker/job_resources.py",
+      " M worker/legacy_matlab_executor.py",
+      " M worker/memory_resources.py",
+      " M worker/path_mappings.py",
+      " M worker/pipeline_run_executor.py",
+      " M worker/run_worker.py",
+      "?? .deploy-backups/",
+      "?? .deploy-staging/",
+      "?? .env.before-lm54v007-20261001010501",
+      "?? .env.before-lm54v008-20261001090507",
+      "?? api/services/matlab_code_versions.py",
+      "?? db/migrations/20261020_job_force_stop.sql",
+      "?? worker/executors/job_process_scope.py",
+      "?? worker/executors/linux_job_supervisor.py",
+      "?? worker/matlab_code_checkout.py",
+      "?? worker/pipeline_claim_compatibility.py",
+      "?? worker/roi_extraction_resources.py"
+    ]
+  },
+  "source_runtime": {
+    "deployment_version": "fp-5ca30c1b891c",
+    "version_source": "fingerprint",
+    "code_fingerprint": "5ca30c1b891c"
+  },
+  "worker_trees": [
+    {
+      "pid": 27664,
+      "created": 1792511548.9427457,
+      "children": []
+    },
+    {
+      "pid": 65212,
+      "created": 1792511548.9349709,
+      "children": [
+        {
+          "pid": 27664,
+          "name": "python.exe",
+          "created": 1792511548.9427457
+        }
+      ]
+    }
+  ]
+}

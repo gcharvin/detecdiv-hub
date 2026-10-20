@@ -1,0 +1,24 @@
+{
+  "files_verified": {
+    "api/services/pipeline_runs.py": true,
+    "api/services/project_deletion.py": true,
+    "scripts/register_windows_worker_task.ps1": true,
+    "worker/matlab_code_checkout.py": true,
+    "worker/nvidia_runtime.py": true
+  },
+  "source_fingerprint": "b35b0444d5f0",
+  "expected_fingerprint": "b35b0444d5f0",
+  "last_activation": {
+    "complete": false,
+    "actions": [
+      {
+        "instance": "windows-10-20-11-56-main",
+        "reloaded_pid": 27664
+      }
+    ],
+    "fingerprint": "b35b0444d5f0",
+    "awaiting_fresh_heartbeats": true,
+    "checked_at": "2026-10-20T21:03:59.904207+00:00"
+  },
+  "services": "[{\"name\":\"DetecDiv Hub Database Tunnel\",\"state\":\"Running\",\"limit\":\"PT0S\"},{\"name\":\"DetecDiv Hub Reconciled Activation 20261020\",\"state\":\"Ready\",\"limit\":\"PT2M\"},{\"name\":\"DetecDiv Hub Worker\",\"state\":\"Running\",\"limit\":\"PT0S\"}]\n"
+}

@@ -1,0 +1,12 @@
+{
+  "commit": "01204c96829b0b676384e7f182ae54074b56aa8d",
+  "role": "API container",
+  "files": {
+    "api/services/project_deletion.py": {
+      "before": "64cbaa229dc6dcb40cc0ced6cdedb373a645ebcab7a3ca70b97e9d031aceac70",
+      "after": "2072283d0d0cc2c25116edd8a1f6c487a3bb434bd44d78c4d4e0d2cf830bd2aa"
+    }
+  },
+  "before_fingerprint": "d5d9b6785981",
+  "expected_fingerprint": "15fed3245ae8"
+}

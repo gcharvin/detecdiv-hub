@@ -1,0 +1,7 @@
+{
+  "files_updated": 1,
+  "expected_fingerprint": "15fed3245ae8",
+  "api_rebuild_exit": 0,
+  "backup": "/home/charvin-admin/repos/detecdiv-hub-webvm/.deploy-backups/hub-reconciled-20261020",
+  "container_only": "api"
+}

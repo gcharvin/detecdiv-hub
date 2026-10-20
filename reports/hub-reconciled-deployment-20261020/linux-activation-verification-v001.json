@@ -1,0 +1,19 @@
+{
+  "files_verified": {
+    "api/services/pipeline_runs.py": true,
+    "api/services/project_deletion.py": true
+  },
+  "source_fingerprint": "a2649a68b316",
+  "expected_fingerprint": "a2649a68b316",
+  "last_activation": {
+    "complete": false,
+    "deferred": [
+      "@4",
+      "@5",
+      "@3"
+    ],
+    "reason": "busy_or_stale",
+    "checked_at": "2026-10-20T21:04:21.189008+00:00"
+  },
+  "services": "NEXT                          LEFT LAST                              PASSED UNIT                                              ACTIVATES\nTue 2026-10-20 23:04:50 CEST   16s Tue 2026-10-20 23:04:20 CEST     13s ago detecdiv-hub-reconciled-activation-20261020.timer detecdiv-hub-reconciled-activation-20261020.service\nWed 2026-10-21 00:00:00 CEST 55min Tue 2026-10-20 21:00:16 CEST 2h 4min ago snap.firmware-updater.firmware-notifier.timer     snap.firmware-updater.firmware-notifier.service\nWed 2026-10-21 13:41:33 CEST   14h Tue 2026-10-20 13:41:33 CEST      9h ago launchpadlib-cache-clean.timer                    launchpadlib-cache-clean.service\n\n3 timers listed.\n"
+}

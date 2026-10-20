@@ -1,0 +1,9 @@
+{
+  "loaded_driver_version": "580.173.02",
+  "selected_library_path": "/home/charvin-admin/repos/detecdiv-hub-webvm/.nvidia-runtime/580.173.02/usr/lib/x86_64-linux-gnu",
+  "library_sha256": {
+    "libcuda.so.1": "266916dac6c5e7e4655526570cf303a6cc017880d2552960abc66017a7c98cf4",
+    "libnvidia-ml.so.1": "82d7b58d3f870b0635e8999c56eb8fd2d795c920daa2661e628ca523eee5f557"
+  },
+  "gpu_initialization_performed": false
+}

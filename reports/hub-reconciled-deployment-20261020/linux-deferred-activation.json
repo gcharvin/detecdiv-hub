@@ -1,0 +1,14 @@
+{
+  "timer": "NextElapseUSecMonotonic=3w 5d 14h 16min 48.222599s\nActiveState=active\n",
+  "linger": "Linger=yes\n",
+  "last": {
+    "complete": false,
+    "deferred": [
+      "@4",
+      "@5",
+      "@3"
+    ],
+    "reason": "busy_or_stale",
+    "checked_at": "2026-10-20T21:06:25.223165+00:00"
+  }
+}

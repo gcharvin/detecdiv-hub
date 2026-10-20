@@ -1,0 +1,37 @@
+{
+  "health": {
+    "status": "ok",
+    "service": "detecdiv-hub",
+    "database_status": "ok",
+    "database_message": null,
+    "hostname": "af62fa10591a",
+    "deployment_version": "fp-15fed3245ae8",
+    "version_source": "fingerprint",
+    "code_fingerprint": "15fed3245ae8",
+    "disk_warning_threshold_percent": 95,
+    "disk_usage": [
+      {
+        "path": "/",
+        "label": "VM system disk",
+        "total_bytes": 84225998848,
+        "used_bytes": 51682217984,
+        "free_bytes": 28675313664,
+        "used_percent": 65.0,
+        "status": "ok",
+        "message": null
+      },
+      {
+        "path": "/data",
+        "label": "Shared data storage",
+        "total_bytes": 94009274970112,
+        "used_bytes": 89571131768832,
+        "free_bytes": 4438143201280,
+        "used_percent": 96.0,
+        "status": "warning",
+        "message": null
+      }
+    ]
+  },
+  "force_stop_route": true,
+  "english_ui": true
+}
