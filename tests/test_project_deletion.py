@@ -8,7 +8,9 @@ if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
 from api.models import Project, ProjectLocation, StorageRoot
-from api.services.project_deletion import build_deletion_preview, execute_project_deletion
+from api.services.project_deletion import (
+    build_deletion_preview, execute_project_deletion, resolve_project_backup_file_paths,
+)
 
 
 class FakeSession:
@@ -21,6 +23,28 @@ class FakeSession:
 
     def flush(self):
         self.flushed = True
+
+
+def test_backup_resolution_preserves_existing_path_case_and_distinct_files(tmp_path):
+    folder = tmp_path / "MiXeD_Project"
+    folder.mkdir()
+    project = folder / "sample-project.mat"
+    project.write_text("project", encoding="utf-8")
+    first = folder / "sample-project.BAK"
+    first.write_text("first backup", encoding="utf-8")
+    second = folder / "sample-project.bak"
+    second.write_text("second backup", encoding="utf-8")
+    unrelated = folder / "another-project.BAK"
+    unrelated.write_text("preserve", encoding="utf-8")
+
+    paths = resolve_project_backup_file_paths(str(project))
+    assert all(Path(path).is_file() for path in paths)
+    assert all(Path(path).parent == folder for path in paths)
+    if first.samefile(second):
+        assert len(paths) == 1
+    else:
+        assert set(paths) == {str(first.resolve()), str(second.resolve())}
+    assert str(unrelated.resolve()) not in paths
 
 
 def test_project_deletion_removes_project_bak_backup_files(tmp_path):

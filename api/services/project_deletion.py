@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 import shutil
 import uuid
 from dataclasses import dataclass
@@ -368,11 +369,12 @@ def resolve_project_backup_file_paths(project_file_path: str) -> list[str]:
     for candidate in candidates:
         if not candidate.is_file():
             continue
-        key = str(candidate.resolve(strict=False)).casefold()
+        resolved = str(candidate.resolve(strict=False))
+        key = resolved.casefold() if os.name == "nt" else resolved
         if key in seen:
             continue
         seen.add(key)
-        paths.append(key)
+        paths.append(resolved)
     return paths
 
 
