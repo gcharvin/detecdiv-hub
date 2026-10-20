@@ -1,0 +1,3637 @@
+{
+  "base_commit": "222dea1ba6842c63df28d4c5ca96f8225b4e59ba",
+  "initial_files": 515,
+  "initial_modified_tracked": 26,
+  "initial_untracked": 489,
+  "identical_prior_branch_blobs": 23,
+  "files": [
+    {
+      "path": "db/migrations/20261020_job_force_stop.sql",
+      "initial_sha256": "593d598c4c9883e0865b5844ba8533c5df97b3d1f72bc90bcfee9e54b26835e9",
+      "initial_bytes": 415,
+      "current_sha256": "593d598c4c9883e0865b5844ba8533c5df97b3d1f72bc90bcfee9e54b26835e9",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "docs/assistant_guardrails_perspective.md",
+      "initial_sha256": "880b9924d6c76d6176651399a782a6c7a34738a7cad203201a5d609b8bddb30e",
+      "initial_bytes": 11983,
+      "current_sha256": "880b9924d6c76d6176651399a782a6c7a34738a7cad203201a5d609b8bddb30e",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "docs/job_force_stop.md",
+      "initial_sha256": "5205a1a0aa4cf9cb8ca455af48ba17a2fc63f8d9760e48f01526d5378c3ca86e",
+      "initial_bytes": 3447,
+      "current_sha256": "578a36c81e0b2d66bd835dbb4b4f8470d3eca8f0f690bf8b1ddad368c456461d",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "docs/reports/qwen36-27b-vs-qwen3-14b-2026-10-15.md",
+      "initial_sha256": "eb7842d5be395e0fe8856e3989b00697ce5cdf2ba90b9d8cff67d9365eeb0c0b",
+      "initial_bytes": 9876,
+      "current_sha256": "eb7842d5be395e0fe8856e3989b00697ce5cdf2ba90b9d8cff67d9365eeb0c0b",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "docs/reports/qwen36-27b-vs-qwen3-14b-2026-10-15.metrics.json",
+      "initial_sha256": "6a818fdbbe920582ba7ef6803ba20bc71affc76d17cb33bce674f541fac71475",
+      "initial_bytes": 3714,
+      "current_sha256": "6a818fdbbe920582ba7ef6803ba20bc71affc76d17cb33bce674f541fac71475",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "ops/map_alexander_secondary_share.sql",
+      "initial_sha256": "45e4e7b8144ef0835ffdd249501605aafae1967c566bc7ab30a6178db8a70721",
+      "initial_bytes": 2920,
+      "current_sha256": "45e4e7b8144ef0835ffdd249501605aafae1967c566bc7ab30a6178db8a70721",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "ops/set_secondary_share_pilot.sql",
+      "initial_sha256": "50375adcf595e02733b9d8f24b0fb44923f70bd4f041f81d8dde462e9ab980cc",
+      "initial_bytes": 1228,
+      "current_sha256": "50375adcf595e02733b9d8f24b0fb44923f70bd4f041f81d8dde462e9ab980cc",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/abhilasha-hyper7-shortpath-retry-20261015.json",
+      "initial_sha256": "b5bc3b893b76aeadbc25352a6779bbcecaab8160f83586d7fa7ba1138f968ccb",
+      "initial_bytes": 2123,
+      "current_sha256": "b5bc3b893b76aeadbc25352a6779bbcecaab8160f83586d7fa7ba1138f968ccb",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/alex-explicit-parpool-diagnostic-20261015.json",
+      "initial_sha256": "6332118b780824b417c059916033ffa821edb5709e423b96cb4e36addd5e22ed",
+      "initial_bytes": 990,
+      "current_sha256": "6332118b780824b417c059916033ffa821edb5709e423b96cb4e36addd5e22ed",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/alex-force-stop-demo-20261020/admission-restored.json",
+      "initial_sha256": "430d1a9373e85036cc0f4b5da3c50ef169147855bf75de54636136d52818d345",
+      "initial_bytes": 36,
+      "current_sha256": "430d1a9373e85036cc0f4b5da3c50ef169147855bf75de54636136d52818d345",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/alex-force-stop-demo-20261020/after.json",
+      "initial_sha256": "2192309b2b82ac35149de130410f0dff185ebc2a2f15d02b2fb82cb26688a36d",
+      "initial_bytes": 22211,
+      "current_sha256": "2192309b2b82ac35149de130410f0dff185ebc2a2f15d02b2fb82cb26688a36d",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/alex-force-stop-demo-20261020/before.json",
+      "initial_sha256": "cc6756b1cc065ac1a3c9b7ee6808718d13ea67c7b8a26eff09fd5a5b1c63339a",
+      "initial_bytes": 23958,
+      "current_sha256": "cc6756b1cc065ac1a3c9b7ee6808718d13ea67c7b8a26eff09fd5a5b1c63339a",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/alex-force-stop-demo-20261020/cancelled.json",
+      "initial_sha256": "f3e2db5cdac18e2ae1f7b0d8be27f79b3424cbaccd618638696b22f6e4966cfc",
+      "initial_bytes": 167,
+      "current_sha256": "f3e2db5cdac18e2ae1f7b0d8be27f79b3424cbaccd618638696b22f6e4966cfc",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/alex-force-stop-demo-20261020/common.py",
+      "initial_sha256": "93aa3a06f6353557dfde0222649d2ce6bc3e0fccf8e082cc4d27434f37ee6f28",
+      "initial_bytes": 231,
+      "current_sha256": "93aa3a06f6353557dfde0222649d2ce6bc3e0fccf8e082cc4d27434f37ee6f28",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/alex-force-stop-demo-20261020/demo-final-processes.json",
+      "initial_sha256": "0714f48b4df81864d8185459a062b7895f32d1ff92f83d901cd4735809bba0f0",
+      "initial_bytes": 314,
+      "current_sha256": "0714f48b4df81864d8185459a062b7895f32d1ff92f83d901cd4735809bba0f0",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/alex-force-stop-demo-20261020/demo-final-state.json",
+      "initial_sha256": "298254baef4a5e4ab32a9f161d15d9d569a8569101b072e9f1c1786fccc75f4e",
+      "initial_bytes": 5288,
+      "current_sha256": "298254baef4a5e4ab32a9f161d15d9d569a8569101b072e9f1c1786fccc75f4e",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/alex-force-stop-demo-20261020/demo-fixture-verification.json",
+      "initial_sha256": "91e779555ad1c8aec9154775215a2c25b11c0a25018a2c490d7a2d7010c6f04c",
+      "initial_bytes": 204,
+      "current_sha256": "91e779555ad1c8aec9154775215a2c25b11c0a25018a2c490d7a2d7010c6f04c",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/alex-force-stop-demo-20261020/demo-job.json",
+      "initial_sha256": "bc52eeaf3589f6a29805cdb2f94cae5ade423916937b71cfc74d4d31621006ac",
+      "initial_bytes": 428,
+      "current_sha256": "bc52eeaf3589f6a29805cdb2f94cae5ade423916937b71cfc74d4d31621006ac",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/alex-force-stop-demo-20261020/demo-verification.json",
+      "initial_sha256": "9f14c7cfd2222de29549951a1b2061e859c666bbf4470932ebdf295d49e1ac48",
+      "initial_bytes": 1314,
+      "current_sha256": "9f14c7cfd2222de29549951a1b2061e859c666bbf4470932ebdf295d49e1ac48",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/alex-force-stop-demo-20261020/fixture-paths.json",
+      "initial_sha256": "e860940d340a9e39ff8c45549d0d917a4a006326c5bb42ee8d5fe07ef6e0425b",
+      "initial_bytes": 304,
+      "current_sha256": "e860940d340a9e39ff8c45549d0d917a4a006326c5bb42ee8d5fe07ef6e0425b",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/alex-force-stop-demo-20261020/idle-activation.json",
+      "initial_sha256": "36e02f3088d9317a54db400674e1ba4a4f015f3ee6af0e49d95d12d6b5e6c504",
+      "initial_bytes": 124,
+      "current_sha256": "36e02f3088d9317a54db400674e1ba4a4f015f3ee6af0e49d95d12d6b5e6c504",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/alex-force-stop-demo-20261020/other-jobs-preserved.json",
+      "initial_sha256": "e5da41246cfd9f232e178beb6261fe305e95da93ed6c2a7e87417a3780bb9af6",
+      "initial_bytes": 1117,
+      "current_sha256": "e5da41246cfd9f232e178beb6261fe305e95da93ed6c2a7e87417a3780bb9af6",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/alex-force-stop-demo-20261020/prepare_fixture.py",
+      "initial_sha256": "2c44093aaf726c2777141a79607519be3abe93b64599eb4a0aac31ac087c487e",
+      "initial_bytes": 3025,
+      "current_sha256": "2c44093aaf726c2777141a79607519be3abe93b64599eb4a0aac31ac087c487e",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/alex-force-stop-demo-20261020/process-stop.json",
+      "initial_sha256": "10d71b5c554e2503ae1bc9423c5c16f98e250d578b79f6d8a511df0076acb160",
+      "initial_bytes": 197,
+      "current_sha256": "10d71b5c554e2503ae1bc9423c5c16f98e250d578b79f6d8a511df0076acb160",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/alex-force-stop-demo-20261020/reservation.json",
+      "initial_sha256": "a09faab98c20a0e11458737d9d3be566c4027fb8b740b74de39c27882d792141",
+      "initial_bytes": 106,
+      "current_sha256": "a09faab98c20a0e11458737d9d3be566c4027fb8b740b74de39c27882d792141",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/alex-force-stop-demo-20261020/stop_and_activate.py",
+      "initial_sha256": "3be245b3b9d532ed831e004274c6471a727f65c093f5452876b2afeac8b3f44a",
+      "initial_bytes": 8027,
+      "current_sha256": "3be245b3b9d532ed831e004274c6471a727f65c093f5452876b2afeac8b3f44a",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/alex-force-stop-demo-20261020/submit_demo.py",
+      "initial_sha256": "f4365fd0f9929ed8a718ce3a1475f2ba8d16cc360b02336168d62fb2084d1b96",
+      "initial_bytes": 4026,
+      "current_sha256": "f4365fd0f9929ed8a718ce3a1475f2ba8d16cc360b02336168d62fb2084d1b96",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/alex-force-stop-demo-20261020/updated-worker.json",
+      "initial_sha256": "8d1f93033ac8cee94b48a4f7ca56bc18ae81106d0f489f94a8a2737f3c5025a5",
+      "initial_bytes": 215,
+      "current_sha256": "8d1f93033ac8cee94b48a4f7ca56bc18ae81106d0f489f94a8a2737f3c5025a5",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/alex-force-stop-demo-20261020/verify_demo.py",
+      "initial_sha256": "0f409af8e4b0820c947027e710bd2f907596fc720b3005f38a952e593795c906",
+      "initial_bytes": 2525,
+      "current_sha256": "0f409af8e4b0820c947027e710bd2f907596fc720b3005f38a952e593795c906",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/alex-force-stop-demo-20261020/verify_preservation.py",
+      "initial_sha256": "590e6cbb27beb0dbbce7413d66969b3794241da7b25dd1a83dcd3537f2c2ff3d",
+      "initial_bytes": 2041,
+      "current_sha256": "590e6cbb27beb0dbbce7413d66969b3794241da7b25dd1a83dcd3537f2c2ff3d",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/alex-force-stop-demo-20261020/windows-final-state.json",
+      "initial_sha256": "c17caaa0be84452f4459439c1ab364ea4801ef5feb228a97b485fdc43e8f39f7",
+      "initial_bytes": 737,
+      "current_sha256": "c17caaa0be84452f4459439c1ab364ea4801ef5feb228a97b485fdc43e8f39f7",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/alex-gpu-live-verification-20261015.json",
+      "initial_sha256": "8de720b09fb80ae8c1e1a87b73086ccaca88c0c60d8fc0c83cde945449280c7e",
+      "initial_bytes": 22271,
+      "current_sha256": "8de720b09fb80ae8c1e1a87b73086ccaca88c0c60d8fc0c83cde945449280c7e",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/alex-logeb2-final-hub-status-20261018.json",
+      "initial_sha256": "af2fc2bd85d21f109d531d75306c59a5cd20a854ceb3a0715e27dc39662d7d2c",
+      "initial_bytes": 3132,
+      "current_sha256": "af2fc2bd85d21f109d531d75306c59a5cd20a854ceb3a0715e27dc39662d7d2c",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/alex-logeb2-final-integrity-20261018.json",
+      "initial_sha256": "b7919c40c6763f5c1dabc2c31ea62adf5f305113ac07fad7f0adc87a23b85ae4",
+      "initial_bytes": 2340,
+      "current_sha256": "b7919c40c6763f5c1dabc2c31ea62adf5f305113ac07fad7f0adc87a23b85ae4",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/alex-logeb2-final-results-20261018.json",
+      "initial_sha256": "fcf4629b8279121b417c7f7eba98fdfb1016bbf9a7e0b24bb57839bb5826c035",
+      "initial_bytes": 515181,
+      "current_sha256": "fcf4629b8279121b417c7f7eba98fdfb1016bbf9a7e0b24bb57839bb5826c035",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/alex-logeb2-final-verifier-20261018.m",
+      "initial_sha256": "df5730f302da6c00ce1e5f6726552bf12f243aeff76d3caff68ef6f728d48614",
+      "initial_bytes": 6694,
+      "current_sha256": "df5730f302da6c00ce1e5f6726552bf12f243aeff76d3caff68ef6f728d48614",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/alex-logeb2-monitor-20261015T2050.json",
+      "initial_sha256": "0b678c55e49b57e81452ea511f035795977584835d0a191fe2ebc57c8b3a8a32",
+      "initial_bytes": 6635,
+      "current_sha256": "0b678c55e49b57e81452ea511f035795977584835d0a191fe2ebc57c8b3a8a32",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/alex-logeb2-monitor-20261015T235655Z.json",
+      "initial_sha256": "10f7840396937884c3638e662bb29daaa555cb4ead2b0ec63353184247ac3747",
+      "initial_bytes": 5630,
+      "current_sha256": "10f7840396937884c3638e662bb29daaa555cb4ead2b0ec63353184247ac3747",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/alex-logeb2-monitor-20261016T030027Z.json",
+      "initial_sha256": "ab0f6b055799cc5c8e459b292c592cdf71600f7678482a46b54a2d3aa5f45c9e",
+      "initial_bytes": 4997,
+      "current_sha256": "ab0f6b055799cc5c8e459b292c592cdf71600f7678482a46b54a2d3aa5f45c9e",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/alex-logeb2-monitor-20261016T063204Z.json",
+      "initial_sha256": "52d81c646440bd9ce0fb714ad8b97e8aa2bd15b9b5e592225eb2e6e46271993e",
+      "initial_bytes": 5211,
+      "current_sha256": "52d81c646440bd9ce0fb714ad8b97e8aa2bd15b9b5e592225eb2e6e46271993e",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/alex-logeb2-monitor-20261016T063359Z.json",
+      "initial_sha256": "a354a174d16da8ab8b96567c64797f04c5478d4ba785d84a4235fa488e5e859a",
+      "initial_bytes": 5984,
+      "current_sha256": "a354a174d16da8ab8b96567c64797f04c5478d4ba785d84a4235fa488e5e859a",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/alex-logeb2-monitor-20261016T093251Z.json",
+      "initial_sha256": "799d98fdfcdf5d26f9833b772b63ac96cd3bbd765a93dc8f1ea9c642ae969488",
+      "initial_bytes": 6267,
+      "current_sha256": "799d98fdfcdf5d26f9833b772b63ac96cd3bbd765a93dc8f1ea9c642ae969488",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/alex-logeb2-monitor-20261016T122840Z.json",
+      "initial_sha256": "5398fdfa8a49edac7aa00573db4568a638df0ff1f620c54f0a6e11b1b2a5f068",
+      "initial_bytes": 5625,
+      "current_sha256": "5398fdfa8a49edac7aa00573db4568a638df0ff1f620c54f0a6e11b1b2a5f068",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/alex-logeb2-monitor-20261016T154128Z.json",
+      "initial_sha256": "b91ce6a6b5643d3bcf5434aa18b87ac82f8441fa33b55b3cd1dbd58c6ea4b09c",
+      "initial_bytes": 6629,
+      "current_sha256": "b91ce6a6b5643d3bcf5434aa18b87ac82f8441fa33b55b3cd1dbd58c6ea4b09c",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/alex-logeb2-monitor-20261016T183757Z.json",
+      "initial_sha256": "84704ef2a06b91eae7a3229b22e6cd63c88f7f800ae81043b9088f0426277b99",
+      "initial_bytes": 5971,
+      "current_sha256": "84704ef2a06b91eae7a3229b22e6cd63c88f7f800ae81043b9088f0426277b99",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/alex-logeb2-monitor-20261016T214256Z.json",
+      "initial_sha256": "5e01ab1134b3ff46f2038c1bea7ed7fd722d88e979e991b2407b2aea09161df2",
+      "initial_bytes": 6303,
+      "current_sha256": "5e01ab1134b3ff46f2038c1bea7ed7fd722d88e979e991b2407b2aea09161df2",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/alex-logeb2-monitor-20261017T004532Z.json",
+      "initial_sha256": "2e656396d4aef35044616ac2e777e182562de3740dbd95c525711526d8776d11",
+      "initial_bytes": 6717,
+      "current_sha256": "2e656396d4aef35044616ac2e777e182562de3740dbd95c525711526d8776d11",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/alex-logeb2-monitor-20261017T034356Z.json",
+      "initial_sha256": "9db79ae66f32f0c82d59550587a0ed630ec0be12475c7b7f8868ab0151a621f8",
+      "initial_bytes": 6610,
+      "current_sha256": "9db79ae66f32f0c82d59550587a0ed630ec0be12475c7b7f8868ab0151a621f8",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/alex-logeb2-monitor-20261017T064025Z.json",
+      "initial_sha256": "2f7cadc712ba81fe6454f430753d2f52ed42c0abf4bd508161a4c38afe61e458",
+      "initial_bytes": 6836,
+      "current_sha256": "2f7cadc712ba81fe6454f430753d2f52ed42c0abf4bd508161a4c38afe61e458",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/alex-logeb2-monitor-20261017T094326Z.json",
+      "initial_sha256": "cb6d55adbc2b7a66befef18350a30077171886c31d542c4e747b2859c1eb3c86",
+      "initial_bytes": 7172,
+      "current_sha256": "cb6d55adbc2b7a66befef18350a30077171886c31d542c4e747b2859c1eb3c86",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/alex-logeb2-monitor-20261017T124430Z.json",
+      "initial_sha256": "82722e2c6d7a5e768866e600d3e62c51f8b66ff1e98f8bed6f90880560bf6a01",
+      "initial_bytes": 7477,
+      "current_sha256": "82722e2c6d7a5e768866e600d3e62c51f8b66ff1e98f8bed6f90880560bf6a01",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/alex-logeb2-monitor-20261017T124514Z.json",
+      "initial_sha256": "bfe8f3c35839ff21e1aa95e64fc7c5d11e9b5515c6b7df2d9e5a9b4bf1d87287",
+      "initial_bytes": 7460,
+      "current_sha256": "bfe8f3c35839ff21e1aa95e64fc7c5d11e9b5515c6b7df2d9e5a9b4bf1d87287",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/alex-logeb2-monitor-20261017T154256Z.json",
+      "initial_sha256": "22d6d2b009afce4fb26110bef83bf278afe82276c7c0fb9d8ce28908351777ac",
+      "initial_bytes": 7554,
+      "current_sha256": "22d6d2b009afce4fb26110bef83bf278afe82276c7c0fb9d8ce28908351777ac",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/alex-logeb2-monitor-20261017T184928Z.json",
+      "initial_sha256": "807827664e69c50445e2ba5d338cb82712723134fc9b6eb30fa72806d12882fb",
+      "initial_bytes": 7670,
+      "current_sha256": "807827664e69c50445e2ba5d338cb82712723134fc9b6eb30fa72806d12882fb",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/alex-logeb2-monitor-20261017T215026Z.json",
+      "initial_sha256": "6830adea4b7dd9fd5d98573f73bf926ecc1f315560fbe0411a190d6671db46b1",
+      "initial_bytes": 7606,
+      "current_sha256": "6830adea4b7dd9fd5d98573f73bf926ecc1f315560fbe0411a190d6671db46b1",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/alex-logeb2-monitor-20261018T004928Z.json",
+      "initial_sha256": "76c9f28e2ab8092121c954f5661e25b002f3cee4b24e97b43c8b3039d3144ff7",
+      "initial_bytes": 7740,
+      "current_sha256": "76c9f28e2ab8092121c954f5661e25b002f3cee4b24e97b43c8b3039d3144ff7",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/alex-logeb2-monitor-20261018T034958Z.json",
+      "initial_sha256": "efadcb8192a4b3c516433f5d05a715829b220c878f1e1bb0d8bf9c9a0bea62ab",
+      "initial_bytes": 7750,
+      "current_sha256": "efadcb8192a4b3c516433f5d05a715829b220c878f1e1bb0d8bf9c9a0bea62ab",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/alex-logeb2-monitor-20261018T064902Z.json",
+      "initial_sha256": "82d6cc5edc6afa7bc04d3a8379ae55c1d80cac7d89bbbf5bea9667af856583cf",
+      "initial_bytes": 7787,
+      "current_sha256": "82d6cc5edc6afa7bc04d3a8379ae55c1d80cac7d89bbbf5bea9667af856583cf",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/alex-logeb2-run-summary-20261018.txt",
+      "initial_sha256": "2165aaf0e47a3ee7ecc5648099867afef4389befba1ac83a1ba2feefa1a74559",
+      "initial_bytes": 655,
+      "current_sha256": "2165aaf0e47a3ee7ecc5648099867afef4389befba1ac83a1ba2feefa1a74559",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/alex-logeb2-verification-status.json",
+      "initial_sha256": "4ceef693c3a2958785b269423fb087d5a117cd096dd7ee35429f438e89d95820",
+      "initial_bytes": 5434,
+      "current_sha256": "4ceef693c3a2958785b269423fb087d5a117cd096dd7ee35429f438e89d95820",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/alex-memory-recovery-20261020/after-dispatch.json",
+      "initial_sha256": "858598b4c0439df2dba8977537848ffd3a812a89daf9dbf5330b69a4ea4377cb",
+      "initial_bytes": 1050434,
+      "current_sha256": "858598b4c0439df2dba8977537848ffd3a812a89daf9dbf5330b69a4ea4377cb",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/alex-memory-recovery-20261020/before.json",
+      "initial_sha256": "a6f6a80e8e29d4630436aaef8bee574f2edf7b0b3a53108bbb634466fe8577c3",
+      "initial_bytes": 1055497,
+      "current_sha256": "a6f6a80e8e29d4630436aaef8bee574f2edf7b0b3a53108bbb634466fe8577c3",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/alex-memory-recovery-20261020/cuda-dispatch.json",
+      "initial_sha256": "b6cea171f87a5a5e3634eb1483fbc2460be71d2b6ccc754a3b5b456e066609d8",
+      "initial_bytes": 1064138,
+      "current_sha256": "b6cea171f87a5a5e3634eb1483fbc2460be71d2b6ccc754a3b5b456e066609d8",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/alex-memory-recovery-20261020/cuda-live-progress.json",
+      "initial_sha256": "e4dff73b5352a5430589aad2589d1d5187d57495089ff4493edb9782363415ce",
+      "initial_bytes": 353,
+      "current_sha256": "e4dff73b5352a5430589aad2589d1d5187d57495089ff4493edb9782363415ce",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/alex-memory-recovery-20261020/cuda-progress.json",
+      "initial_sha256": "00637052770632d220b764e3d9cf62d9e1b88b799a6b1ca71eebd2da34b7bcdb",
+      "initial_bytes": 1064456,
+      "current_sha256": "00637052770632d220b764e3d9cf62d9e1b88b799a6b1ca71eebd2da34b7bcdb",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/alex-memory-recovery-20261020/cuda-restart.json",
+      "initial_sha256": "e5d1901d74f13e9ebdad51087fc0448df4d63ff6a83d889df1cc7a5a397eef73",
+      "initial_bytes": 184,
+      "current_sha256": "e5d1901d74f13e9ebdad51087fc0448df4d63ff6a83d889df1cc7a5a397eef73",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/alex-memory-recovery-20261020/cuda-runtime-evidence.json",
+      "initial_sha256": "ff9770b87124ebe00de4861408f0f9a80ff629e15d59b18161c0de0a7d207a66",
+      "initial_bytes": 1621,
+      "current_sha256": "ff9770b87124ebe00de4861408f0f9a80ff629e15d59b18161c0de0a7d207a66",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/alex-memory-recovery-20261020/final.json",
+      "initial_sha256": "1af0164e5e6723296c0712e445e3701b765d57e3ca31e11882e3891c40c704c5",
+      "initial_bytes": 1063287,
+      "current_sha256": "1af0164e5e6723296c0712e445e3701b765d57e3ca31e11882e3891c40c704c5",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/alex-memory-recovery-20261020/gpu-transition-audit-summary.json",
+      "initial_sha256": "d7b9eb1b54d8481957f9b1488d7bc1c79f675c7de1b47b1e4e29c5f77dfc183e",
+      "initial_bytes": 1681,
+      "current_sha256": "d7b9eb1b54d8481957f9b1488d7bc1c79f675c7de1b47b1e4e29c5f77dfc183e",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/alex-memory-recovery-20261020/linux-matlab-code-checkout-before.py",
+      "initial_sha256": "37c363eb05b950c7989f8599320618e2ffbfcead1ef0487a5208320746efd978",
+      "initial_bytes": 15108,
+      "current_sha256": "37c363eb05b950c7989f8599320618e2ffbfcead1ef0487a5208320746efd978",
+      "disposition": "Versioned on master",
+      "identical_prior_blob_path": "worker/matlab_code_checkout.py"
+    },
+    {
+      "path": "reports/alex-memory-recovery-20261020/live-gpu-transition-protection.json",
+      "initial_sha256": "3c81c943ed2ed5be629a4948adede8a52ecefd54d49cb99f5bb1ba4d34ca00b0",
+      "initial_bytes": 1916,
+      "current_sha256": "3c81c943ed2ed5be629a4948adede8a52ecefd54d49cb99f5bb1ba4d34ca00b0",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/alex-memory-recovery-20261020/live-transition-before.json",
+      "initial_sha256": "a114071be10c460a00b9561413feb1e109edc53ae77720e08d7a255150bffdac",
+      "initial_bytes": 1064008,
+      "current_sha256": "a114071be10c460a00b9561413feb1e109edc53ae77720e08d7a255150bffdac",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/alex-memory-recovery-20261020/monitor-20261020T1631Z.json",
+      "initial_sha256": "c77b4a81c755d8fbb9141ab4181fd3c9a966e4f41d5f358dc9d10df9179a03a7",
+      "initial_bytes": 1064946,
+      "current_sha256": "c77b4a81c755d8fbb9141ab4181fd3c9a966e4f41d5f358dc9d10df9179a03a7",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/alex-memory-recovery-20261020/monitor-quotas-20261020T1631Z.json",
+      "initial_sha256": "d274e668307c5adbc07930d0fbf74b3f03eff0d21d773e2925c96f495f5cd1d2",
+      "initial_bytes": 1177,
+      "current_sha256": "d274e668307c5adbc07930d0fbf74b3f03eff0d21d773e2925c96f495f5cd1d2",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/alex-memory-recovery-20261020/monitor-runtime-20261020T1631Z.json",
+      "initial_sha256": "4b53f72ffdd74f0e72c4741a7cdf928a7f03a0adc0008a60472e3b9168d2a2f6",
+      "initial_bytes": 6389,
+      "current_sha256": "4b53f72ffdd74f0e72c4741a7cdf928a7f03a0adc0008a60472e3b9168d2a2f6",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/alex-memory-recovery-20261020/monitor_state.json",
+      "initial_sha256": "b3291856be3df813c30b704456184de64287474dd0fd0218d56c83fff0c407d5",
+      "initial_bytes": 2404,
+      "current_sha256": "316efb89eac5dd60d57f00be1f912ebe2c5c9384e0a5fddf15223e688ae0a6c5",
+      "disposition": "Local mutable cursor; frozen copy: reports/alex-memory-recovery-20261020/monitor-state-review-20261020.json"
+    },
+    {
+      "path": "reports/alex-memory-recovery-20261020/operate.py",
+      "initial_sha256": "3e0de3616507e4ccd6670b195a075089f592a4954708dfea6c606805e47bc4e5",
+      "initial_bytes": 6724,
+      "current_sha256": "d7329052eb14b90bbff6daa9a64dd1105e47734e78a27ef958bce29950f888ee",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/alex-memory-recovery-20261020/preservation-check.json",
+      "initial_sha256": "ae3cb8b6bde41a25a4e3ed797f89bbf69583a206c114e8b9bfcc411a4a1d1115",
+      "initial_bytes": 1554,
+      "current_sha256": "ae3cb8b6bde41a25a4e3ed797f89bbf69583a206c114e8b9bfcc411a4a1d1115",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/alex-memory-recovery-20261020/progress.json",
+      "initial_sha256": "6e558667ea52297d2823f16a094b6a14abded7e94d677391ec519a1908692363",
+      "initial_bytes": 1050653,
+      "current_sha256": "6e558667ea52297d2823f16a094b6a14abded7e94d677391ec519a1908692363",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/alex-memory-recovery-20261020/restart.json",
+      "initial_sha256": "551b08d325508b431e53947ce1008416ba35d8a46158cd327f240c77c7ae7111",
+      "initial_bytes": 232,
+      "current_sha256": "551b08d325508b431e53947ce1008416ba35d8a46158cd327f240c77c7ae7111",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/alex-memory-recovery-20261020/runtime-evidence.json",
+      "initial_sha256": "72e86cfbe460b8cf6261bc4ac8ecfb1f9cce467823534a880ae4eef42d09f05c",
+      "initial_bytes": 2473,
+      "current_sha256": "72e86cfbe460b8cf6261bc4ac8ecfb1f9cce467823534a880ae4eef42d09f05c",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/alex-memory-recovery-20261020/verified.json",
+      "initial_sha256": "75b6addd856ba4bd5518be2ce9f902b2f6b3bc7a3555b4874fc2e38d7cccb2c5",
+      "initial_bytes": 1065414,
+      "current_sha256": "75b6addd856ba4bd5518be2ce9f902b2f6b3bc7a3555b4874fc2e38d7cccb2c5",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/alex-memory-recovery-20261020/windows-preflight.json",
+      "initial_sha256": "5fd99f2bcfb5f52fc4b38213f2e8131d0c76f49536a1f986f8a1daec5ca2da02",
+      "initial_bytes": 1659,
+      "current_sha256": "5fd99f2bcfb5f52fc4b38213f2e8131d0c76f49536a1f986f8a1daec5ca2da02",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/alex-memory-recovery-20261020/windows/activation.json",
+      "initial_sha256": "1f50b0219c9645e3e193a3a20774307e068a6f1721916a50c4a416f5f126a59d",
+      "initial_bytes": 262,
+      "current_sha256": "1f50b0219c9645e3e193a3a20774307e068a6f1721916a50c4a416f5f126a59d",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/alex-memory-recovery-20261020/windows/inspection.json",
+      "initial_sha256": "f09b58f251ff20e856449a65f545afe5cd2c9fcd0809f15572fbe4cd0bdddf61",
+      "initial_bytes": 34976,
+      "current_sha256": "f09b58f251ff20e856449a65f545afe5cd2c9fcd0809f15572fbe4cd0bdddf61",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/alex-memory-recovery-20261020/windows/staging.json",
+      "initial_sha256": "b8f9674b47a58ab2ba4f3ca6ed9b0ae0080b33abf4ca3785dcdad6bc799a1621",
+      "initial_bytes": 638,
+      "current_sha256": "b8f9674b47a58ab2ba4f3ca6ed9b0ae0080b33abf4ca3785dcdad6bc799a1621",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/alex-memory-recovery-20261020/windows/verification.json",
+      "initial_sha256": "14772e01e1cdc3266406262d4581a13f50ef2132ba609cd5b30751925bf54c84",
+      "initial_bytes": 3799,
+      "current_sha256": "14772e01e1cdc3266406262d4581a13f50ef2132ba609cd5b30751925bf54c84",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/alex-night-failure-20261015.json",
+      "initial_sha256": "79e45139b27b033f8d5a07181e35854b48ccebf56ec8154c896b58e29dc02fcf",
+      "initial_bytes": 1662,
+      "current_sha256": "79e45139b27b033f8d5a07181e35854b48ccebf56ec8154c896b58e29dc02fcf",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/alex-parfor-environment-verification-20261015.json",
+      "initial_sha256": "3df3d80837d8b5895b0d2eac5d01c52379495eb79ca4a6cb679a5061ee7bdacb",
+      "initial_bytes": 171,
+      "current_sha256": "3df3d80837d8b5895b0d2eac5d01c52379495eb79ca4a6cb679a5061ee7bdacb",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/alex-readpool-adapter-smoke-20261015.json",
+      "initial_sha256": "8d7eaae57d395d31e12cb7ff837abcb0ef85a031f1c836e7e7a698779d87646f",
+      "initial_bytes": 197,
+      "current_sha256": "8d7eaae57d395d31e12cb7ff837abcb0ef85a031f1c836e7e7a698779d87646f",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/alex-readpool-real-data-20261015.json",
+      "initial_sha256": "2a2ed7106c2cb60110fc59aaac402ed919e5bfad9076acda1f3e2f279780097e",
+      "initial_bytes": 649,
+      "current_sha256": "2a2ed7106c2cb60110fc59aaac402ed919e5bfad9076acda1f3e2f279780097e",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/alex-resume-final-integrity-20261015.json",
+      "initial_sha256": "c66fb8e4e1759d293eb466f3b4d1f2e3c6f201ef55b47cb0de5ed1054c78d5c3",
+      "initial_bytes": 29387,
+      "current_sha256": "c66fb8e4e1759d293eb466f3b4d1f2e3c6f201ef55b47cb0de5ed1054c78d5c3",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/alex-resume-final-results-20261015.json",
+      "initial_sha256": "a4d102b2c80f597f5bba9432ab89080ec19a3d14573ea0c8fe4d3ddab84c014b",
+      "initial_bytes": 70055,
+      "current_sha256": "a4d102b2c80f597f5bba9432ab89080ec19a3d14573ea0c8fe4d3ddab84c014b",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/alex-resume-progress-verification-20261015.json",
+      "initial_sha256": "e61394a05c0b1ba248957893d07d8cd15d55ca778cb45a3240ea46dc9621f05c",
+      "initial_bytes": 4542,
+      "current_sha256": "e61394a05c0b1ba248957893d07d8cd15d55ca778cb45a3240ea46dc9621f05c",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/alexander-2023-lineage-20261001.err",
+      "initial_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "initial_bytes": 0,
+      "current_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/alexander-2023-lineage-20261001.log",
+      "initial_sha256": "e6673bf9e20bf40650366f6170e796d6b35493586fdba48c63abc4591794f3ef",
+      "initial_bytes": 924,
+      "current_sha256": "e6673bf9e20bf40650366f6170e796d6b35493586fdba48c63abc4591794f3ef",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/alexander-primary-home-size-20261001.err",
+      "initial_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "initial_bytes": 0,
+      "current_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/alexander-primary-home-size-20261001.log",
+      "initial_sha256": "3f79a88c5fddbc2240e48e18738154414ec6ad9702ac5679f9990b1d855f9207",
+      "initial_bytes": 118,
+      "current_sha256": "3f79a88c5fddbc2240e48e18738154414ec6ad9702ac5679f9990b1d855f9207",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/alexander-size-live-20261001.err",
+      "initial_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "initial_bytes": 0,
+      "current_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/alexander-size-live-20261001.log",
+      "initial_sha256": "a4d03bced79cef7ba97914a037b0663ee659ba63f34a9b61d65bf5995112a2f6",
+      "initial_bytes": 111,
+      "current_sha256": "a4d03bced79cef7ba97914a037b0663ee659ba63f34a9b61d65bf5995112a2f6",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/basile_subfolder_sizes_2026-07-24.csv",
+      "initial_sha256": "50ae34ec8d69434a2b397a02aaf1b9fba6270d1d491b78944e27ae275ee29dba",
+      "initial_bytes": 37314,
+      "current_sha256": "50ae34ec8d69434a2b397a02aaf1b9fba6270d1d491b78944e27ae275ee29dba",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/cellpose-short-paths-20261015.json",
+      "initial_sha256": "9d06eeee16eaa5c03f4474cb988985b90343f8f9795b03ec8308e934276d26ab",
+      "initial_bytes": 2724,
+      "current_sha256": "9d06eeee16eaa5c03f4474cb988985b90343f8f9795b03ec8308e934276d26ab",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/disk-audit-20261015.csv",
+      "initial_sha256": "18ffc1923f451b2fedb53c044bb73a6095a33f67d812e5dd34a693052168d924",
+      "initial_bytes": 1187,
+      "current_sha256": "18ffc1923f451b2fedb53c044bb73a6095a33f67d812e5dd34a693052168d924",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/disk-audit-20261015.html",
+      "initial_sha256": "71456295576de1e18980852f1f7a2e1a91db4b74e183771155f7447e4c7e067f",
+      "initial_bytes": 4208,
+      "current_sha256": "71456295576de1e18980852f1f7a2e1a91db4b74e183771155f7447e4c7e067f",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/disk-audit-20261015.json",
+      "initial_sha256": "10d8bd4b090d5350f40f5ad75137b062ebc8638140a2d5b887e100e3f9b4ecb4",
+      "initial_bytes": 233721,
+      "current_sha256": "10d8bd4b090d5350f40f5ad75137b062ebc8638140a2d5b887e100e3f9b4ecb4",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/gitlab-ssh-20261015/a-transmettre-autre-chatgpt.txt",
+      "initial_sha256": "b1c4cfa5fb80d7c4931f26058e7423b245713a907bcb14fa224d87d393476e4e",
+      "initial_bytes": 2133,
+      "current_sha256": "b1c4cfa5fb80d7c4931f26058e7423b245713a907bcb14fa224d87d393476e4e",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/gitlab-ssh-20261015/gitlab-ssh-lan-proxy.env",
+      "initial_sha256": "af56d04ac03c0342bfa1129149ecc80823ea252c76a4988e3ec20f07d09e3258",
+      "initial_bytes": 150,
+      "current_sha256": "af56d04ac03c0342bfa1129149ecc80823ea252c76a4988e3ec20f07d09e3258",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/gitlab-ssh-20261015/gitlab-ssh-lan-proxy.service",
+      "initial_sha256": "234ea7dec97d0053438e17ef3f7f32f47b8c228ff468436420829fddc9312e4e",
+      "initial_bytes": 330,
+      "current_sha256": "234ea7dec97d0053438e17ef3f7f32f47b8c228ff468436420829fddc9312e4e",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/gitlab-ssh-20261015/install_gitlab_ssh_lan_proxy.sh",
+      "initial_sha256": "a13f1c329fcdd184f0ca715432aad8d8657dae5efc0010465a359ad18749cb71",
+      "initial_bytes": 801,
+      "current_sha256": "a13f1c329fcdd184f0ca715432aad8d8657dae5efc0010465a359ad18749cb71",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/gitlab-ssh-20261015/operations-addendum.txt",
+      "initial_sha256": "a963c32e1c3567d77bf3ba449d6e6bb57bdc08acdcd7a73cf0b2bc6e7b7989f4",
+      "initial_bytes": 2105,
+      "current_sha256": "a963c32e1c3567d77bf3ba449d6e6bb57bdc08acdcd7a73cf0b2bc6e7b7989f4",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/gitlab-ssh-20261015/verification.json",
+      "initial_sha256": "cdc42ba224577c526dc884b553bc0bbab7e2f74e4005175e335423b00f9539a7",
+      "initial_bytes": 770,
+      "current_sha256": "cdc42ba224577c526dc884b553bc0bbab7e2f74e4005175e335423b00f9539a7",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/gitlab-ssh-20261015/verified_known_hosts",
+      "initial_sha256": "11d90c58d17b0100d791eb71dfc64149b3f8c3907c27b506377e9e6bec5cdc0a",
+      "initial_bytes": 133,
+      "current_sha256": "11d90c58d17b0100d791eb71dfc64149b3f8c3907c27b506377e9e6bec5cdc0a",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/job-force-stop-deployment-20261020/activate_when_idle.py",
+      "initial_sha256": "19704cab05d1439a96b86ff7810672c10be85b337e8949bd98fff8ec7bade96b",
+      "initial_bytes": 10085,
+      "current_sha256": "19704cab05d1439a96b86ff7810672c10be85b337e8949bd98fff8ec7bade96b",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/job-force-stop-deployment-20261020/after-first-activation.json",
+      "initial_sha256": "ddebc443f22884ff2218c32ad6962734962ca824865e41f7658f7308e1972791",
+      "initial_bytes": 23949,
+      "current_sha256": "ddebc443f22884ff2218c32ad6962734962ca824865e41f7658f7308e1972791",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/job-force-stop-deployment-20261020/alex-current-job.json",
+      "initial_sha256": "a715cd5fec90d1cbb67bc79c45b84a578808919125354d26f188b5e3645eb345",
+      "initial_bytes": 4201,
+      "current_sha256": "a715cd5fec90d1cbb67bc79c45b84a578808919125354d26f188b5e3645eb345",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/job-force-stop-deployment-20261020/alex-current-process-tree.json",
+      "initial_sha256": "af6d1d157e113166667b9de86da0909a3bad761642b77a02c59ab3431cee124a",
+      "initial_bytes": 2458,
+      "current_sha256": "af6d1d157e113166667b9de86da0909a3bad761642b77a02c59ab3431cee124a",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/job-force-stop-deployment-20261020/api-adaptations.diff",
+      "initial_sha256": "f80919939e456ec38dd1ec56caeb2a30568f8e60a58a5a2c17ae08fb2441f6f8",
+      "initial_bytes": 63095,
+      "current_sha256": "f80919939e456ec38dd1ec56caeb2a30568f8e60a58a5a2c17ae08fb2441f6f8",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/job-force-stop-deployment-20261020/api-before.json",
+      "initial_sha256": "2cf5fe721152b3cda4ed82b9ed7a1d945761f12507165c0c0d1925afa16c66f2",
+      "initial_bytes": 919220,
+      "current_sha256": "2cf5fe721152b3cda4ed82b9ed7a1d945761f12507165c0c0d1925afa16c66f2",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/job-force-stop-deployment-20261020/api-deployment.diff",
+      "initial_sha256": "5eb7fc2d9905ecc31d13472682ab2d0cfc26758302d77b77e894f2398cd2c81d",
+      "initial_bytes": 9318,
+      "current_sha256": "5eb7fc2d9905ecc31d13472682ab2d0cfc26758302d77b77e894f2398cd2c81d",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/job-force-stop-deployment-20261020/api-files.json",
+      "initial_sha256": "fc8986b93a89f0f1f309396bce76081e336b43f4a473aef07a15cb6215968472",
+      "initial_bytes": 164,
+      "current_sha256": "fc8986b93a89f0f1f309396bce76081e336b43f4a473aef07a15cb6215968472",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/job-force-stop-deployment-20261020/api-final-files.json",
+      "initial_sha256": "f4e6230408c6f4cf0095965539ab6c31916d67b90f318a084ecf113dd4c7f2cb",
+      "initial_bytes": 64,
+      "current_sha256": "f4e6230408c6f4cf0095965539ab6c31916d67b90f318a084ecf113dd4c7f2cb",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/job-force-stop-deployment-20261020/api-final-verification.json",
+      "initial_sha256": "19eb82f111ab4827ec3f9738355b4c9dbcf99d620c53c48ed94f9c9b64d201a8",
+      "initial_bytes": 1061,
+      "current_sha256": "19eb82f111ab4827ec3f9738355b4c9dbcf99d620c53c48ed94f9c9b64d201a8",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/job-force-stop-deployment-20261020/api-health.json",
+      "initial_sha256": "c8f71cf52c0f0d5c5cdaaa74e5762181f2a7916c9b5663c864db0008addad51a",
+      "initial_bytes": 842,
+      "current_sha256": "c8f71cf52c0f0d5c5cdaaa74e5762181f2a7916c9b5663c864db0008addad51a",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/job-force-stop-deployment-20261020/api-intended/api/models.py",
+      "initial_sha256": "33c0f0b9df846438888aa6ffb47831a999c7ff8be5d8e2426244d372fd929525",
+      "initial_bytes": 77811,
+      "current_sha256": "33c0f0b9df846438888aa6ffb47831a999c7ff8be5d8e2426244d372fd929525",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/job-force-stop-deployment-20261020/api-intended/api/routes_pipeline_runs.py",
+      "initial_sha256": "a351a709aa23de48492c761757484a663a367cab8b9382357a90c72a37135564",
+      "initial_bytes": 11030,
+      "current_sha256": "a351a709aa23de48492c761757484a663a367cab8b9382357a90c72a37135564",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/job-force-stop-deployment-20261020/api-intended/api/schemas.py",
+      "initial_sha256": "7baa1b5d85887e2cc16eb3a5fd6fadcee7e49d8fa2bfec1281e6d254aac51c01",
+      "initial_bytes": 62016,
+      "current_sha256": "7baa1b5d85887e2cc16eb3a5fd6fadcee7e49d8fa2bfec1281e6d254aac51c01",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/job-force-stop-deployment-20261020/api-intended/api/static/app.js",
+      "initial_sha256": "eff1ca6d61b852d1dd22cba0e9855c5af0dc4ebc382fcd2b192086eb4d3da0c3",
+      "initial_bytes": 436513,
+      "current_sha256": "eff1ca6d61b852d1dd22cba0e9855c5af0dc4ebc382fcd2b192086eb4d3da0c3",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/job-force-stop-deployment-20261020/api-intended/api/static/project.html",
+      "initial_sha256": "457d8a63a7967d5160cae46903b1db706888f64b3f354b52e34ec932e9f6ecde",
+      "initial_bytes": 9524,
+      "current_sha256": "457d8a63a7967d5160cae46903b1db706888f64b3f354b52e34ec932e9f6ecde",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/job-force-stop-deployment-20261020/api-intended/db/migrations/20261020_job_force_stop.sql",
+      "initial_sha256": "593d598c4c9883e0865b5844ba8533c5df97b3d1f72bc90bcfee9e54b26835e9",
+      "initial_bytes": 415,
+      "current_sha256": "593d598c4c9883e0865b5844ba8533c5df97b3d1f72bc90bcfee9e54b26835e9",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/job-force-stop-deployment-20261020/api-intended/db/schema.sql",
+      "initial_sha256": "e49c9be0dfcdbe8d20989a42581ee4cedd1cafc419ad0326cba21f7ee85be5b3",
+      "initial_bytes": 42635,
+      "current_sha256": "e49c9be0dfcdbe8d20989a42581ee4cedd1cafc419ad0326cba21f7ee85be5b3",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/job-force-stop-deployment-20261020/api-intended/merge-0.txt",
+      "initial_sha256": "5f1a4292849101066b70858589aa12ce2478f9e95be5105893fa0fd515eeb3e4",
+      "initial_bytes": 42215,
+      "current_sha256": "5f1a4292849101066b70858589aa12ce2478f9e95be5105893fa0fd515eeb3e4",
+      "disposition": "Versioned on master",
+      "identical_prior_blob_path": "db/schema.sql"
+    },
+    {
+      "path": "reports/job-force-stop-deployment-20261020/api-intended/merge-1.txt",
+      "initial_sha256": "426182c954ad78585f2710be9ccf35ef96e2b5a435d11eec8851fd8c4dd31fbd",
+      "initial_bytes": 42575,
+      "current_sha256": "426182c954ad78585f2710be9ccf35ef96e2b5a435d11eec8851fd8c4dd31fbd",
+      "disposition": "Versioned on master",
+      "identical_prior_blob_path": "db/schema.sql"
+    },
+    {
+      "path": "reports/job-force-stop-deployment-20261020/api-intended/merge-2.txt",
+      "initial_sha256": "8f948c285abcc57742530d546e8b547ef4ade5db639ecc6ab58e80ff6485a751",
+      "initial_bytes": 42995,
+      "current_sha256": "8f948c285abcc57742530d546e8b547ef4ade5db639ecc6ab58e80ff6485a751",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/job-force-stop-deployment-20261020/api-intended/pipeline_run_executor.py.conflict",
+      "initial_sha256": "db7aa0b1b38cae2a06ec21aa59088e6bb8f7cd2dc22895ddef185dafa642cd5f",
+      "initial_bytes": 27480,
+      "current_sha256": "db7aa0b1b38cae2a06ec21aa59088e6bb8f7cd2dc22895ddef185dafa642cd5f",
+      "disposition": "Byte-identical member in reports/job-force-stop-deployment-20261020/premerge-snapshot.zip; raw copy retained locally"
+    },
+    {
+      "path": "reports/job-force-stop-deployment-20261020/api-intended/worker/run_worker.py",
+      "initial_sha256": "f383fcc9df110f0c1e4dc396aef9801288178faa499ded4e4b4d5a5f59bb4517",
+      "initial_bytes": 26939,
+      "current_sha256": "f383fcc9df110f0c1e4dc396aef9801288178faa499ded4e4b4d5a5f59bb4517",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/job-force-stop-deployment-20261020/api-staging.json",
+      "initial_sha256": "f329cff99dd39274360ad77135591fd299245e371d37bb0a4369b63310f5d0e5",
+      "initial_bytes": 2094,
+      "current_sha256": "f329cff99dd39274360ad77135591fd299245e371d37bb0a4369b63310f5d0e5",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/job-force-stop-deployment-20261020/asset-version-fix.json",
+      "initial_sha256": "f8b2a6c3775e221fea804b53c7d9b6eed14f2bd274ccee153d2122d69f32fb70",
+      "initial_bytes": 134,
+      "current_sha256": "f8b2a6c3775e221fea804b53c7d9b6eed14f2bd274ccee153d2122d69f32fb70",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/job-force-stop-deployment-20261020/before.json",
+      "initial_sha256": "a7a0a060b6f1b81c3222c564f77766549f93f7384dee03a41dc19b8f27e59def",
+      "initial_bytes": 23831,
+      "current_sha256": "a7a0a060b6f1b81c3222c564f77766549f93f7384dee03a41dc19b8f27e59def",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/job-force-stop-deployment-20261020/check_live.py",
+      "initial_sha256": "e524e3a7079abec1f3e23597f177eda20269ddb185675a1f4aefcc66b7f093fa",
+      "initial_bytes": 1810,
+      "current_sha256": "e524e3a7079abec1f3e23597f177eda20269ddb185675a1f4aefcc66b7f093fa",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/job-force-stop-deployment-20261020/deploy_api.py",
+      "initial_sha256": "68b00b0d532f2691d9c076529fbb6cf12f6a9069c4398015a2a5566e4d113841",
+      "initial_bytes": 2120,
+      "current_sha256": "68b00b0d532f2691d9c076529fbb6cf12f6a9069c4398015a2a5566e4d113841",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/job-force-stop-deployment-20261020/deploy_english.py",
+      "initial_sha256": "49526612e0d6a5d204aeaa12b0ce305b4b0afa537d1655675c5b209c788de374",
+      "initial_bytes": 1652,
+      "current_sha256": "49526612e0d6a5d204aeaa12b0ce305b4b0afa537d1655675c5b209c788de374",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/job-force-stop-deployment-20261020/english-deployment.json",
+      "initial_sha256": "fda3078192edf6e550e11fbd60562605dab808b1b5b20601072903ce40e4dba9",
+      "initial_bytes": 563,
+      "current_sha256": "fda3078192edf6e550e11fbd60562605dab808b1b5b20601072903ce40e4dba9",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/job-force-stop-deployment-20261020/english_messages.py",
+      "initial_sha256": "e871d566b35966d3c64fdba1e7c7c84a6bfde085d1e163c303797e86b3aca02a",
+      "initial_bytes": 6219,
+      "current_sha256": "e871d566b35966d3c64fdba1e7c7c84a6bfde085d1e163c303797e86b3aca02a",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/job-force-stop-deployment-20261020/finalize_smoke.py",
+      "initial_sha256": "14d73e3f3456f81d8217714af418f0a5574188b01b888493752e5d67730f2a34",
+      "initial_bytes": 2414,
+      "current_sha256": "14d73e3f3456f81d8217714af418f0a5574188b01b888493752e5d67730f2a34",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/job-force-stop-deployment-20261020/fix_asset_version.py",
+      "initial_sha256": "cea5f36f5b053359a852cda806ced135f9a567745ebfc78c9756a9a8981fe552",
+      "initial_bytes": 1630,
+      "current_sha256": "cea5f36f5b053359a852cda806ced135f9a567745ebfc78c9756a9a8981fe552",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/job-force-stop-deployment-20261020/fixture-paths.json",
+      "initial_sha256": "f28b98cef51ee4ad08fa8e5561d26961d1dbf204afca3c1bc400ac4892fcf409",
+      "initial_bytes": 288,
+      "current_sha256": "f28b98cef51ee4ad08fa8e5561d26961d1dbf204afca3c1bc400ac4892fcf409",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/job-force-stop-deployment-20261020/fixture-runtime.json",
+      "initial_sha256": "bbdae6d4240e958d5b0831062913ff155ba79a7e79022fdc7379d7fcfde7df50",
+      "initial_bytes": 343,
+      "current_sha256": "bbdae6d4240e958d5b0831062913ff155ba79a7e79022fdc7379d7fcfde7df50",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/job-force-stop-deployment-20261020/force-stop-live-proof.png",
+      "initial_sha256": "8ed6b6670fa830332e3a316934d73d53d6a8531c9ec352d1c393ad267df45677",
+      "initial_bytes": 148323,
+      "current_sha256": "8ed6b6670fa830332e3a316934d73d53d6a8531c9ec352d1c393ad267df45677",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/job-force-stop-deployment-20261020/inspect_alex_job.py",
+      "initial_sha256": "6099749dacc29fd188ae90665ea7ded2120ecfb07cb58590b94d1e767d54b8c6",
+      "initial_bytes": 2169,
+      "current_sha256": "6099749dacc29fd188ae90665ea7ded2120ecfb07cb58590b94d1e767d54b8c6",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/job-force-stop-deployment-20261020/inspect_fixture_runtime.py",
+      "initial_sha256": "554bedc8e1113b2e6686bf6b5f30f9cc4c15e7a495cdef396eb64b49ad131213",
+      "initial_bytes": 951,
+      "current_sha256": "554bedc8e1113b2e6686bf6b5f30f9cc4c15e7a495cdef396eb64b49ad131213",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/job-force-stop-deployment-20261020/install_activation.py",
+      "initial_sha256": "5d8544d34f7c207e29c8ef7415959e03ac76c624ee628184e2c65179de47f382",
+      "initial_bytes": 4228,
+      "current_sha256": "5d8544d34f7c207e29c8ef7415959e03ac76c624ee628184e2c65179de47f382",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/job-force-stop-deployment-20261020/inventory.py",
+      "initial_sha256": "285e8d9248bac7fccbf788c3b9b3c2d9cda86bc9d5884f04a3869c7817a6cc06",
+      "initial_bytes": 1977,
+      "current_sha256": "285e8d9248bac7fccbf788c3b9b3c2d9cda86bc9d5884f04a3869c7817a6cc06",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/job-force-stop-deployment-20261020/linux-activation-verification.json",
+      "initial_sha256": "8de08a0dc4e9370857e731a861734a575ec8f40fc53ecdfb52f3d2409ea01fc3",
+      "initial_bytes": 841,
+      "current_sha256": "8de08a0dc4e9370857e731a861734a575ec8f40fc53ecdfb52f3d2409ea01fc3",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/job-force-stop-deployment-20261020/linux-adaptations.diff",
+      "initial_sha256": "ee3057f5dc8700fc6e49d33d91f0a97c1c99811f39e46226be1e2516c000fe5a",
+      "initial_bytes": 21656,
+      "current_sha256": "ee3057f5dc8700fc6e49d33d91f0a97c1c99811f39e46226be1e2516c000fe5a",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/job-force-stop-deployment-20261020/linux-before.json",
+      "initial_sha256": "b17d2846cbf3e65f81c65a8a444f447de98d1a4593a827d21d731db573a79c4e",
+      "initial_bytes": 1084133,
+      "current_sha256": "b17d2846cbf3e65f81c65a8a444f447de98d1a4593a827d21d731db573a79c4e",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/job-force-stop-deployment-20261020/linux-deployment.diff",
+      "initial_sha256": "65a84f943b90db81988b38f395a15d76e67aa5ac6d56d0370189f56b24b7fd86",
+      "initial_bytes": 31066,
+      "current_sha256": "65a84f943b90db81988b38f395a15d76e67aa5ac6d56d0370189f56b24b7fd86",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/job-force-stop-deployment-20261020/linux-first-activation.json",
+      "initial_sha256": "bf9d16306094d15d4dd08a999c40181bcd6062958a19b3b6edede2031920f2a2",
+      "initial_bytes": 556,
+      "current_sha256": "bf9d16306094d15d4dd08a999c40181bcd6062958a19b3b6edede2031920f2a2",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/job-force-stop-deployment-20261020/linux-intended/api/models.py",
+      "initial_sha256": "33c0f0b9df846438888aa6ffb47831a999c7ff8be5d8e2426244d372fd929525",
+      "initial_bytes": 77811,
+      "current_sha256": "33c0f0b9df846438888aa6ffb47831a999c7ff8be5d8e2426244d372fd929525",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/job-force-stop-deployment-20261020/linux-intended/api/routes_pipeline_runs.py",
+      "initial_sha256": "8d8707e68ed5bd72bee8c8c929cab953390597df3ad1f5bef42033293a7b12c7",
+      "initial_bytes": 10339,
+      "current_sha256": "8d8707e68ed5bd72bee8c8c929cab953390597df3ad1f5bef42033293a7b12c7",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/job-force-stop-deployment-20261020/linux-intended/api/schemas.py",
+      "initial_sha256": "a7404ad69fd8f7a46564c41394bce050dd950a0e5b8bcd4f5b5a1dbe4a7a0cc7",
+      "initial_bytes": 60192,
+      "current_sha256": "a7404ad69fd8f7a46564c41394bce050dd950a0e5b8bcd4f5b5a1dbe4a7a0cc7",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/job-force-stop-deployment-20261020/linux-intended/api/static/app.js",
+      "initial_sha256": "eff1ca6d61b852d1dd22cba0e9855c5af0dc4ebc382fcd2b192086eb4d3da0c3",
+      "initial_bytes": 436513,
+      "current_sha256": "eff1ca6d61b852d1dd22cba0e9855c5af0dc4ebc382fcd2b192086eb4d3da0c3",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/job-force-stop-deployment-20261020/linux-intended/db/migrations/20261020_job_force_stop.sql",
+      "initial_sha256": "593d598c4c9883e0865b5844ba8533c5df97b3d1f72bc90bcfee9e54b26835e9",
+      "initial_bytes": 415,
+      "current_sha256": "593d598c4c9883e0865b5844ba8533c5df97b3d1f72bc90bcfee9e54b26835e9",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/job-force-stop-deployment-20261020/linux-intended/db/schema.sql",
+      "initial_sha256": "e49c9be0dfcdbe8d20989a42581ee4cedd1cafc419ad0326cba21f7ee85be5b3",
+      "initial_bytes": 42635,
+      "current_sha256": "e49c9be0dfcdbe8d20989a42581ee4cedd1cafc419ad0326cba21f7ee85be5b3",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/job-force-stop-deployment-20261020/linux-intended/merge-0.txt",
+      "initial_sha256": "45c5c1984f9146ff26144e2df56c7f37a80ff080299e1a17d3074ecb6fb46e18",
+      "initial_bytes": 2238,
+      "current_sha256": "45c5c1984f9146ff26144e2df56c7f37a80ff080299e1a17d3074ecb6fb46e18",
+      "disposition": "Versioned on master",
+      "identical_prior_blob_path": "worker/executors/matlab_executor.py"
+    },
+    {
+      "path": "reports/job-force-stop-deployment-20261020/linux-intended/merge-1.txt",
+      "initial_sha256": "45c5c1984f9146ff26144e2df56c7f37a80ff080299e1a17d3074ecb6fb46e18",
+      "initial_bytes": 2238,
+      "current_sha256": "45c5c1984f9146ff26144e2df56c7f37a80ff080299e1a17d3074ecb6fb46e18",
+      "disposition": "Versioned on master",
+      "identical_prior_blob_path": "worker/executors/matlab_executor.py"
+    },
+    {
+      "path": "reports/job-force-stop-deployment-20261020/linux-intended/merge-2.txt",
+      "initial_sha256": "7478d016deb1adbc176b21c87bf55ab9ca4c48873030553f0c20f210c9c62774",
+      "initial_bytes": 5599,
+      "current_sha256": "7478d016deb1adbc176b21c87bf55ab9ca4c48873030553f0c20f210c9c62774",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/job-force-stop-deployment-20261020/linux-intended/worker/executors/job_process_scope.py",
+      "initial_sha256": "c2c65f96fdc9c38cd54efabc67ed489f6b732df6e60b47f8f5aefdec7e8e2816",
+      "initial_bytes": 8425,
+      "current_sha256": "c2c65f96fdc9c38cd54efabc67ed489f6b732df6e60b47f8f5aefdec7e8e2816",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/job-force-stop-deployment-20261020/linux-intended/worker/executors/linux_job_supervisor.py",
+      "initial_sha256": "c12c955dcd1cea3e22104359f74b91f68b463a577c07fe17f6bb6739460f1980",
+      "initial_bytes": 1126,
+      "current_sha256": "c12c955dcd1cea3e22104359f74b91f68b463a577c07fe17f6bb6739460f1980",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/job-force-stop-deployment-20261020/linux-intended/worker/executors/matlab_executor.py",
+      "initial_sha256": "7478d016deb1adbc176b21c87bf55ab9ca4c48873030553f0c20f210c9c62774",
+      "initial_bytes": 5599,
+      "current_sha256": "7478d016deb1adbc176b21c87bf55ab9ca4c48873030553f0c20f210c9c62774",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/job-force-stop-deployment-20261020/linux-intended/worker/pipeline_run_executor.py",
+      "initial_sha256": "40ad6835ccd6b5b1640456febf3e7045e84302c5604e0d7d86640cdc279895f6",
+      "initial_bytes": 31284,
+      "current_sha256": "40ad6835ccd6b5b1640456febf3e7045e84302c5604e0d7d86640cdc279895f6",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/job-force-stop-deployment-20261020/linux-intended/worker/run_worker.py",
+      "initial_sha256": "f1bb639c77f9d927c06c4f3591a7e135fdd90c79c6a53a8f7f1343ee84b6b49f",
+      "initial_bytes": 42861,
+      "current_sha256": "f1bb639c77f9d927c06c4f3591a7e135fdd90c79c6a53a8f7f1343ee84b6b49f",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/job-force-stop-deployment-20261020/linux-live-trees.json",
+      "initial_sha256": "a20255a085077ca820333f17781d2d5683bfe4d5d67825f7d56996ed59fbc45f",
+      "initial_bytes": 1707,
+      "current_sha256": "a20255a085077ca820333f17781d2d5683bfe4d5d67825f7d56996ed59fbc45f",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/job-force-stop-deployment-20261020/linux-staging.json",
+      "initial_sha256": "e17936c3c06da0ac44ac34fd1d8ae3d2cd5c5e442771a56510b2d2ffd8da8e7a",
+      "initial_bytes": 2356,
+      "current_sha256": "e17936c3c06da0ac44ac34fd1d8ae3d2cd5c5e442771a56510b2d2ffd8da8e7a",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/job-force-stop-deployment-20261020/migration.json",
+      "initial_sha256": "5e9290f1608c424f6497e7d3e9b66dd32ed02a44da984fd717c267bb6c8795c6",
+      "initial_bytes": 185,
+      "current_sha256": "5e9290f1608c424f6497e7d3e9b66dd32ed02a44da984fd717c267bb6c8795c6",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/job-force-stop-deployment-20261020/ops.py",
+      "initial_sha256": "7e7f65cf9a33c34bf5c5c217975d858a0a773cb8288fc9b02838ddef89f9fb8a",
+      "initial_bytes": 3260,
+      "current_sha256": "7e7f65cf9a33c34bf5c5c217975d858a0a773cb8288fc9b02838ddef89f9fb8a",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/job-force-stop-deployment-20261020/prepare_activation.py",
+      "initial_sha256": "fc36255ede8192b25160501bf69d46053b35b5a6ef6f1f12716f0c84c9c33cbf",
+      "initial_bytes": 1633,
+      "current_sha256": "fc36255ede8192b25160501bf69d46053b35b5a6ef6f1f12716f0c84c9c33cbf",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/job-force-stop-deployment-20261020/prepare_fixture.py",
+      "initial_sha256": "e36378b3a24c872727717fc736c007ae94716b0cc324f345b073e661acc8c02c",
+      "initial_bytes": 2723,
+      "current_sha256": "e36378b3a24c872727717fc736c007ae94716b0cc324f345b073e661acc8c02c",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/job-force-stop-deployment-20261020/preservation-snapshot.json",
+      "initial_sha256": "d855527620af9e0333fcfac3aa0342c6cd32742fe0ea79732a71d00d5ba81b62",
+      "initial_bytes": 23958,
+      "current_sha256": "d855527620af9e0333fcfac3aa0342c6cd32742fe0ea79732a71d00d5ba81b62",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/job-force-stop-deployment-20261020/protected-jobs-verification.json",
+      "initial_sha256": "28695b5c313458ec7297402c0d9230b14a0a94cba869d4e4da3d18617b5a3621",
+      "initial_bytes": 363,
+      "current_sha256": "28695b5c313458ec7297402c0d9230b14a0a94cba869d4e4da3d18617b5a3621",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/job-force-stop-deployment-20261020/refresh_smoke_auth.py",
+      "initial_sha256": "1badaa49b7f483159172562a41fb6a81e7c21ed04dca2ddb3956f8fc088fdea5",
+      "initial_bytes": 1001,
+      "current_sha256": "1badaa49b7f483159172562a41fb6a81e7c21ed04dca2ddb3956f8fc088fdea5",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/job-force-stop-deployment-20261020/smoke-active-auth.json",
+      "initial_sha256": "91836cd08d3fc277bc3b2d662be387f6efde0f638feb3f5c087a54b01d18e13c",
+      "initial_bytes": 233,
+      "current_sha256": "91836cd08d3fc277bc3b2d662be387f6efde0f638feb3f5c087a54b01d18e13c",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/job-force-stop-deployment-20261020/smoke-api-stop.json",
+      "initial_sha256": "427aa971b106f7d87bdb7a89aa95756f5490f15fd8e4c00c524cb0a779e93e5d",
+      "initial_bytes": 260,
+      "current_sha256": "427aa971b106f7d87bdb7a89aa95756f5490f15fd8e4c00c524cb0a779e93e5d",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/job-force-stop-deployment-20261020/smoke-context.json",
+      "initial_sha256": "9868361dc6d20812a391bfe6e47fb32e1fca4c7dd0c1946a1a30d41e6fc802c2",
+      "initial_bytes": 140,
+      "current_sha256": "9868361dc6d20812a391bfe6e47fb32e1fca4c7dd0c1946a1a30d41e6fc802c2",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/job-force-stop-deployment-20261020/smoke-final-processes.json",
+      "initial_sha256": "8a62767e07dfcea0b147d217fff11d1fe556572c847fdbdf0a6f618dcb9fe8be",
+      "initial_bytes": 369,
+      "current_sha256": "8a62767e07dfcea0b147d217fff11d1fe556572c847fdbdf0a6f618dcb9fe8be",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/job-force-stop-deployment-20261020/smoke-final.json",
+      "initial_sha256": "a6aa18b06c3d41a557e5d65afcd0844c4489c5a409658de82a658d7eda8e91ff",
+      "initial_bytes": 1376,
+      "current_sha256": "a6aa18b06c3d41a557e5d65afcd0844c4489c5a409658de82a658d7eda8e91ff",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/job-force-stop-deployment-20261020/smoke-job.json",
+      "initial_sha256": "4975ac0539244bec1584a3b5f16905c6634030e945c2bd599e9f79e36c682005",
+      "initial_bytes": 233,
+      "current_sha256": "4975ac0539244bec1584a3b5f16905c6634030e945c2bd599e9f79e36c682005",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/job-force-stop-deployment-20261020/smoke-latest.json",
+      "initial_sha256": "963f3e89eb47745401dbc145e2ac7ce978cb9a92c676ac26c5078e6e0392fa5e",
+      "initial_bytes": 1177,
+      "current_sha256": "963f3e89eb47745401dbc145e2ac7ce978cb9a92c676ac26c5078e6e0392fa5e",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/job-force-stop-deployment-20261020/smoke-processes-latest.json",
+      "initial_sha256": "f3dd3d1909f0842a449d7ed3b5a034f25806c7f6c57ba78b41bec86e4d59b2b2",
+      "initial_bytes": 308,
+      "current_sha256": "f3dd3d1909f0842a449d7ed3b5a034f25806c7f6c57ba78b41bec86e4d59b2b2",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/job-force-stop-deployment-20261020/smoke-ui-job.json",
+      "initial_sha256": "9d995f3cdfed575658c9a8dd862a1212fdbc0df3814dd7d5adf35aa4622d44bc",
+      "initial_bytes": 292,
+      "current_sha256": "9d995f3cdfed575658c9a8dd862a1212fdbc0df3814dd7d5adf35aa4622d44bc",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/job-force-stop-deployment-20261020/smoke_status.py",
+      "initial_sha256": "87a4a376517ce27fda9b3effc516ece6baa7593ea33bbead25cdf4065a1c59bd",
+      "initial_bytes": 1378,
+      "current_sha256": "87a4a376517ce27fda9b3effc516ece6baa7593ea33bbead25cdf4065a1c59bd",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/job-force-stop-deployment-20261020/stage.py",
+      "initial_sha256": "dd71c576efc46163f7daa3409c21da2d76d787300a77cd58294a994b132c6746",
+      "initial_bytes": 6139,
+      "current_sha256": "dd71c576efc46163f7daa3409c21da2d76d787300a77cd58294a994b132c6746",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/job-force-stop-deployment-20261020/stop_smoke_api.py",
+      "initial_sha256": "a9d040fe51b916492a1dc1b6a2196cdc44f580077022bb4f23901f14b8f9f682",
+      "initial_bytes": 1184,
+      "current_sha256": "a9d040fe51b916492a1dc1b6a2196cdc44f580077022bb4f23901f14b8f9f682",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/job-force-stop-deployment-20261020/submit_smoke.py",
+      "initial_sha256": "3467c9bc5902fb2173f9fff525c0f9193d55af65d558ab6cc14877ae87ebeeea",
+      "initial_bytes": 3562,
+      "current_sha256": "3467c9bc5902fb2173f9fff525c0f9193d55af65d558ab6cc14877ae87ebeeea",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/job-force-stop-deployment-20261020/submit_ui_smoke.py",
+      "initial_sha256": "d9ec5d13907b889045bd54033722917b5134cb8a35e36e8b56e77d3ec75e74a6",
+      "initial_bytes": 2973,
+      "current_sha256": "d9ec5d13907b889045bd54033722917b5134cb8a35e36e8b56e77d3ec75e74a6",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/job-force-stop-deployment-20261020/summary.json",
+      "initial_sha256": "7aa84dfcefd8479de80bd4ddb43d7713a60fec672c19428d68a3a380179076d6",
+      "initial_bytes": 1542,
+      "current_sha256": "7aa84dfcefd8479de80bd4ddb43d7713a60fec672c19428d68a3a380179076d6",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/job-force-stop-deployment-20261020/verify_final.py",
+      "initial_sha256": "f883ab03495b29c6afa42610dbf5f8160a544c96b8ff7fd49b78ddf6bfa89280",
+      "initial_bytes": 1707,
+      "current_sha256": "f883ab03495b29c6afa42610dbf5f8160a544c96b8ff7fd49b78ddf6bfa89280",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/job-force-stop-deployment-20261020/verify_preservation.py",
+      "initial_sha256": "967f4c2f2fd3588849452a41638244ce136141d28de9cba88283ee0703aa1c17",
+      "initial_bytes": 3244,
+      "current_sha256": "967f4c2f2fd3588849452a41638244ce136141d28de9cba88283ee0703aa1c17",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/job-force-stop-deployment-20261020/windows-activation-verification.json",
+      "initial_sha256": "a77280022d04a3c89ab6a9b210eece9cedadc3e51dc988324a4c1d2fc87f646c",
+      "initial_bytes": 1110,
+      "current_sha256": "a77280022d04a3c89ab6a9b210eece9cedadc3e51dc988324a4c1d2fc87f646c",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/job-force-stop-deployment-20261020/windows-adaptations.diff",
+      "initial_sha256": "02a7b71646555e38f21b499a8f40aae0f39876710e6290411ad9c4d23bcb7e25",
+      "initial_bytes": 31614,
+      "current_sha256": "02a7b71646555e38f21b499a8f40aae0f39876710e6290411ad9c4d23bcb7e25",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/job-force-stop-deployment-20261020/windows-before.json",
+      "initial_sha256": "3e55d1f7d35680a46d0b8eea85dfd0ddc173fa19c40d05719c2d3732aa41f133",
+      "initial_bytes": 1082978,
+      "current_sha256": "3e55d1f7d35680a46d0b8eea85dfd0ddc173fa19c40d05719c2d3732aa41f133",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/job-force-stop-deployment-20261020/windows-deployment.diff",
+      "initial_sha256": "5890e367e8ef0f27d5f1005c2538e89d1138c598473945f878a877cc684c6d4a",
+      "initial_bytes": 45043,
+      "current_sha256": "5890e367e8ef0f27d5f1005c2538e89d1138c598473945f878a877cc684c6d4a",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/job-force-stop-deployment-20261020/windows-idle-activation-task.json",
+      "initial_sha256": "73d62dab70321c98ccc229e0d71cde9d2ae067515a870a106c8c43fb856dd5fc",
+      "initial_bytes": 118,
+      "current_sha256": "73d62dab70321c98ccc229e0d71cde9d2ae067515a870a106c8c43fb856dd5fc",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/job-force-stop-deployment-20261020/windows-intended/api/models.py",
+      "initial_sha256": "33c0f0b9df846438888aa6ffb47831a999c7ff8be5d8e2426244d372fd929525",
+      "initial_bytes": 77811,
+      "current_sha256": "33c0f0b9df846438888aa6ffb47831a999c7ff8be5d8e2426244d372fd929525",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/job-force-stop-deployment-20261020/windows-intended/api/routes_pipeline_runs.py",
+      "initial_sha256": "8d8707e68ed5bd72bee8c8c929cab953390597df3ad1f5bef42033293a7b12c7",
+      "initial_bytes": 10339,
+      "current_sha256": "8d8707e68ed5bd72bee8c8c929cab953390597df3ad1f5bef42033293a7b12c7",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/job-force-stop-deployment-20261020/windows-intended/api/schemas.py",
+      "initial_sha256": "7baa1b5d85887e2cc16eb3a5fd6fadcee7e49d8fa2bfec1281e6d254aac51c01",
+      "initial_bytes": 62016,
+      "current_sha256": "7baa1b5d85887e2cc16eb3a5fd6fadcee7e49d8fa2bfec1281e6d254aac51c01",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/job-force-stop-deployment-20261020/windows-intended/api/static/app.js",
+      "initial_sha256": "eff1ca6d61b852d1dd22cba0e9855c5af0dc4ebc382fcd2b192086eb4d3da0c3",
+      "initial_bytes": 436513,
+      "current_sha256": "eff1ca6d61b852d1dd22cba0e9855c5af0dc4ebc382fcd2b192086eb4d3da0c3",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/job-force-stop-deployment-20261020/windows-intended/db/migrations/20261020_job_force_stop.sql",
+      "initial_sha256": "593d598c4c9883e0865b5844ba8533c5df97b3d1f72bc90bcfee9e54b26835e9",
+      "initial_bytes": 415,
+      "current_sha256": "593d598c4c9883e0865b5844ba8533c5df97b3d1f72bc90bcfee9e54b26835e9",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/job-force-stop-deployment-20261020/windows-intended/db/schema.sql",
+      "initial_sha256": "8f948c285abcc57742530d546e8b547ef4ade5db639ecc6ab58e80ff6485a751",
+      "initial_bytes": 42995,
+      "current_sha256": "8f948c285abcc57742530d546e8b547ef4ade5db639ecc6ab58e80ff6485a751",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/job-force-stop-deployment-20261020/windows-intended/merge-0.txt",
+      "initial_sha256": "45c5c1984f9146ff26144e2df56c7f37a80ff080299e1a17d3074ecb6fb46e18",
+      "initial_bytes": 2238,
+      "current_sha256": "45c5c1984f9146ff26144e2df56c7f37a80ff080299e1a17d3074ecb6fb46e18",
+      "disposition": "Versioned on master",
+      "identical_prior_blob_path": "worker/executors/matlab_executor.py"
+    },
+    {
+      "path": "reports/job-force-stop-deployment-20261020/windows-intended/merge-1.txt",
+      "initial_sha256": "45c5c1984f9146ff26144e2df56c7f37a80ff080299e1a17d3074ecb6fb46e18",
+      "initial_bytes": 2238,
+      "current_sha256": "45c5c1984f9146ff26144e2df56c7f37a80ff080299e1a17d3074ecb6fb46e18",
+      "disposition": "Versioned on master",
+      "identical_prior_blob_path": "worker/executors/matlab_executor.py"
+    },
+    {
+      "path": "reports/job-force-stop-deployment-20261020/windows-intended/merge-2.txt",
+      "initial_sha256": "7478d016deb1adbc176b21c87bf55ab9ca4c48873030553f0c20f210c9c62774",
+      "initial_bytes": 5599,
+      "current_sha256": "7478d016deb1adbc176b21c87bf55ab9ca4c48873030553f0c20f210c9c62774",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/job-force-stop-deployment-20261020/windows-intended/worker/autoscaling.py",
+      "initial_sha256": "c939879eba2580ad0fda5dc9bb2239c354cb6fd6f226c07634e89d059911f6cf",
+      "initial_bytes": 4719,
+      "current_sha256": "c939879eba2580ad0fda5dc9bb2239c354cb6fd6f226c07634e89d059911f6cf",
+      "disposition": "Versioned on master",
+      "identical_prior_blob_path": "worker/autoscaling.py"
+    },
+    {
+      "path": "reports/job-force-stop-deployment-20261020/windows-intended/worker/executors/job_process_scope.py",
+      "initial_sha256": "c2c65f96fdc9c38cd54efabc67ed489f6b732df6e60b47f8f5aefdec7e8e2816",
+      "initial_bytes": 8425,
+      "current_sha256": "c2c65f96fdc9c38cd54efabc67ed489f6b732df6e60b47f8f5aefdec7e8e2816",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/job-force-stop-deployment-20261020/windows-intended/worker/executors/linux_job_supervisor.py",
+      "initial_sha256": "c12c955dcd1cea3e22104359f74b91f68b463a577c07fe17f6bb6739460f1980",
+      "initial_bytes": 1126,
+      "current_sha256": "c12c955dcd1cea3e22104359f74b91f68b463a577c07fe17f6bb6739460f1980",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/job-force-stop-deployment-20261020/windows-intended/worker/executors/matlab_executor.py",
+      "initial_sha256": "7478d016deb1adbc176b21c87bf55ab9ca4c48873030553f0c20f210c9c62774",
+      "initial_bytes": 5599,
+      "current_sha256": "7478d016deb1adbc176b21c87bf55ab9ca4c48873030553f0c20f210c9c62774",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/job-force-stop-deployment-20261020/windows-intended/worker/job_resources.py",
+      "initial_sha256": "41d7416e72430563a7a41b4bc2667f6403b105fc3a3b61b9b2c84fb259e74539",
+      "initial_bytes": 17801,
+      "current_sha256": "41d7416e72430563a7a41b4bc2667f6403b105fc3a3b61b9b2c84fb259e74539",
+      "disposition": "Versioned on master",
+      "identical_prior_blob_path": "worker/job_resources.py"
+    },
+    {
+      "path": "reports/job-force-stop-deployment-20261020/windows-intended/worker/memory_resources.py",
+      "initial_sha256": "2ee9ad2ae213eaa47f9b6877cdaf97c8642d32b8d471e013900a0b79b3c5b4a2",
+      "initial_bytes": 3805,
+      "current_sha256": "2ee9ad2ae213eaa47f9b6877cdaf97c8642d32b8d471e013900a0b79b3c5b4a2",
+      "disposition": "Versioned on master",
+      "identical_prior_blob_path": "worker/memory_resources.py"
+    },
+    {
+      "path": "reports/job-force-stop-deployment-20261020/windows-intended/worker/pipeline_run_executor.py",
+      "initial_sha256": "465fe810f771556cd7a64db0045ddc6bbd76bd6cdc0239fa629e8a65a3d92f61",
+      "initial_bytes": 31578,
+      "current_sha256": "465fe810f771556cd7a64db0045ddc6bbd76bd6cdc0239fa629e8a65a3d92f61",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/job-force-stop-deployment-20261020/windows-intended/worker/roi_extraction_resources.py",
+      "initial_sha256": "b63b96bcaef616c9428a841d24e5e3d323736c0677146883497b928d713a7fe1",
+      "initial_bytes": 4240,
+      "current_sha256": "b63b96bcaef616c9428a841d24e5e3d323736c0677146883497b928d713a7fe1",
+      "disposition": "Versioned on master",
+      "identical_prior_blob_path": "worker/roi_extraction_resources.py"
+    },
+    {
+      "path": "reports/job-force-stop-deployment-20261020/windows-intended/worker/run_worker.py",
+      "initial_sha256": "dfbb07b444579a4cb89927c4db6ab36bcdadf1450a29729ca978b3ad95aa7665",
+      "initial_bytes": 44102,
+      "current_sha256": "dfbb07b444579a4cb89927c4db6ab36bcdadf1450a29729ca978b3ad95aa7665",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/job-force-stop-deployment-20261020/windows-live-trees.json",
+      "initial_sha256": "d917ad97e023d29a12ccc3b4edd130c28f1ca63a33768d80165840535941a4e8",
+      "initial_bytes": 1289,
+      "current_sha256": "d917ad97e023d29a12ccc3b4edd130c28f1ca63a33768d80165840535941a4e8",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/job-force-stop-deployment-20261020/windows-staging.json",
+      "initial_sha256": "bf49f4c72d1ba750d4e1256edc951efdff2acbcbcb8520e0d4be55c5d1cf39a6",
+      "initial_bytes": 3146,
+      "current_sha256": "bf49f4c72d1ba750d4e1256edc951efdff2acbcbcb8520e0d4be55c5d1cf39a6",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/lifespan-zero-roi-20261005.json",
+      "initial_sha256": "36fdf7fa4a178cb7299e2cc9c2f04ab228480b9453a2b2e6ee88cb3a851b5f63",
+      "initial_bytes": 2860,
+      "current_sha256": "36fdf7fa4a178cb7299e2cc9c2f04ab228480b9453a2b2e6ee88cb3a851b5f63",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/lifespan-zero-roi-diagnostic-20261005.m",
+      "initial_sha256": "561d39b3040731a687307eff98302c82b986ae96e3e2078203c7ab99f0271013",
+      "initial_bytes": 1575,
+      "current_sha256": "561d39b3040731a687307eff98302c82b986ae96e3e2078203c7ab99f0271013",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/lifespan4-pattern-comparison.png",
+      "initial_sha256": "beae73963c2e0da797f559dc9ca670ab016993b81327705d18ec636f3284abea",
+      "initial_bytes": 397680,
+      "current_sha256": "beae73963c2e0da797f559dc9ca670ab016993b81327705d18ec636f3284abea",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/lifespan5-pattern-source-check.png",
+      "initial_sha256": "5e1c2e0b2ccbb5258728185d3a66a446c2271234e38a94960a11939df3123dfc",
+      "initial_bytes": 613236,
+      "current_sha256": "5e1c2e0b2ccbb5258728185d3a66a446c2271234e38a94960a11939df3123dfc",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/mixtral-sam31-cleanup-20261015.json",
+      "initial_sha256": "1639b64a7f3dc4f7cab399e41ff683e81045cbaaa60b5fe7b81eca7933b38dd1",
+      "initial_bytes": 69378,
+      "current_sha256": "1639b64a7f3dc4f7cab399e41ff683e81045cbaaa60b5fe7b81eca7933b38dd1",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/qwen-pilot-20261014/build_main_comparison.py",
+      "initial_sha256": "4a36ea8bc50518a9e1103492c398d0d5cbc74de32b96b88c37b0c6f35eaa8f55",
+      "initial_bytes": 10358,
+      "current_sha256": "4a36ea8bc50518a9e1103492c398d0d5cbc74de32b96b88c37b0c6f35eaa8f55",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/qwen-pilot-20261014/build_qwen36_comparison.py",
+      "initial_sha256": "08906762b7d4b107b00acd5ed642479c78738a32487908c523a2a569f5802d0d",
+      "initial_bytes": 7001,
+      "current_sha256": "08906762b7d4b107b00acd5ed642479c78738a32487908c523a2a569f5802d0d",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/qwen-pilot-20261014/build_reduced_comparison.py",
+      "initial_sha256": "2c6e7f917a4da2f4f9371f58345296e5b1a1af336c8eba365482e250b9cd898c",
+      "initial_bytes": 14727,
+      "current_sha256": "2c6e7f917a4da2f4f9371f58345296e5b1a1af336c8eba365482e250b9cd898c",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/qwen-pilot-20261014/capture_runtime.py",
+      "initial_sha256": "4a42004033253c25b85c3e651914d633bfa82e36bad2fbe6fba8a629dd2b4950",
+      "initial_bytes": 2460,
+      "current_sha256": "4a42004033253c25b85c3e651914d633bfa82e36bad2fbe6fba8a629dd2b4950",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/qwen-pilot-20261014/checkpoint-prefetch-controller.json",
+      "initial_sha256": "d55e4a7a17aae1af6b112c32cf51e23894a1a322a1689fb1fb13fb72f7d3a05c",
+      "initial_bytes": 1032,
+      "current_sha256": "d55e4a7a17aae1af6b112c32cf51e23894a1a322a1689fb1fb13fb72f7d3a05c",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/qwen-pilot-20261014/checkpoint-prefetch-state.json",
+      "initial_sha256": "150cde4a87e0be3b9271c23eac9ad2d321e0534a19a87c7e43be581203742717",
+      "initial_bytes": 1313,
+      "current_sha256": "150cde4a87e0be3b9271c23eac9ad2d321e0534a19a87c7e43be581203742717",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/qwen-pilot-20261014/coexistence-controller-qwen3-14b-awq-int4.json",
+      "initial_sha256": "b66fe45ef47cb5db9454887e87f3cb861c7d2a394b848304fe83d2a908949ab2",
+      "initial_bytes": 2541,
+      "current_sha256": "b66fe45ef47cb5db9454887e87f3cb861c7d2a394b848304fe83d2a908949ab2",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/qwen-pilot-20261014/coexistence-controller-qwen3-14b-fp8-wave-qwen-coex-c2fe8c7f-61cd-405d-9efa-9091be7ec2d2.json",
+      "initial_sha256": "54c05942765c25f5f0e941bcbabf9607c9d7ed42fe0621f6b8c06ee466bf0c07",
+      "initial_bytes": 1156,
+      "current_sha256": "54c05942765c25f5f0e941bcbabf9607c9d7ed42fe0621f6b8c06ee466bf0c07",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/qwen-pilot-20261014/coexistence-controller-qwen3-14b-fp8.json",
+      "initial_sha256": "f7d967284e9339663162ae2a1130c36ab88b5e4362f9e966e18c5d86a9226f90",
+      "initial_bytes": 2540,
+      "current_sha256": "f7d967284e9339663162ae2a1130c36ab88b5e4362f9e966e18c5d86a9226f90",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/qwen-pilot-20261014/coexistence-controller-qwen3-4b-awq-ctx4096-kv640m-paired-wave1.json",
+      "initial_sha256": "dc9d0edef24b56d8b6fb389f78eb86af3c700f3a2c0c59ab04c1e52106a3d258",
+      "initial_bytes": 2449,
+      "current_sha256": "dc9d0edef24b56d8b6fb389f78eb86af3c700f3a2c0c59ab04c1e52106a3d258",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/qwen-pilot-20261014/coexistence-controller-qwen3-4b-awq-ctx4096-kv640m-paired-wave2.json",
+      "initial_sha256": "38930d78777d1d3f852693fd77035872ee81a7ceacb24b6c022baf9d5b8bdc44",
+      "initial_bytes": 2447,
+      "current_sha256": "38930d78777d1d3f852693fd77035872ee81a7ceacb24b6c022baf9d5b8bdc44",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/qwen-pilot-20261014/coexistence-controller-qwen3-4b-awq-ctx4096-kv640m-paired.json",
+      "initial_sha256": "38930d78777d1d3f852693fd77035872ee81a7ceacb24b6c022baf9d5b8bdc44",
+      "initial_bytes": 2447,
+      "current_sha256": "38930d78777d1d3f852693fd77035872ee81a7ceacb24b6c022baf9d5b8bdc44",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/qwen-pilot-20261014/coexistence-controller-qwen3-8b-awq-ctx4096-kv640m-offload1p5.json",
+      "initial_sha256": "dd2e9e645b9fa8ed7fc6cc599982df2e982d2acdc870b3664534ac0583500abe",
+      "initial_bytes": 1711,
+      "current_sha256": "dd2e9e645b9fa8ed7fc6cc599982df2e982d2acdc870b3664534ac0583500abe",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/qwen-pilot-20261014/coexistence-controller-qwen3-8b-awq-ctx4096-kv640m-offload2p5-copy-wave1.json",
+      "initial_sha256": "4e2d036f58ee66e3c375567c434e58b0b6fa6533caf78877d53053447effa33f",
+      "initial_bytes": 2472,
+      "current_sha256": "4e2d036f58ee66e3c375567c434e58b0b6fa6533caf78877d53053447effa33f",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/qwen-pilot-20261014/coexistence-controller-qwen3-8b-awq-ctx4096-kv640m-offload2p5-copy-wave2.json",
+      "initial_sha256": "4ca99d14b1d15be515a6b64371f924699516263e35483cf4d23a316d3d4c8204",
+      "initial_bytes": 2399,
+      "current_sha256": "4ca99d14b1d15be515a6b64371f924699516263e35483cf4d23a316d3d4c8204",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/qwen-pilot-20261014/coexistence-controller-qwen3-8b-awq-ctx4096-kv640m-offload2p5-copy.json",
+      "initial_sha256": "4ca99d14b1d15be515a6b64371f924699516263e35483cf4d23a316d3d4c8204",
+      "initial_bytes": 2399,
+      "current_sha256": "4ca99d14b1d15be515a6b64371f924699516263e35483cf4d23a316d3d4c8204",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/qwen-pilot-20261014/coexistence-controller-qwen3-8b-awq-ctx4096-kv640m-offload2p5-gc015.json",
+      "initial_sha256": "4e2967e55ccdfe718130ab371925adae67be22da3f1492047185391cafcb8f54",
+      "initial_bytes": 2427,
+      "current_sha256": "4e2967e55ccdfe718130ab371925adae67be22da3f1492047185391cafcb8f54",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/qwen-pilot-20261014/coexistence-controller-qwen3-8b-awq-ctx4096-kv640m-offload2p5.json",
+      "initial_sha256": "3fc808cfa7839112a1a762bf5b0c21117411c42bee3df55e694d191d933ed938",
+      "initial_bytes": 2404,
+      "current_sha256": "3fc808cfa7839112a1a762bf5b0c21117411c42bee3df55e694d191d933ed938",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/qwen-pilot-20261014/coexistence-controller-qwen3-8b-awq-int4.json",
+      "initial_sha256": "b8304f204c48a6a71efa431bca02bedb2144e612a86f9b927a8c07cd6f899b31",
+      "initial_bytes": 2538,
+      "current_sha256": "b8304f204c48a6a71efa431bca02bedb2144e612a86f9b927a8c07cd6f899b31",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/qwen-pilot-20261014/coexistence-controller-qwen3-8b-fp8-wave-qwen-coex-4792f150-16c9-414a-a439-6013a0cc7455.json",
+      "initial_sha256": "2ae1d1b5fde4286f07330ee32bc52a7cc2a4bf0bb7e38bdcf77c76f43f1ade3d",
+      "initial_bytes": 1158,
+      "current_sha256": "2ae1d1b5fde4286f07330ee32bc52a7cc2a4bf0bb7e38bdcf77c76f43f1ade3d",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/qwen-pilot-20261014/coexistence-controller-qwen3-8b-fp8.json",
+      "initial_sha256": "d60e4d00098881f732c5d62d9c851f47c7e3f198881ee0f2956d41d80182d233",
+      "initial_bytes": 2540,
+      "current_sha256": "d60e4d00098881f732c5d62d9c851f47c7e3f198881ee0f2956d41d80182d233",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/qwen-pilot-20261014/coexistence-controller-qwen36-27b-awq-int4-g128-wave-qwen-coex-10135cbe-d3e7-4f5d-bd00-73ff7d26d249.json",
+      "initial_sha256": "b5362310b2c35b55304b1fc4ec96c7f0a02b6432cbc7fe5c64b7d9002d4e0bc9",
+      "initial_bytes": 2658,
+      "current_sha256": "b5362310b2c35b55304b1fc4ec96c7f0a02b6432cbc7fe5c64b7d9002d4e0bc9",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/qwen-pilot-20261014/coexistence-controller-qwen36-27b-awq-int4-g128-wave-qwen-coex-65073cb6-260e-4b31-822e-64a019131be5.json",
+      "initial_sha256": "62fd93b5e6d85187aac6d11aaa8814965f6dd81babe57b64261430994b010c28",
+      "initial_bytes": 2663,
+      "current_sha256": "62fd93b5e6d85187aac6d11aaa8814965f6dd81babe57b64261430994b010c28",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/qwen-pilot-20261014/coexistence-controller-qwen36-27b-awq-int4-g128-wave-qwen-coex-6ba6edee-20b6-41c0-aa26-430694efbb2b.json",
+      "initial_sha256": "cbdf0c037e9954f05938aa9d77995634a36acebe8a81f555ef20c4e32c3eb378",
+      "initial_bytes": 2663,
+      "current_sha256": "cbdf0c037e9954f05938aa9d77995634a36acebe8a81f555ef20c4e32c3eb378",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/qwen-pilot-20261014/coexistence-controller-qwen36-27b-awq-int4-g128.json",
+      "initial_sha256": "60eda59c2433ba4f40a0f1b5610e576eedf9695abfbbe3a9b7e252f801245f18",
+      "initial_bytes": 2662,
+      "current_sha256": "60eda59c2433ba4f40a0f1b5610e576eedf9695abfbbe3a9b7e252f801245f18",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/qwen-pilot-20261014/coexistence-controller.json",
+      "initial_sha256": "9a54b4751f63c4e9a425ea25d8f9aa1a96d8fedfd2f089e170be9d9071055ea1",
+      "initial_bytes": 1641,
+      "current_sha256": "9a54b4751f63c4e9a425ea25d8f9aa1a96d8fedfd2f089e170be9d9071055ea1",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/qwen-pilot-20261014/coexistence-model-plan.json",
+      "initial_sha256": "bd5b400415835bf78b7f9814087ab7dcb09734291749e1840914f232004dd4bb",
+      "initial_bytes": 1299,
+      "current_sha256": "bd5b400415835bf78b7f9814087ab7dcb09734291749e1840914f232004dd4bb",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/qwen-pilot-20261014/coexistence-postflight.json",
+      "initial_sha256": "679689da1aeb671b594310265f5961c9f11553b6c55d0544a9581848a258f595",
+      "initial_bytes": 559,
+      "current_sha256": "679689da1aeb671b594310265f5961c9f11553b6c55d0544a9581848a258f595",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/qwen-pilot-20261014/coexistence-qualitative-review.json",
+      "initial_sha256": "1610b560d8636ef66e781e365d92b7532db0b8eab829f6b0d337ba43e70fbfa8",
+      "initial_bytes": 5642,
+      "current_sha256": "1610b560d8636ef66e781e365d92b7532db0b8eab829f6b0d337ba43e70fbfa8",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/qwen-pilot-20261014/coexistence-vram-measurements-qwen3-14b-awq-int4.json",
+      "initial_sha256": "e38a1736a52892a7aedf7d0eda260ac142d1a5c172ef7502f10627690741dc4e",
+      "initial_bytes": 45068,
+      "current_sha256": "e38a1736a52892a7aedf7d0eda260ac142d1a5c172ef7502f10627690741dc4e",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/qwen-pilot-20261014/coexistence-vram-measurements-qwen3-14b-fp8.json",
+      "initial_sha256": "d1fdebe29284c573a95de13ff6ba48a5ed897371bad9234e17f10fb373506f88",
+      "initial_bytes": 50287,
+      "current_sha256": "d1fdebe29284c573a95de13ff6ba48a5ed897371bad9234e17f10fb373506f88",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/qwen-pilot-20261014/coexistence-vram-measurements-qwen3-4b-awq-ctx4096-kv640m-paired-wave1.json",
+      "initial_sha256": "9efb10ebb128d925a6b757b5f9074d7571a4b41d87f2aaa4789131832082f583",
+      "initial_bytes": 34759,
+      "current_sha256": "9efb10ebb128d925a6b757b5f9074d7571a4b41d87f2aaa4789131832082f583",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/qwen-pilot-20261014/coexistence-vram-measurements-qwen3-4b-awq-ctx4096-kv640m-paired-wave2.json",
+      "initial_sha256": "2915f030682cef5675b3c68df104b0524267597f560e213b1db8cbd4657be194",
+      "initial_bytes": 8791,
+      "current_sha256": "2915f030682cef5675b3c68df104b0524267597f560e213b1db8cbd4657be194",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/qwen-pilot-20261014/coexistence-vram-measurements-qwen3-4b-awq-ctx4096-kv640m-paired.json",
+      "initial_sha256": "2915f030682cef5675b3c68df104b0524267597f560e213b1db8cbd4657be194",
+      "initial_bytes": 8791,
+      "current_sha256": "2915f030682cef5675b3c68df104b0524267597f560e213b1db8cbd4657be194",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/qwen-pilot-20261014/coexistence-vram-measurements-qwen3-8b-awq-ctx4096-kv640m-offload2p5-copy-wave1.json",
+      "initial_sha256": "07a8731ea47c397983057d783b2513d95d8cd9b9f98611e10a4df3756a3bd097",
+      "initial_bytes": 60152,
+      "current_sha256": "07a8731ea47c397983057d783b2513d95d8cd9b9f98611e10a4df3756a3bd097",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/qwen-pilot-20261014/coexistence-vram-measurements-qwen3-8b-awq-ctx4096-kv640m-offload2p5-copy-wave2.json",
+      "initial_sha256": "81f5b99396f9c2c9461ad43e98c7ed6ec95ab8b00b010b4504a9653b2a849aa9",
+      "initial_bytes": 33592,
+      "current_sha256": "81f5b99396f9c2c9461ad43e98c7ed6ec95ab8b00b010b4504a9653b2a849aa9",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/qwen-pilot-20261014/coexistence-vram-measurements-qwen3-8b-awq-ctx4096-kv640m-offload2p5-copy.json",
+      "initial_sha256": "81f5b99396f9c2c9461ad43e98c7ed6ec95ab8b00b010b4504a9653b2a849aa9",
+      "initial_bytes": 33592,
+      "current_sha256": "81f5b99396f9c2c9461ad43e98c7ed6ec95ab8b00b010b4504a9653b2a849aa9",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/qwen-pilot-20261014/coexistence-vram-measurements-qwen3-8b-awq-ctx4096-kv640m-offload2p5-gc015.json",
+      "initial_sha256": "9039e558c16e16dfcf6d16c97fc590c8482e93ab7f8dd91ac46ed094603e713d",
+      "initial_bytes": 4413,
+      "current_sha256": "9039e558c16e16dfcf6d16c97fc590c8482e93ab7f8dd91ac46ed094603e713d",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/qwen-pilot-20261014/coexistence-vram-measurements-qwen3-8b-awq-ctx4096-kv640m-offload2p5.json",
+      "initial_sha256": "ccd0fc1054d2bd0ddc69ee9c45a52834309ec690a8692e00fd4b5c8a55aabc53",
+      "initial_bytes": 4626,
+      "current_sha256": "ccd0fc1054d2bd0ddc69ee9c45a52834309ec690a8692e00fd4b5c8a55aabc53",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/qwen-pilot-20261014/coexistence-vram-measurements-qwen3-8b-awq-int4.json",
+      "initial_sha256": "8f2a2a12780e370ad64fb14ec2d9f567c7c475c60c37b9904b66cce4246eb05c",
+      "initial_bytes": 51566,
+      "current_sha256": "8f2a2a12780e370ad64fb14ec2d9f567c7c475c60c37b9904b66cce4246eb05c",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/qwen-pilot-20261014/coexistence-vram-measurements-qwen3-8b-fp8.json",
+      "initial_sha256": "8088793f8ba9c3ee6320c6ba6fc1218382d57ca6101271b69d2057b17e250090",
+      "initial_bytes": 56178,
+      "current_sha256": "8088793f8ba9c3ee6320c6ba6fc1218382d57ca6101271b69d2057b17e250090",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/qwen-pilot-20261014/coexistence-vram-measurements-qwen36-27b-awq-int4-g128-wave-qwen-coex-10135cbe-d3e7-4f5d-bd00-73ff7d26d249.json",
+      "initial_sha256": "ec46afa9a24c942ba5291cad76fb682d34cd165f15cb0553b3cfa167ecc8d86d",
+      "initial_bytes": 60987,
+      "current_sha256": "ec46afa9a24c942ba5291cad76fb682d34cd165f15cb0553b3cfa167ecc8d86d",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/qwen-pilot-20261014/coexistence-vram-measurements-qwen36-27b-awq-int4-g128-wave-qwen-coex-65073cb6-260e-4b31-822e-64a019131be5.json",
+      "initial_sha256": "084040c3f4d071f2195ac849c59e6cc2a68f5c437bbc6b2ff7c9bd8d4c953e04",
+      "initial_bytes": 13615,
+      "current_sha256": "084040c3f4d071f2195ac849c59e6cc2a68f5c437bbc6b2ff7c9bd8d4c953e04",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/qwen-pilot-20261014/coexistence-vram-measurements-qwen36-27b-awq-int4-g128-wave-qwen-coex-6ba6edee-20b6-41c0-aa26-430694efbb2b.json",
+      "initial_sha256": "c2a027f7342c629ff315675c5c610b853d2c9be2328b5d826578520588dd513c",
+      "initial_bytes": 61003,
+      "current_sha256": "c2a027f7342c629ff315675c5c610b853d2c9be2328b5d826578520588dd513c",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/qwen-pilot-20261014/coexistence-vram-measurements-qwen36-27b-awq-int4-g128.json",
+      "initial_sha256": "82d4c370cf6fa96f53a57668bcba09e852471c7dd1d0fe1386857680f9342cdc",
+      "initial_bytes": 19059,
+      "current_sha256": "82d4c370cf6fa96f53a57668bcba09e852471c7dd1d0fe1386857680f9342cdc",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/qwen-pilot-20261014/coexistence-vram-measurements.json",
+      "initial_sha256": "365894e9cbe15da67e77641f706a84a66aaa1271bcb1347e9bd7e14a994d9db7",
+      "initial_bytes": 49202,
+      "current_sha256": "365894e9cbe15da67e77641f706a84a66aaa1271bcb1347e9bd7e14a994d9db7",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/qwen-pilot-20261014/comparison-4b-8b-reduced.html",
+      "initial_sha256": "c2bcd883a16a64146caa2fd951be2808d38087b7e4e880149be25d28e8e20b76",
+      "initial_bytes": 58276,
+      "current_sha256": "c2bcd883a16a64146caa2fd951be2808d38087b7e4e880149be25d28e8e20b76",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/qwen-pilot-20261014/context-validation-compact4096.json",
+      "initial_sha256": "3510e4ef82f8af6faf6f06c34b0f93da2eaae3d5ab0807f984c587860a421767",
+      "initial_bytes": 680,
+      "current_sha256": "3510e4ef82f8af6faf6f06c34b0f93da2eaae3d5ab0807f984c587860a421767",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/qwen-pilot-20261014/context-validation.json",
+      "initial_sha256": "3bc6f17539c43d7bb18cc129316dca044d607ad05277753b9f651d0a96e45728",
+      "initial_bytes": 714,
+      "current_sha256": "3bc6f17539c43d7bb18cc129316dca044d607ad05277753b9f651d0a96e45728",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/qwen-pilot-20261014/corpus.json",
+      "initial_sha256": "e3fc6d927b24cbb18bf2b936d7405e4bd7b42eadee0be76c2dbc6ea216e276ce",
+      "initial_bytes": 3133294,
+      "current_sha256": "e3fc6d927b24cbb18bf2b936d7405e4bd7b42eadee0be76c2dbc6ea216e276ce",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/qwen-pilot-20261014/fp8-runtime-preflight.json",
+      "initial_sha256": "b270797387f4a9d66a883feed20b9dfd72a8364f5f6a659c60d87b71431188ea",
+      "initial_bytes": 7186,
+      "current_sha256": "b270797387f4a9d66a883feed20b9dfd72a8364f5f6a659c60d87b71431188ea",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/qwen-pilot-20261014/inventory.json",
+      "initial_sha256": "068cfbc2a911bbe65748be10b8ec8945523883ec698291899a0f23c87746d9d1",
+      "initial_bytes": 892,
+      "current_sha256": "068cfbc2a911bbe65748be10b8ec8945523883ec698291899a0f23c87746d9d1",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/qwen-pilot-20261014/live-run-diagnostics/comparison.json",
+      "initial_sha256": "f78aaa5abf2ca2418e44bc9814db4d218e97d0411a4ddab7c0da9e951ba37674",
+      "initial_bytes": 9171,
+      "current_sha256": "f78aaa5abf2ca2418e44bc9814db4d218e97d0411a4ddab7c0da9e951ba37674",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/qwen-pilot-20261014/live-run-diagnostics/host-snapshot-1.json",
+      "initial_sha256": "dac89c6c555841d03a05d36806afc857f0708164c3ad16492dc670ac72b6ee39",
+      "initial_bytes": 80716,
+      "current_sha256": "dac89c6c555841d03a05d36806afc857f0708164c3ad16492dc670ac72b6ee39",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/qwen-pilot-20261014/live-run-diagnostics/host-snapshot-2.json",
+      "initial_sha256": "1af861c8ca1450caeebfccd2591cd0f5c2d3cc4dac1650fae6448d62b67791c8",
+      "initial_bytes": 80784,
+      "current_sha256": "1af861c8ca1450caeebfccd2591cd0f5c2d3cc4dac1650fae6448d62b67791c8",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/qwen-pilot-20261014/live-run-diagnostics/report.json",
+      "initial_sha256": "7e2ccbbba8b3ef033d07ca397b4dda966f1f3fcde8264deb93f22664627b95a5",
+      "initial_bytes": 1705,
+      "current_sha256": "7e2ccbbba8b3ef033d07ca397b4dda966f1f3fcde8264deb93f22664627b95a5",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/qwen-pilot-20261014/live-run-diagnostics/snapshot-1.json",
+      "initial_sha256": "5dc12f4062f781947f05ea8c56cc5bf334f91f5ce1d6ffbedfce80b73777d457",
+      "initial_bytes": 11185,
+      "current_sha256": "5dc12f4062f781947f05ea8c56cc5bf334f91f5ce1d6ffbedfce80b73777d457",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/qwen-pilot-20261014/main-admission-check.json",
+      "initial_sha256": "2c7511e5b0694d7bb42f72d6fd2628dfc3d1a224aff4c34ab6cee444a62ba76b",
+      "initial_bytes": 478,
+      "current_sha256": "2c7511e5b0694d7bb42f72d6fd2628dfc3d1a224aff4c34ab6cee444a62ba76b",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/qwen-pilot-20261014/main-campaign-state.json",
+      "initial_sha256": "68438dafa2fb835f144fc4d11b7dd07b0f0503eb646d52d72fdc95b7c7610348",
+      "initial_bytes": 519,
+      "current_sha256": "68438dafa2fb835f144fc4d11b7dd07b0f0503eb646d52d72fdc95b7c7610348",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/qwen-pilot-20261014/main-comparison.html",
+      "initial_sha256": "0b05a8fbe37f4a438a6210797820c730c13e46f9ee4b16b5298577a02a459c85",
+      "initial_bytes": 133382,
+      "current_sha256": "0b05a8fbe37f4a438a6210797820c730c13e46f9ee4b16b5298577a02a459c85",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/qwen-pilot-20261014/main-comparison.json",
+      "initial_sha256": "05979feca14590f544641964c8e38ff89eefa20e9452ce441c320f2b2a93d3bc",
+      "initial_bytes": 22552,
+      "current_sha256": "05979feca14590f544641964c8e38ff89eefa20e9452ce441c320f2b2a93d3bc",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/qwen-pilot-20261014/main-conclusions.json",
+      "initial_sha256": "2b7d9c6b3c50c92844a41363f34530dd1d5f4616f4faf3b2c395cebeab4678b2",
+      "initial_bytes": 10674,
+      "current_sha256": "2b7d9c6b3c50c92844a41363f34530dd1d5f4616f4faf3b2c395cebeab4678b2",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/qwen-pilot-20261014/main-final-verification.json",
+      "initial_sha256": "03538a26075e94a42dfb810a827402142a82eebe1b5f476d191d86e5c78621f8",
+      "initial_bytes": 6196,
+      "current_sha256": "03538a26075e94a42dfb810a827402142a82eebe1b5f476d191d86e5c78621f8",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/qwen-pilot-20261014/main-preparation.json",
+      "initial_sha256": "0dde5932621edd1464bcdfd5b1cad655d16e930ad2203c87866b14d9494abf68",
+      "initial_bytes": 365,
+      "current_sha256": "0dde5932621edd1464bcdfd5b1cad655d16e930ad2203c87866b14d9494abf68",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/qwen-pilot-20261014/main-quality-review.json",
+      "initial_sha256": "c1cfe28c5bd958e50f3b49ece8aae72b890d7072d6f05364a37dda77ae4a6313",
+      "initial_bytes": 17993,
+      "current_sha256": "c1cfe28c5bd958e50f3b49ece8aae72b890d7072d6f05364a37dda77ae4a6313",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/qwen-pilot-20261014/main-ready-preflight.json",
+      "initial_sha256": "30d0bd8fb902b346356e11deb64e2b7c157b7ccc64339c167bde24c75bf898f6",
+      "initial_bytes": 1846,
+      "current_sha256": "30d0bd8fb902b346356e11deb64e2b7c157b7ccc64339c167bde24c75bf898f6",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/qwen-pilot-20261014/model-plan.json",
+      "initial_sha256": "096d3cf3809201d37d4d97521a0df7980b23293ba2f06ac2f6b61211f2899663",
+      "initial_bytes": 5679,
+      "current_sha256": "096d3cf3809201d37d4d97521a0df7980b23293ba2f06ac2f6b61211f2899663",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/qwen-pilot-20261014/monitor-latest.json",
+      "initial_sha256": "6b112dd1ce51262d7e9afb0258faa44123da84d03668606987c8cbde96ce3e56",
+      "initial_bytes": 1012,
+      "current_sha256": "6b112dd1ce51262d7e9afb0258faa44123da84d03668606987c8cbde96ce3e56",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/qwen-pilot-20261014/monitor-state.json",
+      "initial_sha256": "53ec139ce1aee18bbcc174568e5dcb3a4595df652b44bf8995dbff0d35c98994",
+      "initial_bytes": 769,
+      "current_sha256": "53ec139ce1aee18bbcc174568e5dcb3a4595df652b44bf8995dbff0d35c98994",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/qwen-pilot-20261014/monitor_gpu.py",
+      "initial_sha256": "6a8c39991653b2e486e9cba2e0f6ce74b09bd7260dfae4c6243c3d2ef7b8ead3",
+      "initial_bytes": 4474,
+      "current_sha256": "6a8c39991653b2e486e9cba2e0f6ce74b09bd7260dfae4c6243c3d2ef7b8ead3",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/qwen-pilot-20261014/pause_qwen36_production.py",
+      "initial_sha256": "c8a8c4b2ff01a0bba270bce57f2f7ec64ef7805f30d6a881a07a4fbfe541a29f",
+      "initial_bytes": 2921,
+      "current_sha256": "c8a8c4b2ff01a0bba270bce57f2f7ec64ef7805f30d6a881a07a4fbfe541a29f",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/qwen-pilot-20261014/prefetch_fp8.py",
+      "initial_sha256": "e2cdbae233f9ec057ceb1662b4001939e4b0e657a86794bed28c864ac7b5f924",
+      "initial_bytes": 2695,
+      "current_sha256": "e2cdbae233f9ec057ceb1662b4001939e4b0e657a86794bed28c864ac7b5f924",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/qwen-pilot-20261014/prepare_qwen36.py",
+      "initial_sha256": "ee8fdc7963feacd720af249374814e513b427c2781071146e0f4f65c02e06a43",
+      "initial_bytes": 5242,
+      "current_sha256": "ee8fdc7963feacd720af249374814e513b427c2781071146e0f4f65c02e06a43",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/qwen-pilot-20261014/production-auto-resume-final.json",
+      "initial_sha256": "ea2ccb1ae043525d5c754f9868f2c317ee87fdbdd2ea28b7da835383675c105c",
+      "initial_bytes": 1380,
+      "current_sha256": "ea2ccb1ae043525d5c754f9868f2c317ee87fdbdd2ea28b7da835383675c105c",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/qwen-pilot-20261014/production-auto-resume.json",
+      "initial_sha256": "74df2b4e098d3fba73f9f6767b463682c5f715bd5f965d6303b4c2f6bf2b129c",
+      "initial_bytes": 7938,
+      "current_sha256": "74df2b4e098d3fba73f9f6767b463682c5f715bd5f965d6303b4c2f6bf2b129c",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/qwen-pilot-20261014/production-idle-pause-before-8b-fp8.json",
+      "initial_sha256": "d51fc16d5f0e8b3e8355daa82a8e2684e7edd31107dcb4394952fd87d56bda58",
+      "initial_bytes": 228,
+      "current_sha256": "d51fc16d5f0e8b3e8355daa82a8e2684e7edd31107dcb4394952fd87d56bda58",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/qwen-pilot-20261014/production-idle-pause-final.json",
+      "initial_sha256": "ce51d6fbb63501c9d03757bf8fa6d4aba0d1492e48169a0fdbbbb7d9bdebd902",
+      "initial_bytes": 419,
+      "current_sha256": "ce51d6fbb63501c9d03757bf8fa6d4aba0d1492e48169a0fdbbbb7d9bdebd902",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/qwen-pilot-20261014/production-idle-pause.json",
+      "initial_sha256": "3de6ceee8266f9426e0117ae5f10fa1479f1d4bf3595b51fc6fa2d1608be88a2",
+      "initial_bytes": 233,
+      "current_sha256": "3de6ceee8266f9426e0117ae5f10fa1479f1d4bf3595b51fc6fa2d1608be88a2",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/qwen-pilot-20261014/qwen36-cache-verification.json",
+      "initial_sha256": "019aa003a725a04a7bef7da18f2a7ff1bbd7b66b32d2ec7db3a5560b630b7d8f",
+      "initial_bytes": 869,
+      "current_sha256": "019aa003a725a04a7bef7da18f2a7ff1bbd7b66b32d2ec7db3a5560b630b7d8f",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/qwen-pilot-20261014/qwen36-conclusions.json",
+      "initial_sha256": "ad776ac1f873d35738d518fca015e5f17c07333de3005119ad0ab796eef5c4b1",
+      "initial_bytes": 4751,
+      "current_sha256": "ad776ac1f873d35738d518fca015e5f17c07333de3005119ad0ab796eef5c4b1",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/qwen-pilot-20261014/qwen36-context-validation.json",
+      "initial_sha256": "61848f87dee9d72fc98e8a1025dbfce81a055afb70cfec12718b4fbbaacb4d0f",
+      "initial_bytes": 726,
+      "current_sha256": "61848f87dee9d72fc98e8a1025dbfce81a055afb70cfec12718b4fbbaacb4d0f",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/qwen-pilot-20261014/qwen36-download-controller.json",
+      "initial_sha256": "087a5406f4d24616a2259a993fc3e82d3774205a07f35355930e28a8ca9a0001",
+      "initial_bytes": 388,
+      "current_sha256": "087a5406f4d24616a2259a993fc3e82d3774205a07f35355930e28a8ca9a0001",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/qwen-pilot-20261014/qwen36-download-manifest.json",
+      "initial_sha256": "ec5e2c9d05fc0c2c7f284e22aab4b61119535f1e1f7d191b9039fc3b15327140",
+      "initial_bytes": 1959,
+      "current_sha256": "ec5e2c9d05fc0c2c7f284e22aab4b61119535f1e1f7d191b9039fc3b15327140",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/qwen-pilot-20261014/qwen36-download-state.json",
+      "initial_sha256": "895819093c9143f8d3e88fc8d8d13722f21dfbe33c7e6b705422732167803768",
+      "initial_bytes": 556,
+      "current_sha256": "895819093c9143f8d3e88fc8d8d13722f21dfbe33c7e6b705422732167803768",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/qwen-pilot-20261014/qwen36-final-verification.json",
+      "initial_sha256": "f3ae132e5337ee91f71c6e6066cfe6338e031dece2c250180669d623a932f5cd",
+      "initial_bytes": 7427,
+      "current_sha256": "f3ae132e5337ee91f71c6e6066cfe6338e031dece2c250180669d623a932f5cd",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/qwen-pilot-20261014/qwen36-initial-service.json",
+      "initial_sha256": "b0cb74b7415db9d6eff7aa3d8c859edb70c5a3b0e56ea3cb5d37986f55891885",
+      "initial_bytes": 1574,
+      "current_sha256": "b0cb74b7415db9d6eff7aa3d8c859edb70c5a3b0e56ea3cb5d37986f55891885",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/qwen-pilot-20261014/qwen36-model-plan.json",
+      "initial_sha256": "15459d908de94c654df49d680508f3fea6382be4f80455d23db019427690ded0",
+      "initial_bytes": 7104,
+      "current_sha256": "15459d908de94c654df49d680508f3fea6382be4f80455d23db019427690ded0",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/qwen-pilot-20261014/qwen36-preflight.json",
+      "initial_sha256": "0a65f9e1bfe1469d1cda36930cfc4551cdb30a446de1d5bbd60f9953586edc81",
+      "initial_bytes": 1381,
+      "current_sha256": "0a65f9e1bfe1469d1cda36930cfc4551cdb30a446de1d5bbd60f9953586edc81",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/qwen-pilot-20261014/qwen36-production-pause-2884877.json",
+      "initial_sha256": "67990d338fde5bf91881463074111d3c961a0bb6c0be90a4773f9696574eb5be",
+      "initial_bytes": 544,
+      "current_sha256": "67990d338fde5bf91881463074111d3c961a0bb6c0be90a4773f9696574eb5be",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/qwen-pilot-20261014/qwen36-production-pause-already-inactive.json",
+      "initial_sha256": "51fc9272db0fb0ef983062b3a3fa7f9999007388f987d0177e60295c5b280acd",
+      "initial_bytes": 243,
+      "current_sha256": "51fc9272db0fb0ef983062b3a3fa7f9999007388f987d0177e60295c5b280acd",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/qwen-pilot-20261014/qwen36-production-pause.json",
+      "initial_sha256": "af0562722401cb68a622c22be88bdad7e3568d5518e50c4c69b2bf8cb45f12f8",
+      "initial_bytes": 403,
+      "current_sha256": "af0562722401cb68a622c22be88bdad7e3568d5518e50c4c69b2bf8cb45f12f8",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/qwen-pilot-20261014/qwen36-production-restore.json",
+      "initial_sha256": "db1bc9f345bbfa96dbfa23b17fcd97e19f1fd0f0d9046b4901df7506cb17ced8",
+      "initial_bytes": 102,
+      "current_sha256": "db1bc9f345bbfa96dbfa23b17fcd97e19f1fd0f0d9046b4901df7506cb17ced8",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/qwen-pilot-20261014/qwen36-quality-review.json",
+      "initial_sha256": "97f4509317943e48eeec3a65456134fd5f373932d4767ff2dcd73706e539ddb8",
+      "initial_bytes": 6306,
+      "current_sha256": "97f4509317943e48eeec3a65456134fd5f373932d4767ff2dcd73706e539ddb8",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/qwen-pilot-20261014/qwen36-vs-14b-comparison.html",
+      "initial_sha256": "a2695f8ea844bd2d97769c8c12ca7a3260cdf4cd16a084403136fc655f8bba4c",
+      "initial_bytes": 75155,
+      "current_sha256": "a2695f8ea844bd2d97769c8c12ca7a3260cdf4cd16a084403136fc655f8bba4c",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/qwen-pilot-20261014/qwen36-vs-14b-comparison.json",
+      "initial_sha256": "aa483be6a4dfc5f428f34f92128cbcd3dafaa0faab5da4b1d5b76a0d59a7d074",
+      "initial_bytes": 16209,
+      "current_sha256": "aa483be6a4dfc5f428f34f92128cbcd3dafaa0faab5da4b1d5b76a0d59a7d074",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/qwen-pilot-20261014/reduced-4b-8b-comparison.json",
+      "initial_sha256": "544845e574b3e9594e86e6bb397cb6ed464dfef6b2ea18ea06389a425efbd2da",
+      "initial_bytes": 86574,
+      "current_sha256": "544845e574b3e9594e86e6bb397cb6ed464dfef6b2ea18ea06389a425efbd2da",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/qwen-pilot-20261014/reduced-postflight-jobs.json",
+      "initial_sha256": "41e4998fea224d2ef23fad3ef1c9e8b6bef1baba2eeaa9978bcb8a433e405624",
+      "initial_bytes": 3671,
+      "current_sha256": "41e4998fea224d2ef23fad3ef1c9e8b6bef1baba2eeaa9978bcb8a433e405624",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/qwen-pilot-20261014/reduced-postflight.json",
+      "initial_sha256": "7326f931959af7c6260c9733fe506f1748c02f275034cbf729d3a70beab8e12c",
+      "initial_bytes": 6808,
+      "current_sha256": "7326f931959af7c6260c9733fe506f1748c02f275034cbf729d3a70beab8e12c",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/qwen-pilot-20261014/report-pre-main-legacy.html",
+      "initial_sha256": "222e2b34ba475215f8d15d3ac857de79fb64352a061552c93c57fdf564dce660",
+      "initial_bytes": 293320,
+      "current_sha256": "222e2b34ba475215f8d15d3ac857de79fb64352a061552c93c57fdf564dce660",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/qwen-pilot-20261014/report.html",
+      "initial_sha256": "92cc82f3ad973a6033ef8576a8ac1effb450bf9940d39e5772b2291602b5bb01",
+      "initial_bytes": 1022,
+      "current_sha256": "92cc82f3ad973a6033ef8576a8ac1effb450bf9940d39e5772b2291602b5bb01",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/qwen-pilot-20261014/restore_qwen36_production.py",
+      "initial_sha256": "4b01626ae27b2a8a0b9730d6f6b68565b9d261936f225a3108fe7cc4c6483f1c",
+      "initial_bytes": 3591,
+      "current_sha256": "4b01626ae27b2a8a0b9730d6f6b68565b9d261936f225a3108fe7cc4c6483f1c",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/qwen-pilot-20261014/results-qwen3-14b-awq-int4.json",
+      "initial_sha256": "a2b0455dcf363f8242c9b3a00a7614e46c4c19a899453f245558a3cf7a2861ef",
+      "initial_bytes": 33591,
+      "current_sha256": "a2b0455dcf363f8242c9b3a00a7614e46c4c19a899453f245558a3cf7a2861ef",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/qwen-pilot-20261014/results-qwen3-14b-fp8.json",
+      "initial_sha256": "bf95799e5440db097ea4b41d5439c2b564615b0dfcd7159958b404aa8adbee68",
+      "initial_bytes": 37272,
+      "current_sha256": "bf95799e5440db097ea4b41d5439c2b564615b0dfcd7159958b404aa8adbee68",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/qwen-pilot-20261014/results-qwen3-4b-awq-coexistence.json",
+      "initial_sha256": "9da5740547cd3979e386f1d51e1826e16347b7f8551dbb232080536c751fd161",
+      "initial_bytes": 38449,
+      "current_sha256": "9da5740547cd3979e386f1d51e1826e16347b7f8551dbb232080536c751fd161",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/qwen-pilot-20261014/results-qwen3-4b-awq-ctx4096-kv640m-paired.json",
+      "initial_sha256": "d3798410650e827537979140e1dcf26efa070b66451ae917636c0c166e475342",
+      "initial_bytes": 24108,
+      "current_sha256": "d3798410650e827537979140e1dcf26efa070b66451ae917636c0c166e475342",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/qwen-pilot-20261014/results-qwen3-8b-awq-ctx4096-kv640m-offload2p5-copy.json",
+      "initial_sha256": "64949f096304aa1416d528672bda89869bf3802ec0d115d847e7e36ef49f38cb",
+      "initial_bytes": 22046,
+      "current_sha256": "64949f096304aa1416d528672bda89869bf3802ec0d115d847e7e36ef49f38cb",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/qwen-pilot-20261014/results-qwen3-8b-awq-int4.json",
+      "initial_sha256": "6940282b0740f399c204d9c6c9b869a570a8b24f1d1e960fe4e75f5d8a0cfa0b",
+      "initial_bytes": 41586,
+      "current_sha256": "6940282b0740f399c204d9c6c9b869a570a8b24f1d1e960fe4e75f5d8a0cfa0b",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/qwen-pilot-20261014/results-qwen3-8b-fp8.json",
+      "initial_sha256": "b52ccd3dc6f41ea71218647b878a8b5fc828aaf5acd8ecfde31729b16282fb68",
+      "initial_bytes": 44323,
+      "current_sha256": "b52ccd3dc6f41ea71218647b878a8b5fc828aaf5acd8ecfde31729b16282fb68",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/qwen-pilot-20261014/results-qwen36-27b-awq-int4-g128.json",
+      "initial_sha256": "6698626f52e4765020a920cf3c402b518fdaf164b6c918d83b455c782795e854",
+      "initial_bytes": 53223,
+      "current_sha256": "6698626f52e4765020a920cf3c402b518fdaf164b6c918d83b455c782795e854",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/qwen-pilot-20261014/runtime-qwen3-14b-awq-int4.json",
+      "initial_sha256": "35d73baadc931c13bc5f05dd1d8d571da95ae0391c34925d94ba23950aa94ba9",
+      "initial_bytes": 73350,
+      "current_sha256": "35d73baadc931c13bc5f05dd1d8d571da95ae0391c34925d94ba23950aa94ba9",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/qwen-pilot-20261014/runtime-qwen3-14b-fp8.json",
+      "initial_sha256": "e830b5f81dbababa8011bf17c58cc7be68fc2be6ce3bb310041beb8ae984e372",
+      "initial_bytes": 79190,
+      "current_sha256": "e830b5f81dbababa8011bf17c58cc7be68fc2be6ce3bb310041beb8ae984e372",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/qwen-pilot-20261014/runtime-qwen3-8b-awq-int4.json",
+      "initial_sha256": "e969767317c1269adad0575fe42b1a1c957d3f2dc6cc9a024b50161622873f5d",
+      "initial_bytes": 78483,
+      "current_sha256": "e969767317c1269adad0575fe42b1a1c957d3f2dc6cc9a024b50161622873f5d",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/qwen-pilot-20261014/runtime-qwen3-8b-fp8.json",
+      "initial_sha256": "b9fda6fcbb547da7f84b8d474cbab83c6377835278f3c76d700082be4a46f97d",
+      "initial_bytes": 81734,
+      "current_sha256": "b9fda6fcbb547da7f84b8d474cbab83c6377835278f3c76d700082be4a46f97d",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/qwen-pilot-20261014/runtime-qwen36-27b-awq-int4-g128-wave-qwen-coex-0260f3ba-664f-4191-8743-153bf090c481.json",
+      "initial_sha256": "a68efd92bc0570579a98b6934e10ab92a51f41d324ae1c2dea58799d6e050d5d",
+      "initial_bytes": 30022,
+      "current_sha256": "a68efd92bc0570579a98b6934e10ab92a51f41d324ae1c2dea58799d6e050d5d",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/qwen-pilot-20261014/runtime-qwen36-27b-awq-int4-g128-wave-qwen-coex-10135cbe-d3e7-4f5d-bd00-73ff7d26d249.json",
+      "initial_sha256": "f864f5a31165170101cbe2270a059c61d5cc0b992b7747aa3e96bd48503ef0ed",
+      "initial_bytes": 58996,
+      "current_sha256": "f864f5a31165170101cbe2270a059c61d5cc0b992b7747aa3e96bd48503ef0ed",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/qwen-pilot-20261014/runtime-qwen36-27b-awq-int4-g128-wave-qwen-coex-65073cb6-260e-4b31-822e-64a019131be5.json",
+      "initial_sha256": "8008a8a40e67c4b4335acbad98e197677ec35f275a2bd4d4be92816f3d466032",
+      "initial_bytes": 87014,
+      "current_sha256": "8008a8a40e67c4b4335acbad98e197677ec35f275a2bd4d4be92816f3d466032",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/qwen-pilot-20261014/runtime-qwen36-27b-awq-int4-g128-wave-qwen-coex-6ba6edee-20b6-41c0-aa26-430694efbb2b.json",
+      "initial_sha256": "daa633e2bd8fca5eb1b8d651490bc224986cf58128a767322490f06ff23d1397",
+      "initial_bytes": 85583,
+      "current_sha256": "daa633e2bd8fca5eb1b8d651490bc224986cf58128a767322490f06ff23d1397",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/qwen-pilot-20261014/runtime-qwen36-27b-awq-int4-g128.json",
+      "initial_sha256": "f864f5a31165170101cbe2270a059c61d5cc0b992b7747aa3e96bd48503ef0ed",
+      "initial_bytes": 58996,
+      "current_sha256": "f864f5a31165170101cbe2270a059c61d5cc0b992b7747aa3e96bd48503ef0ed",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/qwen-pilot-20261014/startup-failure-8b-offload1p5.json",
+      "initial_sha256": "dc5a1ff3e5bf841cf5b785852cae12cbc76dc7750002ff6be9efccf97118c58f",
+      "initial_bytes": 4347,
+      "current_sha256": "dc5a1ff3e5bf841cf5b785852cae12cbc76dc7750002ff6be9efccf97118c58f",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/qwen-pilot-20261014/startup-failure-8b-offload2p5-uva-gc015.json",
+      "initial_sha256": "26039e00fb77627e9ba5f4340d25e1c58dbf845484039753f3f24a6ffc516b03",
+      "initial_bytes": 4345,
+      "current_sha256": "26039e00fb77627e9ba5f4340d25e1c58dbf845484039753f3f24a6ffc516b03",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/qwen-pilot-20261014/startup-failure-8b-offload2p5-uva.json",
+      "initial_sha256": "abd93e02b7b993dd5f1d7112a7dbf605fb2153b140707f11df6e744c8599901c",
+      "initial_bytes": 4558,
+      "current_sha256": "abd93e02b7b993dd5f1d7112a7dbf605fb2153b140707f11df6e744c8599901c",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/qwen-pilot-20261014/validate_qwen36_context.py",
+      "initial_sha256": "79131294f75b1e3514b29ce9e4441a156b3562767af4c55205af68113bff26cc",
+      "initial_bytes": 2689,
+      "current_sha256": "79131294f75b1e3514b29ce9e4441a156b3562767af4c55205af68113bff26cc",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/qwen-pilot-20261014/verify_main_cleanup.py",
+      "initial_sha256": "eb572455aa64ed883821c3bc81dfdaf45c29d07afa9f4c163beebb180a68c74b",
+      "initial_bytes": 4777,
+      "current_sha256": "eb572455aa64ed883821c3bc81dfdaf45c29d07afa9f4c163beebb180a68c74b",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/qwen-pilot-20261014/verify_qwen36_cleanup.py",
+      "initial_sha256": "7a08dd91343a85bde997dca787f402b6359d90610675a1b99d6778ae0a92e1ba",
+      "initial_bytes": 6075,
+      "current_sha256": "7a08dd91343a85bde997dca787f402b6359d90610675a1b99d6778ae0a92e1ba",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/qwen-pilot-20261014/verify_qwen36_download.py",
+      "initial_sha256": "e55286e13a91eaa2d373b2c934848f661bf997b7abf1f4826af89b4ad37fb335",
+      "initial_bytes": 2274,
+      "current_sha256": "e55286e13a91eaa2d373b2c934848f661bf997b7abf1f4826af89b4ad37fb335",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/qwen-pilot-20261014/vram-coexistence-samples.json",
+      "initial_sha256": "e3d1e8cd33192364d1a4b9b8e156bbdcf975a31de93830b48e778933bd1ad6b7",
+      "initial_bytes": 1214,
+      "current_sha256": "e3d1e8cd33192364d1a4b9b8e156bbdcf975a31de93830b48e778933bd1ad6b7",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/qwen-pilot-20261014/windows-job-final-status.json",
+      "initial_sha256": "60aa88bba081fe8a336f50ea98265409fd0f5f1448d394cd375be99d0de846fd",
+      "initial_bytes": 17668,
+      "current_sha256": "60aa88bba081fe8a336f50ea98265409fd0f5f1448d394cd375be99d0de846fd",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/resource-allocation-study-20261015/build_report.py",
+      "initial_sha256": "726058be3bdead16a1467e8c8798ea5046561541f6d8862af50a476d52939c79",
+      "initial_bytes": 17542,
+      "current_sha256": "726058be3bdead16a1467e8c8798ea5046561541f6d8862af50a476d52939c79",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/resource-allocation-study-20261015/live-after.json",
+      "initial_sha256": "9cf3cb1158fdcbd844df391f507cce40b243f03dbb2b625bb89e61c690b7c59a",
+      "initial_bytes": 12920,
+      "current_sha256": "9cf3cb1158fdcbd844df391f507cce40b243f03dbb2b625bb89e61c690b7c59a",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/resource-allocation-study-20261015/live-before.json",
+      "initial_sha256": "c4aa303bf3696aec76a54823ded37ad9140a6d19c80e617f2ea6488978b3566a",
+      "initial_bytes": 12920,
+      "current_sha256": "c4aa303bf3696aec76a54823ded37ad9140a6d19c80e617f2ea6488978b3566a",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/resource-allocation-study-20261015/non_interference_check.json",
+      "initial_sha256": "d89abaf9382da8a17ff100b80e0d419af093b08e37e2da1a80ab1982b28fbd90",
+      "initial_bytes": 1109,
+      "current_sha256": "d89abaf9382da8a17ff100b80e0d419af093b08e37e2da1a80ab1982b28fbd90",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/resource-allocation-study-20261015/report.html",
+      "initial_sha256": "a140cedf6ba1e5a03eebcefe14cb24e533ae269234dfec070783958635fa8b78",
+      "initial_bytes": 18727,
+      "current_sha256": "a140cedf6ba1e5a03eebcefe14cb24e533ae269234dfec070783958635fa8b78",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/resource-allocation-study-20261015/simulation_results.json",
+      "initial_sha256": "c5a313bc0fdad27ea0db57ce1c051b00164547ef7334ebd3f57b3f9eb4d9a743",
+      "initial_bytes": 2969249,
+      "current_sha256": "c5a313bc0fdad27ea0db57ce1c051b00164547ef7334ebd3f57b3f9eb4d9a743",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/resource-allocation-study-20261015/simulator.py",
+      "initial_sha256": "875f0bccb7a9b2aa70801f19979289a31ece69253fe3c53e717474bb580ae89d",
+      "initial_bytes": 13626,
+      "current_sha256": "875f0bccb7a9b2aa70801f19979289a31ece69253fe3c53e717474bb580ae89d",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/resource-allocation-study-20261015/storage_probe.log",
+      "initial_sha256": "1a25e1837224f717fe2190ed95465e8d0648fb27f0cf354d286faeff36da0753",
+      "initial_bytes": 499,
+      "current_sha256": "1a25e1837224f717fe2190ed95465e8d0648fb27f0cf354d286faeff36da0753",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/resource-allocation-study-20261015/storage_probe.m",
+      "initial_sha256": "9515dd1455108d5101bfa3fd9d7b02fabdad13ce74153b0c14f3c596aaa04f94",
+      "initial_bytes": 3450,
+      "current_sha256": "9515dd1455108d5101bfa3fd9d7b02fabdad13ce74153b0c14f3c596aaa04f94",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/resource-allocation-study-20261015/storage_results.json",
+      "initial_sha256": "94c6cf6f50648360f7ac657994dc5577e15108b11fe542d9c6c88c586f967a37",
+      "initial_bytes": 1679,
+      "current_sha256": "94c6cf6f50648360f7ac657994dc5577e15108b11fe542d9c6c88c586f967a37",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/resource-allocation-study-20261015/test_hub_policy_probe.py",
+      "initial_sha256": "7c4654770f9e1469ec7ff68400bc694ad051594112112d24a070a043112e9042",
+      "initial_bytes": 3054,
+      "current_sha256": "7c4654770f9e1469ec7ff68400bc694ad051594112112d24a070a043112e9042",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/resource-allocation-study-20261015/test_simulator.py",
+      "initial_sha256": "cddf8eb60af6bbd5a6790a03966b3d09ab978a28494bc345b4d5d474a677a2ae",
+      "initial_bytes": 4345,
+      "current_sha256": "cddf8eb60af6bbd5a6790a03966b3d09ab978a28494bc345b4d5d474a677a2ae",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/retire-legacy-matlab-smoke-20261015.json",
+      "initial_sha256": "dfc9948d2308b8e0b4a5cc3c20562dc6c80d1302e5302eb50a67f9aa9ae59073",
+      "initial_bytes": 3121,
+      "current_sha256": "dfc9948d2308b8e0b4a5cc3c20562dc6c80d1302e5302eb50a67f9aa9ae59073",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/roi-auto-memory-deployment-20261019/linux-adaptations.diff",
+      "initial_sha256": "867c28c9c0fe6ed20e4fefc64b002d303e3f566a663fe021aba6fb846af975cb",
+      "initial_bytes": 1940,
+      "current_sha256": "867c28c9c0fe6ed20e4fefc64b002d303e3f566a663fe021aba6fb846af975cb",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/roi-auto-memory-deployment-20261019/linux-intended/autoscaling.py",
+      "initial_sha256": "c939879eba2580ad0fda5dc9bb2239c354cb6fd6f226c07634e89d059911f6cf",
+      "initial_bytes": 4719,
+      "current_sha256": "c939879eba2580ad0fda5dc9bb2239c354cb6fd6f226c07634e89d059911f6cf",
+      "disposition": "Versioned on master",
+      "identical_prior_blob_path": "worker/autoscaling.py"
+    },
+    {
+      "path": "reports/roi-auto-memory-deployment-20261019/linux-intended/job_resources.py",
+      "initial_sha256": "41d7416e72430563a7a41b4bc2667f6403b105fc3a3b61b9b2c84fb259e74539",
+      "initial_bytes": 17801,
+      "current_sha256": "41d7416e72430563a7a41b4bc2667f6403b105fc3a3b61b9b2c84fb259e74539",
+      "disposition": "Versioned on master",
+      "identical_prior_blob_path": "worker/job_resources.py"
+    },
+    {
+      "path": "reports/roi-auto-memory-deployment-20261019/linux-intended/memory_resources.py",
+      "initial_sha256": "2ee9ad2ae213eaa47f9b6877cdaf97c8642d32b8d471e013900a0b79b3c5b4a2",
+      "initial_bytes": 3805,
+      "current_sha256": "2ee9ad2ae213eaa47f9b6877cdaf97c8642d32b8d471e013900a0b79b3c5b4a2",
+      "disposition": "Versioned on master",
+      "identical_prior_blob_path": "worker/memory_resources.py"
+    },
+    {
+      "path": "reports/roi-auto-memory-deployment-20261019/linux-intended/roi_extraction_resources.py",
+      "initial_sha256": "b63b96bcaef616c9428a841d24e5e3d323736c0677146883497b928d713a7fe1",
+      "initial_bytes": 4240,
+      "current_sha256": "b63b96bcaef616c9428a841d24e5e3d323736c0677146883497b928d713a7fe1",
+      "disposition": "Versioned on master",
+      "identical_prior_blob_path": "worker/roi_extraction_resources.py"
+    },
+    {
+      "path": "reports/roi-auto-memory-deployment-20261019/linux-intended/run_worker.py",
+      "initial_sha256": "5572178e97a2b28209eb1a4d11c0784c64821d022e0c1922580df6c0b68a22d7",
+      "initial_bytes": 42815,
+      "current_sha256": "5572178e97a2b28209eb1a4d11c0784c64821d022e0c1922580df6c0b68a22d7",
+      "disposition": "Versioned on master",
+      "identical_prior_blob_path": "worker/run_worker.py"
+    },
+    {
+      "path": "reports/roi-auto-memory-deployment-20261019/windows-adaptations.diff",
+      "initial_sha256": "ae6c67c34be0d44adf3782b56ea8350e58b22c7d6d7d8879fd9c93bfda30f7cf",
+      "initial_bytes": 3353,
+      "current_sha256": "ae6c67c34be0d44adf3782b56ea8350e58b22c7d6d7d8879fd9c93bfda30f7cf",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/roi-auto-memory-deployment-20261019/windows-intended/autoscaling.py",
+      "initial_sha256": "c939879eba2580ad0fda5dc9bb2239c354cb6fd6f226c07634e89d059911f6cf",
+      "initial_bytes": 4719,
+      "current_sha256": "c939879eba2580ad0fda5dc9bb2239c354cb6fd6f226c07634e89d059911f6cf",
+      "disposition": "Versioned on master",
+      "identical_prior_blob_path": "worker/autoscaling.py"
+    },
+    {
+      "path": "reports/roi-auto-memory-deployment-20261019/windows-intended/job_resources.py",
+      "initial_sha256": "41d7416e72430563a7a41b4bc2667f6403b105fc3a3b61b9b2c84fb259e74539",
+      "initial_bytes": 17801,
+      "current_sha256": "41d7416e72430563a7a41b4bc2667f6403b105fc3a3b61b9b2c84fb259e74539",
+      "disposition": "Versioned on master",
+      "identical_prior_blob_path": "worker/job_resources.py"
+    },
+    {
+      "path": "reports/roi-auto-memory-deployment-20261019/windows-intended/memory_resources.py",
+      "initial_sha256": "2ee9ad2ae213eaa47f9b6877cdaf97c8642d32b8d471e013900a0b79b3c5b4a2",
+      "initial_bytes": 3805,
+      "current_sha256": "2ee9ad2ae213eaa47f9b6877cdaf97c8642d32b8d471e013900a0b79b3c5b4a2",
+      "disposition": "Versioned on master",
+      "identical_prior_blob_path": "worker/memory_resources.py"
+    },
+    {
+      "path": "reports/roi-auto-memory-deployment-20261019/windows-intended/merge-0.txt",
+      "initial_sha256": "b7c19ac27105e2ae2181dba6c96fc5db9fbd70ae6b00293bd9d9d931aaa9c88d",
+      "initial_bytes": 43777,
+      "current_sha256": "b7c19ac27105e2ae2181dba6c96fc5db9fbd70ae6b00293bd9d9d931aaa9c88d",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/roi-auto-memory-deployment-20261019/windows-intended/merge-1.txt",
+      "initial_sha256": "a80f2038948b27f0e08e66951f78dda1b036a06bdef4e0ebdbc88879492b5cc1",
+      "initial_bytes": 42536,
+      "current_sha256": "a80f2038948b27f0e08e66951f78dda1b036a06bdef4e0ebdbc88879492b5cc1",
+      "disposition": "Versioned on master",
+      "identical_prior_blob_path": "worker/run_worker.py"
+    },
+    {
+      "path": "reports/roi-auto-memory-deployment-20261019/windows-intended/merge-2.txt",
+      "initial_sha256": "5572178e97a2b28209eb1a4d11c0784c64821d022e0c1922580df6c0b68a22d7",
+      "initial_bytes": 42815,
+      "current_sha256": "5572178e97a2b28209eb1a4d11c0784c64821d022e0c1922580df6c0b68a22d7",
+      "disposition": "Versioned on master",
+      "identical_prior_blob_path": "worker/run_worker.py"
+    },
+    {
+      "path": "reports/roi-auto-memory-deployment-20261019/windows-intended/merge-conflict.txt",
+      "initial_sha256": "f2fe1de9f8ee41ffb603cdd8101eb1be0564515e9750959c3a62eb05b189d318",
+      "initial_bytes": 44433,
+      "current_sha256": "f2fe1de9f8ee41ffb603cdd8101eb1be0564515e9750959c3a62eb05b189d318",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/roi-auto-memory-deployment-20261019/windows-intended/roi_extraction_resources.py",
+      "initial_sha256": "b63b96bcaef616c9428a841d24e5e3d323736c0677146883497b928d713a7fe1",
+      "initial_bytes": 4240,
+      "current_sha256": "b63b96bcaef616c9428a841d24e5e3d323736c0677146883497b928d713a7fe1",
+      "disposition": "Versioned on master",
+      "identical_prior_blob_path": "worker/roi_extraction_resources.py"
+    },
+    {
+      "path": "reports/roi-auto-memory-deployment-20261019/windows-intended/run_worker.py",
+      "initial_sha256": "6206ea3202c8b2722eab64fedea4a481e4bebdd7f694d0352908041db8181fb8",
+      "initial_bytes": 44056,
+      "current_sha256": "6206ea3202c8b2722eab64fedea4a481e4bebdd7f694d0352908041db8181fb8",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/roi-auto-memory-status-20261019/hub-status.json",
+      "initial_sha256": "1591a4f271bcd9636dd3d70f569b0d5ea4a60c44a8463dbbb9aa5e1e77000d4a",
+      "initial_bytes": 20940,
+      "current_sha256": "1591a4f271bcd9636dd3d70f569b0d5ea4a60c44a8463dbbb9aa5e1e77000d4a",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/roi-auto-memory-status-20261019/linux-sample1.json",
+      "initial_sha256": "0e507f1cb59b71159f7f3b4bc752a22090b2826c58ffe3fc78ffe7d150e602e6",
+      "initial_bytes": 1766,
+      "current_sha256": "0e507f1cb59b71159f7f3b4bc752a22090b2826c58ffe3fc78ffe7d150e602e6",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/roi-auto-memory-status-20261019/linux-sample2.json",
+      "initial_sha256": "3d682b6052d367f1d7663b4a3536727abd9cb8c45777a248cca094059d8b7f1a",
+      "initial_bytes": 2452,
+      "current_sha256": "3d682b6052d367f1d7663b4a3536727abd9cb8c45777a248cca094059d8b7f1a",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/roi-auto-memory-status-20261019/windows-sample1.json",
+      "initial_sha256": "5de1e9db9c4893bee10caf3ffc1624b107b8493e784a1ef2ca5022d9635383dc",
+      "initial_bytes": 1365,
+      "current_sha256": "5de1e9db9c4893bee10caf3ffc1624b107b8493e784a1ef2ca5022d9635383dc",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/roi-auto-memory-status-20261019/windows-sample2.json",
+      "initial_sha256": "9a149bc2491106fa859917c12ab08ef88f94fd3e74cd5f50ce075e3555aca87a",
+      "initial_bytes": 1565,
+      "current_sha256": "9a149bc2491106fa859917c12ab08ef88f94fd3e74cd5f50ce075e3555aca87a",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/roi-pattern-library-preview.png",
+      "initial_sha256": "f6e772e3882252e01633dfa61ca13a72fd1c70a56856edb5979e70447218a294",
+      "initial_bytes": 43980,
+      "current_sha256": "f6e772e3882252e01633dfa61ca13a72fd1c70a56856edb5979e70447218a294",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/sam31-checkpoint-preserved-validation-20261015.json",
+      "initial_sha256": "fe76a9981ab1e82433f36bfc79abbc7b74a7786bdea73a660265a19914981319",
+      "initial_bytes": 1884,
+      "current_sha256": "fe76a9981ab1e82433f36bfc79abbc7b74a7786bdea73a660265a19914981319",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/sauvegarde-project-headers-20261001.err",
+      "initial_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "initial_bytes": 0,
+      "current_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/sauvegarde-project-headers-20261001.log",
+      "initial_sha256": "4c52c48f785980712b817d110ba1dc9a8726b43104f0dfc1c516146b7e176ff9",
+      "initial_bytes": 4111,
+      "current_sha256": "4c52c48f785980712b817d110ba1dc9a8726b43104f0dfc1c516146b7e176ff9",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/sauvegarde-project-headers-native-progress-20261001.json",
+      "initial_sha256": "4cb1694d88abeefee4c8fa7d7df584a7d77771579f6b4c9f003571839aa16019",
+      "initial_bytes": 1325661,
+      "current_sha256": "4cb1694d88abeefee4c8fa7d7df584a7d77771579f6b4c9f003571839aa16019",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/sauvegarde-registration-dryrun-20261001.json",
+      "initial_sha256": "94f999308470704a7c0a45ff7e6e6d7dc6489b28e7e4401381d932565869e3ad",
+      "initial_bytes": 275659,
+      "current_sha256": "94f999308470704a7c0a45ff7e6e6d7dc6489b28e7e4401381d932565869e3ad",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/sauvegarde-registration-first-wave-20261001.json",
+      "initial_sha256": "908590c2195ab9c288d650949cae846cff6984f97f800faafaf9e0db0e92e497",
+      "initial_bytes": 356199,
+      "current_sha256": "908590c2195ab9c288d650949cae846cff6984f97f800faafaf9e0db0e92e497",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/shared-path-alias-fix-20260929.md",
+      "initial_sha256": "b9ac89591dedf927070b1f377a2621ca1c0d50414d17f2cb09911be30cf37e07",
+      "initial_bytes": 5594,
+      "current_sha256": "b9ac89591dedf927070b1f377a2621ca1c0d50414d17f2cb09911be30cf37e07",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/windows-gpu-activation-20261016/activate-paths.py",
+      "initial_sha256": "f1f6417561db97f549c69cb54616a80059670dc57b68423a41eab566c4c5ae2c",
+      "initial_bytes": 557,
+      "current_sha256": "f1f6417561db97f549c69cb54616a80059670dc57b68423a41eab566c4c5ae2c",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/windows-gpu-activation-20261016/activate-worker.ps1",
+      "initial_sha256": "64f80567634caaf8a04b2b22f0dcb418ed979e3a10a6220099944579753cb53e",
+      "initial_bytes": 2274,
+      "current_sha256": "64f80567634caaf8a04b2b22f0dcb418ed979e3a10a6220099944579753cb53e",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/windows-gpu-activation-20261016/apply-worker.py",
+      "initial_sha256": "3fc9318747ff5e7741bb937f16ac149c8bb2a3df499030c47a82e5c6659f3ba4",
+      "initial_bytes": 1103,
+      "current_sha256": "3fc9318747ff5e7741bb937f16ac149c8bb2a3df499030c47a82e5c6659f3ba4",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/windows-gpu-activation-20261016/check-final-preflight.ps1",
+      "initial_sha256": "e722dc6a845ccf23cf447f27784f301267574c408d447f7c8d30a4539c0321df",
+      "initial_bytes": 125,
+      "current_sha256": "e722dc6a845ccf23cf447f27784f301267574c408d447f7c8d30a4539c0321df",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/windows-gpu-activation-20261016/check-worker.py",
+      "initial_sha256": "0c80fe96216213f9305f2b67b3c8edfdfe173b9e3e2439e9fc7e41fc31309753",
+      "initial_bytes": 637,
+      "current_sha256": "0c80fe96216213f9305f2b67b3c8edfdfe173b9e3e2439e9fc7e41fc31309753",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/windows-gpu-activation-20261016/cleanup-and-progress.ps1",
+      "initial_sha256": "9cffbdcdbc6ca5f9ea396340b53516a37a5d83201aa65e5dad9beb03247c0be9",
+      "initial_bytes": 713,
+      "current_sha256": "9cffbdcdbc6ca5f9ea396340b53516a37a5d83201aa65e5dad9beb03247c0be9",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/windows-gpu-activation-20261016/collect-validation.py",
+      "initial_sha256": "d5285cfc18bd925f537e2edbe03cc3dab14c13bee7805e5cf1cf650792bccc98",
+      "initial_bytes": 838,
+      "current_sha256": "d5285cfc18bd925f537e2edbe03cc3dab14c13bee7805e5cf1cf650792bccc98",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/windows-gpu-activation-20261016/configure-held-job.py",
+      "initial_sha256": "99823306f980a548f9fe35fc4c6092b5e2406bb2f282b67304f45b426bfe847d",
+      "initial_bytes": 3258,
+      "current_sha256": "99823306f980a548f9fe35fc4c6092b5e2406bb2f282b67304f45b426bfe847d",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/windows-gpu-activation-20261016/core-release-deployment.log",
+      "initial_sha256": "1af83cb993b281094600a11d34bb7ba365573744dc0a7f8518620c7698a79e93",
+      "initial_bytes": 617,
+      "current_sha256": "1af83cb993b281094600a11d34bb7ba365573744dc0a7f8518620c7698a79e93",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/windows-gpu-activation-20261016/dispatch.json",
+      "initial_sha256": "bb6dd020bb67aeb3b190cfdc95dd206a35a6261e833d23f3f1ad31b4f4bfc519",
+      "initial_bytes": 219,
+      "current_sha256": "bb6dd020bb67aeb3b190cfdc95dd206a35a6261e833d23f3f1ad31b4f4bfc519",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/windows-gpu-activation-20261016/dispatch.py",
+      "initial_sha256": "0dc0169536ab64b8e0d9522c415cfe328c41dc6dc5c06bced1a78199d26014e2",
+      "initial_bytes": 2234,
+      "current_sha256": "0dc0169536ab64b8e0d9522c415cfe328c41dc6dc5c06bced1a78199d26014e2",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/windows-gpu-activation-20261016/final-evidence.py",
+      "initial_sha256": "fef001b2135117cadb7818ee85a8a40fcfa746ff4b518c4512f89207a5d05717",
+      "initial_bytes": 4243,
+      "current_sha256": "fef001b2135117cadb7818ee85a8a40fcfa746ff4b518c4512f89207a5d05717",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/windows-gpu-activation-20261016/final-job-snapshot.json",
+      "initial_sha256": "de25062c9d293b14c3a2e9154555ca7e9d28be369e07a6e4bf0d9879b6c8cb87",
+      "initial_bytes": 21730,
+      "current_sha256": "de25062c9d293b14c3a2e9154555ca7e9d28be369e07a6e4bf0d9879b6c8cb87",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/windows-gpu-activation-20261016/final-worker-preflight.py",
+      "initial_sha256": "0ede6939c86d52f4ff34930340a2ad4479bac3e9d2483e4600e775a1a170c689",
+      "initial_bytes": 2992,
+      "current_sha256": "0ede6939c86d52f4ff34930340a2ad4479bac3e9d2483e4600e775a1a170c689",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/windows-gpu-activation-20261016/first-attempt.json",
+      "initial_sha256": "30b5618c0387b25155b292e275bbb5fcfefc3bc0679df34a27d51b4ec0b44b2b",
+      "initial_bytes": 12519,
+      "current_sha256": "30b5618c0387b25155b292e275bbb5fcfefc3bc0679df34a27d51b4ec0b44b2b",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/windows-gpu-activation-20261016/full-progress.ps1",
+      "initial_sha256": "149bd8ac6281d3552642ef110a6dd4ffa939652f3f337cf769a6cfd78c0355dc",
+      "initial_bytes": 310,
+      "current_sha256": "149bd8ac6281d3552642ef110a6dd4ffa939652f3f337cf769a6cfd78c0355dc",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/windows-gpu-activation-20261016/full-validation.log",
+      "initial_sha256": "07c9f5dfaba44a7a8a277acb3aafdd531f2dc244cf1a927b719f351d99461f98",
+      "initial_bytes": 2058,
+      "current_sha256": "07c9f5dfaba44a7a8a277acb3aafdd531f2dc244cf1a927b719f351d99461f98",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/windows-gpu-activation-20261016/gpu-smoke.py",
+      "initial_sha256": "db63bc3895f02bddc43b52ea7dfc25730fe86bdb7699485721b36b0f6f1bcf53",
+      "initial_bytes": 2974,
+      "current_sha256": "db63bc3895f02bddc43b52ea7dfc25730fe86bdb7699485721b36b0f6f1bcf53",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/windows-gpu-activation-20261016/hub-preflight.json",
+      "initial_sha256": "5bd0f062dc2042c97299b62034cf597a9482f4a5d798dc9d80c53986ee79e365",
+      "initial_bytes": 4949,
+      "current_sha256": "5bd0f062dc2042c97299b62034cf597a9482f4a5d798dc9d80c53986ee79e365",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/windows-gpu-activation-20261016/inspect-pilot.py",
+      "initial_sha256": "e30fb073a7796970978cf9ba7214b65ffdf79ff3d02b1fc81a47ab81af768351",
+      "initial_bytes": 325,
+      "current_sha256": "e30fb073a7796970978cf9ba7214b65ffdf79ff3d02b1fc81a47ab81af768351",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/windows-gpu-activation-20261016/inspect.ps1",
+      "initial_sha256": "fae5d2095cc55a4e2bd570b727ee72f9509d144af7f852c6e15a84a92712cb93",
+      "initial_bytes": 421,
+      "current_sha256": "fae5d2095cc55a4e2bd570b727ee72f9509d144af7f852c6e15a84a92712cb93",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/windows-gpu-activation-20261016/install-runtime.ps1",
+      "initial_sha256": "a6a2b491344da8ab500526cf89fca0aee0dd36bb168a9dfcfb49e6d2dac41ca0",
+      "initial_bytes": 903,
+      "current_sha256": "a6a2b491344da8ab500526cf89fca0aee0dd36bb168a9dfcfb49e6d2dac41ca0",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/windows-gpu-activation-20261016/install-status.ps1",
+      "initial_sha256": "2f58edf302c912bf4e107dfad8c7506e92494e551dd60224c02b05e0782dfe71",
+      "initial_bytes": 366,
+      "current_sha256": "2f58edf302c912bf4e107dfad8c7506e92494e551dd60224c02b05e0782dfe71",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/windows-gpu-activation-20261016/job-after-dispatch.json",
+      "initial_sha256": "f1e50f2273a36849b19a3a37ceb95c90868d923042239037a885d8ca2e901d75",
+      "initial_bytes": 5183,
+      "current_sha256": "f1e50f2273a36849b19a3a37ceb95c90868d923042239037a885d8ca2e901d75",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/windows-gpu-activation-20261016/job-latest.json",
+      "initial_sha256": "2907552c0bf02f2a00899ab0649fa1fe3aa5f0edd7d851e3a2250e713ae558ba",
+      "initial_bytes": 17864,
+      "current_sha256": "2907552c0bf02f2a00899ab0649fa1fe3aa5f0edd7d851e3a2250e713ae558ba",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/windows-gpu-activation-20261016/job-snapshot.py",
+      "initial_sha256": "8821dcd1416768224ea06fce6f62f5bc18001d486f0cebd56aa20dedb2460dac",
+      "initial_bytes": 1085,
+      "current_sha256": "8821dcd1416768224ea06fce6f62f5bc18001d486f0cebd56aa20dedb2460dac",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/windows-gpu-activation-20261016/linux-path-tests.log",
+      "initial_sha256": "a9e93bd501e6ab51a2dbb17dbdf287840f6492bccba65106211c080e38bf5517",
+      "initial_bytes": 99,
+      "current_sha256": "a9e93bd501e6ab51a2dbb17dbdf287840f6492bccba65106211c080e38bf5517",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/windows-gpu-activation-20261016/matlab-path-tests.log",
+      "initial_sha256": "a9e93bd501e6ab51a2dbb17dbdf287840f6492bccba65106211c080e38bf5517",
+      "initial_bytes": 99,
+      "current_sha256": "a9e93bd501e6ab51a2dbb17dbdf287840f6492bccba65106211c080e38bf5517",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/windows-gpu-activation-20261016/matlab-validation.log",
+      "initial_sha256": "2138de298383b92471a675f50ec9a2acc1590ef5f367a7a51392c47c35a9abe9",
+      "initial_bytes": 1164,
+      "current_sha256": "2138de298383b92471a675f50ec9a2acc1590ef5f367a7a51392c47c35a9abe9",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/windows-gpu-activation-20261016/patch-worker-paths.py",
+      "initial_sha256": "a16bd3aaa0b1a53ef55351947db8ab58e519979563ffc5caf255e803babc3eda",
+      "initial_bytes": 1226,
+      "current_sha256": "a16bd3aaa0b1a53ef55351947db8ab58e519979563ffc5caf255e803babc3eda",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/windows-gpu-activation-20261016/pilot-progress.py",
+      "initial_sha256": "a5b8b778b2c0f29985dee410bf56a54f78e9d4daa0742d81b5b29c350383e799",
+      "initial_bytes": 310,
+      "current_sha256": "a5b8b778b2c0f29985dee410bf56a54f78e9d4daa0742d81b5b29c350383e799",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/windows-gpu-activation-20261016/pip-check.log",
+      "initial_sha256": "672aec65a45bed50e70229c70934a7eebf0462595c459b83023027645d57cccf",
+      "initial_bytes": 31,
+      "current_sha256": "672aec65a45bed50e70229c70934a7eebf0462595c459b83023027645d57cccf",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/windows-gpu-activation-20261016/pip-progress.ps1",
+      "initial_sha256": "bc52195a66a866048383439530dfba9c5b6f6a2683a435dff0a0693c5002107e",
+      "initial_bytes": 549,
+      "current_sha256": "bc52195a66a866048383439530dfba9c5b6f6a2683a435dff0a0693c5002107e",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/windows-gpu-activation-20261016/pipeline-dryrun-result.json",
+      "initial_sha256": "75a6ce0410c27dd9bc41fdb2522765b916cb2b3c1684e4dd45fc3e7cf74fbe94",
+      "initial_bytes": 43582,
+      "current_sha256": "75a6ce0410c27dd9bc41fdb2522765b916cb2b3c1684e4dd45fc3e7cf74fbe94",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/windows-gpu-activation-20261016/progress-processes.ps1",
+      "initial_sha256": "4ab714f0c89407718ff39229cf706d6ac5434c209ae8bf344adb8c5e8d1135e7",
+      "initial_bytes": 454,
+      "current_sha256": "4ab714f0c89407718ff39229cf706d6ac5434c209ae8bf344adb8c5e8d1135e7",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/windows-gpu-activation-20261016/publish-api-check.py",
+      "initial_sha256": "c99f475bc973a08544353230d34d2f46595090b3d4ae6dfdea7d58cd51655387",
+      "initial_bytes": 529,
+      "current_sha256": "c99f475bc973a08544353230d34d2f46595090b3d4ae6dfdea7d58cd51655387",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/windows-gpu-activation-20261016/publish-job-snapshot.json",
+      "initial_sha256": "6a8d264207e46c59c53be6a3b1111755180fd6a9bbbde4f966e1bcc71d1c31d5",
+      "initial_bytes": 18681,
+      "current_sha256": "6a8d264207e46c59c53be6a3b1111755180fd6a9bbbde4f966e1bcc71d1c31d5",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/windows-gpu-activation-20261016/publish-launcher.py",
+      "initial_sha256": "912cd7797e6081492193a75381236110b9a817335e965eb3fa011a2ca1888e8d",
+      "initial_bytes": 2665,
+      "current_sha256": "912cd7797e6081492193a75381236110b9a817335e965eb3fa011a2ca1888e8d",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/windows-gpu-activation-20261016/push-deployment-check.ps1",
+      "initial_sha256": "10ceca6992f52a66a04b50f48567d757abe2fcf7f7477de206748b260b9a66a7",
+      "initial_bytes": 681,
+      "current_sha256": "10ceca6992f52a66a04b50f48567d757abe2fcf7f7477de206748b260b9a66a7",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/windows-gpu-activation-20261016/remote-775354dd05364f5a962971285e7b4ef1.ps1",
+      "initial_sha256": "0f8133593faee2c837357e78d866aac5302956fd7d0077877046eaf8681f97d0",
+      "initial_bytes": 2382,
+      "current_sha256": "0f8133593faee2c837357e78d866aac5302956fd7d0077877046eaf8681f97d0",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/windows-gpu-activation-20261016/remote-83875d6e027d4a7d9796ac522832ef0f.ps1",
+      "initial_sha256": "cfcfdd443353118b95f221d59a2ecd3f4c4753b8052e3cf9ebe88c14d851ddb4",
+      "initial_bytes": 3187,
+      "current_sha256": "cfcfdd443353118b95f221d59a2ecd3f4c4753b8052e3cf9ebe88c14d851ddb4",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/windows-gpu-activation-20261016/reservation.json",
+      "initial_sha256": "12270a12add4873f64926383542d8a3eabf0f42c9568c6124561ba10decff834",
+      "initial_bytes": 7010,
+      "current_sha256": "12270a12add4873f64926383542d8a3eabf0f42c9568c6124561ba10decff834",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/windows-gpu-activation-20261016/retry-same-job.py",
+      "initial_sha256": "4ff1b2c85ea52759621d08cce113a4bc2c722e2fbcb8ed87a3bdc39e579f77b7",
+      "initial_bytes": 2825,
+      "current_sha256": "4ff1b2c85ea52759621d08cce113a4bc2c722e2fbcb8ed87a3bdc39e579f77b7",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/windows-gpu-activation-20261016/run-final-preflight.ps1",
+      "initial_sha256": "0b82f9485b9b55275d3735eb82390945bcc839985cba10f78fb904ef3f28018b",
+      "initial_bytes": 622,
+      "current_sha256": "0b82f9485b9b55275d3735eb82390945bcc839985cba10f78fb904ef3f28018b",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/windows-gpu-activation-20261016/run-full-validation.ps1",
+      "initial_sha256": "28089613b1803f84f51c7d3ec44befd0db44366b24195580df9e8ad052c1895b",
+      "initial_bytes": 795,
+      "current_sha256": "28089613b1803f84f51c7d3ec44befd0db44366b24195580df9e8ad052c1895b",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/windows-gpu-activation-20261016/stage-worker.py",
+      "initial_sha256": "9ba02da70dce209163f5b71b5c143ef680cf82796fd51252fe0c7de59af217e3",
+      "initial_bytes": 2236,
+      "current_sha256": "9ba02da70dce209163f5b71b5c143ef680cf82796fd51252fe0c7de59af217e3",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/windows-gpu-activation-20261016/start-install.py",
+      "initial_sha256": "bf92cfc5728ce0236f09953868bedf08117a1cc9e3d8a8732850d5d9eada5903",
+      "initial_bytes": 679,
+      "current_sha256": "bf92cfc5728ce0236f09953868bedf08117a1cc9e3d8a8732850d5d9eada5903",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/windows-gpu-activation-20261016/start-runtime-task.ps1",
+      "initial_sha256": "5acd999e2d469ecc78f5652745c07ff1ef9f17803830cd4e732cffb57392f290",
+      "initial_bytes": 1136,
+      "current_sha256": "5acd999e2d469ecc78f5652745c07ff1ef9f17803830cd4e732cffb57392f290",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/windows-gpu-activation-20261016/start-validation.ps1",
+      "initial_sha256": "774b0ecd4f653ce6b9001723814d9f41af481a159ea09d6cc36887d64bb0fda8",
+      "initial_bytes": 701,
+      "current_sha256": "774b0ecd4f653ce6b9001723814d9f41af481a159ea09d6cc36887d64bb0fda8",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/windows-gpu-activation-20261016/training-process.ps1",
+      "initial_sha256": "59a70bcb451bd8ce1f5173c551cb3805f2d5d3a4029eaf0f73cb324274f599f7",
+      "initial_bytes": 321,
+      "current_sha256": "59a70bcb451bd8ce1f5173c551cb3805f2d5d3a4029eaf0f73cb324274f599f7",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/windows-gpu-activation-20261016/validate-session.ps1",
+      "initial_sha256": "9656d40c730329e9b7c96d699a75943c2751473e18df3beb171add0b1fcdf67c",
+      "initial_bytes": 2005,
+      "current_sha256": "9656d40c730329e9b7c96d699a75943c2751473e18df3beb171add0b1fcdf67c",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/windows-gpu-activation-20261016/validate-worker.m",
+      "initial_sha256": "11209c54c7da4a081e2705fb6a3a7ca0bbbf7b417af022be4c1a3edf31f8952e",
+      "initial_bytes": 1320,
+      "current_sha256": "11209c54c7da4a081e2705fb6a3a7ca0bbbf7b417af022be4c1a3edf31f8952e",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/windows-gpu-activation-20261016/validate_full_pipeline.m",
+      "initial_sha256": "fd1d54afdae1337c26ec615630b9f9423f4c0e067eae897cad8662048d04478c",
+      "initial_bytes": 1427,
+      "current_sha256": "fd1d54afdae1337c26ec615630b9f9423f4c0e067eae897cad8662048d04478c",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/windows-gpu-activation-20261016/validation-error.ps1",
+      "initial_sha256": "17fc53ad81090b1dd9a27a0758ca281617dbab2ef8dc8b103f7ebfc482951dba",
+      "initial_bytes": 103,
+      "current_sha256": "17fc53ad81090b1dd9a27a0758ca281617dbab2ef8dc8b103f7ebfc482951dba",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/windows-gpu-activation-20261016/validation-exit.txt",
+      "initial_sha256": "13bf7b3039c63bf5a50491fa3cfd8eb4e699d1ba1436315aef9cbe5711530354",
+      "initial_bytes": 3,
+      "current_sha256": "13bf7b3039c63bf5a50491fa3cfd8eb4e699d1ba1436315aef9cbe5711530354",
+      "disposition": "Versioned on master",
+      "identical_prior_blob_path": "reports/windows-gpu-activation-20261016/full-validation-exit.txt"
+    },
+    {
+      "path": "reports/windows-gpu-activation-20261016/validation-progress.ps1",
+      "initial_sha256": "9ea96ac87e78df267b0d1f06f6820a09165b3dec639030986ff31e9ea21ce6f8",
+      "initial_bytes": 439,
+      "current_sha256": "9ea96ac87e78df267b0d1f06f6820a09165b3dec639030986ff31e9ea21ce6f8",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/windows-gpu-activation-20261016/worker-paths-activation.json",
+      "initial_sha256": "a45cb1d1fbdf4a4de7ff989d09beb1db69685520bbe5c5a4c804768359b1f3dc",
+      "initial_bytes": 223,
+      "current_sha256": "a45cb1d1fbdf4a4de7ff989d09beb1db69685520bbe5c5a4c804768359b1f3dc",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/windows-gpu-activation-20261016/worker-staging.json",
+      "initial_sha256": "e87f7321a41a677800b5e2fc42b50ed2052bf292482b8b84f28d04b73cc80e42",
+      "initial_bytes": 367,
+      "current_sha256": "e87f7321a41a677800b5e2fc42b50ed2052bf292482b8b84f28d04b73cc80e42",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/windows-gpu-readiness-20261016.json",
+      "initial_sha256": "df08ecf01963d8bd6f6f89c90d6b6b6797c94c9a53a3545d9b073593164a773b",
+      "initial_bytes": 3285,
+      "current_sha256": "df08ecf01963d8bd6f6f89c90d6b6b6797c94c9a53a3545d9b073593164a773b",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/windows-worker-recovery-20261020/admission-restored.json",
+      "initial_sha256": "591da3fd33df4f06306700dac1b9034afef5260d28d9bd57e1348d42a065f728",
+      "initial_bytes": 64,
+      "current_sha256": "591da3fd33df4f06306700dac1b9034afef5260d28d9bd57e1348d42a065f728",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/windows-worker-recovery-20261020/after.json",
+      "initial_sha256": "dc49afde1b04a5311975270ef3fd632723d7727bdaba45c0587d988be1d0cf54",
+      "initial_bytes": 19841,
+      "current_sha256": "dc49afde1b04a5311975270ef3fd632723d7727bdaba45c0587d988be1d0cf54",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/windows-worker-recovery-20261020/before.json",
+      "initial_sha256": "0beb47ae419570a1b31efd33989b6b0850285751773c1d465a589cae89d1d4d7",
+      "initial_bytes": 22204,
+      "current_sha256": "0beb47ae419570a1b31efd33989b6b0850285751773c1d465a589cae89d1d4d7",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/windows-worker-recovery-20261020/common.py",
+      "initial_sha256": "1928e421c7ef25d72652217919d243f14394692c03b41dfad2b2b3ca555b9a90",
+      "initial_bytes": 172,
+      "current_sha256": "1928e421c7ef25d72652217919d243f14394692c03b41dfad2b2b3ca555b9a90",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/windows-worker-recovery-20261020/deployment.json",
+      "initial_sha256": "a0c37e35ad921cf133def54436fe24f347fd4d197dbbddcf066f91faa259d0e0",
+      "initial_bytes": 176,
+      "current_sha256": "a0c37e35ad921cf133def54436fe24f347fd4d197dbbddcf066f91faa259d0e0",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/windows-worker-recovery-20261020/diagnose.py",
+      "initial_sha256": "a6114356aca5e9f5d8f6b5c079c6fa36c2db15ee239c8740923328f027a368a2",
+      "initial_bytes": 2716,
+      "current_sha256": "a6114356aca5e9f5d8f6b5c079c6fa36c2db15ee239c8740923328f027a368a2",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/windows-worker-recovery-20261020/diagnosis.json",
+      "initial_sha256": "25a1c35eb79bd43be80e7173752324eb436ec276f3f232aee2ecb8b200ee0b62",
+      "initial_bytes": 87248,
+      "current_sha256": "25a1c35eb79bd43be80e7173752324eb436ec276f3f232aee2ecb8b200ee0b62",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/windows-worker-recovery-20261020/events-and-logs.json",
+      "initial_sha256": "e37b577326c04d2ac4a28cdc1ff3a050e9c1d80fd145451504eade7ec2cf213c",
+      "initial_bytes": 42721,
+      "current_sha256": "e37b577326c04d2ac4a28cdc1ff3a050e9c1d80fd145451504eade7ec2cf213c",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/windows-worker-recovery-20261020/final-preflight.json",
+      "initial_sha256": "f8ca1b5984c0e425ed95df6be0a8e4f3453c3e6935f6637d0e8ad2220a4679a6",
+      "initial_bytes": 1265,
+      "current_sha256": "f8ca1b5984c0e425ed95df6be0a8e4f3453c3e6935f6637d0e8ad2220a4679a6",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/windows-worker-recovery-20261020/final_preflight.py",
+      "initial_sha256": "2f74a9a067e266e7e24c4317c5789ac6bcf094a9bb566e2ae378ff77b57324a4",
+      "initial_bytes": 2796,
+      "current_sha256": "2f74a9a067e266e7e24c4317c5789ac6bcf094a9bb566e2ae378ff77b57324a4",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/windows-worker-recovery-20261020/fresh-worker.json",
+      "initial_sha256": "8c78c902167c754593e47c74d31e2992dd4f938c2e222a0674d39db275a3c828",
+      "initial_bytes": 240,
+      "current_sha256": "8c78c902167c754593e47c74d31e2992dd4f938c2e222a0674d39db275a3c828",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/windows-worker-recovery-20261020/host-verification.json",
+      "initial_sha256": "99b30281b5e177b5a83d2bb41aa00d742ed1b4c0bd92d20c7476eb2cdc0fec69",
+      "initial_bytes": 6019,
+      "current_sha256": "99b30281b5e177b5a83d2bb41aa00d742ed1b4c0bd92d20c7476eb2cdc0fec69",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/windows-worker-recovery-20261020/inspect_events.py",
+      "initial_sha256": "0cae415810a127c544c8950eceb8ce7488a2bf432095378873aa1846fed2011e",
+      "initial_bytes": 2013,
+      "current_sha256": "0cae415810a127c544c8950eceb8ce7488a2bf432095378873aa1846fed2011e",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/windows-worker-recovery-20261020/inspect_more.py",
+      "initial_sha256": "1e95563885e76ea87d2c2a756eb0ff5465f899b29b9de7279d313196c7ac4019",
+      "initial_bytes": 1767,
+      "current_sha256": "1e95563885e76ea87d2c2a756eb0ff5465f899b29b9de7279d313196c7ac4019",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/windows-worker-recovery-20261020/inspection-more.json",
+      "initial_sha256": "9651e9f0e0a1a0985168634a435e0209cb790b3dc0e3793d04c447d63ddb1895",
+      "initial_bytes": 18341,
+      "current_sha256": "9651e9f0e0a1a0985168634a435e0209cb790b3dc0e3793d04c447d63ddb1895",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/windows-worker-recovery-20261020/orphan-reconciliation.json",
+      "initial_sha256": "83c0c4780415eae85599c16a52bd4a51b003c65da218f99bf69210ad19ad0d47",
+      "initial_bytes": 511,
+      "current_sha256": "83c0c4780415eae85599c16a52bd4a51b003c65da218f99bf69210ad19ad0d47",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/windows-worker-recovery-20261020/reconciled-job-statuses.json",
+      "initial_sha256": "f2dee132559184ada6842b65d9c589491e32ce75fcda19ee5cda6b27a25b87da",
+      "initial_bytes": 2894,
+      "current_sha256": "f2dee132559184ada6842b65d9c589491e32ce75fcda19ee5cda6b27a25b87da",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/windows-worker-recovery-20261020/recover.py",
+      "initial_sha256": "37b3eefce3dbf3058cdacc6aa19f5a6ba78d8342f8b668b18cf1098faf6389be",
+      "initial_bytes": 7451,
+      "current_sha256": "37b3eefce3dbf3058cdacc6aa19f5a6ba78d8342f8b668b18cf1098faf6389be",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/windows-worker-recovery-20261020/reservation.json",
+      "initial_sha256": "d12bbaedc7500569123fe33f18ff786154977e7c9f6783569fcd4dcebea348ce",
+      "initial_bytes": 62,
+      "current_sha256": "d12bbaedc7500569123fe33f18ff786154977e7c9f6783569fcd4dcebea348ce",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/windows-worker-recovery-20261020/summary.md",
+      "initial_sha256": "c3a3c2d416ccdc769797a0a506384f81e3852cf4347859942550be45a77ec170",
+      "initial_bytes": 1903,
+      "current_sha256": "c3a3c2d416ccdc769797a0a506384f81e3852cf4347859942550be45a77ec170",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/windows-worker-recovery-20261020/task-started.json",
+      "initial_sha256": "612113a936f19d5254522fc1f4e09967ddac4818f9690643e774364f8cc69b3d",
+      "initial_bytes": 66,
+      "current_sha256": "612113a936f19d5254522fc1f4e09967ddac4818f9690643e774364f8cc69b3d",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/windows-worker-recovery-20261020/verify.py",
+      "initial_sha256": "12e54070dbc8e83d9f7973755f7124b4b4a4126990608d6e1e00948f3b8d1b18",
+      "initial_bytes": 3446,
+      "current_sha256": "12e54070dbc8e83d9f7973755f7124b4b4a4126990608d6e1e00948f3b8d1b18",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/windows-worker-recovery-20261020/while-drained.json",
+      "initial_sha256": "464447a41566344386cd82634111f6e0828fb2d97870b40276f691b10eff4c3c",
+      "initial_bytes": 20353,
+      "current_sha256": "464447a41566344386cd82634111f6e0828fb2d97870b40276f691b10eff4c3c",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/windows-worker-recovery-20261020/windows-job.json",
+      "initial_sha256": "d0b68392494e14bd791656219aff25568ce65e741ab6d3cf42ed26e3804b0fde",
+      "initial_bytes": 437901,
+      "current_sha256": "d0b68392494e14bd791656219aff25568ce65e741ab6d3cf42ed26e3804b0fde",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/worker-session-shared-hashes.json",
+      "initial_sha256": "a25d4dc25bc41ae91dc3f60678c555e663be68dc93392ee5b0751d48ebdcd889",
+      "initial_bytes": 1698,
+      "current_sha256": "a25d4dc25bc41ae91dc3f60678c555e663be68dc93392ee5b0751d48ebdcd889",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/worker-session-status.json",
+      "initial_sha256": "470c91a31c1b3a4af09dd6bcfede018658e31e51bfa8a8d489a630313ab72eab",
+      "initial_bytes": 86,
+      "current_sha256": "470c91a31c1b3a4af09dd6bcfede018658e31e51bfa8a8d489a630313ab72eab",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "reports/worker-session-verification.json",
+      "initial_sha256": "292f970662a6d92ef2340c8cbd9ca0a7db9d774c2599918ae006e2361b112ce2",
+      "initial_bytes": 341,
+      "current_sha256": "292f970662a6d92ef2340c8cbd9ca0a7db9d774c2599918ae006e2361b112ce2",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "tests/test_force_stop_ui.cjs",
+      "initial_sha256": "68730f28e171d9de7a665378735c3d99b101dfafd347356e507ff8852c37695d",
+      "initial_bytes": 3422,
+      "current_sha256": "68730f28e171d9de7a665378735c3d99b101dfafd347356e507ff8852c37695d",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "tests/test_job_force_stop.py",
+      "initial_sha256": "f46ba28af9942103e0afcba3b15d4c7a057810a770bf0116efb1c2226429ebc7",
+      "initial_bytes": 12390,
+      "current_sha256": "f46ba28af9942103e0afcba3b15d4c7a057810a770bf0116efb1c2226429ebc7",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "tests/test_nvidia_runtime.py",
+      "initial_sha256": "87430e2ed5ab7745382367b14edd8fad9ba4c1ac5986f9934181828f690af583",
+      "initial_bytes": 1753,
+      "current_sha256": "87430e2ed5ab7745382367b14edd8fad9ba4c1ac5986f9934181828f690af583",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "tests/test_pipeline_run_resource_defaults.py",
+      "initial_sha256": "f3da620810f46c93bd841f2577d89f88431ab68a1801fc397010400f5a321d85",
+      "initial_bytes": 5304,
+      "current_sha256": "f3da620810f46c93bd841f2577d89f88431ab68a1801fc397010400f5a321d85",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "worker/executors/job_process_scope.py",
+      "initial_sha256": "c2c65f96fdc9c38cd54efabc67ed489f6b732df6e60b47f8f5aefdec7e8e2816",
+      "initial_bytes": 8425,
+      "current_sha256": "c2c65f96fdc9c38cd54efabc67ed489f6b732df6e60b47f8f5aefdec7e8e2816",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "worker/executors/linux_job_supervisor.py",
+      "initial_sha256": "c12c955dcd1cea3e22104359f74b91f68b463a577c07fe17f6bb6739460f1980",
+      "initial_bytes": 1126,
+      "current_sha256": "c12c955dcd1cea3e22104359f74b91f68b463a577c07fe17f6bb6739460f1980",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "worker/nvidia_runtime.py",
+      "initial_sha256": "7007590a20dc8751c33906b3e22f949b7c65891da43aa64df00ff3bb037d080f",
+      "initial_bytes": 1516,
+      "current_sha256": "7007590a20dc8751c33906b3e22f949b7c65891da43aa64df00ff3bb037d080f",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": ".gitignore",
+      "initial_sha256": "232771805693ae6f28857172a39f09f2a008105c73ba7e3ad85489d02ae622d7",
+      "initial_bytes": 164,
+      "current_sha256": "3fbbae6facb2b1cdc46c0e8adb2eb913bbd763dd09f487a35d1da179136e350e",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "AGENTS.md",
+      "initial_sha256": "40858ced404245f0eefa970992433be066ef0d4b3159fa4637d6f6769c47b78c",
+      "initial_bytes": 8609,
+      "current_sha256": "40858ced404245f0eefa970992433be066ef0d4b3159fa4637d6f6769c47b78c",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "CURRENT_DEPLOYMENT.md",
+      "initial_sha256": "de9ebc82b07b9ee127b5a6e652d860ea9a11d2a7ff3f1192e88ad105a3cd1988",
+      "initial_bytes": 65939,
+      "current_sha256": "de9ebc82b07b9ee127b5a6e652d860ea9a11d2a7ff3f1192e88ad105a3cd1988",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "api/models.py",
+      "initial_sha256": "f9a25d960a1d0767f78437b0643b3879aa5063b2db8a115995bf26848308966b",
+      "initial_bytes": 78945,
+      "current_sha256": "f9a25d960a1d0767f78437b0643b3879aa5063b2db8a115995bf26848308966b",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "api/routes_assistant.py",
+      "initial_sha256": "2de1fade2e7657d44ce55b9e49955376a5d592792413a0cb081329090131f648",
+      "initial_bytes": 5935,
+      "current_sha256": "2de1fade2e7657d44ce55b9e49955376a5d592792413a0cb081329090131f648",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "api/routes_pipeline_runs.py",
+      "initial_sha256": "168da28e5a1f6ccb6c854e3294d0f60642b1c2cbe0b687ae33d37068d0dcebfd",
+      "initial_bytes": 11309,
+      "current_sha256": "168da28e5a1f6ccb6c854e3294d0f60642b1c2cbe0b687ae33d37068d0dcebfd",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "api/schemas.py",
+      "initial_sha256": "1fd62730a8f598958a9eeb3b1dc65bb5f16117eec5b9223996abc36910d8fd80",
+      "initial_bytes": 63869,
+      "current_sha256": "1fd62730a8f598958a9eeb3b1dc65bb5f16117eec5b9223996abc36910d8fd80",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "api/services/pipeline_runs.py",
+      "initial_sha256": "9e1014297be8cd1e38fc5accde9cefa4cdd37a23b47fb257073cae13515b421d",
+      "initial_bytes": 21005,
+      "current_sha256": "9e1014297be8cd1e38fc5accde9cefa4cdd37a23b47fb257073cae13515b421d",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "api/static/app.js",
+      "initial_sha256": "400b5779ee572a5928c5db65345858486c0ec1f74867fdff415b288ba17d2bf9",
+      "initial_bytes": 448193,
+      "current_sha256": "400b5779ee572a5928c5db65345858486c0ec1f74867fdff415b288ba17d2bf9",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "api/static/assistant.html",
+      "initial_sha256": "3ec1134fff7bd794b8de1cb7269f846d3e4e4b156853f22712b1b0f6c08e6d9c",
+      "initial_bytes": 3718,
+      "current_sha256": "3ec1134fff7bd794b8de1cb7269f846d3e4e4b156853f22712b1b0f6c08e6d9c",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "api/static/assistant.js",
+      "initial_sha256": "2eff0a56d7eeb847cf9c233a80aeb9ad1a6b83a0fe103d7f38a4dc1088b76aa4",
+      "initial_bytes": 6679,
+      "current_sha256": "2eff0a56d7eeb847cf9c233a80aeb9ad1a6b83a0fe103d7f38a4dc1088b76aa4",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "api/static/project.html",
+      "initial_sha256": "ee3aff09290e711b713aae1c44b9bf1f09f373804d60cbba29e808db4c467974",
+      "initial_bytes": 9579,
+      "current_sha256": "ee3aff09290e711b713aae1c44b9bf1f09f373804d60cbba29e808db4c467974",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "db/schema.sql",
+      "initial_sha256": "7484808240bd8543b704b12e376200db7897fa7fa44c21b41edfd7b9d3ceafc8",
+      "initial_bytes": 43797,
+      "current_sha256": "7484808240bd8543b704b12e376200db7897fa7fa44c21b41edfd7b9d3ceafc8",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "docs/qwen_assistant.md",
+      "initial_sha256": "51e7efde634eb2376cbcec3e7c9dbfff2077b8820e90be872e50b019e7be72f6",
+      "initial_bytes": 13681,
+      "current_sha256": "51e7efde634eb2376cbcec3e7c9dbfff2077b8820e90be872e50b019e7be72f6",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "docs/reports/qwen-assistant-benchmark-2026-10-15.md",
+      "initial_sha256": "4c3292e92e5550a439e0d4e3a843c1a863060c7c9e083f5c2adb71e24b4c4058",
+      "initial_bytes": 28130,
+      "current_sha256": "4c3292e92e5550a439e0d4e3a843c1a863060c7c9e083f5c2adb71e24b4c4058",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "docs/windows_worker.md",
+      "initial_sha256": "9093eb18740bbee2b21e14f411181375b79e14a5dd8b008f43735551e2968cf4",
+      "initial_bytes": 42829,
+      "current_sha256": "9093eb18740bbee2b21e14f411181375b79e14a5dd8b008f43735551e2968cf4",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "docs/worker_resource_scheduling.md",
+      "initial_sha256": "648ac4404cd604e089dbaedb7346ce8ee5614ef74341b9211b1ac3545d874991",
+      "initial_bytes": 16699,
+      "current_sha256": "648ac4404cd604e089dbaedb7346ce8ee5614ef74341b9211b1ac3545d874991",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "scripts/register_windows_worker_task.ps1",
+      "initial_sha256": "016df78e632ecc1dbcf02721f06b008d6aafe4f5f108c68117001ce9d51ea5c9",
+      "initial_bytes": 1491,
+      "current_sha256": "016df78e632ecc1dbcf02721f06b008d6aafe4f5f108c68117001ce9d51ea5c9",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "scripts/run_qwen_coexistence_pilot.py",
+      "initial_sha256": "2c9999d191e42e578a6ba91d82b91607301056fe64173a13337f658432b461c7",
+      "initial_bytes": 19433,
+      "current_sha256": "2c9999d191e42e578a6ba91d82b91607301056fe64173a13337f658432b461c7",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "tests/test_custom_processor_gpu_resources.py",
+      "initial_sha256": "3916aec6e724ed85b99e96efdd7b41d5e95d71a77937b527e90d0f02574c0134",
+      "initial_bytes": 5732,
+      "current_sha256": "3916aec6e724ed85b99e96efdd7b41d5e95d71a77937b527e90d0f02574c0134",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "tests/test_qwen_run_evaluation.py",
+      "initial_sha256": "8093536f40911fc719c0b96797758dd1685b603b6ceb05394ecf51734325518a",
+      "initial_bytes": 13188,
+      "current_sha256": "8093536f40911fc719c0b96797758dd1685b603b6ceb05394ecf51734325518a",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "worker/executors/matlab_executor.py",
+      "initial_sha256": "a18b56594508f02f6ba5bc4fc3bfc721eb3fd9a171a5bdaa7fb3c395f19dfa5f",
+      "initial_bytes": 5750,
+      "current_sha256": "a18b56594508f02f6ba5bc4fc3bfc721eb3fd9a171a5bdaa7fb3c395f19dfa5f",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "worker/job_resources.py",
+      "initial_sha256": "d06dea8587c264eebb6ea1bbfe6857d1a2479cb93a4b8521b2d5e8bea88b39c3",
+      "initial_bytes": 18732,
+      "current_sha256": "d06dea8587c264eebb6ea1bbfe6857d1a2479cb93a4b8521b2d5e8bea88b39c3",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "worker/matlab_code_checkout.py",
+      "initial_sha256": "9ed3c9676ce88738ad10e74db774a99a2fb4020217f13b60f3b6cddc9196f5ec",
+      "initial_bytes": 15302,
+      "current_sha256": "9ed3c9676ce88738ad10e74db774a99a2fb4020217f13b60f3b6cddc9196f5ec",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "worker/pipeline_run_executor.py",
+      "initial_sha256": "4e24d956a400d7072daab4703cbab05cdc02350f34d0c11b7212f38f1ced596e",
+      "initial_bytes": 32088,
+      "current_sha256": "4e24d956a400d7072daab4703cbab05cdc02350f34d0c11b7212f38f1ced596e",
+      "disposition": "Versioned on master"
+    },
+    {
+      "path": "worker/run_worker.py",
+      "initial_sha256": "f1bb639c77f9d927c06c4f3591a7e135fdd90c79c6a53a8f7f1343ee84b6b49f",
+      "initial_bytes": 42861,
+      "current_sha256": "f1bb639c77f9d927c06c4f3591a7e135fdd90c79c6a53a8f7f1343ee84b6b49f",
+      "disposition": "Versioned on master"
+    }
+  ]
+}

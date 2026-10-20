@@ -1,5 +1,213 @@
 # Current Deployment
 
+## Repository reconciliation, 2026-10-20
+
+The local backlog was reviewed, tested and grouped into commits without
+deploying or restarting services. The 515 initially pending files included
+489 untracked files, mostly historical operational evidence; they did not
+represent 515 new product changes. Earlier October 15-19 commits remain in
+the branch history. GitLab was one commit behind GitHub before reconciliation.
+The detailed inventory and test results are in
+`docs/reports/hub-reconciliation-2026-10-20.md`.
+
+Read-only before/after checks preserved all seven poller PIDs/fingerprints and
+the three active jobs' start times and parameter hashes. The published MATLAB
+default remains `6ed9c3e62c10a6bab3d1fa361adbfe54f9355c6b`. This Git reconciliation
+does not activate different worker code or replay historical operation scripts.
+
+## Live GPU transition audit, 2026-10-20
+
+At 16:26 UTC, both existing Abhilasha jobs remained running with unchanged
+parameters and start times. Their pinned releases already contain CPU fallbacks
+for the only selected GPU classifiers: Cellpose uses CPU if CUDA availability
+is false and CNN/LSTM retries classification on CPU after a GPU exception.
+No preceding unprotected GPU initialization was found in those classifier paths.
+A new process in the same Python environment reproduced CUDA error 804 with the
+incompatible system libraries, reported `torch.cuda.is_available()=False`, and
+successfully computed on CPU. This validates the existing fallback for the
+observed failure, without repairing already mapped libraries or guaranteeing
+GPU execution. No running process, job parameter or protected release changed.
+
+The hourly Alex monitor now also checks these two jobs' classification
+transition, reporting a CPU fallback or failure while preserving their running
+calculations. Alex `e28d8d5e-3601-4c8d-8d69-ae67fe4c8974` was still running and
+had progressed beyond drift frame 202. Evidence is in
+`reports/alex-memory-recovery-20261020/live-gpu-transition-protection.json` and
+`gpu-transition-audit-summary.json`.
+
+## Alexander project memory recovery, 2026-10-20
+
+Four new attempts of `anof_151026_X544rep` failed the legacy extractor's
+`ReadPoolMemory` check. Their actual allocation was 24576 MiB, not 16 GiB;
+the latter was usable image RAM after `MemoryHigh`, existing processes and the
+MATLAB planner's safety reserve. The last attempt needed 15.29 GiB of client
+buffers plus 2.48 GiB per reader, exceeding 16.20 GiB usable.
+
+The API now supports validated project defaults in
+`metadata_json.pipeline_run_resources`, copied into new jobs' `resources` with
+provenance. This project's permanent default is now 49152 MiB (48 GiB); the
+global profile and existing jobs retain their allocations. The urgent recovery
+has an explicit, audited 30720-MiB exception so it fits the free shared capacity.
+API fingerprint is
+`d5d9b6785981`. The API source was backed up, verified and rebuilt on
+`webserver-labo`; no compute poller was restarted. Local validation: 27 tests
+passed. Details are in `docs/worker_resource_scheduling.md`.
+
+At Gilles's explicit request for immediate restart, after confirmation that
+Alexander had left and could not close MATLAB, his exact `GC-DELL01-308` client
+lease was administratively released with audit and replaced atomically by the
+new server-job lock. Job `4bd92189-f80c-4a28-8ad1-00d6fe863d3e` started on Linux
+poller `@2` at 15:30:02 UTC, preserving the failed attempt's code pin, scientific
+selection, two nodes and `resume`/`skip` policy. Its service has `MemoryMax=30 GiB`
+and `MemoryHigh=27 GiB`. It passed the planner with 20.51 GiB usable and two read
+workers, then failed independently at CUDA initialization in drift correction.
+Previous run metadata/logs are backed up and the two other scientific jobs were
+preserved. Hourly thread heartbeat
+`suivi-horaire-du-job-x544rep-d-alex` monitors this run. Evidence and the
+idempotent operation helper are in `reports/alex-memory-recovery-20261020/`.
+
+The CUDA failure came from an unattended NVIDIA package upgrade to 580.178.04,
+while the loaded kernel driver remains 580.173.02. An official Ubuntu package
+for 580.173.02 was downloaded, SHA256-verified and extracted without installing
+or changing system libraries. Its libraries reside under the worker checkout's
+`.nvidia-runtime/580.173.02`. `worker.nvidia_runtime` selects only a staged
+runtime matching the loaded kernel and adds its library directory to new MATLAB
+children. A real R2024b `gpuDevice`/`gpuArray`/`gather` test passed. The extractor's
+unconditional GPU use is now also accounted for in admission; it is not labeled
+as deep learning.
+
+Only idle Linux pollers `@1,@2,@5,@6` were reloaded, with fresh fingerprint
+`558d898f9a97`. Occupied `@3,@4` were preserved. The existing user activation
+timer's manifest was updated to this fingerprint and the timer recreated; it
+will reload those pollers only once idle with an empty child tree. This does
+not repair driver libraries already loaded in an active MATLAB/Python process.
+The other two jobs currently advance in CPU extraction and may still be exposed
+when they first use CUDA. No GPU reset or server reboot was performed.
+
+Successor `e28d8d5e-3601-4c8d-8d69-ae67fe4c8974` was submitted with the corrected
+runtime and an explicit 30-GiB recovery budget; the hourly monitor now follows
+this successor. Windows was checked but has only about 32 GiB physical RAM and
+14 GiB available, so it cannot safely take this 30/48-GiB request. The system
+`nvidia-smi` still needs the matching library path until a controlled maintenance
+reboot synchronizes the installed and loaded drivers.
+
+At 15:53:44 UTC, the successor had completed drift for frames 1-101 of the
+first FOV and entered ROI cropping, with empty stderr. Its actual MATLAB PID
+409923 used 3646 MiB of GPU memory. The new plan admitted two readers with
+20.54 GiB usable RAM, proving both previous failure points were passed.
+
+The GPU-admission correction was also deployed as a single-file change on the
+idle native Windows worker, preserving its host adaptations. Its new poller PID
+is 27664, fingerprint `5ca30c1b891c`; 15 Windows tests passed. The database tunnel
+and the three guest MATLAB sessions were preserved, and admission was restored.
+Evidence is copied into `reports/alex-memory-recovery-20261020/windows/`.
+
+## Windows worker recovery, 2026-10-20
+
+The Windows poller was absent, with its last heartbeat at 13:21:16 UTC.
+No Python/MATLAB process matched the abandoned Hub job
+`f4150ff1-f1bf-4c89-8483-1b7e26c8726e`; its stdout also stopped advancing.
+The remaining three MATLAB processes belong to the separate `guest` interactive
+session. Their PIDs, creation times and advancing CPU times were preserved.
+The old Hub job was explicitly reconciled as failed, with recovery provenance,
+logs and existing outputs retained; it was not requeued automatically.
+
+Task Scheduler event 329 confirms that the worker's scheduled task had exceeded
+its default `PT72H` limit on October 19 at 09:48 Paris time. The worker subsequently
+continued heartbeating until October 20 at 15:21 Paris time, so this event alone
+does not establish the exact cause of the later Python process disappearance.
+The task limit is now explicitly `PT0S` (unlimited), preserving its principal,
+action and other settings. The registration helper was corrected locally and on
+the Windows host so future registrations also set an unlimited duration.
+
+Under a brief admission drain, the previously verified merged worker update was
+activated with no existing managed worker/job process to stop. The scheduled
+task was started in its existing `Charvin-Admin` interactive context. New poller
+PID `45124` advertises fingerprint `a1fffd69452e`, with advancing fresh heartbeats.
+Admission was restored; its force-stop activation watcher subsequently removed
+itself after successful verification. The database tunnel PID `21408` and Linux
+analysis poller PID `2571587` were preserved. No API or Linux service was updated.
+
+After recovery the previously queued Windows job
+`68f5bb54-f98d-4975-a84f-1515be8988f2` was dispatched to MATLAB and failed pipeline
+validation because its linked HOCT classifier is not runnable in server mode.
+The worker handled that job failure and returned to idle; repairing the scientific
+pipeline dependency is separate work. Evidence and task/source backups:
+`reports/windows-worker-recovery-20261020/` and host-local
+`.deploy-backups/windows-worker-recovery-20261020/`.
+
+## Alexander force-stop demonstration, 2026-10-20
+
+At the user's request, legacy job `c0fc44c4-4380-4c48-8f9d-8ad2b3286e6e`
+was stopped by validating and terminating only its managed compute children.
+Its worker finalized cancellation and released the project locks. Linux poller
+`@1` was then reloaded only after becoming idle with an empty child tree;
+fresh PID `388226` advertises fingerprint `3327f21659f7`.
+
+Private empty demo project `43eea751-5d1b-4dde-bb57-e6468843f04e` belongs to
+`alexander`. Its one-core, 4096-MiB job
+`2718583f-01f9-4f70-a0e4-926fb72a23ad`, run
+`alex_force_stop_demo_20261020`, used the existing pinned MATLAB release and
+processed no experimental data. Alexander invoked **Force stop** himself at
+13:51:26 UTC. Process exit was confirmed after 0.615 seconds: MATLAB and both
+Python descendants exited, and worker PID `388226` remained alive and idle.
+
+The other Linux analysis retains PID `2571587`, its original allocation,
+parameters and start time, with an advancing heartbeat. Windows job metadata
+is unchanged, but its heartbeat was already stale at the initial snapshot
+(13:21:16 UTC), and registered worker PID `31820` was absent during final
+read-only host inspection. Its registry therefore does not establish current
+process health. No Windows process was modified during this operation; the
+Windows condition requires separate diagnosis. Admission was restored on both
+targets. Evidence is in `reports/alex-force-stop-demo-20261020/`.
+
+## Job force-stop rollout, 2026-10-20
+
+The central database has the four nullable job force-stop audit/control columns
+from `db/migrations/20261020_job_force_stop.sql`. The rebuilt API on
+`webserver-labo` is healthy with fingerprint `4246616565fb`. The Run Monitor
+offers **Force stop**, with confirmation, authenticated actor audit, and explicit
+process-exit confirmation. Interface messages, including the Assistant and
+restore hints, are in English. Project/Assistant script versions were bumped
+to avoid stale proxy/browser assets. Remote-specific API changes were preserved.
+
+Linux pollers `@2,@3,@5,@6` were reloaded only after fresh idle registry entries
+and empty process trees, under the target admission lock. Their active fingerprint
+is `3327f21659f7`. Busy `@1` (PID 227710, cooperative cancellation pending) and
+`@4` (PID 2571587) were preserved. The user timer
+`detecdiv-force-stop-activation-20261020.timer` checks every 30 seconds and reloads
+each remaining poller only once idle, then stops after fresh fingerprint checks.
+
+The native Windows poller remains busy on PID 31820, fingerprint `957aa209126d`.
+Its merged update is staged and verified under
+`.deploy-staging/job-force-stop-20261020`, intended fingerprint `a1fffd69452e`.
+The SYSTEM task **DetecDiv Hub Force Stop Activation 20261020** checks each minute
+and activates only after no active target jobs and an empty managed child tree;
+it unregisters after fresh heartbeat/fingerprint verification. The database
+tunnel and unrelated MATLAB sessions are preserved. Both new watchers supersede
+the preceding ROI-memory activation watchers; the staged Windows update includes
+their pending memory changes and preserves its host-specific adaptations.
+
+Two empty-project synthetic jobs exercised real MATLAB execution on Linux,
+with two Python descendants including a detached child. API test
+`897ae1c1-9788-4a1a-840b-fa614ba2ee07` confirmed termination in 0.95 seconds.
+The user accepted the browser confirmation for
+`d20d4fce-bf96-415b-8b6e-fa47eb802bee`; termination was confirmed in 1.01 seconds.
+Both jobs are `cancelled`, logs remain attached, all synthetic processes exited,
+project locks were released, and their worker PIDs remain alive and idle.
+The three pre-existing scientific jobs retained their parameter hashes,
+allocations, start times and worker PIDs, with advancing heartbeats. No MATLAB
+release or processing plugin was changed. Temporary ops sessions were revoked.
+
+Remote staged tests: 32 passed on each compute host, excluding one pre-existing
+unrelated cancellation-actor test whose older deployed route differs from the
+local version. Native Windows containment was tested in the staged runtime;
+its occupied production poller has not yet run a new job with this code.
+Evidence, manifests, rollback copies and the browser screenshot are recorded in
+`reports/job-force-stop-deployment-20261020/` and host-local
+`.deploy-backups/job-force-stop-20261020/`. Prepared busy pollers remain pending
+activation; files on disk do not establish activation of imported modules.
+
 ## Automatic ROI extraction memory rollout, 2026-10-19
 
 The Linux worker tree now includes automatic admission for runs selecting only
@@ -144,10 +352,37 @@ shared UNC package, verified all 18 file hashes and started/closed two workers;
 the task was removed afterwards. Evidence:
 `reports/alex-readpool-deployment-20261015.json`.
 
+## Windows Cellpose scratch paths, 2026-10-15
+
+DetecDiv release
+`79a3166c1c1826709b36c33c194c51623d399833` is now the published default on
+both MATLAB targets. On Windows, Cellpose moves only its per-ROI temporary
+files to a short, unique temporary directory when the project UNC work path
+approaches the legacy Windows path limit. It first uses the job-scoped MATLAB
+temporary root; if the final filename would exceed 240 characters, it tries
+the normal local Windows user temporary directory (`LOCALAPPDATA/Temp`). The
+selected directory is checked for write access. Scientific outputs remain in
+their existing project locations. Five checks passed on native Windows R2025b
+as `GMGM/Charvin-Admin` and on Linux R2024b, including MATLAB/Python JSON and
+MAT round trips at 238 characters. With a 191-character job temporary root,
+Windows selected a 113-character config path in the user temporary directory.
+Both protected releases were verified and published; no worker restart was
+needed. The independent Windows verification task was removed after completion;
+desktop MATLAB sessions were preserved. Jobs already submitted retain their
+existing code pins. Evidence: `reports/cellpose-short-paths-20261015.json`.
+
+Hyper7 recovery `87f55cec-264d-4d1a-b575-4adc979d7f5c` (`h7r_1015`) was
+submitted through normal Hub preflight and creation services with automatic
+routing and this corrected SHA. It started on Linux at 13:04 UTC. It preserves
+the failed `2f53acb2` run's FOVs 1-50, frames 1-50 and five selected analysis
+nodes. Three metrics parameters changed in the mutable template since that run;
+explicit overrides restore the saved source values. Evidence:
+`reports/abhilasha-hyper7-shortpath-retry-20261015.json`.
+
 ## Cellpose failed-inference metadata rollback, 2026-10-15
 
-The published MATLAB default is
-`6c86c83cda16a7accaa2e4a5d20cd74507e52286`, prepared and verified in protected
+Release `6c86c83cda16a7accaa2e4a5d20cd74507e52286` was published earlier,
+prepared and verified in protected
 release directories on Linux and native Windows. This extends `07422ee8` by
 restoring the ROI image cache, logical channel mapping, and display metadata
 when Cellpose inference raises an error or cancellation. The Hub can then save
