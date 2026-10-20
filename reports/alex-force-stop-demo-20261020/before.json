@@ -1,0 +1,643 @@
+{
+  "jobs": [
+    {
+      "id": "137eec41-3bfc-4c7a-bbbf-03d5a948a329",
+      "status": "running",
+      "started_at": "2026-10-17 03:40:04.326491+00:00",
+      "heartbeat_at": "2026-10-20 13:47:12.226055+00:00",
+      "execution_target_id": "0d9f55dc-54ce-4527-af5b-ff4b5d0d64e9",
+      "params_sha256": "307449ab828e20f5abbdcd747606cfe9de672d8d8cc7138c3828c213c8741fd6",
+      "allocation": {
+        "source": "pipeline_nodes_and_job_resource_settings",
+        "cpu_cores": 8,
+        "memory_mb": 24576,
+        "gpu_vram_mb": 8192,
+        "gpu_required": true,
+        "disk_io_units": 3,
+        "gpu_permitted": true,
+        "swap_limit_mb": 1536,
+        "requested_cpu_cores": 8,
+        "pipeline_gpu_profile": {
+          "source": "/data/Abhilasha/Analysis/pipelines/pipeline/pipeline.json",
+          "status": "known",
+          "gpu_node_ids": [
+            "cellpose_sam_segmentatio",
+            "classifier_cnn_lstm_1"
+          ],
+          "gpu_required": true,
+          "run_gpu_mode": "module_default",
+          "selected_node_ids": [
+            "dataloader_5",
+            "roipattern_4",
+            "roiextract_3",
+            "combineMultipleChannels",
+            "cellpose_sam_segmentatio",
+            "classifier_cnn_lstm_1",
+            "processor_trackmotherlineageviterbi_9",
+            "processor_computerls_2",
+            "processor_computemetrics_8"
+          ],
+          "deep_learning_node_ids": [
+            "cellpose_sam_segmentatio",
+            "classifier_cnn_lstm_1"
+          ]
+        }
+      },
+      "job_kind": "pipeline_run"
+    },
+    {
+      "id": "f4150ff1-f1bf-4c89-8483-1b7e26c8726e",
+      "status": "running",
+      "started_at": "2026-10-18 13:44:54.151175+00:00",
+      "heartbeat_at": "2026-10-20 13:21:16.910078+00:00",
+      "execution_target_id": "a8eedb3f-85fc-47a8-b327-2aa766550f51",
+      "params_sha256": "893a5c27680a76235765f8d3f502d4ec0ae3bbf9e6ad253b10f2411d15388dec",
+      "allocation": {
+        "source": "pipeline_nodes_and_job_resource_settings",
+        "cpu_cores": 8,
+        "memory_mb": 24576,
+        "gpu_vram_mb": 8192,
+        "gpu_required": true,
+        "disk_io_units": 3,
+        "gpu_permitted": true,
+        "swap_limit_mb": 0,
+        "requested_cpu_cores": 8,
+        "pipeline_gpu_profile": {
+          "source": "\\\\10.20.11.250\\DATA\\Abhilasha\\Analysis\\pipelines\\pipeline\\pipeline.json",
+          "status": "known",
+          "gpu_node_ids": [
+            "cellpose_sam_segmentatio",
+            "classifier_cnn_lstm_1"
+          ],
+          "gpu_required": true,
+          "run_gpu_mode": "module_default",
+          "selected_node_ids": [
+            "dataloader_5",
+            "roipattern_4",
+            "roiextract_3",
+            "combineMultipleChannels",
+            "cellpose_sam_segmentatio",
+            "classifier_cnn_lstm_1",
+            "processor_trackmotherlineageviterbi_9",
+            "processor_computerls_2",
+            "processor_computemetrics_8"
+          ],
+          "deep_learning_node_ids": [
+            "cellpose_sam_segmentatio",
+            "classifier_cnn_lstm_1"
+          ]
+        }
+      },
+      "job_kind": "pipeline_run"
+    },
+    {
+      "id": "c0fc44c4-4380-4c48-8f9d-8ad2b3286e6e",
+      "status": "cancelling",
+      "started_at": "2026-10-19 14:00:50.673898+00:00",
+      "heartbeat_at": "2026-10-20 13:47:12.469562+00:00",
+      "execution_target_id": "0d9f55dc-54ce-4527-af5b-ff4b5d0d64e9",
+      "params_sha256": "7b763e4e641a3ec72da0d221fe313a8dcb7ac19fdbd90eedb78e6b6b461756ae",
+      "allocation": {
+        "source": "pipeline_nodes_and_job_resource_settings",
+        "cpu_cores": 8,
+        "memory_mb": 24576,
+        "gpu_vram_mb": 0,
+        "gpu_required": false,
+        "disk_io_units": 3,
+        "gpu_permitted": true,
+        "swap_limit_mb": 1536,
+        "requested_cpu_cores": 8,
+        "pipeline_gpu_profile": {
+          "source": "/data/matlab/pipelines/Alex_Xtra_FullChannels_Conservative/pipeline/pipeline_2/pipeline.json",
+          "status": "known",
+          "gpu_node_ids": [],
+          "gpu_required": false,
+          "run_gpu_mode": "gpu",
+          "roi_extraction": {
+            "reason": "non_adaptive_selected_node",
+            "eligible": false
+          },
+          "selected_node_ids": [
+            "processor_savecroppedimagesxconservative_2",
+            "processor_xtrafullchannelsconservative_4"
+          ],
+          "deep_learning_node_ids": []
+        }
+      },
+      "job_kind": "pipeline_run"
+    },
+    {
+      "id": "68f5bb54-f98d-4975-a84f-1515be8988f2",
+      "status": "queued",
+      "started_at": null,
+      "heartbeat_at": null,
+      "execution_target_id": "a8eedb3f-85fc-47a8-b327-2aa766550f51",
+      "params_sha256": "d99d1de00286c68d693d3798bfa604c2fea59da1dea3076a61551caea973a7a9",
+      "allocation": null,
+      "job_kind": "pipeline_run"
+    }
+  ],
+  "workers": [
+    {
+      "worker_instance": "@1",
+      "process_id": 227710,
+      "current_job_id": "c0fc44c4-4380-4c48-8f9d-8ad2b3286e6e",
+      "last_seen_at": "2026-10-20 13:47:12.476891+00:00",
+      "code_fingerprint": "c367c1f32f1e",
+      "target_key": "detecdiv-server"
+    },
+    {
+      "worker_instance": "@2",
+      "process_id": 382617,
+      "current_job_id": null,
+      "last_seen_at": "2026-10-20 13:47:15.489352+00:00",
+      "code_fingerprint": "3327f21659f7",
+      "target_key": "detecdiv-server"
+    },
+    {
+      "worker_instance": "@3",
+      "process_id": 382618,
+      "current_job_id": null,
+      "last_seen_at": "2026-10-20 13:47:13.533219+00:00",
+      "code_fingerprint": "3327f21659f7",
+      "target_key": "detecdiv-server"
+    },
+    {
+      "worker_instance": "@4",
+      "process_id": 2571587,
+      "current_job_id": "137eec41-3bfc-4c7a-bbbf-03d5a948a329",
+      "last_seen_at": "2026-10-20 13:47:06.627251+00:00",
+      "code_fingerprint": "c0f13002d996",
+      "target_key": "detecdiv-server"
+    },
+    {
+      "worker_instance": "@5",
+      "process_id": 382619,
+      "current_job_id": null,
+      "last_seen_at": "2026-10-20 13:47:15.435237+00:00",
+      "code_fingerprint": "3327f21659f7",
+      "target_key": "detecdiv-server"
+    },
+    {
+      "worker_instance": "@6",
+      "process_id": 382620,
+      "current_job_id": null,
+      "last_seen_at": "2026-10-20 13:47:15.474415+00:00",
+      "code_fingerprint": "3327f21659f7",
+      "target_key": "detecdiv-server"
+    },
+    {
+      "worker_instance": "windows-10-20-11-56-main",
+      "process_id": 31820,
+      "current_job_id": "f4150ff1-f1bf-4c89-8483-1b7e26c8726e",
+      "last_seen_at": "2026-10-20 13:21:16.935412+00:00",
+      "code_fingerprint": "957aa209126d",
+      "target_key": "windows-10-20-11-56"
+    }
+  ],
+  "indexing": [],
+  "targets": [
+    {
+      "target_key": "detecdiv-server",
+      "metadata_json": {
+        "worker_health": {
+          "health": "busy",
+          "claimed_at": "2026-10-20T13:47:12.476891+00:00",
+          "worker_host": "GC-CALCUL-306",
+          "busy_workers": 2,
+          "last_seen_at": "2026-10-20T13:47:15.489352+00:00",
+          "worker_count": 6,
+          "error_workers": 0,
+          "stale_workers": 0,
+          "version_drift": true,
+          "online_workers": 6,
+          "current_job_ids": [
+            "c0fc44c4-4380-4c48-8f9d-8ad2b3286e6e",
+            "137eec41-3bfc-4c7a-bbbf-03d5a948a329"
+          ],
+          "worker_instances": [
+            "@1",
+            "@2",
+            "@3",
+            "@4",
+            "@5",
+            "@6"
+          ],
+          "code_fingerprints": [
+            "3327f21659f7",
+            "c0f13002d996",
+            "c367c1f32f1e"
+          ],
+          "current_job_count": 2,
+          "registered_workers": 6,
+          "deployment_versions": [
+            "fp-3327f21659f7",
+            "fp-c0f13002d996",
+            "fp-c367c1f32f1e"
+          ]
+        },
+        "drain_new_jobs": false,
+        "worker_healths": {
+          "@1": {
+            "health": "busy",
+            "claimed_at": "2026-10-20T13:47:12.476891+00:00",
+            "last_error": null,
+            "process_id": 227710,
+            "updated_at": "2026-10-20T13:47:12.476891+00:00",
+            "last_job_id": "cae0526d-ac40-490d-b958-2eebeba73ba0",
+            "worker_host": "GC-CALCUL-306",
+            "last_seen_at": "2026-10-20T13:47:12.476891+00:00",
+            "current_job_id": "c0fc44c4-4380-4c48-8f9d-8ad2b3286e6e",
+            "host_cpu_count": 48,
+            "version_source": "fingerprint",
+            "last_job_status": "running",
+            "worker_instance": "@1",
+            "code_fingerprint": "c367c1f32f1e",
+            "current_job_kind": "pipeline_run",
+            "poll_interval_sec": 5.0,
+            "current_job_status": "cancelling",
+            "deployment_version": "fp-c367c1f32f1e",
+            "available_cpu_count": 8,
+            "current_job_cpu_cores": 1.0793722462356312,
+            "current_job_started_at": "2026-10-19T14:00:50.673898+00:00"
+          },
+          "@2": {
+            "health": "online",
+            "claimed_at": null,
+            "last_error": null,
+            "process_id": 382617,
+            "updated_at": "2026-10-20T13:47:15.489352+00:00",
+            "last_job_id": "23daa615-339e-408e-8a23-3a1c17934daf",
+            "worker_host": "GC-CALCUL-306",
+            "last_seen_at": "2026-10-20T13:47:15.489352+00:00",
+            "current_job_id": null,
+            "host_cpu_count": 48,
+            "version_source": "fingerprint",
+            "last_job_status": "done",
+            "worker_instance": "@2",
+            "code_fingerprint": "3327f21659f7",
+            "current_job_kind": null,
+            "poll_interval_sec": 5.0,
+            "current_job_status": null,
+            "deployment_version": "fp-3327f21659f7",
+            "available_cpu_count": 1,
+            "current_job_cpu_cores": 0.0,
+            "current_job_started_at": null
+          },
+          "@3": {
+            "health": "idle",
+            "claimed_at": null,
+            "last_error": null,
+            "process_id": 382618,
+            "updated_at": "2026-10-20T13:47:13.533219+00:00",
+            "last_job_id": "897ae1c1-9788-4a1a-840b-fa614ba2ee07",
+            "worker_host": "GC-CALCUL-306",
+            "last_seen_at": "2026-10-20T13:47:13.533219+00:00",
+            "current_job_id": null,
+            "host_cpu_count": 48,
+            "version_source": "fingerprint",
+            "last_job_status": "cancelled",
+            "worker_instance": "@3",
+            "code_fingerprint": "3327f21659f7",
+            "current_job_kind": null,
+            "poll_interval_sec": 5.0,
+            "current_job_status": null,
+            "deployment_version": "fp-3327f21659f7",
+            "available_cpu_count": 1,
+            "current_job_cpu_cores": 0.0,
+            "current_job_started_at": null
+          },
+          "@4": {
+            "health": "busy",
+            "claimed_at": "2026-10-20T13:47:06.627251+00:00",
+            "last_error": null,
+            "process_id": 2571587,
+            "updated_at": "2026-10-20T13:47:06.627251+00:00",
+            "last_job_id": "834c17c0-ad25-49be-bf1d-405a77d80162",
+            "worker_host": "GC-CALCUL-306",
+            "last_seen_at": "2026-10-20T13:47:06.627251+00:00",
+            "current_job_id": "137eec41-3bfc-4c7a-bbbf-03d5a948a329",
+            "host_cpu_count": 48,
+            "version_source": "fingerprint",
+            "last_job_status": "running",
+            "worker_instance": "@4",
+            "code_fingerprint": "c0f13002d996",
+            "current_job_kind": "pipeline_run",
+            "poll_interval_sec": 5.0,
+            "current_job_status": "running",
+            "deployment_version": "fp-c0f13002d996",
+            "available_cpu_count": 8,
+            "current_job_cpu_cores": 0.7408711420849204,
+            "current_job_started_at": "2026-10-17T03:40:04.326491+00:00"
+          },
+          "@5": {
+            "health": "idle",
+            "claimed_at": null,
+            "last_error": null,
+            "process_id": 382619,
+            "updated_at": "2026-10-20T13:47:15.435237+00:00",
+            "last_job_id": "d20d4fce-bf96-415b-8b6e-fa47eb802bee",
+            "worker_host": "GC-CALCUL-306",
+            "last_seen_at": "2026-10-20T13:47:15.435237+00:00",
+            "current_job_id": null,
+            "host_cpu_count": 48,
+            "version_source": "fingerprint",
+            "last_job_status": "cancelled",
+            "worker_instance": "@5",
+            "code_fingerprint": "3327f21659f7",
+            "current_job_kind": null,
+            "poll_interval_sec": 5.0,
+            "current_job_status": null,
+            "deployment_version": "fp-3327f21659f7",
+            "available_cpu_count": 1,
+            "current_job_cpu_cores": 0.0,
+            "current_job_started_at": null
+          },
+          "@6": {
+            "health": "idle",
+            "claimed_at": null,
+            "last_error": null,
+            "process_id": 382620,
+            "updated_at": "2026-10-20T13:47:15.474415+00:00",
+            "last_job_id": "eb42e486-c6ed-481c-9af1-3ad3ebac8365",
+            "worker_host": "GC-CALCUL-306",
+            "last_seen_at": "2026-10-20T13:47:15.474415+00:00",
+            "current_job_id": null,
+            "host_cpu_count": 48,
+            "version_source": "fingerprint",
+            "last_job_status": "done",
+            "worker_instance": "@6",
+            "code_fingerprint": "3327f21659f7",
+            "current_job_kind": null,
+            "poll_interval_sec": 5.0,
+            "current_job_status": null,
+            "deployment_version": "fp-3327f21659f7",
+            "available_cpu_count": 1,
+            "current_job_cpu_cores": 0.0,
+            "current_job_started_at": null
+          }
+        },
+        "worker_cpu_limit": 1,
+        "matlab_max_threads": null,
+        "memory_capacity_mb": 98304,
+        "worker_scale_state": "automatic",
+        "max_concurrent_jobs": null,
+        "worker_cpu_capacity": 36,
+        "worker_swap_limit_mb": 1536,
+        "worker_autoscale_plan": {
+          "blocked": {},
+          "ceiling": 36,
+          "desired": 6,
+          "baseline": 6,
+          "planned_at": "2026-10-20T13:47:11.196768+00:00",
+          "active_jobs": 2,
+          "queue_sample": 0,
+          "admissible_queued_jobs": 0
+        },
+        "worker_health_summary": {
+          "health": "busy",
+          "claimed_at": "2026-10-20T13:47:12.476891+00:00",
+          "worker_host": "GC-CALCUL-306",
+          "busy_workers": 2,
+          "last_seen_at": "2026-10-20T13:47:15.489352+00:00",
+          "worker_count": 6,
+          "error_workers": 0,
+          "stale_workers": 0,
+          "version_drift": true,
+          "online_workers": 6,
+          "current_job_ids": [
+            "c0fc44c4-4380-4c48-8f9d-8ad2b3286e6e",
+            "137eec41-3bfc-4c7a-bbbf-03d5a948a329"
+          ],
+          "worker_instances": [
+            "@1",
+            "@2",
+            "@3",
+            "@4",
+            "@5",
+            "@6"
+          ],
+          "code_fingerprints": [
+            "3327f21659f7",
+            "c0f13002d996",
+            "c367c1f32f1e"
+          ],
+          "current_job_count": 2,
+          "registered_workers": 6,
+          "deployment_versions": [
+            "fp-3327f21659f7",
+            "fp-c0f13002d996",
+            "fp-c367c1f32f1e"
+          ]
+        },
+        "worker_manager_enabled": true,
+        "worker_manager_seen_at": "2026-10-20T13:47:11.196733+00:00",
+        "worker_memory_limit_mb": 512,
+        "worker_autoscale_enabled": true,
+        "worker_dynamic_resources": true,
+        "worker_instances_desired": 6,
+        "worker_instances_baseline": 6,
+        "worker_scale_last_message": "Workers=3 shared_memory_mb=98304 shared_swap_mb=6144 shared_cpu_cores=36 host_reserve_mb=24576 per_worker_memory_mb=32768 per_worker_swap_mb=2048 per_worker_cpu_cores=12\nConfigured 3 worker instance(s).",
+        "worker_scale_requested_at": "2026-09-28T12:42:10.356594+00:00",
+        "matlab_code_isolation_ready": true,
+        "worker_resource_allocations": {
+          "@1": {
+            "ram_limit_mb": 24576,
+            "gpu_exclusive": false,
+            "cpu_limit_cores": 8,
+            "ram_allocated_mb": 24576,
+            "swap_allocated_mb": 1536,
+            "vram_allocated_mb": 0,
+            "cpu_allocated_cores": 8,
+            "resource_updated_at": "2026-10-20T13:47:12.476891+00:00",
+            "gpu_shared_capacity_mb": 24576
+          },
+          "@2": {
+            "ram_limit_mb": 512,
+            "gpu_exclusive": false,
+            "cpu_limit_cores": 1,
+            "ram_allocated_mb": 0,
+            "swap_allocated_mb": null,
+            "vram_allocated_mb": 0,
+            "cpu_allocated_cores": 0,
+            "resource_updated_at": "2026-10-20T13:47:15.489352+00:00",
+            "gpu_shared_capacity_mb": null
+          },
+          "@3": {
+            "ram_limit_mb": 512,
+            "gpu_exclusive": false,
+            "cpu_limit_cores": 1,
+            "ram_allocated_mb": 0,
+            "swap_allocated_mb": null,
+            "vram_allocated_mb": 0,
+            "cpu_allocated_cores": 0,
+            "resource_updated_at": "2026-10-20T13:47:13.533219+00:00",
+            "gpu_shared_capacity_mb": null
+          },
+          "@4": {
+            "ram_limit_mb": 24576,
+            "gpu_exclusive": false,
+            "cpu_limit_cores": 8,
+            "ram_allocated_mb": 24576,
+            "swap_allocated_mb": 1536,
+            "vram_allocated_mb": 8192,
+            "cpu_allocated_cores": 8,
+            "resource_updated_at": "2026-10-20T13:47:06.627251+00:00",
+            "gpu_shared_capacity_mb": 24576
+          },
+          "@5": {
+            "ram_limit_mb": 512,
+            "gpu_exclusive": false,
+            "cpu_limit_cores": 1,
+            "ram_allocated_mb": 0,
+            "swap_allocated_mb": null,
+            "vram_allocated_mb": 0,
+            "cpu_allocated_cores": 0,
+            "resource_updated_at": "2026-10-20T13:47:15.435237+00:00",
+            "gpu_shared_capacity_mb": null
+          },
+          "@6": {
+            "ram_limit_mb": 512,
+            "gpu_exclusive": false,
+            "cpu_limit_cores": 1,
+            "ram_allocated_mb": 0,
+            "swap_allocated_mb": null,
+            "vram_allocated_mb": 0,
+            "cpu_allocated_cores": 0,
+            "resource_updated_at": "2026-10-20T13:47:15.474415+00:00",
+            "gpu_shared_capacity_mb": null
+          }
+        },
+        "worker_scale_last_applied_at": "2026-09-28T12:42:30.720909+00:00",
+        "matlab_code_shared_cache_ready": true,
+        "worker_scale_applied_instances": 6
+      }
+    },
+    {
+      "target_key": "windows-10-20-11-56",
+      "metadata_json": {
+        "platform": "windows",
+        "gpu_model": "NVIDIA RTX 2000 Ada Generation",
+        "worker_health": {
+          "health": "busy",
+          "claimed_at": "2026-10-20T13:21:16.935412+00:00",
+          "worker_host": "CG-PCDELL01-306",
+          "busy_workers": 1,
+          "last_seen_at": "2026-10-20T13:21:16.935412+00:00",
+          "worker_count": 1,
+          "capacity_full": true,
+          "error_workers": 0,
+          "stale_workers": 0,
+          "version_drift": false,
+          "online_workers": 1,
+          "current_job_ids": [
+            "f4150ff1-f1bf-4c89-8483-1b7e26c8726e"
+          ],
+          "worker_instances": [
+            "windows-10-20-11-56-main"
+          ],
+          "code_fingerprints": [
+            "957aa209126d"
+          ],
+          "current_job_count": 1,
+          "registered_workers": 1,
+          "deployment_versions": [
+            "b73bd841cd79"
+          ],
+          "max_concurrent_jobs": 1
+        },
+        "drain_new_jobs": false,
+        "gpu_validation": {
+          "at": "2026-10-16T07:49:08.721397+00:00",
+          "account": "GMGM\\Charvin-Admin",
+          "runtime": "C:/ProgramData/DetecDivHub/cellpose-gpu-v1/Scripts/python.exe",
+          "session_id": 1,
+          "matlab_gpu_device": "passed",
+          "cellposesam_gpu_inference": "passed"
+        },
+        "worker_healths": {
+          "windows-10-20-11-56-main": {
+            "health": "busy",
+            "claimed_at": "2026-10-20T13:21:16.935412+00:00",
+            "last_error": null,
+            "process_id": 31820,
+            "updated_at": "2026-10-20T13:21:16.935412+00:00",
+            "last_job_id": "170868e5-971c-4074-be12-3e801ddd1b55",
+            "worker_host": "CG-PCDELL01-306",
+            "last_seen_at": "2026-10-20T13:21:16.935412+00:00",
+            "current_job_id": "f4150ff1-f1bf-4c89-8483-1b7e26c8726e",
+            "host_cpu_count": 20,
+            "version_source": "git",
+            "last_job_status": "running",
+            "worker_instance": "windows-10-20-11-56-main",
+            "code_fingerprint": "957aa209126d",
+            "current_job_kind": "pipeline_run",
+            "poll_interval_sec": 5.0,
+            "current_job_status": "running",
+            "deployment_version": "b73bd841cd79",
+            "available_cpu_count": 20,
+            "current_job_cpu_cores": 0.411184210521277,
+            "current_job_started_at": "2026-10-18T13:44:54.151175+00:00"
+          }
+        },
+        "storage_visible": false,
+        "max_concurrent_jobs": 1,
+        "gpu_vram_capacity_mb": 14336,
+        "worker_health_summary": {
+          "health": "busy",
+          "claimed_at": "2026-10-20T13:21:16.935412+00:00",
+          "worker_host": "CG-PCDELL01-306",
+          "busy_workers": 1,
+          "last_seen_at": "2026-10-20T13:21:16.935412+00:00",
+          "worker_count": 1,
+          "capacity_full": true,
+          "error_workers": 0,
+          "stale_workers": 0,
+          "version_drift": false,
+          "online_workers": 1,
+          "current_job_ids": [
+            "f4150ff1-f1bf-4c89-8483-1b7e26c8726e"
+          ],
+          "worker_instances": [
+            "windows-10-20-11-56-main"
+          ],
+          "code_fingerprints": [
+            "957aa209126d"
+          ],
+          "current_job_count": 1,
+          "registered_workers": 1,
+          "deployment_versions": [
+            "b73bd841cd79"
+          ],
+          "max_concurrent_jobs": 1
+        },
+        "windows_gpu_activation": {
+          "at": "2026-10-16T07:39:38.259425+00:00",
+          "id": "windows-gpu-20261016",
+          "state": "active",
+          "job_id": "43637ab4-4044-443d-b8f9-3372935f8356",
+          "retry_at": "2026-10-16T07:57:01.936291+00:00",
+          "code_commit": "594217dd37bfa9b2b529f7f2204253d9901340bf",
+          "validated_at": "2026-10-16T07:50:41.173152+00:00",
+          "worker_fingerprint": "957aa209126d"
+        },
+        "worker_dynamic_resources": false,
+        "matlab_code_isolation_ready": true,
+        "worker_resource_allocations": {
+          "windows-10-20-11-56-main": {
+            "ram_limit_mb": null,
+            "gpu_exclusive": false,
+            "cpu_limit_cores": 20,
+            "ram_allocated_mb": 24576,
+            "swap_allocated_mb": null,
+            "vram_allocated_mb": 8192,
+            "cpu_allocated_cores": 8,
+            "resource_updated_at": "2026-10-20T13:21:16.935412+00:00",
+            "gpu_shared_capacity_mb": 16380
+          }
+        },
+        "matlab_code_shared_cache_ready": true
+      }
+    }
+  ]
+}

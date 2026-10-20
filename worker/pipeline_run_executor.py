@@ -19,7 +19,9 @@ from api.services.pipeline_raw_ingest import (
 )
 from api.services.project_deletion import resolve_project_location_paths
 from api.services.project_locks import heartbeat_project_locks_for_job
-from worker.executors.matlab_executor import build_matlab_batch_command, run_matlab_command
+from worker.executors.matlab_executor import (
+    MatlabCommandForcedStop, build_matlab_batch_command, run_matlab_command,
+)
 from worker.path_mappings import (
     WorkerPathMapping,
     map_payload_path_fields,
@@ -131,21 +133,33 @@ def execute_pipeline_run_job(session: Session, *, job: Job) -> dict[str, Any]:
         entrypoint = build_pipeline_matlab_entrypoint(payload_path,
             matlab_max_threads=matlab_max_threads, work_dir=tmp_path)
         command = build_matlab_batch_command(repo_root, entrypoint, matlab_command=matlab_command)
-        completed = run_matlab_command(
-            command,
-            env=job_environment(tmp_path),
-            cwd=str(tmp_path),
-            heartbeat_callback=lambda: update_job_heartbeat(session, job=job),
-            progress_callback=lambda: update_pipeline_run_progress(
-                session,
-                job=job,
+        try:
+            completed = run_matlab_command(
+                command,
+                env=job_environment(tmp_path),
+                cwd=str(tmp_path),
+                heartbeat_callback=lambda: update_job_heartbeat(session, job=job),
+                progress_callback=lambda: update_pipeline_run_progress(
+                    session,
+                    job=job,
+                    stdout_path=stdout_path,
+                    stderr_path=stderr_path,
+                ),
+                heartbeat_interval_sec=10.0,
                 stdout_path=stdout_path,
                 stderr_path=stderr_path,
-            ),
-            heartbeat_interval_sec=10.0,
-            stdout_path=stdout_path,
-            stderr_path=stderr_path,
-        )
+                force_stop_callback=lambda: pipeline_force_stop_requested(session, job=job),
+                started_callback=lambda pid: record_pipeline_process_scope(session, job=job, pid=pid),
+            )
+        except MatlabCommandForcedStop as exc:
+            update_pipeline_run_progress(session, job=job, stdout_path=stdout_path, stderr_path=stderr_path)
+            job_record = session.get(Job, job.id, populate_existing=True, with_for_update=True)
+            job_record.force_stopped_at = datetime.now(timezone.utc)
+            attach_pipeline_run_artifacts(
+                session, job=job, result_json={}, stdout_path=stdout_path, stderr_path=stderr_path,
+            )
+            session.commit()
+            raise PipelineRunCancelled(str(exc)) from exc
 
         result_json: dict[str, Any] = {}
         if result_path.is_file():
@@ -191,6 +205,28 @@ def execute_pipeline_run_job(session: Session, *, job: Job) -> dict[str, Any]:
                 "stderr_log": str(stderr_path),
             },
         }
+
+
+def pipeline_force_stop_requested(session: Session, *, job: Job) -> bool:
+    # Select the control column directly: the long-lived ORM identity may be
+    # stale, and result_json is concurrently updated with progress.
+    requested_at = session.scalar(select(Job.force_stop_requested_at).where(Job.id == job.id))
+    session.commit()
+    return requested_at is not None
+
+
+def record_pipeline_process_scope(session: Session, *, job: Job, pid: int) -> None:
+    job_record = session.get(Job, job.id, populate_existing=True, with_for_update=True)
+    result = dict(job_record.result_json or {})
+    runtime = dict(result.get("worker_runtime") or {})
+    runtime.update({
+        "force_stop_supported": True,
+        "process_scope": "windows_job_object" if os.name == "nt" else "linux_subreaper",
+        "supervisor_pid": pid,
+    })
+    result["worker_runtime"] = runtime
+    job_record.result_json = result
+    session.commit()
 
 
 def persist_pipeline_preflight(session: Session, *, job: Job, preflight: dict[str, Any]) -> None:
@@ -371,7 +407,7 @@ def resolve_project_mat_path(session: Session, *, project_id) -> str:
 
 def update_job_heartbeat(session: Session, *, job: Job) -> None:
     now = datetime.now(timezone.utc)
-    job_record = session.get(Job, job.id)
+    job_record = session.get(Job, job.id, populate_existing=True)
     if job_record is None:
         return
     job_record.heartbeat_at = now
@@ -390,7 +426,7 @@ def update_pipeline_run_progress(
     stderr_path: Path,
 ) -> None:
     now = datetime.now(timezone.utc)
-    job_record = session.get(Job, job.id)
+    job_record = session.get(Job, job.id, populate_existing=True, with_for_update=True)
     if job_record is None:
         return
     progress = build_pipeline_run_progress(stdout_path=stdout_path, stderr_path=stderr_path)

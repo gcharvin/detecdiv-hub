@@ -1,0 +1,33 @@
+{
+  "job_id": "2718583f-01f9-4f70-a0e4-926fb72a23ad",
+  "status": "running",
+  "owner": "alexander",
+  "alex_can_edit": true,
+  "force_stop_supported": true,
+  "runtime": {
+    "engine": "matlab",
+    "work_dir": "/home/charvin-admin/repos/DetecDiv-jobs/work/2718583f-01f9-4f70-a0e4-926fb72a23ad/b95dea15-a308-4513-bc2b-633db6484870",
+    "repo_root": "/home/charvin-admin/repos/DetecDiv-jobs/releases/2abc8f2ee32ab10cf204c2fe11be63d87c728764",
+    "stderr_log": "/home/charvin-admin/repos/DetecDiv-jobs/work/2718583f-01f9-4f70-a0e4-926fb72a23ad/b95dea15-a308-4513-bc2b-633db6484870/matlab_stderr.log",
+    "stdout_log": "/home/charvin-admin/repos/DetecDiv-jobs/work/2718583f-01f9-4f70-a0e4-926fb72a23ad/b95dea15-a308-4513-bc2b-633db6484870/matlab_stdout.log",
+    "code_commit": "2abc8f2ee32ab10cf204c2fe11be63d87c728764",
+    "process_scope": "linux_subreaper",
+    "supervisor_pid": 388902,
+    "force_stop_supported": true
+  },
+  "started_at": "2026-10-20 13:49:31.125625+00:00",
+  "worker": {
+    "instance": "@1",
+    "pid": 388226,
+    "fingerprint": "3327f21659f7"
+  },
+  "project_locks": [
+    "active"
+  ],
+  "old_job_cancelled": true,
+  "updated_worker_1": {
+    "pid": 388226,
+    "fingerprint": "3327f21659f7"
+  },
+  "checked_at": "2026-10-20T13:50:32.274600+00:00"
+}

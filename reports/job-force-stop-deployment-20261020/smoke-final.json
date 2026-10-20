@@ -1,0 +1,32 @@
+{
+  "jobs": [
+    {
+      "id": "897ae1c1-9788-4a1a-840b-fa614ba2ee07",
+      "status": "cancelled",
+      "requested": "2026-10-20 13:21:38.229209+00:00",
+      "stopped": "2026-10-20 13:21:39.178989+00:00",
+      "latency_seconds": 0.94978,
+      "requested_by": "gilles",
+      "locks_released": true,
+      "log_artifacts": [
+        "/home/charvin-admin/repos/DetecDiv-jobs/work/897ae1c1-9788-4a1a-840b-fa614ba2ee07/e39380d9-769b-4b59-971b-f5ac4577642e/matlab_stdout.log",
+        "/home/charvin-admin/repos/DetecDiv-jobs/work/897ae1c1-9788-4a1a-840b-fa614ba2ee07/e39380d9-769b-4b59-971b-f5ac4577642e/matlab_stderr.log"
+      ]
+    },
+    {
+      "id": "d20d4fce-bf96-415b-8b6e-fa47eb802bee",
+      "status": "cancelled",
+      "requested": "2026-10-20 13:28:04.246933+00:00",
+      "stopped": "2026-10-20 13:28:05.253093+00:00",
+      "latency_seconds": 1.00616,
+      "requested_by": "gilles",
+      "locks_released": true,
+      "log_artifacts": [
+        "/home/charvin-admin/repos/DetecDiv-jobs/work/d20d4fce-bf96-415b-8b6e-fa47eb802bee/c639d0da-da56-43f2-b3e6-70b5204fa090/matlab_stdout.log",
+        "/home/charvin-admin/repos/DetecDiv-jobs/work/d20d4fce-bf96-415b-8b6e-fa47eb802bee/c639d0da-da56-43f2-b3e6-70b5204fa090/matlab_stderr.log"
+      ]
+    }
+  ],
+  "ops_sessions_revoked": true,
+  "ui_confirmation_accepted_by": "user"
+}

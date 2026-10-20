@@ -1,0 +1,2068 @@
+from __future__ import annotations
+
+from datetime import date, datetime
+from typing import Any, Literal
+from uuid import UUID
+
+from pydantic import BaseModel, ConfigDict, Field
+
+
+class HubBaseModel(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+
+class DiskUsageSummary(HubBaseModel):
+    path: str
+    label: str
+    total_bytes: int | None = None
+    used_bytes: int | None = None
+    free_bytes: int | None = None
+    used_percent: float | None = None
+    status: str
+    message: str | None = None
+
+
+class HealthResponse(HubBaseModel):
+    status: str = "ok"
+    service: str = "detecdiv-hub"
+    database_status: str = "unknown"
+    database_message: str | None = None
+    hostname: str | None = None
+    deployment_version: str | None = None
+    version_source: str | None = None
+    code_fingerprint: str | None = None
+    disk_warning_threshold_percent: int = 95
+    disk_usage: list[DiskUsageSummary] = Field(default_factory=list)
+
+
+class UserSummary(HubBaseModel):
+    id: UUID
+    user_key: str
+    display_name: str
+    email: str | None = None
+    role: str
+    is_active: bool
+    admin_portal_access: bool = False
+    lab_status: str = "yes"
+    default_path: str | None = None
+    project_bytes: int = 0
+    raw_dataset_bytes: int = 0
+    storage_account_id: UUID | None = None
+    storage_provider_key: str | None = None
+    storage_provider_user_key: str | None = None
+    storage_quota_bytes: int | None = None
+    storage_quota_status: str | None = None
+    storage_provisioning_status: str | None = None
+
+
+class UserCreate(HubBaseModel):
+    user_key: str
+    display_name: str
+    email: str | None = None
+    role: str = "user"
+    is_active: bool = True
+    admin_portal_access: bool = False
+    lab_status: str = "yes"
+    default_path: str | None = None
+    password: str | None = None
+    metadata_json: dict[str, Any] = Field(default_factory=dict)
+
+
+class UserBulkUpsertItem(HubBaseModel):
+    user_key: str
+    display_name: str | None = None
+    email: str | None = None
+    role: str = "user"
+    is_active: bool = True
+    admin_portal_access: bool = False
+    lab_status: str = "yes"
+    default_path: str | None = None
+    password: str | None = None
+    metadata_json: dict[str, Any] = Field(default_factory=dict)
+
+
+class UserBulkUpsertRequest(HubBaseModel):
+    users: list[UserBulkUpsertItem] = Field(default_factory=list)
+
+
+class UserBulkUpsertResponse(HubBaseModel):
+    created_count: int
+    updated_count: int
+    users: list[UserSummary] = Field(default_factory=list)
+
+
+class UserUpdate(HubBaseModel):
+    display_name: str | None = None
+    email: str | None = None
+    role: str | None = None
+    is_active: bool | None = None
+    admin_portal_access: bool | None = None
+    lab_status: str | None = None
+    default_path: str | None = None
+    password: str | None = None
+    metadata_json: dict[str, Any] | None = None
+
+
+class UserDeleteResult(HubBaseModel):
+    user_id: UUID
+    user_key: str
+    hub_deactivated: bool
+    synology_delete_requested: bool = False
+    synology_deleted: bool = False
+    provider_user_key: str | None = None
+    message: str
+
+
+class UserPasswordChangeRequest(HubBaseModel):
+    current_password: str
+    new_password: str
+
+
+class AuthLoginRequest(HubBaseModel):
+    user_key: str
+    password: str
+    client_label: str | None = None
+
+
+class AuthLoginResponse(HubBaseModel):
+    user: UserSummary
+    session_token: str
+    expires_at: datetime
+
+
+class AuthSessionResponse(HubBaseModel):
+    authenticated: bool
+    auth_mode: str
+    user: UserSummary | None = None
+    expires_at: datetime | None = None
+
+
+class UserSessionSummary(HubBaseModel):
+    id: UUID
+    status: str
+    client_label: str | None = None
+    last_seen_at: datetime | None = None
+    expires_at: datetime
+    created_at: datetime | None = None
+    user: UserSummary | None = None
+
+
+class StorageRootSummary(HubBaseModel):
+    id: int
+    name: str
+    root_type: str
+    host_scope: str
+    path_prefix: str
+
+
+class StorageRootBrowseEntry(HubBaseModel):
+    name: str
+    relative_path: str
+    absolute_path: str
+
+
+class StorageRootBrowseResponse(HubBaseModel):
+    storage_root: StorageRootSummary
+    current_relative_path: str
+    current_absolute_path: str
+    parent_relative_path: str | None = None
+    directories: list[StorageRootBrowseEntry] = Field(default_factory=list)
+
+
+class MiscStorageItemSummary(HubBaseModel):
+    id: UUID
+    parent_item_id: UUID | None = None
+    owner: UserSummary | None = None
+    storage_root: StorageRootSummary
+    relative_path: str
+    display_name: str
+    item_kind: str = "directory"
+    category: str = "unknown"
+    status: str = "indexed"
+    visibility: str = "private"
+    scan_depth: int = 0
+    scan_status: str = "measured"
+    total_bytes: int = 0
+    child_dir_count: int = 0
+    child_file_count: int = 0
+    lifecycle_tier: str = "hot"
+    archive_status: str = "none"
+    archive_uri: str | None = None
+    backup_status: str = "none"
+    backup_excluded: bool = False
+    last_size_scan_at: datetime | None = None
+    last_seen_at: datetime | None = None
+    last_backup_at: datetime | None = None
+    notes: str | None = None
+    metadata_json: dict[str, Any] = Field(default_factory=dict)
+    created_at: datetime | None = None
+    updated_at: datetime | None = None
+
+
+class MiscStorageItemUpdate(HubBaseModel):
+    owner_user_id: UUID | None = None
+    category: str | None = None
+    status: str | None = None
+    visibility: str | None = None
+    lifecycle_tier: str | None = None
+    archive_status: str | None = None
+    archive_uri: str | None = None
+    backup_status: str | None = None
+    backup_excluded: bool | None = None
+    notes: str | None = None
+    metadata_json: dict[str, Any] | None = None
+
+
+class MiscStorageInventoryRequest(HubBaseModel):
+    source_path: str
+    storage_root_id: int | None = None
+    parent_item_id: UUID | None = None
+    storage_root_name: str | None = None
+    host_scope: str = "server"
+    root_type: str = "misc_root"
+    owner_user_key: str | None = None
+    visibility: str = "private"
+    min_size_bytes: int = 10 * 1024 * 1024 * 1024
+    max_depth: int = 2
+    du_timeout_sec: float = 45.0
+    include_cataloged: bool = False
+    requested_mode: str = "server"
+    priority: int = 30
+    execution_target_id: UUID | None = None
+    execution_target_key: str | None = None
+    metadata_json: dict[str, Any] = Field(default_factory=dict)
+
+
+class MiscStorageInventoryResponse(HubBaseModel):
+    status: str
+    job_id: UUID | None = None
+    scanned_count: int = 0
+    indexed_count: int = 0
+    skipped_count: int = 0
+    timeout_count: int = 0
+    source_path: str
+    message: str
+
+
+class MiscStoragePurgeResponse(HubBaseModel):
+    storage_root_name: str
+    deleted_count: int
+    message: str
+
+
+class MiscStorageExploreChildrenRequest(HubBaseModel):
+    min_size_bytes: int = 1024 * 1024 * 1024
+    max_depth: int = 1
+    du_timeout_sec: float = 60.0
+    include_cataloged: bool = False
+    priority: int = 30
+    requested_mode: str = "server"
+    execution_target_id: UUID | None = None
+    execution_target_key: str | None = None
+    metadata_json: dict[str, Any] = Field(default_factory=dict)
+
+
+class MiscStorageIndexProjectsRequest(HubBaseModel):
+    storage_root_name: str | None = None
+    owner_user_key: str | None = None
+    visibility: str = "private"
+    clear_existing_for_root: bool = False
+    scan_orphan_raw: bool = True
+    queue_previews: bool = True
+    execution_target_id: UUID | None = None
+    execution_target_key: str | None = None
+    metadata_json: dict[str, Any] = Field(default_factory=dict)
+
+
+class StorageProviderSummary(HubBaseModel):
+    id: UUID
+    provider_key: str
+    display_name: str
+    provider_kind: str
+    mount_root: str | None = None
+    quota_mode: str
+    is_active: bool
+    capabilities_json: dict[str, Any] = Field(default_factory=dict)
+    config_json: dict[str, Any] = Field(default_factory=dict)
+    created_at: datetime | None = None
+    updated_at: datetime | None = None
+
+
+class StorageProviderCreate(HubBaseModel):
+    provider_key: str
+    display_name: str
+    provider_kind: str = "posix_mount"
+    mount_root: str | None = None
+    quota_mode: str = "measured_only"
+    is_active: bool = True
+    capabilities_json: dict[str, Any] = Field(default_factory=dict)
+    config_json: dict[str, Any] = Field(default_factory=dict)
+
+
+class StorageProviderUpdate(HubBaseModel):
+    display_name: str | None = None
+    provider_kind: str | None = None
+    mount_root: str | None = None
+    quota_mode: str | None = None
+    is_active: bool | None = None
+    capabilities_json: dict[str, Any] | None = None
+    config_json: dict[str, Any] | None = None
+
+
+class SynologyDsmDiscoveryResponse(HubBaseModel):
+    provider: StorageProviderSummary
+    configured: bool
+    success: bool
+    api_info: dict[str, Any] = Field(default_factory=dict)
+    capabilities_json: dict[str, Any] = Field(default_factory=dict)
+    message: str | None = None
+
+
+class SynologyDsmLoginCheckResponse(HubBaseModel):
+    provider: StorageProviderSummary
+    configured: bool
+    success: bool
+    session: str | None = None
+    sid_received: bool = False
+    discovered_apis: list[str] = Field(default_factory=list)
+    message: str | None = None
+
+
+class SynologyDsmApiProbeRequest(HubBaseModel):
+    api_name: str
+    method: str
+    version: int | None = None
+    params: dict[str, Any] = Field(default_factory=dict)
+    login: bool = True
+
+
+class SynologyDsmApiProbeResponse(HubBaseModel):
+    provider: StorageProviderSummary
+    configured: bool
+    success: bool
+    payload: dict[str, Any] = Field(default_factory=dict)
+    message: str | None = None
+
+
+class SynologyDsmUserSummary(HubBaseModel):
+    name: str
+    raw_keys: list[str] = Field(default_factory=list)
+
+
+class SynologyDsmUserListResponse(HubBaseModel):
+    provider: StorageProviderSummary
+    configured: bool
+    success: bool
+    users: list[SynologyDsmUserSummary] = Field(default_factory=list)
+    total: int = 0
+    message: str | None = None
+
+
+class SynologyDsmUserHomeResponse(HubBaseModel):
+    provider: StorageProviderSummary
+    configured: bool
+    success: bool
+    enable: bool | None = None
+    location: str | None = None
+    raw_settings: dict[str, Any] = Field(default_factory=dict)
+    message: str | None = None
+
+
+class SynologyDsmUserQuotaResponse(HubBaseModel):
+    provider: StorageProviderSummary
+    configured: bool
+    success: bool
+    provider_user_key: str
+    quota_bytes: int | None = None
+    used_bytes: int | None = None
+    desired_quota_bytes: int | None = None
+    effective_quota_bytes: int | None = None
+    provider_reported: bool = False
+    quota_source: str = "provider"
+    entry_count: int = 0
+    raw_quota: dict[str, Any] = Field(default_factory=dict)
+    message: str | None = None
+
+
+class SynologyDsmEnsureUserRequest(HubBaseModel):
+    create_missing: bool = False
+    initial_password: str | None = None
+    display_name: str | None = None
+    email: str | None = None
+    groups: list[str] = Field(default_factory=list)
+
+
+class SynologyQuotaUpdateRequest(HubBaseModel):
+    quota_bytes: int | None = None
+
+
+class SynologyQuotaUpdateResponse(HubBaseModel):
+    account: "UserStorageAccountSummary"
+    provider_user_key: str
+    requested_quota_bytes: int | None = None
+    provider_applied: bool = False
+    method: str | None = None
+    message: str | None = None
+
+
+class SynologyDsmEnsureUserResponse(HubBaseModel):
+    provider: StorageProviderSummary
+    account: "UserStorageAccountSummary"
+    configured: bool
+    success: bool
+    provider_user_key: str
+    exists_before: bool = False
+    created: bool = False
+    creation_method: str | None = None
+    exists_after: bool = False
+    raw_user: dict[str, Any] = Field(default_factory=dict)
+    message: str | None = None
+
+
+class UserStorageAccountSummary(HubBaseModel):
+    id: UUID
+    user: UserSummary
+    provider: StorageProviderSummary
+    provider_user_key: str
+    home_storage_root: StorageRootSummary | None = None
+    home_relative_path: str | None = None
+    quota_bytes: int | None = None
+    quota_status: str
+    provisioning_status: str
+    last_synced_at: datetime | None = None
+    metadata_json: dict[str, Any] = Field(default_factory=dict)
+    created_at: datetime | None = None
+    updated_at: datetime | None = None
+
+
+class UserStorageAccountCreate(HubBaseModel):
+    user_id: UUID
+    provider_key: str
+    provider_user_key: str | None = None
+    home_storage_root_id: int | None = None
+    home_relative_path: str | None = None
+    quota_bytes: int | None = None
+    quota_status: str = "unknown"
+    provisioning_status: str = "planned"
+    metadata_json: dict[str, Any] = Field(default_factory=dict)
+
+
+class UserStorageAccountUpdate(HubBaseModel):
+    provider_user_key: str | None = None
+    home_storage_root_id: int | None = None
+    home_relative_path: str | None = None
+    quota_bytes: int | None = None
+    quota_status: str | None = None
+    provisioning_status: str | None = None
+    metadata_json: dict[str, Any] | None = None
+
+
+class UserHomeProvisionRequest(HubBaseModel):
+    provider_key: str
+    provider_user_key: str | None = None
+    home_storage_root_id: int | None = None
+    home_relative_path: str | None = None
+    quota_bytes: int | None = None
+    create_missing_provider: bool = False
+
+
+class UserHomePrepareRequest(HubBaseModel):
+    create_directories: bool = True
+    subdirectories: list[str] = Field(default_factory=lambda: ["projects", "raw", "artifacts", "exports"])
+    requested_mode: str = "server"
+    priority: int = 80
+
+
+class UserHomePrepareResponse(HubBaseModel):
+    job_id: UUID
+    account: UserStorageAccountSummary
+    detail: str
+
+
+class StorageQuotaSnapshotSummary(HubBaseModel):
+    id: UUID
+    user: UserSummary
+    provider: StorageProviderSummary
+    storage_account: UserStorageAccountSummary | None = None
+    provider_user_key: str
+    quota_bytes: int | None = None
+    provider_used_bytes: int | None = None
+    hub_project_bytes: int = 0
+    hub_raw_bytes: int = 0
+    hub_artifact_bytes: int = 0
+    measured_at: datetime | None = None
+    metadata_json: dict[str, Any] = Field(default_factory=dict)
+
+
+class StorageProvisioningEventSummary(HubBaseModel):
+    id: UUID
+    event_kind: str
+    status: str
+    message: str | None = None
+    metadata_json: dict[str, Any] = Field(default_factory=dict)
+    created_at: datetime | None = None
+    user: UserSummary | None = None
+    provider: StorageProviderSummary | None = None
+    storage_account: UserStorageAccountSummary | None = None
+
+
+class RawDatasetSummary(HubBaseModel):
+    id: UUID
+    external_key: str | None = None
+    microscope_name: str | None = None
+    acquisition_label: str
+    data_format: str = "unknown"
+    visibility: str
+    status: str
+    completeness_status: str
+    lifecycle_tier: str
+    archive_status: str
+    archive_uri: str | None = None
+    archive_compression: str | None = None
+    display_settings_uri: str | None = None
+    archive_file_bytes: int | None = None
+    reclaimable_bytes: int = 0
+    last_accessed_at: datetime | None = None
+    total_bytes: int = 0
+    position_count: int = 0
+    metadata_json: dict[str, Any] = Field(default_factory=dict)
+    owner: UserSummary | None = None
+    created_at: datetime | None = None
+    updated_at: datetime | None = None
+    backup_status: str = "none"
+    backup_excluded: bool = False
+    last_backup_at: datetime | None = None
+    storage_optimization_status: str = "none"
+    storage_optimization_run_id: UUID | None = None
+    storage_optimization_saved_bytes: int = 0
+    storage_optimized_at: datetime | None = None
+
+
+class RawDatasetAcquisitionTemplateSummary(HubBaseModel):
+    id: UUID
+    acquisition_label: str
+    microscope_name: str | None = None
+    data_format: str = "unknown"
+    mda_summary: dict[str, Any] = Field(default_factory=dict)
+    mda_settings_json: dict[str, Any] = Field(default_factory=dict)
+    position_annotations: list[dict[str, Any]] = Field(default_factory=list)
+    labguru: dict[str, Any] = Field(default_factory=dict)
+    metadata_json: dict[str, Any] = Field(default_factory=dict)
+    owner: UserSummary | None = None
+    created_at: datetime | None = None
+    updated_at: datetime | None = None
+
+
+class ProjectLocationSummary(HubBaseModel):
+    id: int
+    relative_path: str
+    project_file_name: str | None = None
+    project_mat_path: str | None = None
+    project_dir_path: str | None = None
+    access_mode: str
+    is_preferred: bool
+    storage_root: StorageRootSummary
+
+
+class ArtifactSummary(HubBaseModel):
+    id: UUID
+    job_id: UUID
+    artifact_kind: str
+    uri: str
+    metadata_json: dict[str, Any] = Field(default_factory=dict)
+    created_at: datetime | None = None
+    job_finished_at: datetime | None = None
+
+
+class RawDatasetPositionSummary(HubBaseModel):
+    id: UUID
+    raw_dataset_id: UUID
+    position_key: str
+    display_name: str
+    description: str | None = None
+    position_index: int | None = None
+    status: str
+    preview_status: str
+    preview_artifact: ArtifactSummary | None = None
+    metadata_json: dict[str, Any] = Field(default_factory=dict)
+    created_at: datetime | None = None
+    updated_at: datetime | None = None
+
+
+class ProjectSummary(HubBaseModel):
+    id: UUID
+    experiment_project_id: UUID | None = None
+    project_key: str | None = None
+    project_name: str
+    status: str
+    health_status: str
+    visibility: str
+    fov_count: int = 0
+    roi_count: int = 0
+    classifier_count: int = 0
+    processor_count: int = 0
+    pipeline_run_count: int = 0
+    available_raw_count: int = 0
+    missing_raw_count: int = 0
+    run_json_count: int = 0
+    h5_count: int = 0
+    h5_bytes: int = 0
+    latest_run_status: str | None = None
+    latest_run_at: datetime | None = None
+    project_mat_bytes: int = 0
+    project_dir_bytes: int = 0
+    estimated_raw_bytes: int = 0
+    total_bytes: int = 0
+    lifecycle_tier: str = "hot"
+    archive_status: str = "none"
+    archive_uri: str | None = None
+    archive_compression: str | None = None
+    metadata_json: dict[str, Any] = Field(default_factory=dict)
+    owner: UserSummary | None = None
+    created_at: datetime | None = None
+    updated_at: datetime | None = None
+    backup_status: str = "none"
+    backup_excluded: bool = False
+    last_backup_at: datetime | None = None
+
+
+class ProjectDetail(ProjectSummary):
+    notes: str | None = None
+    locations: list[ProjectLocationSummary] = Field(default_factory=list)
+    raw_datasets: list[RawDatasetSummary] = Field(default_factory=list)
+    experiment: LinkedExperimentSummary | None = None
+    external_links: list[ExternalLinkSummary] = Field(default_factory=list)
+
+
+class ProjectUpdate(HubBaseModel):
+    owner_user_key: str | None = None
+    notes: str | None = None
+    visibility: str | None = None
+    metadata_json: dict[str, Any] = Field(default_factory=dict)
+
+
+class ProjectPathRegistrationRequest(HubBaseModel):
+    project_name: str | None = None
+    project_mat_path: str
+    project_dir_path: str | None = None
+    root_path: str | None = None
+    storage_root_name: str | None = None
+    host_scope: str = "server"
+    root_type: str = "project_root"
+    owner_user_key: str | None = None
+    visibility: str = "private"
+    metadata_json: dict[str, Any] = Field(default_factory=dict)
+
+
+class ProjectAclSummary(HubBaseModel):
+    id: int
+    access_level: str
+    user: UserSummary
+    created_at: datetime | None = None
+
+
+class ProjectAclCreate(HubBaseModel):
+    user_key: str
+    access_level: str = "viewer"
+
+
+class ProjectDeletionRequest(HubBaseModel):
+    delete_project_files: bool = False
+    delete_linked_raw_data: bool = False
+    confirm: bool = False
+
+
+class ProjectDeletionPreview(HubBaseModel):
+    project_id: UUID
+    project_name: str
+    delete_project_files: bool
+    delete_linked_raw_data: bool
+    reclaimable_bytes: int = 0
+    preview_json: dict[str, Any] = Field(default_factory=dict)
+
+
+class ProjectDeletionResult(HubBaseModel):
+    event_id: UUID
+    project_id: UUID
+    status: str
+    reclaimable_bytes: int = 0
+    result_json: dict[str, Any] = Field(default_factory=dict)
+
+
+class ProjectLockSummary(HubBaseModel):
+    id: UUID
+    project_id: UUID
+    job_id: UUID | None = None
+    owner: UserSummary | None = None
+    lock_kind: str
+    lock_scope: str
+    write_scope: str
+    status: str
+    holder_key: str | None = None
+    holder_host: str | None = None
+    reason: str | None = None
+    metadata_json: dict[str, Any] = Field(default_factory=dict)
+    expires_at: datetime | None = None
+    heartbeat_at: datetime | None = None
+    released_at: datetime | None = None
+    created_at: datetime | None = None
+    updated_at: datetime | None = None
+
+
+class ProjectEditLeaseRequest(HubBaseModel):
+    holder_key: str | None = None
+    holder_host: str | None = None
+    ttl_seconds: int = Field(default=300, ge=30, le=86400)
+    write_scope: str = "project_update"
+    reason: str | None = None
+    metadata_json: dict[str, Any] = Field(default_factory=dict)
+
+
+class ProjectLockStatus(HubBaseModel):
+    project_id: UUID
+    editable: bool
+    mode: str
+    reason: str
+    active_locks: list[ProjectLockSummary] = Field(default_factory=list)
+    active_jobs: list[dict[str, Any]] = Field(default_factory=list)
+
+
+class ProjectGroupSummary(HubBaseModel):
+    id: UUID
+    group_key: str
+    display_name: str
+    description: str | None = None
+    metadata_json: dict[str, Any] = Field(default_factory=dict)
+    owner: UserSummary | None = None
+    created_at: datetime | None = None
+    updated_at: datetime | None = None
+
+
+class ProjectGroupDetail(ProjectGroupSummary):
+    project_count: int = 0
+    projects: list[ProjectSummary] = Field(default_factory=list)
+
+
+class ProjectGroupCreate(HubBaseModel):
+    group_key: str
+    display_name: str
+    description: str | None = None
+    metadata_json: dict[str, Any] = Field(default_factory=dict)
+
+
+class ExperimentProjectSummary(HubBaseModel):
+    id: UUID
+    experiment_key: str | None = None
+    title: str
+    visibility: str
+    status: str
+    summary: str | None = None
+    total_raw_bytes: int = 0
+    total_derived_bytes: int = 0
+    raw_dataset_count: int = 0
+    analysis_project_count: int = 0
+    metadata_json: dict[str, Any] = Field(default_factory=dict)
+    owner: UserSummary | None = None
+    started_at: datetime | None = None
+    ended_at: datetime | None = None
+    last_indexed_at: datetime | None = None
+    created_at: datetime | None = None
+    updated_at: datetime | None = None
+
+
+class PublicationRecordSummary(HubBaseModel):
+    id: UUID
+    system_key: str
+    status: str
+    external_id: str | None = None
+    external_url: str | None = None
+    payload_json: dict[str, Any] = Field(default_factory=dict)
+    error_text: str | None = None
+    last_attempt_at: datetime | None = None
+    created_at: datetime | None = None
+    updated_at: datetime | None = None
+
+
+class ExternalLinkSummary(HubBaseModel):
+    system_key: str
+    status: str
+    external_id: str | None = None
+    external_url: str | None = None
+    title: str | None = None
+    payload_json: dict[str, Any] = Field(default_factory=dict)
+
+
+class LinkedExperimentSummary(ExperimentProjectSummary):
+    publication_records: list[PublicationRecordSummary] = Field(default_factory=list)
+    external_links: list[ExternalLinkSummary] = Field(default_factory=list)
+
+
+class ExternalExperimentRecordSummary(HubBaseModel):
+    id: UUID
+    system_key: str
+    external_id: str
+    title: str
+    external_url: str | None = None
+    owner_name: str | None = None
+    started_at: datetime | None = None
+    updated_external_at: datetime | None = None
+    payload_json: dict[str, Any] = Field(default_factory=dict)
+    last_synced_at: datetime | None = None
+    created_at: datetime | None = None
+    updated_at: datetime | None = None
+
+
+class ExternalUserRecordSummary(HubBaseModel):
+    id: UUID
+    system_key: str
+    external_id: str
+    display_name: str
+    email: str | None = None
+    payload_json: dict[str, Any] = Field(default_factory=dict)
+    matched_user: UserSummary | None = None
+    match_status: str
+    last_synced_at: datetime | None = None
+    created_at: datetime | None = None
+    updated_at: datetime | None = None
+
+
+class ExternalUserCredentialSummary(HubBaseModel):
+    id: UUID | None = None
+    system_key: str
+    credential_kind: str = "api_token"
+    status: str = "missing"
+    expires_at: datetime | None = None
+    last_verified_at: datetime | None = None
+    last_error: str | None = None
+    days_until_expiry: int | None = None
+    created_at: datetime | None = None
+    updated_at: datetime | None = None
+
+
+class ExternalUserCredentialUpsertRequest(HubBaseModel):
+    token: str
+    expires_in_days: int = Field(default=30, ge=1, le=365)
+
+
+class ExternalUserCredentialTestResult(HubBaseModel):
+    system_key: str
+    status: str
+    message: str
+    expires_at: datetime | None = None
+    last_verified_at: datetime | None = None
+
+
+class ExternalContainerSummary(HubBaseModel):
+    external_id: str
+    name: str
+    payload_json: dict[str, Any] = Field(default_factory=dict)
+
+
+class ExternalSystemStatus(HubBaseModel):
+    system_key: str
+    enabled: bool
+    configured: bool
+    experiment_count: int = 0
+    user_count: int = 0
+    linked_experiment_count: int = 0
+    latest_sync_at: datetime | None = None
+
+
+class ExternalSystemSyncRequest(HubBaseModel):
+    priority: int = 100
+
+
+class ExternalSystemSyncQueueResult(HubBaseModel):
+    system_key: str
+    job_id: UUID
+    status: str
+    message: str
+
+
+class ExternalSystemSyncResult(HubBaseModel):
+    system_key: str
+    experiment_count: int = 0
+    user_count: int = 0
+    matched_user_count: int = 0
+    pending_user_count: int = 0
+
+
+class LabguruYeastStrainContext(HubBaseModel):
+    label: str
+    value: str
+
+
+class LabguruStoragePathSegment(HubBaseModel):
+    name: str
+    type: str | None = None
+    url: str | None = None
+
+
+class LabguruYeastStockSummary(HubBaseModel):
+    name: str
+    container_type: str | None = None
+    box_name: str | None = None
+    box_url: str | None = None
+    position: str | None = None
+    owner_name: str | None = None
+    stored_by_name: str | None = None
+    stored_on: date | None = None
+    external_url: str | None = None
+    storage_path: list[LabguruStoragePathSegment] = Field(default_factory=list)
+
+
+class LabguruYeastStrainSummary(HubBaseModel):
+    id: UUID
+    external_id: str
+    name: str
+    sys_id: str | None = None
+    description: str | None = None
+    owner_name: str | None = None
+    external_url: str | None = None
+    genotype: str | None = None
+    auxotrophies: str | None = None
+    mating_type: str | None = None
+    background: str | None = None
+    source: str | None = None
+    stocks: list[LabguruYeastStockSummary] = Field(default_factory=list)
+    search_fields_json: dict[str, str] = Field(default_factory=dict)
+    context: list[LabguruYeastStrainContext] = Field(default_factory=list)
+    payload_json: dict[str, Any] = Field(default_factory=dict)
+    created_external_at: datetime | None = None
+    updated_external_at: datetime | None = None
+    last_synced_at: datetime | None = None
+
+
+class LabguruYeastStrainSearchResponse(HubBaseModel):
+    query: str = ""
+    match: str = "all"
+    scopes: list[str] = Field(default_factory=list)
+    total: int = 0
+    limit: int = 50
+    offset: int = 0
+    results: list[LabguruYeastStrainSummary] = Field(default_factory=list)
+
+
+class LabguruYeastStrainSyncStatus(HubBaseModel):
+    collection_name: str
+    active_count: int = 0
+    latest_sync_at: datetime | None = None
+    job_id: UUID | None = None
+    job_status: str | None = None
+    job_heartbeat_at: datetime | None = None
+    job_progress: dict[str, Any] = Field(default_factory=dict)
+
+
+class RawDatasetExternalLinkRequest(HubBaseModel):
+    system_key: str
+    external_experiment_id: str
+
+
+class RawDatasetExternalLinkResult(HubBaseModel):
+    raw_dataset_id: UUID
+    experiment_project: LinkedExperimentSummary
+    external_link: ExternalLinkSummary
+
+
+class ExternalMatchCandidateSummary(HubBaseModel):
+    id: UUID
+    system_key: str
+    external_id: str
+    score: float
+    candidate_rank: int = 0
+    status: str
+    match_method: str
+    evidence_json: dict[str, Any] = Field(default_factory=dict)
+    raw_dataset: RawDatasetSummary
+    external_experiment: ExternalExperimentRecordSummary
+    reviewed_by: UserSummary | None = None
+    reviewed_at: datetime | None = None
+    created_at: datetime | None = None
+    updated_at: datetime | None = None
+
+
+class ExternalMatchCandidateGenerateRequest(HubBaseModel):
+    max_candidates_per_dataset: int = Field(default=5, ge=1, le=25)
+    min_score: float = Field(default=0.45, ge=0, le=1)
+    limit_raw_datasets: int | None = Field(default=None, ge=1, le=5000)
+    include_linked: bool = False
+    reset_proposed: bool = True
+
+
+class ExternalMatchCandidateGenerateResult(HubBaseModel):
+    system_key: str
+    raw_dataset_count: int = 0
+    external_experiment_count: int = 0
+    candidate_count: int = 0
+    created_count: int = 0
+    updated_count: int = 0
+    preserved_reviewed_count: int = 0
+
+
+class ExternalMatchCandidateReviewRequest(HubBaseModel):
+    action: str
+    note: str | None = None
+
+
+class ExternalMatchCandidateReviewResult(HubBaseModel):
+    candidate: ExternalMatchCandidateSummary
+    linked: bool = False
+    external_link: ExternalLinkSummary | None = None
+    experiment_project: LinkedExperimentSummary | None = None
+
+
+class ExternalMatchCandidateBulkReviewRequest(HubBaseModel):
+    candidate_ids: list[UUID] = Field(default_factory=list, min_length=1, max_length=250)
+    action: str
+    note: str | None = None
+
+
+class ExternalMatchCandidateBulkReviewResult(HubBaseModel):
+    action: str
+    requested_count: int = 0
+    reviewed_count: int = 0
+    linked_count: int = 0
+    results: list[ExternalMatchCandidateReviewResult] = Field(default_factory=list)
+
+
+class StorageLifecycleEventSummary(HubBaseModel):
+    id: UUID
+    event_kind: str
+    from_tier: str | None = None
+    to_tier: str | None = None
+    archive_status: str | None = None
+    reclaimable_bytes: int = 0
+    metadata_json: dict[str, Any] = Field(default_factory=dict)
+    requested_by: UserSummary | None = None
+    created_at: datetime | None = None
+
+
+class ExperimentProjectDetail(ExperimentProjectSummary):
+    raw_datasets: list[RawDatasetSummary] = Field(default_factory=list)
+    analysis_projects: list[ProjectSummary] = Field(default_factory=list)
+    publication_records: list[PublicationRecordSummary] = Field(default_factory=list)
+    external_links: list[ExternalLinkSummary] = Field(default_factory=list)
+
+
+class RawDatasetLocationSummary(HubBaseModel):
+    id: int
+    relative_path: str
+    absolute_path: str | None = None
+    access_mode: str
+    is_preferred: bool
+    storage_root: StorageRootSummary
+
+
+class RawDatasetDetail(RawDatasetSummary):
+    notes: str | None = None
+    locations: list[RawDatasetLocationSummary] = Field(default_factory=list)
+    experiment_ids: list[UUID] = Field(default_factory=list)
+    experiments: list[LinkedExperimentSummary] = Field(default_factory=list)
+    analysis_project_ids: list[UUID] = Field(default_factory=list)
+    analysis_projects: list[ProjectSummary] = Field(default_factory=list)
+    positions: list[RawDatasetPositionSummary] = Field(default_factory=list)
+    lifecycle_events: list[StorageLifecycleEventSummary] = Field(default_factory=list)
+
+
+class RawDatasetUpdate(HubBaseModel):
+    data_format: str | None = None
+    owner_user_key: str | None = None
+    notes: str | None = None
+    visibility: str | None = None
+    lifecycle_tier: str | None = None
+    archive_status: str | None = None
+    archive_uri: str | None = None
+    archive_compression: str | None = None
+    metadata_json: dict[str, Any] | None = None
+
+
+class StorageOptimizationRequest(HubBaseModel):
+    """Admin-confirmed request. Filesystem discovery happens on the worker."""
+
+    codec: str = Field(default="deflate", pattern="^deflate$")
+
+
+class StorageOptimizationBulkRequest(HubBaseModel):
+    raw_dataset_ids: list[UUID] = Field(default_factory=list)
+    codec: str = Field(default="deflate", pattern="^deflate$")
+
+
+class StorageOptimizationBulkSkip(HubBaseModel):
+    raw_dataset_id: UUID
+    acquisition_label: str | None = None
+    reason_code: str
+    reason: str
+
+
+class StorageOptimizationBulkResult(HubBaseModel):
+    requested_count: int = 0
+    queued_count: int = 0
+    skipped_count: int = 0
+    queued_raw_dataset_ids: list[UUID] = Field(default_factory=list)
+    skipped_raw_dataset_ids: list[UUID] = Field(default_factory=list)
+    skipped_details: list[StorageOptimizationBulkSkip] = Field(default_factory=list)
+    message: str
+
+
+class StorageOptimizationRunSummary(HubBaseModel):
+    id: UUID
+    raw_dataset_id: UUID | None = None
+    project_id: UUID | None = None
+    scope_kind: str
+    status: str
+    codec: str
+    source_bytes: int = 0
+    output_bytes: int = 0
+    saved_bytes: int = 0
+    total_files: int = 0
+    completed_files: int = 0
+    failed_files: int = 0
+    created_at: datetime | None = None
+    started_at: datetime | None = None
+    finished_at: datetime | None = None
+    updated_at: datetime | None = None
+
+
+class RawDatasetArchiveRequest(HubBaseModel):
+    archive_uri: str | None = None
+    archive_compression: str | None = None
+    mark_archived: bool | None = None
+
+
+class RawDatasetArchiveDeleteResult(HubBaseModel):
+    raw_dataset_id: UUID
+    deleted: bool = False
+    archive_uri: str | None = None
+    message: str
+
+
+class RawDatasetArchiveBulkDeleteRequest(HubBaseModel):
+    raw_dataset_ids: list[UUID] = Field(default_factory=list)
+
+
+class RawDatasetArchiveBulkDeleteResult(HubBaseModel):
+    requested_count: int = 0
+    deleted_count: int = 0
+    skipped_count: int = 0
+    deleted_raw_dataset_ids: list[UUID] = Field(default_factory=list)
+    skipped_raw_dataset_ids: list[UUID] = Field(default_factory=list)
+    message: str
+
+
+class RawDatasetArchiveBulkRequest(HubBaseModel):
+    raw_dataset_ids: list[UUID] = Field(default_factory=list)
+    archive_uri: str | None = None
+    archive_compression: str | None = None
+    mark_archived: bool | None = None
+
+
+class RawDatasetArchiveBulkSkip(HubBaseModel):
+    raw_dataset_id: UUID
+    acquisition_label: str | None = None
+    reason_code: str
+    reason: str
+
+
+class RawDatasetArchiveBulkResult(HubBaseModel):
+    requested_count: int = 0
+    queued_count: int = 0
+    skipped_count: int = 0
+    queued_raw_dataset_ids: list[UUID] = Field(default_factory=list)
+    skipped_raw_dataset_ids: list[UUID] = Field(default_factory=list)
+    skipped_details: list[RawDatasetArchiveBulkSkip] = Field(default_factory=list)
+    message: str
+
+
+class RawDatasetRestoreBulkRequest(HubBaseModel):
+    raw_dataset_ids: list[UUID] = Field(default_factory=list)
+
+
+class RawDatasetRestoreBulkResult(HubBaseModel):
+    requested_count: int = 0
+    queued_count: int = 0
+    skipped_count: int = 0
+    queued_raw_dataset_ids: list[UUID] = Field(default_factory=list)
+    skipped_raw_dataset_ids: list[UUID] = Field(default_factory=list)
+    message: str
+
+
+class RawDatasetArchivePreview(HubBaseModel):
+    raw_dataset_id: UUID
+    acquisition_label: str
+    current_tier: str
+    target_tier: str
+    reclaimable_bytes: int = 0
+    preview_json: dict[str, Any] = Field(default_factory=dict)
+
+
+class RawDatasetArchivePolicyRequest(HubBaseModel):
+    older_than_days: int = 30
+    min_total_bytes: int = 0
+    limit: int = 25
+    owner_key: str | None = None
+    search: str | None = None
+    lifecycle_tiers: list[str] = Field(default_factory=lambda: ["hot"])
+    archive_statuses: list[str] = Field(
+        default_factory=lambda: ["none", "restored", "archive_failed", "restore_failed"]
+    )
+    archive_uri: str | None = None
+    archive_compression: str | None = None
+    mark_archived: bool | None = None
+
+
+class RawArchiveSettingsConfig(HubBaseModel):
+    archive_root: str | None = None
+    archive_compression: str = "zip"
+    delete_hot_source: bool = False
+
+
+class RawArchiveSettingsStatus(HubBaseModel):
+    config: RawArchiveSettingsConfig
+
+
+class RawArchiveSettingsUpdate(HubBaseModel):
+    archive_root: str | None = None
+    archive_compression: str | None = None
+    delete_hot_source: bool | None = None
+
+
+class RawDatasetArchivePolicyCandidate(HubBaseModel):
+    raw_dataset_id: UUID
+    acquisition_label: str
+    owner: UserSummary | None = None
+    lifecycle_tier: str
+    archive_status: str
+    total_bytes: int = 0
+    reclaimable_bytes: int = 0
+    last_activity_at: datetime | None = None
+    suggested_archive_uri: str | None = None
+    suggested_archive_compression: str | None = None
+
+
+class RawDatasetArchivePolicyPreview(HubBaseModel):
+    generated_at: datetime
+    older_than_days: int
+    min_total_bytes: int = 0
+    candidate_count: int = 0
+    total_candidate_bytes: int = 0
+    total_reclaimable_bytes: int = 0
+    skipped_conflicts: int = 0
+    candidates: list[RawDatasetArchivePolicyCandidate] = Field(default_factory=list)
+
+
+class RawDatasetArchivePolicyQueueResult(HubBaseModel):
+    generated_at: datetime
+    queued_count: int = 0
+    skipped_count: int = 0
+    queued_job_ids: list[UUID] = Field(default_factory=list)
+    raw_dataset_ids: list[UUID] = Field(default_factory=list)
+    message: str
+
+
+class ArchivePolicyAutomaticConfig(HubBaseModel):
+    enabled: bool
+    interval_minutes: int
+    run_as_user_key: str
+    older_than_days: int
+    min_total_bytes: int = 0
+    limit: int = 0
+    owner_key: str | None = None
+    search: str | None = None
+    lifecycle_tiers: list[str] = Field(default_factory=list)
+    archive_statuses: list[str] = Field(default_factory=list)
+    archive_uri: str | None = None
+    archive_compression: str | None = None
+    delete_hot_source: bool = False
+
+
+class ArchivePolicyRunSummary(HubBaseModel):
+    id: UUID
+    trigger_mode: str
+    status: str
+    report_only: bool = False
+    candidate_count: int = 0
+    queued_count: int = 0
+    skipped_count: int = 0
+    total_reclaimable_bytes: int = 0
+    error_text: str | None = None
+    config_json: dict[str, Any] = Field(default_factory=dict)
+    result_json: dict[str, Any] = Field(default_factory=dict)
+    triggered_by: UserSummary | None = None
+    created_at: datetime | None = None
+    started_at: datetime | None = None
+    finished_at: datetime | None = None
+
+
+class ArchivePolicyAutomaticStatus(HubBaseModel):
+    config: ArchivePolicyAutomaticConfig
+    last_run: ArchivePolicyRunSummary | None = None
+    recent_runs: list[ArchivePolicyRunSummary] = Field(default_factory=list)
+
+
+class ArchivePolicyAutomaticRunRequest(HubBaseModel):
+    report_only: bool = True
+
+
+class MicroManagerIngestAutomaticConfig(HubBaseModel):
+    enabled: bool
+    interval_minutes: int
+    run_as_user_key: str
+    landing_root: str | None = None
+    storage_root_name: str | None = None
+    host_scope: str
+    visibility: str
+    settle_seconds: int
+    max_datasets: int
+    grouping_window_hours: int
+    post_ingest_pipeline_key: str | None = None
+    post_ingest_requested_mode: str | None = None
+    post_ingest_priority: int | None = None
+
+
+class MicroManagerLandingRootSummary(HubBaseModel):
+    root_key: str
+    label: str
+    path: str
+    source: str
+    user_key: str | None = None
+    is_default: bool = False
+    exists: bool = False
+    accessible: bool = False
+    status: str = "unknown"
+
+
+class MicroManagerIngestCandidateSummary(HubBaseModel):
+    landing_root_key: str | None = None
+    landing_root: str
+    relative_path: str
+    dataset_path: str
+    acquisition_label: str
+    owner_user_key: str | None = None
+    last_modified_at: datetime | None = None
+    file_count: int = 0
+    completeness_status: str
+    is_ingested: bool = False
+    raw_dataset_id: UUID | None = None
+
+
+class MicroManagerIngestRunSummary(HubBaseModel):
+    id: UUID
+    trigger_mode: str
+    status: str
+    report_only: bool = False
+    candidate_count: int = 0
+    ingested_count: int = 0
+    experiment_count: int = 0
+    skipped_count: int = 0
+    error_text: str | None = None
+    config_json: dict[str, Any] = Field(default_factory=dict)
+    result_json: dict[str, Any] = Field(default_factory=dict)
+    triggered_by: UserSummary | None = None
+    created_at: datetime | None = None
+    started_at: datetime | None = None
+    finished_at: datetime | None = None
+
+
+class MicroManagerIngestAutomaticStatus(HubBaseModel):
+    config: MicroManagerIngestAutomaticConfig
+    checked_at: datetime
+    default_landing_root: MicroManagerLandingRootSummary | None = None
+    landing_roots: list[MicroManagerLandingRootSummary] = Field(default_factory=list)
+    candidate_preview: list[MicroManagerIngestCandidateSummary] = Field(default_factory=list)
+    last_run: MicroManagerIngestRunSummary | None = None
+    recent_runs: list[MicroManagerIngestRunSummary] = Field(default_factory=list)
+
+
+class MicroManagerIngestRunRequest(HubBaseModel):
+    report_only: bool = True
+    landing_root_override: str | None = None
+    storage_root_name_override: str | None = None
+    landing_root_key: str | None = None
+
+
+class AcquisitionSessionSummary(HubBaseModel):
+    id: UUID
+    owner: UserSummary | None = None
+    raw_dataset_id: UUID | None = None
+    experiment_project_id: UUID | None = None
+    session_key: str
+    acquisition_label: str
+    microscope_name: str | None = None
+    status: str
+    landing_storage_root: StorageRootSummary | None = None
+    landing_relative_path: str | None = None
+    local_spool_path: str | None = None
+    transfer_status: str
+    progress_percent: float | None = None
+    metadata_json: dict[str, Any] = Field(default_factory=dict)
+    acquisition_params_json: dict[str, Any] = Field(default_factory=dict)
+    result_json: dict[str, Any] = Field(default_factory=dict)
+    error_text: str | None = None
+    started_at: datetime | None = None
+    completed_at: datetime | None = None
+    last_seen_at: datetime | None = None
+    created_at: datetime | None = None
+    updated_at: datetime | None = None
+
+
+class AcquisitionSessionLabguruExperimentRequest(HubBaseModel):
+    title: str
+    description: str | None = None
+    procedure: str | None = None
+    conditions: str | None = None
+    project_id: str | None = None
+    project_name: str | None = None
+    folder_id: str | None = None
+    folder_name: str | None = None
+    notes: str | None = None
+    metadata_json: dict[str, Any] = Field(default_factory=dict)
+
+
+class AcquisitionSessionLabguruExperimentResult(HubBaseModel):
+    acquisition_session: AcquisitionSessionSummary
+    experiment_project: LinkedExperimentSummary
+    external_link: ExternalLinkSummary
+
+
+class AcquisitionSessionCreate(HubBaseModel):
+    session_key: str | None = None
+    acquisition_label: str
+    microscope_name: str | None = None
+    status: str = "draft"
+    landing_storage_root_name: str | None = None
+    landing_relative_path: str | None = None
+    local_spool_path: str | None = None
+    experiment_project_id: UUID | None = None
+    metadata_json: dict[str, Any] = Field(default_factory=dict)
+    acquisition_params_json: dict[str, Any] = Field(default_factory=dict)
+
+
+class AcquisitionSessionUpdate(HubBaseModel):
+    acquisition_label: str | None = None
+    microscope_name: str | None = None
+    status: str | None = None
+    landing_storage_root_name: str | None = None
+    landing_relative_path: str | None = None
+    local_spool_path: str | None = None
+    experiment_project_id: UUID | None = None
+    raw_dataset_id: UUID | None = None
+    metadata_json: dict[str, Any] | None = None
+    acquisition_params_json: dict[str, Any] | None = None
+
+
+class AcquisitionSessionHeartbeat(HubBaseModel):
+    status: str = "acquiring"
+    progress_percent: float | None = Field(default=None, ge=0, le=100)
+    transfer_status: str | None = None
+    metadata_json: dict[str, Any] | None = None
+    acquisition_params_json: dict[str, Any] | None = None
+    result_json: dict[str, Any] | None = None
+
+
+class AcquisitionSessionComplete(HubBaseModel):
+    status: str = "completed"
+    progress_percent: float | None = Field(default=100, ge=0, le=100)
+    transfer_status: str | None = "completed"
+    raw_dataset_id: UUID | None = None
+    experiment_project_id: UUID | None = None
+    metadata_json: dict[str, Any] | None = None
+    acquisition_params_json: dict[str, Any] | None = None
+    result_json: dict[str, Any] | None = None
+    error_text: str | None = None
+
+
+class ExperimentProjectCreate(HubBaseModel):
+    experiment_key: str | None = None
+    title: str
+    visibility: str = "private"
+    status: str = "indexed"
+    summary: str | None = None
+    metadata_json: dict[str, Any] = Field(default_factory=dict)
+    started_at: datetime | None = None
+    ended_at: datetime | None = None
+    last_indexed_at: datetime | None = None
+
+
+class ExperimentProjectUpdate(HubBaseModel):
+    owner_user_key: str | None = None
+    title: str | None = None
+    visibility: str | None = None
+    status: str | None = None
+    summary: str | None = None
+    metadata_json: dict[str, Any] | None = None
+    started_at: datetime | None = None
+    ended_at: datetime | None = None
+    last_indexed_at: datetime | None = None
+
+
+class StorageMigrationItemSummary(HubBaseModel):
+    id: int
+    item_type: str
+    legacy_path: str
+    legacy_key: str | None = None
+    display_name: str
+    status: str
+    action: str
+    proposed_experiment_key: str | None = None
+    proposed_project_key: str | None = None
+    metadata_json: dict[str, Any] = Field(default_factory=dict)
+    created_at: datetime | None = None
+    updated_at: datetime | None = None
+
+
+class StorageMigrationPlanSummary(HubBaseModel):
+    id: UUID
+    batch_name: str
+    source_kind: str
+    source_path: str
+    storage_root_name: str | None = None
+    host_scope: str
+    root_type: str
+    strategy: str
+    status: str
+    owner: UserSummary | None = None
+    summary_json: dict[str, Any] = Field(default_factory=dict)
+    metadata_json: dict[str, Any] = Field(default_factory=dict)
+    created_at: datetime | None = None
+    updated_at: datetime | None = None
+
+
+class StorageMigrationPlanDetail(StorageMigrationPlanSummary):
+    items: list[StorageMigrationItemSummary] = Field(default_factory=list)
+
+
+class StorageMigrationPlanCreate(HubBaseModel):
+    batch_name: str
+    source_kind: str
+    source_path: str
+    storage_root_name: str | None = None
+    host_scope: str = "server"
+    root_type: str = "legacy_root"
+    strategy: str = "discover_only"
+    max_items: int = 200
+    metadata_json: dict[str, Any] = Field(default_factory=dict)
+
+
+class StorageMigrationItemUpdate(HubBaseModel):
+    status: str | None = None
+    action: str | None = None
+    proposed_experiment_key: str | None = None
+    proposed_project_key: str | None = None
+    metadata_json: dict[str, Any] | None = None
+
+
+class StorageMigrationAttachExistingRequest(HubBaseModel):
+    experiment_key: str
+
+
+class StorageMigrationExecuteResponse(HubBaseModel):
+    plan_id: UUID
+    processed_items: int
+    experiment_ids: list[UUID] = Field(default_factory=list)
+    message: str
+
+
+class JobCreateRequest(HubBaseModel):
+    project_id: UUID | None = None
+    raw_dataset_id: UUID | None = None
+    pipeline_id: UUID | None = None
+    execution_target_id: UUID | None = None
+    requested_mode: str = "auto"
+    priority: int = 100
+    requested_by: str | None = None
+    requested_from_host: str | None = None
+    params_json: dict[str, Any] = Field(default_factory=dict)
+
+
+class JobSummary(HubBaseModel):
+    id: UUID
+    project_id: UUID | None = None
+    raw_dataset_id: UUID | None = None
+    pipeline_id: UUID | None = None
+    execution_target_id: UUID | None = None
+    requested_mode: str
+    resolved_mode: str | None = None
+    status: str
+    priority: int
+    requested_by: str | None = None
+    requested_from_host: str | None = None
+    params_json: dict[str, Any] = Field(default_factory=dict)
+    result_json: dict[str, Any] = Field(default_factory=dict)
+    error_text: str | None = None
+    created_at: datetime | None = None
+    started_at: datetime | None = None
+    heartbeat_at: datetime | None = None
+    finished_at: datetime | None = None
+    force_stop_requested_at: datetime | None = None
+    force_stop_requested_by: str | None = None
+    force_stop_requested_by_user_id: UUID | None = None
+    force_stopped_at: datetime | None = None
+    updated_at: datetime | None = None
+
+
+class RawPreviewVideoQueueRequest(HubBaseModel):
+    position_id: UUID | None = None
+    position_key: str | None = None
+    force: bool = False
+    requested_mode: str = "auto"
+    priority: int = 100
+    params_json: dict[str, Any] = Field(default_factory=dict)
+
+
+class RawPreviewVideoQueueResult(HubBaseModel):
+    raw_dataset_id: UUID
+    position_id: UUID | None = None
+    position_key: str | None = None
+    job: JobSummary
+    message: str
+
+
+class RawPreviewVideoBulkQueueRequest(HubBaseModel):
+    raw_dataset_ids: list[UUID] = Field(default_factory=list)
+    force: bool = False
+    requested_mode: str = "auto"
+    priority: int = 100
+    params_json: dict[str, Any] = Field(default_factory=dict)
+
+
+class RawPreviewVideoBulkQueueResult(HubBaseModel):
+    raw_dataset_count: int = 0
+    queued_count: int = 0
+    skipped_count: int = 0
+    raw_dataset_ids: list[UUID] = Field(default_factory=list)
+    queued_job_ids: list[UUID] = Field(default_factory=list)
+    skipped_raw_dataset_ids: list[UUID] = Field(default_factory=list)
+    message: str
+
+
+class RawPreviewQualityConfig(HubBaseModel):
+    fps: int
+    frame_mode: str
+    max_frames: int
+    max_dimension: int
+    binning_factor: int
+    crf: int
+    preset: str
+    include_existing: bool
+    artifact_root: str | None = None
+    ffmpeg_command: str | None = None
+
+
+class RawPreviewQualityUpdate(HubBaseModel):
+    fps: int | None = None
+    frame_mode: str | None = None
+    max_frames: int | None = None
+    max_dimension: int | None = None
+    binning_factor: int | None = None
+    crf: int | None = None
+    preset: str | None = None
+    include_existing: bool | None = None
+    artifact_root: str | None = None
+    ffmpeg_command: str | None = None
+
+
+class RawPreviewQualitySummary(HubBaseModel):
+    sample_count: int = 0
+    avg_width: float | None = None
+    avg_height: float | None = None
+    avg_fps: float | None = None
+    avg_bitrate_kbps: float | None = None
+
+
+class RawPreviewQualitySample(HubBaseModel):
+    artifact_id: UUID
+    created_at: datetime | None = None
+    raw_dataset_id: UUID | None = None
+    acquisition_label: str | None = None
+    position_key: str | None = None
+    width: int | None = None
+    height: int | None = None
+    fps: int | None = None
+    frame_mode: str | None = None
+    max_frames: int | None = None
+    max_dimension: int | None = None
+    binning_factor: int | None = None
+    crf: int | None = None
+    preset: str | None = None
+    frame_count: int | None = None
+    duration_seconds: float | None = None
+    file_size_bytes: int | None = None
+    bitrate_kbps: float | None = None
+
+
+class RawPreviewQualityStatus(HubBaseModel):
+    config: RawPreviewQualityConfig
+    summary: RawPreviewQualitySummary
+    recent_samples: list[RawPreviewQualitySample] = Field(default_factory=list)
+
+
+class ProjectRawPreviewQueueRequest(HubBaseModel):
+    force: bool = False
+    requested_mode: str = "auto"
+    priority: int = 100
+    params_json: dict[str, Any] = Field(default_factory=dict)
+
+
+class ProjectRawPreviewQueueResult(HubBaseModel):
+    project_id: UUID
+    queued_count: int = 0
+    skipped_count: int = 0
+    raw_dataset_ids: list[UUID] = Field(default_factory=list)
+    queued_job_ids: list[UUID] = Field(default_factory=list)
+    message: str
+
+
+class ProjectRawPreviewBulkQueueRequest(HubBaseModel):
+    project_ids: list[UUID] = Field(default_factory=list)
+    force: bool = False
+    requested_mode: str = "auto"
+    priority: int = 100
+    params_json: dict[str, Any] = Field(default_factory=dict)
+
+
+class ProjectRawPreviewBulkQueueResult(HubBaseModel):
+    project_count: int = 0
+    queued_count: int = 0
+    skipped_count: int = 0
+    raw_dataset_ids: list[UUID] = Field(default_factory=list)
+    queued_job_ids: list[UUID] = Field(default_factory=list)
+    skipped_project_ids: list[UUID] = Field(default_factory=list)
+    message: str
+
+
+class RawDatasetDeletionRequest(HubBaseModel):
+    delete_source_files: bool = False
+    delete_linked_projects: bool = False
+    delete_linked_project_files: bool = False
+    confirm: bool = False
+
+
+class RawDatasetDeletionPreview(HubBaseModel):
+    raw_dataset_id: UUID
+    acquisition_label: str
+    delete_source_files: bool
+    delete_linked_projects: bool
+    delete_linked_project_files: bool
+    reclaimable_bytes: int = 0
+    preview_json: dict[str, Any] = Field(default_factory=dict)
+
+
+class RawDatasetDeletionResult(HubBaseModel):
+    raw_dataset_id: UUID
+    status: str
+    reclaimable_bytes: int = 0
+    result_json: dict[str, Any] = Field(default_factory=dict)
+
+
+class RawDatasetPositionDeletionRequest(HubBaseModel):
+    position_ids: list[UUID] = Field(default_factory=list)
+    confirm: bool = False
+
+
+class RawDatasetPositionDeletionPreview(HubBaseModel):
+    raw_dataset_id: UUID
+    acquisition_label: str
+    position_count: int = 0
+    reclaimable_bytes: int = 0
+    preview_json: dict[str, Any] = Field(default_factory=dict)
+
+
+class RawDatasetPositionDeletionResult(HubBaseModel):
+    raw_dataset_id: UUID
+    status: str
+    position_count: int = 0
+    reclaimable_bytes: int = 0
+    result_json: dict[str, Any] = Field(default_factory=dict)
+
+
+class PipelineRunCreateRequest(HubBaseModel):
+    project_id: UUID | None = None
+    pipeline_id: UUID | None = None
+    execution_target_id: UUID | None = None
+    requested_mode: str = "auto"
+    priority: int = 10
+    requested_by: str | None = None
+    requested_from_host: str | None = None
+    project_ref: dict[str, Any] = Field(default_factory=dict)
+    pipeline_ref: dict[str, Any] = Field(default_factory=dict)
+    run_request: dict[str, Any] = Field(default_factory=dict)
+    execution: dict[str, Any] = Field(default_factory=dict)
+    client_context: dict[str, Any] = Field(default_factory=dict)
+
+
+class PipelineRunSummary(JobSummary):
+    pass
+
+
+class PipelineRunPreflightIssue(HubBaseModel):
+    severity: str
+    code: str
+    message: str
+    details: dict[str, Any] = Field(default_factory=dict)
+
+
+class PipelineRunPreflightResult(HubBaseModel):
+    can_submit: bool
+    project_id: UUID | None = None
+    pipeline_id: UUID | None = None
+    execution_target_id: UUID | None = None
+    normalized_payload: dict[str, Any] = Field(default_factory=dict)
+    issues: list[PipelineRunPreflightIssue] = Field(default_factory=list)
+
+
+class PipelineRunUpdateRequest(HubBaseModel):
+    project_id: UUID | None = None
+    pipeline_id: UUID | None = None
+    execution_target_id: UUID | None = None
+    requested_mode: str | None = None
+    priority: int | None = None
+    requested_by: str | None = None
+    requested_from_host: str | None = None
+    project_ref: dict[str, Any] | None = None
+    pipeline_ref: dict[str, Any] | None = None
+    run_request: dict[str, Any] | None = None
+    execution: dict[str, Any] | None = None
+    client_context: dict[str, Any] | None = None
+
+
+class ExecutionTargetSummary(HubBaseModel):
+    id: UUID
+    target_key: str | None = None
+    display_name: str
+    target_kind: str
+    host_name: str | None = None
+    supports_gpu: bool
+    supports_matlab: bool
+    supports_python: bool
+    status: str
+    metadata_json: dict[str, Any] = Field(default_factory=dict)
+
+
+class ExecutionTargetCreate(HubBaseModel):
+    target_key: str | None = None
+    display_name: str
+    target_kind: str
+    host_name: str | None = None
+    supports_gpu: bool = False
+    supports_matlab: bool = False
+    supports_python: bool = True
+    status: str = "online"
+    metadata_json: dict[str, Any] = Field(default_factory=dict)
+
+
+class ExecutionTargetUpdate(HubBaseModel):
+    display_name: str | None = None
+    target_kind: str | None = None
+    host_name: str | None = None
+    supports_gpu: bool | None = None
+    supports_matlab: bool | None = None
+    supports_python: bool | None = None
+    status: str | None = None
+    metadata_json: dict[str, Any] | None = None
+
+
+class ExecutionTargetWorkerScaleRequest(HubBaseModel):
+    worker_instances: int = Field(default=1, ge=1)
+
+
+class ExecutionTargetWorkerScaleResponse(HubBaseModel):
+    target_id: UUID
+    display_name: str
+    worker_instances_requested: int
+    message: str
+    metadata_json: dict[str, Any] = Field(default_factory=dict)
+
+
+class PipelineSummary(HubBaseModel):
+    id: UUID
+    pipeline_key: str | None = None
+    display_name: str
+    version: str
+    runtime_kind: str
+    metadata_json: dict[str, Any] = Field(default_factory=dict)
+    created_at: datetime | None = None
+    updated_at: datetime | None = None
+
+
+class ObservedPipelineSummary(HubBaseModel):
+    identity: str
+    display_name: str
+    pipeline_key: str | None = None
+    runtime_kind: str = "matlab"
+    source: str
+    project_count: int = 0
+    run_count: int = 0
+    latest_run_status: str | None = None
+    latest_run_at: datetime | None = None
+    project_names: list[str] = Field(default_factory=list)
+    metadata_json: dict[str, Any] = Field(default_factory=dict)
+
+
+class PipelineCreate(HubBaseModel):
+    pipeline_key: str | None = None
+    display_name: str
+    version: str = "1.0"
+    runtime_kind: str = "matlab"
+    metadata_json: dict[str, Any] = Field(default_factory=dict)
+
+
+class PipelineUpdate(HubBaseModel):
+    display_name: str | None = None
+    version: str | None = None
+    runtime_kind: str | None = None
+    metadata_json: dict[str, Any] | None = None
+
+
+class IndexRequest(HubBaseModel):
+    source_kind: str = "project_root"
+    source_path: str
+    storage_root_name: str | None = None
+    host_scope: str = "server"
+    root_type: str = "project_root"
+    owner_user_key: str | None = None
+    visibility: str = "private"
+    clear_existing_for_root: bool = False
+    scan_orphan_raw: bool = True
+    queue_previews: bool = True
+    requested_by: str | None = None
+    execution_target_id: UUID | None = None
+    execution_target_key: str | None = None
+    metadata_json: dict[str, Any] = Field(default_factory=dict)
+
+
+class IndexJobSummary(HubBaseModel):
+    id: UUID
+    source_kind: str
+    source_path: str
+    storage_root_name: str | None = None
+    host_scope: str
+    root_type: str
+    visibility: str
+    clear_existing_for_root: bool = False
+    status: str
+    phase: str = "queued"
+    total_projects: int = 0
+    scanned_projects: int = 0
+    indexed_projects: int = 0
+    failed_projects: int = 0
+    deleted_projects: int = 0
+    mat_files_seen: int = 0
+    current_project_path: str | None = None
+    message: str | None = None
+    error_text: str | None = None
+    owner: UserSummary | None = None
+    requested_by: UserSummary | None = None
+    created_at: datetime | None = None
+    started_at: datetime | None = None
+    heartbeat_at: datetime | None = None
+    finished_at: datetime | None = None
+    updated_at: datetime | None = None
+
+
+class IndexJobDetail(IndexJobSummary):
+    metadata_json: dict[str, Any] = Field(default_factory=dict)
+    result_json: dict[str, Any] = Field(default_factory=dict)
+
+
+class IndexJobLaunchResponse(HubBaseModel):
+    status: str
+    launch_mode: str
+    job: IndexJobSummary
+    message: str
+
+
+class IndexJobCleanupResponse(HubBaseModel):
+    deleted_count: int
+    message: str
+
+
+class IndexResponse(HubBaseModel):
+    status: str
+    source_kind: str
+    source_path: str
+    storage_root_name: str
+    owner_user_key: str
+    visibility: str
+    scanned_projects: int
+    indexed_projects: int
+    failed_projects: int = 0
+    deleted_projects: int = 0
+    total_projects: int = 0
+    indexed_pipelines: int = 0
+    failed_pipelines: int = 0
+    stale_cleanup_skipped: bool = False
+    indexed_raw_datasets: int = 0
+    failed_raw_datasets: int = 0
+    queued_previews: int = 0
+    message: str
+
+
+class DashboardHealthBucket(HubBaseModel):
+    health_status: str
+    project_count: int
+    total_bytes: int = 0
+
+
+class DashboardJobItem(HubBaseModel):
+    id: UUID
+    status: str
+    job_kind: str
+    resource_name: str | None = None
+    project_id: UUID | None = None
+    raw_dataset_id: UUID | None = None
+    requested_mode: str
+    created_at: datetime | None = None
+    started_at: datetime | None = None
+    finished_at: datetime | None = None
+    updated_at: datetime | None = None
+    error_text: str | None = None
+
+
+class DashboardAcquisitionItem(AcquisitionSessionSummary):
+    mda_progress: Any | None = None
+
+
+class DashboardActivity(HubBaseModel):
+    active_jobs: list[DashboardJobItem] = Field(default_factory=list)
+    recent_jobs: list[DashboardJobItem] = Field(default_factory=list)
+    active_acquisitions: list[AcquisitionSessionSummary] = Field(default_factory=list)
+    recent_failed_acquisitions: list[DashboardAcquisitionItem] = Field(default_factory=list)
+
+
+class DashboardSummary(HubBaseModel):
+    user: UserSummary
+    total_projects: int = 0
+    owned_projects: int = 0
+    shared_projects: int = 0
+    public_projects: int = 0
+    total_bytes: int = 0
+    owned_bytes: int = 0
+    note_count: int = 0
+    group_count: int = 0
+    deleted_projects: int = 0
+    health: list[DashboardHealthBucket] = Field(default_factory=list)
+
+
+class AssistantStatusResponse(HubBaseModel):
+    enabled: bool
+    configured: bool
+    running: bool = False
+    desired_state: Literal["running", "stopped"] = "running"
+    control_pending: bool = False
+    can_control: bool = False
+    model: str | None = None
+    message: str
+
+
+class AssistantControlRequest(HubBaseModel):
+    action: Literal["start", "stop"]
+
+
+class AssistantChatRequest(HubBaseModel):
+    message: str = Field(min_length=1, max_length=12000)
+    mode: str = Field(default="chat", pattern="^(chat|translation)$")
+
+
+class AssistantChatResponse(HubBaseModel):
+    answer: str
+    model: str

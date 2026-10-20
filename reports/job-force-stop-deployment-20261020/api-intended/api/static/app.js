@@ -1,0 +1,10384 @@
+const state = {
+  userKey: localStorage.getItem("detecdivHub.userKey") || "",
+  sessionToken: localStorage.getItem("detecdivHub.sessionToken") || "",
+  sessionExpiresAt: localStorage.getItem("detecdivHub.sessionExpiresAt") || "",
+  authMode: "",
+  currentUser: null,
+  projects: [],
+  projectPageSize: 50,
+  projectCurrentPage: 0,
+  projectSort: { key: "", direction: "asc" },
+  groups: [],
+  storageRoots: [],
+  indexBrowse: null,
+  pipelines: [],
+  observedPipelines: [],
+  executionTargets: [],
+  jobs: [],
+  jobPrioritySettings: null,
+  jobPrioritySettingsDirty: false,
+  pipelineRuns: [],
+  pipelineRunPageSize: 10,
+  pipelineRunCurrentPage: 0,
+  sessions: [],
+  users: [],
+  indexingJobs: [],
+  rawDatasets: [],
+  rawDatasetsLastRefreshAt: 0,
+  rawDatasetPageSize: 50,
+  rawDatasetCurrentPage: 0,
+  rawDatasetSort: { key: "", direction: "asc" },
+  persistedRawDatasetId: "",
+  selectedRawDataset: null,
+  selectedRawDatasetDetail: null,
+  selectedRawPositionId: null,
+  selectedRawPositionIds: [],
+  selectedRawDatasetIds: [],
+  pendingRawBulkDelete: null,
+  rawDatasetDeletionStatusById: {},
+  rawBulkDeletePreviewToken: 0,
+  pendingRawBulkArchive: null,
+  pendingRawBulkRestore: null,
+  pendingRawPositionDelete: null,
+  rawPositionDeletePreviewToken: 0,
+  rawPreviewQualityStatus: null,
+  rawLabguruResults: [],
+  externalMatchStatus: null,
+  externalMatchCandidates: [],
+  selectedExternalMatchCandidateIds: [],
+  externalUsers: [],
+  externalCredential: null,
+  yeastStrains: [],
+  yeastStrainStatus: null,
+  yeastStrainSearchSequence: 0,
+  yeastStrainSearchMeta: { total: 0, limit: 50, offset: 0 },
+  archiveSettingsStatus: null,
+  archivePolicyPreview: null,
+  automaticArchivePolicyStatus: null,
+  micromanagerIngestStatus: null,
+  migrationPlans: [],
+  miscStorageItems: [],
+  selectedMigrationPlan: null,
+  selectedProject: null,
+  selectedProjectDetail: null,
+  selectedProjectIds: [],
+  selectedPipeline: null,
+  selectedPipelineRun: null,
+  selectedExecutionTarget: null,
+  editingExecutionTarget: null,
+  pendingBulkDelete: null,
+  bulkDeletePreviewToken: 0,
+  acl: [],
+  summary: null,
+};
+
+const RAW_DATASETS_POLL_INTERVAL_MS = 15_000;
+const DISK_SPACE_POLL_INTERVAL_MS = 60_000;
+const MICROMANAGER_INGEST_REPORT_ONLY_STORAGE_KEY = "detecdivHub.micromanagerIngest.reportOnly";
+const MICROMANAGER_INGEST_ROOT_MODE_STORAGE_KEY = "detecdivHub.micromanagerIngest.rootMode";
+const RAW_DATASETS_DISPLAY_STORAGE_KEY = "detecdivHub.rawDatasets.displaySettings.v1";
+
+const els = {
+  loginPanel: document.querySelector("#login-panel"),
+  loginUserKey: document.querySelector("#login-user-key"),
+  loginPassword: document.querySelector("#login-password"),
+  loginButton: document.querySelector("#login-button"),
+  sessionLabel: document.querySelector("#session-label"),
+  sessionBox: document.querySelector(".session-box"),
+  logoutButton: document.querySelector("#logout-button"),
+  changePasswordButton: document.querySelector("#change-password-button"),
+  adminNavLinks: document.querySelectorAll(".admin-nav-link"),
+  adminContent: document.querySelector("#admin-content"),
+  adminDeniedPanel: document.querySelector("#admin-denied-panel"),
+  projectPageTitle: document.querySelector("#project-page-title"),
+  projectSearch: document.querySelector("#project-search"),
+  ownerFilter: document.querySelector("#owner-filter"),
+  storageRootFilter: document.querySelector("#storage-root-filter"),
+  projectLimit: document.querySelector("#project-limit"),
+  groupFilter: document.querySelector("#group-filter"),
+  ownedOnly: document.querySelector("#owned-only"),
+  refreshButton: document.querySelector("#refresh-button"),
+  newGroupButton: document.querySelector("#new-group-button"),
+  projectSelectAll: document.querySelector("#project-select-all"),
+  projectSelectionSummary: document.querySelector("#project-selection-summary"),
+  selectVisibleButton: document.querySelector("#select-visible-button"),
+  clearSelectionButton: document.querySelector("#clear-selection-button"),
+  bulkQueuePreviewsSelectedButton: document.querySelector("#bulk-queue-previews-selected-button"),
+  bulkDeleteSelectedButton: document.querySelector("#bulk-delete-selected-button"),
+  projectsTableBody: document.querySelector("#projects-table tbody"),
+  projectCountLabel: document.querySelector("#project-count-label"),
+  userLabel: document.querySelector("#user-label"),
+  summaryTotalProjects: document.querySelector("#summary-total-projects"),
+  summaryOwnedProjects: document.querySelector("#summary-owned-projects"),
+  summaryTotalBytes: document.querySelector("#summary-total-bytes"),
+  summaryGroupCount: document.querySelector("#summary-group-count"),
+  dashboardActiveJobCount: document.querySelector("#dashboard-active-job-count"),
+  dashboardRecentJobCount: document.querySelector("#dashboard-recent-job-count"),
+  dashboardAcquisitionCount: document.querySelector("#dashboard-acquisition-count"),
+  dashboardProjectCount: document.querySelector("#dashboard-project-count"),
+  dashboardActiveJobsBody: document.querySelector("#dashboard-active-jobs-table tbody"),
+  dashboardRecentJobsBody: document.querySelector("#dashboard-recent-jobs-table tbody"),
+  dashboardAcquisitionsBody: document.querySelector("#dashboard-acquisitions-table tbody"),
+  dashboardFailedAcquisitionsBody: document.querySelector("#dashboard-failed-acquisitions-table tbody"),
+  dashboardActiveJobsEmpty: document.querySelector("#dashboard-active-jobs-empty"),
+  dashboardRecentJobsEmpty: document.querySelector("#dashboard-recent-jobs-empty"),
+  dashboardAcquisitionsEmpty: document.querySelector("#dashboard-acquisitions-empty"),
+  dashboardFailedAcquisitionsEmpty: document.querySelector("#dashboard-failed-acquisitions-empty"),
+  detailEmpty: document.querySelector("#detail-empty"),
+  detailContent: document.querySelector("#detail-content"),
+  detailSubtitle: document.querySelector("#detail-subtitle"),
+  detailList: document.querySelector("#detail-list"),
+  projectNotes: document.querySelector("#project-notes"),
+  projectNotesSaveButton: document.querySelector("#project-notes-save-button"),
+  aclList: document.querySelector("#acl-list"),
+  projectRawDatasetsList: document.querySelector("#project-raw-datasets-list"),
+  projectExternalElnList: document.querySelector("#project-external-eln-list"),
+  projectQueueRawPreviewsButton: document.querySelector("#project-queue-raw-previews-button"),
+  shareButton: document.querySelector("#share-button"),
+  editProjectButton: document.querySelector("#edit-project-button"),
+  updateProjectButton: document.querySelector("#update-project-button"),
+  changeProjectOwnerButton: document.querySelector("#change-project-owner-button"),
+  projectBackupStatus: document.querySelector("#project-backup-status"),
+  projectLastBackupAt: document.querySelector("#project-last-backup-at"),
+  projectBackupExcluded: document.querySelector("#project-backup-excluded"),
+  projectBackupNowButton: document.querySelector("#project-backup-now-button"),
+  projectBackupFeedback: document.querySelector("#project-backup-feedback"),
+  projectSnapshotsLoadButton: document.querySelector("#project-snapshots-load-button"),
+  projectSnapshotsList: document.querySelector("#project-snapshots-list"),
+  projectRestorePanel: document.querySelector("#project-restore-panel"),
+  projectRestoreSnapshotLabel: document.querySelector("#project-restore-snapshot-label"),
+  projectRestoreTargetDir: document.querySelector("#project-restore-target-dir"),
+  projectRestoreConfirmButton: document.querySelector("#project-restore-confirm-button"),
+  projectFileBrowser: document.querySelector("#project-file-browser"),
+  projectBrowserBreadcrumb: document.querySelector("#project-browser-breadcrumb"),
+  projectBrowserStatus: document.querySelector("#project-browser-status"),
+  projectBrowserList: document.querySelector("#project-browser-list"),
+  projectBrowserRestorePanel: document.querySelector("#project-browser-restore-panel"),
+  projectBrowserTargetDir: document.querySelector("#project-browser-target-dir"),
+  projectBrowserRestoreButton: document.querySelector("#project-browser-restore-button"),
+  projectBrowserRestoreCancelButton: document.querySelector("#project-browser-restore-cancel-button"),
+  projectBrowserUpButton: document.querySelector("#project-browser-up-button"),
+  projectBrowserCloseButton: document.querySelector("#project-browser-close-button"),
+  projectRestoreCancelButton: document.querySelector("#project-restore-cancel-button"),
+  addToGroupButton: document.querySelector("#add-to-group-button"),
+  previewDeleteButton: document.querySelector("#preview-delete-button"),
+  bulkDeletePanel: document.querySelector("#bulk-delete-panel"),
+  bulkDeleteSummary: document.querySelector("#bulk-delete-summary"),
+  bulkDeleteMode: document.querySelector("#bulk-delete-mode"),
+  bulkDeleteConfirmText: document.querySelector("#bulk-delete-confirm-text"),
+  bulkDeleteCancelButton: document.querySelector("#bulk-delete-cancel-button"),
+  bulkDeleteConfirmButton: document.querySelector("#bulk-delete-confirm-button"),
+  indexSourcePath: document.querySelector("#index-source-path"),
+  indexStorageRootName: document.querySelector("#index-storage-root-name"),
+  indexOwnerUserKey: document.querySelector("#index-owner-user-key"),
+  indexVisibility: document.querySelector("#index-visibility"),
+  indexClearExisting: document.querySelector("#index-clear-existing"),
+  indexScanOrphanRaw: document.querySelector("#index-scan-orphan-raw"),
+  indexQueuePreviews: document.querySelector("#index-queue-previews"),
+  indexBrowseRoot: document.querySelector("#index-browse-root"),
+  indexBrowseOpenButton: document.querySelector("#index-browse-open-button"),
+  indexBrowseUpButton: document.querySelector("#index-browse-up-button"),
+  indexBrowseUseButton: document.querySelector("#index-browse-use-button"),
+  indexBrowseCurrent: document.querySelector("#index-browse-current"),
+  indexBrowseCurrentText: document.querySelector("#index-browse-current-text"),
+  indexBrowseTableBody: document.querySelector("#index-browse-table tbody"),
+  indexButton: document.querySelector("#index-button"),
+  indexJobsRefreshButton: document.querySelector("#index-jobs-refresh-button"),
+  indexJobsClearStaleButton: document.querySelector("#index-jobs-clear-stale-button"),
+  activeIndexJob: document.querySelector("#active-index-job"),
+  indexJobsTableBody: document.querySelector("#index-jobs-table tbody"),
+  rawSearch: document.querySelector("#raw-search"),
+  rawOwnerFilter: document.querySelector("#raw-owner-filter"),
+  rawTierFilter: document.querySelector("#raw-tier-filter"),
+  rawArchiveStatusFilter: document.querySelector("#raw-archive-status-filter"),
+  rawLimit: document.querySelector("#raw-limit"),
+  rawOwnedOnly: document.querySelector("#raw-owned-only"),
+  rawSelectAll: document.querySelector("#raw-select-all"),
+  rawSelectionSummary: document.querySelector("#raw-selection-summary"),
+  rawSelectVisibleButton: document.querySelector("#raw-select-visible-button"),
+  rawClearSelectionButton: document.querySelector("#raw-clear-selection-button"),
+  rawClearDisplaySettingsButton: document.querySelector("#raw-clear-display-settings-button"),
+  rawBulkQueuePreviewsSelectedButton: document.querySelector("#raw-bulk-queue-previews-selected-button"),
+  rawBulkDeleteSelectedButton: document.querySelector("#raw-bulk-delete-selected-button"),
+  rawBulkOptimizeSelectedButton: document.querySelector("#raw-bulk-optimize-selected-button"),
+  rawBulkDeletePanel: document.querySelector("#raw-bulk-delete-panel"),
+  rawBulkDeleteSummary: document.querySelector("#raw-bulk-delete-summary"),
+  rawBulkDeleteMode: document.querySelector("#raw-bulk-delete-mode"),
+  rawBulkDeleteLinkedProjects: document.querySelector("#raw-bulk-delete-linked-projects"),
+  rawBulkDeleteLinkedProjectFiles: document.querySelector("#raw-bulk-delete-linked-project-files"),
+  rawBulkDeleteConfirmText: document.querySelector("#raw-bulk-delete-confirm-text"),
+  rawBulkDeleteCancelButton: document.querySelector("#raw-bulk-delete-cancel-button"),
+  rawBulkDeleteConfirmButton: document.querySelector("#raw-bulk-delete-confirm-button"),
+  rawBulkArchiveSelectedButton: document.querySelector("#raw-bulk-archive-selected-button"),
+  rawBulkRestoreSelectedButton: document.querySelector("#raw-bulk-restore-selected-button"),
+  rawBulkRestoreVisibleButton: document.querySelector("#raw-bulk-restore-visible-button"),
+  rawBulkRestorePanel: document.querySelector("#raw-bulk-restore-panel"),
+  rawBulkRestoreSummary: document.querySelector("#raw-bulk-restore-summary"),
+  rawBulkRestoreCancelButton: document.querySelector("#raw-bulk-restore-cancel-button"),
+  rawBulkRestoreConfirmButton: document.querySelector("#raw-bulk-restore-confirm-button"),
+  rawPositionSelectAll: document.querySelector("#raw-position-select-all"),
+  rawPositionSelectionSummary: document.querySelector("#raw-position-selection-summary"),
+  rawPositionClearSelectionButton: document.querySelector("#raw-position-clear-selection-button"),
+  rawPositionDeleteSelectedButton: document.querySelector("#raw-position-delete-selected-button"),
+  rawPositionDeletePanel: document.querySelector("#raw-position-delete-panel"),
+  rawPositionDeleteSummary: document.querySelector("#raw-position-delete-summary"),
+  rawPositionDeleteConfirmText: document.querySelector("#raw-position-delete-confirm-text"),
+  rawPositionDeleteCancelButton: document.querySelector("#raw-position-delete-cancel-button"),
+  rawPositionDeleteConfirmButton: document.querySelector("#raw-position-delete-confirm-button"),
+  rawDatasetsTableBody: document.querySelector("#raw-datasets-table tbody"),
+  rawCountLabel: document.querySelector("#raw-count-label"),
+  rawDetailEmpty: document.querySelector("#raw-detail-empty"),
+  rawDetailContent: document.querySelector("#raw-detail-content"),
+  rawDetailSubtitle: document.querySelector("#raw-detail-subtitle"),
+  rawDetailList: document.querySelector("#raw-detail-list"),
+  rawDatasetNotes: document.querySelector("#raw-dataset-notes"),
+  rawDatasetNotesSaveButton: document.querySelector("#raw-dataset-notes-save-button"),
+  changeRawOwnerButton: document.querySelector("#change-raw-owner-button"),
+  rawLocationsList: document.querySelector("#raw-locations-list"),
+  rawAnalysisProjectsList: document.querySelector("#raw-analysis-projects-list"),
+  rawPositionsTableBody: document.querySelector("#raw-positions-table tbody"),
+  rawExternalElnList: document.querySelector("#raw-external-eln-list"),
+  rawLabguruSearch: document.querySelector("#raw-labguru-search"),
+  rawLabguruSearchButton: document.querySelector("#raw-labguru-search-button"),
+  rawLabguruResults: document.querySelector("#raw-labguru-results"),
+  rawQueuePreviewButton: document.querySelector("#raw-queue-preview-button"),
+  rawRegeneratePreviewButton: document.querySelector("#raw-regenerate-preview-button"),
+  rawPreviewProgress: document.querySelector("#raw-preview-progress"),
+  rawOpenDatasetPageButton: document.querySelector("#raw-open-dataset-page-button"),
+  rawOpenDisplaySettingsButton: document.querySelector("#raw-open-display-settings-button"),
+  rawOpenProjectPageButton: document.querySelector("#raw-open-project-page-button"),
+  rawPositionViewerEmpty: document.querySelector("#raw-position-viewer-empty"),
+  rawPositionViewer: document.querySelector("#raw-position-viewer"),
+  rawPositionViewerMeta: document.querySelector("#raw-position-viewer-meta"),
+  rawPositionViewerVideo: document.querySelector("#raw-position-viewer-video"),
+  rawPositionViewerOpenLink: document.querySelector("#raw-position-viewer-open-link"),
+  rawLifecycleEvents: document.querySelector("#raw-lifecycle-events"),
+  rawStorageOptimizeButton: document.querySelector("#raw-storage-optimize-button"),
+  rawPreviewArchiveButton: document.querySelector("#raw-preview-archive-button"),
+  rawArchiveButton: document.querySelector("#raw-archive-button"),
+  rawDeleteArchiveButton: document.querySelector("#raw-delete-archive-button"),
+  rawRestoreButton: document.querySelector("#raw-restore-button"),
+  rawDeleteDatasetButton: document.querySelector("#raw-delete-dataset-button"),
+  rawPrevDatasetButton: document.querySelector("#raw-prev-dataset-button"),
+  rawNextDatasetButton: document.querySelector("#raw-next-dataset-button"),
+  rawBackupStatus: document.querySelector("#raw-backup-status"),
+  rawLastBackupAt: document.querySelector("#raw-last-backup-at"),
+  rawBackupExcluded: document.querySelector("#raw-backup-excluded"),
+  rawBackupNowButton: document.querySelector("#raw-backup-now-button"),
+  rawBackupFeedback: document.querySelector("#raw-backup-feedback"),
+  rawSnapshotsLoadButton: document.querySelector("#raw-snapshots-load-button"),
+  rawSnapshotsList: document.querySelector("#raw-snapshots-list"),
+  rawRestorePanel: document.querySelector("#raw-restore-panel"),
+  rawRestoreSnapshotLabel: document.querySelector("#raw-restore-snapshot-label"),
+  rawRestoreTargetDir: document.querySelector("#raw-restore-target-dir"),
+  rawRestoreConfirmButton: document.querySelector("#raw-restore-confirm-button"),
+  rawRestoreCancelButton: document.querySelector("#raw-restore-cancel-button"),
+  rawActionFeedback: document.querySelector("#raw-action-feedback"),
+  rawDatasetPageTitle: document.querySelector("#raw-dataset-page-title"),
+  rawPreviewQualityRefreshButton: document.querySelector("#raw-preview-quality-refresh-button"),
+  rawPreviewQualitySaveButton: document.querySelector("#raw-preview-quality-save-button"),
+  rawPreviewQualityMaxDimension: document.querySelector("#raw-preview-quality-max-dimension"),
+  rawPreviewQualityFps: document.querySelector("#raw-preview-quality-fps"),
+  rawPreviewQualityFrameMode: document.querySelector("#raw-preview-quality-frame-mode"),
+  rawPreviewQualityMaxFrames: document.querySelector("#raw-preview-quality-max-frames"),
+  rawPreviewQualityBinningFactor: document.querySelector("#raw-preview-quality-binning-factor"),
+  rawPreviewQualityCrf: document.querySelector("#raw-preview-quality-crf"),
+  rawPreviewQualityPreset: document.querySelector("#raw-preview-quality-preset"),
+  rawPreviewQualityIncludeExisting: document.querySelector("#raw-preview-quality-include-existing"),
+  rawPreviewQualityArtifactRoot: document.querySelector("#raw-preview-quality-artifact-root"),
+  rawPreviewQualityFfmpegCommand: document.querySelector("#raw-preview-quality-ffmpeg-command"),
+  rawPreviewQualityConfig: document.querySelector("#raw-preview-quality-config"),
+  rawPreviewQualitySummary: document.querySelector("#raw-preview-quality-summary"),
+  rawPreviewQualityTableBody: document.querySelector("#raw-preview-quality-table tbody"),
+  externalMatchCacheCount: document.querySelector("#external-match-cache-count"),
+  externalMatchLinkedCount: document.querySelector("#external-match-linked-count"),
+  externalMatchCandidateCount: document.querySelector("#external-match-candidate-count"),
+  externalMatchLatestSync: document.querySelector("#external-match-latest-sync"),
+  externalMatchGenerationSummary: document.querySelector("#external-match-generation-summary"),
+  externalMatchMinScore: document.querySelector("#external-match-min-score"),
+  externalMatchMaxCandidates: document.querySelector("#external-match-max-candidates"),
+  externalMatchRawLimit: document.querySelector("#external-match-raw-limit"),
+  externalMatchIncludeLinked: document.querySelector("#external-match-include-linked"),
+  externalMatchGenerateButton: document.querySelector("#external-match-generate-button"),
+  externalMatchSyncButton: document.querySelector("#external-match-sync-button"),
+  externalMatchRefreshButton: document.querySelector("#external-match-refresh-button"),
+  externalMatchStatusFilter: document.querySelector("#external-match-status-filter"),
+  externalMatchSelectAll: document.querySelector("#external-match-select-all"),
+  externalMatchSelectVisibleButton: document.querySelector("#external-match-select-visible-button"),
+  externalMatchClearSelectionButton: document.querySelector("#external-match-clear-selection-button"),
+  externalMatchAcceptSelectedButton: document.querySelector("#external-match-accept-selected-button"),
+  externalMatchRejectSelectedButton: document.querySelector("#external-match-reject-selected-button"),
+  externalMatchCandidatesTableBody: document.querySelector("#external-match-candidates-table tbody"),
+  externalUserStatusFilter: document.querySelector("#external-user-status-filter"),
+  externalUsersTableBody: document.querySelector("#external-users-table tbody"),
+  externalCredentialStatus: document.querySelector("#external-credential-status"),
+  externalCredentialExpires: document.querySelector("#external-credential-expires"),
+  externalCredentialVerified: document.querySelector("#external-credential-verified"),
+  externalCredentialError: document.querySelector("#external-credential-error"),
+  externalCredentialToken: document.querySelector("#external-credential-token"),
+  externalCredentialSaveButton: document.querySelector("#external-credential-save-button"),
+  externalCredentialTestButton: document.querySelector("#external-credential-test-button"),
+  externalCredentialDeleteButton: document.querySelector("#external-credential-delete-button"),
+  yeastStrainSearch: document.querySelector("#yeast-strain-search"),
+  yeastStrainMatch: document.querySelector("#yeast-strain-match"),
+  yeastStrainLimit: document.querySelector("#yeast-strain-limit"),
+  yeastStrainSort: document.querySelector("#yeast-strain-sort"),
+  yeastStrainResults: document.querySelector("#yeast-strain-results"),
+  yeastStrainResultsTitle: document.querySelector("#yeast-strain-results-title"),
+  yeastStrainResultsSummary: document.querySelector("#yeast-strain-results-summary"),
+  yeastStrainCount: document.querySelector("#yeast-strain-count"),
+  yeastStrainLastSync: document.querySelector("#yeast-strain-last-sync"),
+  yeastStrainSyncState: document.querySelector("#yeast-strain-sync-state"),
+  yeastStrainCollection: document.querySelector("#yeast-strain-collection"),
+  yeastStrainSyncButton: document.querySelector("#yeast-strain-sync-button"),
+  yeastStrainSyncProgress: document.querySelector("#yeast-strain-sync-progress"),
+  yeastStrainSyncProgressText: document.querySelector("#yeast-strain-sync-progress-text"),
+  yeastStrainSyncProgressBar: document.querySelector("#yeast-strain-sync-progress-bar"),
+  yeastStrainMoreButton: document.querySelector("#yeast-strain-more-button"),
+  deploymentAwarenessSummary: document.querySelector("#deployment-awareness-summary"),
+  deploymentApiStatus: document.querySelector("#deployment-api-status"),
+  deploymentDbStatus: document.querySelector("#deployment-db-status"),
+  deploymentWorkerStatus: document.querySelector("#deployment-worker-status"),
+  deploymentHeartbeatStatus: document.querySelector("#deployment-heartbeat-status"),
+  deploymentVersionStatus: document.querySelector("#deployment-version-status"),
+  executionTargetHealthWarning: document.querySelector("#execution-target-health-warning"),
+  executionTargetReadonlyNotice: document.querySelector("#execution-target-readonly-notice"),
+  archiveSettingsRefreshButton: document.querySelector("#archive-settings-refresh-button"),
+  archiveSettingsSaveButton: document.querySelector("#archive-settings-save-button"),
+  archiveSettingsRoot: document.querySelector("#archive-settings-root"),
+  archiveSettingsCompression: document.querySelector("#archive-settings-compression"),
+  archiveSettingsDeleteSource: document.querySelector("#archive-settings-delete-source"),
+  archiveSettingsSummary: document.querySelector("#archive-settings-summary"),
+  automaticArchivePolicyPanel: document.querySelector("#automatic-archive-policy-panel"),
+  automaticArchivePolicyReportOnly: document.querySelector("#automatic-archive-policy-report-only"),
+  automaticArchivePolicyRefreshButton: document.querySelector("#automatic-archive-policy-refresh-button"),
+  automaticArchivePolicyRunButton: document.querySelector("#automatic-archive-policy-run-button"),
+  automaticArchivePolicySummary: document.querySelector("#automatic-archive-policy-summary"),
+  automaticArchivePolicyConfig: document.querySelector("#automatic-archive-policy-config"),
+  automaticArchivePolicyRunsTableBody: document.querySelector("#automatic-archive-policy-runs-table tbody"),
+  micromanagerIngestPanel: document.querySelector("#micromanager-ingest-panel"),
+  micromanagerIngestRootMode: document.querySelector("#micromanager-ingest-root-mode"),
+  micromanagerIngestRootPath: document.querySelector("#micromanager-ingest-root-path"),
+  micromanagerIngestStorageRootName: document.querySelector("#micromanager-ingest-storage-root-name"),
+  micromanagerIngestReportOnly: document.querySelector("#micromanager-ingest-report-only"),
+  micromanagerIngestRefreshButton: document.querySelector("#micromanager-ingest-refresh-button"),
+  micromanagerIngestRunButton: document.querySelector("#micromanager-ingest-run-button"),
+  micromanagerIngestSummary: document.querySelector("#micromanager-ingest-summary"),
+  micromanagerIngestConfig: document.querySelector("#micromanager-ingest-config"),
+  micromanagerIngestRootsTableBody: document.querySelector("#micromanager-ingest-roots-table tbody"),
+  micromanagerIngestCandidatesTableBody: document.querySelector("#micromanager-ingest-candidates-table tbody"),
+  micromanagerIngestRunsTableBody: document.querySelector("#micromanager-ingest-runs-table tbody"),
+  archivePolicyOlderDays: document.querySelector("#archive-policy-older-days"),
+  archivePolicyMinGb: document.querySelector("#archive-policy-min-gb"),
+  archivePolicyLimit: document.querySelector("#archive-policy-limit"),
+  archivePolicyUri: document.querySelector("#archive-policy-uri"),
+  archivePolicyCompression: document.querySelector("#archive-policy-compression"),
+  archivePolicyDeleteSource: document.querySelector("#archive-policy-delete-source"),
+  archivePolicyPreviewButton: document.querySelector("#archive-policy-preview-button"),
+  archivePolicyQueueButton: document.querySelector("#archive-policy-queue-button"),
+  archivePolicySummary: document.querySelector("#archive-policy-summary"),
+  archivePolicyTableBody: document.querySelector("#archive-policy-table tbody"),
+  archivedRawSelectAll: document.querySelector("#archived-raw-select-all"),
+  archivedRawSelectVisibleButton: document.querySelector("#archived-raw-select-visible-button"),
+  archivedRawClearSelectionButton: document.querySelector("#archived-raw-clear-selection-button"),
+  archivedRawDeleteSelectedButton: document.querySelector("#archived-raw-delete-selected-button"),
+  archivedRawDatasetsSummary: document.querySelector("#archived-raw-datasets-summary"),
+  archivedRawDatasetsTableBody: document.querySelector("#archived-raw-datasets-table tbody"),
+  migrationBatchName: document.querySelector("#migration-batch-name"),
+  migrationSourcePath: document.querySelector("#migration-source-path"),
+  migrationSourceKind: document.querySelector("#migration-source-kind"),
+  migrationStrategy: document.querySelector("#migration-strategy"),
+  migrationStorageRootName: document.querySelector("#migration-storage-root-name"),
+  migrationMaxItems: document.querySelector("#migration-max-items"),
+  migrationCreateButton: document.querySelector("#migration-create-button"),
+  migrationRefreshButton: document.querySelector("#migration-refresh-button"),
+  migrationPlanCountLabel: document.querySelector("#migration-plan-count-label"),
+  migrationPlansTableBody: document.querySelector("#migration-plans-table tbody"),
+  migrationDetailEmpty: document.querySelector("#migration-detail-empty"),
+  migrationDetailContent: document.querySelector("#migration-detail-content"),
+  migrationDetailSubtitle: document.querySelector("#migration-detail-subtitle"),
+  migrationDetailList: document.querySelector("#migration-detail-list"),
+  migrationItemsTableBody: document.querySelector("#migration-items-table tbody"),
+  migrationExecutePilotButton: document.querySelector("#migration-execute-pilot-button"),
+  miscSourcePath: document.querySelector("#misc-source-path"),
+  miscStorageRootName: document.querySelector("#misc-storage-root-name"),
+  miscOwnerUserKey: document.querySelector("#misc-owner-user-key"),
+  miscMinSizeGb: document.querySelector("#misc-min-size-gb"),
+  miscMaxDepth: document.querySelector("#misc-max-depth"),
+  miscDuTimeoutSec: document.querySelector("#misc-du-timeout-sec"),
+  miscIncludeCataloged: document.querySelector("#misc-include-cataloged"),
+  miscInventoryButton: document.querySelector("#misc-inventory-button"),
+  miscRefreshButton: document.querySelector("#misc-refresh-button"),
+  miscPurgeButton: document.querySelector("#misc-purge-button"),
+  miscSearch: document.querySelector("#misc-search"),
+  miscOwnerFilter: document.querySelector("#misc-owner-filter"),
+  miscCategoryFilter: document.querySelector("#misc-category-filter"),
+  miscStatusFilter: document.querySelector("#misc-status-filter"),
+  miscMinSizeFilterGb: document.querySelector("#misc-min-size-filter-gb"),
+  miscSummaryCount: document.querySelector("#misc-summary-count"),
+  miscSummaryTotalBytes: document.querySelector("#misc-summary-total-bytes"),
+  miscSummaryTimeoutCount: document.querySelector("#misc-summary-timeout-count"),
+  miscSummaryMeasuredCount: document.querySelector("#misc-summary-measured-count"),
+  miscCountLabel: document.querySelector("#misc-count-label"),
+  miscItemsTableBody: document.querySelector("#misc-items-table tbody"),
+  pipelineSearch: document.querySelector("#pipeline-search"),
+  pipelineRuntimeFilter: document.querySelector("#pipeline-runtime-filter"),
+  pipelineSourceFilter: document.querySelector("#pipeline-source-filter"),
+  refreshPipelinesButton: document.querySelector("#refresh-pipelines-button"),
+  importObservedPipelinesButton: document.querySelector("#import-observed-pipelines-button"),
+  newPipelineButton: document.querySelector("#new-pipeline-button"),
+  pipelinesTableBody: document.querySelector("#pipelines-table tbody"),
+  pipelineRunProjectSelect: document.querySelector("#pipeline-run-project-select"),
+  pipelineRunPipelineSelect: document.querySelector("#pipeline-run-pipeline-select"),
+  pipelineRunTargetSelect: document.querySelector("#pipeline-run-target-select"),
+  pipelineRunModeSelect: document.querySelector("#pipeline-run-mode-select"),
+  pipelineRunGpuSelect: document.querySelector("#pipeline-run-gpu-select"),
+  pipelineRunPythonModeSelect: document.querySelector("#pipeline-run-python-mode-select"),
+  pipelineRunPythonEnv: document.querySelector("#pipeline-run-python-env"),
+  pipelineRunId: document.querySelector("#pipeline-run-id"),
+  pipelineRunPolicySelect: document.querySelector("#pipeline-run-policy-select"),
+  pipelineRunExistingSelect: document.querySelector("#pipeline-run-existing-select"),
+  pipelineRunCacheSelect: document.querySelector("#pipeline-run-cache-select"),
+  pipelineRunPriority: document.querySelector("#pipeline-run-priority"),
+  pipelineRunSelectedNodes: document.querySelector("#pipeline-run-selected-nodes"),
+  pipelineRunDescription: document.querySelector("#pipeline-run-description"),
+  pipelineRunNodeParams: document.querySelector("#pipeline-run-node-params"),
+  pipelineRunSelectionSummary: document.querySelector("#pipeline-run-selection-summary"),
+  pipelineRunEditorMode: document.querySelector("#pipeline-run-editor-mode"),
+  pipelineRunAdvancedPanel: document.querySelector(".advanced-run-builder"),
+  refreshPipelineRunsButton: document.querySelector("#refresh-pipeline-runs-button"),
+  newPipelineRunButton: document.querySelector("#new-pipeline-run-button"),
+  cancelPipelineRunButton: document.querySelector("#cancel-pipeline-run-button"),
+  submitPipelineRunButton: document.querySelector("#submit-pipeline-run-button"),
+  pipelineRunsTableBody: document.querySelector("#pipeline-runs-table tbody"),
+  pipelineRunsPagination: document.querySelector("#pipeline-runs-pagination"),
+  pipelineRunDetail: document.querySelector("#pipeline-run-detail"),
+  refreshExecutionTargetsButton: document.querySelector("#refresh-execution-targets-button"),
+  newExecutionTargetButton: document.querySelector("#new-execution-target-button"),
+  cancelExecutionTargetEditButton: document.querySelector("#cancel-execution-target-edit-button"),
+  openExecutionTargetConfigButton: document.querySelector("#open-execution-target-config-button"),
+  applyWorkerInstancesButton: document.querySelector("#apply-worker-instances-button"),
+  applyExecutionTargetDrainButton: document.querySelector("#apply-execution-target-drain-button"),
+  saveExecutionTargetButton: document.querySelector("#save-execution-target-button"),
+  executionTargetEditorMode: document.querySelector("#execution-target-editor-mode"),
+  executionTargetName: document.querySelector("#execution-target-name"),
+  executionTargetKey: document.querySelector("#execution-target-key"),
+  executionTargetKind: document.querySelector("#execution-target-kind"),
+  executionTargetHost: document.querySelector("#execution-target-host"),
+  executionTargetStatus: document.querySelector("#execution-target-status"),
+  executionTargetSupportsMatlab: document.querySelector("#execution-target-supports-matlab"),
+  executionTargetSupportsPython: document.querySelector("#execution-target-supports-python"),
+  executionTargetSupportsGpu: document.querySelector("#execution-target-supports-gpu"),
+  executionTargetMaxConcurrentJobs: document.querySelector("#execution-target-max-concurrent-jobs"),
+  executionTargetMatlabMaxThreads: document.querySelector("#execution-target-matlab-max-threads"),
+  executionTargetWorkerInstances: document.querySelector("#execution-target-worker-instances"),
+  executionTargetDrainNewJobs: document.querySelector("#execution-target-drain-new-jobs"),
+  executionTargetsTableBody: document.querySelector("#execution-targets-table tbody"),
+  executionTargetWorkerSummary: document.querySelector("#execution-target-worker-summary"),
+  executionTargetWorkersTableBody: document.querySelector("#execution-target-workers-table tbody"),
+  executionTargetQueuedJobsTableBody: document.querySelector("#execution-target-queued-jobs-table tbody"),
+  purgeQueuedJobsButton: document.querySelector("#purge-queued-jobs-button"),
+  purgeQueuedJobsKind: document.querySelector("#purge-queued-jobs-kind"),
+  executionTargetJobMixTableBody: document.querySelector("#execution-target-job-mix-table tbody"),
+  jobPrioritySettingsTableBody: document.querySelector("#job-priority-settings-table tbody"),
+  jobPrioritySettingsSummary: document.querySelector("#job-priority-settings-summary"),
+  jobResourceCpuCapacity: document.querySelector("#job-resource-cpu-capacity"),
+  jobResourceGpuVramCapacity: document.querySelector("#job-resource-gpu-vram-capacity"),
+  jobResourceDiskCapacity: document.querySelector("#job-resource-disk-capacity"),
+  refreshJobPrioritiesButton: document.querySelector("#refresh-job-priorities-button"),
+  saveJobPrioritiesButton: document.querySelector("#save-job-priorities-button"),
+  usersTableBody: document.querySelector("#users-table tbody"),
+  newUserButton: document.querySelector("#new-user-button"),
+  bulkImportUsersText: document.querySelector("#bulk-import-users-text"),
+  bulkImportUsersButton: document.querySelector("#bulk-import-users-button"),
+  sessionsTableBody: document.querySelector("#sessions-table tbody"),
+  refreshSessionsButton: document.querySelector("#refresh-sessions-button"),
+  statusLine: document.querySelector("#status-line"),
+};
+
+let dashboardPollHandle = null;
+let dashboardPollInFlight = false;
+let executionTargetRefreshPromise = null;
+let executionTargetJobMix = null;
+let lastPollSucceededAt = null;
+let yeastSearchDebounceHandle = null;
+const pageKind = document.body?.dataset?.page || "";
+const isExecutionTargetsPage = pageKind === "admin-execution-targets";
+const isAdminPage = (pageKind === "admin" || pageKind.startsWith("admin-")) && !isExecutionTargetsPage;
+
+const pageFlags = {
+  hasDashboardView: pageKind === "dashboard",
+  hasAdminView: isAdminPage,
+  hasAdminGeneralView: pageKind === "admin" || pageKind === "admin-general",
+  hasRawPreviewQualityView: pageKind === "admin-raw-preview-quality",
+  hasProjectPage: pageKind === "project",
+  hasProjectsView: Boolean(els.projectsTableBody),
+  hasProjectGroups: Boolean(els.groupFilter),
+  hasStorageRootFilter: Boolean(els.storageRootFilter),
+  hasProjectDetail: Boolean(els.detailContent),
+  hasPipelinesView: Boolean(els.pipelinesTableBody),
+  hasPipelineRunsView: pageKind === "project" && Boolean(els.pipelineRunsTableBody),
+  hasExecutionTargetsView: isExecutionTargetsPage && Boolean(els.executionTargetsTableBody),
+  hasUsersView: pageKind === "admin-users" && Boolean(els.usersTableBody),
+  hasSessionsView: pageKind === "admin-sessions" && Boolean(els.sessionsTableBody),
+  hasExternalElnAdminView: pageKind === "admin-external-eln" && Boolean(els.externalMatchCandidatesTableBody),
+  hasExternalSystemsView: pageKind === "external-systems" && Boolean(els.externalCredentialStatus),
+  hasYeastStrainsView: pageKind === "yeast-strains" && Boolean(els.yeastStrainResults),
+  hasIndexingView: Boolean(els.indexJobsTableBody || els.activeIndexJob),
+  hasRawDatasetsView: Boolean(els.rawDatasetsTableBody),
+  hasRawDatasetPage: pageKind === "raw-dataset",
+  hasArchiveSettings: Boolean(els.archiveSettingsSummary),
+  hasAutomaticArchivePolicy: Boolean(els.automaticArchivePolicyPanel),
+  hasMicroManagerIngest: Boolean(els.micromanagerIngestPanel),
+  hasRawDatasetDetail: Boolean(els.rawDetailContent || els.rawDetailList),
+  hasIndexForm: Boolean(els.indexSourcePath),
+  hasMigrationView: Boolean(els.migrationPlansTableBody || els.migrationDetailContent),
+  hasMiscStorageView: pageKind === "misc-storage" && Boolean(els.miscItemsTableBody),
+};
+
+let appLayoutInitialized = false;
+
+function getSidebarActiveRoute() {
+  if (pageKind === "dashboard") {
+    return "dashboard";
+  }
+  if (pageKind === "admin" || pageKind === "admin-general") {
+    return "admin-general";
+  }
+  if (pageKind === "admin-raw-preview-quality") {
+    return "admin-raw-preview-quality";
+  }
+  if (pageKind === "admin-execution-targets") {
+    return "admin-execution-targets";
+  }
+  if (pageKind === "admin-users") {
+    return "admin-users";
+  }
+  if (pageKind === "admin-sessions") {
+    return "admin-sessions";
+  }
+  if (pageKind === "admin-backup") {
+    return "admin-backup";
+  }
+  if (pageKind === "admin-webserver-backup") {
+    return "admin-webserver-backup";
+  }
+  if (pageKind === "admin-external-eln") {
+    return "admin-external-eln";
+  }
+  if (pageKind === "external-systems") {
+    return "external-systems";
+  }
+  if (pageKind === "yeast-strains") {
+    return "yeast-strains";
+  }
+  if (pageKind === "assistant") {
+    return "assistant";
+  }
+  if (pageKind === "indexing") {
+    return "projects-settings";
+  }
+  if (pageKind === "raw-ops") {
+    return "datasets-settings";
+  }
+  if (pageKind === "misc-storage") {
+    return "datasets-misc";
+  }
+  if (pageKind === "raw-datasets" || pageKind === "raw-dataset") {
+    return "datasets-catalog";
+  }
+  return "projects-catalog";
+}
+
+function initializeAppLayout() {
+  if (appLayoutInitialized) {
+    return;
+  }
+  const pageShell = document.querySelector(".page-shell");
+  if (!pageShell) {
+    return;
+  }
+
+  const existingChildren = Array.from(pageShell.children);
+  const existingSidebar = existingChildren.find((child) => child.classList?.contains("sidebar-shell")) || null;
+  const existingMainContent = existingChildren.find((child) => child.classList?.contains("main-content")) || null;
+  const hero = existingChildren.find((child) => child.classList?.contains("hero")) || null;
+  const heroActions = hero?.querySelector(".hero-actions") || null;
+  let sidebar = existingSidebar;
+  let mainContent = existingMainContent;
+  let sidebarMenu = null;
+  if (!sidebar || !mainContent) {
+    sidebar = document.createElement("aside");
+    sidebar.className = "sidebar-shell";
+    sidebar.innerHTML = `
+      <div class="sidebar-brand">
+        <div class="eyebrow">DetecDiv Hub</div>
+        <h2>Navigation</h2>
+        <p class="muted">Projects, datasets, and admin tools stay available from one place.</p>
+      </div>
+      <div class="sidebar-auth" data-sidebar-auth></div>
+      <nav class="sidebar-menu" aria-label="Primary navigation" data-sidebar-menu></nav>
+    `;
+    sidebarMenu = sidebar.querySelector("[data-sidebar-menu]") || sidebar.querySelector(".sidebar-menu");
+
+    mainContent = document.createElement("div");
+    mainContent.className = "main-content";
+
+    pageShell.replaceChildren(sidebar, mainContent);
+
+    if (els.loginPanel) {
+      const sidebarAuth = sidebar.querySelector("[data-sidebar-auth]");
+      if (sidebarAuth) {
+        sidebarAuth.appendChild(els.loginPanel);
+      }
+    }
+
+    if (heroActions) {
+      const sidebarAuth = sidebar.querySelector("[data-sidebar-auth]");
+      if (sidebarAuth) {
+        const sessionBox = heroActions.querySelector(".session-box");
+        if (sessionBox) {
+          sidebarAuth.appendChild(sessionBox);
+        }
+      }
+      heroActions.classList.add("hidden");
+    }
+
+    for (const child of existingChildren) {
+      if (child === els.loginPanel) {
+        continue;
+      }
+      if (child.classList?.contains("hero-actions")) {
+        continue;
+      }
+      if (child.classList?.contains("hero")) {
+        mainContent.appendChild(child);
+        continue;
+      }
+      if (child !== sidebar && child !== mainContent) {
+        mainContent.appendChild(child);
+      }
+    }
+  } else {
+    const sidebarAuth = sidebar.querySelector("[data-sidebar-auth]") || sidebar.querySelector(".sidebar-auth");
+    sidebarMenu = sidebar.querySelector("[data-sidebar-menu]") || sidebar.querySelector(".sidebar-menu");
+    if (els.loginPanel && sidebarAuth && els.loginPanel.parentElement !== sidebarAuth) {
+      sidebarAuth.appendChild(els.loginPanel);
+    }
+    if (heroActions && sidebarAuth) {
+      const sessionBox = heroActions.querySelector(".session-box");
+      if (sessionBox && sessionBox.parentElement !== sidebarAuth) {
+        sidebarAuth.appendChild(sessionBox);
+      }
+      heroActions.classList.add("hidden");
+    }
+    if (sidebarMenu && !sidebarMenu.childElementCount) {
+      sidebarMenu.replaceChildren();
+    }
+  }
+
+  if (sidebarMenu) {
+    const activeRoute = getSidebarActiveRoute();
+    const groups = [
+      {
+        label: "Overview",
+        items: [
+          { label: "Dashboard", href: "/web/dashboard.html", route: "dashboard" },
+        ],
+      },
+      {
+        label: "Projects",
+        items: [
+          { label: "Catalog", href: "/web/index.html", route: "projects-catalog" },
+          { label: "Setting", href: "/web/indexing.html", route: "projects-settings" },
+        ],
+      },
+      {
+        label: "Datasets",
+        items: [
+          { label: "Catalog", href: "/web/raw-datasets.html", route: "datasets-catalog" },
+          { label: "Misc Storage", href: "/web/misc-storage.html", route: "datasets-misc" },
+          { label: "Settings", href: "/web/raw-ops.html", route: "datasets-settings" },
+        ],
+      },
+      {
+        label: "Account",
+        items: [
+          { label: "External accounts", href: "/web/external-systems.html", route: "external-systems" },
+          { label: "Yeast strains", href: "/web/yeast-strains.html", route: "yeast-strains" },
+        ],
+      },
+      {
+        label: "Execution",
+        items: [
+          { label: "Targets & Queue", href: "/web/admin-execution-targets.html", route: "admin-execution-targets" },
+        ],
+      },
+      {
+        label: "AI",
+        items: [
+          { label: "Assistant", href: "/web/assistant.html", route: "assistant" },
+        ],
+      },
+    ];
+
+    const fragments = [];
+    for (const group of groups) {
+      const details = document.createElement("details");
+      details.className = "sidebar-group";
+      details.open = true;
+
+      const summary = document.createElement("summary");
+      summary.textContent = group.label;
+      details.appendChild(summary);
+
+      const branch = document.createElement("div");
+      branch.className = "sidebar-branch";
+
+      for (const item of group.items) {
+        const link = document.createElement("a");
+        link.href = item.href;
+        link.textContent = item.label;
+        link.className = "sidebar-link";
+        if (item.route === activeRoute) {
+          link.classList.add("active");
+          link.setAttribute("aria-current", "page");
+        }
+        branch.appendChild(link);
+      }
+
+      details.appendChild(branch);
+      fragments.push(details);
+    }
+
+    const adminGroup = document.createElement("details");
+    adminGroup.className = "sidebar-group admin-nav-link";
+    adminGroup.open = true;
+    if (!canAccessAdminPortal()) {
+      adminGroup.classList.add("hidden");
+    }
+
+    const adminSummary = document.createElement("summary");
+    adminSummary.textContent = "Admin";
+    adminGroup.appendChild(adminSummary);
+
+    const adminBranch = document.createElement("div");
+    adminBranch.className = "sidebar-branch";
+    const adminItems = [
+      { label: "General", href: "/web/admin.html", route: "admin-general" },
+      { label: "Raw Preview Quality", href: "/web/admin-raw-preview-quality.html", route: "admin-raw-preview-quality" },
+      { label: "User Accounts", href: "/web/admin-users.html", route: "admin-users" },
+      { label: "Sessions", href: "/web/admin-sessions.html", route: "admin-sessions" },
+      { label: "External ELN", href: "/web/admin-external-eln.html", route: "admin-external-eln" },
+      { label: "Backup", href: "/web/admin-backup.html", route: "admin-backup" },
+      { label: "Webserver Backup", href: "/web/admin-webserver-backup.html", route: "admin-webserver-backup" },
+    ];
+    for (const item of adminItems) {
+      const link = document.createElement("a");
+      link.href = item.href;
+      link.textContent = item.label;
+      link.className = "sidebar-link";
+      if (item.route === activeRoute) {
+        link.classList.add("active");
+        link.setAttribute("aria-current", "page");
+      }
+      adminBranch.appendChild(link);
+    }
+    adminGroup.appendChild(adminBranch);
+    fragments.push(adminGroup);
+
+    sidebarMenu.replaceChildren(...fragments);
+  }
+
+  appLayoutInitialized = true;
+}
+
+function setStatus(message) {
+  if (els.statusLine) {
+    els.statusLine.textContent = message;
+  }
+}
+
+function setRawActionFeedback(message, tone = "ok") {
+  if (!els.rawActionFeedback) {
+    return;
+  }
+  if (!message) {
+    els.rawActionFeedback.textContent = "";
+    els.rawActionFeedback.classList.add("hidden");
+    els.rawActionFeedback.classList.remove("ok", "warn");
+    return;
+  }
+  els.rawActionFeedback.textContent = message;
+  els.rawActionFeedback.classList.remove("hidden");
+  els.rawActionFeedback.classList.remove("ok", "warn");
+  els.rawActionFeedback.classList.add(tone === "warn" ? "warn" : "ok");
+}
+
+function clearDashboardState() {
+  state.projects = [];
+  state.groups = [];
+  state.storageRoots = [];
+  state.indexBrowse = null;
+  state.pipelines = [];
+  state.observedPipelines = [];
+  state.executionTargets = [];
+  state.jobs = [];
+  executionTargetJobMix = null;
+  state.pipelineRuns = [];
+  state.sessions = [];
+  state.users = [];
+  state.indexingJobs = [];
+  state.rawDatasets = [];
+  state.selectedRawDataset = null;
+  state.selectedRawDatasetDetail = null;
+  state.selectedRawPositionId = null;
+  state.selectedRawPositionIds = [];
+  state.selectedRawDatasetIds = [];
+  state.pendingRawBulkDelete = null;
+  state.rawBulkDeletePreviewToken = 0;
+  state.pendingRawPositionDelete = null;
+  state.rawPositionDeletePreviewToken = 0;
+  state.rawPreviewQualityStatus = null;
+  state.archivePolicyPreview = null;
+  state.automaticArchivePolicyStatus = null;
+  state.micromanagerIngestStatus = null;
+  state.yeastStrains = [];
+  state.yeastStrainStatus = null;
+  state.yeastStrainSearchMeta = { total: 0, limit: 50, offset: 0 };
+  state.migrationPlans = [];
+  state.miscStorageItems = [];
+  state.selectedMigrationPlan = null;
+  state.selectedProject = null;
+  state.selectedProjectDetail = null;
+  state.selectedProjectIds = [];
+  state.selectedPipeline = null;
+  state.selectedPipelineRun = null;
+  state.selectedExecutionTarget = null;
+  state.pendingBulkDelete = null;
+  state.bulkDeletePreviewToken = 0;
+  state.acl = [];
+  state.summary = null;
+  state.systemHealth = null;
+  state.systemHealth = null;
+
+  if (els.summaryTotalProjects) els.summaryTotalProjects.textContent = "0";
+  if (els.summaryOwnedProjects) els.summaryOwnedProjects.textContent = "0";
+  if (els.summaryTotalBytes) els.summaryTotalBytes.textContent = "0 B";
+  if (els.summaryGroupCount) els.summaryGroupCount.textContent = "0";
+  if (els.dashboardProjectCount) els.dashboardProjectCount.textContent = "0";
+  renderDashboardActivity({ active_jobs: [], recent_jobs: [], active_acquisitions: [], recent_failed_acquisitions: [] });
+
+  renderGroupFilter();
+  renderStorageRootFilter();
+  renderIndexBrowser();
+  renderProjects();
+  renderProjectSelectionControls();
+  renderBulkDeletePanel();
+  renderPipelines();
+  renderPipelineRunBuilder();
+  renderPipelineRuns();
+  renderExecutionTargets();
+  renderDeploymentAwareness();
+  renderOwnerFilters();
+  renderIndexOwnerOptions();
+  renderIndexingJobs();
+  renderRawDatasets();
+  renderRawDatasetDetail();
+  renderRawPreviewQualityStatus();
+  renderAutomaticArchivePolicyStatus();
+  renderMicroManagerIngestStatus();
+  renderArchivePolicyPreview();
+  renderMigrationPlans();
+  renderMigrationDetail();
+  renderMiscStorageItems();
+  renderUsers();
+  renderSessions();
+  renderDetail();
+  renderProjectRawDatasets();
+  renderYeastStrains();
+}
+
+function authHeaders(extra = {}) {
+  const headers = { ...extra };
+  if (state.sessionToken) {
+    headers.Authorization = `Bearer ${state.sessionToken}`;
+  }
+  return headers;
+}
+
+function currentQuery() {
+  return "";
+}
+
+function withIdentity(path) {
+  const query = currentQuery();
+  if (!query) {
+    return path;
+  }
+  const separator = path.includes("?") ? "&" : "?";
+  return `${path}${separator}${query}`;
+}
+
+function withCacheBust(path, token) {
+  if (!path || !token) {
+    return path;
+  }
+  const separator = path.includes("?") ? "&" : "?";
+  return `${path}${separator}v=${encodeURIComponent(token)}`;
+}
+
+async function apiJson(path, options = {}) {
+  const { headers = {}, ...fetchOptions } = options;
+  const response = await fetch(withIdentity(path), {
+    credentials: "same-origin",
+    ...fetchOptions,
+    headers: authHeaders(headers),
+  });
+  if (!response.ok) {
+    const isLoginRequest = path === "/auth/login";
+    const hadSession = Boolean(state.sessionToken);
+    if (response.status === 401 && !isLoginRequest) {
+      state.sessionToken = "";
+      state.sessionExpiresAt = "";
+      state.currentUser = null;
+      state.authMode = "";
+      localStorage.removeItem("detecdivHub.sessionToken");
+      localStorage.removeItem("detecdivHub.sessionExpiresAt");
+      clearDashboardState();
+      updateSessionUi();
+      if (hadSession) {
+        throw new Error("Your DetecDiv Hub session expired. Please sign in again.");
+      }
+    }
+    throw new Error(await response.text());
+  }
+  const text = await response.text();
+  return text ? JSON.parse(text) : {};
+}
+
+function apiGet(path) {
+  return apiJson(path);
+}
+
+function apiPost(path, payload) {
+  return apiJson(path, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload || {}),
+  });
+}
+
+function renderDiskSpaceWarning(health) {
+  const mainContent = document.querySelector(".main-content");
+  if (!mainContent) {
+    return;
+  }
+
+  let banner = document.querySelector("#storage-warning-banner");
+  const warnings = (health?.disk_usage || []).filter((disk) => disk.status === "warning");
+  if (!warnings.length) {
+    banner?.remove();
+    return;
+  }
+
+  const details = warnings.map((disk) => {
+    const percent = Number(disk.used_percent || 0).toLocaleString(undefined, { maximumFractionDigits: 1 });
+    const free = disk.free_bytes === null || disk.free_bytes === undefined ? "unknown" : humanBytes(disk.free_bytes);
+    return `${disk.label || disk.path} (${disk.path}): ${percent}% used, ${free} free`;
+  });
+
+  if (!banner) {
+    banner = document.createElement("section");
+    banner.id = "storage-warning-banner";
+    banner.className = "storage-warning-banner";
+    banner.setAttribute("role", "alert");
+    banner.setAttribute("aria-live", "polite");
+    mainContent.prepend(banner);
+  }
+
+  const heading = document.createElement("strong");
+  heading.textContent = "Storage almost full. ";
+  banner.replaceChildren(
+    heading,
+    document.createTextNode(`${details.join(" | ")}. Free space before writing more data.`),
+  );
+}
+
+async function refreshDiskSpaceWarning() {
+  const health = await apiGet("/health");
+  state.systemHealth = health;
+  renderDiskSpaceWarning(health);
+}
+
+function ensureDiskSpacePolling() {
+  refreshDiskSpaceWarning().catch(() => {});
+  window.setInterval(() => {
+    refreshDiskSpaceWarning().catch(() => {});
+  }, DISK_SPACE_POLL_INTERVAL_MS);
+}
+
+function apiPut(path, payload) {
+  return apiJson(path, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload || {}),
+  });
+}
+
+function apiPatch(path, payload) {
+  return apiJson(path, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload || {}),
+  });
+}
+
+function apiDelete(path) {
+  return apiJson(path, {
+    method: "DELETE",
+  });
+}
+
+function humanBytes(value) {
+  let num = Number(value || 0);
+  const units = ["B", "KB", "MB", "GB", "TB"];
+  let idx = 0;
+  while (num >= 1024 && idx < units.length - 1) {
+    num /= 1024;
+    idx += 1;
+  }
+  return `${num.toFixed(idx === 0 ? 0 : 2)} ${units[idx]}`;
+}
+
+function deletionPreviewLines(preview) {
+  const plan = preview?.preview_json?.deletion_plan || {};
+  const projectPaths = preview?.preview_json?.project?.paths || {};
+  const blockers = Array.isArray(plan.filesystem_blockers) ? plan.filesystem_blockers : [];
+  const lines = [
+    `Project: ${preview.project_name}`,
+    `Catalog row: will be marked deleted`,
+    `Project files: ${plan.project_file_count || 0} file(s)`,
+    `Project folders: ${plan.project_dir_count || 0} folder(s)`,
+    `Linked raw datasets: ${plan.linked_raw_dataset_count || 0} dataset(s)`,
+    `Linked raw locations: ${plan.linked_raw_location_count || 0} location(s)`,
+    `Skipped linked raw datasets: ${plan.skipped_linked_raw_dataset_count || 0}`,
+    `Potential reclaim: ${humanBytes(preview.reclaimable_bytes || 0)}`,
+  ];
+  const paths = [
+    ...(projectPaths.project_files || []),
+    ...(projectPaths.project_dirs || []),
+  ];
+  if (paths.length) {
+    lines.push("Targets:");
+    paths.slice(0, 8).forEach((path) => lines.push(`- ${path}`));
+    if (paths.length > 8) lines.push(`- ... ${paths.length - 8} more`);
+  }
+  if (blockers.length) {
+    lines.push("Blocked filesystem targets:");
+    blockers.slice(0, 8).forEach((item) => {
+      const reason = item.reason || "not_writable";
+      const mount = item.mount_point ? ` on ${item.mount_point}` : "";
+      lines.push(`- ${item.path} (${reason}${mount})`);
+    });
+    if (blockers.length > 8) lines.push(`- ... ${blockers.length - 8} more`);
+  }
+  return lines;
+}
+
+function rawDatasetDeletionPreviewLines(preview, options = {}) {
+  const previewJson = preview?.preview_json || {};
+  const rawDataset = previewJson.raw_dataset || {};
+  const locations = Array.isArray(rawDataset.locations) ? rawDataset.locations : [];
+  const linkedProjects = Array.isArray(previewJson.linked_projects) ? previewJson.linked_projects : [];
+  const skippedProjects = Array.isArray(previewJson.skipped_linked_projects) ? previewJson.skipped_linked_projects : [];
+  const lines = [
+    `Raw dataset: ${preview?.acquisition_label || rawDataset.acquisition_label || ""}`,
+    "Catalog entry: will be deleted from the database",
+    options.deleteSourceFiles
+      ? `Source files: ${locations.length} location(s), ${humanBytes(preview?.reclaimable_bytes || rawDataset.total_bytes || 0)} reclaimable`
+      : "Source files: kept on disk",
+  ];
+  if (locations.length) {
+    lines.push(`First source location: ${locations[0]}`);
+  }
+  if (options.deleteLinkedProjects) {
+    lines.push(`Linked analysis projects: ${linkedProjects.length} queued for deletion`);
+    if (options.deleteLinkedProjectFiles) {
+      const linkedBytes = linkedProjects.reduce((sum, project) => sum + Number(project.total_bytes || 0), 0);
+      lines.push(`Linked project files: ${humanBytes(linkedBytes)} reclaimable`);
+    }
+  } else if (options.linkedProjectCount) {
+    lines.push(`Linked analysis projects: ${options.linkedProjectCount} kept; raw links will be removed`);
+  }
+  if (skippedProjects.length) {
+    lines.push(`Skipped linked projects: ${skippedProjects.length}`);
+  }
+  lines.push("This action is destructive.");
+  return lines;
+}
+
+function formatTimestamp(value) {
+  if (!value) {
+    return "";
+  }
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) {
+    return `${value}`;
+  }
+  return date.toLocaleString();
+}
+
+function summarizeList(values, limit = 5) {
+  const items = (Array.isArray(values) ? values : [])
+    .map((value) => String(value || "").trim())
+    .filter(Boolean);
+  if (!items.length) {
+    return "none";
+  }
+  if (items.length <= limit) {
+    return items.join(", ");
+  }
+  return `${items.slice(0, limit).join(", ")} + ${items.length - limit} more`;
+}
+
+function extractRawAcquisitionFacts(raw) {
+  const metadata = raw?.metadata_json && typeof raw.metadata_json === "object" ? raw.metadata_json : {};
+  const dimensions = metadata.dimensions && typeof metadata.dimensions === "object" ? metadata.dimensions : {};
+  const positionsIndexed = Array.isArray(raw?.positions) ? raw.positions.length : 0;
+
+  const channelNamesRaw = Array.isArray(dimensions.channel_names) ? dimensions.channel_names : [];
+  const channelNames = channelNamesRaw
+    .map((value) => String(value || "").trim())
+    .filter(Boolean);
+  const channelsLabel = channelNames.length
+    ? summarizeList(channelNames, 6)
+    : (Number(dimensions.channel_count || 0) > 0 ? `${Number(dimensions.channel_count)} channel(s)` : "unknown");
+
+  const metadataPositionCount = Number(dimensions.position_count || 0);
+  const positionsLabel = metadataPositionCount > 0 ? `${metadataPositionCount}` : "unknown";
+
+  const channelSettings = Array.isArray(dimensions.channel_settings) ? dimensions.channel_settings : [];
+  const channelSettingsLabel = summarizeChannelSettings(channelSettings);
+  const framesLabel = Number(dimensions.frame_count || 0) > 0 ? `${Number(dimensions.frame_count)}` : "unknown";
+  const intervalLabel = formatIntervalLabel(dimensions.interval_ms, dimensions.interval_seconds);
+  const exposureLabel = channelSettings.length
+    ? summarizeChannelMetric(channelSettings, "exposure_ms", "ms")
+    : summarizeNumericValues(collectExposureMsValues(metadata), "ms");
+  const ledPowerLabel = channelSettings.length
+    ? summarizeChannelMetric(channelSettings, "led_power", "")
+    : summarizeNumericValues(collectLedPowerValues(metadata), "");
+
+  return {
+    positionsIndexed,
+    positionsLabel,
+    channelsLabel,
+    channelSettingsLabel,
+    exposureLabel,
+    ledPowerLabel,
+    framesLabel,
+    intervalLabel,
+  };
+}
+
+function summarizeChannelSettings(channelSettings) {
+  if (!Array.isArray(channelSettings) || !channelSettings.length) {
+    return "unknown";
+  }
+  const items = channelSettings
+    .map((setting) => {
+      const name = String(setting?.channel || "").trim() || `Channel ${Number(setting?.index ?? 0) + 1}`;
+      const parts = [];
+      if (setting?.exposure_ms != null) parts.push(`Exposure ${Number(setting.exposure_ms).toFixed(3).replace(/\.?0+$/, "")} ms`);
+      if (setting?.led_power != null) parts.push(`LED ${Number(setting.led_power).toFixed(3).replace(/\.?0+$/, "")}`);
+      if (setting?.interval_ms != null) parts.push(`Interval ${Number(setting.interval_ms).toFixed(3).replace(/\.?0+$/, "")} ms`);
+      if (setting?.frames != null) parts.push(`Frames ${Number(setting.frames)}`);
+      return parts.length ? `${name}: ${parts.join(" | ")}` : name;
+    })
+    .filter(Boolean);
+  return summarizeList(items, 4);
+}
+
+function summarizeChannelMetric(channelSettings, key, suffix) {
+  const items = (Array.isArray(channelSettings) ? channelSettings : [])
+    .map((setting) => {
+      const value = setting?.[key];
+      if (value == null || value === "") {
+        return "";
+      }
+      const name = String(setting?.channel || "").trim() || `Channel ${Number(setting?.index ?? 0) + 1}`;
+      const numeric = Number(value);
+      const text = Number.isFinite(numeric) ? numeric.toFixed(3).replace(/\.?0+$/, "") : String(value);
+      return `${name}: ${text}${suffix ? ` ${suffix}` : ""}`;
+    })
+    .filter(Boolean);
+  return items.length ? summarizeList(items, 4) : "unknown";
+}
+
+function summarizeNumericValues(values, suffix) {
+  const items = (Array.isArray(values) ? values : [])
+    .filter((value) => Number.isFinite(Number(value)))
+    .map((value) => {
+      const numeric = Number(value);
+      const text = numeric.toFixed(3).replace(/\.?0+$/, "");
+      return `${text}${suffix ? ` ${suffix}` : ""}`;
+    });
+  return items.length ? summarizeList(items, 4) : "unknown";
+}
+
+function formatIntervalLabel(intervalMsValue, intervalSecondsValue) {
+  const intervalMs = Number(intervalMsValue);
+  if (Number.isFinite(intervalMs) && intervalMs > 0) {
+    if (intervalMs >= 1000) {
+      return `${Number((intervalMs / 1000)).toFixed(3).replace(/\.?0+$/, "")} s`;
+    }
+    return `${intervalMs.toFixed(3).replace(/\.?0+$/, "")} ms`;
+  }
+  const intervalSeconds = Number(intervalSecondsValue);
+  if (!Number.isFinite(intervalSeconds) || intervalSeconds <= 0) {
+    return "unknown";
+  }
+  return `${intervalSeconds.toFixed(3).replace(/\.?0+$/, "")} s`;
+}
+
+function collectExposureMsValues(metadata) {
+  const values = [];
+  const seen = new Set();
+  const stack = [{ value: metadata, depth: 0 }];
+  let visited = 0;
+
+  while (stack.length && visited < 5000) {
+    const node = stack.pop();
+    visited += 1;
+    if (!node || node.depth > 7) {
+      continue;
+    }
+    const current = node.value;
+    if (Array.isArray(current)) {
+      for (const item of current) {
+        stack.push({ value: item, depth: node.depth + 1 });
+      }
+      continue;
+    }
+    if (!current || typeof current !== "object") {
+      continue;
+    }
+    for (const [key, rawValue] of Object.entries(current)) {
+      const normalizedKey = String(key || "").toLowerCase();
+      if (normalizedKey.includes("exposure")) {
+        const parsed = Number(rawValue);
+        if (Number.isFinite(parsed) && parsed >= 0) {
+          const token = parsed.toFixed(6);
+          if (!seen.has(token)) {
+            seen.add(token);
+            values.push(parsed);
+          }
+        }
+      }
+      if (rawValue && typeof rawValue === "object") {
+        stack.push({ value: rawValue, depth: node.depth + 1 });
+      }
+    }
+  }
+  values.sort((a, b) => a - b);
+  return values.slice(0, 12);
+}
+
+function collectLedPowerValues(metadata) {
+  const values = [];
+  const seen = new Set();
+  const stack = [{ value: metadata, depth: 0 }];
+  let visited = 0;
+
+  while (stack.length && visited < 5000) {
+    const node = stack.pop();
+    visited += 1;
+    if (!node || node.depth > 7) {
+      continue;
+    }
+    const current = node.value;
+    if (Array.isArray(current)) {
+      for (const item of current) {
+        stack.push({ value: item, depth: node.depth + 1 });
+      }
+      continue;
+    }
+    if (!current || typeof current !== "object") {
+      continue;
+    }
+    for (const [key, rawValue] of Object.entries(current)) {
+      const normalizedKey = String(key || "").toLowerCase();
+      if (normalizedKey.includes("led") || normalizedKey.includes("power") || normalizedKey.includes("illumination") || normalizedKey.includes("laser")) {
+        const parsed = Number(rawValue);
+        if (Number.isFinite(parsed) && parsed >= 0) {
+          const token = parsed.toFixed(6);
+          if (!seen.has(token)) {
+            seen.add(token);
+            values.push(parsed);
+          }
+        }
+      }
+      if (rawValue && typeof rawValue === "object") {
+        stack.push({ value: rawValue, depth: node.depth + 1 });
+      }
+    }
+  }
+  values.sort((a, b) => a - b);
+  return values.slice(0, 12);
+}
+
+function parseBinningFactor(rawValue, fallback = 4) {
+  const text = String(rawValue || "").trim().toLowerCase();
+  if (!text) {
+    return fallback;
+  }
+  const squareMatch = text.match(/^(\d+)\s*x\s*(\d+)$/);
+  if (squareMatch) {
+    const first = Number(squareMatch[1]);
+    const second = Number(squareMatch[2]);
+    if (Number.isFinite(first) && Number.isFinite(second) && first === second && first >= 1) {
+      return first;
+    }
+    throw new Error("Binning factor must be square, for example 2x2 or 4x4.");
+  }
+  const scalar = Number(text);
+  if (Number.isFinite(scalar) && scalar >= 1) {
+    return Math.floor(scalar);
+  }
+  throw new Error("Invalid binning factor. Use 1, 2, 4, or a square form like 4x4.");
+}
+
+function updateRawPreviewFrameModeUi() {
+  const mode = String(els.rawPreviewQualityFrameMode?.value || "full");
+  if (!els.rawPreviewQualityMaxFrames) {
+    return;
+  }
+  if (mode === "full") {
+    els.rawPreviewQualityMaxFrames.value = "";
+    els.rawPreviewQualityMaxFrames.placeholder = "full (all frames)";
+    els.rawPreviewQualityMaxFrames.disabled = true;
+    return;
+  }
+  els.rawPreviewQualityMaxFrames.disabled = false;
+  els.rawPreviewQualityMaxFrames.placeholder = "96";
+}
+
+function progressPercent(job) {
+  const total = Number(job.total_projects || 0);
+  const scanned = Number(job.scanned_projects || 0);
+  if (total <= 0) {
+    return 0;
+  }
+  return Math.max(0, Math.min(100, Math.round((100 * scanned) / total)));
+}
+
+function isAdmin() {
+  return state.currentUser && ["admin", "service"].includes(state.currentUser.role);
+}
+
+function canAccessAdminPortal() {
+  return isAdmin() || Boolean(state.currentUser?.admin_portal_access);
+}
+
+function hasAdminPrivileges() {
+  return isAdmin();
+}
+
+function labStatusLabel(user) {
+  return String(user?.lab_status || "yes");
+}
+
+async function ensureStorageRootsLoaded() {
+  if (!state.storageRoots.length) {
+    state.storageRoots = await apiGet("/storage-roots");
+  }
+  return state.storageRoots;
+}
+
+function findUserHomeStorageRoot() {
+  return state.storageRoots.find((root) => root.name === "user-homes")
+    || state.storageRoots.find((root) => root.root_type === "user_home_root" && root.path_prefix === "/homes")
+    || state.storageRoots.find((root) => root.path_prefix === "/homes");
+}
+
+function fieldValueFromForm(form, name) {
+  const field = form.elements.namedItem(name);
+  if (!field) {
+    return "";
+  }
+  if (field.type === "checkbox") {
+    return Boolean(field.checked);
+  }
+  return String(field.value || "");
+}
+
+function openFormDialog({ title, description = "", fields = [], submitLabel = "Save" }) {
+  return new Promise((resolve) => {
+    const overlay = document.createElement("div");
+    overlay.className = "modal-backdrop";
+    const fieldMarkup = fields.map((field) => {
+      const required = field.required ? "required" : "";
+      const value = field.value == null ? "" : String(field.value);
+      if (field.type === "textarea") {
+        return `
+          <label class="field dialog-field">
+            <span>${escapeHtml(field.label)}</span>
+            <textarea name="${field.name}" rows="${field.rows || 4}" ${required}>${escapeHtml(value)}</textarea>
+          </label>
+        `;
+      }
+      if (field.type === "select") {
+        const options = (field.options || []).map((option) => `
+          <option value="${escapeHtml(option.value)}" ${String(option.value) === value ? "selected" : ""}>${escapeHtml(option.label)}</option>
+        `).join("");
+        return `
+          <label class="field dialog-field">
+            <span>${escapeHtml(field.label)}</span>
+            <select name="${field.name}" ${required}>${options}</select>
+          </label>
+        `;
+      }
+      if (field.type === "checkbox") {
+        return `
+          <label class="field dialog-field">
+            <span>${escapeHtml(field.label)}</span>
+            <input name="${field.name}" type="checkbox" ${field.value ? "checked" : ""} />
+          </label>
+        `;
+      }
+      return `
+        <label class="field dialog-field">
+          <span>${escapeHtml(field.label)}</span>
+          <input name="${field.name}" type="${field.type || "text"}" value="${escapeHtml(value)}" ${required} />
+        </label>
+      `;
+    }).join("");
+    overlay.innerHTML = `
+      <form class="modal-panel">
+        <div class="panel-header">
+          <div>
+            <h2>${escapeHtml(title)}</h2>
+            ${description ? `<p class="muted">${escapeHtml(description)}</p>` : ""}
+          </div>
+        </div>
+        <div class="dialog-field-list">${fieldMarkup}</div>
+        <div class="dialog-actions">
+          <button type="button" data-dialog-cancel>Cancel</button>
+          <button type="submit" class="primary">${escapeHtml(submitLabel)}</button>
+        </div>
+      </form>
+    `;
+    document.body.appendChild(overlay);
+
+    const form = overlay.querySelector("form");
+    const close = (value) => {
+      overlay.remove();
+      resolve(value);
+    };
+    overlay.querySelector("[data-dialog-cancel]")?.addEventListener("click", () => close(null));
+    overlay.addEventListener("click", (event) => {
+      if (event.target === overlay) {
+        close(null);
+      }
+    });
+    overlay.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") {
+        close(null);
+      }
+    });
+    form?.addEventListener("submit", (event) => {
+      event.preventDefault();
+      const values = {};
+      for (const field of fields) {
+        values[field.name] = fieldValueFromForm(form, field.name);
+      }
+      close(values);
+    });
+    overlay.querySelector("input, textarea, select")?.focus();
+  });
+}
+
+function escapeHtml(value) {
+  return String(value ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
+function updateSessionUi() {
+  document.body?.classList.toggle("auth-locked", !Boolean(state.currentUser));
+  if (els.loginUserKey) {
+    els.loginUserKey.value = state.userKey || "";
+  }
+  const authenticated = Boolean(state.currentUser);
+  if (els.loginPanel) {
+    els.loginPanel.classList.toggle("hidden", authenticated);
+  }
+  if (els.sessionLabel) {
+    if (!authenticated) {
+      els.sessionLabel.textContent = "Not logged in.";
+    } else if (state.authMode === "session") {
+      els.sessionLabel.textContent = `Session: ${state.currentUser.display_name} (${state.currentUser.user_key})`;
+    } else if (state.authMode === "header") {
+      els.sessionLabel.textContent = `Header identity: ${state.currentUser.display_name} (${state.currentUser.user_key})`;
+    } else {
+      els.sessionLabel.textContent = `Identity: ${state.currentUser.display_name} (${state.currentUser.user_key})`;
+    }
+  }
+  if (els.sessionBox) {
+    els.sessionBox.classList.toggle("hidden", !authenticated);
+  }
+  if (els.userLabel) {
+    if (authenticated) {
+      const modeLabel = state.authMode === "session" ? "session" : (state.authMode || "identity");
+      els.userLabel.textContent = `Signed in: ${state.currentUser.display_name} (${state.currentUser.user_key}) via ${modeLabel}`;
+    } else {
+      els.userLabel.textContent = "Signed in: not connected";
+    }
+  }
+  if (els.logoutButton) {
+    els.logoutButton.disabled = !authenticated;
+  }
+  if (authenticated) {
+    if (!els.changePasswordButton) {
+      els.changePasswordButton = document.createElement("button");
+      els.changePasswordButton.id = "change-password-button";
+      els.changePasswordButton.textContent = "Change password";
+      els.changePasswordButton.addEventListener("click", () => {
+        changeMyPassword().catch((error) => setStatus(String(error)));
+      });
+      els.logoutButton?.parentElement?.insertBefore(els.changePasswordButton, els.logoutButton);
+    }
+    els.changePasswordButton.classList.remove("hidden");
+    els.changePasswordButton.disabled = false;
+  } else if (els.changePasswordButton) {
+    els.changePasswordButton.classList.add("hidden");
+    els.changePasswordButton.disabled = true;
+  }
+  const adminLinks = document.querySelectorAll(".admin-nav-link");
+  for (const link of adminLinks) {
+    link.classList.toggle("hidden", !canAccessAdminPortal());
+  }
+  els.adminNavLinks = adminLinks;
+  if (pageFlags.hasExecutionTargetsView) {
+    if (els.adminContent) {
+      els.adminContent.classList.toggle("hidden", !authenticated);
+    }
+    if (els.adminDeniedPanel) {
+      els.adminDeniedPanel.classList.toggle("hidden", authenticated || !state.userKey);
+    }
+  } else if (pageFlags.hasAdminView) {
+    const allowed = canAccessAdminPortal();
+    if (els.adminContent) {
+      els.adminContent.classList.toggle("hidden", !allowed);
+    }
+    if (els.adminDeniedPanel) {
+      els.adminDeniedPanel.classList.toggle("hidden", allowed || !authenticated);
+    }
+  } else if ((pageFlags.hasExternalSystemsView || pageFlags.hasYeastStrainsView) && els.adminContent) {
+    els.adminContent.classList.toggle("hidden", !authenticated);
+  }
+  updateExecutionTargetAccessControls();
+}
+
+function updateExecutionTargetAccessControls() {
+  if (!pageFlags.hasExecutionTargetsView) {
+    return;
+  }
+  const readOnly = !isAdmin();
+  const adminOnlyControls = [
+    els.newExecutionTargetButton,
+    els.cancelExecutionTargetEditButton,
+    els.applyWorkerInstancesButton,
+    els.applyExecutionTargetDrainButton,
+    els.saveExecutionTargetButton,
+    els.purgeQueuedJobsButton,
+    els.purgeQueuedJobsKind,
+    els.executionTargetName,
+    els.executionTargetKey,
+    els.executionTargetKind,
+    els.executionTargetHost,
+    els.executionTargetStatus,
+    els.executionTargetSupportsMatlab,
+    els.executionTargetSupportsPython,
+    els.executionTargetSupportsGpu,
+    els.executionTargetMaxConcurrentJobs,
+    els.executionTargetMatlabMaxThreads,
+    els.executionTargetWorkerInstances,
+    els.executionTargetDrainNewJobs,
+    els.saveJobPrioritiesButton,
+    els.jobResourceCpuCapacity,
+    els.jobResourceGpuVramCapacity,
+    els.jobResourceDiskCapacity,
+  ];
+  for (const control of adminOnlyControls) {
+    if (control) {
+      control.disabled = readOnly;
+      control.title = readOnly ? "Admin access required" : "";
+    }
+  }
+  for (const input of document.querySelectorAll("[data-job-priority-kind]")) {
+    input.disabled = readOnly;
+    input.title = readOnly ? "Admin access required" : "";
+  }
+  for (const input of document.querySelectorAll("[data-job-resource-kind]")) {
+    input.disabled = readOnly;
+    input.title = readOnly ? "Admin access required" : "";
+  }
+  if (!readOnly) {
+    if (els.cancelExecutionTargetEditButton) {
+      els.cancelExecutionTargetEditButton.disabled = !state.editingExecutionTarget;
+    }
+    if (els.applyWorkerInstancesButton) {
+      els.applyWorkerInstancesButton.disabled = !state.selectedExecutionTarget;
+    }
+    if (els.applyExecutionTargetDrainButton) {
+      els.applyExecutionTargetDrainButton.disabled = !state.selectedExecutionTarget;
+    }
+  }
+  if (els.executionTargetReadonlyNotice) {
+    els.executionTargetReadonlyNotice.classList.toggle("hidden", !readOnly || !state.currentUser);
+  }
+}
+
+function setSummary(summary) {
+  state.summary = summary;
+  if (pageKind !== "raw-ops" && pageKind !== "raw-datasets" && pageKind !== "catalog") {
+    if (els.summaryTotalProjects) els.summaryTotalProjects.textContent = summary.total_projects;
+    if (els.summaryOwnedProjects) els.summaryOwnedProjects.textContent = summary.owned_projects;
+    if (els.summaryTotalBytes) els.summaryTotalBytes.textContent = humanBytes(summary.total_bytes);
+    if (els.summaryGroupCount) els.summaryGroupCount.textContent = summary.group_count;
+  }
+  if (els.dashboardProjectCount) {
+    els.dashboardProjectCount.textContent = summary.total_projects ?? 0;
+  }
+  state.currentUser = summary.user || null;
+  updateSessionUi();
+}
+
+function dashboardJobKindLabel(job) {
+  const kind = String(job.job_kind || "background").replace(/[_-]+/g, " ").trim();
+  return kind ? kind.replace(/\b\w/g, (letter) => letter.toUpperCase()) : "Background job";
+}
+
+function dashboardJobResourceLabel(job) {
+  if (job.resource_name) {
+    return job.resource_name;
+  }
+  const resourceId = job.project_id || job.raw_dataset_id;
+  return resourceId ? `Item ${String(resourceId).slice(0, 8)}` : "—";
+}
+
+function renderDashboardJobRows(tableBody, emptyState, jobs, { history = false } = {}) {
+  if (!tableBody) {
+    return;
+  }
+  const rows = Array.isArray(jobs) ? jobs : [];
+  tableBody.replaceChildren();
+  if (emptyState) {
+    emptyState.classList.toggle("hidden", rows.length > 0);
+  }
+  for (const job of rows) {
+    const row = document.createElement("tr");
+    const jobLabel = dashboardJobKindLabel(job);
+    const resourceLabel = dashboardJobResourceLabel(job);
+    row.innerHTML = history
+      ? `<td>${escapeHtml(jobLabel)}</td><td>${escapeHtml(job.status || "unknown")}</td><td>${escapeHtml(resourceLabel)}</td><td>${escapeHtml(formatTimestamp(job.started_at) || "—")}</td><td>${escapeHtml(formatTimestamp(job.finished_at) || "—")}</td>`
+      : `<td>${escapeHtml(jobLabel)}</td><td>${escapeHtml(job.status || "unknown")}</td><td>${escapeHtml(resourceLabel)}</td><td>${escapeHtml(formatTimestamp(job.started_at || job.created_at) || "—")}</td>`;
+    tableBody.appendChild(row);
+  }
+}
+
+function renderDashboardActivity(activity) {
+  const activeJobs = Array.isArray(activity?.active_jobs) ? activity.active_jobs : [];
+  const recentJobs = Array.isArray(activity?.recent_jobs) ? activity.recent_jobs : [];
+  const acquisitions = Array.isArray(activity?.active_acquisitions) ? activity.active_acquisitions : [];
+  const failedAcquisitions = Array.isArray(activity?.recent_failed_acquisitions) ? activity.recent_failed_acquisitions : [];
+  if (els.dashboardActiveJobCount) els.dashboardActiveJobCount.textContent = `${activeJobs.length}`;
+  if (els.dashboardRecentJobCount) els.dashboardRecentJobCount.textContent = `${recentJobs.length}`;
+  if (els.dashboardAcquisitionCount) els.dashboardAcquisitionCount.textContent = `${acquisitions.length}`;
+  renderDashboardJobRows(els.dashboardActiveJobsBody, els.dashboardActiveJobsEmpty, activeJobs);
+  renderDashboardJobRows(els.dashboardRecentJobsBody, els.dashboardRecentJobsEmpty, recentJobs, { history: true });
+
+  if (els.dashboardAcquisitionsBody) {
+    els.dashboardAcquisitionsBody.replaceChildren();
+    if (els.dashboardAcquisitionsEmpty) {
+      els.dashboardAcquisitionsEmpty.classList.toggle("hidden", acquisitions.length > 0);
+    }
+    for (const acquisition of acquisitions) {
+      const row = document.createElement("tr");
+      const progress = acquisition.progress_percent == null
+        ? "—"
+        : `${Number(acquisition.progress_percent).toLocaleString(undefined, { maximumFractionDigits: 1 })}%`;
+      const microscope = acquisition.microscope_name ? ` · ${acquisition.microscope_name}` : "";
+      row.innerHTML = `
+        <td>${escapeHtml(acquisition.acquisition_label || acquisition.session_key || "Acquisition")}${escapeHtml(microscope)}</td>
+        <td>${escapeHtml(acquisition.status || "unknown")}</td>
+        <td>${escapeHtml(progress)}</td>
+        <td>${escapeHtml(formatTimestamp(acquisition.last_seen_at || acquisition.updated_at) || "—")}</td>
+      `;
+      els.dashboardAcquisitionsBody.appendChild(row);
+    }
+  }
+
+  if (els.dashboardFailedAcquisitionsBody) {
+    els.dashboardFailedAcquisitionsBody.replaceChildren();
+    if (els.dashboardFailedAcquisitionsEmpty) {
+      els.dashboardFailedAcquisitionsEmpty.classList.toggle("hidden", failedAcquisitions.length > 0);
+    }
+    for (const acquisition of failedAcquisitions) {
+      const row = document.createElement("tr");
+      const label = acquisition.acquisition_label || acquisition.session_key || "Acquisition";
+      const microscope = acquisition.microscope_name ? ` · ${acquisition.microscope_name}` : "";
+      const mdaProgress = acquisition.mda_progress
+        ?? acquisition.result_json?.mda_progress
+        ?? acquisition.metadata_json?.mda_progress
+        ?? acquisition.acquisition_params_json?.mda_progress;
+      const progressText = mdaProgress == null
+        ? (acquisition.progress_percent == null ? "—" : `${Number(acquisition.progress_percent).toLocaleString(undefined, { maximumFractionDigits: 1 })}%`)
+        : (typeof mdaProgress === "object" ? JSON.stringify(mdaProgress) : String(mdaProgress));
+      const errorText = acquisition.error_text || "—";
+      row.innerHTML = `
+        <td>${escapeHtml(label)}${escapeHtml(microscope)}</td>
+        <td>${escapeHtml(formatTimestamp(acquisition.completed_at || acquisition.updated_at || acquisition.last_seen_at) || "—")}</td>
+        <td title="${escapeHtml(progressText)}">${escapeHtml(shortText(progressText, 180))}</td>
+        <td title="${escapeHtml(errorText)}">${escapeHtml(shortText(errorText, 240))}</td>
+      `;
+      els.dashboardFailedAcquisitionsBody.appendChild(row);
+    }
+  }
+}
+
+async function refreshDashboardActivity() {
+  if (!pageFlags.hasDashboardView) {
+    return;
+  }
+  const activity = await apiGet("/dashboard/activity");
+  renderDashboardActivity(activity);
+}
+
+function renderRawOpsSummary() {
+  if (pageKind !== "raw-ops" && pageKind !== "raw-datasets") {
+    return;
+  }
+  const rawItems = Array.isArray(state.rawDatasets) ? state.rawDatasets : [];
+  const currentUserKey = state.currentUser?.user_key || state.userKey || "";
+  const ownedCount = rawItems.filter((item) => (item.owner || {}).user_key === currentUserKey).length;
+  const archivedCount = rawItems.filter((item) => String(item.archive_status || "").toLowerCase() === "archived").length;
+  const totalBytes = rawItems.reduce((sum, item) => sum + Number(item.total_bytes || 0), 0);
+  if (els.summaryTotalProjects) els.summaryTotalProjects.textContent = `${rawItems.length}`;
+  if (els.summaryOwnedProjects) els.summaryOwnedProjects.textContent = `${ownedCount}`;
+  if (els.summaryTotalBytes) els.summaryTotalBytes.textContent = humanBytes(totalBytes);
+  if (els.summaryGroupCount) els.summaryGroupCount.textContent = `${archivedCount}`;
+}
+
+function renderArchiveSettingsStatus() {
+  if (!els.archiveSettingsSummary) {
+    return;
+  }
+  const status = state.archiveSettingsStatus;
+  if (!status) {
+    els.archiveSettingsSummary.textContent = "Archive defaults not loaded yet.";
+    return;
+  }
+  const config = status.config || {};
+  if (els.archiveSettingsRoot) {
+    els.archiveSettingsRoot.value = config.archive_root || "";
+  }
+  if (els.archiveSettingsCompression) {
+    els.archiveSettingsCompression.value = config.archive_compression || "zip";
+  }
+  if (els.archiveSettingsDeleteSource) {
+    els.archiveSettingsDeleteSource.checked = Boolean(config.delete_hot_source);
+  }
+  if (els.archivePolicyUri && !els.archivePolicyUri.value) {
+    els.archivePolicyUri.placeholder = config.archive_root || "archive root required";
+  }
+  if (els.archivePolicyCompression) {
+    els.archivePolicyCompression.value = config.archive_compression || "zip";
+  }
+  if (els.archivePolicyDeleteSource) {
+    els.archivePolicyDeleteSource.checked = Boolean(config.delete_hot_source);
+  }
+  const bits = [
+    config.archive_root || "no archive root configured",
+    config.archive_compression || "zip",
+    config.delete_hot_source ? "delete hot source" : "keep hot source",
+  ];
+  els.archiveSettingsSummary.textContent = bits.join(" | ");
+}
+
+function renderArchivedRawDatasets() {
+  if (!els.archivedRawDatasetsSummary || !els.archivedRawDatasetsTableBody) {
+    return;
+  }
+  const archivedItems = (state.rawDatasets || []).filter((raw) =>
+    ["archived", "restored", "restore_queued"].includes(String(raw.archive_status || "").toLowerCase())
+  );
+  els.archivedRawDatasetsTableBody.innerHTML = "";
+  if (!archivedItems.length) {
+    els.archivedRawDatasetsSummary.textContent = "No archived raw datasets in the current selection.";
+    renderArchivedRawSelectionControls([]);
+    return;
+  }
+  const archivedBytes = archivedItems.reduce((sum, item) => sum + Number(item.archive_file_bytes || 0), 0);
+  els.archivedRawDatasetsSummary.textContent =
+    `${archivedItems.length} archived dataset(s) visible | ${humanBytes(archivedBytes)} total`;
+  renderArchivedRawSelectionControls(archivedItems);
+  for (const raw of archivedItems) {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td><input class="archived-raw-select-checkbox" type="checkbox" ${isRawDatasetSelected(raw.id) ? "checked" : ""} /></td>
+      <td>${raw.acquisition_label}</td>
+      <td>${raw.owner ? userOptionLabel(raw.owner) : ""}</td>
+      <td>${raw.lifecycle_tier}</td>
+      <td>${raw.archive_status}</td>
+      <td>${raw.archive_compression || ""}</td>
+      <td title="${raw.archive_uri || ""}">${raw.archive_uri || ""}</td>
+      <td>${humanBytes(raw.archive_file_bytes || 0)}</td>
+    `;
+    tr.querySelector(".archived-raw-select-checkbox")?.addEventListener("click", (event) => {
+      event.stopPropagation();
+    });
+    tr.querySelector(".archived-raw-select-checkbox")?.addEventListener("change", (event) => {
+      toggleRawDatasetSelection(raw.id, Boolean(event.target.checked));
+    });
+    tr.addEventListener("click", () => openRawDatasetPage(raw.id));
+    els.archivedRawDatasetsTableBody.appendChild(tr);
+  }
+}
+
+function visibleArchivedRawDatasetIds() {
+  return (state.rawDatasets || [])
+    .filter((raw) => ["archived", "restored", "restore_queued"].includes(String(raw.archive_status || "").toLowerCase()))
+    .map((raw) => `${raw.id}`);
+}
+
+function renderArchivedRawSelectionControls(archivedItems) {
+  const visibleIds = (archivedItems || []).map((raw) => `${raw.id}`);
+  const selectedIds = state.selectedRawDatasetIds.filter((rawDatasetId) => visibleIds.includes(`${rawDatasetId}`));
+  const visibleCount = visibleIds.length;
+  const selectedCount = selectedIds.length;
+  if (els.archivedRawSelectAll) {
+    const allVisibleSelected = visibleCount > 0 && selectedCount === visibleCount;
+    const someVisibleSelected = selectedCount > 0 && selectedCount < visibleCount;
+    els.archivedRawSelectAll.checked = allVisibleSelected;
+    els.archivedRawSelectAll.indeterminate = someVisibleSelected;
+    els.archivedRawSelectAll.disabled = visibleCount === 0;
+  }
+  if (els.archivedRawSelectVisibleButton) {
+    els.archivedRawSelectVisibleButton.disabled = visibleCount === 0;
+  }
+  if (els.archivedRawClearSelectionButton) {
+    els.archivedRawClearSelectionButton.disabled = selectedCount === 0;
+  }
+  if (els.archivedRawDeleteSelectedButton) {
+    els.archivedRawDeleteSelectedButton.disabled = selectedCount === 0;
+  }
+}
+
+function userOptionLabel(user) {
+  return `${user.display_name} (${user.user_key})`;
+}
+
+function ownerUserOptions(currentOwnerKey) {
+  const options = availableOwnerUsers().map((user) => ({
+    value: user.user_key,
+    label: userOptionLabel(user),
+  }));
+  if (currentOwnerKey && !options.some((option) => option.value === currentOwnerKey)) {
+    options.unshift({ value: currentOwnerKey, label: currentOwnerKey });
+  }
+  return options;
+}
+
+function renderUserSelect(selectElement, users, options = {}) {
+  if (!selectElement) {
+    return;
+  }
+  const {
+    emptyOptionLabel = "",
+    noUsersLabel = "No user accounts available",
+    selectedValue = "",
+  } = options;
+  selectElement.innerHTML = "";
+  if (emptyOptionLabel) {
+    const blankOption = document.createElement("option");
+    blankOption.value = "";
+    blankOption.textContent = emptyOptionLabel;
+    selectElement.appendChild(blankOption);
+  }
+  for (const user of users) {
+    const option = document.createElement("option");
+    option.value = user.user_key;
+    option.textContent = userOptionLabel(user);
+    selectElement.appendChild(option);
+  }
+  if (selectedValue && !users.some((user) => user.user_key === selectedValue)) {
+    const option = document.createElement("option");
+    option.value = selectedValue;
+    option.textContent = selectedValue;
+    selectElement.appendChild(option);
+  }
+  if (!users.length) {
+    const option = document.createElement("option");
+    option.value = "";
+    option.textContent = noUsersLabel;
+    selectElement.appendChild(option);
+  }
+  if (selectedValue && Array.from(selectElement.options).some((option) => option.value === selectedValue)) {
+    selectElement.value = selectedValue;
+  } else if (emptyOptionLabel) {
+    selectElement.value = "";
+  } else if (users.length) {
+    selectElement.value = users[0].user_key;
+  }
+}
+
+function renderGroupFilter() {
+  if (!els.groupFilter) {
+    return;
+  }
+  const currentValue = els.groupFilter.value;
+  els.groupFilter.innerHTML = `<option value="">All projects</option>`;
+  for (const group of state.groups) {
+    const option = document.createElement("option");
+    option.value = group.id;
+    option.textContent = group.display_name;
+    els.groupFilter.appendChild(option);
+  }
+  els.groupFilter.value = state.groups.some((group) => group.id === currentValue) ? currentValue : "";
+}
+
+function renderStorageRootFilter() {
+  if (!els.storageRootFilter) {
+    return;
+  }
+  const currentValue = els.storageRootFilter.value;
+  els.storageRootFilter.innerHTML = `<option value="">All roots</option>`;
+  for (const root of state.storageRoots) {
+    const option = document.createElement("option");
+    option.value = root.name;
+    option.textContent = root.name;
+    els.storageRootFilter.appendChild(option);
+  }
+  els.storageRootFilter.value = state.storageRoots.some((root) => root.name === currentValue) ? currentValue : "";
+}
+
+function browseableStorageRoots() {
+  return state.storageRoots.filter((root) => root.host_scope === "server");
+}
+
+function selectedBrowseRoot() {
+  if (!els.indexBrowseRoot) {
+    return null;
+  }
+  const rootId = Number(els.indexBrowseRoot.value || 0);
+  if (!rootId) {
+    return null;
+  }
+  return browseableStorageRoots().find((root) => root.id === rootId) || null;
+}
+
+function renderIndexBrowser() {
+  if (!els.indexBrowseRoot || !els.indexBrowseCurrent || !els.indexBrowseTableBody) {
+    return;
+  }
+
+  const roots = browseableStorageRoots();
+  const currentValue = Number(els.indexBrowseRoot.value || 0);
+  els.indexBrowseRoot.innerHTML = "";
+
+  if (!roots.length) {
+    const option = document.createElement("option");
+    option.value = "";
+    option.textContent = "No server storage roots";
+    els.indexBrowseRoot.appendChild(option);
+    if (els.indexBrowseCurrentText) {
+      els.indexBrowseCurrentText.textContent = "No browseable server storage roots are registered.";
+    } else {
+      els.indexBrowseCurrent.textContent = "No browseable server storage roots are registered.";
+    }
+    els.indexBrowseTableBody.innerHTML = "";
+    if (els.indexBrowseUpButton) {
+      els.indexBrowseUpButton.disabled = true;
+    }
+    return;
+  }
+
+  for (const root of roots) {
+    const option = document.createElement("option");
+    option.value = String(root.id);
+    option.textContent = `${root.name} (${root.path_prefix})`;
+    els.indexBrowseRoot.appendChild(option);
+  }
+
+  const hasCurrent = roots.some((root) => root.id === currentValue);
+  els.indexBrowseRoot.value = String(hasCurrent ? currentValue : roots[0].id);
+
+  if (!state.indexBrowse || state.indexBrowse.storage_root?.id !== Number(els.indexBrowseRoot.value)) {
+    const root = selectedBrowseRoot();
+    state.indexBrowse = root
+      ? {
+          storage_root: root,
+          current_relative_path: "",
+          current_absolute_path: root.path_prefix,
+          parent_relative_path: null,
+          directories: [],
+        }
+      : null;
+  }
+
+  const browse = state.indexBrowse;
+  if (!browse) {
+    if (els.indexBrowseCurrentText) {
+      els.indexBrowseCurrentText.textContent = "No storage root selected.";
+    } else {
+      els.indexBrowseCurrent.textContent = "No storage root selected.";
+    }
+    els.indexBrowseTableBody.innerHTML = "";
+    if (els.indexBrowseUpButton) {
+      els.indexBrowseUpButton.disabled = true;
+    }
+    return;
+  }
+
+  const currentLabel = browse.current_relative_path
+    ? `${browse.storage_root.name}: ${browse.current_relative_path}`
+    : `${browse.storage_root.name}: /`;
+  if (els.indexBrowseCurrentText) {
+    els.indexBrowseCurrentText.textContent = `${currentLabel} -> ${browse.current_absolute_path}`;
+  } else {
+    els.indexBrowseCurrent.textContent = `${currentLabel} -> ${browse.current_absolute_path}`;
+  }
+  if (els.indexBrowseUpButton) {
+    els.indexBrowseUpButton.disabled = browse.parent_relative_path === null;
+  }
+
+  els.indexBrowseTableBody.innerHTML = "";
+  const canGoUp = browse.parent_relative_path !== null;
+  const upRow = document.createElement("tr");
+  if (!canGoUp) {
+    upRow.classList.add("muted");
+  }
+  upRow.innerHTML = `
+    <td>..</td>
+    <td>${escapeHtml(browse.parent_relative_path || "/")}</td>
+    <td><button type="button" ${canGoUp ? "" : "disabled"}>${canGoUp ? "Up" : "Root"}</button></td>
+  `;
+  upRow.querySelector("button")?.addEventListener("click", () => {
+    if (!canGoUp) {
+      return;
+    }
+    openIndexBrowserPath(browse.parent_relative_path).catch((error) => setStatus(String(error)));
+  });
+  els.indexBrowseTableBody.appendChild(upRow);
+
+  for (const directory of browse.directories || []) {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${escapeHtml(directory.name)}</td>
+      <td>${escapeHtml(directory.relative_path || "/")}</td>
+      <td><button type="button">Enter</button></td>
+    `;
+    tr.querySelector("button")?.addEventListener("click", () => {
+      openIndexBrowserPath(directory.relative_path).catch((error) => setStatus(String(error)));
+    });
+    els.indexBrowseTableBody.appendChild(tr);
+  }
+
+  if (!browse.directories?.length) {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `<td colspan="3" class="muted">No child directories.</td>`;
+    els.indexBrowseTableBody.appendChild(tr);
+  }
+}
+
+function visibleProjectIds() {
+  return getVisibleProjects().map((project) => `${project.id}`);
+}
+
+function selectedProjectIds() {
+  const visibleIds = new Set(visibleProjectIds());
+  return state.selectedProjectIds.filter((projectId) => visibleIds.has(`${projectId}`));
+}
+
+function isProjectSelected(projectId) {
+  return state.selectedProjectIds.includes(`${projectId}`);
+}
+
+function setSelectedProjectIds(projectIds) {
+  state.selectedProjectIds = [...new Set((projectIds || []).map((projectId) => `${projectId}`))];
+  if (state.pendingBulkDelete?.scope === "selected") {
+    closeBulkDeletePanel();
+  }
+  renderProjects();
+  renderProjectSelectionControls();
+}
+
+function toggleProjectSelection(projectId, isSelected) {
+  const normalizedId = `${projectId}`;
+  const selected = new Set(state.selectedProjectIds);
+  if (isSelected) {
+    selected.add(normalizedId);
+  } else {
+    selected.delete(normalizedId);
+  }
+  setSelectedProjectIds([...selected]);
+}
+
+function renderProjectSelectionControls() {
+  const visibleIds = visibleProjectIds();
+  const selectedIds = selectedProjectIds();
+  const visibleCount = visibleIds.length;
+  const selectedCount = selectedIds.length;
+
+  if (els.projectSelectAll) {
+    const allVisibleSelected = visibleCount > 0 && selectedCount === visibleCount;
+    const someVisibleSelected = selectedCount > 0 && selectedCount < visibleCount;
+    els.projectSelectAll.checked = allVisibleSelected;
+    els.projectSelectAll.indeterminate = someVisibleSelected;
+    els.projectSelectAll.disabled = visibleCount === 0;
+  }
+  if (els.projectSelectionSummary) {
+    els.projectSelectionSummary.textContent = `${selectedCount} selected / ${visibleCount} visible`;
+  }
+  if (els.clearSelectionButton) {
+    els.clearSelectionButton.disabled = selectedCount === 0;
+  }
+  if (els.selectVisibleButton) {
+    els.selectVisibleButton.disabled = visibleCount === 0;
+  }
+  if (els.bulkDeleteSelectedButton) {
+    els.bulkDeleteSelectedButton.disabled = selectedCount === 0;
+  }
+  if (els.bulkQueuePreviewsSelectedButton) {
+    els.bulkQueuePreviewsSelectedButton.disabled = selectedCount === 0;
+  }
+}
+
+function renderBulkDeletePanel() {
+  if (!els.bulkDeletePanel || !els.bulkDeleteSummary || !els.bulkDeleteConfirmButton) {
+    return;
+  }
+  const pending = state.pendingBulkDelete;
+  if (!pending || !pending.projectIds?.length) {
+    els.bulkDeletePanel.classList.add("hidden");
+    return;
+  }
+
+  els.bulkDeletePanel.classList.remove("hidden");
+  const scopeLabel = pending.scope === "selected" ? "selected" : "visible";
+  const mode = els.bulkDeleteMode?.value || "database_only";
+  els.bulkDeleteConfirmButton.textContent =
+    mode === "project_files" ? "Delete catalog entries and files" : "Delete catalog entries only";
+
+  if (!pending.preview) {
+    els.bulkDeleteSummary.textContent = `Preparing deletion preview for ${pending.projectIds.length} ${scopeLabel} project(s)...`;
+    return;
+  }
+
+  const preview = pending.preview;
+  const parts = [`${pending.projectIds.length} ${scopeLabel} project(s)`];
+  if (mode === "project_files") {
+    parts.push(`project files reclaimable ${humanBytes(preview.reclaimableBytes || 0)}`);
+    if (preview.blockedCount) {
+      parts.push(`${preview.blockedCount} filesystem target(s) blocked`);
+    }
+    if (preview.targetCount != null) {
+      parts.push(`${preview.targetCount} filesystem target(s) previewed`);
+    }
+  } else {
+    parts.push("catalog entries only, files on disk will be kept");
+  }
+  if (preview.errorCount) {
+    parts.push(`${preview.errorCount} preview error(s)`);
+  }
+  els.bulkDeleteSummary.textContent = parts.join(" | ");
+}
+
+function renderProjectsSummary() {
+  const projects = Array.isArray(state.projects) ? state.projects : [];
+  if (!projects.length) return;
+  const currentUserKey = state.currentUser?.user_key || state.userKey || "";
+  const ownedCount = projects.filter((p) => (p.owner || {}).user_key === currentUserKey).length;
+  const totalBytes = projects.reduce((sum, p) => sum + Number(p.total_bytes || 0), 0);
+  if (els.summaryTotalProjects) els.summaryTotalProjects.textContent = `${projects.length}`;
+  if (els.summaryOwnedProjects) els.summaryOwnedProjects.textContent = `${ownedCount}`;
+  if (els.summaryTotalBytes) els.summaryTotalBytes.textContent = humanBytes(totalBytes);
+}
+
+function projectSortValue(project, key) {
+  const ownerLabel = project.owner ? userOptionLabel(project.owner) : "";
+  const values = {
+    name: project.project_name,
+    owner: ownerLabel,
+    visibility: project.visibility,
+    created: timestampSortValue(project.created_at),
+    runs: Number(project.pipeline_run_count || 0),
+    size: Number(project.total_bytes || 0),
+    status: project.status,
+  };
+  return values[key] ?? "";
+}
+
+function rawDatasetSortValue(raw, key) {
+  const ownerLabel = raw.owner ? userOptionLabel(raw.owner) : "";
+  const displayStatus = state.rawDatasetDeletionStatusById?.[String(raw.id)] || raw.status;
+  const values = {
+    acquisition: raw.acquisition_label,
+    type: raw.data_format || "unknown",
+    owner: ownerLabel,
+    tier: raw.lifecycle_tier,
+    archive: raw.archive_status,
+    status: displayStatus,
+    created: timestampSortValue(raw.created_at),
+    size: Number(raw.total_bytes || 0),
+  };
+  return values[key] ?? "";
+}
+
+function timestampSortValue(value) {
+  const parsed = Date.parse(value || "");
+  return Number.isFinite(parsed) ? parsed : 0;
+}
+
+function compareTableValues(valueA, valueB, direction) {
+  const multiplier = direction === "desc" ? -1 : 1;
+  if (typeof valueA === "number" || typeof valueB === "number") {
+    return (Number(valueA || 0) - Number(valueB || 0)) * multiplier;
+  }
+  return String(valueA || "").localeCompare(String(valueB || ""), undefined, {
+    numeric: true,
+    sensitivity: "base",
+  }) * multiplier;
+}
+
+function rowMatchesSearch(values, query) {
+  const normalizedQuery = String(query || "").trim().toLowerCase();
+  if (!normalizedQuery) {
+    return true;
+  }
+  return values.some((value) => String(value ?? "").toLowerCase().includes(normalizedQuery));
+}
+
+function readJsonFromLocalStorage(key, fallback = null) {
+  try {
+    const raw = localStorage.getItem(key);
+    return raw ? JSON.parse(raw) : fallback;
+  } catch (error) {
+    console.warn(`Could not read ${key} from localStorage`, error);
+    return fallback;
+  }
+}
+
+function saveRawDatasetDisplaySettings() {
+  if (!pageFlags.hasRawDatasetsView) {
+    return;
+  }
+  const payload = {
+    search: els.rawSearch?.value || "",
+    ownerKey: els.rawOwnerFilter?.value || "",
+    tier: els.rawTierFilter?.value || "",
+    archiveStatus: els.rawArchiveStatusFilter?.value || "",
+    pageSize: state.rawDatasetPageSize || parseInt(els.rawLimit?.value || "50", 10) || 50,
+    ownedOnly: Boolean(els.rawOwnedOnly?.checked),
+    sort: state.rawDatasetSort || { key: "", direction: "asc" },
+    currentPage: state.rawDatasetCurrentPage || 0,
+    selectedRawDatasetId: state.selectedRawDataset?.id || state.selectedRawDatasetDetail?.id || state.persistedRawDatasetId || "",
+    selectedIds: state.selectedRawDatasetIds || [],
+  };
+  try {
+    localStorage.setItem(RAW_DATASETS_DISPLAY_STORAGE_KEY, JSON.stringify(payload));
+  } catch (error) {
+    console.warn("Could not save raw dataset display settings", error);
+  }
+}
+
+function setSelectValue(selectElement, value) {
+  if (!selectElement) {
+    return;
+  }
+  const normalizedValue = String(value || "");
+  if (
+    normalizedValue &&
+    !Array.from(selectElement.options).some((option) => option.value === normalizedValue)
+  ) {
+    const option = document.createElement("option");
+    option.value = normalizedValue;
+    option.textContent = normalizedValue;
+    selectElement.appendChild(option);
+  }
+  selectElement.value = normalizedValue;
+}
+
+function applyRawDatasetDisplaySettings() {
+  if (!pageFlags.hasRawDatasetsView) {
+    return;
+  }
+  const saved = readJsonFromLocalStorage(RAW_DATASETS_DISPLAY_STORAGE_KEY, null);
+  if (!saved || typeof saved !== "object") {
+    return;
+  }
+  if (els.rawSearch) els.rawSearch.value = String(saved.search || "");
+  setSelectValue(els.rawOwnerFilter, saved.ownerKey || "");
+  setSelectValue(els.rawTierFilter, saved.tier || "");
+  setSelectValue(els.rawArchiveStatusFilter, saved.archiveStatus || "");
+  if (els.rawLimit && saved.pageSize) setSelectValue(els.rawLimit, saved.pageSize);
+  if (els.rawOwnedOnly) els.rawOwnedOnly.checked = Boolean(saved.ownedOnly);
+  const sort = saved.sort && typeof saved.sort === "object" ? saved.sort : {};
+  state.rawDatasetSort = {
+    key: String(sort.key || ""),
+    direction: sort.direction === "desc" ? "desc" : "asc",
+  };
+  state.rawDatasetPageSize = parseInt(saved.pageSize || els.rawLimit?.value || "50", 10) || 50;
+  state.rawDatasetCurrentPage = Math.max(0, parseInt(saved.currentPage || "0", 10) || 0);
+  state.persistedRawDatasetId = String(saved.selectedRawDatasetId || "");
+  state.selectedRawDatasetIds = Array.isArray(saved.selectedIds) ? saved.selectedIds.map((value) => `${value}`) : [];
+}
+
+function clearRawDatasetDisplaySettings() {
+  localStorage.removeItem(RAW_DATASETS_DISPLAY_STORAGE_KEY);
+  if (els.rawSearch) els.rawSearch.value = "";
+  if (els.rawOwnerFilter) els.rawOwnerFilter.value = "";
+  if (els.rawTierFilter) els.rawTierFilter.value = "";
+  if (els.rawArchiveStatusFilter) els.rawArchiveStatusFilter.value = "";
+  if (els.rawLimit) els.rawLimit.value = "50";
+  if (els.rawOwnedOnly) els.rawOwnedOnly.checked = false;
+  state.rawDatasetSort = { key: "", direction: "asc" };
+  state.rawDatasetCurrentPage = 0;
+  state.rawDatasetPageSize = 50;
+  state.selectedRawDatasetIds = [];
+  state.selectedRawDataset = null;
+  state.selectedRawDatasetDetail = null;
+  state.persistedRawDatasetId = "";
+  renderRawDatasets();
+  renderRawDatasetDetail();
+  refreshRawDatasets({ preservePage: false }).catch((error) => setStatus(String(error)));
+}
+
+function getVisibleProjects() {
+  const query = els.projectSearch?.value || "";
+  const filtered = (state.projects || []).filter((project) => rowMatchesSearch([
+    project.project_name,
+    project.project_key,
+    project.owner ? userOptionLabel(project.owner) : "",
+    project.visibility,
+    project.health_status,
+    project.status,
+    project.latest_run_status,
+    humanBytes(project.total_bytes),
+  ], query));
+  const { key, direction } = state.projectSort || {};
+  if (!key) {
+    return filtered;
+  }
+  return [...filtered].sort((a, b) => compareTableValues(projectSortValue(a, key), projectSortValue(b, key), direction));
+}
+
+function getVisibleRawDatasets() {
+  const query = els.rawSearch?.value || "";
+  const filtered = (state.rawDatasets || []).filter((raw) => {
+    const displayStatus = state.rawDatasetDeletionStatusById?.[String(raw.id)] || raw.status;
+    return rowMatchesSearch([
+      raw.acquisition_label,
+      raw.external_key,
+      raw.microscope_name,
+      raw.data_format,
+      raw.owner ? userOptionLabel(raw.owner) : "",
+      raw.lifecycle_tier,
+      raw.archive_status,
+      displayStatus,
+      raw.completeness_status,
+      raw.visibility,
+      humanBytes(raw.total_bytes),
+    ], query);
+  });
+  const { key, direction } = state.rawDatasetSort || {};
+  if (!key) {
+    return filtered;
+  }
+  return [...filtered].sort((a, b) => compareTableValues(rawDatasetSortValue(a, key), rawDatasetSortValue(b, key), direction));
+}
+
+function setTableSort(kind, key) {
+  const stateKey = kind === "raw" ? "rawDatasetSort" : "projectSort";
+  const current = state[stateKey] || { key: "", direction: "asc" };
+  state[stateKey] = {
+    key,
+    direction: current.key === key && current.direction === "asc" ? "desc" : "asc",
+  };
+  if (kind === "raw") {
+    state.rawDatasetCurrentPage = 0;
+    renderRawDatasets();
+    saveRawDatasetDisplaySettings();
+  } else {
+    state.projectCurrentPage = 0;
+    renderProjects();
+  }
+}
+
+function updateSortHeaders(table, sortState) {
+  if (!table) {
+    return;
+  }
+  table.querySelectorAll("th[data-sort-key]").forEach((th) => {
+    const active = th.dataset.sortKey === sortState?.key;
+    th.classList.toggle("sorted", active);
+    th.dataset.sortDirection = active ? sortState.direction : "";
+    th.setAttribute("aria-sort", active ? (sortState.direction === "desc" ? "descending" : "ascending") : "none");
+  });
+}
+
+function renderProjects() {
+  if (!els.projectsTableBody || !els.projectCountLabel) {
+    return;
+  }
+  els.projectsTableBody.innerHTML = "";
+  const visibleProjects = getVisibleProjects();
+  els.projectCountLabel.textContent = `${visibleProjects.length} visible / ${state.projects.length} projects`;
+  renderProjectsSummary();
+  updateSortHeaders(document.querySelector("#projects-table"), state.projectSort);
+
+  const pageSize = state.projectPageSize;
+  const totalPages = Math.ceil(visibleProjects.length / pageSize);
+  state.projectCurrentPage = Math.min(state.projectCurrentPage, Math.max(0, totalPages - 1));
+
+  const startIdx = state.projectCurrentPage * pageSize;
+  const endIdx = startIdx + pageSize;
+  const pageProjects = visibleProjects.slice(startIdx, endIdx);
+
+  for (const project of pageProjects) {
+    const tr = document.createElement("tr");
+    if (state.selectedProject && state.selectedProject.id === project.id) {
+      tr.classList.add("selected");
+    }
+    tr.innerHTML = `
+      <td><input class="project-select-checkbox" type="checkbox" ${isProjectSelected(project.id) ? "checked" : ""} /></td>
+      <td>${escapeHtml(project.project_name)}</td>
+      <td>${escapeHtml(project.owner ? userOptionLabel(project.owner) : "")}</td>
+      <td>${escapeHtml(project.visibility)}</td>
+      <td>${escapeHtml(formatTimestamp(project.created_at))}</td>
+      <td>${escapeHtml(project.pipeline_run_count)}</td>
+      <td>${humanBytes(project.total_bytes)}</td>
+    `;
+    tr.querySelector(".project-select-checkbox")?.addEventListener("click", (event) => {
+      event.stopPropagation();
+    });
+    tr.querySelector(".project-select-checkbox")?.addEventListener("change", (event) => {
+      toggleProjectSelection(project.id, Boolean(event.target.checked));
+    });
+    tr.addEventListener("click", () => selectProject(project.id));
+    els.projectsTableBody.appendChild(tr);
+  }
+
+  renderProjectPagination(totalPages);
+  renderProjectSelectionControls();
+}
+
+function renderProjectPagination(totalPages) {
+  const pageInfo = document.querySelector("#project-page-info");
+  const prevBtn = document.querySelector("#project-prev-page");
+  const nextBtn = document.querySelector("#project-next-page");
+
+  if (!pageInfo || !prevBtn || !nextBtn) return;
+
+  const currentPage = state.projectCurrentPage + 1;
+  pageInfo.textContent = totalPages > 0 ? `Page ${currentPage} / ${totalPages}` : "No projects";
+
+  prevBtn.disabled = state.projectCurrentPage === 0;
+  nextBtn.disabled = state.projectCurrentPage >= totalPages - 1;
+
+  prevBtn.replaceWith(prevBtn.cloneNode(true));
+  nextBtn.replaceWith(nextBtn.cloneNode(true));
+
+  const newPrevBtn = document.querySelector("#project-prev-page");
+  const newNextBtn = document.querySelector("#project-next-page");
+
+  newPrevBtn.addEventListener("click", () => {
+    if (state.projectCurrentPage > 0) {
+      state.projectCurrentPage--;
+      renderProjects();
+    }
+  });
+
+  newNextBtn.addEventListener("click", () => {
+    if (state.projectCurrentPage < totalPages - 1) {
+      state.projectCurrentPage++;
+      renderProjects();
+    }
+  });
+}
+
+function pipelineRows() {
+  const sourceFilter = els.pipelineSourceFilter ? els.pipelineSourceFilter.value : "";
+  if (sourceFilter === "registry") {
+    return state.pipelines;
+  }
+  if (sourceFilter === "observed") {
+    return state.observedPipelines;
+  }
+  return [...state.pipelines, ...state.observedPipelines];
+}
+
+function renderPipelines() {
+  if (!els.pipelinesTableBody) {
+    return;
+  }
+  els.pipelinesTableBody.innerHTML = "";
+  for (const pipeline of pipelineRows()) {
+    const tr = document.createElement("tr");
+    if (state.selectedPipeline && pipelineIdentity(pipeline) === pipelineIdentity(state.selectedPipeline)) {
+      tr.classList.add("selected");
+    }
+    const source = pipeline.source || "registry";
+    const version = pipeline.version || "observed";
+    const updated = pipeline.updated_at || pipeline.latest_run_at || pipeline.created_at;
+    const projectCount = pipeline.project_count || 0;
+    const canDelete = source === "registry" && Boolean(pipeline.id);
+    tr.innerHTML = `
+      <td>${pipeline.display_name}</td>
+      <td>${source}</td>
+      <td>${pipeline.pipeline_key || ""}</td>
+      <td>${version}</td>
+      <td>${pipeline.runtime_kind}</td>
+      <td>${projectCount}</td>
+      <td>${formatTimestamp(updated)}</td>
+      <td></td>
+    `;
+    const actionCell = tr.querySelector("td:last-child");
+    if (actionCell) {
+      if (canDelete) {
+        const deleteButton = document.createElement("button");
+        deleteButton.type = "button";
+        deleteButton.className = "danger";
+        deleteButton.textContent = "Delete";
+        deleteButton.addEventListener("click", (event) => {
+          event.stopPropagation();
+          deletePipeline(pipeline).catch((error) => setStatus(String(error)));
+        });
+        actionCell.appendChild(deleteButton);
+      } else if (source === "project_observed") {
+        actionCell.textContent = "Embedded in project";
+      }
+    }
+    tr.title = JSON.stringify(pipeline.metadata_json || {});
+    tr.addEventListener("click", () => selectPipelineRow(pipeline));
+    if (source === "registry") {
+      tr.addEventListener("dblclick", () => editPipeline(pipeline));
+    }
+    els.pipelinesTableBody.appendChild(tr);
+  }
+  renderPipelineRunBuilder();
+}
+
+function selectPipelineRow(pipeline) {
+  state.selectedPipeline = pipeline;
+  renderPipelines();
+}
+
+function pipelineIdentity(pipeline) {
+  if (!pipeline) {
+    return "";
+  }
+  return String(
+    pipeline.id
+    || pipeline.identity
+    || pipeline.pipeline_key
+    || pipeline.metadata_json?.pipeline_path
+    || pipeline.display_name
+  );
+}
+
+function pipelineOptionValue(pipeline) {
+  return pipelineIdentity(pipeline);
+}
+
+function renderPipelineRunBuilder() {
+  if (!els.pipelineRunProjectSelect || !els.pipelineRunPipelineSelect || !els.pipelineRunTargetSelect) {
+    return;
+  }
+
+  const selectedProjectId = String(els.pipelineRunProjectSelect.value || state.selectedProject?.id || "");
+  const selectedPipelineId = String(els.pipelineRunPipelineSelect.value || pipelineOptionValue(state.selectedPipeline) || "");
+  const selectedTargetId = String(els.pipelineRunTargetSelect.value || "");
+
+  els.pipelineRunProjectSelect.innerHTML = `<option value="">Use selected project</option>`;
+  for (const project of state.projects) {
+    const option = document.createElement("option");
+    option.value = String(project.id);
+    option.textContent = project.project_name;
+    if (String(project.id) === selectedProjectId) option.selected = true;
+    els.pipelineRunProjectSelect.appendChild(option);
+  }
+
+  els.pipelineRunPipelineSelect.innerHTML = `<option value="">Use selected pipeline</option>`;
+  for (const pipeline of pipelineRows()) {
+    const option = document.createElement("option");
+    option.value = pipelineOptionValue(pipeline);
+    option.textContent = `${pipeline.display_name} [${pipeline.source || "registry"}]`;
+    if (pipelineOptionValue(pipeline) === selectedPipelineId) option.selected = true;
+    els.pipelineRunPipelineSelect.appendChild(option);
+  }
+
+  els.pipelineRunTargetSelect.innerHTML = `<option value="">Auto-select target</option>`;
+  for (const target of state.executionTargets) {
+    const option = document.createElement("option");
+    option.value = String(target.id);
+    option.textContent = `${target.display_name} (${target.target_kind}${target.supports_gpu ? ", GPU" : ""})`;
+    if (String(target.id) === selectedTargetId) option.selected = true;
+    els.pipelineRunTargetSelect.appendChild(option);
+  }
+
+  const project = resolvePipelineRunProject();
+  const pipeline = resolvePipelineRunPipeline();
+  const target = resolvePipelineRunTarget();
+  if (els.pipelineRunPythonEnv) {
+    const isCustom = String(els.pipelineRunPythonModeSelect?.value || "default") === "custom";
+    els.pipelineRunPythonEnv.disabled = !isCustom;
+  }
+  if (!project && !pipeline) {
+    if (els.pipelineRunSelectionSummary) {
+      els.pipelineRunSelectionSummary.textContent = "No project or pipeline selected yet.";
+    }
+    return;
+  }
+  const projectLabel = project ? project.project_name : "no project";
+  const pipelineLabel = pipeline ? pipeline.display_name : "no pipeline";
+  const targetLabel = target ? target.display_name : "auto target";
+  if (els.pipelineRunSelectionSummary) {
+    els.pipelineRunSelectionSummary.textContent = `Project: ${projectLabel} | Pipeline: ${pipelineLabel} | Target: ${targetLabel}`;
+  }
+  if (els.pipelineRunEditorMode && els.submitPipelineRunButton) {
+    if (state.selectedPipelineRun) {
+      els.pipelineRunEditorMode.textContent = `Edit mode: ${state.selectedPipelineRun.id}`;
+      els.submitPipelineRunButton.textContent = "Save run";
+    } else {
+      els.pipelineRunEditorMode.textContent = "Create mode.";
+      els.submitPipelineRunButton.textContent = "Submit advanced run";
+    }
+  }
+}
+
+function getProjectPageId() {
+  const params = new URLSearchParams(window.location.search);
+  return params.get("id") || "";
+}
+
+function openSelectedProjectPage() {
+  if (!state.selectedProject && !state.selectedProjectDetail) {
+    return;
+  }
+  const projectId = state.selectedProjectDetail?.id || state.selectedProject?.id;
+  if (!projectId) {
+    return;
+  }
+  window.location.href = `/web/project.html?id=${encodeURIComponent(projectId)}`;
+}
+
+function getRawDatasetPageId() {
+  const params = new URLSearchParams(window.location.search);
+  return params.get("id") || "";
+}
+
+function openRawDatasetPage(rawDatasetId) {
+  if (!rawDatasetId) {
+    return;
+  }
+  window.location.href = `/web/raw-dataset.html?id=${encodeURIComponent(rawDatasetId)}`;
+}
+
+function openRawDisplaySettings(rawDatasetId) {
+  if (!rawDatasetId) {
+    return;
+  }
+  window.open(`/raw-datasets/${encodeURIComponent(rawDatasetId)}/display-settings`, "_blank", "noopener,noreferrer");
+}
+
+function resetPipelineRunForm() {
+  state.selectedPipelineRun = null;
+  if (els.pipelineRunProjectSelect) els.pipelineRunProjectSelect.value = "";
+  if (els.pipelineRunPipelineSelect) els.pipelineRunPipelineSelect.value = "";
+  if (els.pipelineRunTargetSelect) els.pipelineRunTargetSelect.value = "";
+  if (els.pipelineRunModeSelect) els.pipelineRunModeSelect.value = "auto";
+  if (els.pipelineRunGpuSelect) els.pipelineRunGpuSelect.value = "force_gpu";
+  if (els.pipelineRunPythonModeSelect) els.pipelineRunPythonModeSelect.value = "default";
+  if (els.pipelineRunPythonEnv) els.pipelineRunPythonEnv.value = "detecdiv_python";
+  if (els.pipelineRunId) els.pipelineRunId.value = "";
+  if (els.pipelineRunPolicySelect) els.pipelineRunPolicySelect.value = "resume";
+  if (els.pipelineRunExistingSelect) els.pipelineRunExistingSelect.value = "replace";
+  if (els.pipelineRunCacheSelect) els.pipelineRunCacheSelect.value = "auto";
+  if (els.pipelineRunPriority) els.pipelineRunPriority.value = 10;
+  if (els.pipelineRunSelectedNodes) els.pipelineRunSelectedNodes.value = "";
+  if (els.pipelineRunDescription) els.pipelineRunDescription.value = "";
+  if (els.pipelineRunNodeParams) els.pipelineRunNodeParams.value = "[]";
+  renderPipelineRuns();
+  renderPipelineRunBuilder();
+}
+
+function loadPipelineRunIntoForm(run) {
+  if (!run) {
+    return;
+  }
+  state.selectedPipelineRun = run;
+  if (els.pipelineRunAdvancedPanel) {
+    els.pipelineRunAdvancedPanel.open = true;
+  }
+  const params = run.params_json || {};
+  const rr = params.run_request || {};
+  const exec = params.execution || {};
+  const projectRef = params.project_ref || {};
+  const pipelineRef = params.pipeline_ref || {};
+
+  if (els.pipelineRunProjectSelect) {
+    els.pipelineRunProjectSelect.value = String(run.project_id || projectRef.project_id || "");
+  }
+
+  let selectedPipelineValue = "";
+  const candidatePipeline = pipelineRows().find((item) => {
+    if (run.pipeline_id && String(item.id) === String(run.pipeline_id)) return true;
+    if (pipelineRef.pipeline_key && item.pipeline_key === pipelineRef.pipeline_key) return true;
+    const pathHint = pipelineRef.pipeline_json_path || pipelineRef.export_manifest_uri || pipelineRef.pipeline_bundle_uri;
+    return Boolean(pathHint) && pipelineRefFromSelection(item).pipeline_json_path === pathHint;
+  });
+  if (candidatePipeline) {
+    state.selectedPipeline = candidatePipeline;
+    selectedPipelineValue = pipelineOptionValue(candidatePipeline);
+  }
+  if (els.pipelineRunPipelineSelect) {
+    els.pipelineRunPipelineSelect.value = selectedPipelineValue;
+  }
+  if (els.pipelineRunTargetSelect) {
+    els.pipelineRunTargetSelect.value = String(run.execution_target_id || exec.execution_target_id || "");
+  }
+  if (els.pipelineRunModeSelect) els.pipelineRunModeSelect.value = String(run.requested_mode || exec.requested_mode || "auto");
+  if (els.pipelineRunGpuSelect) els.pipelineRunGpuSelect.value = String(rr.gpu?.mode || "force_gpu");
+  if (els.pipelineRunPythonModeSelect) els.pipelineRunPythonModeSelect.value = String(rr.python?.mode || "default");
+  if (els.pipelineRunPythonEnv) els.pipelineRunPythonEnv.value = String(rr.python?.env_name || "detecdiv_python");
+  if (els.pipelineRunId) els.pipelineRunId.value = String(rr.run_id || "");
+  if (els.pipelineRunPolicySelect) els.pipelineRunPolicySelect.value = String(rr.run_policy || "resume");
+  if (els.pipelineRunExistingSelect) els.pipelineRunExistingSelect.value = String(rr.existing_data_policy || "replace");
+  if (els.pipelineRunCacheSelect) els.pipelineRunCacheSelect.value = String(rr.roi_cache_policy || "auto");
+  if (els.pipelineRunPriority) els.pipelineRunPriority.value = Number(run.priority || 100);
+  if (els.pipelineRunSelectedNodes) els.pipelineRunSelectedNodes.value = (rr.selected_nodes || []).join(", ");
+  if (els.pipelineRunDescription) els.pipelineRunDescription.value = String(rr.description || "");
+  if (els.pipelineRunNodeParams) els.pipelineRunNodeParams.value = JSON.stringify(rr.node_params || [], null, 2);
+  renderPipelineRuns();
+  renderPipelineRunBuilder();
+}
+
+function renderPipelineRuns() {
+  if (!els.pipelineRunsTableBody) {
+    return;
+  }
+  els.pipelineRunsTableBody.innerHTML = "";
+  for (const run of getVisiblePipelineRuns()) {
+    const tr = document.createElement("tr");
+    if (state.selectedPipelineRun && String(state.selectedPipelineRun.id) === String(run.id)) {
+      tr.classList.add("selected");
+    }
+    const rr = run.params_json?.run_request || {};
+    const project = state.projects.find((item) => String(item.id) === String(run.project_id));
+    const target = state.executionTargets.find((item) => String(item.id) === String(run.execution_target_id));
+    tr.innerHTML = `
+      <td>${run.status}</td>
+      <td>${project?.project_name || run.project_id || ""}</td>
+      <td>${target?.display_name || run.execution_target_id || "auto"}</td>
+      <td>${rr.run_id || ""}</td>
+      <td>${formatTimestamp(run.heartbeat_at || run.updated_at || run.created_at)}</td>
+    `;
+    tr.title = run.error_text || JSON.stringify(run.result_json || {});
+    tr.addEventListener("click", () => {
+      state.selectedPipelineRun = run;
+      renderPipelineRuns();
+    });
+    els.pipelineRunsTableBody.appendChild(tr);
+  }
+  renderPipelineRunPagination();
+  if (els.pipelineRunDetail) {
+    if (!state.selectedPipelineRun) {
+      els.pipelineRunDetail.textContent = "Select a run to inspect its status.";
+    } else {
+      renderPipelineRunDetail(state.selectedPipelineRun);
+    }
+  }
+}
+
+function getPipelineRunSortTimestamp(run) {
+  const value = run?.heartbeat_at || run?.updated_at || run?.created_at || null;
+  if (!value) {
+    return 0;
+  }
+  const parsed = Date.parse(value);
+  return Number.isFinite(parsed) ? parsed : 0;
+}
+
+function sortPipelineRuns(runs) {
+  return [...(runs || [])].sort((a, b) => getPipelineRunSortTimestamp(b) - getPipelineRunSortTimestamp(a));
+}
+
+function getPipelineRunPageCount() {
+  return Math.max(1, Math.ceil((state.pipelineRuns?.length || 0) / state.pipelineRunPageSize));
+}
+
+function clampPipelineRunPage() {
+  state.pipelineRunCurrentPage = Math.min(
+    Math.max(state.pipelineRunCurrentPage || 0, 0),
+    Math.max(getPipelineRunPageCount() - 1, 0),
+  );
+}
+
+function getVisiblePipelineRuns() {
+  clampPipelineRunPage();
+  const start = state.pipelineRunCurrentPage * state.pipelineRunPageSize;
+  return state.pipelineRuns.slice(start, start + state.pipelineRunPageSize);
+}
+
+function getLatestHubPipelineRun() {
+  return state.pipelineRuns[0] || null;
+}
+
+function buildCompactPageList(pageCount, currentPage) {
+  if (pageCount <= 7) {
+    return Array.from({ length: pageCount }, (_, index) => index);
+  }
+  const pages = new Set([0, pageCount - 1, currentPage - 1, currentPage, currentPage + 1]);
+  const compact = [...pages].filter((value) => value >= 0 && value < pageCount).sort((a, b) => a - b);
+  const result = [];
+  for (const page of compact) {
+    if (result.length && page - result[result.length - 1] > 1) {
+      result.push("ellipsis");
+    }
+    result.push(page);
+  }
+  return result;
+}
+
+function renderPipelineRunPagination() {
+  if (!els.pipelineRunsPagination) {
+    return;
+  }
+  const totalRuns = state.pipelineRuns.length;
+  const pageCount = getPipelineRunPageCount();
+  clampPipelineRunPage();
+  if (totalRuns <= state.pipelineRunPageSize) {
+    els.pipelineRunsPagination.classList.add("hidden");
+    els.pipelineRunsPagination.innerHTML = "";
+    return;
+  }
+
+  const currentPage = state.pipelineRunCurrentPage;
+  const start = currentPage * state.pipelineRunPageSize + 1;
+  const end = Math.min(totalRuns, start + state.pipelineRunPageSize - 1);
+  const parts = [];
+  parts.push(`<span class="muted">Showing ${start}-${end} of ${totalRuns}</span>`);
+  parts.push(`<button type="button" data-page="${currentPage - 1}" ${currentPage === 0 ? "disabled" : ""}>Prev</button>`);
+  for (const page of buildCompactPageList(pageCount, currentPage)) {
+    if (page === "ellipsis") {
+      parts.push('<span class="muted">...</span>');
+      continue;
+    }
+    parts.push(
+      `<button type="button" data-page="${page}" class="${page === currentPage ? "active" : ""}">${page + 1}</button>`,
+    );
+  }
+  parts.push(
+    `<button type="button" data-page="${currentPage + 1}" ${currentPage >= pageCount - 1 ? "disabled" : ""}>Next</button>`,
+  );
+  els.pipelineRunsPagination.innerHTML = parts.join("");
+  els.pipelineRunsPagination.classList.remove("hidden");
+  els.pipelineRunsPagination.querySelectorAll("button[data-page]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const nextPage = Number(button.dataset.page);
+      if (!Number.isInteger(nextPage)) {
+        return;
+      }
+      state.pipelineRunCurrentPage = nextPage;
+      clampPipelineRunPage();
+      renderPipelineRuns();
+    });
+  });
+}
+
+function renderPipelineRunDetail(run) {
+  if (!els.pipelineRunDetail) {
+    return;
+  }
+  const progress = run.result_json?.progress || {};
+  const canCancel = ["queued", "running", "cancelling"].includes(String(run.status || "").toLowerCase());
+  const active = ["running", "cancelling"].includes(String(run.status || "").toLowerCase());
+  const forceStopSupported = run.result_json?.worker_runtime?.force_stop_supported === true;
+  const rows = [
+    ["Run", run.id],
+    ["Status", run.status],
+    ["Progress", progress.current_step || progress.phase || run.status],
+    ["Heartbeat", formatTimestamp(run.heartbeat_at)],
+    ["Updated", formatTimestamp(run.updated_at)],
+    ["Started", formatTimestamp(run.started_at)],
+    ["Finished", formatTimestamp(run.finished_at)],
+  ];
+  if (run.error_text) {
+    rows.push(["Error", shortText(run.error_text, 700)]);
+  }
+  if (run.force_stop_requested_at) {
+    rows.push(["Arrêt forcé demandé", `${formatTimestamp(run.force_stop_requested_at)} — ${run.force_stop_requested_by || ""}`]);
+    rows.push(["Arrêt des processus", run.force_stopped_at
+      ? `Confirmé le ${formatTimestamp(run.force_stopped_at)}`
+      : active ? "En attente de confirmation du worker ; les ressources restent réservées."
+        : "Demande non exécutée avant la fin du job."]);
+  }
+  const recentLines = [
+    ...(progress.recent_stdout || []),
+    ...(progress.recent_stderr || []),
+  ].slice(-12);
+  els.pipelineRunDetail.innerHTML = `
+    ${rows.map(([label, value]) => `
+      <div class="run-detail-row">
+        <span class="run-detail-label">${escapeHtml(label)}</span>
+        <span class="run-detail-value">${escapeHtml(value || "")}</span>
+      </div>
+    `).join("")}
+    <div class="toolbar">
+      <button type="button" id="open-pipeline-run-json-button">Open JSON</button>
+      ${canCancel ? '<button type="button" id="cancel-selected-pipeline-run-button">Cancel run</button>' : ""}
+      ${active ? `<button type="button" class="danger" id="force-stop-selected-pipeline-run-button"
+        ${!forceStopSupported || run.force_stop_requested_at ? "disabled" : ""}>${run.force_stop_requested_at ? "Arrêt forcé demandé…" : "Forcer l’arrêt"}</button>` : ""}
+    </div>
+    ${active && !forceStopSupported ? '<p class="muted">Arrêt forcé indisponible : cette exécution ne dispose pas encore d’une isolation des processus. Disponible pour les nouveaux jobs lancés par un worker mis à jour.</p>' : ""}
+    ${recentLines.length ? `
+      <div>
+        <div class="run-detail-label">Recent MATLAB output</div>
+        <pre class="run-progress-lines">${escapeHtml(recentLines.join("\n"))}</pre>
+      </div>
+    ` : ""}
+  `;
+  els.pipelineRunDetail.querySelector("#open-pipeline-run-json-button")?.addEventListener("click", () => {
+    openJsonInNewTab({
+      id: run.id,
+      status: run.status,
+      requested_mode: run.requested_mode,
+      resolved_mode: run.resolved_mode,
+      heartbeat_at: run.heartbeat_at,
+      updated_at: run.updated_at,
+      error_text: run.error_text,
+      force_stop_requested_at: run.force_stop_requested_at,
+      force_stop_requested_by: run.force_stop_requested_by,
+      force_stop_requested_by_user_id: run.force_stop_requested_by_user_id,
+      force_stopped_at: run.force_stopped_at,
+      params_json: run.params_json || {},
+      result_json: run.result_json || {},
+    }, `pipeline-run-${run.id}.json`);
+  });
+  els.pipelineRunDetail.querySelector("#cancel-selected-pipeline-run-button")?.addEventListener("click", () => {
+    cancelSelectedPipelineRun().catch((error) => {
+      setStatus(String(error));
+      window.alert(String(error));
+    });
+  });
+  els.pipelineRunDetail.querySelector("#force-stop-selected-pipeline-run-button")?.addEventListener("click", (event) => {
+    forceStopSelectedPipelineRun(event.currentTarget).catch((error) => {
+      setStatus(String(error));
+      window.alert(String(error));
+    });
+  });
+}
+
+function shortText(value, maxLength = 300) {
+  const text = String(value || "");
+  if (text.length <= maxLength) {
+    return text;
+  }
+  return `${text.slice(0, maxLength)}...`;
+}
+
+function openJsonInNewTab(value, filename) {
+  const blob = new Blob([JSON.stringify(value, null, 2)], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const opened = window.open(url, "_blank", "noopener");
+  if (!opened) {
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = filename || "payload.json";
+    link.click();
+  }
+  window.setTimeout(() => URL.revokeObjectURL(url), 60_000);
+}
+
+function renderExecutionTargets() {
+  if (!els.executionTargetsTableBody) {
+    return;
+  }
+  els.executionTargetsTableBody.innerHTML = "";
+  for (const target of state.executionTargets) {
+    const tr = document.createElement("tr");
+    if (state.selectedExecutionTarget && String(state.selectedExecutionTarget.id) === String(target.id)) {
+      tr.classList.add("selected");
+    }
+    const workerSnapshot = executionTargetWorkerSnapshot(target);
+    const workerHealth = workerSnapshot.workerHealthSummary || {};
+    const maxConcurrentJobs = workerSnapshot.maxConcurrentJobs || "";
+    const matlabMaxThreads = target.metadata_json?.matlab_max_threads || "";
+    const detectedCpuCounts = [...new Set(workerSnapshot.workerEntries
+      .map((entry) => Number(entry.workerHealth.host_cpu_count || entry.workerHealth.available_cpu_count || 0))
+      .filter((count) => count > 0))].sort((a, b) => a - b);
+    const drainNewJobs = Boolean(target.metadata_json?.drain_new_jobs);
+    const workerSlots = maxConcurrentJobs || "";
+    let healthLabel = workerHealth.health || target.status || "unknown";
+    if (drainNewJobs && workerSnapshot.busyWorkerCount > 0) {
+      healthLabel = `draining (${workerSnapshot.busyWorkerCount}${workerSlots ? `/${workerSlots}` : ""} slots used)`;
+    } else if (drainNewJobs) {
+      healthLabel = "drained";
+    } else if (workerSnapshot.busyWorkerCount > 0) {
+      healthLabel = `busy (${workerSnapshot.busyWorkerCount}${workerSlots ? `/${workerSlots}` : ""} slots used)`;
+    } else if (workerHealth.capacity_full) {
+      healthLabel = "capacity full";
+    }
+    tr.innerHTML = `
+      <td>${target.display_name}</td>
+      <td>${target.target_kind}</td>
+      <td>${target.host_name || ""}</td>
+      <td>${target.supports_matlab ? "yes" : "no"}</td>
+      <td>${target.supports_python ? "yes" : "no"}</td>
+      <td>${target.supports_gpu ? "yes" : "no"}</td>
+      <td>${maxConcurrentJobs || ""}</td>
+      <td>${workerSnapshot.activeWorkerCount}/${workerSnapshot.registeredWorkerCount}</td>
+      <td>${detectedCpuCounts.join(", ")}</td>
+      <td>${matlabMaxThreads || ""}</td>
+      <td>${target.status}</td>
+      <td>${healthLabel}</td>
+      <td>${formatTimestamp(workerSnapshot.heartbeatLabel || workerHealth.last_seen_at || workerHealth.claimed_at || null)}</td>
+    `;
+    tr.addEventListener("click", () => loadExecutionTargetIntoForm(target));
+    els.executionTargetsTableBody.appendChild(tr);
+  }
+  if (els.executionTargetEditorMode && els.saveExecutionTargetButton) {
+    if (state.editingExecutionTarget) {
+      els.executionTargetEditorMode.textContent = `Edit mode: ${state.editingExecutionTarget.display_name}`;
+      els.saveExecutionTargetButton.textContent = "Save settings";
+    } else {
+      els.executionTargetEditorMode.textContent = "Create mode.";
+      els.saveExecutionTargetButton.textContent = "Save settings";
+    }
+  }
+  if (els.cancelExecutionTargetEditButton) {
+    els.cancelExecutionTargetEditButton.disabled = !state.editingExecutionTarget;
+  }
+  if (els.applyWorkerInstancesButton) {
+    els.applyWorkerInstancesButton.disabled = !state.selectedExecutionTarget;
+  }
+  if (els.applyExecutionTargetDrainButton) {
+    els.applyExecutionTargetDrainButton.disabled = !state.selectedExecutionTarget;
+    els.applyExecutionTargetDrainButton.textContent = (state.selectedExecutionTarget?.metadata_json?.drain_new_jobs)
+      ? "Disable drain"
+      : "Apply drain";
+  }
+  if (els.openExecutionTargetConfigButton) {
+    els.openExecutionTargetConfigButton.disabled = !state.selectedExecutionTarget;
+  }
+  if (!state.selectedExecutionTarget) {
+    if (els.executionTargetWorkerSummary) {
+      els.executionTargetWorkerSummary.textContent = "Select a target to inspect worker activity.";
+    }
+    if (els.executionTargetWorkersTableBody) {
+      els.executionTargetWorkersTableBody.innerHTML = "";
+    }
+    if (els.executionTargetJobMixTableBody) {
+      els.executionTargetJobMixTableBody.innerHTML = "";
+    }
+    if (els.executionTargetHealthWarning) {
+      els.executionTargetHealthWarning.classList.add("hidden");
+      els.executionTargetHealthWarning.textContent = "";
+    }
+  } else {
+    renderExecutionTargetWorkerPanels(state.selectedExecutionTarget);
+    const snapshot = executionTargetWorkerSnapshot(state.selectedExecutionTarget);
+    if (els.executionTargetHealthWarning) {
+      if (snapshot.mismatch.length) {
+        els.executionTargetHealthWarning.textContent = `Capacity mismatch: ${snapshot.mismatch.join("; ")}.`;
+        els.executionTargetHealthWarning.classList.remove("hidden");
+        els.executionTargetHealthWarning.classList.remove("ok");
+        els.executionTargetHealthWarning.classList.add("warn");
+      } else {
+        els.executionTargetHealthWarning.classList.add("hidden");
+        els.executionTargetHealthWarning.textContent = "";
+        els.executionTargetHealthWarning.classList.remove("warn", "ok");
+      }
+    }
+  }
+  renderDeploymentAwareness();
+  renderPipelineRunBuilder();
+  updateExecutionTargetAccessControls();
+}
+
+function jobKindLabel(job) {
+  const raw = typeof job === "string"
+    ? job
+    : (job?.params_json?.job_kind || job?.job_kind || "generic");
+  return String(raw).replaceAll("_", " ");
+}
+
+function jobDisplayId(job) {
+  const kind = String(job?.params_json?.job_kind || job?.job_kind || "generic");
+  const runId = job?.params_json?.storage_optimization_run_id;
+  if (["storage_optimization", "storage_optimization_scan", "storage_optimization_chunk"].includes(kind) && runId) {
+    return `Run ${shortText(String(runId), 10)}`;
+  }
+  return shortText(String(job?.id || ""), 12);
+}
+
+function jobKindGroupLabel(job) {
+  const kind = typeof job === "string"
+    ? job
+    : (job?.params_json?.job_kind || job?.job_kind || "generic");
+  if (["storage_optimization", "storage_optimization_scan", "storage_optimization_chunk"].includes(String(kind))) {
+    return "TIFF storage optimization";
+  }
+  return String(kind).replaceAll("_", " ");
+}
+
+function groupedQueuedJobs(jobs) {
+  const grouped = new Map();
+  for (const job of jobs) {
+    const kind = String(job?.params_json?.job_kind || "generic");
+    const runId = job?.params_json?.storage_optimization_run_id;
+    const datasetId = job?.raw_dataset_id;
+    const key = ["storage_optimization", "storage_optimization_scan", "storage_optimization_chunk"].includes(kind) && (datasetId || runId)
+      ? `storage_optimization:${datasetId || runId}`
+      : `job:${job.id}`;
+    const group = grouped.get(key);
+    if (group) {
+      group.jobs.push(job);
+    } else {
+      grouped.set(key, { jobs: [job], runId: runId || null });
+    }
+  }
+  return [...grouped.values()].map(({ jobs: runJobs, runId }) => {
+    const first = runJobs[0];
+    return runId
+      ? {
+          ...first,
+          displayId: jobDisplayId(first),
+          displayKind: "TIFF storage optimization",
+        }
+      : { ...first, displayId: jobDisplayId(first), displayKind: jobKindLabel(first) };
+  });
+}
+
+function jobPrioritySettingKey(job) {
+  const kind = String(job?.params_json?.job_kind || "generic");
+  if (["storage_optimization", "storage_optimization_scan", "storage_optimization_chunk"].includes(kind)) {
+    return "storage_optimization";
+  }
+  return kind;
+}
+
+function effectiveJobPriority(job) {
+  const settingKey = jobPrioritySettingKey(job);
+  const configured = (state.jobPrioritySettings?.items || []).find((item) => item.job_kind === settingKey);
+  return configured?.priority ?? job?.priority ?? "";
+}
+
+function normalizedJobStatus(job) {
+  return String(job?.status || "").trim().toLowerCase();
+}
+
+function executionTargetJobs(target) {
+  if (!target) {
+    return [];
+  }
+  return state.jobs.filter((job) => String(job.execution_target_id || "") === String(target.id));
+}
+
+function latestTimestampValue(...values) {
+  let best = null;
+  let bestMs = -Infinity;
+  for (const value of values) {
+    if (!value) {
+      continue;
+    }
+    const ms = Date.parse(value);
+    if (Number.isNaN(ms)) {
+      continue;
+    }
+    if (ms > bestMs) {
+      bestMs = ms;
+      best = value;
+    }
+  }
+  return best;
+}
+
+function userLabelForKey(userKey) {
+  const normalized = String(userKey || "").trim();
+  if (!normalized) {
+    return "";
+  }
+  const users = state.users.length ? state.users : (state.currentUser ? [state.currentUser] : []);
+  const user = users.find((item) => item.user_key === normalized);
+  return user ? userOptionLabel(user) : normalized;
+}
+
+function formatCpuCores(value) {
+  if (value === null || value === undefined || value === "") return "";
+  const cores = Number(value);
+  return Number.isFinite(cores) ? cores.toFixed(1) : "";
+}
+
+function workerIsActive(workerHealth) {
+  const seen = Date.parse(workerHealth.last_seen_at || "");
+  const threshold = Math.max(Number(workerHealth.poll_interval_sec || 5) * 3, 30) * 1000;
+  return Number.isFinite(seen) && (Date.now() - seen) <= threshold;
+}
+
+function workerMemoryLabel(value) {
+  if (value === null || value === undefined) return "—";
+  return `${(Number(value) / 1024).toFixed(1)} GiB`;
+}
+
+function workerVramLabel(workerHealth) {
+  const reserved = workerMemoryLabel(workerHealth.vram_allocated_mb);
+  const shared = workerMemoryLabel(workerHealth.gpu_shared_capacity_mb);
+  return `${reserved}${workerHealth.gpu_exclusive ? " exclusive" : ""} / ${shared} shared`;
+}
+
+function workerCpuAvailabilityLabel(workerHealth) {
+  const available = Number(workerHealth.available_cpu_count || 0);
+  const logical = Number(workerHealth.host_cpu_count || 0);
+  if (available && logical) return `${available} / ${logical}`;
+  return String(available || logical || "");
+}
+
+function workerCpuUsageLabel(workerHealth, currentJob, targetJobs) {
+  if (workerHealth.current_job_id) {
+    const allocated = Number(currentJob?.params_json?._hub_resource_allocation?.cpu_cores
+      ?? currentJob?.result_json?.resource_allocation?.cpu_cores
+      ?? 0);
+    const used = formatCpuCores(workerHealth.current_job_cpu_cores);
+    return allocated > 0 ? `${used} now / ${allocated} reserved` : `${used} now`;
+  }
+  const lastJobId = String(workerHealth.last_job_id || "");
+  const lastJob = lastJobId
+    ? targetJobs.find((job) => String(job.id) === lastJobId) || state.jobs.find((job) => String(job.id) === lastJobId)
+    : null;
+  const usage = lastJob?.result_json?.cpu_usage;
+  if (!usage) return "";
+  return `${formatCpuCores(usage.average_cores)} avg / ${formatCpuCores(usage.peak_cores)} peak`;
+}
+
+function executionTargetWorkerEntries(target) {
+  const workerHealths = target?.metadata_json?.worker_healths || {};
+  return Object.entries(workerHealths)
+    .map(([workerId, workerHealth]) => ({ workerId, workerHealth: {
+      ...(workerHealth || {}), ...(target?.metadata_json?.worker_resource_allocations?.[workerId] || {}),
+    } }))
+    .sort((a, b) => String(a.workerId).localeCompare(String(b.workerId)));
+}
+
+function executionTargetWorkerSnapshot(target) {
+  const workerEntries = executionTargetWorkerEntries(target);
+  const maxConcurrentJobs = target?.metadata_json?.max_concurrent_jobs || "";
+  const desiredWorkers = target?.metadata_json?.worker_instances_desired
+    ?? target?.metadata_json?.worker_health_summary?.registered_workers
+    ?? workerEntries.length
+    ?? 0;
+  const workerHealthSummary = target?.metadata_json?.worker_health_summary || {};
+  const activeWorkerEntries = workerEntries.filter((entry) => workerIsActive(entry.workerHealth));
+  const activeWorkerCount = Number(workerHealthSummary.worker_count || activeWorkerEntries.length || 0);
+  const registeredWorkerCount = Number(workerHealthSummary.registered_workers || workerEntries.length || 0);
+  const busyWorkerCount = Number(workerHealthSummary.busy_workers || 0);
+  const errorWorkerCount = Number(workerHealthSummary.error_workers || 0);
+  const staleWorkerCount = Number(workerHealthSummary.stale_workers || Math.max(registeredWorkerCount - activeWorkerCount, 0));
+  const heartbeatLabel = latestTimestampValue(
+    workerHealthSummary.last_seen_at,
+    workerHealthSummary.claimed_at,
+    ...workerEntries.map((entry) => entry.workerHealth.last_seen_at),
+    ...workerEntries.map((entry) => entry.workerHealth.claimed_at)
+  );
+  const lastClaimLabel = latestTimestampValue(
+    workerHealthSummary.claimed_at,
+    ...workerEntries.map((entry) => entry.workerHealth.claimed_at)
+  );
+  const mismatch = [];
+  if (Number(desiredWorkers) && Number(desiredWorkers) !== activeWorkerCount) {
+    mismatch.push(`desired ${desiredWorkers} vs active ${activeWorkerCount}`);
+  }
+  if (maxConcurrentJobs && busyWorkerCount > Number(maxConcurrentJobs)) {
+    mismatch.push(`busy ${busyWorkerCount}/${maxConcurrentJobs}`);
+  }
+  return {
+    workerEntries,
+    workerHealthSummary,
+    activeWorkerEntries,
+    activeWorkerCount,
+    registeredWorkerCount,
+    desiredWorkers: Number(desiredWorkers) || 0,
+    busyWorkerCount,
+    errorWorkerCount,
+    staleWorkerCount,
+    maxConcurrentJobs: maxConcurrentJobs || "",
+    heartbeatLabel,
+    lastClaimLabel,
+    mismatch,
+    deploymentVersions: workerHealthSummary.deployment_versions || workerEntries.map((entry) => entry.workerHealth.deployment_version).filter(Boolean),
+    codeFingerprints: workerHealthSummary.code_fingerprints || workerEntries.map((entry) => entry.workerHealth.code_fingerprint).filter(Boolean),
+    versionDrift: Boolean(workerHealthSummary.version_drift),
+  };
+}
+
+function deploymentVersionSnapshot() {
+  const apiHealth = state.systemHealth || {};
+  const targetSnapshots = state.executionTargets.map((target) => ({ target, snapshot: executionTargetWorkerSnapshot(target) }));
+  const workerVersions = [];
+  const workerFingerprints = [];
+  for (const item of targetSnapshots) {
+    for (const version of item.snapshot.deploymentVersions || []) {
+      if (version && !workerVersions.includes(version)) workerVersions.push(version);
+    }
+    for (const fingerprint of item.snapshot.codeFingerprints || []) {
+      if (fingerprint && !workerFingerprints.includes(fingerprint)) workerFingerprints.push(fingerprint);
+    }
+  }
+  const apiVersion = String(apiHealth.deployment_version || "").trim();
+  const apiFingerprint = String(apiHealth.code_fingerprint || "").trim();
+  const workerVersionDrift = workerVersions.length > 1 || workerFingerprints.length > 1;
+  const apiWorkerMismatch = Boolean(
+    (apiVersion && workerVersions.length && !workerVersions.includes(apiVersion))
+    || (apiFingerprint && workerFingerprints.length && !workerFingerprints.includes(apiFingerprint))
+  );
+  let status = "unknown";
+  if (!apiVersion && !workerVersions.length) {
+    status = "no version metadata yet";
+  } else if (workerVersionDrift || apiWorkerMismatch) {
+    status = "drift detected";
+  } else if (apiVersion || workerVersions.length) {
+    status = "in sync";
+  }
+  const apiLabel = apiVersion || (apiFingerprint ? `fp-${apiFingerprint}` : "unknown");
+  const workerLabel = workerVersions.length
+    ? workerVersions.join(" / ")
+    : workerFingerprints.length
+      ? workerFingerprints.map((item) => `fp-${item}`).join(" / ")
+      : "unknown";
+  return {
+    status,
+    apiLabel,
+    workerLabel,
+    workerVersionDrift,
+    apiWorkerMismatch,
+  };
+}
+
+function renderExecutionTargetWorkerPanels(target) {
+  const targetJobs = executionTargetJobs(target);
+  const snapshot = executionTargetWorkerSnapshot(target);
+  const workerEntries = snapshot.workerEntries;
+  const queuedJobs = targetJobs.filter((job) => job.status === "queued");
+  const cancellingJobs = targetJobs.filter((job) => job.status === "cancelling");
+
+  if (els.executionTargetWorkerSummary) {
+    els.executionTargetWorkerSummary.textContent =
+      `${snapshot.activeWorkerCount}/${snapshot.registeredWorkerCount} worker records active on ${target.display_name}. `
+      + `${snapshot.busyWorkerCount} busy, ${snapshot.staleWorkerCount} stale, ${queuedJobs.length} queued, ${cancellingJobs.length} cancelling.`
+      + (snapshot.desiredWorkers ? ` Target ${snapshot.desiredWorkers}. ${target.metadata_json?.worker_autoscale_enabled !== false ? `Automatic; baseline ${target.metadata_json?.worker_instances_baseline || 6}.` : "Manual."}` : "")
+      + (snapshot.maxConcurrentJobs ? ` Max concurrent jobs ${snapshot.maxConcurrentJobs}.` : "");
+  }
+
+  if (els.executionTargetWorkersTableBody) {
+    els.executionTargetWorkersTableBody.innerHTML = "";
+    for (const { workerId, workerHealth } of workerEntries) {
+      const tr = document.createElement("tr");
+      const currentJobId = String(workerHealth.current_job_id || "");
+      const currentJob = currentJobId
+        ? targetJobs.find((job) => String(job.id) === currentJobId) || state.jobs.find((job) => String(job.id) === currentJobId) || null
+        : null;
+      const currentJobKind = currentJob ? jobKindLabel(currentJob) : (workerHealth.current_job_kind || "");
+      const currentJobStatus = currentJob?.status || workerHealth.current_job_status || "";
+      const currentJobStartedAt = currentJob?.started_at || workerHealth.current_job_started_at || null;
+      const currentUserKey = currentJob?.requested_by || "";
+      const currentProjectId = currentJob?.project_id ? String(currentJob.project_id) : "";
+      const currentJobLabel = currentJobId
+        ? `${escapeHtml(currentJob ? jobDisplayId(currentJob) : shortText(currentJobId, 10))}${currentJob ? ` (${escapeHtml(shortText(currentJobKind, 18))})` : ""}`
+        : "";
+      const currentProjectLink = currentProjectId
+        ? ` <a href="/web/project.html?id=${encodeURIComponent(currentProjectId)}" title="Open the related project">Project</a>`
+        : "";
+      const active = workerIsActive(workerHealth);
+      tr.innerHTML = `
+        <td>${workerId}</td>
+        <td title="Worker CPU budget (host logical CPUs: ${Number(workerHealth.host_cpu_count || 0)})">${active ? `${workerHealth.cpu_allocated_cores ?? "—"} / ${workerHealth.cpu_limit_cores ?? "—"}` : "—"}</td>
+        <td title="Worker RAM limit; swap: ${workerMemoryLabel(workerHealth.swap_allocated_mb)}">${active ? `${workerMemoryLabel(workerHealth.ram_allocated_mb)} / ${workerMemoryLabel(workerHealth.ram_limit_mb)}` : "—"}</td>
+        <td title="Current job VRAM reservation / visible shared GPU capacity; this is a scheduler reservation, not a hardware partition">${active ? workerVramLabel(workerHealth) : "—"}</td>
+        <td>${workerCpuUsageLabel(workerHealth, currentJob, targetJobs)}</td>
+        <td>${active ? (workerHealth.health || "unknown") : "inactive (stale)"}</td>
+        <td>${currentJobLabel}${currentProjectLink}</td>
+        <td>${currentUserKey ? userLabelForKey(currentUserKey) : ""}</td>
+        <td>${currentJobKind}</td>
+        <td>${currentJobStatus}</td>
+        <td>${formatTimestamp(currentJobStartedAt)}</td>
+        <td>${formatTimestamp(workerHealth.last_seen_at || workerHealth.claimed_at || null)}</td>
+        <td>${shortText(workerHealth.last_error || "", 120)}</td>
+      `;
+      els.executionTargetWorkersTableBody.appendChild(tr);
+    }
+  }
+
+  if (els.executionTargetQueuedJobsTableBody) {
+    els.executionTargetQueuedJobsTableBody.innerHTML = "";
+    const allQueued = state.jobs.filter((job) =>
+      normalizedJobStatus(job) === "queued" &&
+      (job.execution_target_id == null || String(job.execution_target_id) === String(target.id))
+    );
+    const sortedQueued = [...allQueued].sort((a, b) => {
+      const priorityDelta = Number(effectiveJobPriority(a)) - Number(effectiveJobPriority(b));
+      if (priorityDelta !== 0) return priorityDelta;
+      return new Date(a.created_at) - new Date(b.created_at);
+    });
+    for (const job of groupedQueuedJobs(sortedQueued)) {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${escapeHtml(job.displayId)}</td>
+        <td>${escapeHtml(job.displayKind)}</td>
+        <td>${job.requested_by ? userLabelForKey(job.requested_by) : ""}</td>
+        <td>${formatTimestamp(job.created_at)}</td>
+        <td>${effectiveJobPriority(job)}</td>
+      `;
+      els.executionTargetQueuedJobsTableBody.appendChild(tr);
+    }
+  }
+
+  if (els.executionTargetJobMixTableBody) {
+    els.executionTargetJobMixTableBody.innerHTML = "";
+    const grouped = new Map();
+    for (const job of targetJobs) {
+      const kind = jobKindGroupLabel(job);
+      if (!grouped.has(kind)) {
+        grouped.set(kind, {
+          kind,
+          running: 0,
+          queued: 0,
+          cancelling: 0,
+          done: 0,
+          failed: 0,
+          lastUpdated: null,
+        });
+      }
+      const entry = grouped.get(kind);
+      const status = normalizedJobStatus(job);
+      if (status === "running") entry.running += 1;
+      if (status === "queued") entry.queued += 1;
+      if (status === "cancelling") entry.cancelling += 1;
+      if (status === "done") entry.done += 1;
+      if (status === "failed") entry.failed += 1;
+      const updatedAt = latestTimestampValue(job.heartbeat_at, job.updated_at, job.started_at, job.created_at);
+      if (!entry.lastUpdated || latestTimestampValue(updatedAt, entry.lastUpdated) === updatedAt) {
+        entry.lastUpdated = updatedAt;
+      }
+    }
+    if (executionTargetJobMix) {
+      grouped.clear();
+      for (const item of executionTargetJobMix.filter((row) => String(row.execution_target_id || "") === String(target.id))) {
+        const kind = jobKindGroupLabel(item.job_kind);
+        grouped.set(kind, { kind, running: item.running, queued: item.queued,
+          cancelling: item.cancelling, done: item.done, failed: item.failed,
+          lastUpdated: item.last_updated_at });
+      }
+    }
+    for (const { workerHealth } of workerEntries) {
+      const kind = jobKindGroupLabel(workerHealth.current_job_kind || "");
+      if (!kind) {
+        continue;
+      }
+      if (!grouped.has(kind)) {
+        grouped.set(kind, {
+          kind,
+          running: 0,
+          queued: 0,
+          cancelling: 0,
+          done: 0,
+          failed: 0,
+          lastUpdated: null,
+        });
+      }
+      const entry = grouped.get(kind);
+      const lastSeenAt = latestTimestampValue(workerHealth.last_seen_at, workerHealth.claimed_at);
+      if (!entry.lastUpdated || latestTimestampValue(lastSeenAt, entry.lastUpdated) === lastSeenAt) {
+        entry.lastUpdated = lastSeenAt;
+      }
+    }
+    const rows = [...grouped.values()].sort((a, b) => a.kind.localeCompare(b.kind));
+    for (const row of rows) {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${row.kind}</td>
+        <td>${row.running}</td>
+        <td>${row.queued}</td>
+        <td>${row.cancelling}</td>
+        <td>${row.done}</td>
+        <td>${row.failed}</td>
+        <td>${formatTimestamp(row.lastUpdated)}</td>
+      `;
+      els.executionTargetJobMixTableBody.appendChild(tr);
+    }
+  }
+}
+
+function deploymentAwarenessSnapshot() {
+  const targetSnapshots = state.executionTargets.map((target) => ({
+    target,
+    snapshot: executionTargetWorkerSnapshot(target),
+  }));
+  const totalRegistered = targetSnapshots.reduce((sum, item) => sum + item.snapshot.registeredWorkerCount, 0);
+  const totalActive = targetSnapshots.reduce((sum, item) => sum + item.snapshot.activeWorkerCount, 0);
+  const totalBusy = targetSnapshots.reduce((sum, item) => sum + item.snapshot.busyWorkerCount, 0);
+  const totalStale = targetSnapshots.reduce((sum, item) => sum + item.snapshot.staleWorkerCount, 0);
+  const latestHeartbeat = latestTimestampValue(...targetSnapshots.map((item) => item.snapshot.heartbeatLabel));
+  const latestClaim = latestTimestampValue(...targetSnapshots.map((item) => item.snapshot.lastClaimLabel));
+  const deploymentTargets = [
+    "webserver-labo",
+    "detecdiv-server",
+  ];
+  return {
+    apiStatus: state.systemHealth || null,
+    deploymentTargets,
+    totalRegistered,
+    totalActive,
+    totalBusy,
+    totalStale,
+    latestHeartbeat,
+    latestClaim,
+  };
+}
+
+function renderDeploymentAwareness() {
+  if (!els.deploymentAwarenessSummary && !els.deploymentApiStatus) {
+    return;
+  }
+  const snapshot = deploymentAwarenessSnapshot();
+  const apiHealth = state.systemHealth || {};
+  const dbStatus = apiHealth.database_status || (state.summary ? "reachable" : "unknown");
+  const apiStatus = apiHealth.status || "unknown";
+  const apiHost = apiHealth.hostname || "unknown host";
+  const apiLabel = `${apiStatus} on ${apiHost}`;
+  const dbLabel = dbStatus === "ok"
+    ? `ok via ${apiHealth.service || "detecdiv-hub"}`
+    : dbStatus === "error"
+      ? `error${apiHealth.database_message ? `: ${shortText(apiHealth.database_message, 70)}` : ""}`
+      : dbStatus;
+  const workerLabel = snapshot.totalRegistered
+    ? `${snapshot.totalActive}/${snapshot.totalRegistered} active on detecdiv-server`
+    : "no worker metadata yet";
+  const heartbeatLabel = snapshot.latestHeartbeat
+    ? `latest ${formatTimestamp(snapshot.latestHeartbeat)}`
+    : "no heartbeat yet";
+
+  if (els.deploymentAwarenessSummary) {
+    els.deploymentAwarenessSummary.textContent =
+      `Primary API/DB: webserver-labo. Compute workers: detecdiv-server. `
+      + `Targets: ${snapshot.deploymentTargets.join(" / ")}.`;
+  }
+  if (els.deploymentApiStatus) els.deploymentApiStatus.textContent = apiLabel;
+  if (els.deploymentDbStatus) els.deploymentDbStatus.textContent = dbLabel;
+  if (els.deploymentWorkerStatus) {
+    els.deploymentWorkerStatus.textContent = snapshot.totalRegistered
+      ? `${workerLabel} | ${snapshot.totalBusy} busy | ${snapshot.totalStale} stale`
+      : workerLabel;
+  }
+  if (els.deploymentHeartbeatStatus) {
+    els.deploymentHeartbeatStatus.textContent = `${heartbeatLabel}${snapshot.latestClaim ? ` | last claim ${formatTimestamp(snapshot.latestClaim)}` : ""}`;
+  }
+  if (els.deploymentVersionStatus) {
+    const versionSnapshot = deploymentVersionSnapshot();
+    els.deploymentVersionStatus.textContent = `${versionSnapshot.status} | api ${versionSnapshot.apiLabel} | workers ${versionSnapshot.workerLabel}`;
+  }
+}
+
+async function refreshDeploymentAwareness() {
+  if (!els.deploymentAwarenessSummary && !els.deploymentApiStatus) {
+    return;
+  }
+  try {
+    state.systemHealth = await apiGet("/health");
+  } catch (error) {
+    state.systemHealth = {
+      status: "error",
+      service: "detecdiv-hub",
+      database_status: "error",
+      database_message: String(error),
+      hostname: window.location.hostname || null,
+    };
+  }
+  renderDeploymentAwareness();
+}
+
+function resolvePipelineRunProject() {
+  const projectId = String(els.pipelineRunProjectSelect?.value || state.selectedProject?.id || "");
+  return state.projects.find((item) => String(item.id) === projectId) || state.selectedProject || null;
+}
+
+function resolvePipelineRunPipeline() {
+  const chosen = String(els.pipelineRunPipelineSelect?.value || pipelineOptionValue(state.selectedPipeline) || "");
+  const rows = pipelineRows();
+  return rows.find((item) => pipelineOptionValue(item) === chosen) || state.selectedPipeline || null;
+}
+
+function resolvePipelineRunTarget() {
+  const targetId = String(els.pipelineRunTargetSelect?.value || "");
+  return state.executionTargets.find((item) => String(item.id) === targetId) || null;
+}
+
+function parsePipelineRunSelectedNodes(value) {
+  return String(value || "")
+    .split(/[\n,;]+/)
+    .map((item) => item.trim())
+    .filter(Boolean);
+}
+
+function parseOptionalJsonField(rawValue, label, fallbackValue) {
+  const text = String(rawValue || "").trim();
+  if (!text) {
+    return fallbackValue;
+  }
+  try {
+    return JSON.parse(text);
+  } catch (error) {
+    throw new Error(`${label} must be valid JSON. ${error.message}`);
+  }
+}
+
+function pipelineRefFromSelection(pipeline) {
+  const ref = {};
+  if (!pipeline) {
+    return ref;
+  }
+  if (pipeline.pipeline_key) {
+    ref.pipeline_key = pipeline.pipeline_key;
+  }
+  const metadata = pipeline.metadata_json || {};
+  const observed = metadata.observed || {};
+  const pathHints = [
+    metadata.pipeline_json_path,
+    metadata.pipeline_bundle_uri,
+    metadata.export_manifest_uri,
+    metadata.pipeline_path,
+    observed.pipeline_json_path,
+    observed.pipeline_bundle_uri,
+    observed.export_manifest_uri,
+    observed.pipeline_path,
+  ].filter(Boolean);
+  const pipelinePath = pathHints[0] || "";
+  if (pipelinePath) {
+    if (String(pipelinePath).toLowerCase().endsWith("export_manifest.json")) {
+      ref.export_manifest_uri = pipelinePath;
+    } else {
+      ref.pipeline_json_path = pipelinePath;
+    }
+  }
+  return ref;
+}
+
+function projectRefFromSelection(project) {
+  if (!project) {
+    return {};
+  }
+  const metadata = project.metadata_json || {};
+  return {
+    project_id: project.id,
+    project_key: project.project_key || null,
+    project_mat_path: metadata.project_mat_abs || null,
+  };
+}
+
+function buildPipelineRunPayload() {
+  const project = resolvePipelineRunProject();
+  if (!project) {
+    throw new Error("Select a project before submitting a pipeline run.");
+  }
+  const pipeline = resolvePipelineRunPipeline();
+  if (!pipeline) {
+    throw new Error("Select a pipeline before submitting a pipeline run.");
+  }
+
+  const requestedMode = String(els.pipelineRunModeSelect?.value || "auto");
+  const gpuMode = String(els.pipelineRunGpuSelect?.value || "force_gpu");
+  const pythonMode = String(els.pipelineRunPythonModeSelect?.value || "default");
+  const pythonEnvName = String(els.pipelineRunPythonEnv?.value || "").trim();
+  const priorityValue = Number(els.pipelineRunPriority?.value || 10);
+  const nodeParams = parseOptionalJsonField(els.pipelineRunNodeParams?.value, "Node overrides JSON", []);
+  if (!Array.isArray(nodeParams)) {
+    throw new Error("Node overrides JSON must decode to an array.");
+  }
+
+  return {
+    project_id: project.id,
+    pipeline_id: pipeline.id || null,
+    execution_target_id: resolvePipelineRunTarget()?.id || null,
+    requested_mode: requestedMode,
+    priority: Number.isFinite(priorityValue) ? Math.max(0, Math.floor(priorityValue)) : 10,
+    requested_by: state.currentUser?.user_key || state.userKey || null,
+    requested_from_host: window.location.hostname || "web-ui",
+    project_ref: projectRefFromSelection(project),
+    pipeline_ref: pipelineRefFromSelection(pipeline),
+    run_request: {
+      run_id: String(els.pipelineRunId?.value || "").trim() || null,
+      description: String(els.pipelineRunDescription?.value || "").trim() || null,
+      selected_nodes: parsePipelineRunSelectedNodes(els.pipelineRunSelectedNodes?.value),
+      node_params: nodeParams,
+      run_policy: String(els.pipelineRunPolicySelect?.value || "resume"),
+      existing_data_policy: String(els.pipelineRunExistingSelect?.value || "replace"),
+      roi_cache_policy: String(els.pipelineRunCacheSelect?.value || "auto"),
+      python: {
+        mode: pythonMode,
+        env_name: pythonMode === "custom" ? (pythonEnvName || "detecdiv_python") : null,
+      },
+      gpu: {
+        mode: gpuMode,
+      },
+    },
+    execution: {
+      requested_mode: requestedMode,
+      execution_target_id: resolvePipelineRunTarget()?.id || null,
+      allow_gui: false,
+      interactive: false,
+      save_project: true,
+    },
+    client_context: {
+      submitted_via: "hub_web_advanced_builder",
+      browser_host: window.location.hostname || null,
+      page: pageFlags.hasProjectPage ? "project" : "catalog",
+    },
+  };
+}
+
+async function refreshPipelineRuns() {
+  if (!els.pipelineRunsTableBody) {
+    return;
+  }
+  const selectedId = state.selectedPipelineRun?.id || null;
+  const projectId = pageFlags.hasProjectPage ? getProjectPageId() : "";
+  const path = projectId ? `/pipeline-runs?project_id=${encodeURIComponent(projectId)}` : "/pipeline-runs";
+  state.pipelineRuns = sortPipelineRuns(await apiGet(path));
+  state.selectedPipelineRun = selectedId
+    ? state.pipelineRuns.find((item) => String(item.id) === String(selectedId)) || null
+    : null;
+  if (state.selectedPipelineRun) {
+    const selectedIndex = state.pipelineRuns.findIndex((item) => String(item.id) === String(state.selectedPipelineRun.id));
+    state.pipelineRunCurrentPage = selectedIndex >= 0 ? Math.floor(selectedIndex / state.pipelineRunPageSize) : 0;
+  } else {
+    state.pipelineRunCurrentPage = 0;
+  }
+  renderPipelineRuns();
+  if (pageFlags.hasProjectPage && state.selectedProjectDetail) {
+    renderDetail();
+  }
+}
+
+function refreshExecutionTargets() {
+  if (!executionTargetRefreshPromise) {
+    executionTargetRefreshPromise = refreshExecutionTargetsNow().finally(() => {
+      executionTargetRefreshPromise = null;
+    });
+  }
+  return executionTargetRefreshPromise;
+}
+
+async function refreshExecutionTargetsNow() {
+  if (!els.executionTargetsTableBody && !els.pipelineRunTargetSelect && !pageFlags.hasPipelineRunsView) {
+    return;
+  }
+  const selectedId = state.selectedExecutionTarget?.id || null;
+  const editingId = state.editingExecutionTarget?.id || null;
+  const requests = [apiGet("/execution-targets")];
+  let includesPrioritySettings = false;
+  if (pageFlags.hasExecutionTargetsView) {
+    requests.push(apiGet("/jobs/activity"));
+    if (state.jobPrioritySettings === null) {
+      requests.push(apiGet("/jobs/settings/priorities"));
+      includesPrioritySettings = true;
+    }
+  }
+  const results = await Promise.all(requests);
+  const targets = results[0];
+  const jobs = results[1]?.jobs ?? state.jobs;
+  if (results[1]?.job_mix) executionTargetJobMix = results[1].job_mix;
+  const prioritySettings = includesPrioritySettings ? results[2] : state.jobPrioritySettings;
+  state.executionTargets = targets;
+  state.jobs = jobs;
+  state.jobPrioritySettings = prioritySettings;
+  state.selectedExecutionTarget = selectedId
+    ? state.executionTargets.find((item) => String(item.id) === String(selectedId)) || null
+    : null;
+  state.editingExecutionTarget = editingId
+    ? state.executionTargets.find((item) => String(item.id) === String(editingId)) || null
+    : null;
+  renderExecutionTargets();
+  if (!state.jobPrioritySettingsDirty) {
+    renderJobPrioritySettings();
+  }
+}
+
+function renderJobPrioritySettings() {
+  if (!els.jobPrioritySettingsTableBody) {
+    return;
+  }
+  const items = state.jobPrioritySettings?.items || [];
+  const capacities = state.jobPrioritySettings?.capacities || {};
+  if (els.jobResourceCpuCapacity) els.jobResourceCpuCapacity.value = Number(capacities.cpu_cores ?? 36);
+  if (els.jobResourceGpuVramCapacity) els.jobResourceGpuVramCapacity.value = Number(capacities.gpu_vram_mb ?? 0);
+  if (els.jobResourceDiskCapacity) els.jobResourceDiskCapacity.value = Number(capacities.disk_io_units ?? 8);
+  els.jobPrioritySettingsTableBody.innerHTML = "";
+  for (const item of items) {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${escapeHtml(item.label)}</td>
+      <td><code>${escapeHtml(item.job_kind)}</code></td>
+      <td><input type="number" min="0" max="10000" step="1" value="${Number(item.priority)}" data-job-priority-kind="${escapeHtml(item.job_kind)}" /></td>
+      <td>${Number(item.default_priority)}</td>
+      <td><input type="number" min="1" max="36" step="1" value="${Number(item.cpu_cores)}" data-job-resource-kind="${escapeHtml(item.job_kind)}" data-job-resource-field="cpu_cores" aria-label="${escapeHtml(item.label)} CPU cores" /><small class="muted">Default: ${Number(item.default_cpu_cores)}</small></td>
+      <td><input type="number" min="512" max="262144" step="512" value="${Number(item.memory_mb)}" data-job-resource-kind="${escapeHtml(item.job_kind)}" data-job-resource-field="memory_mb" aria-label="${escapeHtml(item.label)} RAM MB" /><small class="muted">Default: ${Number(item.default_memory_mb)}</small></td>
+      <td><input type="checkbox" ${item.gpu_enabled ? "checked" : ""} data-job-resource-kind="${escapeHtml(item.job_kind)}" data-job-resource-field="gpu_enabled" aria-label="${escapeHtml(item.label)} GPU allowed" /><small class="muted">Default: ${item.default_gpu_enabled ? "yes" : "no"}</small></td>
+      <td><input type="number" min="0" max="262144" step="256" value="${Number(item.gpu_vram_mb)}" data-job-resource-kind="${escapeHtml(item.job_kind)}" data-job-resource-field="gpu_vram_mb" aria-label="${escapeHtml(item.label)} GPU VRAM MB" /><small class="muted">Default: ${Number(item.default_gpu_vram_mb)}</small></td>
+      <td><input type="number" min="0" max="36" step="1" value="${Number(item.disk_io_units)}" data-job-resource-kind="${escapeHtml(item.job_kind)}" data-job-resource-field="disk_io_units" aria-label="${escapeHtml(item.label)} disk I/O units" /><small class="muted">Default: ${Number(item.default_disk_io_units)}</small></td>
+    `;
+    els.jobPrioritySettingsTableBody.appendChild(tr);
+  }
+  if (els.jobPrioritySettingsSummary) {
+    els.jobPrioritySettingsSummary.textContent = items.length
+      ? `${items.length} job type(s). Lower priorities run first; resource limits apply when a worker claims a job.`
+      : "No priority settings available.";
+  }
+  updateExecutionTargetAccessControls();
+}
+
+async function refreshJobPrioritySettings() {
+  state.jobPrioritySettings = await apiGet("/jobs/settings/priorities");
+  state.jobPrioritySettingsDirty = false;
+  renderJobPrioritySettings();
+  setStatus("Job priorities refreshed.");
+}
+
+async function saveJobPrioritySettings() {
+  const priorities = {};
+  for (const input of document.querySelectorAll("[data-job-priority-kind]")) {
+    const value = Number(input.value);
+    if (!Number.isInteger(value) || value < 0 || value > 10000) {
+      throw new Error(`Invalid priority for ${input.dataset.jobPriorityKind}.`);
+    }
+    priorities[input.dataset.jobPriorityKind] = value;
+  }
+  const resources = {};
+  for (const input of document.querySelectorAll("[data-job-resource-kind]")) {
+    const kind = input.dataset.jobResourceKind;
+    const field = input.dataset.jobResourceField;
+    resources[kind] ||= {};
+    if (field === "gpu_enabled") {
+      resources[kind][field] = input.checked;
+      continue;
+    }
+    const value = Number(input.value);
+    const maximum = field === "cpu_cores" ? 36 : ["gpu_vram_mb", "memory_mb"].includes(field) ? 262144 : 36;
+    const minimum = field === "memory_mb" ? 512 : field === "cpu_cores" ? 1 : 0;
+    if (!Number.isInteger(value) || value < minimum || value > maximum) {
+      throw new Error(`Invalid ${field} value for ${kind}.`);
+    }
+    resources[kind][field] = value;
+  }
+  const capacities = {
+    cpu_cores: Number(els.jobResourceCpuCapacity?.value),
+    gpu_vram_mb: Number(els.jobResourceGpuVramCapacity?.value),
+    disk_io_units: Number(els.jobResourceDiskCapacity?.value),
+  };
+  if (!Number.isInteger(capacities.cpu_cores) || capacities.cpu_cores < 1 || capacities.cpu_cores > 36) {
+    throw new Error("CPU capacity must be between 1 and 36 cores.");
+  }
+  if (!Number.isInteger(capacities.gpu_vram_mb) || capacities.gpu_vram_mb < 0 || capacities.gpu_vram_mb > 262144) {
+    throw new Error("GPU VRAM capacity must be between 0 and 262144 MB.");
+  }
+  if (!Number.isInteger(capacities.disk_io_units) || capacities.disk_io_units < 1 || capacities.disk_io_units > 36) {
+    throw new Error("Disk I/O capacity must be between 1 and 36 units.");
+  }
+  state.jobPrioritySettings = await apiPatch("/jobs/settings/priorities", { priorities, resources, capacities });
+  state.jobPrioritySettingsDirty = false;
+  renderJobPrioritySettings();
+  setStatus("Job priorities and resource profiles updated. Queued jobs will use them immediately.");
+}
+
+async function submitPipelineRun() {
+  const payload = buildPipelineRunPayload();
+  const project = resolvePipelineRunProject();
+  let warnings = [];
+  if (!state.selectedPipelineRun) {
+    const preflight = await apiPost("/pipeline-runs/preflight", payload);
+    if (!preflight.can_submit) {
+      const issues = (preflight.issues || []).filter((item) => item.severity === "error");
+      throw new Error(`Pipeline run preflight failed: ${issues.map((item) => item.message).join(" ")}`);
+    }
+    warnings = (preflight.issues || []).filter((item) => item.severity === "warning");
+  }
+  let saved;
+  if (state.selectedPipelineRun) {
+    saved = await apiPatch(`/pipeline-runs/${state.selectedPipelineRun.id}`, payload);
+    setStatus(`Updated pipeline run ${saved.id} for ${project.project_name}.`);
+  } else {
+    saved = await apiPost("/pipeline-runs", payload);
+    const warningText = warnings.length ? ` Warning: ${warnings.map((item) => item.message).join(" ")}` : "";
+    setStatus(`Queued pipeline run ${saved.id} for ${project.project_name}.${warningText}`);
+  }
+  state.selectedPipelineRun = saved;
+  await refreshPipelineRuns();
+}
+
+async function cancelSelectedPipelineRun() {
+  const run = state.selectedPipelineRun;
+  if (!run) {
+    throw new Error("Select a pipeline run to cancel.");
+  }
+  if (!["queued", "running", "cancelling"].includes(String(run.status || "").toLowerCase())) {
+    throw new Error(`Cannot cancel a ${run.status} pipeline run.`);
+  }
+  const confirmed = window.confirm(`Cancel pipeline run ${run.id}?`);
+  if (!confirmed) {
+    return;
+  }
+  const saved = await apiPost(`/pipeline-runs/${run.id}/cancel`, {});
+  state.selectedPipelineRun = saved;
+  setStatus(`Cancellation requested for pipeline run ${saved.id}.`);
+  await refreshPipelineRuns();
+}
+
+async function forceStopSelectedPipelineRun(button) {
+  const run = state.selectedPipelineRun;
+  if (!run || !["running", "cancelling"].includes(String(run.status || "").toLowerCase())) {
+    throw new Error("Sélectionnez un job en cours d’exécution.");
+  }
+  if (run.force_stop_requested_at) return;
+  const confirmed = window.confirm(
+    `Forcer l’arrêt du job ${run.id} ?\n\n`
+    + "MATLAB, son pool parallèle et les sous-processus de ce job seront arrêtés. "
+    + "Les résultats non sauvegardés seront perdus. Une écriture interrompue peut laisser des fichiers incomplets.\n\n"
+    + "Confirmer l’arrêt forcé ?",
+  );
+  if (!confirmed) return;
+  button.disabled = true;
+  try {
+    const saved = await apiPost(`/pipeline-runs/${run.id}/force-stop`, {});
+    // The selected row may have changed while the request was in flight.
+    if (state.selectedPipelineRun?.id === run.id) state.selectedPipelineRun = saved;
+    setStatus(`Arrêt forcé demandé pour le job ${saved.id}. En attente de confirmation du worker.`);
+    await refreshPipelineRuns();
+  } finally {
+    button.disabled = false;
+  }
+}
+
+function promptBooleanField(label, currentValue) {
+  const answer = window.prompt(`${label} (yes/no)`, currentValue ? "yes" : "no");
+  if (answer === null) {
+    return null;
+  }
+  const normalized = answer.trim().toLowerCase();
+  if (["yes", "y", "true", "1"].includes(normalized)) return true;
+  if (["no", "n", "false", "0"].includes(normalized)) return false;
+  throw new Error(`${label} must be yes or no.`);
+}
+
+function resetExecutionTargetForm() {
+  state.editingExecutionTarget = null;
+  if (els.executionTargetName) els.executionTargetName.value = "";
+  if (els.executionTargetKey) els.executionTargetKey.value = "";
+  if (els.executionTargetKind) els.executionTargetKind.value = "server_gpu";
+  if (els.executionTargetHost) els.executionTargetHost.value = "";
+  if (els.executionTargetStatus) els.executionTargetStatus.value = "online";
+  if (els.executionTargetSupportsMatlab) els.executionTargetSupportsMatlab.value = "true";
+  if (els.executionTargetSupportsPython) els.executionTargetSupportsPython.value = "true";
+  if (els.executionTargetSupportsGpu) els.executionTargetSupportsGpu.value = "false";
+  if (els.executionTargetMaxConcurrentJobs) els.executionTargetMaxConcurrentJobs.value = "1";
+  if (els.executionTargetMatlabMaxThreads) els.executionTargetMatlabMaxThreads.value = "";
+  if (els.executionTargetWorkerInstances) els.executionTargetWorkerInstances.value = "1";
+  if (els.executionTargetDrainNewJobs) els.executionTargetDrainNewJobs.checked = false;
+  renderExecutionTargets();
+}
+
+function cancelExecutionTargetEdit() {
+  state.editingExecutionTarget = null;
+  if (state.selectedExecutionTarget) {
+    fillExecutionTargetForm(state.selectedExecutionTarget);
+  } else {
+    resetExecutionTargetForm();
+    return;
+  }
+  renderExecutionTargets();
+}
+
+function fillExecutionTargetForm(target) {
+  if (!target) {
+    return;
+  }
+  if (els.executionTargetName) els.executionTargetName.value = target.display_name || "";
+  if (els.executionTargetKey) els.executionTargetKey.value = target.target_key || "";
+  if (els.executionTargetKind) els.executionTargetKind.value = target.target_kind || "";
+  if (els.executionTargetHost) els.executionTargetHost.value = target.host_name || "";
+  if (els.executionTargetStatus) els.executionTargetStatus.value = target.status || "online";
+  if (els.executionTargetSupportsMatlab) els.executionTargetSupportsMatlab.value = target.supports_matlab ? "true" : "false";
+  if (els.executionTargetSupportsPython) els.executionTargetSupportsPython.value = target.supports_python ? "true" : "false";
+  if (els.executionTargetSupportsGpu) els.executionTargetSupportsGpu.value = target.supports_gpu ? "true" : "false";
+  if (els.executionTargetMaxConcurrentJobs) {
+    els.executionTargetMaxConcurrentJobs.value = target.metadata_json?.max_concurrent_jobs || "";
+  }
+  if (els.executionTargetMatlabMaxThreads) {
+    els.executionTargetMatlabMaxThreads.value = target.metadata_json?.matlab_max_threads || "";
+  }
+  if (els.executionTargetWorkerInstances) {
+    els.executionTargetWorkerInstances.value = target.metadata_json?.worker_instances_baseline || 6
+      || target.metadata_json?.worker_health_summary?.worker_count
+      || target.metadata_json?.worker_health?.worker_count
+      || "";
+  }
+  if (els.executionTargetDrainNewJobs) {
+    els.executionTargetDrainNewJobs.checked = Boolean(target.metadata_json?.drain_new_jobs);
+  }
+}
+
+function loadExecutionTargetIntoForm(target) {
+  if (!target) {
+    return;
+  }
+  state.selectedExecutionTarget = target;
+  state.editingExecutionTarget = target;
+  fillExecutionTargetForm(target);
+  renderExecutionTargets();
+}
+
+function buildExecutionTargetPayload() {
+  const displayName = String(els.executionTargetName?.value || "").trim();
+  const targetKey = String(els.executionTargetKey?.value || "").trim();
+  const targetKind = String(els.executionTargetKind?.value || "").trim();
+  const hostName = String(els.executionTargetHost?.value || "").trim();
+  const statusValue = String(els.executionTargetStatus?.value || "").trim();
+  if (!displayName) {
+    throw new Error("Execution target name is required.");
+  }
+  if (!targetKind) {
+    throw new Error("Execution target kind is required.");
+  }
+  if (!statusValue) {
+    throw new Error("Execution target status is required.");
+  }
+  const metadata = {};
+  const maxConcurrentJobs = parsePositiveIntegerField(
+    els.executionTargetMaxConcurrentJobs?.value,
+    "Max concurrent jobs",
+  );
+  const matlabMaxThreads = parsePositiveIntegerField(
+    els.executionTargetMatlabMaxThreads?.value,
+    "MATLAB max threads",
+  );
+  const workerInstances = parsePositiveIntegerField(
+    els.executionTargetWorkerInstances?.value,
+    "Worker instances",
+  );
+  if (maxConcurrentJobs === null) {
+    metadata.max_concurrent_jobs = null;
+  } else {
+    metadata.max_concurrent_jobs = maxConcurrentJobs;
+  }
+  if (matlabMaxThreads === null) {
+    metadata.matlab_max_threads = null;
+  } else {
+    metadata.matlab_max_threads = matlabMaxThreads;
+  }
+  if (workerInstances === null) {
+    delete metadata.worker_instances_baseline;
+  } else {
+    metadata.worker_instances_baseline = workerInstances;
+    metadata.worker_autoscale_enabled = true;
+  }
+  metadata.drain_new_jobs = Boolean(els.executionTargetDrainNewJobs?.checked);
+  return {
+    target_key: targetKey || null,
+    display_name: displayName,
+    target_kind: targetKind,
+    host_name: hostName || null,
+    supports_matlab: String(els.executionTargetSupportsMatlab?.value || "false") === "true",
+    supports_python: String(els.executionTargetSupportsPython?.value || "true") === "true",
+    supports_gpu: String(els.executionTargetSupportsGpu?.value || "false") === "true",
+    status: statusValue,
+    metadata_json: metadata,
+  };
+}
+
+function parsePositiveIntegerField(rawValue, label) {
+  const value = String(rawValue || "").trim();
+  if (!value) {
+    return null;
+  }
+  const parsed = Number(value);
+  if (!Number.isInteger(parsed) || parsed < 1) {
+    throw new Error(`${label} must be a positive integer.`);
+  }
+  return parsed;
+}
+
+async function saveExecutionTarget() {
+  const payload = buildExecutionTargetPayload();
+  let saved;
+  if (state.editingExecutionTarget) {
+    saved = await apiPatch(`/execution-targets/${state.editingExecutionTarget.id}`, payload);
+    setStatus(`Updated execution target ${saved.display_name}.`);
+  } else {
+    saved = await apiPost("/execution-targets", payload);
+    setStatus(`Created execution target ${saved.display_name}.`);
+  }
+  state.selectedExecutionTarget = saved;
+  state.editingExecutionTarget = saved;
+  await refreshExecutionTargets();
+}
+
+async function applyWorkerInstances() {
+  if (!state.selectedExecutionTarget) {
+    throw new Error("Select an execution target first.");
+  }
+  const workerInstances = parsePositiveIntegerField(
+    els.executionTargetWorkerInstances?.value,
+    "Worker instances",
+  );
+  if (workerInstances === null) {
+    throw new Error("Worker instances is required.");
+  }
+  const response = await apiPost(
+    `/execution-targets/${state.selectedExecutionTarget.id}/worker-scale`,
+    { worker_instances: workerInstances },
+  );
+  setStatus(response.message || `Configured ${workerInstances} worker instance(s).`);
+  await refreshExecutionTargets();
+}
+
+async function purgeQueuedJobs() {
+  const kind = els.purgeQueuedJobsKind?.value || "";
+  const label = kind || "all";
+  const ok = window.confirm(`Cancel all queued jobs (${label})? This cannot be undone.`);
+  if (!ok) return;
+  const result = await apiPost("/jobs/purge-queued", { job_kind: kind || null });
+  setStatus(result.message);
+  await refreshExecutionTargets();
+}
+
+async function applyExecutionTargetDrain() {
+  if (!state.selectedExecutionTarget) {
+    throw new Error("Select an execution target first.");
+  }
+  const nextDrainValue = Boolean(els.executionTargetDrainNewJobs?.checked);
+  const saved = await apiPatch(`/execution-targets/${state.selectedExecutionTarget.id}`, {
+    metadata_json: {
+      drain_new_jobs: nextDrainValue,
+    },
+  });
+  setStatus(
+    nextDrainValue
+      ? `Drain enabled for ${saved.display_name}. Running jobs will finish; no new jobs will be claimed.`
+      : `Drain disabled for ${saved.display_name}. New jobs may be claimed again.`
+  );
+  state.selectedExecutionTarget = saved;
+  state.editingExecutionTarget = saved;
+  await refreshExecutionTargets();
+}
+
+function openExecutionTargetConfig() {
+  if (!state.selectedExecutionTarget) {
+    throw new Error("Select an execution target first.");
+  }
+  const url = withIdentity(`/execution-targets/${state.selectedExecutionTarget.id}`);
+  window.open(url, "_blank", "noopener");
+}
+
+function renderIndexingJobs() {
+  if (!els.indexJobsTableBody || !els.activeIndexJob) {
+    return;
+  }
+  els.indexJobsTableBody.innerHTML = "";
+  const activeJob = state.indexingJobs.find((job) => job.status === "queued" || job.status === "running");
+  const latestJob = activeJob || state.indexingJobs[0] || null;
+
+  if (!latestJob) {
+    els.activeIndexJob.className = "job-highlight empty-state";
+    els.activeIndexJob.textContent = "No indexing jobs yet.";
+  } else {
+    const pct = progressPercent(latestJob);
+    const statusClass = latestJob.status === "running" || latestJob.status === "queued"
+      ? "running"
+      : latestJob.status.startsWith("completed")
+        ? "completed"
+        : "failed";
+    els.activeIndexJob.className = `job-highlight ${statusClass}`;
+    els.activeIndexJob.innerHTML = `
+      <div class="job-title">${latestJob.status} | ${latestJob.phase || "queued"} | ${latestJob.source_path}</div>
+      <div>${latestJob.message || "No status message."}</div>
+      <div class="stack-item-meta">
+        mat seen ${latestJob.mat_files_seen || 0} | candidates ${latestJob.total_projects} | scanned ${latestJob.scanned_projects} | indexed ${latestJob.indexed_projects} | failed ${latestJob.failed_projects} | deleted ${latestJob.deleted_projects}
+      </div>
+      <div class="stack-item-meta">heartbeat ${formatTimestamp(latestJob.heartbeat_at)} | updated ${formatTimestamp(latestJob.updated_at)}</div>
+      <div class="progress-bar"><div class="progress-fill" style="width: ${pct}%"></div></div>
+    `;
+  }
+
+  for (const job of state.indexingJobs) {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${job.status}</td>
+      <td>${job.phase || ""}</td>
+      <td>${job.source_path}</td>
+      <td>${job.mat_files_seen || 0}</td>
+      <td>${job.scanned_projects}/${job.total_projects} (${progressPercent(job)}%)</td>
+      <td>${job.indexed_projects}</td>
+      <td>${job.failed_projects}</td>
+      <td>${formatTimestamp(job.heartbeat_at)}</td>
+      <td>${formatTimestamp(job.updated_at || job.created_at)}</td>
+    `;
+    tr.title = job.message || "";
+    els.indexJobsTableBody.appendChild(tr);
+  }
+}
+
+function visibleRawDatasetIds() {
+  return getVisibleRawDatasets().map((raw) => `${raw.id}`);
+}
+
+function selectedRawDatasetIds() {
+  const visibleIds = new Set(visibleRawDatasetIds());
+  return state.selectedRawDatasetIds.filter((rawDatasetId) => visibleIds.has(`${rawDatasetId}`));
+}
+
+function isRawDatasetSelected(rawDatasetId) {
+  return state.selectedRawDatasetIds.includes(`${rawDatasetId}`);
+}
+
+function setSelectedRawDatasetIds(rawDatasetIds) {
+  state.selectedRawDatasetIds = [...new Set((rawDatasetIds || []).map((rawDatasetId) => `${rawDatasetId}`))];
+  if (state.pendingRawBulkDelete?.scope === "selected") {
+    closeRawBulkDeletePanel();
+  }
+  saveRawDatasetDisplaySettings();
+  renderRawDatasets();
+  renderArchivedRawDatasets();
+  renderRawSelectionControls();
+}
+
+function toggleRawDatasetSelection(rawDatasetId, isSelected) {
+  const normalizedId = `${rawDatasetId}`;
+  const selected = new Set(state.selectedRawDatasetIds);
+  if (isSelected) {
+    selected.add(normalizedId);
+  } else {
+    selected.delete(normalizedId);
+  }
+  setSelectedRawDatasetIds([...selected]);
+}
+
+function currentRawPositions() {
+  return state.selectedRawDatasetDetail?.positions || [];
+}
+
+function visibleRawPositionIds() {
+  return currentRawPositions().map((position) => `${position.id}`);
+}
+
+function selectedRawPositionIds() {
+  const visibleIds = new Set(visibleRawPositionIds());
+  return state.selectedRawPositionIds.filter((positionId) => visibleIds.has(`${positionId}`));
+}
+
+function isRawPositionSelected(positionId) {
+  return state.selectedRawPositionIds.includes(`${positionId}`);
+}
+
+function setSelectedRawPositionIds(positionIds) {
+  state.selectedRawPositionIds = [...new Set((positionIds || []).map((positionId) => `${positionId}`))];
+  if (state.pendingRawPositionDelete?.scope === "selected") {
+    closeRawPositionDeletePanel();
+  }
+  renderRawPositions(currentRawPositions());
+  renderRawPositionDeletePanel();
+}
+
+function toggleRawPositionSelection(positionId, isSelected) {
+  const normalizedId = `${positionId}`;
+  const selected = new Set(state.selectedRawPositionIds);
+  if (isSelected) {
+    selected.add(normalizedId);
+  } else {
+    selected.delete(normalizedId);
+  }
+  setSelectedRawPositionIds([...selected]);
+}
+
+function renderRawSelectionControls() {
+  const visibleIds = visibleRawDatasetIds();
+  const selectedIds = selectedRawDatasetIds();
+  const visibleCount = visibleIds.length;
+  const selectedCount = selectedIds.length;
+
+  if (els.rawSelectAll) {
+    const allVisibleSelected = visibleCount > 0 && selectedCount === visibleCount;
+    const someVisibleSelected = selectedCount > 0 && selectedCount < visibleCount;
+    els.rawSelectAll.checked = allVisibleSelected;
+    els.rawSelectAll.indeterminate = someVisibleSelected;
+    els.rawSelectAll.disabled = visibleCount === 0;
+  }
+  if (els.rawSelectionSummary) {
+    els.rawSelectionSummary.textContent = `${selectedCount} selected / ${visibleCount} visible`;
+  }
+  if (els.rawClearSelectionButton) {
+    els.rawClearSelectionButton.disabled = selectedCount === 0;
+  }
+  if (els.rawSelectVisibleButton) {
+    els.rawSelectVisibleButton.disabled = visibleCount === 0;
+  }
+  if (els.rawBulkQueuePreviewsSelectedButton) {
+    els.rawBulkQueuePreviewsSelectedButton.disabled = selectedCount === 0;
+  }
+  if (els.rawBulkOptimizeSelectedButton) {
+    const admin = isAdmin();
+    els.rawBulkOptimizeSelectedButton.classList.toggle("hidden", !admin);
+    els.rawBulkOptimizeSelectedButton.disabled = !admin || selectedCount === 0;
+    els.rawBulkOptimizeSelectedButton.title = "Queue low-priority, resumable TIFF DEFLATE optimization for the selected datasets.";
+  }
+  if (els.rawBulkDeleteSelectedButton) {
+    els.rawBulkDeleteSelectedButton.disabled = selectedCount === 0;
+  }
+  if (els.rawBulkArchiveSelectedButton) {
+    els.rawBulkArchiveSelectedButton.disabled = selectedCount === 0;
+  }
+  if (els.rawBulkRestoreSelectedButton) {
+    els.rawBulkRestoreSelectedButton.disabled = selectedCount === 0;
+  }
+  if (els.rawBulkRestoreVisibleButton) {
+    els.rawBulkRestoreVisibleButton.disabled = visibleCount === 0;
+  }
+}
+
+function renderRawPositionSelectionControls(positions) {
+  if (!els.rawPositionSelectAll && !els.rawPositionSelectionSummary && !els.rawPositionClearSelectionButton && !els.rawPositionDeleteSelectedButton) {
+    return;
+  }
+  const visibleCount = positions.length;
+  const selectedIds = selectedRawPositionIds();
+  const selectedCount = selectedIds.length;
+
+  if (els.rawPositionSelectAll) {
+    const allVisibleSelected = visibleCount > 0 && selectedCount === visibleCount;
+    const someVisibleSelected = selectedCount > 0 && selectedCount < visibleCount;
+    els.rawPositionSelectAll.checked = allVisibleSelected;
+    els.rawPositionSelectAll.indeterminate = someVisibleSelected;
+    els.rawPositionSelectAll.disabled = visibleCount === 0;
+  }
+  if (els.rawPositionSelectionSummary) {
+    els.rawPositionSelectionSummary.textContent = `${selectedCount} selected / ${visibleCount} positions`;
+  }
+  if (els.rawPositionClearSelectionButton) {
+    els.rawPositionClearSelectionButton.disabled = selectedCount === 0;
+  }
+  if (els.rawPositionDeleteSelectedButton) {
+    els.rawPositionDeleteSelectedButton.disabled = selectedCount === 0;
+  }
+}
+
+function renderRawPositionDeletePanel() {
+  if (!els.rawPositionDeletePanel || !els.rawPositionDeleteSummary || !els.rawPositionDeleteConfirmButton) {
+    return;
+  }
+  const pending = state.pendingRawPositionDelete;
+  if (!pending || !pending.positionIds?.length) {
+    els.rawPositionDeletePanel.classList.add("hidden");
+    return;
+  }
+
+  els.rawPositionDeletePanel.classList.remove("hidden");
+  els.rawPositionDeleteConfirmButton.textContent = "Queue position deletions";
+  els.rawPositionDeleteConfirmButton.disabled = pending.queueStatus === "queueing" || pending.queueStatus === "queued";
+  if (pending.queueMessage) {
+    els.rawPositionDeleteSummary.textContent = pending.queueMessage;
+    return;
+  }
+  if (!pending.preview) {
+    els.rawPositionDeleteSummary.textContent = `Preparing deletion preview for ${pending.positionIds.length} selected position(s)...`;
+    return;
+  }
+
+  const preview = pending.preview;
+  const positionList = (preview.positions || [])
+    .map((position) => position.display_name || position.position_key || position.position_id)
+    .slice(0, 4);
+  const linkedProjects = preview.linked_projects || [];
+  const warningCount = (preview.warnings || []).length;
+  const parts = [`${pending.positionIds.length} selected position(s)`];
+  parts.push(`source reclaimable ${humanBytes(preview.reclaimable_bytes || 0)}`);
+  if (positionList.length) {
+    parts.push(`positions: ${positionList.join(", ")}${preview.positions?.length > positionList.length ? " ..." : ""}`);
+  }
+  if (linkedProjects.length) {
+    const projectNames = linkedProjects
+      .map((project) => project.project_name)
+      .slice(0, 4);
+    parts.push(`linked projects: ${projectNames.join(", ")}${linkedProjects.length > projectNames.length ? " ..." : ""}`);
+  }
+  if (warningCount) {
+    parts.push(`${warningCount} warning(s)`);
+  }
+  els.rawPositionDeleteSummary.textContent = parts.join(" | ");
+}
+
+function renderRawBulkDeletePanel() {
+  if (!els.rawBulkDeletePanel || !els.rawBulkDeleteSummary || !els.rawBulkDeleteConfirmButton) {
+    return;
+  }
+  const pending = state.pendingRawBulkDelete;
+  if (!pending || !pending.rawDatasetIds?.length) {
+    els.rawBulkDeletePanel.classList.add("hidden");
+    return;
+  }
+
+  els.rawBulkDeletePanel.classList.remove("hidden");
+  const scopeLabel = pending.scope === "selected" ? "selected" : "visible";
+  const mode = els.rawBulkDeleteMode?.value || "database_only";
+  const deleteLinkedProjects = Boolean(els.rawBulkDeleteLinkedProjects?.checked);
+  els.rawBulkDeleteConfirmButton.textContent =
+    mode === "source_files" ? "Delete catalog entries and source files" : "Delete catalog entries only";
+
+  if (!pending.preview) {
+    els.rawBulkDeleteSummary.textContent = `Preparing deletion preview for ${pending.rawDatasetIds.length} ${scopeLabel} raw dataset(s)...`;
+    return;
+  }
+
+  const preview = pending.preview;
+  const parts = [`${pending.rawDatasetIds.length} ${scopeLabel} raw dataset(s)`];
+  if (mode === "source_files") {
+    parts.push(`raw source reclaimable ${humanBytes(preview.reclaimableBytes || 0)}`);
+  } else {
+    parts.push("catalog entries only, source files on disk will be kept");
+  }
+  if (deleteLinkedProjects) {
+    parts.push(`linked projects reclaimable ${humanBytes(preview.linkedProjectBytes || 0)}`);
+    if (preview.skippedLinkedProjects) {
+      parts.push(`${preview.skippedLinkedProjects} linked project(s) skipped`);
+    }
+  }
+  if (preview.errorCount) {
+    parts.push(`${preview.errorCount} preview error(s)`);
+  }
+  els.rawBulkDeleteSummary.textContent = parts.join(" | ");
+}
+
+function renderRawDatasets() {
+  if (!els.rawDatasetsTableBody || !els.rawCountLabel) {
+    return;
+  }
+  els.rawDatasetsTableBody.innerHTML = "";
+  const visibleRawDatasets = getVisibleRawDatasets();
+  els.rawCountLabel.textContent = `${visibleRawDatasets.length} visible / ${state.rawDatasets.length} raw datasets`;
+  renderRawOpsSummary();
+  renderArchivedRawDatasets();
+  updateSortHeaders(document.querySelector("#raw-datasets-table"), state.rawDatasetSort);
+
+  const pageSize = state.rawDatasetPageSize;
+  const totalPages = Math.ceil(visibleRawDatasets.length / pageSize);
+  state.rawDatasetCurrentPage = Math.min(state.rawDatasetCurrentPage, Math.max(0, totalPages - 1));
+
+  const startIdx = state.rawDatasetCurrentPage * pageSize;
+  const endIdx = startIdx + pageSize;
+  const pageDatasets = visibleRawDatasets.slice(startIdx, endIdx);
+
+  for (const raw of pageDatasets) {
+    const tr = document.createElement("tr");
+    const displayStatus = state.rawDatasetDeletionStatusById?.[String(raw.id)] || raw.status;
+    if (state.selectedRawDataset && state.selectedRawDataset.id === raw.id) {
+      tr.classList.add("selected");
+    }
+    tr.innerHTML = `
+      <td><input class="raw-select-checkbox" type="checkbox" ${isRawDatasetSelected(raw.id) ? "checked" : ""} /></td>
+      <td>${escapeHtml(raw.acquisition_label)}</td>
+      <td>${escapeHtml(raw.data_format || "unknown")}</td>
+      <td>${escapeHtml(raw.owner ? userOptionLabel(raw.owner) : "")}</td>
+      <td>${escapeHtml(raw.lifecycle_tier)}</td>
+      <td>${escapeHtml(raw.archive_status)}</td>
+      <td>${escapeHtml(displayStatus)}</td>
+      <td>${humanBytes(raw.total_bytes)}</td>
+      <td>${escapeHtml(formatTimestamp(raw.created_at))}</td>
+    `;
+    tr.querySelector(".raw-select-checkbox")?.addEventListener("click", (event) => {
+      event.stopPropagation();
+    });
+    tr.querySelector(".raw-select-checkbox")?.addEventListener("change", (event) => {
+      toggleRawDatasetSelection(raw.id, Boolean(event.target.checked));
+    });
+    tr.addEventListener("click", () => selectRawDataset(raw.id));
+    els.rawDatasetsTableBody.appendChild(tr);
+  }
+
+  renderRawPagination(totalPages);
+  renderRawSelectionControls();
+}
+
+function renderRawPagination(totalPages) {
+  const pageInfo = document.querySelector("#raw-page-info");
+  const prevBtn = document.querySelector("#raw-prev-page");
+  const nextBtn = document.querySelector("#raw-next-page");
+
+  if (!pageInfo || !prevBtn || !nextBtn) return;
+
+  const currentPage = state.rawDatasetCurrentPage + 1;
+  pageInfo.textContent = totalPages > 0 ? `Page ${currentPage} / ${totalPages}` : "No datasets";
+
+  prevBtn.disabled = state.rawDatasetCurrentPage === 0;
+  nextBtn.disabled = state.rawDatasetCurrentPage >= totalPages - 1;
+
+  prevBtn.replaceWith(prevBtn.cloneNode(true));
+  nextBtn.replaceWith(nextBtn.cloneNode(true));
+
+  const newPrevBtn = document.querySelector("#raw-prev-page");
+  const newNextBtn = document.querySelector("#raw-next-page");
+
+  newPrevBtn.addEventListener("click", () => {
+    if (state.rawDatasetCurrentPage > 0) {
+      state.rawDatasetCurrentPage--;
+      saveRawDatasetDisplaySettings();
+      renderRawDatasets();
+    }
+  });
+
+  newNextBtn.addEventListener("click", () => {
+    if (state.rawDatasetCurrentPage < totalPages - 1) {
+      state.rawDatasetCurrentPage++;
+      saveRawDatasetDisplaySettings();
+      renderRawDatasets();
+    }
+  });
+}
+
+function rawDatasetNavigationItems() {
+  const visible = getVisibleRawDatasets();
+  return visible.length ? visible : (state.rawDatasets || []);
+}
+
+function rawDatasetIndexedPositionCount(raw) {
+  const directCount = Number(raw?.position_count);
+  if (Number.isFinite(directCount)) {
+    return directCount;
+  }
+  if (Array.isArray(raw?.positions)) {
+    return raw.positions.length;
+  }
+  return 0;
+}
+
+function rawDatasetIsNavigable(raw) {
+  if (!raw?.id) {
+    return false;
+  }
+  if (`${raw.status || ""}`.trim().toLowerCase() === "deleted") {
+    return false;
+  }
+  const dataFormat = `${raw.data_format || "unknown"}`.trim().toLowerCase();
+  if (dataFormat === "unknown" && rawDatasetIndexedPositionCount(raw) <= 0) {
+    return false;
+  }
+  return true;
+}
+
+function rawDatasetNeighbor(direction) {
+  const raw = state.selectedRawDatasetDetail || state.selectedRawDataset;
+  if (!raw) {
+    return null;
+  }
+  const items = rawDatasetNavigationItems();
+  const currentIndex = items.findIndex((item) => `${item.id}` === `${raw.id}`);
+  if (currentIndex < 0) {
+    return null;
+  }
+  for (let index = currentIndex + direction; index >= 0 && index < items.length; index += direction) {
+    const candidate = items[index];
+    if (rawDatasetIsNavigable(candidate)) {
+      return candidate;
+    }
+  }
+  return null;
+}
+
+function renderRawDatasetNavigationControls() {
+  const previous = rawDatasetNeighbor(-1);
+  const next = rawDatasetNeighbor(1);
+  if (els.rawPrevDatasetButton) {
+    els.rawPrevDatasetButton.disabled = !previous;
+    els.rawPrevDatasetButton.title = previous
+      ? `Previous: ${previous.acquisition_label}`
+      : "No previous raw dataset";
+  }
+  if (els.rawNextDatasetButton) {
+    els.rawNextDatasetButton.disabled = !next;
+    els.rawNextDatasetButton.title = next
+      ? `Next: ${next.acquisition_label}`
+      : "No next raw dataset";
+  }
+}
+
+async function navigateRawDataset(direction) {
+  if (!state.rawDatasets.length) {
+    await refreshRawDatasets({ preservePage: true });
+  }
+  const target = rawDatasetNeighbor(direction);
+  if (!target) {
+    return;
+  }
+  openRawDatasetPage(target.id);
+}
+
+function renderRawDatasetDetail() {
+  if (!els.rawDetailEmpty || !els.rawDetailContent || !els.rawDetailSubtitle) {
+    return;
+  }
+  const isDedicatedRawPage = pageFlags.hasRawDatasetPage;
+  if (!state.selectedRawDatasetDetail) {
+    els.rawDetailEmpty.classList.remove("hidden");
+    els.rawDetailContent.classList.add("hidden");
+    els.rawDetailSubtitle.textContent = "Select a raw dataset";
+    renderRawDatasetNotes();
+    if (els.changeRawOwnerButton) {
+      els.changeRawOwnerButton.classList.add("hidden");
+      els.changeRawOwnerButton.disabled = true;
+    }
+    if (els.rawPreviewArchiveButton) els.rawPreviewArchiveButton.disabled = true;
+    if (els.rawStorageOptimizeButton) {
+      els.rawStorageOptimizeButton.classList.add("hidden");
+      els.rawStorageOptimizeButton.disabled = true;
+    }
+    if (els.rawArchiveButton) els.rawArchiveButton.disabled = true;
+    if (els.rawDeleteArchiveButton) els.rawDeleteArchiveButton.disabled = true;
+    if (els.rawRestoreButton) els.rawRestoreButton.disabled = true;
+    if (els.rawDeleteDatasetButton) els.rawDeleteDatasetButton.disabled = true;
+    if (els.rawOpenDisplaySettingsButton) els.rawOpenDisplaySettingsButton.disabled = true;
+    setRawActionFeedback("");
+    if (els.rawLifecycleEvents) {
+      els.rawLifecycleEvents.innerHTML = "";
+    }
+    renderRawExternalEln();
+    renderRawLocations([]);
+    renderRawAnalysisProjects([]);
+    renderRawPositions([]);
+    renderRawPositionViewer([]);
+    renderRawDatasetNavigationControls();
+    return;
+  }
+
+  const raw = state.selectedRawDatasetDetail;
+  const acquisitionFacts = extractRawAcquisitionFacts(raw);
+  const owner = raw.owner ? `${raw.owner.display_name} (${raw.owner.user_key})` : "unknown";
+  const linkedProjects = raw.analysis_projects || [];
+  const fields = isDedicatedRawPage
+    ? [
+      ["Acquisition", raw.acquisition_label],
+      ["Data type", raw.data_format || "unknown"],
+      ["Channels", acquisitionFacts.channelsLabel],
+      ["Channel settings", acquisitionFacts.channelSettingsLabel],
+      ["Exposure time (per channel)", acquisitionFacts.exposureLabel],
+      ["LED power (per channel)", acquisitionFacts.ledPowerLabel],
+      ["Frames", acquisitionFacts.framesLabel],
+      ["Interval", acquisitionFacts.intervalLabel],
+      ["Positions (metadata)", acquisitionFacts.positionsLabel],
+      ["Positions (indexed)", `${acquisitionFacts.positionsIndexed}`],
+      ["Project owner", owner],
+      ["Visibility", raw.visibility],
+      ["Status", raw.status],
+      ["Completeness", raw.completeness_status],
+      ["Tier", raw.lifecycle_tier],
+      ["Archive status", raw.archive_status],
+      ["Archive URI", raw.archive_uri || ""],
+      ["Compression", raw.archive_compression || ""],
+      ["TIFF optimization", (raw.storage_optimization_status || "none").replaceAll("_", " ")],
+      ["TIFF storage saved", humanBytes(raw.storage_optimization_saved_bytes || 0)],
+      ["TIFF optimized at", raw.storage_optimized_at ? formatTimestamp(raw.storage_optimized_at) : "never"],
+      ["Archive size", humanBytes(raw.archive_file_bytes || 0)],
+      ["Reclaimable", humanBytes(raw.reclaimable_bytes)],
+      ["Total size", humanBytes(raw.total_bytes)],
+      ["Experiments", (raw.experiment_ids || []).join(", ") || "none"],
+      ["Analysis projects", (raw.analysis_project_ids || []).join(", ") || "none"],
+      ["Last accessed", formatTimestamp(raw.last_accessed_at)],
+    ]
+    : [
+      ["Acquisition", raw.acquisition_label],
+      ["Data type", raw.data_format || "unknown"],
+      ["Project owner", owner],
+      ["Status", `${raw.status} | ${raw.completeness_status}`],
+      ["Storage", humanBytes(raw.total_bytes)],
+      ["Projects", `${linkedProjects.length}`],
+      ["Positions", `${(raw.positions || []).length}`],
+      ["Last accessed", formatTimestamp(raw.last_accessed_at)],
+  ];
+
+  if (els.changeRawOwnerButton) {
+    const canChangeOwner = isAdmin();
+    els.changeRawOwnerButton.classList.toggle("hidden", !canChangeOwner);
+    els.changeRawOwnerButton.disabled = !canChangeOwner;
+  }
+
+  els.rawDetailList.innerHTML = "";
+  for (const [label, value] of fields) {
+    const dt = document.createElement("dt");
+    dt.textContent = label;
+    const dd = document.createElement("dd");
+    dd.textContent = `${value ?? ""}`;
+    els.rawDetailList.append(dt, dd);
+  }
+
+  if (els.rawOpenDatasetPageButton) {
+    els.rawOpenDatasetPageButton.disabled = false;
+    els.rawOpenDatasetPageButton.onclick = () => openRawDatasetPage(raw.id);
+  }
+  if (els.rawOpenDisplaySettingsButton) {
+    const hasDisplaySettings = Boolean(raw.display_settings_uri);
+    els.rawOpenDisplaySettingsButton.disabled = !hasDisplaySettings;
+    els.rawOpenDisplaySettingsButton.onclick = hasDisplaySettings ? () => openRawDisplaySettings(raw.id) : null;
+  }
+  if (els.rawOpenProjectPageButton) {
+    const firstProjectId = linkedProjects[0]?.id || "";
+    els.rawOpenProjectPageButton.disabled = !firstProjectId;
+    els.rawOpenProjectPageButton.onclick = firstProjectId
+      ? () => {
+          window.location.href = `/web/project.html?id=${encodeURIComponent(firstProjectId)}`;
+        }
+      : null;
+  }
+
+  renderRawExternalEln();
+  renderRawLocations(isDedicatedRawPage ? (raw.locations || []) : []);
+  renderRawDatasetNotes();
+  renderRawAnalysisProjects(isDedicatedRawPage ? linkedProjects : []);
+  renderRawPositions(isDedicatedRawPage ? (raw.positions || []) : []);
+  renderRawPositionViewer(isDedicatedRawPage ? (raw.positions || []) : []);
+  renderRawLifecycleEvents(isDedicatedRawPage ? (raw.lifecycle_events || []) : []);
+  if (els.rawPreviewArchiveButton) els.rawPreviewArchiveButton.disabled = false;
+  if (els.rawStorageOptimizeButton) {
+    const optimizationStatus = raw.storage_optimization_status || "none";
+    const canOptimize = isAdmin() && ["none", "partial", "failed", "cancelled"].includes(optimizationStatus);
+    els.rawStorageOptimizeButton.classList.toggle("hidden", !isAdmin());
+    els.rawStorageOptimizeButton.disabled = !canOptimize;
+    els.rawStorageOptimizeButton.title = canOptimize
+      ? "Queue a resumable, low-priority TIFF DEFLATE optimization run"
+      : `TIFF optimization is ${optimizationStatus.replaceAll("_", " ")}.`;
+  }
+  if (els.rawArchiveButton) els.rawArchiveButton.disabled = false;
+  if (els.rawDeleteArchiveButton) els.rawDeleteArchiveButton.disabled = !raw.archive_uri;
+  if (els.rawRestoreButton) els.rawRestoreButton.disabled = false;
+  if (els.rawDeleteDatasetButton) els.rawDeleteDatasetButton.disabled = false;
+  if (els.rawBackupStatus) els.rawBackupStatus.textContent = (raw.backup_status || "none").replaceAll("_", " ");
+  if (els.rawLastBackupAt) els.rawLastBackupAt.textContent = raw.last_backup_at ? formatTimestamp(raw.last_backup_at) : "never";
+  if (els.rawBackupExcluded) els.rawBackupExcluded.checked = Boolean(raw.backup_excluded);
+  if (raw.archive_status === "archive_queued") {
+    setRawActionFeedback("Archive request queued. Waiting for worker execution.", "ok");
+  } else if (raw.archive_status === "restore_queued") {
+    setRawActionFeedback("Restore request queued. Waiting for worker execution.", "ok");
+  } else if (raw.archive_status === "archive_failed" || raw.archive_status === "restore_failed") {
+    setRawActionFeedback(`Latest lifecycle action failed: ${raw.archive_status}.`, "warn");
+  } else {
+    setRawActionFeedback("");
+  }
+  if (["queued", "running"].includes(raw.storage_optimization_status)) {
+    setRawActionFeedback(`TIFF optimization ${raw.storage_optimization_status}; the worker processes short, drain-safe chunks.`, "ok");
+  } else if (raw.storage_optimization_status === "partial" || raw.storage_optimization_status === "failed") {
+    setRawActionFeedback(`TIFF optimization ${raw.storage_optimization_status}. Review the run before retrying.`, "warn");
+  }
+  els.rawDetailSubtitle.textContent = raw.acquisition_label;
+  if (els.rawDatasetPageTitle) {
+    els.rawDatasetPageTitle.textContent = raw.acquisition_label;
+  }
+  els.rawDetailEmpty.classList.add("hidden");
+  els.rawDetailContent.classList.remove("hidden");
+  renderRawDatasetNavigationControls();
+}
+
+function renderRawLocations(locations) {
+  if (!els.rawLocationsList) {
+    return;
+  }
+  els.rawLocationsList.innerHTML = "";
+  if (!locations.length) {
+    els.rawLocationsList.innerHTML = `<div class="stack-item">No storage location indexed.</div>`;
+    return;
+  }
+  for (const location of locations) {
+    const div = document.createElement("div");
+    div.className = "stack-item";
+    div.innerHTML = `
+      <div class="stack-item-meta">${location.storage_root?.name || "unknown root"} | ${location.access_mode}${location.is_preferred ? " | preferred" : ""}</div>
+      <div>${location.absolute_path || location.relative_path}</div>
+    `;
+    els.rawLocationsList.appendChild(div);
+  }
+}
+
+function renderRawAnalysisProjects(projects) {
+  if (!els.rawAnalysisProjectsList) {
+    return;
+  }
+  els.rawAnalysisProjectsList.innerHTML = "";
+  if (!projects.length) {
+    els.rawAnalysisProjectsList.innerHTML = `<div class="stack-item">No linked analysis project.</div>`;
+    return;
+  }
+  for (const project of projects) {
+    const div = document.createElement("div");
+    div.className = "stack-item";
+    div.innerHTML = `
+      <div class="stack-item-meta">${project.health_status || ""} | ${project.owner ? userOptionLabel(project.owner) : "unknown owner"}</div>
+      <div>${project.project_name}</div>
+      <div class="stack-item-meta">${project.fov_count || 0} FOV | ${humanBytes(project.total_bytes)}</div>
+      <div class="stack-actions">
+        <button class="open-project-link" data-project-id="${project.id}">Open project</button>
+      </div>
+    `;
+    els.rawAnalysisProjectsList.appendChild(div);
+  }
+  els.rawAnalysisProjectsList.querySelectorAll(".open-project-link").forEach((button) => {
+    button.addEventListener("click", (event) => {
+      event.stopPropagation();
+      window.location.href = `/web/project.html?id=${encodeURIComponent(button.dataset.projectId || "")}`;
+    });
+  });
+}
+
+function renderRawPositions(positions) {
+  if (!els.rawPositionsTableBody) {
+    return;
+  }
+  els.rawPositionsTableBody.innerHTML = "";
+  renderRawPreviewProgress(positions);
+  if (els.rawQueuePreviewButton) {
+    els.rawQueuePreviewButton.disabled = !state.selectedRawDatasetDetail;
+  }
+  if (els.rawRegeneratePreviewButton) {
+    els.rawRegeneratePreviewButton.disabled = !state.selectedRawDatasetDetail;
+  }
+  if (!positions.length) {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `<td colspan="6">No positions indexed yet.</td>`;
+    els.rawPositionsTableBody.appendChild(tr);
+    renderRawPositionSelectionControls(positions);
+    renderRawPositionDeletePanel();
+    return;
+  }
+  syncSelectedRawPosition(positions);
+  const sortedPositions = [...positions].sort((a, b) => {
+    const keyA = (a.position_key || a.display_name || "").toLowerCase();
+    const keyB = (b.position_key || b.display_name || "").toLowerCase();
+    const numA = parseInt(keyA.replace(/\D/g, "") || "0");
+    const numB = parseInt(keyB.replace(/\D/g, "") || "0");
+    return numA - numB;
+  });
+  for (const position of sortedPositions) {
+    const artifact = position.preview_artifact;
+    const metadata = position.metadata_json || {};
+    const tr = document.createElement("tr");
+    if (state.selectedRawPositionId === position.id) {
+      tr.classList.add("selected");
+    }
+    const actionLabel = artifact?.uri ? "Regenerate MP4" : "Queue MP4";
+    const positionDescription = rawPositionDescription(position, metadata);
+    tr.innerHTML = `
+      <td><input class="raw-position-select-checkbox" type="checkbox" ${isRawPositionSelected(position.id) ? "checked" : ""} /></td>
+      <td>${escapeHtml(position.display_name || position.position_key)}</td>
+      <td>${escapeHtml(positionDescription)}</td>
+      <td>${escapeHtml(position.status)}</td>
+      <td>${escapeHtml(position.preview_status)}</td>
+      <td><button data-position-id="${position.id}" class="queue-position-preview">${actionLabel}</button></td>
+    `;
+    tr.addEventListener("click", () => {
+      state.selectedRawPositionId = position.id;
+      renderRawPositions(positions);
+      renderRawPositionViewer(positions);
+    });
+    tr.querySelector(".raw-position-select-checkbox")?.addEventListener("click", (event) => {
+      event.stopPropagation();
+    });
+    tr.querySelector(".raw-position-select-checkbox")?.addEventListener("change", (event) => {
+      toggleRawPositionSelection(position.id, Boolean(event.target.checked));
+    });
+    els.rawPositionsTableBody.appendChild(tr);
+  }
+  const selectedRow = els.rawPositionsTableBody.querySelector("tr.selected");
+  if (selectedRow) {
+    selectedRow.scrollIntoView({ block: "nearest", inline: "nearest" });
+  }
+  renderRawPositionSelectionControls(positions);
+  renderRawPositionDeletePanel();
+  if (els.rawPositionSelectAll) {
+    els.rawPositionSelectAll.disabled = positions.length === 0;
+  }
+  els.rawPositionsTableBody.querySelectorAll(".queue-position-preview").forEach((button) => {
+    button.addEventListener("click", (event) => {
+      event.stopPropagation();
+      const positionId = button.dataset.positionId || "";
+      const selectedPosition = positions.find((position) => `${position.id}` === positionId);
+      queueRawPreviewVideo(positionId, Boolean(selectedPosition?.preview_artifact?.uri)).catch((error) => setStatus(String(error)));
+    });
+  });
+}
+
+function rawPositionDescription(position, metadata = {}) {
+  const parts = [];
+  const strain = String(metadata.strain || metadata.strains || "").trim();
+  const medium = String(metadata.medium || "").trim();
+  const description = String(position.description || metadata.description || metadata.notes || "").trim();
+  if (strain) parts.push(strain);
+  if (medium) parts.push(medium);
+  if (description) parts.push(description);
+  return parts.join(" | ");
+}
+
+function renderRawPreviewProgress(positions) {
+  if (!els.rawPreviewProgress) {
+    return;
+  }
+  const counters = {
+    queued: 0,
+    running: 0,
+    ready: 0,
+    failed: 0,
+    missing: 0,
+    other: 0,
+  };
+  for (const position of positions || []) {
+    const status = String(position.preview_status || "").toLowerCase();
+    if (status in counters) {
+      counters[status] += 1;
+    } else {
+      counters.other += 1;
+    }
+  }
+  const total = (positions || []).length;
+  if (!total) {
+    els.rawPreviewProgress.textContent = "No positions indexed yet.";
+    return;
+  }
+  const active = counters.queued + counters.running;
+  const text = `Progress: ${counters.ready}/${total} ready | ${counters.running} running | ${counters.queued} queued | ${counters.failed} failed${counters.other ? ` | ${counters.other} other` : ""}`;
+  els.rawPreviewProgress.textContent = text;
+  els.rawPreviewProgress.classList.toggle("status-running", active > 0);
+}
+
+function syncSelectedRawPosition(positions) {
+  if (!positions.length) {
+    state.selectedRawPositionId = null;
+    return;
+  }
+  const current = positions.find((position) => position.id === state.selectedRawPositionId);
+  if (current) {
+    return;
+  }
+  state.selectedRawPositionId = null;
+}
+
+function renderRawPositionViewer(positions) {
+  if (!els.rawPositionViewerEmpty || !els.rawPositionViewer || !els.rawPositionViewerVideo) {
+    return;
+  }
+  const selected = positions.find((position) => position.id === state.selectedRawPositionId);
+  const artifact = selected?.preview_artifact || null;
+  const artifactVersion = artifact?.job_finished_at || artifact?.created_at || "";
+  const artifactUrl = artifact?.uri ? withCacheBust(withIdentity(artifact.uri), artifactVersion) : "";
+  const currentVideoSrc = els.rawPositionViewerVideo.getAttribute("src") || "";
+
+  if (!selected) {
+    els.rawPositionViewerEmpty.classList.remove("hidden");
+    els.rawPositionViewerEmpty.textContent = "Click a position to load its preview movie.";
+    els.rawPositionViewer.classList.add("hidden");
+    if (els.rawPositionViewerVideo) {
+      els.rawPositionViewerVideo.removeAttribute("src");
+      els.rawPositionViewerVideo.load();
+    }
+    return;
+  }
+
+  if (els.rawPositionViewerMeta) {
+    const indexLabel = selected.position_index != null ? `#${selected.position_index}` : "";
+    els.rawPositionViewerMeta.textContent = `${selected.display_name || selected.position_key}${indexLabel ? ` (${indexLabel})` : ""} | ${selected.preview_status}`;
+  }
+  if (artifactUrl) {
+    if (currentVideoSrc !== artifactUrl) {
+      els.rawPositionViewerVideo.src = artifactUrl;
+      els.rawPositionViewerVideo.load();
+      void els.rawPositionViewerVideo.play().catch(() => {});
+    }
+    if (els.rawPositionViewerOpenLink) {
+      els.rawPositionViewerOpenLink.href = artifactUrl;
+      const fileName = `${(selected.position_key || "position").replace(/[^a-zA-Z0-9_-]+/g, "_")}.mp4`;
+      els.rawPositionViewerOpenLink.setAttribute("download", fileName);
+      els.rawPositionViewerOpenLink.classList.remove("hidden");
+    }
+  } else {
+    els.rawPositionViewerVideo.removeAttribute("src");
+    els.rawPositionViewerVideo.load();
+    if (els.rawPositionViewerOpenLink) {
+      els.rawPositionViewerOpenLink.classList.add("hidden");
+    }
+    els.rawPositionViewerEmpty.textContent = `No preview movie available for ${selected.display_name || selected.position_key}.`;
+  }
+
+  els.rawPositionViewerEmpty.classList.toggle("hidden", Boolean(artifactUrl));
+  els.rawPositionViewer.classList.toggle("hidden", !artifactUrl);
+}
+
+function renderRawPreviewQualityStatus() {
+  if (!els.rawPreviewQualityConfig || !els.rawPreviewQualitySummary || !els.rawPreviewQualityTableBody) {
+    return;
+  }
+  const status = state.rawPreviewQualityStatus;
+  els.rawPreviewQualityConfig.innerHTML = "";
+  els.rawPreviewQualityTableBody.innerHTML = "";
+  if (!status) {
+    els.rawPreviewQualitySummary.textContent = "No quality metrics loaded yet.";
+    return;
+  }
+
+  const config = status.config || {};
+  if (els.rawPreviewQualityMaxDimension) els.rawPreviewQualityMaxDimension.value = config.max_dimension ?? "";
+  if (els.rawPreviewQualityFps) els.rawPreviewQualityFps.value = config.fps ?? "";
+  if (els.rawPreviewQualityFrameMode) els.rawPreviewQualityFrameMode.value = config.frame_mode || "full";
+  if (els.rawPreviewQualityMaxFrames) els.rawPreviewQualityMaxFrames.value = config.max_frames ?? "";
+  if (els.rawPreviewQualityBinningFactor) {
+    const binningFactor = Number(config.binning_factor || 4);
+    els.rawPreviewQualityBinningFactor.value = `${binningFactor}x${binningFactor}`;
+  }
+  if (els.rawPreviewQualityCrf) els.rawPreviewQualityCrf.value = config.crf ?? "";
+  if (els.rawPreviewQualityPreset) els.rawPreviewQualityPreset.value = config.preset || "";
+  if (els.rawPreviewQualityIncludeExisting) els.rawPreviewQualityIncludeExisting.checked = Boolean(config.include_existing);
+  if (els.rawPreviewQualityArtifactRoot) els.rawPreviewQualityArtifactRoot.value = config.artifact_root || "";
+  if (els.rawPreviewQualityFfmpegCommand) els.rawPreviewQualityFfmpegCommand.value = config.ffmpeg_command || "";
+  updateRawPreviewFrameModeUi();
+  const configRows = [
+    ["Resolution cap", `${config.max_dimension || 0}px`],
+    ["Frames per second", `${config.fps || 0}`],
+    ["Frame mode", config.frame_mode || "full"],
+    ["Max frames", `${config.max_frames || 0}`],
+    ["Binning factor", `${config.binning_factor || 1}x${config.binning_factor || 1}`],
+    ["CRF", `${config.crf || 0}`],
+    ["Preset", config.preset || ""],
+    ["Include existing", config.include_existing ? "yes" : "no"],
+    ["Artifact root", config.artifact_root || "dataset/.detecdiv-previews"],
+    ["FFmpeg command", config.ffmpeg_command || "auto-detected"],
+  ];
+  for (const [label, value] of configRows) {
+    const dt = document.createElement("dt");
+    dt.textContent = label;
+    const dd = document.createElement("dd");
+    dd.textContent = value;
+    els.rawPreviewQualityConfig.append(dt, dd);
+  }
+
+  const summary = status.summary || {};
+  els.rawPreviewQualitySummary.textContent = [
+    `${summary.sample_count || 0} current-settings sample(s)`,
+    summary.avg_width && summary.avg_height ? `avg ${Math.round(summary.avg_width)}x${Math.round(summary.avg_height)}` : "avg resolution n/a",
+    summary.avg_fps ? `avg ${Number(summary.avg_fps).toFixed(2)} fps` : "avg fps n/a",
+    summary.avg_bitrate_kbps ? `avg ${Number(summary.avg_bitrate_kbps).toFixed(2)} kbps` : "avg bit rate n/a",
+  ].join(" | ");
+
+  for (const sample of status.recent_samples || []) {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${sample.acquisition_label || ""}</td>
+      <td>${sample.position_key || ""}</td>
+      <td>${sample.width && sample.height ? `${sample.width}x${sample.height}` : ""}</td>
+      <td>${sample.fps ?? ""}</td>
+      <td>${sample.preset || ""}</td>
+      <td>${sample.crf ?? ""}</td>
+      <td>${sample.frame_count ?? ""}</td>
+      <td>${sample.duration_seconds != null ? `${Number(sample.duration_seconds).toFixed(2)} s` : ""}</td>
+      <td>${sample.file_size_bytes != null ? humanBytes(sample.file_size_bytes) : ""}</td>
+      <td>${sample.bitrate_kbps != null ? `${Number(sample.bitrate_kbps).toFixed(2)} kbps` : ""}</td>
+      <td>${formatTimestamp(sample.created_at)}</td>
+    `;
+    els.rawPreviewQualityTableBody.appendChild(tr);
+  }
+}
+
+function renderAutomaticArchivePolicyStatus() {
+  if (!els.automaticArchivePolicyPanel || !els.automaticArchivePolicySummary) {
+    return;
+  }
+  const canSee = isAdmin();
+  els.automaticArchivePolicyPanel.classList.toggle("hidden", !canSee);
+  if (!canSee) {
+    return;
+  }
+
+  const status = state.automaticArchivePolicyStatus;
+  if (!status) {
+    els.automaticArchivePolicySummary.textContent = "Automatic archive policy status not loaded yet.";
+    if (els.automaticArchivePolicyConfig) {
+      els.automaticArchivePolicyConfig.innerHTML = "";
+    }
+    if (els.automaticArchivePolicyRunsTableBody) {
+      els.automaticArchivePolicyRunsTableBody.innerHTML = "";
+    }
+    return;
+  }
+
+  const config = status.config || {};
+  const lastRun = status.last_run;
+  const summaryBits = [
+    config.enabled ? "enabled" : "disabled",
+    `every ${config.interval_minutes || 0} min`,
+    `older than ${config.older_than_days || 0} day(s)`,
+    `min ${humanBytes(config.min_total_bytes || 0)}`,
+  ];
+  if (lastRun) {
+    summaryBits.push(
+      `last run ${formatTimestamp(lastRun.finished_at || lastRun.started_at || lastRun.created_at)}`,
+      `${lastRun.candidate_count} candidate(s)`,
+      `${lastRun.queued_count} queued`
+    );
+  } else {
+    summaryBits.push("no runs yet");
+  }
+  els.automaticArchivePolicySummary.textContent = summaryBits.join(" | ");
+
+  if (els.automaticArchivePolicyConfig) {
+    const fields = [
+      ["Enabled", config.enabled ? "yes" : "no"],
+      ["Interval", `${config.interval_minutes || 0} min`],
+      ["Run as", config.run_as_user_key || ""],
+      ["Older than", `${config.older_than_days || 0} day(s)`],
+      ["Min size", humanBytes(config.min_total_bytes || 0)],
+      ["Candidate limit", `${config.limit || 0}`],
+      ["Project owner filter", config.owner_key || ""],
+      ["Search filter", config.search || ""],
+      ["Lifecycle tiers", (config.lifecycle_tiers || []).join(", ")],
+      ["Archive states", (config.archive_statuses || []).join(", ")],
+      ["Archive URI", config.archive_uri || ""],
+      ["Compression", config.archive_compression || ""],
+      ["Delete hot source", config.delete_hot_source ? "yes" : "no"],
+    ];
+    els.automaticArchivePolicyConfig.innerHTML = "";
+    for (const [label, value] of fields) {
+      const dt = document.createElement("dt");
+      dt.textContent = label;
+      const dd = document.createElement("dd");
+      dd.textContent = value;
+      els.automaticArchivePolicyConfig.append(dt, dd);
+    }
+  }
+
+  if (els.automaticArchivePolicyRunsTableBody) {
+    els.automaticArchivePolicyRunsTableBody.innerHTML = "";
+    for (const run of status.recent_runs || []) {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${formatTimestamp(run.finished_at || run.started_at || run.created_at)}</td>
+        <td>${run.trigger_mode}</td>
+        <td>${run.status}</td>
+        <td>${run.report_only ? "yes" : "no"}</td>
+        <td>${run.candidate_count}</td>
+        <td>${run.queued_count}</td>
+        <td>${humanBytes(run.total_reclaimable_bytes)}</td>
+        <td>${run.triggered_by ? run.triggered_by.user_key : ""}</td>
+      `;
+      tr.title = run.error_text || JSON.stringify(run.result_json || {});
+      els.automaticArchivePolicyRunsTableBody.appendChild(tr);
+    }
+  }
+}
+
+function renderMicroManagerIngestStatus() {
+  if (!els.micromanagerIngestPanel || !els.micromanagerIngestSummary) {
+    return;
+  }
+  const canSee = isAdmin();
+  els.micromanagerIngestPanel.classList.toggle("hidden", !canSee);
+  if (!canSee) {
+    return;
+  }
+
+  const status = state.micromanagerIngestStatus;
+  if (!status) {
+    els.micromanagerIngestSummary.textContent = "Micro-Manager ingestion status not loaded yet.";
+    if (els.micromanagerIngestConfig) {
+      els.micromanagerIngestConfig.innerHTML = "";
+    }
+    if (els.micromanagerIngestRunsTableBody) {
+      els.micromanagerIngestRunsTableBody.innerHTML = "";
+    }
+    if (els.micromanagerIngestRootsTableBody) {
+      els.micromanagerIngestRootsTableBody.innerHTML = "";
+    }
+    if (els.micromanagerIngestCandidatesTableBody) {
+      els.micromanagerIngestCandidatesTableBody.innerHTML = "";
+    }
+    return;
+  }
+
+  const config = status.config || {};
+  if (els.micromanagerIngestRootMode && !els.micromanagerIngestRootMode.value) {
+    els.micromanagerIngestRootMode.value = "auto";
+  }
+  if (els.micromanagerIngestRootPath && !els.micromanagerIngestRootPath.value && config.landing_root) {
+    els.micromanagerIngestRootPath.placeholder = status.default_landing_root?.path || config.landing_root;
+  }
+  if (els.micromanagerIngestStorageRootName && !els.micromanagerIngestStorageRootName.value && config.storage_root_name) {
+    els.micromanagerIngestStorageRootName.placeholder = config.storage_root_name;
+  }
+  updateMicroManagerIngestModeUi();
+  const lastRun = status.last_run;
+  const summaryBits = [
+    config.enabled ? "enabled" : "disabled",
+    `every ${config.interval_minutes || 0} min`,
+    `settle ${config.settle_seconds || 0}s`,
+    `limit ${config.max_datasets || 0}`,
+    `status checked ${formatTimestamp(status.checked_at)}`,
+  ];
+  if (lastRun) {
+    summaryBits.push(
+      `last run ${formatTimestamp(lastRun.finished_at || lastRun.started_at || lastRun.created_at)}`,
+      `${lastRun.candidate_count} candidate(s)`,
+      `${lastRun.ingested_count} ingested`
+    );
+  } else {
+    summaryBits.push("no runs yet");
+  }
+  els.micromanagerIngestSummary.textContent = summaryBits.join(" | ");
+
+  if (els.micromanagerIngestConfig) {
+    const fields = [
+      ["Status checked", formatTimestamp(status.checked_at)],
+      ["Enabled", config.enabled ? "yes" : "no"],
+      ["Interval", `${config.interval_minutes || 0} min`],
+      ["Run as", config.run_as_user_key || ""],
+      ["Default landing root", status.default_landing_root?.path || ""],
+      ["Legacy landing root", config.landing_root || ""],
+      ["Storage root name", config.storage_root_name || ""],
+      ["Host scope", config.host_scope || ""],
+      ["Visibility", config.visibility || ""],
+      ["Settle time", `${config.settle_seconds || 0} s`],
+      ["Max datasets", `${config.max_datasets || 0}`],
+      ["Grouping window", `${config.grouping_window_hours || 0} h`],
+      ["Post-ingest pipeline", config.post_ingest_pipeline_key || ""],
+      ["Post-ingest mode", config.post_ingest_requested_mode || ""],
+    ];
+    els.micromanagerIngestConfig.innerHTML = "";
+    for (const [label, value] of fields) {
+      const dt = document.createElement("dt");
+      dt.textContent = label;
+      const dd = document.createElement("dd");
+      dd.textContent = value;
+      els.micromanagerIngestConfig.append(dt, dd);
+    }
+  }
+
+  if (els.micromanagerIngestRootsTableBody) {
+    els.micromanagerIngestRootsTableBody.innerHTML = "";
+    const roots = status.landing_roots || [];
+    if (!roots.length) {
+      els.micromanagerIngestRootsTableBody.innerHTML = `<tr><td colspan="4">No landing roots configured.</td></tr>`;
+    }
+    for (const root of roots) {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${escapeHtml(root.label || root.root_key || "")}${root.is_default ? " *" : ""}</td>
+        <td>${escapeHtml(root.user_key || "")}</td>
+        <td>${escapeHtml(root.status || "")}</td>
+        <td title="${escapeHtml(root.path || "")}">${escapeHtml(root.path || "")}</td>
+      `;
+      els.micromanagerIngestRootsTableBody.appendChild(tr);
+    }
+  }
+
+  if (els.micromanagerIngestCandidatesTableBody) {
+    els.micromanagerIngestCandidatesTableBody.innerHTML = "";
+    const candidates = status.candidate_preview || [];
+    if (!candidates.length) {
+      els.micromanagerIngestCandidatesTableBody.innerHTML = `<tr><td colspan="5">No stable candidate datasets visible from this host.</td></tr>`;
+    }
+    for (const candidate of candidates) {
+      const tr = document.createElement("tr");
+      const datasetLabel = candidate.raw_dataset_id
+        ? `<a href="/web/raw-dataset.html?id=${encodeURIComponent(candidate.raw_dataset_id)}">${escapeHtml(candidate.acquisition_label || candidate.relative_path || "")}</a>`
+        : escapeHtml(candidate.acquisition_label || candidate.relative_path || "");
+      tr.innerHTML = `
+        <td title="${escapeHtml(candidate.dataset_path || "")}">${datasetLabel}</td>
+        <td>${escapeHtml(candidate.owner_user_key || "")}</td>
+        <td>${candidate.is_ingested ? "indexed" : "new"}</td>
+        <td>${formatTimestamp(candidate.last_modified_at)}</td>
+        <td>${escapeHtml(candidate.landing_root_key || candidate.landing_root || "")}</td>
+      `;
+      els.micromanagerIngestCandidatesTableBody.appendChild(tr);
+    }
+  }
+
+  if (els.micromanagerIngestRunsTableBody) {
+    els.micromanagerIngestRunsTableBody.innerHTML = "";
+    for (const run of status.recent_runs || []) {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${formatTimestamp(run.finished_at || run.started_at || run.created_at)}</td>
+        <td>${run.trigger_mode}</td>
+        <td>${run.status}</td>
+        <td>${run.report_only ? "yes" : "no"}</td>
+        <td>${run.candidate_count}</td>
+        <td>${run.ingested_count}</td>
+        <td>${run.experiment_count}</td>
+        <td>${run.triggered_by ? run.triggered_by.user_key : ""}</td>
+      `;
+      tr.title = run.error_text || JSON.stringify(run.result_json || {});
+      els.micromanagerIngestRunsTableBody.appendChild(tr);
+    }
+  }
+}
+
+function renderArchivePolicyPreview() {
+  if (!els.archivePolicySummary || !els.archivePolicyTableBody) {
+    return;
+  }
+  els.archivePolicyTableBody.innerHTML = "";
+  const preview = state.archivePolicyPreview;
+  if (!preview) {
+    els.archivePolicySummary.textContent = "No policy preview yet.";
+    return;
+  }
+
+  els.archivePolicySummary.textContent =
+    `${preview.candidate_count} candidate(s), ${humanBytes(preview.total_candidate_bytes)} total, ` +
+    `${humanBytes(preview.total_reclaimable_bytes)} reclaimable, ${preview.skipped_conflicts} skipped conflicts.`;
+
+  for (const candidate of preview.candidates || []) {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${candidate.acquisition_label}</td>
+      <td>${candidate.owner ? candidate.owner.user_key : ""}</td>
+      <td>${candidate.lifecycle_tier}</td>
+      <td>${candidate.archive_status || ""}</td>
+      <td>${formatTimestamp(candidate.last_activity_at)}</td>
+      <td>${humanBytes(candidate.total_bytes)}</td>
+      <td>${humanBytes(candidate.reclaimable_bytes)}</td>
+      <td>${candidate.suggested_archive_compression || ""}</td>
+      <td>${candidate.suggested_archive_uri || ""}</td>
+    `;
+    tr.addEventListener("click", () => selectRawDataset(candidate.raw_dataset_id));
+    els.archivePolicyTableBody.appendChild(tr);
+  }
+}
+
+function renderRawLifecycleEvents(events) {
+  if (!els.rawLifecycleEvents) {
+    return;
+  }
+  els.rawLifecycleEvents.innerHTML = "";
+  if (!events.length) {
+    els.rawLifecycleEvents.innerHTML = `<div class="stack-item">No lifecycle events.</div>`;
+    return;
+  }
+  for (const event of events) {
+    const div = document.createElement("div");
+    div.className = "stack-item";
+    div.innerHTML = `
+      <div class="stack-item-meta">${event.event_kind} | ${formatTimestamp(event.created_at)}</div>
+      <div>${event.from_tier || ""} -> ${event.to_tier || ""} | archive ${event.archive_status || ""}</div>
+      <div class="stack-item-meta">reclaimable ${humanBytes(event.reclaimable_bytes)}</div>
+    `;
+    els.rawLifecycleEvents.appendChild(div);
+  }
+}
+
+function renderMigrationPlans() {
+  if (!els.migrationPlansTableBody || !els.migrationPlanCountLabel) {
+    return;
+  }
+  els.migrationPlansTableBody.innerHTML = "";
+  els.migrationPlanCountLabel.textContent = `${state.migrationPlans.length} plans`;
+  for (const plan of state.migrationPlans) {
+    const tr = document.createElement("tr");
+    if (state.selectedMigrationPlan && state.selectedMigrationPlan.id === plan.id) {
+      tr.classList.add("selected");
+    }
+    tr.innerHTML = `
+      <td>${plan.batch_name}</td>
+      <td>${plan.source_kind}</td>
+      <td>${plan.strategy}</td>
+      <td>${plan.status}</td>
+      <td>${plan.summary_json?.candidate_count || 0}</td>
+      <td>${formatTimestamp(plan.created_at)}</td>
+    `;
+    tr.title = plan.source_path;
+    tr.addEventListener("click", () => selectMigrationPlan(plan.id));
+    els.migrationPlansTableBody.appendChild(tr);
+  }
+}
+
+function renderMigrationDetail() {
+  if (!els.migrationDetailEmpty || !els.migrationDetailContent || !els.migrationDetailSubtitle) {
+    return;
+  }
+  if (!state.selectedMigrationPlan) {
+    els.migrationDetailEmpty.classList.remove("hidden");
+    els.migrationDetailContent.classList.add("hidden");
+    els.migrationDetailSubtitle.textContent = "Select a migration plan";
+    if (els.migrationExecutePilotButton) {
+      els.migrationExecutePilotButton.disabled = true;
+    }
+    if (els.migrationItemsTableBody) {
+      els.migrationItemsTableBody.innerHTML = "";
+    }
+    return;
+  }
+
+  const plan = state.selectedMigrationPlan;
+  const fields = [
+    ["Batch", plan.batch_name],
+    ["Source kind", plan.source_kind],
+    ["Strategy", plan.strategy],
+    ["Status", plan.status],
+    ["Source path", plan.source_path],
+    ["Storage root", plan.storage_root_name || ""],
+    ["Candidates", plan.summary_json?.candidate_count || 0],
+    ["Type counts", JSON.stringify(plan.summary_json?.item_type_counts || {})],
+    ["Action counts", JSON.stringify(plan.summary_json?.action_counts || {})],
+    ["Created", formatTimestamp(plan.created_at)],
+  ];
+
+  els.migrationDetailList.innerHTML = "";
+  for (const [label, value] of fields) {
+    const dt = document.createElement("dt");
+    dt.textContent = label;
+    const dd = document.createElement("dd");
+    dd.textContent = `${value ?? ""}`;
+    els.migrationDetailList.append(dt, dd);
+  }
+
+  renderMigrationItems(plan.items || []);
+  if (els.migrationExecutePilotButton) {
+    els.migrationExecutePilotButton.disabled = false;
+  }
+  els.migrationDetailSubtitle.textContent = plan.batch_name;
+  els.migrationDetailEmpty.classList.add("hidden");
+  els.migrationDetailContent.classList.remove("hidden");
+}
+
+function renderMigrationItems(items) {
+  if (!els.migrationItemsTableBody) {
+    return;
+  }
+  els.migrationItemsTableBody.innerHTML = "";
+  for (const item of items) {
+    const tr = document.createElement("tr");
+    const keyLabel = item.proposed_experiment_key || "";
+    tr.innerHTML = `
+      <td title="${item.legacy_path}">${item.display_name}</td>
+      <td>${item.item_type}</td>
+      <td>${item.action}</td>
+      <td>${item.status}</td>
+      <td>${keyLabel}</td>
+      <td></td>
+    `;
+    const actionCell = tr.lastElementChild;
+    const controls = document.createElement("div");
+    controls.className = "inline-action-row";
+
+    const pilotButton = document.createElement("button");
+    pilotButton.textContent = "Pilot";
+    pilotButton.addEventListener("click", (event) => {
+      event.stopPropagation();
+      markMigrationItem(item, { action: "review_for_pilot", status: "planned" }).catch((error) => setStatus(String(error)));
+    });
+    controls.appendChild(pilotButton);
+
+    const skipButton = document.createElement("button");
+    skipButton.textContent = "Skip";
+    skipButton.addEventListener("click", (event) => {
+      event.stopPropagation();
+      markMigrationItem(item, { action: "skip", status: "skipped" }).catch((error) => setStatus(String(error)));
+    });
+    controls.appendChild(skipButton);
+
+    const attachButton = document.createElement("button");
+    attachButton.textContent = "Attach existing";
+    attachButton.addEventListener("click", (event) => {
+      event.stopPropagation();
+      attachMigrationItemToExisting(item).catch((error) => setStatus(String(error)));
+    });
+    controls.appendChild(attachButton);
+
+    const materializeButton = document.createElement("button");
+    materializeButton.textContent = "Create placeholder";
+    materializeButton.disabled = item.status === "materialized";
+    materializeButton.addEventListener("click", (event) => {
+      event.stopPropagation();
+      materializeMigrationItem(item).catch((error) => setStatus(String(error)));
+    });
+    controls.appendChild(materializeButton);
+
+    actionCell.appendChild(controls);
+    els.migrationItemsTableBody.appendChild(tr);
+  }
+}
+
+function renderProjectNotes() {
+  if (!els.projectNotes) {
+    return;
+  }
+  const notes = state.selectedProjectDetail?.notes || "";
+  if (document.activeElement !== els.projectNotes || els.projectNotes.value === notes) {
+    els.projectNotes.value = notes;
+  }
+  if (els.projectNotesSaveButton) {
+    els.projectNotesSaveButton.disabled = !state.selectedProjectDetail;
+  }
+}
+
+function renderRawDatasetNotes() {
+  if (!els.rawDatasetNotes) {
+    return;
+  }
+  const notes = state.selectedRawDatasetDetail?.notes || "";
+  if (document.activeElement !== els.rawDatasetNotes || els.rawDatasetNotes.value === notes) {
+    els.rawDatasetNotes.value = notes;
+  }
+  if (els.rawDatasetNotesSaveButton) {
+    els.rawDatasetNotesSaveButton.disabled = !state.selectedRawDatasetDetail;
+  }
+}
+
+function renderAcl() {
+  if (!els.aclList) {
+    return;
+  }
+  els.aclList.innerHTML = "";
+  if (!state.acl.length) {
+    els.aclList.innerHTML = `<div class="stack-item">Project owner only.</div>`;
+    return;
+  }
+  for (const item of state.acl) {
+    const div = document.createElement("div");
+    div.className = "stack-item";
+    div.innerHTML = `
+      <div class="stack-item-meta">${item.user?.display_name || item.user?.user_key || "unknown"}</div>
+      <div>${item.access_level}</div>
+    `;
+    els.aclList.appendChild(div);
+  }
+}
+
+function renderDetail() {
+  if (!els.detailEmpty || !els.detailContent || !els.detailSubtitle) {
+    return;
+  }
+  if (!state.selectedProjectDetail) {
+    els.detailEmpty.classList.remove("hidden");
+    els.detailContent.classList.add("hidden");
+    els.detailSubtitle.textContent = "Select a project";
+    renderProjectNotes();
+    if (els.changeProjectOwnerButton) {
+      els.changeProjectOwnerButton.classList.add("hidden");
+      els.changeProjectOwnerButton.disabled = true;
+    renderProjectExternalEln();
+    }
+    renderProjectRawDatasets();
+    return;
+  }
+
+  const project = state.selectedProjectDetail;
+  const owner = project.owner ? `${project.owner.display_name} (${project.owner.user_key})` : "unknown";
+  const inventory = project.metadata_json?.inventory || {};
+  const groups = state.groups
+    .filter((group) => group.project_ids?.includes?.(project.id))
+    .map((group) => group.display_name);
+  const latestHubRun = getLatestHubPipelineRun();
+  const latestHubRunStatus = latestHubRun
+    ? `${latestHubRun.status || "unknown"} (${formatTimestamp(
+      latestHubRun.heartbeat_at || latestHubRun.updated_at || latestHubRun.created_at,
+    )})`
+    : "none";
+
+  const fields = [
+    ["Project", project.project_name],
+    ["Project owner", owner],
+    ["Visibility", project.visibility],
+    ["Health", project.health_status],
+    ["Status", project.status],
+    ["FOV", project.fov_count],
+    ["ROI", project.roi_count],
+    ["Classifiers", project.classifier_count],
+    ["Processors", project.processor_count],
+    ["Pipeline runs", project.pipeline_run_count],
+    ["Run JSON", project.run_json_count],
+    ["H5 footprint", `${project.h5_count} files / ${humanBytes(project.h5_bytes)}`],
+    ["Project size", humanBytes(project.total_bytes)],
+    ["Latest observed run", project.latest_run_status || "none"],
+    ["Latest hub run", latestHubRunStatus],
+    ["Groups", groups.length ? groups.join(", ") : "none"],
+    ["Project MAT", project.metadata_json?.project_mat_abs || ""],
+    ["Project dir", project.metadata_json?.project_dir_abs || ""],
+    ["Top-level", summarizeList(inventory.top_level_entries, 5)],
+  ];
+
+  els.detailList.innerHTML = "";
+  for (const [label, value] of fields) {
+    const dt = document.createElement("dt");
+    dt.textContent = label;
+    const dd = document.createElement("dd");
+    dd.textContent = `${value ?? ""}`;
+    els.detailList.append(dt, dd);
+  }
+
+  if (els.changeProjectOwnerButton) {
+    const canChangeOwner = isAdmin();
+    els.changeProjectOwnerButton.classList.toggle("hidden", !canChangeOwner);
+    els.changeProjectOwnerButton.disabled = !canChangeOwner;
+  }
+
+  renderProjectExternalEln();
+  renderProjectNotes();
+  renderAcl();
+  renderProjectRawDatasets();
+  if (els.projectBackupStatus) els.projectBackupStatus.textContent = (project.backup_status || "none").replaceAll("_", " ");
+  if (els.projectLastBackupAt) els.projectLastBackupAt.textContent = project.last_backup_at ? formatTimestamp(project.last_backup_at) : "never";
+  if (els.projectBackupExcluded) els.projectBackupExcluded.checked = Boolean(project.backup_excluded);
+  els.detailSubtitle.textContent = project.project_name;
+  els.detailEmpty.classList.add("hidden");
+  els.detailContent.classList.remove("hidden");
+}
+
+function renderProjectRawDatasets() {
+  if (!els.projectRawDatasetsList) {
+    return;
+  }
+  const datasets = state.selectedProjectDetail?.raw_datasets || [];
+  if (els.projectQueueRawPreviewsButton) {
+    els.projectQueueRawPreviewsButton.disabled = !state.selectedProjectDetail || !datasets.length;
+  }
+  els.projectRawDatasetsList.innerHTML = "";
+  if (!datasets.length) {
+    els.projectRawDatasetsList.innerHTML = `<div class="stack-item">No linked raw dataset indexed.</div>`;
+    return;
+  }
+  for (const raw of datasets) {
+    const div = document.createElement("div");
+    div.className = "stack-item";
+    div.innerHTML = `
+      <div class="stack-item-meta">${raw.data_format || "unknown"} | ${raw.lifecycle_tier} | ${raw.archive_status} | ${raw.completeness_status}</div>
+      <a href="/web/raw-dataset.html?id=${encodeURIComponent(raw.id)}">${raw.acquisition_label}</a>
+      <div class="stack-item-meta">${raw.microscope_name || ""} ${humanBytes(raw.total_bytes)}</div>
+    `;
+    els.projectRawDatasetsList.appendChild(div);
+  }
+}
+
+function reportUiError(context, error) {
+  const detail = error instanceof Error ? (error.stack || error.message) : String(error);
+  const message = `${context}: ${detail}`;
+  console.error(message);
+  setStatus(message);
+  window.alert(message);
+}
+function externalLinkLabel(link) {
+  const system = String(link?.system_key || "external").toUpperCase();
+  const title = link?.title || link?.external_id || "linked record";
+  return `${system}: ${title}`;
+}
+
+function renderExternalLinkList(container, links, emptyText) {
+  if (!container) {
+    return;
+  }
+  container.innerHTML = "";
+  const linked = (links || []).filter((link) => link.status === "linked" && link.external_url);
+  if (!linked.length) {
+    container.innerHTML = `<div class="stack-item">${escapeHtml(emptyText)}</div>`;
+    return;
+  }
+  for (const link of linked) {
+    const div = document.createElement("div");
+    div.className = "stack-item";
+    div.innerHTML = `
+      <div class="stack-item-meta">${escapeHtml(link.system_key)} | ${escapeHtml(link.status)}</div>
+      <a href="${escapeHtml(link.external_url)}" target="_blank" rel="noreferrer">${escapeHtml(externalLinkLabel(link))}</a>
+      <div class="stack-item-meta">${escapeHtml(link.external_id || "")}</div>
+      ${externalLinkTextHtml(link)}
+    `;
+    container.appendChild(div);
+  }
+}
+
+function externalLinkTextHtml(link) {
+  const sections = link?.payload_json?.labguru_text || {};
+  const sectionOrder = [
+    ["description", "Description"],
+    ["procedure", "Procedure"],
+    ["results", "Results"],
+  ];
+  const rendered = sectionOrder
+    .map(([key, label]) => {
+      const value = sections[key];
+      if (!value) {
+        return "";
+      }
+      return `
+        <details class="external-text-section">
+          <summary>${escapeHtml(label)}</summary>
+          <div class="notes-block">${externalTextValueHtml(value)}</div>
+        </details>
+      `;
+    })
+    .filter(Boolean)
+    .join("");
+  return rendered ? `<div class="external-text-sections">${rendered}</div>` : "";
+}
+
+function externalTextValueHtml(value) {
+  const text = String(value || "").trim();
+  const marker = "Position annotations:";
+  const markerIndex = text.indexOf(marker);
+  if (markerIndex < 0) {
+    return escapeHtml(text);
+  }
+  const intro = text.slice(0, markerIndex).trim();
+  const annotationText = text.slice(markerIndex + marker.length).trim();
+  const parts = [];
+  if (intro) {
+    parts.push(`<div>${escapeHtml(intro)}</div>`);
+  }
+  const table = positionAnnotationsTextTableHtml(annotationText);
+  if (table) {
+    parts.push(table);
+  }
+  return parts.join("");
+}
+
+function positionAnnotationsTextTableHtml(value) {
+  let blocks = String(value || "")
+    .split(/\n\s*\n/)
+    .map((block) => block.trim())
+    .filter(Boolean);
+  if (blocks.length === 1 && blocks[0].includes("\n")) {
+    const lines = blocks[0].split(/\n/).map((line) => line.trim()).filter(Boolean);
+    if (lines.length && lines.every((line) => !line.includes(":"))) {
+      blocks = lines;
+    }
+  }
+  if (!blocks.length) {
+    return "";
+  }
+  const rows = blocks.map((block) => {
+    const lines = block.split(/\n/).map((line) => line.trim()).filter(Boolean);
+    const row = { position: lines[0] || "", strainMedium: "" };
+    if (row.position.includes(" - ")) {
+      const [position, ...rest] = row.position.split(" - ");
+      row.position = position.trim();
+      row.strainMedium = rest.join(" - ").trim();
+    }
+    for (const line of lines.slice(1)) {
+      const index = line.indexOf(":");
+      if (index < 0) continue;
+      const key = line.slice(0, index).trim().toLowerCase();
+      if (key === "strain" || key === "medium") {
+        row.strainMedium = [row.strainMedium, line.slice(index + 1).trim()].filter(Boolean).join(" / ");
+      }
+    }
+    return row;
+  });
+  return `
+    <table class="annotation-table">
+      <thead>
+        <tr><th>Position</th><th>Strain / Medium</th></tr>
+      </thead>
+      <tbody>
+        ${rows.map((row) => `
+          <tr>
+            <td>${escapeHtml(row.position)}</td>
+            <td>${escapeHtml(row.strainMedium)}</td>
+          </tr>
+        `).join("")}
+      </tbody>
+    </table>
+  `;
+}
+
+function rawExternalLinks() {
+  const links = [];
+  for (const experiment of state.selectedRawDatasetDetail?.experiments || []) {
+    for (const link of experiment.external_links || []) {
+      links.push({
+        ...link,
+        title: link.title || experiment.title,
+      });
+    }
+  }
+  return links;
+}
+
+function renderRawExternalEln() {
+  renderExternalLinkList(els.rawExternalElnList, rawExternalLinks(), "No external ELN link yet.");
+  renderRawLabguruResults();
+}
+
+function renderProjectExternalEln() {
+  const links = state.selectedProjectDetail?.external_links || [];
+  renderExternalLinkList(els.projectExternalElnList, links, "No external ELN link inherited from the linked experiment.");
+}
+
+function renderRawLabguruResults() {
+  if (!els.rawLabguruResults) {
+    return;
+  }
+  els.rawLabguruResults.innerHTML = "";
+  if (!state.rawLabguruResults.length) {
+    els.rawLabguruResults.innerHTML = `<div class="stack-item">No Labguru cache result loaded.</div>`;
+    return;
+  }
+  for (const record of state.rawLabguruResults) {
+    const div = document.createElement("div");
+    div.className = "stack-item";
+    div.innerHTML = `
+      <div class="stack-item-meta">${escapeHtml(record.external_id)} | ${escapeHtml(record.owner_name || "")}</div>
+      <div>${escapeHtml(record.title)}</div>
+      <div class="action-stack">
+        ${record.external_url ? `<a class="button-link" href="${escapeHtml(record.external_url)}" target="_blank" rel="noreferrer">Open</a>` : ""}
+        <button data-external-id="${escapeHtml(record.external_id)}">Link to this dataset</button>
+      </div>
+    `;
+    div.querySelector("button")?.addEventListener("click", () => linkSelectedRawDatasetToLabguru(record.external_id).catch((error) => {
+      setStatus(String(error));
+      window.alert(String(error));
+    }));
+    els.rawLabguruResults.appendChild(div);
+  }
+}
+
+function renderExternalElnMatching() {
+  const status = state.externalMatchStatus || {};
+  if (els.externalMatchCacheCount) els.externalMatchCacheCount.textContent = `${status.experiment_count ?? "-"}`;
+  if (els.externalMatchLinkedCount) els.externalMatchLinkedCount.textContent = `${status.linked_experiment_count ?? "-"}`;
+  if (els.externalMatchCandidateCount) els.externalMatchCandidateCount.textContent = `${state.externalMatchCandidates.length}`;
+  if (els.externalMatchLatestSync) {
+    els.externalMatchLatestSync.textContent = status.latest_sync_at ? formatTimestamp(status.latest_sync_at) : "-";
+  }
+  renderExternalMatchCandidatesTable();
+  renderExternalUsersTable();
+}
+
+function renderExternalMatchCandidatesTable() {
+  if (!els.externalMatchCandidatesTableBody) {
+    return;
+  }
+  els.externalMatchCandidatesTableBody.innerHTML = "";
+  state.selectedExternalMatchCandidateIds = state.selectedExternalMatchCandidateIds.filter((candidateId) =>
+    state.externalMatchCandidates.some((candidate) => `${candidate.id}` === `${candidateId}`)
+  );
+  renderExternalMatchSelectionControls();
+  if (!state.externalMatchCandidates.length) {
+    els.externalMatchCandidatesTableBody.innerHTML = `<tr><td colspan="7" class="muted">No candidates loaded.</td></tr>`;
+    return;
+  }
+  for (const candidate of state.externalMatchCandidates) {
+    const raw = candidate.raw_dataset || {};
+    const external = candidate.external_experiment || {};
+    const evidence = candidate.evidence_json || {};
+    const tr = document.createElement("tr");
+    const evidenceText = [
+      evidence.label_signal || "",
+      evidence.date_match ? `date ${evidence.raw_date}` : "",
+      evidence.owner_match ? "owner" : "",
+    ].filter(Boolean).join(" | ");
+    const rawHref = `/web/raw-dataset.html?id=${encodeURIComponent(raw.id || "")}`;
+    const labguruLink = external.external_url
+      ? `<a href="${escapeHtml(external.external_url)}" target="_blank" rel="noreferrer">${escapeHtml(external.title || external.external_id || "")}</a>`
+      : escapeHtml(external.title || external.external_id || "");
+    tr.innerHTML = `
+      <td><input class="external-match-select-checkbox" type="checkbox" ${isExternalMatchCandidateSelected(candidate.id) ? "checked" : ""} /></td>
+      <td>${Math.round(Number(candidate.score || 0) * 100)}%</td>
+      <td>
+        <a href="${escapeHtml(rawHref)}">${escapeHtml(raw.acquisition_label || "")}</a>
+        <div class="stack-item-meta">${escapeHtml(raw.owner?.display_name || "")} ${raw.microscope_name ? `| ${escapeHtml(raw.microscope_name)}` : ""}</div>
+      </td>
+      <td>
+        ${labguruLink}
+        <div class="stack-item-meta">${escapeHtml(external.external_id || "")} ${external.owner_name ? `| ${escapeHtml(external.owner_name)}` : ""}</div>
+      </td>
+      <td>
+        <div>${escapeHtml(evidenceText || candidate.match_method || "")}</div>
+        <div class="stack-item-meta">tokens ${escapeHtml(String(evidence.token_overlap ?? ""))} | seq ${escapeHtml(String(evidence.sequence_ratio ?? ""))}</div>
+      </td>
+      <td>${escapeHtml(candidate.status || "")}</td>
+      <td><div class="action-stack"></div></td>
+    `;
+    tr.querySelector(".external-match-select-checkbox")?.addEventListener("click", (event) => {
+      event.stopPropagation();
+    });
+    tr.querySelector(".external-match-select-checkbox")?.addEventListener("change", (event) => {
+      toggleExternalMatchCandidateSelection(candidate.id, Boolean(event.target.checked));
+    });
+    const actions = tr.querySelector(".action-stack");
+    if (actions && candidate.status !== "accepted") {
+      const acceptButton = document.createElement("button");
+      acceptButton.className = "primary";
+      acceptButton.textContent = "Accept";
+      acceptButton.addEventListener("click", () => reviewExternalMatchCandidate(candidate.id, "accept").catch((error) => {
+        setStatus(String(error));
+        window.alert(String(error));
+      }));
+      actions.appendChild(acceptButton);
+    }
+    if (actions && candidate.status !== "rejected") {
+      const rejectButton = document.createElement("button");
+      rejectButton.textContent = "Reject";
+      rejectButton.addEventListener("click", () => reviewExternalMatchCandidate(candidate.id, "reject").catch((error) => {
+        setStatus(String(error));
+        window.alert(String(error));
+      }));
+      actions.appendChild(rejectButton);
+    }
+    els.externalMatchCandidatesTableBody.appendChild(tr);
+  }
+}
+
+function visibleExternalMatchCandidateIds() {
+  return (state.externalMatchCandidates || []).map((candidate) => `${candidate.id}`);
+}
+
+function selectedExternalMatchCandidateIds() {
+  const visibleIds = new Set(visibleExternalMatchCandidateIds());
+  return state.selectedExternalMatchCandidateIds.filter((candidateId) => visibleIds.has(`${candidateId}`));
+}
+
+function isExternalMatchCandidateSelected(candidateId) {
+  return state.selectedExternalMatchCandidateIds.includes(`${candidateId}`);
+}
+
+function setSelectedExternalMatchCandidateIds(candidateIds) {
+  state.selectedExternalMatchCandidateIds = [...new Set((candidateIds || []).map((candidateId) => `${candidateId}`))];
+  renderExternalMatchCandidatesTable();
+}
+
+function toggleExternalMatchCandidateSelection(candidateId, isSelected) {
+  const normalizedId = `${candidateId}`;
+  const selected = new Set(state.selectedExternalMatchCandidateIds);
+  if (isSelected) {
+    selected.add(normalizedId);
+  } else {
+    selected.delete(normalizedId);
+  }
+  setSelectedExternalMatchCandidateIds([...selected]);
+}
+
+function renderExternalMatchSelectionControls() {
+  const visibleIds = visibleExternalMatchCandidateIds();
+  const selectedIds = selectedExternalMatchCandidateIds();
+  const visibleCount = visibleIds.length;
+  const selectedCount = selectedIds.length;
+  if (els.externalMatchSelectAll) {
+    els.externalMatchSelectAll.checked = visibleCount > 0 && selectedCount === visibleCount;
+    els.externalMatchSelectAll.indeterminate = selectedCount > 0 && selectedCount < visibleCount;
+    els.externalMatchSelectAll.disabled = visibleCount === 0;
+  }
+  if (els.externalMatchSelectVisibleButton) {
+    els.externalMatchSelectVisibleButton.disabled = visibleCount === 0 || selectedCount === visibleCount;
+  }
+  if (els.externalMatchClearSelectionButton) {
+    els.externalMatchClearSelectionButton.disabled = selectedCount === 0;
+  }
+  if (els.externalMatchAcceptSelectedButton) {
+    els.externalMatchAcceptSelectedButton.disabled = selectedCount === 0;
+  }
+  if (els.externalMatchRejectSelectedButton) {
+    els.externalMatchRejectSelectedButton.disabled = selectedCount === 0;
+  }
+}
+
+function renderExternalUsersTable() {
+  if (!els.externalUsersTableBody) {
+    return;
+  }
+  els.externalUsersTableBody.innerHTML = "";
+  if (!state.externalUsers.length) {
+    els.externalUsersTableBody.innerHTML = `<tr><td colspan="5" class="muted">No users loaded.</td></tr>`;
+    return;
+  }
+  for (const record of state.externalUsers) {
+    const matched = record.matched_user || null;
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>
+        <div>${escapeHtml(record.display_name || "")}</div>
+        <div class="stack-item-meta">${escapeHtml(record.external_id || "")}</div>
+      </td>
+      <td>${escapeHtml(record.email || "")}</td>
+      <td>${matched ? `${escapeHtml(matched.display_name)}<div class="stack-item-meta">${escapeHtml(matched.user_key || "")}</div>` : `<span class="muted">Unmatched</span>`}</td>
+      <td>${escapeHtml(record.match_status || "")}</td>
+      <td><div class="action-stack"></div></td>
+    `;
+    const actions = tr.querySelector(".action-stack");
+    if (actions) {
+      const matchButton = document.createElement("button");
+      matchButton.className = "primary";
+      matchButton.textContent = matched ? "Change" : "Match";
+      matchButton.addEventListener("click", () => matchExternalUser(record.id).catch((error) => {
+        setStatus(String(error));
+        window.alert(String(error));
+      }));
+      actions.appendChild(matchButton);
+
+      if (matched || record.match_status === "ignored") {
+        const clearButton = document.createElement("button");
+        clearButton.textContent = "Clear";
+        clearButton.addEventListener("click", () => updateExternalUserMatch(record.id, "clear").catch((error) => {
+          setStatus(String(error));
+          window.alert(String(error));
+        }));
+        actions.appendChild(clearButton);
+      }
+
+      if (record.match_status !== "ignored") {
+        const ignoreButton = document.createElement("button");
+        ignoreButton.textContent = "Ignore";
+        ignoreButton.addEventListener("click", () => updateExternalUserMatch(record.id, "ignore").catch((error) => {
+          setStatus(String(error));
+          window.alert(String(error));
+        }));
+        actions.appendChild(ignoreButton);
+      }
+    }
+    els.externalUsersTableBody.appendChild(tr);
+  }
+}
+
+function renderExternalCredential() {
+  const credential = state.externalCredential || { status: "missing" };
+  if (els.externalCredentialStatus) {
+    els.externalCredentialStatus.textContent = credential.status || "missing";
+  }
+  if (els.externalCredentialExpires) {
+    const expiry = credential.expires_at ? formatTimestamp(credential.expires_at) : "-";
+    const days = credential.days_until_expiry == null ? "" : ` (${credential.days_until_expiry} days)`;
+    els.externalCredentialExpires.textContent = `${expiry}${days}`;
+  }
+  if (els.externalCredentialVerified) {
+    els.externalCredentialVerified.textContent = credential.last_verified_at ? formatTimestamp(credential.last_verified_at) : "-";
+  }
+  if (els.externalCredentialError) {
+    els.externalCredentialError.textContent = credential.last_error || "";
+    els.externalCredentialError.classList.toggle("hidden", !credential.last_error);
+  }
+}
+
+function yeastHighlightMap(value) {
+  const text = String(value || "");
+  let normalized = "";
+  const offsets = [];
+  let originalOffset = 0;
+  for (const character of text) {
+    const folded = character.normalize("NFKD").replace(/[\u0300-\u036f]/g, "").toLocaleLowerCase();
+    normalized += folded;
+    for (let index = 0; index < folded.length; index += 1) {
+      offsets.push({ start: originalOffset, end: originalOffset + character.length });
+    }
+    originalOffset += character.length;
+  }
+  return { text, normalized, offsets };
+}
+
+function appendYeastHighlightedText(element, value, query) {
+  const mapped = yeastHighlightMap(value);
+  const tokens = Array.from(new Set(
+    yeastHighlightMap(query).normalized.split(/\s+/).filter(Boolean),
+  ));
+  const ranges = [];
+  for (const token of tokens) {
+    let searchFrom = 0;
+    while (searchFrom < mapped.normalized.length) {
+      const matchIndex = mapped.normalized.indexOf(token, searchFrom);
+      if (matchIndex < 0) break;
+      const firstOffset = mapped.offsets[matchIndex];
+      const lastOffset = mapped.offsets[matchIndex + token.length - 1];
+      if (firstOffset && lastOffset) ranges.push([firstOffset.start, lastOffset.end]);
+      searchFrom = matchIndex + Math.max(token.length, 1);
+    }
+  }
+  ranges.sort((left, right) => left[0] - right[0] || left[1] - right[1]);
+  const merged = [];
+  for (const range of ranges) {
+    const previous = merged[merged.length - 1];
+    if (previous && range[0] <= previous[1]) previous[1] = Math.max(previous[1], range[1]);
+    else merged.push([...range]);
+  }
+
+  element.replaceChildren();
+  let cursor = 0;
+  for (const [start, end] of merged) {
+    if (start > cursor) element.appendChild(document.createTextNode(mapped.text.slice(cursor, start)));
+    const highlight = document.createElement("mark");
+    highlight.className = "yeast-search-highlight";
+    highlight.textContent = mapped.text.slice(start, end);
+    element.appendChild(highlight);
+    cursor = end;
+  }
+  if (cursor < mapped.text.length) element.appendChild(document.createTextNode(mapped.text.slice(cursor)));
+}
+
+function humanReadableYeastPayload(value) {
+  if (Array.isArray(value)) {
+    const items = value.map(humanReadableYeastPayload).filter((item) => item !== undefined);
+    return items.length ? items : undefined;
+  }
+  if (value && typeof value === "object") {
+    const cleaned = {};
+    for (const [key, child] of Object.entries(value)) {
+      const normalizedKey = key.toLocaleLowerCase();
+      const isIdentifier = normalizedKey !== "sys_id"
+        && (normalizedKey === "id" || normalizedKey.endsWith("_id") || normalizedKey.includes("uuid"));
+      if (isIdentifier || normalizedKey === "labguru_id") continue;
+      const cleanChild = humanReadableYeastPayload(child);
+      if (cleanChild !== undefined) cleaned[key] = cleanChild;
+    }
+    return Object.keys(cleaned).length ? cleaned : undefined;
+  }
+  if (value === null || value === undefined || value === "") return undefined;
+  return value;
+}
+
+function appendYeastContextList(article, fields, className, query) {
+  if (!fields.length) return;
+  const contextList = document.createElement("div");
+  contextList.className = `yeast-context-list ${className}`;
+  for (const field of fields) {
+    const row = document.createElement("div");
+    row.className = `yeast-context-row${field.key ? ` yeast-field-${field.key}` : ""}`;
+    const label = document.createElement("span");
+    label.className = "yeast-context-label";
+    label.textContent = field.label;
+    const value = document.createElement("span");
+    appendYeastHighlightedText(value, String(field.value || "").trim() || "—", query);
+    row.append(label, value);
+    contextList.appendChild(row);
+  }
+  article.appendChild(contextList);
+}
+
+function appendYeastStorageList(article, stocks, query) {
+  const storageList = document.createElement("div");
+  storageList.className = "yeast-storage-list";
+  const visibleStocks = Array.isArray(stocks) ? stocks : [];
+  if (!visibleStocks.length) {
+    const row = document.createElement("div");
+    row.className = "yeast-storage-row yeast-storage-empty";
+    const label = document.createElement("span");
+    label.className = "yeast-context-label";
+    label.textContent = "Storage";
+    const value = document.createElement("span");
+    value.textContent = "No physical stock recorded";
+    row.append(label, value);
+    storageList.appendChild(row);
+    article.appendChild(storageList);
+    return;
+  }
+
+  visibleStocks.forEach((stock, stockIndex) => {
+    const row = document.createElement("div");
+    row.className = "yeast-storage-row";
+    const label = document.createElement("span");
+    label.className = "yeast-context-label";
+    label.textContent = visibleStocks.length > 1 ? `Storage ${stockIndex + 1}` : "Storage";
+    const value = document.createElement("span");
+    value.className = "yeast-storage-path";
+    const stockName = String(stock.name || "Stock").trim();
+    const stockLink = document.createElement(stock.external_url ? "a" : "span");
+    appendYeastHighlightedText(stockLink, stockName, query);
+    if (stock.external_url) {
+      stockLink.href = stock.external_url;
+      stockLink.target = "_blank";
+      stockLink.rel = "noopener noreferrer";
+    }
+    value.appendChild(stockLink);
+    const path = Array.isArray(stock.storage_path) ? stock.storage_path : [];
+    for (const segment of path) {
+      value.appendChild(document.createTextNode("  ›  "));
+      const segmentLink = document.createElement(segment.url ? "a" : "span");
+      const segmentText = `${segment.name || "Unknown"}${segment.type ? ` (${segment.type})` : ""}`;
+      appendYeastHighlightedText(segmentLink, segmentText, query);
+      if (segment.url) {
+        segmentLink.href = segment.url;
+        segmentLink.target = "_blank";
+        segmentLink.rel = "noopener noreferrer";
+      }
+      value.appendChild(segmentLink);
+    }
+    if (stock.position) {
+      value.appendChild(document.createTextNode("  ·  "));
+      const position = document.createElement("strong");
+      appendYeastHighlightedText(position, stock.position, query);
+      value.appendChild(position);
+    }
+    const metadata = [
+      stock.container_type || "",
+      stock.stored_on ? `stored ${formatTimestamp(stock.stored_on)}` : "",
+      stock.stored_by_name ? `by ${stock.stored_by_name}` : "",
+    ].filter(Boolean).join(" · ");
+    if (metadata) value.title = metadata;
+    row.append(label, value);
+    storageList.appendChild(row);
+  });
+  article.appendChild(storageList);
+}
+
+function renderYeastStrains() {
+  if (!pageFlags.hasYeastStrainsView) {
+    return;
+  }
+  const status = state.yeastStrainStatus || {};
+  if (els.yeastStrainCount) els.yeastStrainCount.textContent = String(status.active_count || 0);
+  if (els.yeastStrainLastSync) {
+    els.yeastStrainLastSync.textContent = status.latest_sync_at ? formatTimestamp(status.latest_sync_at) : "Never";
+  }
+  if (els.yeastStrainSyncState) els.yeastStrainSyncState.textContent = status.job_status || "idle";
+  if (els.yeastStrainCollection) els.yeastStrainCollection.textContent = status.collection_name || "yeasts";
+  const isSynchronizing = ["queued", "running"].includes(status.job_status);
+  if (els.yeastStrainSyncButton) {
+    els.yeastStrainSyncButton.classList.toggle("hidden", !isAdmin());
+    els.yeastStrainSyncButton.disabled = isSynchronizing;
+    els.yeastStrainSyncButton.textContent = isSynchronizing ? "Synchronizing…" : "Synchronize";
+  }
+  if (els.yeastStrainSyncProgress) {
+    const progress = status.job_progress || {};
+    const isComplete = status.job_status === "done";
+    const isFailed = status.job_status === "failed";
+    const showProgress = Boolean(status.job_id) && (isSynchronizing || isComplete || isFailed);
+    els.yeastStrainSyncProgress.classList.toggle("hidden", !showProgress);
+    els.yeastStrainSyncProgress.classList.toggle("is-complete", isComplete);
+    els.yeastStrainSyncProgress.classList.toggle("is-failed", isFailed);
+    const processed = Number(progress.processed_count || 0);
+    const total = Number(progress.total_count || 0);
+    const created = Number(progress.created_count || 0);
+    const updated = Number(progress.updated_count || 0);
+    const phase = progress.phase || status.job_status || "queued";
+    let progressText = phase === "queued" ? "Synchronization queued…" : "Connecting to Labguru…";
+    if (isComplete) {
+      const stockCount = Number(progress.stock_count || 0);
+      progressText = `Synchronization complete · ${processed || total} strains checked · ${stockCount} physical stocks synchronized · ${created} new · ${updated} updated`;
+    } else if (isFailed) {
+      progressText = "Synchronization failed. You can retry with Synchronize.";
+    } else if (phase === "fetching") {
+      progressText = `${processed} strain${processed === 1 ? "" : "s"} received from Labguru${total ? ` of ${total}` : ""}…`;
+    } else if (phase === "fetching_stocks") {
+      progressText = `${processed} physical stock${processed === 1 ? "" : "s"} received${total ? ` of ${total}` : ""}…`;
+    } else if (phase === "fetching_storage") {
+      progressText = `${processed} storage location${processed === 1 ? "" : "s"} received${total ? ` of ${total}` : ""}…`;
+    } else if (phase === "fetching_boxes") {
+      progressText = `${processed} storage box${processed === 1 ? "" : "es"} received${total ? ` of ${total}` : ""}…`;
+    } else if (phase === "synchronizing") {
+      progressText = `${processed}${total ? ` / ${total}` : ""} checked · ${created} new · ${updated} updated`;
+    } else if (phase === "synchronizing_stocks") {
+      progressText = `${processed}${total ? ` / ${total}` : ""} physical stocks linked to strains…`;
+    }
+    if (els.yeastStrainSyncProgressText) els.yeastStrainSyncProgressText.textContent = progressText;
+    if (els.yeastStrainSyncProgressBar) {
+      const percent = Number(progress.progress_percent);
+      const hasPercent = isComplete || (Number.isFinite(percent) && total > 0);
+      const displayedPercent = isComplete ? 100 : percent;
+      els.yeastStrainSyncProgressBar.style.width = hasPercent ? `${Math.max(2, Math.min(100, displayedPercent))}%` : "34%";
+      els.yeastStrainSyncProgressBar.classList.toggle("indeterminate", isSynchronizing && !hasPercent);
+    }
+  }
+
+  const query = (els.yeastStrainSearch?.value || "").trim();
+  if (els.yeastStrainResultsTitle) els.yeastStrainResultsTitle.textContent = query ? `Results for “${query}”` : "All strains";
+  if (els.yeastStrainResultsSummary) {
+    const total = state.yeastStrainSearchMeta.total || 0;
+    const shown = state.yeastStrains.length;
+    els.yeastStrainResultsSummary.textContent = total
+      ? (query
+        ? `${total} matching strain${total === 1 ? "" : "s"}. Showing ${shown}.`
+        : `${total} strain${total === 1 ? "" : "s"}, newest first. Showing ${shown}.`)
+      : (status.active_count ? "No strain matches these inclusive criteria." : "No strains synchronized yet. An admin can synchronize above.");
+  }
+  if (!els.yeastStrainResults) return;
+  els.yeastStrainResults.replaceChildren();
+  for (const strain of sortedDisplayedYeastStrains(state.yeastStrains)) {
+    const article = document.createElement("article");
+    article.className = `yeast-result-card${query ? "" : " yeast-result-card-simple"}`;
+
+    const heading = document.createElement("div");
+    heading.className = "yeast-result-heading";
+    const title = document.createElement(strain.external_url ? "a" : "span");
+    title.className = "yeast-result-title";
+    appendYeastHighlightedText(title, strain.name || "Unnamed strain", query);
+    if (strain.external_url) {
+      title.href = strain.external_url;
+      title.target = "_blank";
+      title.rel = "noopener noreferrer";
+    }
+    const identifiers = document.createElement("div");
+    identifiers.className = "yeast-result-identifiers";
+    appendYeastHighlightedText(identifiers, [
+      strain.created_external_at ? `Created ${formatTimestamp(strain.created_external_at)}` : "",
+      strain.owner_name || "",
+      strain.sys_id ? `SysID ${strain.sys_id}` : "",
+    ]
+      .filter(Boolean).join(" · "), query);
+    heading.append(title, identifiers);
+    article.appendChild(heading);
+
+    const contexts = Array.isArray(strain.context) ? strain.context : [];
+    const biologyFields = [
+      { key: "genotype", label: "Genotype", value: strain.genotype },
+      { key: "mating-type", label: "Mating type", value: strain.mating_type },
+      { key: "background", label: "Background", value: strain.background },
+      { key: "source", label: "Source", value: strain.source },
+    ];
+    if (String(strain.auxotrophies || "").trim()) {
+      biologyFields.splice(1, 0, { key: "auxotrophies", label: "Auxotrophies", value: strain.auxotrophies });
+    }
+    const biologyContextLabels = new Set([
+      "genotype", "transgenic features", "auxotrophies", "auxotrophy",
+      "auxotrophic markers", "mating type", "reproduction", "background",
+      "genetic background", "source",
+    ]);
+    const matchedFields = [];
+    if (query) {
+      for (const context of contexts) {
+        const normalizedLabel = String(context.label || "").trim().toLocaleLowerCase();
+        if (!biologyContextLabels.has(normalizedLabel)) {
+          matchedFields.push({ label: context.label || "Field", value: context.value });
+        }
+      }
+    }
+    appendYeastContextList(article, biologyFields, "yeast-biology-list", query);
+    appendYeastStorageList(article, strain.stocks, query);
+    appendYeastContextList(article, matchedFields, "yeast-search-context-list", query);
+
+    if (query) {
+      const details = document.createElement("details");
+      details.className = "yeast-raw-details";
+      const summary = document.createElement("summary");
+      summary.textContent = "All Labguru fields";
+      const payload = document.createElement("pre");
+      payload.textContent = "Open to load…";
+      details.append(summary, payload);
+      details.addEventListener("toggle", () => {
+        if (!details.open || details.dataset.loaded === "true") return;
+        details.dataset.loaded = "true";
+        payload.textContent = "Loading…";
+        apiGet(`/external-systems/labguru/yeast-strains/by-id/${encodeURIComponent(strain.external_id)}`)
+          .then((detail) => {
+            payload.textContent = JSON.stringify(humanReadableYeastPayload(detail.payload_json || {}) || {}, null, 2);
+          })
+          .catch((error) => {
+            details.dataset.loaded = "false";
+            payload.textContent = String(error);
+          });
+        });
+      article.appendChild(details);
+    }
+    els.yeastStrainResults.appendChild(article);
+  }
+  if (els.yeastStrainMoreButton) {
+    els.yeastStrainMoreButton.classList.toggle("hidden", state.yeastStrains.length >= (state.yeastStrainSearchMeta.total || 0));
+  }
+}
+
+function renderUsers() {
+  if (!els.usersTableBody) {
+    return;
+  }
+  els.usersTableBody.innerHTML = "";
+  const users = state.users.length ? state.users : (state.currentUser ? [state.currentUser] : []);
+  for (const user of users) {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${user.user_key}</td>
+      <td>${user.display_name}</td>
+      <td>${user.role}</td>
+      <td>${escapeHtml(labStatusLabel(user))}</td>
+      <td>${user.admin_portal_access ? "yes" : "no"}</td>
+      <td title="${escapeHtml(user.default_path || "")}">${escapeHtml(user.default_path || "")}</td>
+      <td>${user.storage_quota_bytes ? humanBytes(user.storage_quota_bytes) : ""}</td>
+      <td>${user.is_active ? "yes" : "no"}</td>
+      <td>${humanBytes(user.project_bytes || 0)}</td>
+      <td>${humanBytes(user.raw_dataset_bytes || 0)}</td>
+      <td>${humanBytes((user.project_bytes || 0) + (user.raw_dataset_bytes || 0))}</td>
+      <td>
+        <button type="button" class="user-edit-button">Settings</button>
+        ${hasAdminPrivileges() ? `<button type="button" class="user-delete-button">Delete</button>` : ""}
+      </td>
+    `;
+    tr.addEventListener("click", () => editUser(user));
+    tr.querySelector(".user-edit-button")?.addEventListener("click", (event) => {
+      event.stopPropagation();
+      editUser(user).catch((error) => setStatus(String(error)));
+    });
+    tr.querySelector(".user-delete-button")?.addEventListener("click", (event) => {
+      event.stopPropagation();
+      deleteUser(user).catch((error) => setStatus(String(error)));
+    });
+    els.usersTableBody.appendChild(tr);
+  }
+}
+
+function availableOwnerUsers() {
+  if (state.users.length) {
+    return state.users;
+  }
+  return state.currentUser ? [state.currentUser] : [];
+}
+
+function renderOwnerFilters() {
+  const users = availableOwnerUsers();
+
+  if (els.ownerFilter) {
+    const currentValue = els.ownerFilter.value || "";
+    renderUserSelect(els.ownerFilter, users, {
+      emptyOptionLabel: "All project owners",
+      selectedValue: currentValue,
+    });
+  }
+
+  if (els.rawOwnerFilter) {
+    const currentValue = els.rawOwnerFilter.value || "";
+    renderUserSelect(els.rawOwnerFilter, users, {
+      emptyOptionLabel: "All project owners",
+      selectedValue: currentValue,
+    });
+  }
+
+  if (els.miscOwnerFilter) {
+    const currentValue = els.miscOwnerFilter.value || "";
+    renderUserSelect(els.miscOwnerFilter, users, {
+      emptyOptionLabel: "All owners",
+      selectedValue: currentValue,
+    });
+  }
+}
+
+function renderIndexOwnerOptions() {
+  if (!els.indexOwnerUserKey && !els.miscOwnerUserKey) {
+    return;
+  }
+  const users = availableOwnerUsers();
+  if (els.indexOwnerUserKey) {
+    const currentValue = els.indexOwnerUserKey.value || state.currentUser?.user_key || state.userKey || "";
+    renderUserSelect(els.indexOwnerUserKey, users, {
+      noUsersLabel: "No user accounts available",
+      selectedValue: currentValue,
+    });
+  }
+  if (els.miscOwnerUserKey) {
+    const currentValue = els.miscOwnerUserKey.value || "";
+    renderUserSelect(els.miscOwnerUserKey, users, {
+      emptyOptionLabel: "Infer from first path segment",
+      noUsersLabel: "No user accounts available",
+      selectedValue: currentValue,
+    });
+  }
+}
+
+function renderUserSelectors() {
+  renderOwnerFilters();
+  renderIndexOwnerOptions();
+
+  if (typeof window !== "undefined" && typeof window.requestAnimationFrame === "function") {
+    window.requestAnimationFrame(() => {
+      renderOwnerFilters();
+      renderIndexOwnerOptions();
+    });
+  }
+}
+
+function renderSessions() {
+  if (!els.sessionsTableBody) {
+    return;
+  }
+  els.sessionsTableBody.innerHTML = "";
+  for (const session of state.sessions) {
+    const tr = document.createElement("tr");
+    const tdUser = document.createElement("td");
+    tdUser.textContent = session.user ? session.user.user_key : "";
+    const tdClient = document.createElement("td");
+    tdClient.textContent = session.client_label || "";
+    const tdLastSeen = document.createElement("td");
+    tdLastSeen.textContent = formatTimestamp(session.last_seen_at);
+    const tdExpires = document.createElement("td");
+    tdExpires.textContent = formatTimestamp(session.expires_at);
+    const tdAction = document.createElement("td");
+    const button = document.createElement("button");
+    button.textContent = "Revoke";
+    button.disabled = !isAdmin() && session.user?.id !== state.currentUser?.id;
+    button.addEventListener("click", (event) => {
+      event.stopPropagation();
+      revokeSession(session.id).catch((error) => setStatus(String(error)));
+    });
+    tdAction.appendChild(button);
+    tr.append(tdUser, tdClient, tdLastSeen, tdExpires, tdAction);
+    els.sessionsTableBody.appendChild(tr);
+  }
+}
+
+async function login() {
+  const userKey = (els.loginUserKey?.value || "").trim();
+  const password = els.loginPassword?.value || "";
+  if (!userKey || !password) {
+    throw new Error("User key and password are required.");
+  }
+  const response = await apiPost("/auth/login", {
+    user_key: userKey,
+    password,
+    client_label: "web-ui",
+  });
+  state.userKey = userKey;
+  state.sessionToken = response.session_token;
+  state.sessionExpiresAt = response.expires_at || "";
+  state.currentUser = response.user;
+  state.authMode = "session";
+  localStorage.setItem("detecdivHub.userKey", state.userKey);
+  localStorage.setItem("detecdivHub.sessionToken", state.sessionToken);
+  localStorage.setItem("detecdivHub.sessionExpiresAt", state.sessionExpiresAt);
+  if (els.loginPassword) {
+    els.loginPassword.value = "";
+  }
+  updateSessionUi();
+  if (pageKind !== "dashboard") {
+    window.location.href = "/web/dashboard.html";
+    return;
+  }
+  await refreshDashboard();
+  setStatus(`Logged in as ${response.user.user_key}.`);
+}
+
+async function logout() {
+  try {
+    if (state.currentUser) {
+      await apiPost("/auth/logout", {});
+    }
+  } catch (error) {
+    setStatus(String(error));
+  }
+  state.sessionToken = "";
+  state.sessionExpiresAt = "";
+  state.currentUser = null;
+  state.authMode = "";
+  localStorage.removeItem("detecdivHub.sessionToken");
+  localStorage.removeItem("detecdivHub.sessionExpiresAt");
+  clearDashboardState();
+  updateSessionUi();
+  setStatus("Logged out.");
+}
+
+async function restoreSession() {
+  if (state.sessionToken && state.sessionExpiresAt) {
+    const expiresAt = Date.parse(state.sessionExpiresAt);
+    if (Number.isFinite(expiresAt) && expiresAt <= Date.now()) {
+      state.sessionToken = "";
+      state.sessionExpiresAt = "";
+      localStorage.removeItem("detecdivHub.sessionToken");
+      localStorage.removeItem("detecdivHub.sessionExpiresAt");
+      clearDashboardState();
+      updateSessionUi();
+      setStatus("Your DetecDiv Hub session expired. Please sign in again.");
+      return;
+    }
+  }
+  if (state.sessionToken) {
+  try {
+    const session = await apiGet("/auth/session");
+    if (session.authenticated) {
+      state.currentUser = session.user;
+      state.authMode = session.auth_mode || "session";
+      state.userKey = session.user?.user_key || state.userKey;
+      updateSessionUi();
+      await refreshDashboard();
+      setStatus(`Connected via ${state.authMode} as ${session.user.user_key}.`);
+      return;
+    }
+  } catch {
+    // Session expired or invalid; fall through to login.
+  }
+  }
+
+  state.currentUser = null;
+  clearDashboardState();
+  updateSessionUi();
+  setStatus("Login required.");
+}
+
+async function refreshDashboard() {
+  if (!state.currentUser && !state.userKey) {
+    updateSessionUi();
+    return;
+  }
+
+  setStatus("Refreshing dashboard...");
+  localStorage.setItem("detecdivHub.userKey", state.userKey || "");
+
+  const bootstrapTasks = [apiGet("/dashboard/summary")];
+  if (pageFlags.hasProjectGroups || pageFlags.hasProjectDetail) {
+    bootstrapTasks.push(apiGet("/project-groups"));
+  } else {
+    bootstrapTasks.push(Promise.resolve([]));
+  }
+  if (pageFlags.hasStorageRootFilter || pageFlags.hasIndexForm || pageFlags.hasUsersView || pageFlags.hasMiscStorageView) {
+    bootstrapTasks.push(apiGet("/storage-roots"));
+  } else {
+    bootstrapTasks.push(Promise.resolve([]));
+  }
+
+  const [summary, groups, storageRoots] = await Promise.all(bootstrapTasks);
+
+  state.groups = groups.map((group) => ({ ...group, project_ids: [] }));
+  state.storageRoots = storageRoots;
+  if (pageFlags.hasProjectDetail && state.groups.length) {
+    const groupDetails = await Promise.all(
+      state.groups.map((group) => apiGet(`/project-groups/${group.id}`))
+    );
+    for (let index = 0; index < state.groups.length; index += 1) {
+      state.groups[index].project_ids = (groupDetails[index].projects || []).map((project) => project.id);
+    }
+  }
+
+  setSummary(summary);
+  renderGroupFilter();
+  renderStorageRootFilter();
+  renderUserSelectors();
+  applyRawDatasetDisplaySettings();
+  renderUserSelectors();
+  renderIndexBrowser();
+  if (pageFlags.hasProjectPage) {
+    await refreshProjectPage();
+  }
+  if (pageFlags.hasRawDatasetPage) {
+    const rawDatasetId = getRawDatasetPageId();
+    if (rawDatasetId) {
+      await selectRawDataset(rawDatasetId);
+    }
+  }
+
+  if (pageFlags.hasIndexForm && browseableStorageRoots().length && !state.indexBrowse?.directories?.length) {
+    try {
+      await openIndexBrowserPath("");
+    } catch (error) {
+      setStatus(String(error));
+    }
+  }
+
+  const refreshTasks = [];
+  if (pageFlags.hasDashboardView) {
+    refreshTasks.push(refreshDashboardActivity());
+  }
+  if (pageFlags.hasProjectsView) {
+    refreshTasks.push(refreshProjects());
+  }
+  if (pageFlags.hasRawDatasetsView || pageKind === "raw-ops" || pageFlags.hasRawDatasetPage) {
+    refreshTasks.push(refreshRawDatasets());
+  }
+  if (pageFlags.hasArchiveSettings && isAdmin()) {
+    refreshTasks.push(refreshArchiveSettingsStatus());
+  }
+  if (pageFlags.hasAutomaticArchivePolicy) {
+    refreshTasks.push(refreshAutomaticArchivePolicyStatus());
+  }
+  if (pageFlags.hasMicroManagerIngest) {
+    refreshTasks.push(refreshMicroManagerIngestStatus());
+  }
+  if (pageFlags.hasPipelinesView) {
+    refreshTasks.push(refreshPipelines());
+  }
+  if (pageFlags.hasExecutionTargetsView || els.pipelineRunTargetSelect || pageFlags.hasPipelineRunsView) {
+    refreshTasks.push(refreshExecutionTargets());
+  }
+  if (pageFlags.hasPipelineRunsView) {
+    refreshTasks.push(refreshPipelineRuns());
+  }
+  if (
+    (pageFlags.hasUsersView && isAdmin()) ||
+    els.indexOwnerUserKey ||
+    els.miscOwnerUserKey ||
+    els.miscOwnerFilter ||
+    els.ownerFilter ||
+    els.rawOwnerFilter ||
+    pageFlags.hasProjectPage ||
+    pageFlags.hasRawDatasetPage
+  ) {
+    refreshTasks.push(refreshUsers());
+  }
+  if (pageFlags.hasSessionsView && isAdmin()) {
+    refreshTasks.push(refreshSessions());
+  }
+  if (pageFlags.hasExternalElnAdminView && isAdmin()) {
+    refreshTasks.push(refreshExternalElnMatching());
+  }
+  if (pageFlags.hasExternalSystemsView) {
+    refreshTasks.push(refreshExternalCredential());
+  }
+  if (pageFlags.hasYeastStrainsView) {
+    refreshTasks.push(refreshYeastStrainStatus());
+    refreshTasks.push(refreshYeastStrains());
+  }
+  if (pageFlags.hasIndexingView) {
+    refreshTasks.push(refreshIndexingJobs());
+  }
+  if (pageFlags.hasMigrationView) {
+    refreshTasks.push(refreshMigrationPlans());
+  }
+  if (pageFlags.hasMiscStorageView) {
+    refreshTasks.push(refreshMiscStorageItems());
+  }
+  if (pageFlags.hasAdminView) {
+    refreshTasks.push(refreshRawPreviewQualityStatus());
+    refreshTasks.push(refreshDeploymentAwareness());
+  }
+  await Promise.all(refreshTasks);
+
+  setStatus(`Connected as ${summary.user.user_key}.`);
+}
+
+async function refreshIndexingJobs() {
+  if (!els.indexJobsTableBody && !els.activeIndexJob) {
+    return;
+  }
+  state.indexingJobs = await apiGet("/indexing/jobs?limit=25");
+  if (els.indexJobsClearStaleButton) {
+    els.indexJobsClearStaleButton.disabled = !state.indexingJobs.some((job) => job.status === "stale");
+  }
+  renderIndexingJobs();
+}
+
+async function clearStaleIndexingJobs() {
+  const staleCount = state.indexingJobs.filter((job) => job.status === "stale").length;
+  if (!staleCount) {
+    throw new Error("No stale indexing jobs to clear.");
+  }
+  const confirmed = window.confirm(`Delete ${staleCount} stale indexing job(s)?`);
+  if (!confirmed) {
+    return;
+  }
+  const result = await apiPost("/indexing/jobs/clear-stale", {});
+  setStatus(result.message || `Deleted ${result.deleted_count} stale indexing job(s).`);
+  await refreshIndexingJobs();
+}
+
+function miscItemAbsolutePath(item) {
+  const metadata = item?.metadata_json && typeof item.metadata_json === "object" ? item.metadata_json : {};
+  if (metadata.absolute_path) {
+    return String(metadata.absolute_path);
+  }
+  const rootPath = item?.storage_root?.path_prefix || "";
+  const relativePath = item?.relative_path || "";
+  if (!rootPath) {
+    return relativePath;
+  }
+  return relativePath ? `${rootPath.replace(/\/+$/, "")}/${relativePath}` : rootPath;
+}
+
+function miscOwnerLabel(item) {
+  if (!item?.owner) {
+    return "";
+  }
+  return item.owner.display_name ? `${item.owner.display_name} (${item.owner.user_key})` : item.owner.user_key;
+}
+
+function filteredMiscStorageItems() {
+  const query = (els.miscSearch?.value || "").trim().toLowerCase();
+  if (!query) {
+    return state.miscStorageItems;
+  }
+  return state.miscStorageItems.filter((item) => {
+    const values = [
+      item.display_name,
+      item.relative_path,
+      miscItemAbsolutePath(item),
+      item.category,
+      item.status,
+      item.scan_status,
+      item.lifecycle_tier,
+      item.backup_status,
+      item.archive_status,
+      item.owner?.user_key,
+      item.owner?.display_name,
+    ];
+    return values.some((value) => String(value || "").toLowerCase().includes(query));
+  });
+}
+
+function renderMiscStorageItems() {
+  if (!els.miscItemsTableBody) {
+    return;
+  }
+  const items = filteredMiscStorageItems();
+  const totalBytes = items.reduce((sum, item) => sum + Number(item.total_bytes || 0), 0);
+  const timeoutCount = items.filter((item) => item.scan_status === "timeout").length;
+  const measuredCount = items.filter((item) => item.scan_status === "measured").length;
+
+  if (els.miscSummaryCount) els.miscSummaryCount.textContent = `${items.length}`;
+  if (els.miscSummaryTotalBytes) els.miscSummaryTotalBytes.textContent = humanBytes(totalBytes);
+  if (els.miscSummaryTimeoutCount) els.miscSummaryTimeoutCount.textContent = `${timeoutCount}`;
+  if (els.miscSummaryMeasuredCount) els.miscSummaryMeasuredCount.textContent = `${measuredCount}`;
+  if (els.miscCountLabel) els.miscCountLabel.textContent = `${items.length} item${items.length === 1 ? "" : "s"}`;
+
+  els.miscItemsTableBody.innerHTML = "";
+  if (!items.length) {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `<td colspan="10" class="empty-state">No misc storage items match the current filters.</td>`;
+    els.miscItemsTableBody.appendChild(tr);
+    return;
+  }
+
+  for (const item of items) {
+    const absolutePath = miscItemAbsolutePath(item);
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td title="${escapeHtml(absolutePath)}">
+        <strong>${escapeHtml(item.display_name || item.relative_path || absolutePath)}</strong>
+        <div class="muted">${escapeHtml(item.relative_path || absolutePath)}</div>
+        <div class="action-stack">
+          <button type="button" class="misc-index-projects-button">Index projects</button>
+          <button type="button" class="misc-explore-children-button">Explore children</button>
+        </div>
+      </td>
+      <td>${escapeHtml(miscOwnerLabel(item) || "unassigned")}</td>
+      <td>${escapeHtml(item.category || "")}</td>
+      <td>${escapeHtml(item.status || "")}</td>
+      <td>${humanBytes(item.total_bytes)}</td>
+      <td>${escapeHtml(item.scan_status || "")}</td>
+      <td>${Number(item.child_dir_count || 0)} dirs / ${Number(item.child_file_count || 0)} files</td>
+      <td>${escapeHtml(item.lifecycle_tier || "")}</td>
+      <td>${escapeHtml(item.backup_excluded ? "excluded" : (item.backup_status || ""))}</td>
+      <td>${escapeHtml(formatTimestamp(item.last_seen_at))}</td>
+    `;
+    tr.querySelector(".misc-index-projects-button")?.addEventListener("click", (event) => {
+      event.stopPropagation();
+      queueMiscItemProjectIndex(item).catch((error) => setStatus(String(error)));
+    });
+    tr.querySelector(".misc-explore-children-button")?.addEventListener("click", (event) => {
+      event.stopPropagation();
+      queueMiscItemChildInventory(item).catch((error) => setStatus(String(error)));
+    });
+    els.miscItemsTableBody.appendChild(tr);
+  }
+}
+
+async function refreshMiscStorageItems() {
+  if (!pageFlags.hasMiscStorageView) {
+    return;
+  }
+  const params = new URLSearchParams();
+  if (els.miscOwnerFilter?.value) {
+    params.set("owner_user_key", els.miscOwnerFilter.value);
+  }
+  if (els.miscCategoryFilter?.value) {
+    params.set("category", els.miscCategoryFilter.value);
+  }
+  if (els.miscStatusFilter?.value) {
+    params.set("status_filter", els.miscStatusFilter.value);
+  }
+  const minSizeGb = Number(els.miscMinSizeFilterGb?.value || 0);
+  if (Number.isFinite(minSizeGb) && minSizeGb > 0) {
+    params.set("min_size_bytes", `${Math.round(minSizeGb * 1024 * 1024 * 1024)}`);
+  }
+  params.set("limit", "1000");
+  state.miscStorageItems = await apiGet(`/storage/misc-items?${params.toString()}`);
+  renderMiscStorageItems();
+}
+
+async function queueMiscStorageInventory() {
+  if (!els.miscSourcePath) {
+    return;
+  }
+  const sourcePath = els.miscSourcePath.value.trim();
+  if (!sourcePath) {
+    throw new Error("Source path is required.");
+  }
+  const minSizeGb = Number(els.miscMinSizeGb?.value || 10);
+  const maxDepth = Number(els.miscMaxDepth?.value || 2);
+  const duTimeoutSec = Number(els.miscDuTimeoutSec?.value || 45);
+  if (!Number.isFinite(minSizeGb) || minSizeGb < 0) {
+    throw new Error("Minimum size must be a positive number.");
+  }
+  if (!Number.isFinite(maxDepth) || maxDepth < 1) {
+    throw new Error("Max depth must be at least 1.");
+  }
+  if (!Number.isFinite(duTimeoutSec) || duTimeoutSec <= 0) {
+    throw new Error("du timeout must be positive.");
+  }
+  const payload = {
+    source_path: sourcePath,
+    storage_root_name: (els.miscStorageRootName?.value || "").trim() || null,
+    owner_user_key: (els.miscOwnerUserKey?.value || "").trim() || null,
+    visibility: "private",
+    min_size_bytes: Math.round(minSizeGb * 1024 * 1024 * 1024),
+    max_depth: Math.round(maxDepth),
+    du_timeout_sec: duTimeoutSec,
+    include_cataloged: Boolean(els.miscIncludeCataloged?.checked),
+    requested_mode: "server",
+  };
+  const response = await apiPost("/storage/misc-inventory/jobs", payload);
+  setStatus(`Queued misc inventory job ${response.job_id}.`);
+}
+
+async function purgeMiscStorageItems() {
+  const storageRootName = (els.miscStorageRootName?.value || "").trim() || "data_misc";
+  const confirmed = window.confirm(`Purge all Misc Storage items for storage root ${storageRootName}? This only clears catalog rows; it does not delete files, projects, or raw datasets.`);
+  if (!confirmed) {
+    return;
+  }
+  const typed = window.prompt(`Type ${storageRootName} to confirm purge`, "");
+  if (typed !== storageRootName) {
+    setStatus("Misc storage purge cancelled.");
+    return;
+  }
+  const params = new URLSearchParams({
+    storage_root_name: storageRootName,
+    confirm: "true",
+  });
+  const result = await apiDelete(`/storage/misc-items/purge?${params.toString()}`);
+  state.miscStorageItems = [];
+  renderMiscStorageItems();
+  setStatus(result.message || `Purged misc storage items for ${storageRootName}.`);
+  await refreshMiscStorageItems();
+}
+
+async function queueMiscItemProjectIndex(item) {
+  const absolutePath = miscItemAbsolutePath(item);
+  let ownerUserKey = item.owner?.user_key || "";
+  if (!ownerUserKey) {
+    const metadata = item.metadata_json && typeof item.metadata_json === "object" ? item.metadata_json : {};
+    ownerUserKey = window.prompt("Owner user key for indexed projects", metadata.owner_hint || "") || "";
+    ownerUserKey = ownerUserKey.trim();
+  }
+  const confirmed = window.confirm(`Queue project indexing for ${absolutePath} with orphan raw dataset scan and preview generation enabled?`);
+  if (!confirmed) {
+    return;
+  }
+  const response = await apiPost(`/storage/misc-items/${encodeURIComponent(item.id)}/index-projects/jobs`, {
+    owner_user_key: ownerUserKey || null,
+    scan_orphan_raw: true,
+    queue_previews: true,
+    clear_existing_for_root: false,
+    metadata_json: {},
+  });
+  setStatus(`Queued project indexing job ${response.job.id} for ${response.job.source_path}.`);
+  await refreshMiscStorageItems();
+}
+
+async function queueMiscItemChildInventory(item) {
+  const absolutePath = miscItemAbsolutePath(item);
+  const confirmed = window.confirm(`Explore direct children under ${absolutePath}?`);
+  if (!confirmed) {
+    return;
+  }
+  const response = await apiPost(`/storage/misc-items/${encodeURIComponent(item.id)}/inventory-children/jobs`, {
+    min_size_bytes: 1024 * 1024 * 1024,
+    max_depth: 1,
+    du_timeout_sec: 60,
+    include_cataloged: false,
+    metadata_json: {},
+  });
+  setStatus(`Queued child inventory job ${response.job_id} for ${absolutePath}.`);
+}
+
+async function refreshRawDatasets(options = {}) {
+  const preservePage = Boolean(options.preservePage);
+  const previousPage = state.rawDatasetCurrentPage || 0;
+  if (!els.rawDatasetsTableBody && pageKind !== "raw-ops" && !pageFlags.hasRawDatasetPage) {
+    return;
+  }
+  const params = new URLSearchParams();
+  if (els.rawOwnedOnly?.checked) params.set("owned_only", "true");
+  if (els.rawOwnerFilter?.value.trim()) params.set("owner_key", els.rawOwnerFilter.value.trim());
+  if (els.rawTierFilter?.value) params.set("lifecycle_tier", els.rawTierFilter.value);
+  if (els.rawArchiveStatusFilter?.value) params.set("archive_status", els.rawArchiveStatusFilter.value);
+  if (els.rawLimit?.value) state.rawDatasetPageSize = parseInt(els.rawLimit.value) || 50;
+  params.set("limit", "5000");
+
+  state.rawDatasets = await apiGet(`/raw-datasets${params.toString() ? `?${params.toString()}` : ""}`);
+  state.rawDatasetsLastRefreshAt = Date.now();
+  state.rawDatasetCurrentPage = preservePage ? previousPage : 0;
+  const visibleIds = new Set(state.rawDatasets.map((raw) => `${raw.id}`));
+  for (const rawDatasetId of Object.keys(state.rawDatasetDeletionStatusById || {})) {
+    if (!visibleIds.has(rawDatasetId)) {
+      delete state.rawDatasetDeletionStatusById[rawDatasetId];
+    }
+  }
+  state.selectedRawDatasetIds = state.selectedRawDatasetIds.filter((rawDatasetId) => visibleIds.has(`${rawDatasetId}`));
+  if (state.pendingRawBulkDelete?.scope === "selected" && !selectedRawDatasetIds().length) {
+    closeRawBulkDeletePanel();
+  }
+  if (els.rawDatasetsTableBody) {
+    renderRawDatasets();
+    renderRawBulkDeletePanel();
+  } else {
+    renderRawOpsSummary();
+    renderArchivedRawDatasets();
+  }
+  const requestedRawDatasetId = getRawDatasetPageId();
+  if (requestedRawDatasetId && pageFlags.hasRawDatasetPage) {
+    if (!state.selectedRawDataset || `${state.selectedRawDataset.id}` === requestedRawDatasetId) {
+      await selectRawDataset(requestedRawDatasetId, { hydrateDetail: true });
+    }
+  } else if (!state.selectedRawDataset && state.persistedRawDatasetId && pageFlags.hasRawDatasetsView) {
+    const persisted = state.rawDatasets.find((raw) => `${raw.id}` === `${state.persistedRawDatasetId}`);
+    if (persisted) {
+      state.selectedRawDataset = persisted;
+      state.selectedRawDatasetDetail = persisted;
+      renderRawDatasetDetail();
+    }
+  } else if (state.selectedRawDataset) {
+    const stillExists = state.rawDatasets.find((raw) => raw.id === state.selectedRawDataset.id);
+    if (stillExists) {
+      state.selectedRawDataset = stillExists;
+      state.selectedRawDatasetDetail = stillExists;
+      renderRawDatasetDetail();
+    } else {
+      state.selectedRawDataset = null;
+      state.selectedRawDatasetDetail = null;
+      renderRawDatasetDetail();
+    }
+  }
+}
+
+async function refreshAutomaticArchivePolicyStatus() {
+  if (!pageFlags.hasAutomaticArchivePolicy) {
+    return;
+  }
+  if (!isAdmin()) {
+    state.automaticArchivePolicyStatus = null;
+    renderAutomaticArchivePolicyStatus();
+    return;
+  }
+  try {
+    state.automaticArchivePolicyStatus = await apiGet("/raw-datasets/archive-policy/automatic");
+    renderAutomaticArchivePolicyStatus();
+  } catch (error) {
+    if (`${error}`.includes("403")) {
+      state.automaticArchivePolicyStatus = null;
+      renderAutomaticArchivePolicyStatus();
+      return;
+    }
+    throw error;
+  }
+}
+
+async function refreshArchiveSettingsStatus() {
+  if (!isAdmin()) {
+    state.archiveSettingsStatus = null;
+    if (pageFlags.hasArchiveSettings) {
+      renderArchiveSettingsStatus();
+    }
+    return;
+  }
+  state.archiveSettingsStatus = await apiGet("/raw-datasets/settings/archive");
+  if (pageFlags.hasArchiveSettings) {
+    renderArchiveSettingsStatus();
+  }
+}
+
+async function refreshMicroManagerIngestStatus() {
+  if (!pageFlags.hasMicroManagerIngest) {
+    return;
+  }
+  if (!isAdmin()) {
+    state.micromanagerIngestStatus = null;
+    renderMicroManagerIngestStatus();
+    return;
+  }
+  try {
+    state.micromanagerIngestStatus = await apiGet("/micromanager-ingest/status");
+    renderMicroManagerIngestStatus();
+    if (state.micromanagerIngestStatus?.checked_at) {
+      setStatus(`Micro-Manager ingestion status refreshed at ${formatTimestamp(state.micromanagerIngestStatus.checked_at)}.`);
+    }
+  } catch (error) {
+    if (`${error}`.includes("403")) {
+      state.micromanagerIngestStatus = null;
+      renderMicroManagerIngestStatus();
+      return;
+    }
+    throw error;
+  }
+}
+
+function archivePolicyPayload() {
+  const olderThanDays = Number(els.archivePolicyOlderDays?.value || 30);
+  const minGb = Number(els.archivePolicyMinGb?.value || 0);
+  const limit = Number(els.archivePolicyLimit?.value || 25);
+  const archiveConfig = state.archiveSettingsStatus?.config || {};
+  const explicitCompression = els.archivePolicyCompression?.value || "";
+  return {
+    older_than_days: Number.isFinite(olderThanDays) ? Math.max(0, Math.floor(olderThanDays)) : 30,
+    min_total_bytes: Number.isFinite(minGb) ? Math.max(0, Math.round(minGb * 1024 * 1024 * 1024)) : 0,
+    limit: Number.isFinite(limit) ? Math.max(1, Math.floor(limit)) : 25,
+    owner_key: els.rawOwnerFilter?.value.trim() || null,
+    search: els.rawSearch?.value.trim() || null,
+    lifecycle_tiers: els.rawTierFilter?.value ? [els.rawTierFilter.value] : ["hot"],
+    archive_statuses: els.rawArchiveStatusFilter?.value
+      ? [els.rawArchiveStatusFilter.value]
+      : ["none", "restored", "archive_failed", "restore_failed"],
+    archive_uri: els.archivePolicyUri?.value.trim() || archiveConfig.archive_root || null,
+    archive_compression: explicitCompression || archiveConfig.archive_compression || null,
+    mark_archived: els.archivePolicyDeleteSource
+      ? Boolean(els.archivePolicyDeleteSource.checked)
+      : Boolean(archiveConfig.delete_hot_source),
+  };
+}
+
+async function runAutomaticArchivePolicy() {
+  if (!isAdmin()) {
+    throw new Error("Admin role required.");
+  }
+  const reportOnly = Boolean(els.automaticArchivePolicyReportOnly?.checked);
+  const action = reportOnly ? "run a report-only preview" : "queue archive jobs";
+  const ok = window.confirm(`Run the automatic archive policy now and ${action}?`);
+  if (!ok) {
+    return;
+  }
+  const run = await apiPost("/raw-datasets/archive-policy/automatic/run", {
+    report_only: reportOnly,
+  });
+  await refreshAutomaticArchivePolicyStatus();
+  if (!reportOnly) {
+    await refreshRawDatasets();
+  }
+  setStatus(
+    `Automatic archive policy run completed: ${run.candidate_count} candidate(s), ${run.queued_count} queued.`
+  );
+}
+
+async function runMicroManagerIngest() {
+  if (!isAdmin()) {
+    throw new Error("Admin role required.");
+  }
+  const reportOnly = Boolean(els.micromanagerIngestReportOnly?.checked);
+  const rootMode = String(els.micromanagerIngestRootMode?.value || "auto");
+  const landingRootOverride = rootMode === "manual"
+    ? String(els.micromanagerIngestRootPath?.value || "").trim()
+    : "";
+  const defaultLandingRootKey = String(state.micromanagerIngestStatus?.default_landing_root?.root_key || "").trim();
+  const landingRootKey = rootMode === "all_user"
+    ? "all_user"
+    : (rootMode === "configured" ? "configured" : defaultLandingRootKey);
+  const storageRootNameOverride = String(els.micromanagerIngestStorageRootName?.value || "").trim();
+  const configuredLandingRoot = String(state.micromanagerIngestStatus?.default_landing_root?.path || state.micromanagerIngestStatus?.config?.landing_root || "").trim();
+  if (rootMode === "manual" && !landingRootOverride) {
+    throw new Error("Manual raw root is required in manual mode.");
+  }
+  if (rootMode !== "manual" && !configuredLandingRoot && rootMode !== "all_user") {
+    throw new Error("Configured landing root is empty. Select manual folder and enter the landing path before running ingestion.");
+  }
+  const action = reportOnly ? "run a detection-only report" : "ingest datasets now";
+  const ok = window.confirm(`Run Micro-Manager ingestion now and ${action}?`);
+  if (!ok) {
+    return;
+  }
+  const run = await apiPost("/micromanager-ingest/run", {
+    report_only: reportOnly,
+    landing_root_override: landingRootOverride || null,
+    landing_root_key: landingRootOverride ? null : landingRootKey || null,
+    storage_root_name_override: storageRootNameOverride || null,
+  });
+  await refreshMicroManagerIngestStatus();
+  if (!reportOnly) {
+    await refreshRawDatasets();
+  }
+  setStatus(
+    `Micro-Manager ingest completed: ${run.candidate_count} candidate(s), ${run.ingested_count} ingested, ${run.experiment_count} experiment(s).`
+  );
+}
+
+async function previewArchivePolicy() {
+  const preview = await apiPost("/raw-datasets/archive-policy/preview", archivePolicyPayload());
+  state.archivePolicyPreview = preview;
+  renderArchivePolicyPreview();
+  setStatus(
+    `Archive policy preview ready: ${preview.candidate_count} candidate(s), ${humanBytes(preview.total_reclaimable_bytes)} reclaimable.`
+  );
+}
+
+async function queueArchivePolicy() {
+  const payload = archivePolicyPayload();
+  const preview = state.archivePolicyPreview || (await apiPost("/raw-datasets/archive-policy/preview", payload));
+  if (!preview.candidate_count) {
+    setStatus("No archive candidates for the current policy.");
+    return;
+  }
+  const action = payload.mark_archived ? "archive and delete hot source" : "archive";
+  const ok = window.confirm(
+    `Queue ${preview.candidate_count} raw dataset(s) for ${action}?\nPotentially reclaimable: ${humanBytes(preview.total_reclaimable_bytes)}`
+  );
+  if (!ok) {
+    return;
+  }
+  const result = await apiPost("/raw-datasets/archive-policy/queue", payload);
+  await refreshRawDatasets();
+  await previewArchivePolicy();
+  setStatus(result.message);
+}
+
+async function refreshMigrationPlans() {
+  if (!els.migrationPlansTableBody) {
+    return;
+  }
+  state.migrationPlans = await apiGet("/migrations/plans?limit=50");
+  renderMigrationPlans();
+  if (state.selectedMigrationPlan) {
+    const stillExists = state.migrationPlans.find((plan) => plan.id === state.selectedMigrationPlan.id);
+    if (stillExists) {
+      await selectMigrationPlan(stillExists.id);
+    } else {
+      state.selectedMigrationPlan = null;
+      renderMigrationDetail();
+    }
+  }
+}
+
+async function refreshRawPreviewQualityStatus() {
+  if (!els.rawPreviewQualityConfig) {
+    return;
+  }
+  if (!isAdmin()) {
+    state.rawPreviewQualityStatus = null;
+    renderRawPreviewQualityStatus();
+    return;
+  }
+  state.rawPreviewQualityStatus = await apiGet("/raw-datasets/preview-quality");
+  renderRawPreviewQualityStatus();
+}
+
+async function saveRawPreviewQualitySettings() {
+  if (!isAdmin()) {
+    throw new Error("Admin role required.");
+  }
+  const payload = {
+    max_dimension: Number(els.rawPreviewQualityMaxDimension?.value || 0),
+    fps: Number(els.rawPreviewQualityFps?.value || 0),
+    frame_mode: String(els.rawPreviewQualityFrameMode?.value || "full"),
+    max_frames: Number(els.rawPreviewQualityMaxFrames?.value || 0),
+    binning_factor: parseBinningFactor(els.rawPreviewQualityBinningFactor?.value, 4),
+    crf: Number(els.rawPreviewQualityCrf?.value || 0),
+    preset: String(els.rawPreviewQualityPreset?.value || "").trim() || null,
+    include_existing: Boolean(els.rawPreviewQualityIncludeExisting?.checked),
+    artifact_root: String(els.rawPreviewQualityArtifactRoot?.value || "").trim() || null,
+    ffmpeg_command: String(els.rawPreviewQualityFfmpegCommand?.value || "").trim() || null,
+  };
+  if (!Number.isFinite(payload.max_dimension) || payload.max_dimension < 64) {
+    throw new Error("Resolution cap must be >= 64.");
+  }
+  if (!Number.isFinite(payload.fps) || payload.fps < 1) {
+    throw new Error("FPS must be >= 1.");
+  }
+  if (!["full", "limit"].includes(payload.frame_mode)) {
+    throw new Error("Frame mode must be full or limit.");
+  }
+  if (payload.frame_mode === "limit") {
+    if (!Number.isFinite(payload.max_frames) || payload.max_frames < 1) {
+      throw new Error("Max frames must be >= 1 in limit mode.");
+    }
+  } else {
+    payload.max_frames = 0;
+  }
+  if (!Number.isFinite(payload.binning_factor) || payload.binning_factor < 1) {
+    throw new Error("Binning factor must be >= 1.");
+  }
+  if (!Number.isFinite(payload.crf) || payload.crf < 16 || payload.crf > 40) {
+    throw new Error("CRF must be between 16 and 40.");
+  }
+  if (!payload.preset) {
+    payload.preset = "medium";
+  }
+  state.rawPreviewQualityStatus = await apiPatch("/raw-datasets/preview-quality", payload);
+  renderRawPreviewQualityStatus();
+  setStatus("Raw preview quality settings updated.");
+}
+
+async function refreshProjects() {
+  if (!els.projectCountLabel) {
+    return;
+  }
+  const params = new URLSearchParams();
+  if (els.groupFilter?.value) params.set("group_id", els.groupFilter.value);
+  if (els.ownedOnly?.checked) params.set("owned_only", "true");
+  if (els.ownerFilter?.value.trim()) params.set("owner_key", els.ownerFilter.value.trim());
+  if (els.storageRootFilter?.value) params.set("storage_root_name", els.storageRootFilter.value);
+  if (els.projectLimit?.value) state.projectPageSize = parseInt(els.projectLimit.value) || 50;
+  params.set("limit", "5000");
+
+  state.projects = await apiGet(`/projects${params.toString() ? `?${params.toString()}` : ""}`);
+  state.projectCurrentPage = 0;
+  renderProjects();
+  if (state.selectedProject) {
+    const stillExists = state.projects.find((project) => project.id === state.selectedProject.id);
+    if (stillExists) {
+      await selectProject(stillExists.id);
+    } else {
+      state.selectedProject = null;
+      state.selectedProjectDetail = null;
+      state.acl = [];
+      renderDetail();
+    }
+  }
+}
+
+async function selectMigrationPlan(planId) {
+  const detail = await apiGet(`/migrations/plans/${planId}`);
+  state.selectedMigrationPlan = detail;
+  renderMigrationPlans();
+  renderMigrationDetail();
+}
+
+async function selectRawDataset(rawDatasetId, options = {}) {
+  try {
+    const hydrateDetail = options.hydrateDetail ?? pageFlags.hasRawDatasetPage;
+    if (!state.selectedRawDatasetDetail || `${state.selectedRawDatasetDetail.id}` !== `${rawDatasetId}`) {
+      state.selectedRawPositionIds = [];
+      closeRawPositionDeletePanel();
+    }
+    const raw = state.rawDatasets.find((item) => item.id === rawDatasetId);
+    if (!hydrateDetail) {
+      if (!raw) {
+        return;
+      }
+      state.selectedRawDatasetDetail = raw;
+      state.selectedRawDataset = raw;
+      state.persistedRawDatasetId = `${raw.id}`;
+      if ((rawDatasetId === getRawDatasetPageId() || pageFlags.hasRawDatasetPage) && els.rawDetailSubtitle) {
+        document.title = `Detecdiv server - ${raw.acquisition_label}`;
+      }
+      saveRawDatasetDisplaySettings();
+      renderRawDatasets();
+      renderRawDatasetDetail();
+      return;
+    }
+    state.selectedRawDatasetDetail = await apiGet(`/raw-datasets/${rawDatasetId}`);
+    state.selectedRawDataset = raw || state.selectedRawDatasetDetail;
+    state.persistedRawDatasetId = `${rawDatasetId}`;
+    if ((rawDatasetId === getRawDatasetPageId() || pageFlags.hasRawDatasetPage) && els.rawDetailSubtitle) {
+      document.title = `Detecdiv server - ${state.selectedRawDatasetDetail.acquisition_label}`;
+    }
+    saveRawDatasetDisplaySettings();
+    renderRawDatasets();
+    renderRawDatasetDetail();
+  } catch (error) {
+    reportUiError(`Raw dataset selection failed (${rawDatasetId})`, error);
+    throw error;
+  }
+}
+
+async function refreshPipelines() {
+  if (!els.pipelinesTableBody) {
+    return;
+  }
+  const selectedId = pipelineIdentity(state.selectedPipeline);
+  const params = new URLSearchParams();
+  if (els.pipelineSearch?.value.trim()) params.set("search", els.pipelineSearch.value.trim());
+  if (els.pipelineRuntimeFilter?.value) params.set("runtime_kind", els.pipelineRuntimeFilter.value);
+  const [registry, observed] = await Promise.all([
+    apiGet(`/pipelines${params.toString() ? `?${params.toString()}` : ""}`),
+    apiGet(`/pipelines/observed${params.toString() ? `?${params.toString()}` : ""}`),
+  ]);
+  state.pipelines = registry.map((item) => ({ ...item, source: "registry", project_count: item.project_count || 0 }));
+  state.observedPipelines = observed;
+  state.selectedPipeline = pipelineRows().find((item) => pipelineIdentity(item) === selectedId) || null;
+  renderPipelines();
+}
+
+async function refreshProjectPage() {
+  if (!pageFlags.hasProjectPage) {
+    return;
+  }
+  const projectId = getProjectPageId();
+  if (!projectId) {
+    state.selectedProject = null;
+    state.selectedProjectDetail = null;
+    if (els.detailSubtitle) {
+      els.detailSubtitle.textContent = "Missing project id";
+    }
+    renderDetail();
+    return;
+  }
+
+  const [detail, acl] = await Promise.all([
+    apiGet(`/projects/${projectId}`),
+    apiGet(`/projects/${projectId}/acl`),
+  ]);
+  state.selectedProject = detail;
+  state.selectedProjectDetail = detail;
+  state.projects = [detail];
+  state.acl = acl;
+  if (els.projectPageTitle) {
+    els.projectPageTitle.textContent = detail.project_name;
+  }
+  renderDetail();
+  renderPipelineRunBuilder();
+}
+
+async function refreshUsers() {
+  if (!els.usersTableBody) {
+    if (
+      els.indexOwnerUserKey ||
+      els.miscOwnerUserKey ||
+      els.miscOwnerFilter ||
+      els.ownerFilter ||
+      els.rawOwnerFilter ||
+      pageFlags.hasProjectPage ||
+      pageFlags.hasRawDatasetPage
+    ) {
+      state.users = await apiGet("/users");
+      renderUserSelectors();
+      applyRawDatasetDisplaySettings();
+      renderUserSelectors();
+    }
+    return;
+  }
+  state.users = await apiGet("/users");
+  renderUsers();
+  renderUserSelectors();
+  applyRawDatasetDisplaySettings();
+  renderUserSelectors();
+}
+
+async function refreshSessions() {
+  if (!els.sessionsTableBody) {
+    return;
+  }
+  const suffix = isAdmin() ? "?all_users=true" : "";
+  state.sessions = await apiGet(`/auth/sessions${suffix}`);
+  renderSessions();
+}
+
+async function selectProject(projectId) {
+  try {
+    const project = state.projects.find((item) => item.id === projectId);
+    if (!project) {
+      return;
+    }
+    state.selectedProject = project;
+    const [detail, acl] = await Promise.all([
+      apiGet(`/projects/${projectId}`),
+      apiGet(`/projects/${projectId}/acl`),
+    ]);
+    state.selectedProjectDetail = detail;
+    state.acl = acl;
+    renderProjects();
+    renderDetail();
+    renderPipelineRunBuilder();
+  } catch (error) {
+    reportUiError(`Project selection failed (${projectId})`, error);
+    throw error;
+  }
+}
+
+async function createGroup() {
+  const values = await openFormDialog({
+    title: "New group",
+    description: "Create a project collection for filtering and cleanup.",
+    submitLabel: "Create group",
+    fields: [
+      { name: "displayName", label: "Group name", required: true },
+      { name: "groupKey", label: "Group key" },
+      { name: "description", label: "Description", type: "textarea", rows: 3 },
+    ],
+  });
+  if (!values?.displayName?.trim()) {
+    return;
+  }
+  const displayName = values.displayName.trim();
+  const groupKeyInput = values.groupKey.trim() || displayName.toLowerCase().replace(/[^a-z0-9]+/g, "_");
+  await apiPost("/project-groups", {
+    display_name: displayName,
+    group_key: groupKeyInput,
+    description: values.description.trim(),
+    metadata_json: {},
+  });
+  await refreshDashboard();
+}
+
+async function saveProjectNotes() {
+  if (!state.selectedProjectDetail || !els.projectNotes) {
+    return;
+  }
+  const notes = els.projectNotes.value;
+  const payload = {
+    notes: notes.trim() ? notes : null,
+  };
+  const saved = await apiPatch(`/projects/${state.selectedProjectDetail.id}`, payload);
+  state.selectedProjectDetail = saved;
+  state.selectedProject = saved;
+  state.projects = state.projects.map((project) => (project.id === saved.id ? saved : project));
+  renderProjects();
+  renderDetail();
+  renderPipelineRunBuilder();
+  setStatus("Project notes saved.");
+}
+
+async function saveRawDatasetNotes() {
+  if (!state.selectedRawDatasetDetail || !els.rawDatasetNotes) {
+    return;
+  }
+  const notes = els.rawDatasetNotes.value;
+  const payload = {
+    notes: notes.trim() ? notes : null,
+  };
+  const saved = await apiPatch(`/raw-datasets/${state.selectedRawDatasetDetail.id}`, payload);
+  state.selectedRawDatasetDetail = saved;
+  state.selectedRawDataset = saved;
+  state.rawDatasets = state.rawDatasets.map((raw) => (raw.id === saved.id ? saved : raw));
+  renderRawDatasets();
+  renderRawDatasetDetail();
+  setStatus("Raw dataset notes saved.");
+}
+
+async function searchLabguruForSelectedRawDataset() {
+  if (!state.selectedRawDatasetDetail) {
+    throw new Error("Load a raw dataset before searching Labguru.");
+  }
+  const query = (els.rawLabguruSearch?.value || state.selectedRawDatasetDetail.acquisition_label || "").trim();
+  const params = new URLSearchParams();
+  if (query) {
+    params.set("search", query);
+  }
+  params.set("limit", "25");
+  state.rawLabguruResults = await apiGet(`/external-systems/labguru/experiments?${params.toString()}`);
+  renderRawLabguruResults();
+  setStatus(`Loaded ${state.rawLabguruResults.length} Labguru cache result(s).`);
+}
+
+async function linkSelectedRawDatasetToLabguru(externalExperimentId) {
+  if (!state.selectedRawDatasetDetail) {
+    throw new Error("Load a raw dataset before linking Labguru.");
+  }
+  const result = await apiPost(`/raw-datasets/${state.selectedRawDatasetDetail.id}/external-link`, {
+    system_key: "labguru",
+    external_experiment_id: externalExperimentId,
+  });
+  state.selectedRawDatasetDetail = await apiGet(`/raw-datasets/${state.selectedRawDatasetDetail.id}`);
+  renderRawDatasetDetail();
+  setStatus(`Linked Labguru experiment ${result.external_link.external_id}.`);
+}
+
+async function refreshExternalElnMatching() {
+  if (!pageFlags.hasExternalElnAdminView) {
+    return;
+  }
+  const statusFilter = els.externalMatchStatusFilter?.value || "proposed";
+  const params = new URLSearchParams();
+  if (statusFilter) {
+    params.set("status_filter", statusFilter);
+  }
+  params.set("limit", "250");
+  const userParams = new URLSearchParams();
+  const userStatusFilter = els.externalUserStatusFilter?.value || "";
+  if (userStatusFilter) {
+    userParams.set("match_status", userStatusFilter);
+  }
+  userParams.set("limit", "1000");
+  const [status, candidates, externalUsers, hubUsers] = await Promise.all([
+    apiGet("/external-systems/labguru/status"),
+    apiGet(`/external-systems/labguru/match-candidates?${params.toString()}`),
+    apiGet(`/external-systems/labguru/users?${userParams.toString()}`),
+    apiGet("/users?all_users=true"),
+  ]);
+  state.externalMatchStatus = status;
+  state.externalMatchCandidates = candidates;
+  state.externalUsers = externalUsers;
+  state.users = hubUsers;
+  renderExternalElnMatching();
+}
+
+async function refreshExternalCredential() {
+  if (!pageFlags.hasExternalSystemsView) {
+    return;
+  }
+  state.externalCredential = await apiGet("/external-systems/labguru/credentials/me");
+  renderExternalCredential();
+}
+
+function selectedYeastSearchScopes() {
+  return Array.from(document.querySelectorAll('input[name="yeast-scope"]:checked')).map((input) => input.value);
+}
+
+function compareOptionalYeastText(left, right, direction = 1) {
+  const leftText = String(left || "").trim();
+  const rightText = String(right || "").trim();
+  if (!leftText && !rightText) return 0;
+  if (!leftText) return 1;
+  if (!rightText) return -1;
+  return leftText.localeCompare(rightText, undefined, { numeric: true, sensitivity: "base" }) * direction;
+}
+
+function compareOptionalYeastDate(left, right, direction = 1) {
+  const leftTime = Date.parse(left || "");
+  const rightTime = Date.parse(right || "");
+  const hasLeft = Number.isFinite(leftTime);
+  const hasRight = Number.isFinite(rightTime);
+  if (!hasLeft && !hasRight) return 0;
+  if (!hasLeft) return 1;
+  if (!hasRight) return -1;
+  return (leftTime - rightTime) * direction;
+}
+
+function sortedDisplayedYeastStrains(strains) {
+  const criterion = els.yeastStrainSort?.value || "recommended";
+  if (criterion === "recommended") return strains;
+  const textCriteria = {
+    name_asc: ["name", 1],
+    name_desc: ["name", -1],
+    genotype_asc: ["genotype", 1],
+    genotype_desc: ["genotype", -1],
+    auxotrophies_asc: ["auxotrophies", 1],
+    auxotrophies_desc: ["auxotrophies", -1],
+    mating_type_asc: ["mating_type", 1],
+    mating_type_desc: ["mating_type", -1],
+    background_asc: ["background", 1],
+    background_desc: ["background", -1],
+    source_asc: ["source", 1],
+    source_desc: ["source", -1],
+    owner_asc: ["owner_name", 1],
+    owner_desc: ["owner_name", -1],
+  };
+  const indexed = strains.map((strain, index) => ({ strain, index }));
+  indexed.sort((left, right) => {
+    let comparison = 0;
+    if (criterion === "created_desc" || criterion === "created_asc") {
+      comparison = compareOptionalYeastDate(
+        left.strain.created_external_at || left.strain.updated_external_at,
+        right.strain.created_external_at || right.strain.updated_external_at,
+        criterion === "created_desc" ? -1 : 1,
+      );
+    } else if (textCriteria[criterion]) {
+      const [field, direction] = textCriteria[criterion];
+      comparison = compareOptionalYeastText(left.strain[field], right.strain[field], direction);
+    } else if (criterion === "storage_asc" || criterion === "storage_desc") {
+      comparison = compareOptionalYeastText(
+        yeastStorageSortValue(left.strain),
+        yeastStorageSortValue(right.strain),
+        criterion === "storage_desc" ? -1 : 1,
+      );
+    }
+    if (comparison) return comparison;
+    const nameComparison = compareOptionalYeastText(left.strain.name, right.strain.name);
+    return nameComparison || left.index - right.index;
+  });
+  return indexed.map(({ strain }) => strain);
+}
+
+function yeastStorageSortValue(strain) {
+  const stock = Array.isArray(strain.stocks) ? strain.stocks[0] : null;
+  if (!stock) return "";
+  const path = Array.isArray(stock.storage_path)
+    ? stock.storage_path.map((segment) => segment.name || "").filter(Boolean).join(" ")
+    : "";
+  return [path, stock.box_name || "", stock.position || "", stock.name || ""].filter(Boolean).join(" ");
+}
+
+async function refreshYeastStrains({ append = false } = {}) {
+  if (!pageFlags.hasYeastStrainsView) {
+    return;
+  }
+  const sequence = ++state.yeastStrainSearchSequence;
+  const params = new URLSearchParams();
+  const query = (els.yeastStrainSearch?.value || "").trim();
+  const requestedLimit = Math.min(200, Math.max(1, Number(els.yeastStrainLimit?.value) || 50));
+  if (query) params.set("q", query);
+  for (const scope of selectedYeastSearchScopes()) params.append("scope", scope);
+  params.set("match", els.yeastStrainMatch?.value || "all");
+  params.set("limit", String(requestedLimit));
+  params.set("offset", append ? String(state.yeastStrains.length) : "0");
+  if (els.yeastStrainResultsSummary) els.yeastStrainResultsSummary.textContent = "Searching…";
+  const response = await apiGet(`/external-systems/labguru/yeast-strains?${params.toString()}`);
+  if (sequence !== state.yeastStrainSearchSequence) {
+    return;
+  }
+  state.yeastStrains = append ? state.yeastStrains.concat(response.results || []) : (response.results || []);
+  state.yeastStrainSearchMeta = {
+    total: response.total || 0,
+    limit: response.limit || requestedLimit,
+    offset: response.offset || 0,
+  };
+  renderYeastStrains();
+}
+
+async function refreshYeastStrainStatus() {
+  if (!pageFlags.hasYeastStrainsView) {
+    return;
+  }
+  const wasSynchronizing = ["queued", "running"].includes(state.yeastStrainStatus?.job_status);
+  state.yeastStrainStatus = await apiGet("/external-systems/labguru/yeast-strains/status");
+  renderYeastStrains();
+  const isSynchronizing = ["queued", "running"].includes(state.yeastStrainStatus?.job_status);
+  if (wasSynchronizing && !isSynchronizing) {
+    await refreshYeastStrains();
+  }
+}
+
+async function queueYeastStrainSync() {
+  const result = await apiPost("/external-systems/labguru/yeast-strains/sync", { priority: 100 });
+  setStatus(result.message || "Labguru Yeast strains synchronization queued.");
+  await refreshYeastStrainStatus();
+}
+
+function queueYeastSearchRefresh() {
+  if (yeastSearchDebounceHandle !== null) window.clearTimeout(yeastSearchDebounceHandle);
+  yeastSearchDebounceHandle = window.setTimeout(() => {
+    refreshYeastStrains().catch((error) => setStatus(String(error)));
+  }, 180);
+}
+
+async function saveExternalCredential() {
+  const token = (els.externalCredentialToken?.value || "").trim();
+  if (!token) {
+    throw new Error("Labguru token is required.");
+  }
+  state.externalCredential = await apiPut("/external-systems/labguru/credentials/me", {
+    token,
+    expires_in_days: 30,
+  });
+  if (els.externalCredentialToken) {
+    els.externalCredentialToken.value = "";
+  }
+  renderExternalCredential();
+  setStatus("Labguru token stored.");
+}
+
+async function testExternalCredential() {
+  const result = await apiPost("/external-systems/labguru/credentials/me/test", {});
+  await refreshExternalCredential();
+  setStatus(result.message || `Labguru token ${result.status}.`);
+}
+
+async function deleteExternalCredential() {
+  if (!window.confirm("Remove your stored Labguru token?")) {
+    return;
+  }
+  await apiDelete("/external-systems/labguru/credentials/me");
+  state.externalCredential = { system_key: "labguru", status: "missing" };
+  renderExternalCredential();
+  setStatus("Labguru token removed.");
+}
+
+async function generateExternalMatchCandidates() {
+  const payload = {
+    min_score: Number(els.externalMatchMinScore?.value || 0.45),
+    max_candidates_per_dataset: Number(els.externalMatchMaxCandidates?.value || 5),
+    include_linked: Boolean(els.externalMatchIncludeLinked?.checked),
+    reset_proposed: true,
+  };
+  const rawLimit = Number(els.externalMatchRawLimit?.value || 0);
+  if (rawLimit > 0) {
+    payload.limit_raw_datasets = rawLimit;
+  }
+  if (els.externalMatchGenerationSummary) {
+    els.externalMatchGenerationSummary.textContent = "Generating...";
+  }
+  const result = await apiPost("/external-systems/labguru/match-candidates/generate", payload);
+  if (els.externalMatchGenerationSummary) {
+    els.externalMatchGenerationSummary.textContent = `${result.candidate_count} candidates, ${result.created_count} created, ${result.updated_count} updated.`;
+  }
+  await refreshExternalElnMatching();
+}
+
+async function queueExternalElnSync() {
+  if (els.externalMatchGenerationSummary) {
+    els.externalMatchGenerationSummary.textContent = "Queueing Labguru sync...";
+  }
+  const result = await apiPost("/external-systems/labguru/sync", { priority: 100 });
+  if (els.externalMatchGenerationSummary) {
+    els.externalMatchGenerationSummary.textContent = `${result.message} Job ${result.job_id}.`;
+  }
+  setStatus(result.message || "Labguru sync queued.");
+  await refreshExternalElnMatching();
+}
+
+async function reviewExternalMatchCandidate(candidateId, action) {
+  if (action === "accept") {
+    const candidate = state.externalMatchCandidates.find((item) => item.id === candidateId);
+    const rawLabel = candidate?.raw_dataset?.acquisition_label || "this raw dataset";
+    const externalTitle = candidate?.external_experiment?.title || candidate?.external_id || "this Labguru experiment";
+    if (!window.confirm(`Write this Labguru link?\n\n${rawLabel}\n${externalTitle}`)) {
+      return;
+    }
+  }
+  const result = await apiPost(`/external-systems/labguru/match-candidates/${candidateId}/review`, { action });
+  await refreshExternalElnMatching();
+  setStatus(action === "accept" && result.linked ? "Labguru link accepted and written." : `Candidate ${action}ed.`);
+}
+
+async function reviewSelectedExternalMatchCandidates(action) {
+  const candidateIds = selectedExternalMatchCandidateIds();
+  if (!candidateIds.length) {
+    throw new Error("Select at least one match candidate.");
+  }
+  const selectedCandidates = candidateIds
+    .map((candidateId) => state.externalMatchCandidates.find((item) => `${item.id}` === `${candidateId}`))
+    .filter(Boolean);
+  if (action === "accept") {
+    const sampleLines = selectedCandidates.slice(0, 5).map((candidate) => {
+      const rawLabel = candidate?.raw_dataset?.acquisition_label || "raw dataset";
+      const externalTitle = candidate?.external_experiment?.title || candidate?.external_id || "Labguru experiment";
+      return `${rawLabel} -> ${externalTitle}`;
+    });
+    const more = selectedCandidates.length > sampleLines.length ? `\n...and ${selectedCandidates.length - sampleLines.length} more` : "";
+    if (!window.confirm(`Write ${candidateIds.length} Labguru link(s)?\n\n${sampleLines.join("\n")}${more}`)) {
+      return;
+    }
+  } else if (!window.confirm(`Reject ${candidateIds.length} selected Labguru candidate(s)?`)) {
+    return;
+  }
+  const result = await apiPost("/external-systems/labguru/match-candidates/review-bulk", {
+    candidate_ids: candidateIds,
+    action,
+  });
+  state.selectedExternalMatchCandidateIds = [];
+  await refreshExternalElnMatching();
+  setStatus(
+    action === "accept"
+      ? `Accepted ${result.reviewed_count} candidate(s), wrote ${result.linked_count} Labguru link(s).`
+      : `Rejected ${result.reviewed_count} candidate(s).`
+  );
+}
+
+async function matchExternalUser(externalUserRecordId) {
+  const record = state.externalUsers.find((item) => item.id === externalUserRecordId);
+  const users = state.users.length ? state.users : await apiGet("/users?all_users=true");
+  state.users = users;
+  const options = users
+    .filter((user) => user.is_active)
+    .map((user) => ({ value: user.id, label: userOptionLabel(user) }));
+  const values = await openFormDialog({
+    title: "Match Labguru user",
+    description: record?.display_name || "",
+    submitLabel: "Save match",
+    fields: [
+      {
+        name: "matchedUserId",
+        label: "DetecDiv Hub user",
+        type: options.length ? "select" : "text",
+        value: record?.matched_user?.id || "",
+        options,
+        required: true,
+      },
+    ],
+  });
+  const matchedUserId = values?.matchedUserId?.trim();
+  if (!matchedUserId) {
+    return;
+  }
+  await updateExternalUserMatch(externalUserRecordId, "match", matchedUserId);
+}
+
+async function updateExternalUserMatch(externalUserRecordId, action, matchedUserId = "") {
+  const params = new URLSearchParams({ action });
+  if (matchedUserId) {
+    params.set("matched_user_id", matchedUserId);
+  }
+  await apiPatch(`/external-systems/labguru/users/${externalUserRecordId}?${params.toString()}`, {});
+  await refreshExternalElnMatching();
+  setStatus(action === "match" ? "Labguru user match saved." : `Labguru user ${action}ed.`);
+}
+
+async function changeRawDatasetOwner() {
+  if (!state.selectedRawDatasetDetail) {
+    return;
+  }
+  if (!isAdmin()) {
+    throw new Error("Admin role required.");
+  }
+  const currentOwner = state.selectedRawDatasetDetail.owner?.user_key || "";
+  const ownerOptions = ownerUserOptions(currentOwner);
+  const values = await openFormDialog({
+    title: "Change raw dataset owner",
+    description: state.selectedRawDatasetDetail.acquisition_label || "",
+    submitLabel: "Change owner",
+    fields: [
+      {
+        name: "ownerUserKey",
+        label: "New owner",
+        type: ownerOptions.length ? "select" : "text",
+        value: currentOwner,
+        options: ownerOptions,
+      },
+    ],
+  });
+  if (!values) {
+    return;
+  }
+  const ownerUserKey = String(values.ownerUserKey || "").trim();
+  if (!ownerUserKey) {
+    return;
+  }
+  if (ownerUserKey === currentOwner) {
+    setStatus("Raw dataset owner unchanged.");
+    return;
+  }
+  const saved = await apiPatch(`/raw-datasets/${state.selectedRawDatasetDetail.id}`, {
+    owner_user_key: ownerUserKey,
+    metadata_json: {},
+  });
+  state.selectedRawDatasetDetail = saved;
+  state.selectedRawDataset = saved;
+  state.rawDatasets = state.rawDatasets.map((raw) => (raw.id === saved.id ? saved : raw));
+  await refreshDashboard();
+  await refreshUsers();
+  renderRawDatasets();
+  renderRawDatasetDetail();
+  setStatus(`Raw dataset owner changed to ${ownerUserKey}.`);
+}
+
+async function editProject() {
+  if (!state.selectedProjectDetail) {
+    return;
+  }
+  const currentOwner = state.selectedProjectDetail.owner?.user_key || "";
+  const currentVisibility = state.selectedProjectDetail.visibility || "private";
+  const ownerOptions = ownerUserOptions(currentOwner);
+  const values = await openFormDialog({
+    title: "Update project",
+    description: state.selectedProjectDetail.project_name || "",
+    submitLabel: "Save project",
+    fields: [
+      {
+        name: "ownerUserKey",
+        label: "Project owner",
+        type: ownerOptions.length ? "select" : "text",
+        value: currentOwner,
+        options: ownerOptions,
+      },
+      {
+        name: "visibility",
+        label: "Visibility",
+        type: "select",
+        value: currentVisibility,
+        options: [
+          { value: "private", label: "private" },
+          { value: "shared", label: "shared" },
+          { value: "public", label: "public" },
+        ],
+      },
+    ],
+  });
+  if (!values) {
+    return;
+  }
+  await apiPatch(`/projects/${state.selectedProjectDetail.id}`, {
+    owner_user_key: values.ownerUserKey.trim() || null,
+    visibility: values.visibility || currentVisibility,
+    metadata_json: {},
+  });
+  await refreshDashboard();
+  await selectProject(state.selectedProjectDetail.id);
+  setStatus("Project updated.");
+}
+
+async function changeProjectOwner() {
+  if (!state.selectedProjectDetail) {
+    return;
+  }
+  if (!isAdmin()) {
+    throw new Error("Admin role required.");
+  }
+  const currentOwner = state.selectedProjectDetail.owner?.user_key || "";
+  const ownerOptions = ownerUserOptions(currentOwner);
+  const values = await openFormDialog({
+    title: "Change project owner",
+    description: state.selectedProjectDetail.project_name || "",
+    submitLabel: "Change owner",
+    fields: [
+      {
+        name: "ownerUserKey",
+        label: "New owner",
+        type: ownerOptions.length ? "select" : "text",
+        value: currentOwner,
+        options: ownerOptions,
+      },
+    ],
+  });
+  if (!values) {
+    return;
+  }
+  const ownerUserKey = String(values.ownerUserKey || "").trim();
+  if (!ownerUserKey) {
+    return;
+  }
+  if (ownerUserKey === currentOwner) {
+    setStatus("Project owner unchanged.");
+    return;
+  }
+  const saved = await apiPatch(`/projects/${state.selectedProjectDetail.id}`, {
+    owner_user_key: ownerUserKey,
+    metadata_json: {},
+  });
+  state.selectedProjectDetail = saved;
+  state.selectedProject = saved;
+  state.projects = state.projects.map((project) => (project.id === saved.id ? saved : project));
+  await refreshDashboard();
+  await refreshUsers();
+  renderProjects();
+  renderDetail();
+  renderPipelineRunBuilder();
+  setStatus(`Project owner changed to ${ownerUserKey}.`);
+}
+
+async function shareProject() {
+  if (!state.selectedProject) {
+    return;
+  }
+  const currentUserKey = state.currentUser?.user_key || "";
+  const userOptions = availableOwnerUsers()
+    .filter((user) => user.user_key !== currentUserKey)
+    .map((user) => ({ value: user.user_key, label: userOptionLabel(user) }));
+  const values = await openFormDialog({
+    title: "Share project",
+    description: state.selectedProject.project_name || "",
+    submitLabel: "Share",
+    fields: [
+      {
+        name: "userKey",
+        label: "User",
+        type: userOptions.length ? "select" : "text",
+        options: userOptions,
+        required: true,
+      },
+      {
+        name: "accessLevel",
+        label: "Access level",
+        type: "select",
+        value: "viewer",
+        options: [
+          { value: "viewer", label: "viewer" },
+          { value: "editor", label: "editor" },
+        ],
+      },
+    ],
+  });
+  const userKey = values?.userKey?.trim();
+  if (!userKey) {
+    return;
+  }
+  await apiPost(`/projects/${state.selectedProject.id}/acl`, {
+    user_key: userKey,
+    access_level: values.accessLevel || "viewer",
+  });
+  await selectProject(state.selectedProject.id);
+  setStatus(`Shared with ${userKey}.`);
+}
+
+async function addSelectedProjectToGroup() {
+  if (!state.selectedProject) {
+    return;
+  }
+  if (!state.groups.length) {
+    await createGroup();
+    return;
+  }
+  const values = await openFormDialog({
+    title: "Add to group",
+    description: state.selectedProject.project_name || "",
+    submitLabel: "Add to group",
+    fields: [
+      {
+        name: "groupId",
+        label: "Group",
+        type: "select",
+        value: state.groups[0]?.id || "",
+        options: state.groups.map((group) => ({ value: group.id, label: group.display_name })),
+        required: true,
+      },
+    ],
+  });
+  if (!values?.groupId) {
+    return;
+  }
+  const selected = state.groups.find((group) => String(group.id) === String(values.groupId));
+  if (!selected) {
+    throw new Error("Invalid group selection.");
+  }
+  await apiPost(`/project-groups/${selected.id}/projects/${state.selectedProject.id}`, {});
+  await refreshDashboard();
+  await selectProject(state.selectedProject.id);
+  setStatus(`Added to ${selected.display_name}.`);
+}
+
+async function refreshBulkDeletePreview() {
+  if (!state.pendingBulkDelete?.projectIds?.length || !els.bulkDeleteMode) {
+    return;
+  }
+  const deleteFiles = els.bulkDeleteMode.value === "project_files";
+  const currentToken = state.bulkDeletePreviewToken + 1;
+  state.bulkDeletePreviewToken = currentToken;
+
+  if (!deleteFiles) {
+    state.pendingBulkDelete.preview = {
+      reclaimableBytes: 0,
+      errorCount: 0,
+    };
+    renderBulkDeletePanel();
+    return;
+  }
+
+  state.pendingBulkDelete.preview = null;
+  renderBulkDeletePanel();
+
+  const previews = await Promise.allSettled(
+    state.pendingBulkDelete.projectIds.map((projectId) =>
+      apiPost(`/projects/${projectId}/deletion-preview`, {
+        delete_project_files: true,
+        delete_linked_raw_data: false,
+        confirm: false,
+      })
+    )
+  );
+
+  if (state.bulkDeletePreviewToken !== currentToken || !state.pendingBulkDelete) {
+    return;
+  }
+
+  let reclaimableBytes = 0;
+  let errorCount = 0;
+  let blockedCount = 0;
+  let targetCount = 0;
+  for (const result of previews) {
+    if (result.status === "fulfilled") {
+      reclaimableBytes += Number(result.value.reclaimable_bytes || 0);
+      const plan = result.value.preview_json?.deletion_plan || {};
+      blockedCount += Number(plan.filesystem_blockers?.length || 0);
+      targetCount += Number(plan.project_file_count || 0) + Number(plan.project_dir_count || 0);
+    } else {
+      errorCount += 1;
+    }
+  }
+  state.pendingBulkDelete.preview = { reclaimableBytes, errorCount, blockedCount, targetCount };
+  renderBulkDeletePanel();
+}
+
+async function openBulkDeletePanel(scope) {
+  const projectIds = scope === "selected" ? selectedProjectIds() : visibleProjectIds();
+  if (!projectIds.length) {
+    throw new Error(scope === "selected" ? "Select at least one project first." : "No visible projects to delete.");
+  }
+  state.pendingBulkDelete = {
+    scope,
+    projectIds,
+    preview: null,
+  };
+  if (els.bulkDeleteMode) {
+    els.bulkDeleteMode.value = "database_only";
+  }
+  if (els.bulkDeleteConfirmText) {
+    els.bulkDeleteConfirmText.value = "";
+  }
+  renderBulkDeletePanel();
+  await refreshBulkDeletePreview();
+}
+
+function closeBulkDeletePanel() {
+  state.pendingBulkDelete = null;
+  state.bulkDeletePreviewToken += 1;
+  if (els.bulkDeleteConfirmText) {
+    els.bulkDeleteConfirmText.value = "";
+  }
+  renderBulkDeletePanel();
+}
+
+async function executeBulkDelete() {
+  if (!state.pendingBulkDelete?.projectIds?.length) {
+    return;
+  }
+  const confirmationText = els.bulkDeleteConfirmText?.value.trim() || "";
+  if (confirmationText !== "DELETE") {
+    throw new Error("Type DELETE to confirm the bulk deletion.");
+  }
+
+  const deleteFiles = els.bulkDeleteMode?.value === "project_files";
+  const projectIds = [...state.pendingBulkDelete.projectIds];
+  const projectNames = projectIds
+    .map((projectId) => state.projects.find((project) => `${project.id}` === `${projectId}`)?.project_name || `${projectId}`);
+  const resultSummary = {
+    deleted: 0,
+    failed: [],
+  };
+
+  for (let index = 0; index < projectIds.length; index += 1) {
+    const projectId = projectIds[index];
+    const projectName = projectNames[index];
+    setStatus(`Deleting ${index + 1}/${projectIds.length}: ${projectName}`);
+    try {
+      const result = await apiDelete(
+        `/projects/${projectId}?delete_project_files=${deleteFiles ? "true" : "false"}&delete_linked_raw_data=false&confirm=true`
+      );
+      resultSummary.deleted += 1;
+      if (result.status === "queued") {
+        resultSummary.queued = (resultSummary.queued || 0) + 1;
+      }
+    } catch (error) {
+      resultSummary.failed.push(`${projectName}: ${String(error)}`);
+    }
+  }
+
+  state.selectedProjectIds = state.selectedProjectIds.filter((projectId) => !projectIds.includes(`${projectId}`));
+  if (state.selectedProject && projectIds.includes(`${state.selectedProject.id}`)) {
+    state.selectedProject = null;
+    state.selectedProjectDetail = null;
+  }
+  closeBulkDeletePanel();
+  await refreshDashboard();
+
+  const suffix = resultSummary.failed.length
+    ? ` Failed: ${resultSummary.failed.length}.`
+    : "";
+  const actionLabel = resultSummary.queued ? "Submitted" : "Deleted";
+  setStatus(`Bulk delete finished. ${actionLabel} ${resultSummary.deleted}/${projectIds.length}.${suffix}`);
+  if (resultSummary.failed.length) {
+    window.alert(`Bulk delete completed with failures:\n${resultSummary.failed.join("\n")}`);
+  }
+}
+
+async function saveArchiveSettings() {
+  if (!isAdmin()) {
+    throw new Error("Admin role required.");
+  }
+  const archiveRoot = String(els.archiveSettingsRoot?.value || "").trim();
+  const archiveCompression = String(els.archiveSettingsCompression?.value || "zip").trim() || "zip";
+  const deleteHotSource = Boolean(els.archiveSettingsDeleteSource?.checked);
+  state.archiveSettingsStatus = await apiPatch("/raw-datasets/settings/archive", {
+    archive_root: archiveRoot || null,
+    archive_compression: archiveCompression,
+    delete_hot_source: deleteHotSource,
+  });
+  renderArchiveSettingsStatus();
+  state.archivePolicyPreview = null;
+  renderArchivePolicyPreview();
+  setStatus("Archive defaults updated.");
+}
+
+function updateMicroManagerIngestModeUi() {
+  const manualMode = String(els.micromanagerIngestRootMode?.value || "auto") === "manual";
+  if (els.micromanagerIngestRootPath) {
+    els.micromanagerIngestRootPath.disabled = !manualMode;
+  }
+}
+
+function restoreMicroManagerIngestControls() {
+  const savedRootMode = localStorage.getItem(MICROMANAGER_INGEST_ROOT_MODE_STORAGE_KEY);
+  if (els.micromanagerIngestRootMode && savedRootMode) {
+    els.micromanagerIngestRootMode.value = savedRootMode;
+  }
+  if (els.micromanagerIngestReportOnly) {
+    const savedReportOnly = localStorage.getItem(MICROMANAGER_INGEST_REPORT_ONLY_STORAGE_KEY);
+    if (savedReportOnly !== null) {
+      els.micromanagerIngestReportOnly.checked = savedReportOnly === "true";
+    }
+  }
+  updateMicroManagerIngestModeUi();
+}
+
+function saveMicroManagerIngestRootModePreference() {
+  if (!els.micromanagerIngestRootMode) {
+    return;
+  }
+  localStorage.setItem(
+    MICROMANAGER_INGEST_ROOT_MODE_STORAGE_KEY,
+    String(els.micromanagerIngestRootMode.value || "auto")
+  );
+}
+
+function saveMicroManagerIngestReportOnlyPreference() {
+  if (!els.micromanagerIngestReportOnly) {
+    return;
+  }
+  localStorage.setItem(
+    MICROMANAGER_INGEST_REPORT_ONLY_STORAGE_KEY,
+    String(Boolean(els.micromanagerIngestReportOnly.checked))
+  );
+}
+
+async function queueRawPreviewVideosForSelectedProjects() {
+  const projectIds = selectedProjectIds();
+  if (!projectIds.length) {
+    throw new Error("Select at least one project first.");
+  }
+  const result = await apiPost("/projects/preview-videos/queue-bulk", {
+    project_ids: projectIds,
+    force: false,
+    requested_mode: "auto",
+    priority: 100,
+    params_json: {},
+  });
+  setStatus(result.message || `Queued ${result.queued_count} preview job(s).`);
+  if (pageFlags.hasRawDatasetsView || pageFlags.hasRawDatasetPage) {
+    await refreshRawDatasets();
+  }
+}
+
+async function queueRawPreviewVideosForSelectedRawDatasets() {
+  const rawDatasetIds = selectedRawDatasetIds();
+  if (!rawDatasetIds.length) {
+    throw new Error("Select at least one raw dataset first.");
+  }
+  const result = await apiPost("/raw-datasets/preview-videos/queue-bulk", {
+    raw_dataset_ids: rawDatasetIds,
+    force: false,
+    requested_mode: "auto",
+    priority: 100,
+    params_json: {},
+  });
+  setStatus(result.message || `Queued ${result.queued_count} raw preview job(s).`);
+  await refreshRawDatasets();
+}
+
+async function queueRawBulkStorageOptimization() {
+  const requestedIds = selectedRawDatasetIds();
+  if (!requestedIds.length) {
+    throw new Error("Select at least one raw dataset first.");
+  }
+  const rawById = new Map(state.rawDatasets.map((raw) => [`${raw.id}`, raw]));
+  const eligibleIds = requestedIds.filter((rawDatasetId) => {
+    const raw = rawById.get(`${rawDatasetId}`);
+    return raw?.completeness_status === "complete"
+      && ["none", "partial", "failed", "cancelled"].includes(raw?.storage_optimization_status || "none");
+  });
+  const excludedCount = requestedIds.length - eligibleIds.length;
+  if (!eligibleIds.length) {
+    throw new Error("None of the selected datasets is complete and eligible for TIFF optimization.");
+  }
+  const excludedText = excludedCount ? `\nExcluded as incomplete, active, or already optimized: ${excludedCount}.` : "";
+  const ok = window.confirm(
+    `Queue lossless TIFF DEFLATE optimization for ${eligibleIds.length} selected dataset(s)?${excludedText}\nEach dataset gets a resumable low-priority run; TIFF steps are grouped in the jobs list.`
+  );
+  if (!ok) return;
+
+  if (els.rawBulkOptimizeSelectedButton) els.rawBulkOptimizeSelectedButton.disabled = true;
+  setStatus(`Queuing TIFF optimization for ${eligibleIds.length} dataset(s)...`);
+  try {
+    const result = await apiPost("/raw-datasets/storage-optimization-bulk", {
+      raw_dataset_ids: eligibleIds,
+      codec: "deflate",
+    });
+    await refreshRawDatasets();
+    const skippedDetails = Array.isArray(result.skipped_details) ? result.skipped_details : [];
+    const suffix = result.skipped_count ? ` Skipped: ${result.skipped_count}.` : "";
+    setStatus(`TIFF optimization queued: ${result.queued_count}/${eligibleIds.length}.${suffix}`);
+    if (skippedDetails.length) {
+      const lines = skippedDetails.slice(0, 12).map((item) =>
+        `- ${item.acquisition_label || item.raw_dataset_id}: ${item.reason || item.reason_code || "Skipped"}`
+      );
+      if (skippedDetails.length > lines.length) lines.push(`- ...and ${skippedDetails.length - lines.length} more.`);
+      window.alert(`TIFF optimization queued: ${result.queued_count}/${eligibleIds.length}.\n\nSkipped datasets:\n${lines.join("\n")}`);
+    }
+  } finally {
+    renderRawSelectionControls();
+  }
+}
+
+async function refreshRawBulkDeletePreview() {
+  if (!state.pendingRawBulkDelete?.rawDatasetIds?.length) {
+    return;
+  }
+  const deleteSourceFiles = els.rawBulkDeleteMode?.value === "source_files";
+  const deleteLinkedProjects = Boolean(els.rawBulkDeleteLinkedProjects?.checked);
+  const deleteLinkedProjectFiles = Boolean(els.rawBulkDeleteLinkedProjectFiles?.checked);
+  const currentToken = state.rawBulkDeletePreviewToken + 1;
+  state.rawBulkDeletePreviewToken = currentToken;
+
+  if (!deleteSourceFiles && !deleteLinkedProjects) {
+    state.pendingRawBulkDelete.preview = {
+      reclaimableBytes: 0,
+      linkedProjectBytes: 0,
+      skippedLinkedProjects: 0,
+      errorCount: 0,
+    };
+    renderRawBulkDeletePanel();
+    return;
+  }
+
+  state.pendingRawBulkDelete.preview = null;
+  renderRawBulkDeletePanel();
+
+  const previews = await Promise.allSettled(
+    state.pendingRawBulkDelete.rawDatasetIds.map((rawDatasetId) =>
+      apiPost(`/raw-datasets/${rawDatasetId}/deletion-preview`, {
+        delete_source_files: deleteSourceFiles,
+        delete_linked_projects: deleteLinkedProjects,
+        delete_linked_project_files: deleteLinkedProjectFiles,
+        confirm: false,
+      })
+    )
+  );
+
+  if (state.rawBulkDeletePreviewToken !== currentToken || !state.pendingRawBulkDelete) {
+    return;
+  }
+
+  let reclaimableBytes = 0;
+  let linkedProjectBytes = 0;
+  let skippedLinkedProjects = 0;
+  let errorCount = 0;
+  for (const result of previews) {
+    if (result.status === "fulfilled") {
+      reclaimableBytes += Number(result.value.reclaimable_bytes || 0);
+      const linkedProjects = result.value.preview_json?.linked_projects || [];
+      for (const linked of linkedProjects) {
+        linkedProjectBytes += Number(linked.total_bytes || 0);
+      }
+      skippedLinkedProjects += Number((result.value.preview_json?.skipped_linked_projects || []).length || 0);
+    } else {
+      errorCount += 1;
+    }
+  }
+  state.pendingRawBulkDelete.preview = {
+    reclaimableBytes,
+    linkedProjectBytes,
+    skippedLinkedProjects,
+    errorCount,
+  };
+  renderRawBulkDeletePanel();
+}
+
+async function openRawBulkDeletePanel(scope) {
+  const rawDatasetIds = scope === "selected" ? selectedRawDatasetIds() : visibleRawDatasetIds();
+  if (!rawDatasetIds.length) {
+    throw new Error(scope === "selected" ? "Select at least one raw dataset first." : "No visible raw datasets to delete.");
+  }
+  state.pendingRawBulkDelete = {
+    scope,
+    rawDatasetIds,
+    preview: null,
+  };
+  if (els.rawBulkDeleteMode) {
+    els.rawBulkDeleteMode.value = "database_only";
+  }
+  if (els.rawBulkDeleteLinkedProjects) {
+    els.rawBulkDeleteLinkedProjects.checked = false;
+  }
+  if (els.rawBulkDeleteLinkedProjectFiles) {
+    els.rawBulkDeleteLinkedProjectFiles.checked = false;
+  }
+  if (els.rawBulkDeleteConfirmText) {
+    els.rawBulkDeleteConfirmText.value = "";
+  }
+  renderRawBulkDeletePanel();
+  await refreshRawBulkDeletePreview();
+}
+
+async function waitForRawDeletionJobs(jobIds, maxMs = 90000) {
+  const pending = new Set(jobIds.filter(Boolean).map(String));
+  const deadline = Date.now() + maxMs;
+  const completed = [];
+  const failed = [];
+
+  while (pending.size && Date.now() < deadline) {
+    await Promise.all(
+      [...pending].map(async (jobId) => {
+        const job = await apiGet(`/jobs/${jobId}`);
+        if (job.status === "done") {
+          pending.delete(jobId);
+          completed.push(job);
+        } else if (job.status === "failed" || job.status === "cancelled") {
+          pending.delete(jobId);
+          failed.push(job);
+        }
+      })
+    );
+    if (pending.size) {
+      await new Promise((resolve) => setTimeout(resolve, 1200));
+    }
+  }
+
+  return {
+    completed,
+    failed,
+    pending: [...pending],
+  };
+}
+
+function closeRawBulkDeletePanel() {
+  state.pendingRawBulkDelete = null;
+  state.rawBulkDeletePreviewToken += 1;
+  if (els.rawBulkDeleteConfirmText) {
+    els.rawBulkDeleteConfirmText.value = "";
+  }
+  renderRawBulkDeletePanel();
+}
+
+async function executeRawBulkDelete() {
+  if (!state.pendingRawBulkDelete?.rawDatasetIds?.length) {
+    return;
+  }
+  const confirmationText = els.rawBulkDeleteConfirmText?.value.trim() || "";
+  if (confirmationText !== "DELETE") {
+    throw new Error("Type DELETE to confirm the bulk deletion.");
+  }
+
+  const deleteSourceFiles = els.rawBulkDeleteMode?.value === "source_files";
+  const deleteLinkedProjects = Boolean(els.rawBulkDeleteLinkedProjects?.checked);
+  const deleteLinkedProjectFiles = Boolean(els.rawBulkDeleteLinkedProjectFiles?.checked);
+  const rawDatasetIds = [...state.pendingRawBulkDelete.rawDatasetIds];
+  const rawDatasetLabels = rawDatasetIds.map(
+    (rawDatasetId) =>
+      state.rawDatasets.find((raw) => `${raw.id}` === `${rawDatasetId}`)?.acquisition_label || `${rawDatasetId}`
+  );
+  const resultSummary = {
+    deleted: 0,
+    queued: 0,
+    failed: [],
+  };
+  const queuedJobIds = [];
+
+  for (let index = 0; index < rawDatasetIds.length; index += 1) {
+    const rawDatasetId = rawDatasetIds[index];
+    const label = rawDatasetLabels[index];
+    setStatus(`Deleting ${index + 1}/${rawDatasetIds.length}: ${label}`);
+    try {
+      const result = await apiDelete(
+        `/raw-datasets/${rawDatasetId}?delete_source_files=${deleteSourceFiles ? "true" : "false"}&delete_linked_projects=${deleteLinkedProjects ? "true" : "false"}&delete_linked_project_files=${deleteLinkedProjectFiles ? "true" : "false"}&confirm=true`
+      );
+      if (result.status === "queued") {
+        resultSummary.queued += 1;
+        state.rawDatasetDeletionStatusById[String(rawDatasetId)] = "deletion queued";
+        renderRawDatasets();
+        if (result.result_json?.job_id) {
+          queuedJobIds.push(result.result_json.job_id);
+        }
+      } else {
+        resultSummary.deleted += 1;
+      }
+    } catch (error) {
+      resultSummary.failed.push(`${label}: ${String(error)}`);
+    }
+  }
+
+  if (queuedJobIds.length) {
+    setStatus(`Waiting for ${queuedJobIds.length} worker deletion job(s)...`);
+    const workerResult = await waitForRawDeletionJobs(queuedJobIds);
+    resultSummary.deleted += workerResult.completed.length;
+    resultSummary.failed.push(
+      ...workerResult.failed.map((job) => `${job.id}: ${job.error_text || "worker deletion failed"}`)
+    );
+    if (workerResult.pending.length) {
+      resultSummary.failed.push(
+        `${workerResult.pending.length} deletion job(s) still running; refresh jobs to follow progress.`
+      );
+    }
+  }
+
+  state.selectedRawDatasetIds = state.selectedRawDatasetIds.filter((rawDatasetId) => !rawDatasetIds.includes(`${rawDatasetId}`));
+  if (state.selectedRawDataset && rawDatasetIds.includes(`${state.selectedRawDataset.id}`)) {
+    state.selectedRawDataset = null;
+    state.selectedRawDatasetDetail = null;
+    state.selectedRawPositionId = null;
+  }
+  closeRawBulkDeletePanel();
+  await refreshRawDatasets();
+
+  const suffix = resultSummary.failed.length
+    ? ` Failed: ${resultSummary.failed.length}.`
+    : "";
+  const queuedSuffix = resultSummary.queued ? ` Queued via workers: ${resultSummary.queued}.` : "";
+  setStatus(`Raw bulk delete finished. Deleted ${resultSummary.deleted}/${rawDatasetIds.length}.${queuedSuffix}${suffix}`);
+  if (resultSummary.failed.length) {
+    window.alert(`Raw bulk delete completed with failures:\n${resultSummary.failed.join("\n")}`);
+  }
+}
+
+async function requestRawBulkArchive(scope) {
+  const requestedRawDatasetIds = scope === "selected" ? selectedRawDatasetIds() : visibleRawDatasetIds();
+  if (!requestedRawDatasetIds.length) {
+    throw new Error(scope === "selected" ? "Select at least one raw dataset first." : "No visible raw datasets to archive.");
+  }
+  const rawDatasetsById = new Map(state.rawDatasets.map((raw) => [`${raw.id}`, raw]));
+  const rawDatasetIds = requestedRawDatasetIds.filter((rawDatasetId) => {
+    const raw = rawDatasetsById.get(`${rawDatasetId}`);
+    return raw?.lifecycle_tier === "hot" && ["none", "archive_failed"].includes(raw?.archive_status || "none");
+  });
+  const excludedCount = requestedRawDatasetIds.length - rawDatasetIds.length;
+  if (!rawDatasetIds.length) {
+    throw new Error("No selected or visible Hot dataset is eligible for a new archive request.");
+  }
+  if (!state.archiveSettingsStatus && isAdmin()) {
+    await refreshArchiveSettingsStatus();
+  }
+  const config = state.archiveSettingsStatus?.config || {};
+  const archiveRoot = String(config.archive_root || "").trim();
+  if (!archiveRoot) {
+    throw new Error("No archive root configured. Set it in Raw datasets Ops > Archive Defaults.");
+  }
+  const archiveCompression = String(config.archive_compression || "zip");
+  const markArchived = Boolean(config.delete_hot_source);
+  const action = markArchived ? "archive and delete hot source" : "archive";
+  const datasetCount = rawDatasetIds.length;
+  const excludedMessage = excludedCount > 0
+    ? `\nExcluded because already queued or not Hot: ${excludedCount}`
+    : "";
+  const ok = window.confirm(
+    `Request bulk ${action} for ${datasetCount} eligible Hot dataset(s)?${excludedMessage}\nRoot: ${archiveRoot}\nCompression: ${archiveCompression}`
+  );
+  if (!ok) {
+    return;
+  }
+  setStatus("Queuing archive requests...");
+  try {
+    const result = await apiPost("/raw-datasets/archive-bulk", {
+      raw_dataset_ids: rawDatasetIds,
+      archive_uri: archiveRoot,
+      archive_compression: archiveCompression,
+      mark_archived: markArchived,
+    });
+    await refreshRawDatasets();
+    const suffix = result.skipped_count > 0 ? ` Skipped: ${result.skipped_count}.` : "";
+    setStatus(`Archive requests queued: ${result.queued_count}/${datasetCount}.${suffix}`);
+    const skippedDetails = Array.isArray(result.skipped_details) ? result.skipped_details : [];
+    if (skippedDetails.length) {
+      const detailLines = skippedDetails.slice(0, 12).map((item) => {
+        const label = item.acquisition_label || item.raw_dataset_id || "Unknown dataset";
+        return `- ${label}: ${item.reason || item.reason_code || "Skipped"}`;
+      });
+      const remaining = skippedDetails.length - detailLines.length;
+      if (remaining > 0) {
+        detailLines.push(`- ...and ${remaining} more skipped dataset(s).`);
+      }
+      window.alert(
+        `Archive requests queued: ${result.queued_count}/${datasetCount}.\n\nSkipped datasets:\n${detailLines.join("\n")}`
+      );
+    }
+  } catch (error) {
+    throw new Error(`Failed to queue archive requests: ${String(error)}`);
+  }
+}
+
+async function openRawBulkRestorePanel(scope) {
+  const rawDatasetIds = scope === "selected" ? selectedRawDatasetIds() : visibleRawDatasetIds();
+  if (!rawDatasetIds.length) {
+    throw new Error(scope === "selected" ? "Select at least one raw dataset first." : "No visible raw datasets to restore.");
+  }
+  state.pendingRawBulkRestore = {
+    scope,
+    rawDatasetIds,
+  };
+  renderRawBulkRestorePanel();
+}
+
+function closeRawBulkRestorePanel() {
+  state.pendingRawBulkRestore = null;
+  renderRawBulkRestorePanel();
+}
+
+async function executeRawBulkRestore() {
+  if (!state.pendingRawBulkRestore?.rawDatasetIds?.length) {
+    return;
+  }
+  const rawDatasetIds = [...state.pendingRawBulkRestore.rawDatasetIds];
+
+  setStatus("Queuing restore requests...");
+  try {
+    const result = await apiPost("/raw-datasets/restore-bulk", {
+      raw_dataset_ids: rawDatasetIds,
+    });
+    closeRawBulkRestorePanel();
+    await refreshRawDatasets();
+    const suffix = result.skipped_count > 0 ? ` Skipped: ${result.skipped_count}.` : "";
+    setStatus(`Restore requests queued: ${result.queued_count}/${rawDatasetIds.length}.${suffix}`);
+  } catch (error) {
+    throw new Error(`Failed to queue restore requests: ${String(error)}`);
+  }
+}
+
+function renderRawBulkRestorePanel() {
+  if (!els.rawBulkRestorePanel) {
+    return;
+  }
+  if (!state.pendingRawBulkRestore) {
+    els.rawBulkRestorePanel.classList.add("hidden");
+    return;
+  }
+  els.rawBulkRestorePanel.classList.remove("hidden");
+  if (els.rawBulkRestoreSummary) {
+    els.rawBulkRestoreSummary.textContent = `${state.pendingRawBulkRestore.rawDatasetIds.length} raw dataset(s) ready to restore.`;
+  }
+}
+
+async function refreshRawPositionDeletePreview() {
+  if (!state.pendingRawPositionDelete?.positionIds?.length || !state.selectedRawDatasetDetail) {
+    return;
+  }
+  const currentToken = state.rawPositionDeletePreviewToken + 1;
+  state.rawPositionDeletePreviewToken = currentToken;
+
+  state.pendingRawPositionDelete.preview = null;
+  renderRawPositionDeletePanel();
+
+  const preview = await apiPost(`/raw-datasets/${state.selectedRawDatasetDetail.id}/positions/deletion-preview`, {
+    position_ids: state.pendingRawPositionDelete.positionIds,
+    confirm: false,
+  });
+
+  if (state.rawPositionDeletePreviewToken !== currentToken || !state.pendingRawPositionDelete) {
+    return;
+  }
+  state.pendingRawPositionDelete.preview = preview.preview_json || {};
+  renderRawPositionDeletePanel();
+}
+
+async function openRawPositionDeletePanel() {
+  const positionIds = selectedRawPositionIds();
+  if (!positionIds.length) {
+    throw new Error("Select at least one position first.");
+  }
+  if (!state.selectedRawDatasetDetail) {
+    throw new Error("Select a raw dataset first.");
+  }
+  state.pendingRawPositionDelete = {
+    scope: "selected",
+    positionIds,
+    preview: null,
+    queueStatus: null,
+    queueMessage: null,
+  };
+  if (els.rawPositionDeleteConfirmText) {
+    els.rawPositionDeleteConfirmText.value = "";
+  }
+  renderRawPositionDeletePanel();
+  await refreshRawPositionDeletePreview();
+}
+
+function closeRawPositionDeletePanel() {
+  state.pendingRawPositionDelete = null;
+  state.rawPositionDeletePreviewToken += 1;
+  if (els.rawPositionDeleteConfirmText) {
+    els.rawPositionDeleteConfirmText.value = "";
+  }
+  renderRawPositionDeletePanel();
+}
+
+async function executeRawPositionDelete() {
+  if (!state.pendingRawPositionDelete?.positionIds?.length || !state.selectedRawDatasetDetail) {
+    return;
+  }
+  const confirmationText = els.rawPositionDeleteConfirmText?.value.trim() || "";
+  if (confirmationText !== "DELETE") {
+    throw new Error("Type DELETE to confirm the position deletion.");
+  }
+
+  const positionIds = [...state.pendingRawPositionDelete.positionIds];
+  const positionNames = positionIds.map((positionId) => {
+    const position = currentRawPositions().find((item) => `${item.id}` === `${positionId}`);
+    return position?.display_name || position?.position_key || `${positionId}`;
+  });
+  state.pendingRawPositionDelete.queueStatus = "queueing";
+  state.pendingRawPositionDelete.queueMessage = `Queueing deletion job for ${positionIds.length} selected position(s)...`;
+  renderRawPositionDeletePanel();
+  setStatus(`Queueing deletion job for ${positionIds.length} selected position(s)...`);
+  const result = await apiPost(`/raw-datasets/${state.selectedRawDatasetDetail.id}/positions/delete`, {
+    position_ids: positionIds,
+    confirm: true,
+  });
+
+  if (result.status === "queued") {
+    const jobLabel = result.result_json?.job_id ? ` Job ${result.result_json.job_id}.` : "";
+    if (state.pendingRawPositionDelete) {
+      state.pendingRawPositionDelete.queueStatus = "queued";
+      state.pendingRawPositionDelete.queueMessage = `Deletion job queued for ${result.position_count || positionIds.length} position(s).${jobLabel}`;
+      renderRawPositionDeletePanel();
+    }
+    state.selectedRawPositionIds = state.selectedRawPositionIds.filter((positionId) => !positionIds.includes(`${positionId}`));
+    if (state.selectedRawPositionId && positionIds.includes(`${state.selectedRawPositionId}`)) {
+      state.selectedRawPositionId = null;
+    }
+    await selectRawDataset(state.selectedRawDatasetDetail.id);
+    setStatus(`Queued deletion of ${result.position_count || positionIds.length} position(s).${jobLabel}`);
+    return;
+  }
+
+  state.selectedRawPositionIds = state.selectedRawPositionIds.filter((positionId) => !positionIds.includes(`${positionId}`));
+  if (state.selectedRawPositionId && positionIds.includes(`${state.selectedRawPositionId}`)) {
+    state.selectedRawPositionId = null;
+  }
+  closeRawPositionDeletePanel();
+  await selectRawDataset(state.selectedRawDatasetDetail.id);
+  setStatus(result.message || `Deleted ${result.position_count || positionIds.length} position(s).`);
+  if (result.result_json?.errors?.length) {
+    window.alert(`Position delete completed with failures:\n${result.result_json.errors.join("\n")}`);
+  } else if (positionNames.length) {
+    setStatus(`Deleted ${positionNames.join(", ")}.`);
+  }
+}
+
+async function deleteRawDatasetFromDetail() {
+  const raw = state.selectedRawDatasetDetail || state.selectedRawDataset;
+  if (!raw?.id) {
+    return;
+  }
+  const linkedProjects = raw.analysis_projects || [];
+  const deleteLinkedProjects = linkedProjects.length
+    ? window.confirm(
+        `This raw dataset is linked to ${linkedProjects.length} analysis project(s).\n\nAlso delete linked analysis project catalog entries? Choose Cancel to keep the projects and only remove their raw-dataset link.`
+      )
+    : false;
+  const deleteLinkedProjectFiles = deleteLinkedProjects
+    ? window.confirm("Also delete linked analysis project files on disk?")
+    : false;
+  const deleteSourceFiles = true;
+  const nextTarget = rawDatasetNeighbor(1)?.id || rawDatasetNeighbor(-1)?.id || "";
+
+  const preview = await apiPost(`/raw-datasets/${raw.id}/deletion-preview`, {
+    delete_source_files: deleteSourceFiles,
+    delete_linked_projects: deleteLinkedProjects,
+    delete_linked_project_files: deleteLinkedProjectFiles,
+    confirm: false,
+  });
+  const lines = rawDatasetDeletionPreviewLines(preview, {
+    deleteSourceFiles,
+    deleteLinkedProjects,
+    deleteLinkedProjectFiles,
+    linkedProjectCount: linkedProjects.length,
+  });
+  lines.push("Continue?");
+  if (!window.confirm(lines.join("\n"))) {
+    return;
+  }
+  const typed = window.prompt(`Type DELETE to delete raw dataset ${raw.acquisition_label}`, "");
+  if (typed !== "DELETE") {
+    setStatus("Raw dataset deletion cancelled.");
+    return;
+  }
+
+  const params = new URLSearchParams({
+    delete_source_files: "true",
+    delete_linked_projects: deleteLinkedProjects ? "true" : "false",
+    delete_linked_project_files: deleteLinkedProjectFiles ? "true" : "false",
+    confirm: "true",
+  });
+  setRawActionFeedback(`Queueing deletion for ${raw.acquisition_label}...`, "warn");
+  setStatus(`Queueing deletion for ${raw.acquisition_label}...`);
+  const result = await apiDelete(`/raw-datasets/${raw.id}?${params.toString()}`);
+
+  if (result.status === "queued") {
+    const jobId = result.result_json?.job_id || "";
+    setRawActionFeedback(`Raw dataset deletion queued${jobId ? ` as job ${jobId}` : ""}.`, "warn");
+    setStatus(`Waiting for raw dataset deletion job${jobId ? ` ${jobId}` : ""}...`);
+    if (jobId) {
+      const workerResult = await waitForRawDeletionJobs([jobId]);
+      if (workerResult.failed.length) {
+        const failures = workerResult.failed.map((job) => `${job.id}: ${job.error_text || "worker deletion failed"}`);
+        window.alert(`Raw dataset deletion failed:\n${failures.join("\n")}`);
+        setRawActionFeedback("Raw dataset deletion failed. Check worker job details.", "warn");
+        setStatus("Raw dataset deletion failed.");
+        return;
+      }
+      if (workerResult.pending.length) {
+        setRawActionFeedback("Deletion job is still running. Refresh jobs to follow progress.", "warn");
+        setStatus("Raw dataset deletion job is still running.");
+        return;
+      }
+      const completed = workerResult.completed[0];
+      const errors = completed?.result_json?.result_json?.errors || completed?.result_json?.errors || [];
+      if (errors.length) {
+        window.alert(`Raw dataset deletion completed with errors:\n${errors.join("\n")}`);
+      }
+    }
+  } else if (result.result_json?.errors?.length) {
+    window.alert(`Raw dataset deletion completed with errors:\n${result.result_json.errors.join("\n")}`);
+  }
+
+  state.rawDatasets = state.rawDatasets.filter((item) => `${item.id}` !== `${raw.id}`);
+  state.selectedRawDataset = null;
+  state.selectedRawDatasetDetail = null;
+  state.selectedRawPositionId = null;
+  state.selectedRawPositionIds = [];
+  setStatus(result.result_json?.message || `Raw dataset ${raw.acquisition_label} deleted.`);
+  if (nextTarget) {
+    openRawDatasetPage(nextTarget);
+  } else {
+    window.location.href = "/web/raw-datasets.html";
+  }
+}
+
+async function deleteProject() {
+  if (!state.selectedProject) {
+    return;
+  }
+  const deleteFiles = window.confirm("Also delete project files on disk?");
+  const preview = await apiPost(`/projects/${state.selectedProject.id}/deletion-preview`, {
+    delete_project_files: deleteFiles,
+    delete_linked_raw_data: false,
+    confirm: false,
+  });
+  const lines = deletionPreviewLines(preview);
+  if (preview.preview_json?.deletion_plan?.filesystem_blocked) {
+    lines.push("The API container cannot write these filesystem targets; confirmed file deletion will be queued on a storage-visible worker.");
+  }
+  lines.push("Delete now?");
+  const ok = window.confirm(lines.join("\n"));
+  if (!ok) {
+    return;
+  }
+  const result = await apiDelete(
+    `/projects/${state.selectedProject.id}?delete_project_files=${deleteFiles ? "true" : "false"}&delete_linked_raw_data=false&confirm=true`
+  );
+  state.selectedProject = null;
+  state.selectedProjectDetail = null;
+  await refreshDashboard();
+  setStatus(result.result_json?.message || "Project deleted.");
+}
+
+async function openIndexBrowserPath(relativePath = "") {
+  const root = selectedBrowseRoot();
+  if (!root) {
+    throw new Error("Select a server storage root first.");
+  }
+  const query = relativePath ? `?relative_path=${encodeURIComponent(relativePath)}` : "";
+  state.indexBrowse = await apiGet(`/storage-roots/${root.id}/browse${query}`);
+  renderIndexBrowser();
+  setStatus(`Opened ${state.indexBrowse.current_absolute_path}.`);
+}
+
+function useSelectedIndexFolder() {
+  if (!state.indexBrowse || !els.indexSourcePath || !els.indexStorageRootName) {
+    return;
+  }
+  els.indexSourcePath.value = state.indexBrowse.current_absolute_path || "";
+  els.indexStorageRootName.value = state.indexBrowse.storage_root?.name || "";
+  setStatus(`Selected ${state.indexBrowse.current_absolute_path} for indexing.`);
+}
+
+async function runIndexing() {
+  if (!els.indexSourcePath) {
+    return;
+  }
+  const sourcePath = els.indexSourcePath.value.trim();
+  if (!sourcePath) {
+    throw new Error("Source path is required.");
+  }
+  const response = await apiPost("/indexing/jobs", {
+    source_kind: "project_root",
+    source_path: sourcePath,
+    storage_root_name: els.indexStorageRootName?.value.trim() || null,
+    host_scope: "server",
+    root_type: "project_root",
+    owner_user_key: els.indexOwnerUserKey?.value || null,
+    visibility: els.indexVisibility?.value || "private",
+    clear_existing_for_root: Boolean(els.indexClearExisting?.checked),
+    scan_orphan_raw: Boolean(els.indexScanOrphanRaw?.checked),
+    queue_previews: Boolean(els.indexQueuePreviews?.checked),
+    metadata_json: {},
+  });
+  await refreshIndexingJobs();
+  setStatus(`Queued indexing job ${response.job.id} for ${response.job.source_path}.`);
+}
+
+function parseBulkUserLine(line) {
+  const normalized = line.trim();
+  if (!normalized || normalized.startsWith("#")) {
+    return null;
+  }
+  let parts = [];
+  for (const separator of ["\t", ";", ",", "|"]) {
+    if (normalized.includes(separator)) {
+      parts = normalized.split(separator).map((value) => value.trim());
+      break;
+    }
+  }
+  if (!parts.length) {
+    parts = [normalized];
+  }
+  const [userKey, displayName, email, role, labStatus] = parts;
+  if (!userKey) {
+    return null;
+  }
+  return {
+    user_key: userKey,
+    display_name: displayName || userKey,
+    email: email || null,
+    role: role || "user",
+    is_active: true,
+    lab_status: labStatus || "yes",
+    metadata_json: {},
+  };
+}
+
+async function bulkImportUsers() {
+  if (!els.bulkImportUsersText) {
+    return;
+  }
+  const rawText = els.bulkImportUsersText.value || "";
+  const users = rawText
+    .split(/\r?\n/)
+    .map((line) => parseBulkUserLine(line))
+    .filter((item) => Boolean(item));
+  if (!users.length) {
+    throw new Error("Paste at least one user line.");
+  }
+  const response = await apiPost("/users/bulk", { users });
+  await refreshUsers();
+  if (els.bulkImportUsersText) {
+    els.bulkImportUsersText.value = "";
+  }
+  const message = `Imported accounts: ${response.created_count} created, ${response.updated_count} updated.`;
+  setStatus(message);
+  window.alert(message);
+}
+
+async function previewRawArchive() {
+  if (!state.selectedRawDataset) {
+    return;
+  }
+  const preview = await apiPost(`/raw-datasets/${state.selectedRawDataset.id}/archive-preview`, {});
+  window.alert(
+    `Dataset: ${preview.acquisition_label}\nCurrent tier: ${preview.current_tier}\nTarget tier: ${preview.target_tier}\nReclaimable: ${humanBytes(preview.reclaimable_bytes)}`
+  );
+  setStatus(`Archive preview ready for ${preview.acquisition_label}.`);
+}
+
+async function queueRawPreviewVideo(positionId = "", force = false) {
+  if (!state.selectedRawDatasetDetail) {
+    return;
+  }
+  const selectedPositionId = positionId || state.selectedRawPositionId || null;
+  const payload = {
+    position_id: positionId || null,
+    force,
+    requested_mode: "auto",
+    priority: 100,
+    params_json: {},
+  };
+  const result = await apiPost(`/raw-datasets/${state.selectedRawDatasetDetail.id}/preview-videos/queue`, payload);
+  await selectRawDataset(state.selectedRawDatasetDetail.id);
+  if (selectedPositionId) {
+    state.selectedRawPositionId = selectedPositionId;
+    renderRawPositions(currentRawPositions());
+    renderRawPositionViewer(currentRawPositions());
+  }
+  setStatus(result.message || "Raw preview video job queued.");
+}
+
+async function regenerateRawPreviewVideos() {
+  if (!state.selectedRawDatasetDetail) {
+    return;
+  }
+  const ok = window.confirm("Regenerate all preview movies for this dataset?");
+  if (!ok) {
+    return;
+  }
+  await queueRawPreviewVideo("", true);
+}
+
+async function queueProjectRawPreviewVideos() {
+  if (!state.selectedProjectDetail) {
+    return;
+  }
+  const result = await apiPost(`/projects/${state.selectedProjectDetail.id}/preview-videos/queue`, {
+    force: false,
+    requested_mode: "auto",
+    priority: 100,
+    params_json: {},
+  });
+  await selectProject(state.selectedProjectDetail.id);
+  setStatus(result.message || "Project raw preview jobs queued.");
+}
+
+async function requestRawArchive() {
+  if (!state.selectedRawDataset) {
+    return;
+  }
+  if (!state.archiveSettingsStatus && isAdmin()) {
+    await refreshArchiveSettingsStatus();
+  }
+  const config = state.archiveSettingsStatus?.config || {};
+  const archiveRoot = String(config.archive_root || state.selectedRawDatasetDetail?.archive_uri || "").trim();
+  if (!archiveRoot) {
+    throw new Error("No archive root configured. Set it in Raw datasets Ops > Archive Defaults.");
+  }
+  const archiveCompression = String(config.archive_compression || state.selectedRawDatasetDetail?.archive_compression || "zip");
+  const markArchived = Boolean(config.delete_hot_source);
+  const action = markArchived ? "archive and delete hot source" : "archive";
+  const ok = window.confirm(
+    `Request ${action} for ${state.selectedRawDataset.acquisition_label}?\nRoot: ${archiveRoot}\nCompression: ${archiveCompression}`
+  );
+  if (!ok) {
+    return;
+  }
+  await apiPost(`/raw-datasets/${state.selectedRawDataset.id}/archive`, {
+    archive_uri: archiveRoot,
+    archive_compression: archiveCompression,
+    mark_archived: markArchived,
+  });
+  await refreshRawDatasets();
+  await selectRawDataset(state.selectedRawDataset.id);
+  setRawActionFeedback(`Archive request queued for ${state.selectedRawDataset.acquisition_label}.`, "ok");
+  setStatus(`Archive transition requested for ${state.selectedRawDataset.acquisition_label}.`);
+}
+
+async function deleteRawArchive() {
+  if (!state.selectedRawDataset) {
+    return;
+  }
+  const archiveUri = String(state.selectedRawDatasetDetail?.archive_uri || "").trim();
+  if (!archiveUri) {
+    throw new Error("No archive file is registered for this dataset.");
+  }
+  const ok = window.confirm(
+    `Delete archive for ${state.selectedRawDataset.acquisition_label}?\nArchive: ${archiveUri}`
+  );
+  if (!ok) {
+    return;
+  }
+  const result = await apiDelete(`/raw-datasets/${state.selectedRawDataset.id}/archive-file`);
+  await refreshRawDatasets();
+  await selectRawDataset(state.selectedRawDataset.id);
+  setRawActionFeedback(`Archive deleted for ${state.selectedRawDataset.acquisition_label}.`, "ok");
+  setStatus(result.message || `Archive deleted for ${state.selectedRawDataset.acquisition_label}.`);
+}
+
+async function deleteSelectedRawArchives() {
+  const rawDatasetIds = selectedRawDatasetIds().filter((rawDatasetId) => visibleArchivedRawDatasetIds().includes(`${rawDatasetId}`));
+  if (!rawDatasetIds.length) {
+    throw new Error("Select at least one archived dataset first.");
+  }
+  const ok = window.confirm(`Delete archive files for ${rawDatasetIds.length} dataset(s)?`);
+  if (!ok) {
+    return;
+  }
+  const result = await apiPost("/raw-datasets/archive-files/delete-bulk", {
+    raw_dataset_ids: rawDatasetIds,
+  });
+  await refreshRawDatasets();
+  setStatus(result.message || `Deleted ${result.deleted_count} archive file(s).`);
+}
+
+async function requestRawRestore() {
+  if (!state.selectedRawDataset) {
+    return;
+  }
+  await apiPost(`/raw-datasets/${state.selectedRawDataset.id}/restore`, {});
+  await refreshRawDatasets();
+  await selectRawDataset(state.selectedRawDataset.id);
+  setRawActionFeedback(`Restore request queued for ${state.selectedRawDataset.acquisition_label}.`, "ok");
+  setStatus(`Restore requested for ${state.selectedRawDataset.acquisition_label}.`);
+}
+
+async function toggleRawBackupExclude() {
+  if (!state.selectedRawDatasetDetail) return;
+  const excluded = els.rawBackupExcluded.checked;
+  await apiPatch(`/backup/raw-datasets/${state.selectedRawDatasetDetail.id}/backup-settings`, { backup_excluded: excluded });
+  state.selectedRawDatasetDetail.backup_excluded = excluded;
+  setStatus(`Dataset ${excluded ? "excluded from" : "included in"} backup.`);
+}
+
+async function backupProjectNow() {
+  if (!state.selectedProjectDetail) return;
+  if (els.projectBackupFeedback) els.projectBackupFeedback.textContent = "Queuing backup job…";
+  const r = await apiPost(`/backup/projects/${state.selectedProjectDetail.id}/backup-now`, {});
+  if (els.projectBackupFeedback) els.projectBackupFeedback.textContent = `Job queued: ${r.job_id}`;
+  state.selectedProjectDetail.backup_status = "queued";
+  if (els.projectBackupStatus) els.projectBackupStatus.textContent = "queued";
+  setStatus("Backup job queued for this project.");
+}
+
+async function toggleProjectBackupExclude() {
+  if (!state.selectedProjectDetail) return;
+  const excluded = els.projectBackupExcluded.checked;
+  await apiPatch(`/backup/projects/${state.selectedProjectDetail.id}/backup-settings`, { backup_excluded: excluded });
+  state.selectedProjectDetail.backup_excluded = excluded;
+  setStatus(`Project ${excluded ? "excluded from" : "included in"} backup.`);
+}
+
+async function backupRawDatasetNow() {
+  if (!state.selectedRawDatasetDetail) return;
+  if (els.rawBackupFeedback) els.rawBackupFeedback.textContent = "Queuing backup job…";
+  const r = await apiPost(`/backup/raw-datasets/${state.selectedRawDatasetDetail.id}/backup-now`, {});
+  if (els.rawBackupFeedback) els.rawBackupFeedback.textContent = `Job queued: ${r.job_id}`;
+  state.selectedRawDatasetDetail.backup_status = "queued";
+  if (els.rawBackupStatus) els.rawBackupStatus.textContent = "queued";
+  setStatus("Backup job queued for this dataset.");
+}
+
+async function loadRawDatasetSnapshots() {
+  if (!state.selectedRawDatasetDetail) return;
+  const snaps = await apiGet(`/backup/raw-datasets/${state.selectedRawDatasetDetail.id}/snapshots`);
+  const list = els.rawSnapshotsList;
+  if (!list) return;
+  list.innerHTML = "";
+  if (!snaps.length) {
+    list.innerHTML = '<p class="muted" style="padding:0.5rem">No snapshots found.</p>';
+  } else {
+    snaps.forEach(s => {
+      const item = document.createElement("div");
+      item.className = "stack-item";
+      item.innerHTML = `<span>${new Date(s.time).toLocaleString()} &mdash; <code>${s.snapshot_id.slice(0, 8)}</code></span>`;
+      const btn = document.createElement("button");
+      btn.textContent = "Restore…";
+      btn.addEventListener("click", () => openRawRestorePanel(s));
+      item.appendChild(btn);
+      list.appendChild(item);
+    });
+  }
+  list.classList.remove("hidden");
+}
+
+function openRawRestorePanel(snapshot) {
+  if (!els.rawRestorePanel) return;
+  state._pendingRawRestoreSnapshot = snapshot;
+  if (els.rawRestoreSnapshotLabel) els.rawRestoreSnapshotLabel.textContent = `Restore snapshot ${snapshot.snapshot_id.slice(0, 8)} (${new Date(snapshot.time).toLocaleString()})`;
+  const loc = state.selectedRawDatasetDetail?.locations?.[0];
+  if (els.rawRestoreTargetDir) els.rawRestoreTargetDir.value = loc?.path || "";
+  els.rawRestorePanel.classList.remove("hidden");
+}
+
+async function confirmRawRestore() {
+  const snap = state._pendingRawRestoreSnapshot;
+  if (!snap || !state.selectedRawDatasetDetail) return;
+  const targetDir = els.rawRestoreTargetDir?.value.trim();
+  if (!targetDir) { setStatus("Enter a target directory."); return; }
+  const r = await apiPost(
+    `/backup/raw-datasets/${state.selectedRawDatasetDetail.id}/snapshots/${snap.snapshot_id}/restore`,
+    { target_dir: targetDir }
+  );
+  if (els.rawRestorePanel) els.rawRestorePanel.classList.add("hidden");
+  if (els.rawBackupFeedback) els.rawBackupFeedback.textContent = `Restore job queued: ${r.job_id}`;
+  setStatus("Restore job queued.");
+}
+
+async function loadProjectSnapshots() {
+  if (!state.selectedProjectDetail) return;
+  const snaps = await apiGet(`/backup/projects/${state.selectedProjectDetail.id}/snapshots`);
+  const list = els.projectSnapshotsList;
+  if (!list) return;
+  list.innerHTML = "";
+  if (!snaps.length) {
+    list.innerHTML = '<p class="muted" style="padding:0.5rem">No snapshots found.</p>';
+  } else {
+    snaps.forEach(s => {
+      const item = document.createElement("div");
+      item.className = "stack-item";
+      item.innerHTML = `<span>${new Date(s.time).toLocaleString()} &mdash; <code>${s.snapshot_id.slice(0, 8)}</code> &mdash; ${(s.paths || []).join(", ")}</span>`;
+      const btnFull = document.createElement("button");
+      btnFull.textContent = "Full restore…";
+      btnFull.addEventListener("click", () => openProjectRestorePanel(s));
+      item.appendChild(btnFull);
+      if (s.id) {
+        const btnBrowse = document.createElement("button");
+        btnBrowse.textContent = "Browse…";
+        btnBrowse.style.marginLeft = "0.5rem";
+        btnBrowse.addEventListener("click", () => openProjectFileBrowser(s).catch(err => setStatus(String(err))));
+        item.appendChild(btnBrowse);
+      }
+      list.appendChild(item);
+    });
+  }
+  list.classList.remove("hidden");
+}
+
+// ---------------------------------------------------------------------------
+// Project snapshot file browser
+// ---------------------------------------------------------------------------
+
+const _projectBrowser = {
+  snapshotDbId: null,
+  snapshotId: null,
+  sourcePath: null,
+  pathStack: [],    // array of folder names navigated into
+  selected: new Set(),  // Set of entry names in current dir
+};
+
+async function _pollJob(jobId, maxMs = 30000) {
+  const deadline = Date.now() + maxMs;
+  while (Date.now() < deadline) {
+    const job = await apiGet(`/jobs/${jobId}`);
+    if (job.status === "done") return job.result_json;
+    if (job.status === "failed" || job.status === "cancelled") throw new Error(job.error_text || "Job failed");
+    await new Promise(r => setTimeout(r, 1200));
+  }
+  throw new Error("Timeout waiting for directory listing");
+}
+
+async function openProjectFileBrowser(snapshot) {
+  _projectBrowser.snapshotDbId = snapshot.id;
+  _projectBrowser.snapshotId = snapshot.snapshot_id;
+  _projectBrowser.sourcePath = (snapshot.paths || [""])[0];
+  _projectBrowser.pathStack = [];
+  _projectBrowser.selected = new Set();
+  if (els.projectFileBrowser) els.projectFileBrowser.classList.remove("hidden");
+  if (els.projectRestorePanel) els.projectRestorePanel.classList.add("hidden");
+  if (els.projectBrowserRestorePanel) els.projectBrowserRestorePanel.classList.add("hidden");
+  await _loadProjectBrowserDir();
+}
+
+async function _loadProjectBrowserDir() {
+  const browsePath = _projectBrowser.pathStack.join("/");
+  if (els.projectBrowserStatus) els.projectBrowserStatus.textContent = "Loading…";
+  if (els.projectBrowserList) els.projectBrowserList.innerHTML = "";
+  if (els.projectBrowserBreadcrumb) {
+    els.projectBrowserBreadcrumb.innerHTML = "";
+    const rootSpan = document.createElement("span");
+    rootSpan.textContent = "/";
+    rootSpan.style.cursor = "pointer";
+    rootSpan.style.textDecoration = "underline";
+    rootSpan.addEventListener("click", () => { _projectBrowser.pathStack = []; _loadProjectBrowserDir().catch(e => setStatus(String(e))); });
+    els.projectBrowserBreadcrumb.appendChild(rootSpan);
+    _projectBrowser.pathStack.forEach((part, i) => {
+      const sep = document.createTextNode(" / ");
+      els.projectBrowserBreadcrumb.appendChild(sep);
+      const span = document.createElement("span");
+      span.textContent = part;
+      span.style.cursor = "pointer";
+      span.style.textDecoration = "underline";
+      const depth = i + 1;
+      span.addEventListener("click", () => { _projectBrowser.pathStack = _projectBrowser.pathStack.slice(0, depth); _loadProjectBrowserDir().catch(e => setStatus(String(e))); });
+      els.projectBrowserBreadcrumb.appendChild(span);
+    });
+  }
+
+  try {
+    const r = await apiPost(`/backup/project-snapshots/${_projectBrowser.snapshotDbId}/browse-dir`, { browse_path: browsePath });
+    if (els.projectBrowserStatus) els.projectBrowserStatus.textContent = "Queued, loading…";
+    const result = await _pollJob(r.job_id);
+    _renderProjectBrowserEntries(result.entries || []);
+    if (els.projectBrowserStatus) els.projectBrowserStatus.textContent = `${(result.entries || []).length} items`;
+  } catch (err) {
+    if (els.projectBrowserStatus) els.projectBrowserStatus.textContent = `Error: ${err.message}`;
+  }
+}
+
+function _renderProjectBrowserEntries(entries) {
+  const list = els.projectBrowserList;
+  if (!list) return;
+  list.innerHTML = "";
+  _projectBrowser.selected = new Set();
+  if (!entries.length) {
+    list.innerHTML = '<p class="muted" style="padding:0.5rem">Empty directory.</p>';
+    return;
+  }
+  entries.forEach(e => {
+    const row = document.createElement("div");
+    row.className = "stack-item";
+    row.style.gap = "0.5rem";
+
+    const cb = document.createElement("input");
+    cb.type = "checkbox";
+    cb.addEventListener("change", () => {
+      if (cb.checked) _projectBrowser.selected.add(e.name);
+      else _projectBrowser.selected.delete(e.name);
+      if (els.projectBrowserRestorePanel) {
+        els.projectBrowserRestorePanel.classList.toggle("hidden", _projectBrowser.selected.size === 0);
+      }
+    });
+
+    const icon = document.createElement("span");
+    icon.textContent = e.type === "dir" ? "📁" : "📄";
+    icon.style.fontFamily = "monospace";
+
+    const label = document.createElement("span");
+    label.style.flex = "1";
+    label.style.fontFamily = "monospace";
+    label.style.fontSize = "0.9em";
+    label.textContent = e.name + (e.type === "dir" ? "/" : "");
+
+    if (e.type === "file") {
+      const size = document.createElement("span");
+      size.className = "muted";
+      size.style.fontSize = "0.8em";
+      size.textContent = _fmtBytes(e.size);
+      row.append(cb, icon, label, size);
+    } else {
+      const navBtn = document.createElement("button");
+      navBtn.textContent = "Open";
+      navBtn.style.marginLeft = "auto";
+      navBtn.addEventListener("click", () => {
+        _projectBrowser.pathStack.push(e.name);
+        _loadProjectBrowserDir().catch(err => setStatus(String(err)));
+      });
+      row.append(cb, icon, label, navBtn);
+    }
+    list.appendChild(row);
+  });
+}
+
+function _fmtBytes(n) {
+  if (!n) return "0 B";
+  const units = ["B", "KB", "MB", "GB", "TB"];
+  let i = 0;
+  while (n >= 1024 && i < units.length - 1) { n /= 1024; i++; }
+  return n.toFixed(1) + " " + units[i];
+}
+
+async function confirmProjectSelectiveRestore() {
+  if (!_projectBrowser.snapshotDbId || !_projectBrowser.selected.size) return;
+  const targetDir = els.projectBrowserTargetDir ? els.projectBrowserTargetDir.value.trim() : "";
+  if (!targetDir) { setStatus("Enter a restore target directory."); return; }
+
+  const browsePath = _projectBrowser.pathStack.join("/");
+  const includePaths = Array.from(_projectBrowser.selected).map(name => {
+    const rel = browsePath ? `${browsePath}/${name}` : name;
+    return `${_projectBrowser.sourcePath}/${rel}`;
+  });
+
+  const r = await apiPost(
+    `/backup/projects/${state.selectedProjectDetail.id}/snapshots/${_projectBrowser.snapshotId}/restore`,
+    { target_dir: targetDir, include_paths: includePaths }
+  );
+  setStatus(`Selective restore job queued: ${r.job_id}`);
+  if (els.projectFileBrowser) els.projectFileBrowser.classList.add("hidden");
+}
+
+function openProjectRestorePanel(snapshot) {
+  if (!els.projectRestorePanel) return;
+  state._pendingProjectRestoreSnapshot = snapshot;
+  if (els.projectRestoreSnapshotLabel) els.projectRestoreSnapshotLabel.textContent = `Restore snapshot ${snapshot.snapshot_id.slice(0, 8)} (${new Date(snapshot.time).toLocaleString()})`;
+  if (els.projectRestoreTargetDir) els.projectRestoreTargetDir.value = "/";
+  els.projectRestorePanel.classList.remove("hidden");
+}
+
+async function confirmProjectRestore() {
+  const snap = state._pendingProjectRestoreSnapshot;
+  if (!snap || !state.selectedProjectDetail) return;
+  const targetDir = els.projectRestoreTargetDir?.value.trim();
+  if (!targetDir) { setStatus("Enter a target directory."); return; }
+  const r = await apiPost(
+    `/backup/projects/${state.selectedProjectDetail.id}/snapshots/${snap.snapshot_id}/restore`,
+    { target_dir: targetDir }
+  );
+  if (els.projectRestorePanel) els.projectRestorePanel.classList.add("hidden");
+  setStatus(`Restore job queued: ${r.job_id}`);
+}
+
+async function createMigrationPlan() {
+  if (!els.migrationSourcePath || !els.migrationBatchName) {
+    return;
+  }
+  const batchName = els.migrationBatchName.value.trim();
+  const sourcePath = els.migrationSourcePath.value.trim();
+  if (!batchName || !sourcePath) {
+    throw new Error("Batch name and legacy source path are required.");
+  }
+  const response = await apiPost("/migrations/plans", {
+    batch_name: batchName,
+    source_kind: els.migrationSourceKind?.value || "legacy_project_root",
+    source_path: sourcePath,
+    storage_root_name: els.migrationStorageRootName?.value.trim() || null,
+    host_scope: "server",
+    root_type: "legacy_root",
+    strategy: els.migrationStrategy?.value || "pilot",
+    max_items: Number(els.migrationMaxItems?.value || 50),
+    metadata_json: {},
+  });
+  await refreshMigrationPlans();
+  await selectMigrationPlan(response.id);
+  setStatus(`Created migration plan ${response.batch_name}.`);
+}
+
+async function markMigrationItem(item, payload) {
+  if (!state.selectedMigrationPlan) {
+    return;
+  }
+  await apiPatch(`/migrations/plans/${state.selectedMigrationPlan.id}/items/${item.id}`, payload);
+  await selectMigrationPlan(state.selectedMigrationPlan.id);
+  setStatus(`Updated migration item ${item.display_name}.`);
+}
+
+async function materializeMigrationItem(item) {
+  if (!state.selectedMigrationPlan) {
+    return;
+  }
+  const response = await apiPost(
+    `/migrations/plans/${state.selectedMigrationPlan.id}/items/${item.id}/materialize`,
+    {}
+  );
+  await selectMigrationPlan(state.selectedMigrationPlan.id);
+  setStatus(`Created placeholder experiment ${response.experiment_key || response.title}.`);
+}
+
+async function attachMigrationItemToExisting(item) {
+  if (!state.selectedMigrationPlan) {
+    return;
+  }
+  const experimentKey = window.prompt("Existing experiment key", item.proposed_experiment_key || "");
+  if (!experimentKey) {
+    return;
+  }
+  const response = await apiPost(
+    `/migrations/plans/${state.selectedMigrationPlan.id}/items/${item.id}/attach-existing`,
+    { experiment_key: experimentKey.trim() }
+  );
+  await selectMigrationPlan(state.selectedMigrationPlan.id);
+  setStatus(`Attached item ${item.display_name} to ${response.experiment_key || response.title}.`);
+}
+
+async function executePilotBatch() {
+  if (!state.selectedMigrationPlan) {
+    return;
+  }
+  const rawValue = window.prompt("Max pilot items", "10");
+  if (!rawValue) {
+    return;
+  }
+  const maxItems = Number(rawValue);
+  if (!Number.isFinite(maxItems) || maxItems <= 0) {
+    throw new Error("Max pilot items must be a positive number.");
+  }
+  const response = await apiPost(
+    `/migrations/plans/${state.selectedMigrationPlan.id}/execute-pilot?max_items=${Math.floor(maxItems)}`,
+    {}
+  );
+  await refreshMigrationPlans();
+  await selectMigrationPlan(state.selectedMigrationPlan.id);
+  setStatus(response.message);
+}
+
+async function createPipeline() {
+  const displayName = window.prompt("Pipeline display name");
+  if (!displayName) {
+    return;
+  }
+  const pipelinePath = window.prompt("Pipeline path (pipeline.json or export_manifest.json)");
+  if (pipelinePath === null) {
+    return;
+  }
+  const trimmedPipelinePath = pipelinePath.trim();
+  if (!trimmedPipelinePath) {
+    throw new Error("Pipeline path is required for import.");
+  }
+  const pipelineKey = window.prompt("Pipeline key", displayName.toLowerCase().replace(/[^a-z0-9]+/g, "_"));
+  if (pipelineKey === null) {
+    return;
+  }
+  const version = window.prompt("Version", "1.0") || "1.0";
+  const runtimeKind = window.prompt("Runtime kind (matlab/python/hybrid)", "matlab") || "matlab";
+  const metadataJson = String(trimmedPipelinePath).toLowerCase().endsWith("export_manifest.json")
+    ? { export_manifest_uri: trimmedPipelinePath }
+    : { pipeline_json_path: trimmedPipelinePath };
+  await apiPost("/pipelines", {
+    display_name: displayName,
+    pipeline_key: pipelineKey.trim() || null,
+    version,
+    runtime_kind: runtimeKind,
+    metadata_json: metadataJson,
+  });
+  await refreshPipelines();
+  setStatus(`Imported pipeline ${displayName}.`);
+}
+
+async function editPipeline(pipeline) {
+  const displayName = window.prompt("Pipeline display name", pipeline.display_name);
+  if (displayName === null) {
+    return;
+  }
+  const version = window.prompt("Version", pipeline.version);
+  if (version === null) {
+    return;
+  }
+  const runtimeKind = window.prompt("Runtime kind (matlab/python/hybrid)", pipeline.runtime_kind);
+  if (runtimeKind === null) {
+    return;
+  }
+  await apiPatch(`/pipelines/${pipeline.id}`, {
+    display_name: displayName,
+    version,
+    runtime_kind: runtimeKind,
+    metadata_json: {},
+  });
+  await refreshPipelines();
+  setStatus(`Updated pipeline ${displayName}.`);
+}
+
+async function deletePipeline(pipeline) {
+  if (!pipeline?.id) {
+    throw new Error("Only registry pipelines can be deleted from the database.");
+  }
+  const confirmed = window.confirm(
+    `Delete pipeline "${pipeline.display_name}" (${pipeline.version || "unknown"}) from the registry database?`
+  );
+  if (!confirmed) {
+    return;
+  }
+  await apiDelete(`/pipelines/${pipeline.id}`);
+  await refreshPipelines();
+  setStatus(`Deleted pipeline ${pipeline.display_name} from registry.`);
+}
+
+async function importObservedPipelines() {
+  const search = els.pipelineSearch?.value.trim() || "";
+  const path = `/pipelines/import-observed${search ? `?search=${encodeURIComponent(search)}` : ""}`;
+  const imported = await apiPost(path, {});
+  await refreshPipelines();
+  setStatus(`Imported ${imported.length} observed pipeline(s) into registry.`);
+}
+
+async function createUser() {
+  if (!isAdmin()) {
+    throw new Error("Admin role required.");
+  }
+  await ensureStorageRootsLoaded();
+  const values = await openFormDialog({
+    title: "New account",
+    fields: [
+      { name: "userKey", label: "User key", required: true },
+      { name: "displayName", label: "Display name" },
+      {
+        name: "role",
+        label: "Role",
+        type: "select",
+        value: "user",
+        options: [
+          { value: "user", label: "user" },
+          { value: "admin", label: "admin" },
+          { value: "service", label: "service" },
+        ],
+      },
+      {
+        name: "labStatus",
+        label: "Lab status",
+        type: "select",
+        value: "yes",
+        options: [
+          { value: "yes", label: "yes" },
+          { value: "alumni", label: "alumni" },
+        ],
+      },
+      { name: "defaultPath", label: "Default path" },
+      { name: "adminPortalAccess", label: "Admin portal access", type: "checkbox", value: false },
+      { name: "password", label: "Hub temporary password", type: "password" },
+      { name: "provisionSynology", label: "Provision Synology storage", type: "checkbox", value: true },
+      { name: "synologyUserKey", label: "Synology user key" },
+      { name: "synologyInitialPassword", label: "Synology initial password", type: "password" },
+      { name: "quotaGb", label: "Synology quota GB", type: "number", value: "100" },
+    ],
+    submitLabel: "Create account",
+  });
+  if (!values) {
+    return;
+  }
+  const userKey = String(values.userKey || "").trim();
+  if (!userKey) {
+    throw new Error("User key is required.");
+  }
+  const providerUserKey = String(values.synologyUserKey || userKey).trim();
+  const provisionSynology = Boolean(values.provisionSynology);
+  const homeRoot = findUserHomeStorageRoot();
+  if (provisionSynology && !homeRoot) {
+    throw new Error("No /homes storage root is configured in the hub.");
+  }
+  if (provisionSynology && !String(values.synologyInitialPassword || "").trim()) {
+    throw new Error("Synology initial password is required when provisioning Synology storage.");
+  }
+  const quotaGb = Number(values.quotaGb || 0);
+  const quotaBytes = Number.isFinite(quotaGb) && quotaGb > 0 ? Math.round(quotaGb * 1024 * 1024 * 1024) : null;
+  const defaultPath = String(values.defaultPath || "").trim()
+    || (provisionSynology ? `/homes/${providerUserKey}/DetecDiv` : "");
+  const createdUser = await apiPost("/users", {
+    user_key: userKey,
+    display_name: String(values.displayName || userKey).trim() || userKey,
+    role: String(values.role || "user").trim() || "user",
+    is_active: true,
+    admin_portal_access: Boolean(values.adminPortalAccess),
+    lab_status: String(values.labStatus || "yes").trim() || "yes",
+    default_path: defaultPath || null,
+    password: String(values.password || "").trim() || null,
+    metadata_json: {},
+  });
+  if (provisionSynology) {
+    const account = await apiPost(`/storage/users/${createdUser.id}/home-account`, {
+      provider_key: "synology-main",
+      provider_user_key: providerUserKey,
+      home_storage_root_id: homeRoot.id,
+      home_relative_path: `${providerUserKey}/DetecDiv`,
+      quota_bytes: quotaBytes,
+      create_missing_provider: false,
+    });
+    const ensured = await apiPost(`/storage/user-accounts/${account.id}/synology/ensure-user`, {
+      create_missing: true,
+      initial_password: String(values.synologyInitialPassword || "").trim(),
+      display_name: createdUser.display_name,
+      email: createdUser.email || null,
+      groups: [],
+    });
+    if (!ensured.success) {
+      throw new Error(ensured.message || "Synology user provisioning failed.");
+    }
+    if (quotaBytes) {
+      await apiPost(`/storage/user-accounts/${account.id}/synology/quota`, {
+        quota_bytes: quotaBytes,
+      });
+    }
+    const prepared = await apiPost(`/storage/user-accounts/${account.id}/prepare`, {
+      create_directories: true,
+      subdirectories: ["projects", "raw", "artifacts", "exports"],
+      requested_mode: "server",
+      priority: 80,
+    });
+    await refreshUsers();
+    setStatus(`Created user ${userKey}. Synology user ${ensured.provider_user_key} ${ensured.created ? "created" : "verified"}; home preparation job ${prepared.job_id} queued.`);
+    return;
+  }
+  await refreshUsers();
+  setStatus(`Created user ${userKey}.`);
+}
+
+async function queueRawStorageOptimization() {
+  const raw = state.selectedRawDatasetDetail || state.selectedRawDataset;
+  if (!raw?.id) {
+    return;
+  }
+  if (!isAdmin()) {
+    throw new Error("Only administrators can optimize raw dataset storage.");
+  }
+  if (!["none", "partial", "failed", "cancelled"].includes(raw.storage_optimization_status || "none")) {
+    throw new Error(`TIFF optimization is already ${raw.storage_optimization_status}.`);
+  }
+  const ok = window.confirm(
+    `Queue lossless TIFF DEFLATE optimization for ${raw.acquisition_label}?\n\nThe worker validates decoded pixels and Micro-Manager metadata before each atomic replacement. Work is low priority and split into short chunks, so draining workers pauses safely between chunks.`
+  );
+  if (!ok) {
+    return;
+  }
+  const result = await apiPost(`/raw-datasets/${raw.id}/storage-optimization`, { codec: "deflate" });
+  await refreshRawDatasets();
+  await selectRawDataset(raw.id);
+  setRawActionFeedback("TIFF optimization queued. It will start when a storage-visible worker is available.", "ok");
+  setStatus(`TIFF optimization queued as run ${result.id}.`);
+}
+
+async function editUser(user) {
+  const adminFields = hasAdminPrivileges()
+    ? [
+        {
+          name: "labStatus",
+          label: "Lab status",
+          type: "select",
+          value: user.lab_status || "yes",
+          options: [
+            { value: "yes", label: "yes" },
+            { value: "alumni", label: "alumni" },
+          ],
+        },
+        {
+          name: "defaultPath",
+          label: "Default path",
+          value: user.default_path || "",
+        },
+        {
+          name: "role",
+          label: "Role",
+          type: "select",
+          value: user.role,
+          options: [
+            { value: "user", label: "user" },
+            { value: "admin", label: "admin" },
+            { value: "service", label: "service" },
+          ],
+        },
+        {
+          name: "adminPortalAccess",
+          label: "Admin portal access",
+          type: "select",
+          value: user.admin_portal_access ? "true" : "false",
+          options: [
+            { value: "true", label: "yes" },
+            { value: "false", label: "no" },
+          ],
+        },
+        {
+          name: "accountActive",
+          label: "Account active",
+          type: "select",
+          value: user.is_active ? "true" : "false",
+          options: [
+            { value: "true", label: "yes" },
+            { value: "false", label: "no" },
+          ],
+        },
+        {
+          name: "password",
+          label: "Reset password",
+          type: "password",
+        },
+        {
+          name: "quotaGb",
+          label: "Synology quota GB",
+          type: "number",
+          value: user.storage_quota_bytes ? String(Math.round(Number(user.storage_quota_bytes) / (1024 * 1024 * 1024))) : "",
+        },
+      ]
+    : [];
+  const values = await openFormDialog({
+    title: `Edit user ${user.user_key}`,
+    description: "Update the account profile and access settings.",
+    submitLabel: "Save user",
+    fields: [
+      { name: "displayName", label: "Display name", value: user.display_name, required: true },
+      { name: "email", label: "Email", value: user.email || "" },
+      ...adminFields,
+    ],
+  });
+  if (!values) {
+    return;
+  }
+  const payload = {
+    display_name: values.displayName.trim(),
+    email: values.email.trim() || null,
+    metadata_json: {},
+  };
+  if (hasAdminPrivileges()) {
+    payload.role = values.role || user.role;
+    payload.is_active = String(values.accountActive) === "true";
+    payload.admin_portal_access = String(values.adminPortalAccess) === "true";
+    payload.lab_status = values.labStatus || "yes";
+    payload.default_path = values.defaultPath.trim() || null;
+  }
+  if (values.password && values.password.trim()) {
+    payload.password = values.password.trim();
+  }
+  await apiPatch(`/users/${user.id}`, payload);
+  let quotaMessage = "";
+  if (hasAdminPrivileges() && user.storage_account_id) {
+    const quotaText = String(values.quotaGb || "").trim();
+    if (quotaText) {
+      const quotaGb = Number(quotaText);
+      if (!Number.isFinite(quotaGb) || quotaGb <= 0) {
+        throw new Error("Synology quota must be greater than zero.");
+      }
+      const quotaResult = await apiPost(`/storage/user-accounts/${user.storage_account_id}/synology/quota`, {
+        quota_bytes: Math.round(quotaGb * 1024 * 1024 * 1024),
+      });
+      quotaMessage = quotaResult.message ? ` ${quotaResult.message}` : "";
+    }
+  }
+  await refreshUsers();
+  setStatus(`Updated user ${user.user_key}.${quotaMessage}`);
+}
+
+async function deleteUser(user) {
+  if (!hasAdminPrivileges()) {
+    throw new Error("Admin role required.");
+  }
+  if (state.currentUser?.id === user.id) {
+    throw new Error("Cannot delete the current session user.");
+  }
+  const deleteSynology = Boolean(user.storage_account_id)
+    && window.confirm(`Also delete Synology user ${user.storage_provider_user_key || user.user_key}? Home data will not be deleted by the hub.`);
+  const ok = window.confirm(`Deactivate hub user ${user.user_key}? This hides the account from active user lists.`);
+  if (!ok) {
+    return;
+  }
+  const result = await apiDelete(`/users/${user.id}?confirm=true&delete_synology_user=${deleteSynology ? "true" : "false"}`);
+  await refreshUsers();
+  setStatus(result.message || `Deleted user ${user.user_key}.`);
+}
+
+async function changeMyPassword() {
+  if (!state.currentUser) {
+    return;
+  }
+  const values = await openFormDialog({
+    title: "Change password",
+    description: `Account: ${state.currentUser.user_key}`,
+    submitLabel: "Update password",
+    fields: [
+      { name: "currentPassword", label: "Current password", type: "password", required: true },
+      { name: "newPassword", label: "New password", type: "password", required: true },
+      { name: "confirmPassword", label: "Confirm password", type: "password", required: true },
+    ],
+  });
+  if (!values) {
+    return;
+  }
+  const currentPassword = String(values.currentPassword || "").trim();
+  const newPassword = String(values.newPassword || "").trim();
+  const confirmPassword = String(values.confirmPassword || "").trim();
+  if (!currentPassword || !newPassword) {
+    throw new Error("Current and new passwords are required.");
+  }
+  if (newPassword !== confirmPassword) {
+    throw new Error("Password confirmation does not match.");
+  }
+  await apiPost("/auth/me/password", {
+    current_password: currentPassword,
+    new_password: newPassword,
+  });
+  setStatus("Password updated.");
+}
+
+async function revokeSession(sessionId) {
+  const ok = window.confirm("Revoke this session?");
+  if (!ok) {
+    return;
+  }
+  await apiDelete(`/auth/sessions/${sessionId}`);
+  await refreshSessions();
+  setStatus("Session revoked.");
+}
+
+async function pollDashboard() {
+  if (!state.currentUser || dashboardPollInFlight || document.hidden) {
+    return;
+  }
+  dashboardPollInFlight = true;
+  try {
+    const pollTasks = [apiGet("/dashboard/summary").then((summary) => setSummary(summary))];
+    if (pageFlags.hasDashboardView) {
+      pollTasks.push(refreshDashboardActivity());
+    }
+    if (pageFlags.hasIndexingView) {
+      pollTasks.push(refreshIndexingJobs());
+    }
+    if (pageFlags.hasRawDatasetsView || pageKind === "raw-ops") {
+      if (Date.now() - state.rawDatasetsLastRefreshAt >= RAW_DATASETS_POLL_INTERVAL_MS) {
+        pollTasks.push(refreshRawDatasets({ preservePage: true }));
+      }
+    }
+    if (pageFlags.hasAutomaticArchivePolicy && isAdmin()) {
+      pollTasks.push(refreshAutomaticArchivePolicyStatus());
+    }
+    if (pageFlags.hasMicroManagerIngest && isAdmin()) {
+      pollTasks.push(refreshMicroManagerIngestStatus());
+    }
+    if (pageFlags.hasMigrationView) {
+      pollTasks.push(refreshMigrationPlans());
+    }
+    if (pageFlags.hasMiscStorageView) {
+      pollTasks.push(refreshMiscStorageItems());
+    }
+    if (pageFlags.hasExecutionTargetsView) {
+      pollTasks.push(refreshExecutionTargets());
+    }
+    if (pageFlags.hasRawPreviewQualityView && isAdmin()) {
+      pollTasks.push(refreshRawPreviewQualityStatus());
+    }
+    if (pageFlags.hasPipelineRunsView) {
+      pollTasks.push(refreshPipelineRuns());
+    }
+    if (pageFlags.hasYeastStrainsView) {
+      pollTasks.push(refreshYeastStrainStatus());
+    }
+    const hasActiveJob = state.indexingJobs.some((job) => job.status === "queued" || job.status === "running");
+    if (pageFlags.hasProjectsView && hasActiveJob) {
+      pollTasks.push(refreshProjects());
+    }
+    await Promise.all(pollTasks);
+    lastPollSucceededAt = new Date();
+    if (pageFlags.hasIndexingView && state.indexingJobs.length) {
+      setStatus(`Auto-refresh OK at ${lastPollSucceededAt.toLocaleTimeString()}.`);
+    }
+  } catch (error) {
+    const suffix = lastPollSucceededAt
+      ? ` Last successful refresh at ${lastPollSucceededAt.toLocaleTimeString()}.`
+      : "";
+    setStatus(`${String(error)}${suffix}`);
+  } finally {
+    dashboardPollInFlight = false;
+  }
+}
+
+async function refreshProjectsAndDetail() {
+  await refreshProjects();
+  if (state.selectedProject && pageFlags.hasProjectDetail) {
+    const stillExists = state.projects.find((project) => project.id === state.selectedProject.id);
+    if (stillExists) {
+      await selectProject(stillExists.id);
+    }
+  }
+}
+
+async function forceRefreshCurrentPage() {
+  if (!state.currentUser) {
+    await restoreSession();
+    return;
+  }
+  if (
+    pageFlags.hasDashboardView ||
+    pageFlags.hasProjectsView ||
+    pageFlags.hasRawDatasetsView ||
+    pageFlags.hasRawDatasetPage ||
+    pageFlags.hasAutomaticArchivePolicy ||
+    pageFlags.hasMicroManagerIngest ||
+    pageFlags.hasIndexingView ||
+    pageFlags.hasMiscStorageView ||
+    pageFlags.hasPipelinesView ||
+    pageFlags.hasUsersView ||
+    pageFlags.hasSessionsView ||
+    pageFlags.hasExternalElnAdminView ||
+    pageFlags.hasExternalSystemsView ||
+    pageFlags.hasYeastStrainsView ||
+    pageFlags.hasProjectPage
+  ) {
+    await refreshDashboard();
+  }
+}
+
+function ensureDashboardPolling() {
+  if (dashboardPollHandle !== null) {
+    return;
+  }
+  dashboardPollHandle = window.setInterval(() => {
+    pollDashboard().catch((error) => setStatus(String(error)));
+  }, 3000);
+}
+
+if (els.loginButton) els.loginButton.addEventListener("click", () => login().catch((error) => setStatus(String(error))));
+if (els.logoutButton) els.logoutButton.addEventListener("click", () => logout().catch((error) => setStatus(String(error))));
+if (els.refreshButton) els.refreshButton.addEventListener("click", () => forceRefreshCurrentPage().catch((error) => setStatus(String(error))));
+if (els.groupFilter) els.groupFilter.addEventListener("change", () => refreshProjects().catch((error) => setStatus(String(error))));
+if (els.projectSearch) els.projectSearch.addEventListener("input", () => {
+  state.projectCurrentPage = 0;
+  renderProjects();
+});
+if (els.ownerFilter) els.ownerFilter.addEventListener("change", () => refreshProjects().catch((error) => setStatus(String(error))));
+if (els.storageRootFilter) els.storageRootFilter.addEventListener("change", () => refreshProjects().catch((error) => setStatus(String(error))));
+if (els.projectLimit) els.projectLimit.addEventListener("change", () => refreshProjects().catch((error) => setStatus(String(error))));
+if (els.ownedOnly) els.ownedOnly.addEventListener("change", () => refreshProjects().catch((error) => setStatus(String(error))));
+if (els.projectSelectAll) els.projectSelectAll.addEventListener("change", () => setSelectedProjectIds(els.projectSelectAll.checked ? visibleProjectIds() : []));
+if (els.selectVisibleButton) els.selectVisibleButton.addEventListener("click", () => setSelectedProjectIds(visibleProjectIds()));
+if (els.clearSelectionButton) els.clearSelectionButton.addEventListener("click", () => setSelectedProjectIds([]));
+if (els.bulkQueuePreviewsSelectedButton) els.bulkQueuePreviewsSelectedButton.addEventListener("click", () => queueRawPreviewVideosForSelectedProjects().catch((error) => setStatus(String(error))));
+if (els.bulkDeleteSelectedButton) els.bulkDeleteSelectedButton.addEventListener("click", () => openBulkDeletePanel("selected").catch((error) => setStatus(String(error))));
+if (els.bulkDeleteMode) els.bulkDeleteMode.addEventListener("change", () => refreshBulkDeletePreview().catch((error) => setStatus(String(error))));
+if (els.bulkDeleteCancelButton) els.bulkDeleteCancelButton.addEventListener("click", () => closeBulkDeletePanel());
+if (els.bulkDeleteConfirmButton) els.bulkDeleteConfirmButton.addEventListener("click", () => executeBulkDelete().catch((error) => {
+  setStatus(String(error));
+  window.alert(String(error));
+}));
+if (els.rawSearch) els.rawSearch.addEventListener("input", () => {
+  state.rawDatasetCurrentPage = 0;
+  saveRawDatasetDisplaySettings();
+  renderRawDatasets();
+  renderArchivedRawDatasets();
+});
+if (els.rawOwnerFilter) els.rawOwnerFilter.addEventListener("change", () => {
+  state.rawDatasetCurrentPage = 0;
+  saveRawDatasetDisplaySettings();
+  refreshRawDatasets().catch((error) => setStatus(String(error)));
+});
+if (els.rawTierFilter) els.rawTierFilter.addEventListener("change", () => {
+  state.rawDatasetCurrentPage = 0;
+  saveRawDatasetDisplaySettings();
+  refreshRawDatasets().catch((error) => setStatus(String(error)));
+});
+if (els.rawArchiveStatusFilter) els.rawArchiveStatusFilter.addEventListener("change", () => {
+  state.rawDatasetCurrentPage = 0;
+  saveRawDatasetDisplaySettings();
+  refreshRawDatasets().catch((error) => setStatus(String(error)));
+});
+if (els.rawLimit) els.rawLimit.addEventListener("change", () => {
+  state.rawDatasetCurrentPage = 0;
+  state.rawDatasetPageSize = parseInt(els.rawLimit.value || "50", 10) || 50;
+  saveRawDatasetDisplaySettings();
+  refreshRawDatasets().catch((error) => setStatus(String(error)));
+});
+if (els.rawOwnedOnly) els.rawOwnedOnly.addEventListener("change", () => {
+  state.rawDatasetCurrentPage = 0;
+  saveRawDatasetDisplaySettings();
+  refreshRawDatasets().catch((error) => setStatus(String(error)));
+});
+if (els.rawBulkQueuePreviewsSelectedButton) els.rawBulkQueuePreviewsSelectedButton.addEventListener("click", () => queueRawPreviewVideosForSelectedRawDatasets().catch((error) => setStatus(String(error))));
+if (els.rawBulkOptimizeSelectedButton) els.rawBulkOptimizeSelectedButton.addEventListener("click", () => queueRawBulkStorageOptimization().catch((error) => {
+  setStatus(String(error));
+  window.alert(String(error));
+}));
+if (els.rawSelectAll) els.rawSelectAll.addEventListener("change", () => setSelectedRawDatasetIds(els.rawSelectAll.checked ? visibleRawDatasetIds() : []));
+if (els.rawSelectVisibleButton) els.rawSelectVisibleButton.addEventListener("click", () => setSelectedRawDatasetIds(visibleRawDatasetIds()));
+if (els.rawClearSelectionButton) els.rawClearSelectionButton.addEventListener("click", () => setSelectedRawDatasetIds([]));
+if (els.rawClearDisplaySettingsButton) els.rawClearDisplaySettingsButton.addEventListener("click", () => clearRawDatasetDisplaySettings());
+if (els.rawBulkDeleteSelectedButton) els.rawBulkDeleteSelectedButton.addEventListener("click", () => openRawBulkDeletePanel("selected").catch((error) => setStatus(String(error))));
+if (els.rawBulkDeleteMode) els.rawBulkDeleteMode.addEventListener("change", () => refreshRawBulkDeletePreview().catch((error) => setStatus(String(error))));
+if (els.rawBulkDeleteLinkedProjects) els.rawBulkDeleteLinkedProjects.addEventListener("change", () => refreshRawBulkDeletePreview().catch((error) => setStatus(String(error))));
+if (els.rawBulkDeleteLinkedProjectFiles) els.rawBulkDeleteLinkedProjectFiles.addEventListener("change", () => refreshRawBulkDeletePreview().catch((error) => setStatus(String(error))));
+if (els.rawBulkDeleteCancelButton) els.rawBulkDeleteCancelButton.addEventListener("click", () => closeRawBulkDeletePanel());
+if (els.rawBulkDeleteConfirmButton) els.rawBulkDeleteConfirmButton.addEventListener("click", () => executeRawBulkDelete().catch((error) => {
+  setStatus(String(error));
+  window.alert(String(error));
+}));
+if (els.rawBulkArchiveSelectedButton) els.rawBulkArchiveSelectedButton.addEventListener("click", () => requestRawBulkArchive("selected").catch((error) => {
+  setStatus(String(error));
+  window.alert(String(error));
+}));
+if (els.rawBulkRestoreSelectedButton) els.rawBulkRestoreSelectedButton.addEventListener("click", () => openRawBulkRestorePanel("selected").catch((error) => setStatus(String(error))));
+if (els.rawBulkRestoreVisibleButton) els.rawBulkRestoreVisibleButton.addEventListener("click", () => openRawBulkRestorePanel("visible").catch((error) => setStatus(String(error))));
+if (els.rawBulkRestoreCancelButton) els.rawBulkRestoreCancelButton.addEventListener("click", () => closeRawBulkRestorePanel());
+if (els.rawBulkRestoreConfirmButton) els.rawBulkRestoreConfirmButton.addEventListener("click", () => executeRawBulkRestore().catch((error) => {
+  setStatus(String(error));
+  window.alert(String(error));
+}));
+if (els.rawPositionSelectAll) els.rawPositionSelectAll.addEventListener("change", () => setSelectedRawPositionIds(els.rawPositionSelectAll.checked ? visibleRawPositionIds() : []));
+if (els.rawPositionClearSelectionButton) els.rawPositionClearSelectionButton.addEventListener("click", () => setSelectedRawPositionIds([]));
+if (els.rawPositionDeleteSelectedButton) els.rawPositionDeleteSelectedButton.addEventListener("click", () => openRawPositionDeletePanel().catch((error) => setStatus(String(error))));
+if (els.rawPositionDeleteCancelButton) els.rawPositionDeleteCancelButton.addEventListener("click", () => closeRawPositionDeletePanel());
+if (els.rawPositionDeleteConfirmButton) els.rawPositionDeleteConfirmButton.addEventListener("click", () => executeRawPositionDelete().catch((error) => {
+  setStatus(String(error));
+  window.alert(String(error));
+}));
+if (els.rawPositionDeleteConfirmText) els.rawPositionDeleteConfirmText.addEventListener("input", () => renderRawPositionDeletePanel());
+document.querySelectorAll("#projects-table th[data-sort-key]").forEach((th) => {
+  th.addEventListener("click", () => setTableSort("project", th.dataset.sortKey || ""));
+  th.addEventListener("keydown", (event) => {
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      setTableSort("project", th.dataset.sortKey || "");
+    }
+  });
+});
+document.querySelectorAll("#raw-datasets-table th[data-sort-key]").forEach((th) => {
+  th.addEventListener("click", () => setTableSort("raw", th.dataset.sortKey || ""));
+  th.addEventListener("keydown", (event) => {
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      setTableSort("raw", th.dataset.sortKey || "");
+    }
+  });
+});
+if (els.rawLabguruSearchButton) els.rawLabguruSearchButton.addEventListener("click", () => searchLabguruForSelectedRawDataset().catch((error) => {
+  setStatus(String(error));
+  window.alert(String(error));
+}));
+if (els.rawLabguruSearch) els.rawLabguruSearch.addEventListener("keydown", (event) => {
+  if (event.key === "Enter") {
+    event.preventDefault();
+    searchLabguruForSelectedRawDataset().catch((error) => setStatus(String(error)));
+  }
+});
+if (els.externalMatchGenerateButton) els.externalMatchGenerateButton.addEventListener("click", () => generateExternalMatchCandidates().catch((error) => {
+  setStatus(String(error));
+  window.alert(String(error));
+}));
+if (els.externalMatchSyncButton) els.externalMatchSyncButton.addEventListener("click", () => queueExternalElnSync().catch((error) => {
+  setStatus(String(error));
+  window.alert(String(error));
+}));
+if (els.externalMatchRefreshButton) els.externalMatchRefreshButton.addEventListener("click", () => refreshExternalElnMatching().catch((error) => setStatus(String(error))));
+if (els.externalMatchStatusFilter) els.externalMatchStatusFilter.addEventListener("change", () => refreshExternalElnMatching().catch((error) => setStatus(String(error))));
+if (els.externalMatchSelectAll) els.externalMatchSelectAll.addEventListener("change", (event) => {
+  setSelectedExternalMatchCandidateIds(Boolean(event.target.checked) ? visibleExternalMatchCandidateIds() : []);
+});
+if (els.externalMatchSelectVisibleButton) els.externalMatchSelectVisibleButton.addEventListener("click", () => {
+  setSelectedExternalMatchCandidateIds(visibleExternalMatchCandidateIds());
+});
+if (els.externalMatchClearSelectionButton) els.externalMatchClearSelectionButton.addEventListener("click", () => {
+  setSelectedExternalMatchCandidateIds([]);
+});
+if (els.externalMatchAcceptSelectedButton) els.externalMatchAcceptSelectedButton.addEventListener("click", () => reviewSelectedExternalMatchCandidates("accept").catch((error) => {
+  setStatus(String(error));
+  window.alert(String(error));
+}));
+if (els.externalMatchRejectSelectedButton) els.externalMatchRejectSelectedButton.addEventListener("click", () => reviewSelectedExternalMatchCandidates("reject").catch((error) => {
+  setStatus(String(error));
+  window.alert(String(error));
+}));
+if (els.externalUserStatusFilter) els.externalUserStatusFilter.addEventListener("change", () => refreshExternalElnMatching().catch((error) => setStatus(String(error))));
+if (els.externalCredentialSaveButton) els.externalCredentialSaveButton.addEventListener("click", () => saveExternalCredential().catch((error) => {
+  setStatus(String(error));
+  window.alert(String(error));
+}));
+if (els.externalCredentialTestButton) els.externalCredentialTestButton.addEventListener("click", () => testExternalCredential().catch((error) => {
+  setStatus(String(error));
+  window.alert(String(error));
+}));
+if (els.externalCredentialDeleteButton) els.externalCredentialDeleteButton.addEventListener("click", () => deleteExternalCredential().catch((error) => {
+  setStatus(String(error));
+  window.alert(String(error));
+}));
+if (els.yeastStrainSearch) els.yeastStrainSearch.addEventListener("input", queueYeastSearchRefresh);
+if (els.yeastStrainMatch) els.yeastStrainMatch.addEventListener("change", () => refreshYeastStrains().catch((error) => setStatus(String(error))));
+if (els.yeastStrainLimit) els.yeastStrainLimit.addEventListener("change", () => refreshYeastStrains().catch((error) => setStatus(String(error))));
+if (els.yeastStrainSort) els.yeastStrainSort.addEventListener("change", renderYeastStrains);
+for (const scopeInput of document.querySelectorAll('input[name="yeast-scope"]')) {
+  scopeInput.addEventListener("change", () => refreshYeastStrains().catch((error) => setStatus(String(error))));
+}
+if (els.yeastStrainMoreButton) els.yeastStrainMoreButton.addEventListener("click", () => refreshYeastStrains({ append: true }).catch((error) => setStatus(String(error))));
+if (els.yeastStrainSyncButton) els.yeastStrainSyncButton.addEventListener("click", () => queueYeastStrainSync().catch((error) => {
+  setStatus(String(error));
+  window.alert(String(error));
+}));
+if (els.newGroupButton) els.newGroupButton.addEventListener("click", () => createGroup().catch((error) => setStatus(String(error))));
+if (els.projectNotesSaveButton) els.projectNotesSaveButton.addEventListener("click", () => saveProjectNotes().catch((error) => setStatus(String(error))));
+if (els.rawDatasetNotesSaveButton) els.rawDatasetNotesSaveButton.addEventListener("click", () => saveRawDatasetNotes().catch((error) => setStatus(String(error))));
+if (els.shareButton) els.shareButton.addEventListener("click", () => shareProject().catch((error) => setStatus(String(error))));
+if (els.editProjectButton) els.editProjectButton.addEventListener("click", () => {
+  if (pageFlags.hasProjectPage) {
+    editProject().catch((error) => setStatus(String(error)));
+  } else {
+    openSelectedProjectPage();
+  }
+});
+if (els.updateProjectButton) els.updateProjectButton.addEventListener("click", () => editProject().catch((error) => setStatus(String(error))));
+if (els.rawBulkRestoreSelectedButton) els.rawBulkRestoreSelectedButton.addEventListener("click", () => openRawBulkRestorePanel("selected").catch((error) => setStatus(String(error))));
+if (els.rawBulkRestoreVisibleButton) els.rawBulkRestoreVisibleButton.addEventListener("click", () => openRawBulkRestorePanel("visible").catch((error) => setStatus(String(error))));
+if (els.rawBulkRestoreCancelButton) els.rawBulkRestoreCancelButton.addEventListener("click", () => closeRawBulkRestorePanel());
+if (els.rawBulkRestoreConfirmButton) els.rawBulkRestoreConfirmButton.addEventListener("click", () => executeRawBulkRestore().catch((error) => {
+  setStatus(String(error));
+  window.alert(String(error));
+}));
+
+if (els.changeProjectOwnerButton) els.changeProjectOwnerButton.addEventListener("click", () => changeProjectOwner().catch((error) => setStatus(String(error))));
+if (els.addToGroupButton) els.addToGroupButton.addEventListener("click", () => addSelectedProjectToGroup().catch((error) => setStatus(String(error))));
+if (els.projectQueueRawPreviewsButton) els.projectQueueRawPreviewsButton.addEventListener("click", () => queueProjectRawPreviewVideos().catch((error) => setStatus(String(error))));
+if (els.previewDeleteButton) els.previewDeleteButton.addEventListener("click", () => deleteProject().catch((error) => setStatus(String(error))));
+if (els.indexBrowseRoot) els.indexBrowseRoot.addEventListener("change", () => openIndexBrowserPath("").catch((error) => setStatus(String(error))));
+if (els.indexBrowseOpenButton) els.indexBrowseOpenButton.addEventListener("click", () => openIndexBrowserPath(state.indexBrowse?.current_relative_path || "").catch((error) => setStatus(String(error))));
+if (els.indexBrowseUpButton) els.indexBrowseUpButton.addEventListener("click", () => {
+  const parentPath = state.indexBrowse?.parent_relative_path;
+  if (parentPath === null || parentPath === undefined) {
+    return;
+  }
+  openIndexBrowserPath(parentPath).catch((error) => setStatus(String(error)));
+});
+if (els.indexBrowseUseButton) els.indexBrowseUseButton.addEventListener("click", () => useSelectedIndexFolder());
+if (els.indexButton) els.indexButton.addEventListener("click", () => runIndexing().catch((error) => setStatus(String(error))));
+if (els.indexJobsRefreshButton) els.indexJobsRefreshButton.addEventListener("click", () => refreshIndexingJobs().catch((error) => setStatus(String(error))));
+if (els.indexJobsClearStaleButton) els.indexJobsClearStaleButton.addEventListener("click", () => clearStaleIndexingJobs().catch((error) => {
+  setStatus(String(error));
+  window.alert(String(error));
+}));
+if (els.migrationCreateButton) els.migrationCreateButton.addEventListener("click", () => createMigrationPlan().catch((error) => setStatus(String(error))));
+if (els.migrationRefreshButton) els.migrationRefreshButton.addEventListener("click", () => refreshMigrationPlans().catch((error) => setStatus(String(error))));
+if (els.migrationExecutePilotButton) els.migrationExecutePilotButton.addEventListener("click", () => executePilotBatch().catch((error) => setStatus(String(error))));
+if (els.miscInventoryButton) els.miscInventoryButton.addEventListener("click", () => queueMiscStorageInventory().catch((error) => setStatus(String(error))));
+if (els.miscRefreshButton) els.miscRefreshButton.addEventListener("click", () => refreshMiscStorageItems().catch((error) => setStatus(String(error))));
+if (els.miscPurgeButton) els.miscPurgeButton.addEventListener("click", () => purgeMiscStorageItems().catch((error) => {
+  setStatus(String(error));
+  window.alert(String(error));
+}));
+if (els.miscSearch) els.miscSearch.addEventListener("input", () => renderMiscStorageItems());
+if (els.miscOwnerFilter) els.miscOwnerFilter.addEventListener("change", () => refreshMiscStorageItems().catch((error) => setStatus(String(error))));
+if (els.miscCategoryFilter) els.miscCategoryFilter.addEventListener("change", () => refreshMiscStorageItems().catch((error) => setStatus(String(error))));
+if (els.miscStatusFilter) els.miscStatusFilter.addEventListener("change", () => refreshMiscStorageItems().catch((error) => setStatus(String(error))));
+if (els.miscMinSizeFilterGb) els.miscMinSizeFilterGb.addEventListener("change", () => refreshMiscStorageItems().catch((error) => setStatus(String(error))));
+if (els.rawPreviewArchiveButton) els.rawPreviewArchiveButton.addEventListener("click", () => previewRawArchive().catch((error) => setStatus(String(error))));
+if (els.rawQueuePreviewButton) els.rawQueuePreviewButton.addEventListener("click", () => queueRawPreviewVideo("").catch((error) => setStatus(String(error))));
+if (els.rawRegeneratePreviewButton) els.rawRegeneratePreviewButton.addEventListener("click", () => regenerateRawPreviewVideos().catch((error) => setStatus(String(error))));
+if (els.rawPreviewQualityRefreshButton) els.rawPreviewQualityRefreshButton.addEventListener("click", () => refreshRawPreviewQualityStatus().catch((error) => setStatus(String(error))));
+if (els.rawPreviewQualitySaveButton) els.rawPreviewQualitySaveButton.addEventListener("click", () => saveRawPreviewQualitySettings().catch((error) => setStatus(String(error))));
+if (els.rawPreviewQualityFrameMode) els.rawPreviewQualityFrameMode.addEventListener("change", updateRawPreviewFrameModeUi);
+if (els.changeRawOwnerButton) els.changeRawOwnerButton.addEventListener("click", () => changeRawDatasetOwner().catch((error) => setStatus(String(error))));
+if (els.rawArchiveButton) els.rawArchiveButton.addEventListener("click", () => requestRawArchive().catch((error) => setStatus(String(error))));
+if (els.rawStorageOptimizeButton) els.rawStorageOptimizeButton.addEventListener("click", () => queueRawStorageOptimization().catch((error) => {
+  setStatus(String(error));
+  window.alert(String(error));
+}));
+if (els.rawDeleteArchiveButton) els.rawDeleteArchiveButton.addEventListener("click", () => deleteRawArchive().catch((error) => setStatus(String(error))));
+if (els.rawRestoreButton) els.rawRestoreButton.addEventListener("click", () => requestRawRestore().catch((error) => setStatus(String(error))));
+if (els.rawDeleteDatasetButton) els.rawDeleteDatasetButton.addEventListener("click", () => deleteRawDatasetFromDetail().catch((error) => {
+  setStatus(String(error));
+  window.alert(String(error));
+}));
+if (els.rawPrevDatasetButton) els.rawPrevDatasetButton.addEventListener("click", () => navigateRawDataset(-1).catch((error) => setStatus(String(error))));
+if (els.rawNextDatasetButton) els.rawNextDatasetButton.addEventListener("click", () => navigateRawDataset(1).catch((error) => setStatus(String(error))));
+if (els.rawBackupExcluded) els.rawBackupExcluded.addEventListener("change", () => toggleRawBackupExclude().catch((error) => setStatus(String(error))));
+if (els.rawBackupNowButton) els.rawBackupNowButton.addEventListener("click", () => backupRawDatasetNow().catch((error) => { if (els.rawBackupFeedback) els.rawBackupFeedback.textContent = String(error); setStatus(String(error)); }));
+if (els.rawSnapshotsLoadButton) els.rawSnapshotsLoadButton.addEventListener("click", () => loadRawDatasetSnapshots().catch((error) => setStatus(String(error))));
+if (els.rawRestoreConfirmButton) els.rawRestoreConfirmButton.addEventListener("click", () => confirmRawRestore().catch((error) => setStatus(String(error))));
+if (els.rawRestoreCancelButton) els.rawRestoreCancelButton.addEventListener("click", () => { if (els.rawRestorePanel) els.rawRestorePanel.classList.add("hidden"); });
+if (els.projectBackupNowButton) els.projectBackupNowButton.addEventListener("click", () => backupProjectNow().catch((error) => { if (els.projectBackupFeedback) els.projectBackupFeedback.textContent = String(error); setStatus(String(error)); }));
+if (els.projectBackupExcluded) els.projectBackupExcluded.addEventListener("change", () => toggleProjectBackupExclude().catch((error) => setStatus(String(error))));
+if (els.projectSnapshotsLoadButton) els.projectSnapshotsLoadButton.addEventListener("click", () => loadProjectSnapshots().catch((error) => setStatus(String(error))));
+if (els.projectRestoreConfirmButton) els.projectRestoreConfirmButton.addEventListener("click", () => confirmProjectRestore().catch((error) => setStatus(String(error))));
+if (els.projectRestoreCancelButton) els.projectRestoreCancelButton.addEventListener("click", () => { if (els.projectRestorePanel) els.projectRestorePanel.classList.add("hidden"); });
+if (els.projectBrowserCloseButton) els.projectBrowserCloseButton.addEventListener("click", () => { if (els.projectFileBrowser) els.projectFileBrowser.classList.add("hidden"); });
+if (els.projectBrowserUpButton) els.projectBrowserUpButton.addEventListener("click", () => {
+  if (_projectBrowser.pathStack.length > 0) {
+    _projectBrowser.pathStack.pop();
+    _loadProjectBrowserDir().catch(err => setStatus(String(err)));
+  }
+});
+if (els.projectBrowserRestoreButton) els.projectBrowserRestoreButton.addEventListener("click", () => confirmProjectSelectiveRestore().catch((error) => setStatus(String(error))));
+if (els.projectBrowserRestoreCancelButton) els.projectBrowserRestoreCancelButton.addEventListener("click", () => {
+  if (els.projectBrowserRestorePanel) els.projectBrowserRestorePanel.classList.add("hidden");
+  if (els.projectFileBrowser) els.projectFileBrowser.classList.add("hidden");
+  _projectBrowser.selected = new Set();
+});
+if (els.archiveSettingsRefreshButton) els.archiveSettingsRefreshButton.addEventListener("click", () => refreshArchiveSettingsStatus().catch((error) => setStatus(String(error))));
+if (els.archiveSettingsSaveButton) els.archiveSettingsSaveButton.addEventListener("click", () => saveArchiveSettings().catch((error) => setStatus(String(error))));
+if (els.automaticArchivePolicyRefreshButton) els.automaticArchivePolicyRefreshButton.addEventListener("click", () => refreshAutomaticArchivePolicyStatus().catch((error) => setStatus(String(error))));
+if (els.automaticArchivePolicyRunButton) els.automaticArchivePolicyRunButton.addEventListener("click", () => runAutomaticArchivePolicy().catch((error) => setStatus(String(error))));
+if (els.micromanagerIngestRefreshButton) els.micromanagerIngestRefreshButton.addEventListener("click", () => refreshMicroManagerIngestStatus().catch((error) => setStatus(String(error))));
+if (els.micromanagerIngestRunButton) els.micromanagerIngestRunButton.addEventListener("click", () => runMicroManagerIngest().catch((error) => {
+  setStatus(String(error));
+  window.alert(String(error));
+}));
+if (els.micromanagerIngestRootMode) els.micromanagerIngestRootMode.addEventListener("change", () => {
+  saveMicroManagerIngestRootModePreference();
+  updateMicroManagerIngestModeUi();
+});
+if (els.micromanagerIngestReportOnly) els.micromanagerIngestReportOnly.addEventListener("change", saveMicroManagerIngestReportOnlyPreference);
+if (els.archivePolicyPreviewButton) els.archivePolicyPreviewButton.addEventListener("click", () => previewArchivePolicy().catch((error) => setStatus(String(error))));
+if (els.archivePolicyQueueButton) els.archivePolicyQueueButton.addEventListener("click", () => queueArchivePolicy().catch((error) => setStatus(String(error))));
+if (els.archivedRawSelectAll) els.archivedRawSelectAll.addEventListener("change", () => setSelectedRawDatasetIds(els.archivedRawSelectAll.checked ? visibleArchivedRawDatasetIds() : []));
+if (els.archivedRawSelectVisibleButton) els.archivedRawSelectVisibleButton.addEventListener("click", () => setSelectedRawDatasetIds(visibleArchivedRawDatasetIds()));
+if (els.archivedRawClearSelectionButton) els.archivedRawClearSelectionButton.addEventListener("click", () => setSelectedRawDatasetIds([]));
+if (els.archivedRawDeleteSelectedButton) els.archivedRawDeleteSelectedButton.addEventListener("click", () => deleteSelectedRawArchives().catch((error) => setStatus(String(error))));
+if (els.refreshPipelinesButton) els.refreshPipelinesButton.addEventListener("click", () => refreshPipelines().catch((error) => setStatus(String(error))));
+if (els.importObservedPipelinesButton) els.importObservedPipelinesButton.addEventListener("click", () => importObservedPipelines().catch((error) => setStatus(String(error))));
+if (els.newPipelineButton) els.newPipelineButton.addEventListener("click", () => createPipeline().catch((error) => setStatus(String(error))));
+if (els.pipelineSearch) els.pipelineSearch.addEventListener("change", () => refreshPipelines().catch((error) => setStatus(String(error))));
+if (els.pipelineRuntimeFilter) els.pipelineRuntimeFilter.addEventListener("change", () => refreshPipelines().catch((error) => setStatus(String(error))));
+if (els.pipelineSourceFilter) els.pipelineSourceFilter.addEventListener("change", () => renderPipelines());
+if (els.pipelineRunProjectSelect) els.pipelineRunProjectSelect.addEventListener("change", () => renderPipelineRunBuilder());
+if (els.pipelineRunPipelineSelect) els.pipelineRunPipelineSelect.addEventListener("change", () => renderPipelineRunBuilder());
+if (els.pipelineRunTargetSelect) els.pipelineRunTargetSelect.addEventListener("change", () => renderPipelineRunBuilder());
+if (els.pipelineRunPythonModeSelect) els.pipelineRunPythonModeSelect.addEventListener("change", () => renderPipelineRunBuilder());
+if (els.refreshPipelineRunsButton) els.refreshPipelineRunsButton.addEventListener("click", () => refreshPipelineRuns().catch((error) => setStatus(String(error))));
+if (els.newPipelineRunButton) els.newPipelineRunButton.addEventListener("click", () => resetPipelineRunForm());
+if (els.cancelPipelineRunButton) els.cancelPipelineRunButton.addEventListener("click", () => cancelSelectedPipelineRun().catch((error) => {
+  setStatus(String(error));
+  window.alert(String(error));
+}));
+if (els.submitPipelineRunButton) els.submitPipelineRunButton.addEventListener("click", () => submitPipelineRun().catch((error) => {
+  setStatus(String(error));
+  window.alert(String(error));
+}));
+if (els.refreshExecutionTargetsButton) els.refreshExecutionTargetsButton.addEventListener("click", () => refreshExecutionTargets().catch((error) => setStatus(String(error))));
+if (els.newExecutionTargetButton) els.newExecutionTargetButton.addEventListener("click", () => resetExecutionTargetForm());
+if (els.cancelExecutionTargetEditButton) els.cancelExecutionTargetEditButton.addEventListener("click", () => cancelExecutionTargetEdit());
+if (els.openExecutionTargetConfigButton) els.openExecutionTargetConfigButton.addEventListener("click", () => {
+  try {
+    openExecutionTargetConfig();
+  } catch (error) {
+    setStatus(String(error));
+    window.alert(String(error));
+  }
+});
+if (els.applyWorkerInstancesButton) els.applyWorkerInstancesButton.addEventListener("click", () => applyWorkerInstances().catch((error) => {
+  setStatus(String(error));
+  window.alert(String(error));
+}));
+if (els.purgeQueuedJobsButton) els.purgeQueuedJobsButton.addEventListener("click", () => purgeQueuedJobs().catch((error) => {
+  setStatus(String(error));
+  window.alert(String(error));
+}));
+if (els.applyExecutionTargetDrainButton) els.applyExecutionTargetDrainButton.addEventListener("click", () => applyExecutionTargetDrain().catch((error) => {
+  setStatus(String(error));
+  window.alert(String(error));
+}));
+if (els.saveExecutionTargetButton) els.saveExecutionTargetButton.addEventListener("click", () => saveExecutionTarget().catch((error) => {
+  setStatus(String(error));
+  window.alert(String(error));
+}));
+if (els.jobPrioritySettingsTableBody) els.jobPrioritySettingsTableBody.addEventListener("input", (event) => {
+  if (!event.target.closest("[data-job-priority-kind], [data-job-resource-kind]")) {
+    return;
+  }
+  state.jobPrioritySettingsDirty = true;
+  if (els.jobPrioritySettingsSummary) {
+    els.jobPrioritySettingsSummary.textContent = "Unsaved changes. Click Save priorities to apply them.";
+  }
+});
+for (const input of [els.jobResourceCpuCapacity, els.jobResourceGpuVramCapacity, els.jobResourceDiskCapacity]) {
+  if (input) input.addEventListener("input", () => {
+    state.jobPrioritySettingsDirty = true;
+    if (els.jobPrioritySettingsSummary) {
+      els.jobPrioritySettingsSummary.textContent = "Unsaved changes. Click Save priorities to apply them.";
+    }
+  });
+}
+if (els.refreshJobPrioritiesButton) els.refreshJobPrioritiesButton.addEventListener("click", () => refreshJobPrioritySettings().catch((error) => setStatus(String(error))));
+if (els.saveJobPrioritiesButton) els.saveJobPrioritiesButton.addEventListener("click", () => saveJobPrioritySettings().catch((error) => {
+  setStatus(String(error));
+  window.alert(String(error));
+}));
+if (els.newUserButton) els.newUserButton.addEventListener("click", () => createUser().catch((error) => setStatus(String(error))));
+if (els.bulkImportUsersButton) els.bulkImportUsersButton.addEventListener("click", () => bulkImportUsers().catch((error) => {
+  setStatus(String(error));
+  window.alert(String(error));
+}));
+if (els.refreshSessionsButton) els.refreshSessionsButton.addEventListener("click", () => refreshSessions().catch((error) => setStatus(String(error))));
+
+ensureDashboardPolling();
+initializeAppLayout();
+ensureDiskSpacePolling();
+restoreMicroManagerIngestControls();
+updateSessionUi();
+restoreSession().catch((error) => setStatus(String(error)));

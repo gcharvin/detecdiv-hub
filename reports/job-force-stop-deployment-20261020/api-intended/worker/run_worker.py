@@ -1,0 +1,659 @@
+from __future__ import annotations
+
+import logging
+import os
+import socket
+import threading
+import time
+from contextlib import contextmanager
+from datetime import datetime, timezone
+
+from sqlalchemy import func, select
+
+from api.config import get_settings
+from api.db import SessionLocal
+from api.models import ExecutionTarget, IndexingJob, Job, RawDatasetPosition
+from api.services.external_eln import sync_external_eln_system
+from api.services.indexing_jobs import execute_indexing_job
+from api.services.project_deletion import execute_project_deletion_job, finalize_project_deletion_failure
+from api.services.project_locks import heartbeat_project_locks_for_job, release_project_locks_for_job
+from api.services.raw_dataset_deletion import execute_raw_dataset_deletion_job
+from api.services.raw_dataset_position_deletion import execute_raw_dataset_position_deletion_job
+from api.services.worker_instances import (
+    active_worker_current_job_ids,
+    execution_target_worker_metadata,
+    upsert_worker_instance,
+)
+from worker.archive_policy_scheduler import run_archive_policy_if_due
+from worker.backup_executor import BACKUP_JOB_KINDS, execute_backup_job, finalize_backup_failure
+from worker.backup_scheduler import run_backup_if_due
+from worker.misc_storage_inventory import execute_misc_storage_inventory_job
+from worker.micromanager_ingest_scheduler import run_micromanager_ingest_if_due
+from worker.pipeline_run_executor import PipelineRunCancelled, execute_pipeline_run_job
+from worker.storage_lifecycle import execute_storage_lifecycle_job, finalize_storage_lifecycle_failure
+from worker.user_home_storage import execute_user_home_storage_job, finalize_user_home_storage_failure
+
+
+logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
+LOGGER = logging.getLogger("detecdiv-hub-worker")
+
+
+@contextmanager
+def session_scope():
+    session = SessionLocal()
+    try:
+        yield session
+        session.commit()
+    except Exception:
+        session.rollback()
+        raise
+    finally:
+        session.close()
+
+
+def get_worker_instance_id() -> str:
+    configured = str(get_settings().worker_instance or "").strip()
+    if configured:
+        return normalize_worker_instance_id(configured)
+    return normalize_worker_instance_id(f"{socket.gethostname()}-pid{os.getpid()}")
+
+
+def normalize_worker_instance_id(value: str) -> str:
+    text = str(value or "").strip()
+    if not text:
+        return text
+    if text.lower() == "main":
+        return "main"
+    core = text[1:] if text.startswith("@") else text
+    if core.isdigit():
+        return f"@{core}"
+    return text
+
+
+def running_job_is_stale(job: Job) -> bool:
+    now = datetime.now(timezone.utc)
+    reference_time = job.heartbeat_at or job.updated_at or job.started_at or job.created_at
+    if reference_time is None:
+        return True
+    return (now - reference_time).total_seconds() > 60
+
+
+def keep_running_job_alive(stop_event: threading.Event, *, job_id) -> None:
+    settings = get_settings()
+    while not stop_event.wait(10.0):
+        try:
+            with session_scope() as session:
+                job = session.get(Job, job_id)
+                if job is None or job.status not in {"running", "cancelling"}:
+                    return
+                now = datetime.now(timezone.utc)
+                job.heartbeat_at = now
+                job.updated_at = now
+                heartbeat_project_locks_for_job(session, job_id=job.id)
+                sync_indexing_job_heartbeat(session, job=job, now=now)
+                target = resolve_target_for_job(session, job=job, configured_target_key=settings.worker_target_key)
+                update_worker_target_state(
+                    session,
+                    target=target,
+                    health="busy",
+                    current_job=job,
+                    last_job_status="running",
+                )
+        except Exception:  # pragma: no cover - defensive around keepalive
+            LOGGER.exception("Job keepalive update failed for %s", job_id)
+
+
+def sync_indexing_job_heartbeat(session, *, job: Job, now: datetime) -> None:
+    if (job.params_json or {}).get("job_kind") != "project_indexing":
+        return
+    indexing_job_id = (job.params_json or {}).get("indexing_job_id")
+    if not indexing_job_id:
+        return
+    indexing_job = session.get(IndexingJob, indexing_job_id)
+    if indexing_job is None or indexing_job.status != "running":
+        return
+    indexing_job.heartbeat_at = now
+    indexing_job.updated_at = now
+
+
+def recover_orphaned_jobs(session, *, target: ExecutionTarget | None) -> int:
+    if target is None:
+        return 0
+
+    active_job_ids = active_worker_current_job_ids(session, target=target)
+    running_jobs = list(
+        session.scalars(
+            select(Job).where(
+                Job.execution_target_id == target.id,
+                Job.status.in_(("running", "cancelling")),
+            )
+        )
+    )
+    recovered = 0
+    for job in running_jobs:
+        if str(job.id) in active_job_ids:
+            continue
+        if not running_job_is_stale(job):
+            continue
+        job.status = "failed"
+        job.error_text = "Job was orphaned after worker restart or heartbeat loss."
+        job.finished_at = datetime.now(timezone.utc)
+        job.heartbeat_at = job.finished_at
+        job.updated_at = job.finished_at
+        sync_indexing_job_from_worker_job(
+            session,
+            job=job,
+            status="stale",
+            phase="stale",
+            message="Marked stale after worker heartbeat loss.",
+            error_text=job.error_text,
+            finished_at=job.finished_at,
+        )
+        if (job.params_json or {}).get("job_kind") == "raw_preview_video":
+            update_raw_preview_position_state(session, job=job, status="failed")
+        recovered += 1
+        LOGGER.warning("Recovered orphaned job %s on target %s", job.id, target.display_name)
+    if recovered:
+        update_worker_target_state(
+            session,
+            target=target,
+            health="online",
+            current_job=None,
+            last_job_status="recovered_orphaned_jobs",
+        )
+    return recovered
+
+
+def claim_next_job() -> Job | None:
+    settings = get_settings()
+    with session_scope() as session:
+        target = resolve_worker_target(session, settings.worker_target_key)
+        if target is not None:
+            target = session.scalars(select(ExecutionTarget).where(ExecutionTarget.id == target.id).with_for_update()).one()
+            if bool((target.metadata_json or {}).get("drain_new_jobs")):
+                update_worker_target_state(
+                    session,
+                    target=target,
+                    health="online",
+                    current_job=None,
+                    last_job_status="drain_active",
+                )
+                return None
+            max_concurrent_jobs = read_positive_int((target.metadata_json or {}).get("max_concurrent_jobs"))
+            if max_concurrent_jobs is not None:
+                running_jobs = session.scalar(
+                    select(func.count(Job.id)).where(
+                        Job.execution_target_id == target.id,
+                        Job.status.in_(("running", "cancelling")),
+                    )
+                )
+                if int(running_jobs or 0) >= max_concurrent_jobs:
+                    update_worker_target_state(
+                        session,
+                        target=target,
+                        health="busy",
+                        current_job=None,
+                        last_job_status="capacity_full",
+                    )
+                    return None
+        stmt = (
+            select(Job)
+            .where(Job.status == "queued")
+            .order_by(Job.priority.asc(), Job.created_at.asc())
+            .limit(1)
+            .with_for_update(skip_locked=True)
+        )
+        if target is not None:
+            stmt = stmt.where((Job.execution_target_id.is_(None)) | (Job.execution_target_id == target.id))
+        job = session.scalars(stmt).first()
+        if job is None:
+            update_worker_target_state(
+                session,
+                target=target,
+                health="idle",
+                current_job=None,
+                last_job_status=None,
+            )
+            return None
+
+        job.status = "running"
+        job.resolved_mode = job.requested_mode if job.requested_mode != "auto" else "server"
+        job.started_at = datetime.now(timezone.utc)
+        job.heartbeat_at = job.started_at
+        job.updated_at = datetime.now(timezone.utc)
+        if target is not None and job.execution_target_id is None:
+            job.execution_target_id = target.id
+        update_worker_target_state(
+            session,
+            target=target,
+            health="busy",
+            current_job=job,
+            last_job_status="running",
+        )
+        session.flush()
+        session.expunge(job)
+        return job
+
+
+def mark_job_done(job_id, result_json: dict) -> None:
+    settings = get_settings()
+    with session_scope() as session:
+        job = session.get(Job, job_id, with_for_update=True, populate_existing=True)
+        if job is None:
+            return
+        job.status = "done"
+        job.result_json = result_json
+        job.finished_at = datetime.now(timezone.utc)
+        job.heartbeat_at = job.finished_at
+        job.updated_at = datetime.now(timezone.utc)
+        release_project_locks_for_job(session, job_id=job.id)
+        if (job.params_json or {}).get("job_kind") == "raw_preview_video":
+            update_raw_preview_position_state(session, job=job, status=result_json.get("preview_status", "done"))
+        target = resolve_target_for_job(session, job=job, configured_target_key=settings.worker_target_key)
+        update_worker_target_state(
+            session,
+            target=target,
+            health="online",
+            current_job=None,
+            last_job_status="done",
+            last_job=job,
+        )
+
+
+def mark_job_failed(job_id, error_text: str) -> None:
+    settings = get_settings()
+    with session_scope() as session:
+        job = session.get(Job, job_id)
+        if job is None:
+            return
+        job.status = "failed"
+        job.error_text = error_text
+        job.finished_at = datetime.now(timezone.utc)
+        job.heartbeat_at = job.finished_at
+        job.updated_at = datetime.now(timezone.utc)
+        release_project_locks_for_job(session, job_id=job.id)
+        sync_indexing_job_from_worker_job(
+            session,
+            job=job,
+            status="failed",
+            phase="failed",
+            message="Indexing failed.",
+            error_text=error_text,
+            finished_at=job.finished_at,
+        )
+        if (job.params_json or {}).get("job_kind") == "raw_preview_video":
+            update_raw_preview_position_state(session, job=job, status="failed")
+        target = resolve_target_for_job(session, job=job, configured_target_key=settings.worker_target_key)
+        update_worker_target_state(
+            session,
+            target=target,
+            health="error",
+            current_job=None,
+            last_job_status="failed",
+            last_job=job,
+            error_text=error_text,
+        )
+
+
+def mark_job_cancelled(job_id, message: str) -> None:
+    settings = get_settings()
+    with session_scope() as session:
+        job = session.get(Job, job_id)
+        if job is None:
+            return
+        job.status = "cancelled"
+        result_json = dict(job.result_json or {})
+        result_json["status"] = "cancelled"
+        result_json["message"] = message or "Pipeline run cancelled by user."
+        job.result_json = result_json
+        job.error_text = message or None
+        job.finished_at = datetime.now(timezone.utc)
+        job.heartbeat_at = job.finished_at
+        job.updated_at = datetime.now(timezone.utc)
+        release_project_locks_for_job(session, job_id=job.id)
+        sync_indexing_job_from_worker_job(
+            session,
+            job=job,
+            status="failed",
+            phase="failed",
+            message=message or "Indexing cancelled.",
+            error_text=message or None,
+            finished_at=job.finished_at,
+        )
+        target = resolve_target_for_job(session, job=job, configured_target_key=settings.worker_target_key)
+        update_worker_target_state(
+            session,
+            target=target,
+            health="online",
+            current_job=None,
+            last_job_status="cancelled",
+            last_job=job,
+        )
+
+
+def execute_job(job: Job) -> dict:
+    job_kind = (job.params_json or {}).get("job_kind")
+    LOGGER.info("Executing job %s on host %s instance %s", job.id, socket.gethostname(), get_worker_instance_id())
+    if job_kind == "pipeline_run":
+        with session_scope() as session:
+            job_record = session.get(Job, job.id)
+            if job_record is None:
+                raise ValueError(f"Job {job.id} disappeared before execution")
+            result_json = execute_pipeline_run_job(session, job=job_record)
+            result_json["worker_instance"] = get_worker_instance_id()
+            return result_json
+    if job_kind == "project_indexing":
+        indexing_job_id = (job.params_json or {}).get("indexing_job_id")
+        if not indexing_job_id:
+            raise ValueError(f"Indexing worker job {job.id} is missing indexing_job_id")
+        result_json = execute_indexing_job(indexing_job_id)
+        result_json["worker_host"] = socket.gethostname()
+        result_json["worker_instance"] = get_worker_instance_id()
+        result_json["requested_mode"] = job.requested_mode
+        result_json["resolved_mode"] = job.resolved_mode
+        return result_json
+    if job_kind in {"archive_raw_dataset", "restore_raw_dataset"}:
+        with session_scope() as session:
+            job_record = session.get(Job, job.id)
+            if job_record is None:
+                raise ValueError(f"Job {job.id} disappeared before execution")
+            result_json = execute_storage_lifecycle_job(session, job=job_record)
+            result_json["worker_instance"] = get_worker_instance_id()
+            return result_json
+    if job_kind == "project_deletion":
+        with session_scope() as session:
+            job_record = session.get(Job, job.id)
+            if job_record is None:
+                raise ValueError(f"Job {job.id} disappeared before execution")
+            result_json = execute_project_deletion_job(session, job=job_record)
+            result_json["worker_host"] = socket.gethostname()
+            result_json["worker_instance"] = get_worker_instance_id()
+            return result_json
+    if job_kind == "raw_dataset_deletion":
+        with session_scope() as session:
+            job_record = session.get(Job, job.id)
+            if job_record is None:
+                raise ValueError(f"Job {job.id} disappeared before execution")
+            result_json = execute_raw_dataset_deletion_job(session, job=job_record)
+            result_json["worker_host"] = socket.gethostname()
+            result_json["worker_instance"] = get_worker_instance_id()
+            return result_json
+    if job_kind == "raw_dataset_position_deletion":
+        with session_scope() as session:
+            job_record = session.get(Job, job.id)
+            if job_record is None:
+                raise ValueError(f"Job {job.id} disappeared before execution")
+            result_json = execute_raw_dataset_position_deletion_job(session, job=job_record)
+            result_json["worker_host"] = socket.gethostname()
+            result_json["worker_instance"] = get_worker_instance_id()
+            return result_json
+    if job_kind in BACKUP_JOB_KINDS:
+        with session_scope() as session:
+            job_record = session.get(Job, job.id)
+            if job_record is None:
+                raise ValueError(f"Job {job.id} disappeared before execution")
+            result_json = execute_backup_job(session, job=job_record)
+            result_json["worker_instance"] = get_worker_instance_id()
+            return result_json
+    if job_kind == "raw_preview_video":
+        try:
+            from worker.raw_preview_video import execute_raw_preview_video_job
+        except ImportError as exc:
+            raise RuntimeError(
+                "Raw preview video dependencies are missing. Install numpy, Pillow, tifffile, and zarr in the worker environment."
+            ) from exc
+        with session_scope() as session:
+            job_record = session.get(Job, job.id)
+            if job_record is None:
+                raise ValueError(f"Job {job.id} disappeared before execution")
+            result_json = execute_raw_preview_video_job(session, job=job_record)
+            result_json["worker_host"] = socket.gethostname()
+            result_json["worker_instance"] = get_worker_instance_id()
+            result_json["requested_mode"] = job.requested_mode
+            result_json["resolved_mode"] = job.resolved_mode
+            return result_json
+    if job_kind == "external_eln_sync":
+        system_key = (job.params_json or {}).get("system_key")
+        if not system_key:
+            raise ValueError(f"External ELN sync job {job.id} is missing system_key")
+        with session_scope() as session:
+            result = sync_external_eln_system(session, system_key=system_key)
+            payload = result.model_dump(mode="json")
+            payload["worker_host"] = socket.gethostname()
+            payload["worker_instance"] = get_worker_instance_id()
+            return payload
+    if job_kind == "prepare_user_home_storage":
+        with session_scope() as session:
+            job_record = session.get(Job, job.id)
+            if job_record is None:
+                raise ValueError(f"Job {job.id} disappeared before execution")
+            result_json = execute_user_home_storage_job(session, job=job_record)
+            result_json["worker_host"] = socket.gethostname()
+            result_json["worker_instance"] = get_worker_instance_id()
+            return result_json
+    if job_kind == "misc_storage_inventory":
+        with session_scope() as session:
+            job_record = session.get(Job, job.id)
+            if job_record is None:
+                raise ValueError(f"Job {job.id} disappeared before execution")
+            result_json = execute_misc_storage_inventory_job(session, job=job_record)
+            result_json["worker_instance"] = get_worker_instance_id()
+            return result_json
+
+    return {
+        "worker_host": socket.gethostname(),
+        "worker_instance": get_worker_instance_id(),
+        "message": "Placeholder worker execution completed.",
+        "job_kind": job_kind or "generic",
+        "requested_mode": job.requested_mode,
+        "resolved_mode": job.resolved_mode,
+    }
+
+
+def sync_indexing_job_from_worker_job(
+    session,
+    *,
+    job: Job,
+    status: str,
+    phase: str,
+    message: str,
+    error_text: str | None,
+    finished_at: datetime,
+) -> None:
+    if (job.params_json or {}).get("job_kind") != "project_indexing":
+        return
+    indexing_job_id = (job.params_json or {}).get("indexing_job_id")
+    if not indexing_job_id:
+        return
+    indexing_job = session.get(IndexingJob, indexing_job_id)
+    if indexing_job is None:
+        return
+    if indexing_job.finished_at is not None and indexing_job.status in {"completed", "completed_with_errors"}:
+        return
+    indexing_job.status = status
+    indexing_job.phase = phase
+    indexing_job.message = message
+    indexing_job.error_text = error_text
+    indexing_job.finished_at = finished_at
+    indexing_job.heartbeat_at = finished_at
+    indexing_job.updated_at = finished_at
+
+
+def run_forever() -> None:
+    settings = get_settings()
+    last_archive_policy_run_at: datetime | None = None
+    last_micromanager_ingest_run_at: datetime | None = None
+    last_backup_run_at: datetime | None = None
+    LOGGER.info("Starting DetecDiv hub worker instance %s", get_worker_instance_id())
+    while True:
+        try:
+            with session_scope() as session:
+                target = resolve_worker_target(session, settings.worker_target_key)
+                update_worker_target_state(session, target=target, health="online", current_job=None, last_job_status=None)
+                recover_orphaned_jobs(session, target=target)
+        except Exception:  # pragma: no cover - defensive around heartbeat
+            LOGGER.exception("Execution target heartbeat update failed")
+
+        try:
+            with session_scope() as session:
+                last_archive_policy_run_at = run_archive_policy_if_due(
+                    session,
+                    last_run_at=last_archive_policy_run_at,
+                )
+        except Exception:  # pragma: no cover - defensive around periodic maintenance
+            LOGGER.exception("Automatic archive policy run failed")
+
+        try:
+            with session_scope() as session:
+                last_micromanager_ingest_run_at = run_micromanager_ingest_if_due(
+                    session,
+                    last_run_at=last_micromanager_ingest_run_at,
+                )
+        except Exception:  # pragma: no cover - defensive around periodic maintenance
+            LOGGER.exception("Micro-Manager ingest run failed")
+
+        try:
+            with session_scope() as session:
+                last_backup_run_at = run_backup_if_due(session, last_run_at=last_backup_run_at)
+        except Exception:  # pragma: no cover - defensive around periodic maintenance
+            LOGGER.exception("Backup scheduler run failed")
+
+        job = claim_next_job()
+        if job is None:
+            time.sleep(settings.worker_poll_interval_sec)
+            continue
+
+        try:
+            keepalive_stop = threading.Event()
+            keepalive_thread = threading.Thread(
+                target=keep_running_job_alive,
+                args=(keepalive_stop,),
+                kwargs={"job_id": job.id},
+                daemon=True,
+                name=f"job-keepalive-{job.id}",
+            )
+            keepalive_thread.start()
+            result_json = execute_job(job)
+            keepalive_stop.set()
+            keepalive_thread.join(timeout=1.0)
+            mark_job_done(job.id, result_json)
+            LOGGER.info("Job %s completed", job.id)
+        except PipelineRunCancelled as exc:
+            keepalive_stop = locals().get("keepalive_stop")
+            keepalive_thread = locals().get("keepalive_thread")
+            if isinstance(keepalive_stop, threading.Event):
+                keepalive_stop.set()
+            if isinstance(keepalive_thread, threading.Thread):
+                keepalive_thread.join(timeout=1.0)
+            mark_job_cancelled(job.id, str(exc))
+            LOGGER.info("Job %s cancelled", job.id)
+        except Exception as exc:  # pragma: no cover - defensive for worker loop
+            keepalive_stop = locals().get("keepalive_stop")
+            keepalive_thread = locals().get("keepalive_thread")
+            if isinstance(keepalive_stop, threading.Event):
+                keepalive_stop.set()
+            if isinstance(keepalive_thread, threading.Thread):
+                keepalive_thread.join(timeout=1.0)
+            with session_scope() as session:
+                job_record = session.get(Job, job.id)
+                if job_record is not None:
+                    finalize_storage_lifecycle_failure(session, job=job_record, error_text=str(exc))
+                    finalize_backup_failure(session, job=job_record, error_text=str(exc))
+                    finalize_user_home_storage_failure(session, job=job_record, error_text=str(exc))
+                    finalize_project_deletion_failure(session, job=job_record, error_text=str(exc))
+            mark_job_failed(job.id, str(exc))
+            LOGGER.exception("Job %s failed", job.id)
+
+
+def resolve_worker_target(session, configured_target_key: str | None) -> ExecutionTarget | None:
+    target_key = str(configured_target_key or "").strip()
+    if not target_key:
+        return None
+    return session.scalars(select(ExecutionTarget).where(ExecutionTarget.target_key == target_key)).first()
+
+
+def read_positive_int(value) -> int | None:
+    if value is None or value == "":
+        return None
+    try:
+        parsed = int(value)
+    except (TypeError, ValueError):
+        return None
+    if parsed < 1:
+        return None
+    return parsed
+
+
+def resolve_target_for_job(session, *, job: Job, configured_target_key: str | None) -> ExecutionTarget | None:
+    if job.execution_target_id:
+        return session.get(ExecutionTarget, job.execution_target_id)
+    return resolve_worker_target(session, configured_target_key)
+
+
+def update_worker_target_state(
+    session,
+    *,
+    target: ExecutionTarget | None,
+    health: str,
+    current_job: Job | None,
+    last_job_status: str | None,
+    last_job: Job | None = None,
+    error_text: str | None = None,
+) -> None:
+    if target is None:
+        return
+
+    now = datetime.now(timezone.utc)
+    worker_instance_id = get_worker_instance_id()
+    upsert_worker_instance(
+        session,
+        target=target,
+        worker_instance=worker_instance_id,
+        health=health,
+        current_job=current_job,
+        last_job=last_job,
+        last_job_status=last_job_status,
+        error_text=error_text,
+        poll_interval_sec=get_settings().worker_poll_interval_sec,
+        now=now,
+    )
+    metadata = execution_target_worker_metadata(session, target)
+    target.metadata_json = metadata
+    if health == "error":
+        target.status = "degraded"
+    elif health == "busy":
+        target.status = "online"
+    else:
+        target.status = "online"
+
+
+def update_raw_preview_position_state(session, *, job: Job, status: str) -> None:
+    position_id = (job.params_json or {}).get("position_id")
+    if position_id:
+        position = session.get(RawDatasetPosition, position_id)
+        if position is None:
+            return
+        position.preview_status = status
+        position.updated_at = datetime.now(timezone.utc)
+        return
+
+    # Dataset-level preview jobs can fail before entering the per-position loop
+    # (for example when the catalogued source path has been moved). In that
+    # case, clear only active placeholders so the UI does not stay stuck on
+    # "queued" after the worker job has failed.
+    if status not in {"failed", "cancelled"} or job.raw_dataset_id is None:
+        return
+    positions = session.scalars(
+        select(RawDatasetPosition).where(
+            RawDatasetPosition.raw_dataset_id == job.raw_dataset_id,
+            RawDatasetPosition.preview_status.in_(("queued", "running")),
+        )
+    ).all()
+    now = datetime.now(timezone.utc)
+    for position in positions:
+        position.preview_status = status
+        position.updated_at = now
+
+
+if __name__ == "__main__":
+    run_forever()

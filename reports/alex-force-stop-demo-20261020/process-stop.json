@@ -1,0 +1,10 @@
+{
+  "worker_survived": 227710,
+  "terminated_pids": [
+    242715,
+    242987,
+    243142
+  ],
+  "confirmed_at": "2026-10-20T13:47:18.736194+00:00",
+  "cgroup_empty_except_worker": true
+}

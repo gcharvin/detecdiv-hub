@@ -1,0 +1,35 @@
+{
+  "processes": [
+    {
+      "pid": 44220,
+      "name": "MATLAB.exe",
+      "create_time": 1792492906.3146248,
+      "role": "matlab"
+    },
+    {
+      "pid": 72240,
+      "name": "python.exe",
+      "create_time": 1792504328.7957757,
+      "role": "other-python"
+    },
+    {
+      "pid": 78836,
+      "name": "MATLAB.exe",
+      "create_time": 1792493409.6413808,
+      "role": "matlab"
+    },
+    {
+      "pid": 81028,
+      "name": "MATLAB.exe",
+      "create_time": 1792492906.6693704,
+      "role": "matlab"
+    },
+    {
+      "pid": 85624,
+      "name": "python.exe",
+      "create_time": 1792504328.8021493,
+      "role": "other-python"
+    }
+  ],
+  "checked_at_unix": 1792504329.9293816
+}

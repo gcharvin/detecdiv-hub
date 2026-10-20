@@ -1,0 +1,66 @@
+{
+  "files": {
+    "api/models.py": {
+      "before": "ae75099e54d50e510cfe119fb1160d5dadfb3db93dda8faf617159a4447f0413",
+      "after": "33c0f0b9df846438888aa6ffb47831a999c7ff8be5d8e2426244d372fd929525"
+    },
+    "api/schemas.py": {
+      "before": "ed37dd85b7de5542da00be0e199081ee5e4d9a453f926866ba63f8eadf73f468",
+      "after": "7baa1b5d85887e2cc16eb3a5fd6fadcee7e49d8fa2bfec1281e6d254aac51c01"
+    },
+    "api/routes_pipeline_runs.py": {
+      "before": "037cd2eaa8ea31d6698001802aa30cee88092734e946c5d8b6b5e450eb4ff8c8",
+      "after": "8d8707e68ed5bd72bee8c8c929cab953390597df3ad1f5bef42033293a7b12c7"
+    },
+    "api/static/app.js": {
+      "before": "8fddfe1438488d5bab301a28df4c6328777b047caff06c93834fcf482485b7c5",
+      "after": "eff1ca6d61b852d1dd22cba0e9855c5af0dc4ebc382fcd2b192086eb4d3da0c3"
+    },
+    "db/schema.sql": {
+      "before": "13bf18b2b8fcbc67eed8217fa60edd915d43b148055b36aadf13d5b8b7c81265",
+      "after": "8f948c285abcc57742530d546e8b547ef4ade5db639ecc6ab58e80ff6485a751"
+    },
+    "db/migrations/20261020_job_force_stop.sql": {
+      "before": null,
+      "after": "593d598c4c9883e0865b5844ba8533c5df97b3d1f72bc90bcfee9e54b26835e9"
+    },
+    "worker/run_worker.py": {
+      "before": "b7c19ac27105e2ae2181dba6c96fc5db9fbd70ae6b00293bd9d9d931aaa9c88d",
+      "after": "dfbb07b444579a4cb89927c4db6ab36bcdadf1450a29729ca978b3ad95aa7665"
+    },
+    "worker/pipeline_run_executor.py": {
+      "before": "ba6fa9beb28c80ff48d9d431d5654aa74299c9f8666ddf7df903c7906e227e95",
+      "after": "465fe810f771556cd7a64db0045ddc6bbd76bd6cdc0239fa629e8a65a3d92f61"
+    },
+    "worker/executors/matlab_executor.py": {
+      "before": "6a5c4a39ab220ac096dfae3e130f9f5f332f680ddd85d1ea139dab9248a476d9",
+      "after": "7478d016deb1adbc176b21c87bf55ab9ca4c48873030553f0c20f210c9c62774"
+    },
+    "worker/executors/job_process_scope.py": {
+      "before": null,
+      "after": "c2c65f96fdc9c38cd54efabc67ed489f6b732df6e60b47f8f5aefdec7e8e2816"
+    },
+    "worker/executors/linux_job_supervisor.py": {
+      "before": null,
+      "after": "c12c955dcd1cea3e22104359f74b91f68b463a577c07fe17f6bb6739460f1980"
+    },
+    "worker/job_resources.py": {
+      "before": "2e423935fc9571d53ce16e2ad773b9e9f9d4ae85119e9504adab08a41687ced0",
+      "after": "41d7416e72430563a7a41b4bc2667f6403b105fc3a3b61b9b2c84fb259e74539"
+    },
+    "worker/memory_resources.py": {
+      "before": "ef1b8cf7f469e2ab7cec9d1d69b45d962effa5efcf519a826562a80c5a973af5",
+      "after": "2ee9ad2ae213eaa47f9b6877cdaf97c8642d32b8d471e013900a0b79b3c5b4a2"
+    },
+    "worker/autoscaling.py": {
+      "before": "c66882476fdfaf96037acb478bb0d00ec21aed8bb264f914b9fc0be53f649c2c",
+      "after": "c939879eba2580ad0fda5dc9bb2239c354cb6fd6f226c07634e89d059911f6cf"
+    },
+    "worker/roi_extraction_resources.py": {
+      "before": null,
+      "after": "b63b96bcaef616c9428a841d24e5e3d323736c0677146883497b928d713a7fe1"
+    }
+  },
+  "pytest": "................................                                         [100%]\n32 passed, 1 deselected in 7.64s",
+  "expected_fingerprint": "a1fffd69452e"
+}

@@ -1,0 +1,27 @@
+{
+  "previous_timer_stopped": true,
+  "activation": {
+    "complete": false,
+    "actions": [
+      {
+        "instance": "@3",
+        "reloaded_pid": 227707
+      },
+      {
+        "instance": "@6",
+        "reloaded_pid": 227709
+      },
+      {
+        "instance": "@5",
+        "reloaded_pid": 227708
+      },
+      {
+        "instance": "@2",
+        "reloaded_pid": 227706
+      }
+    ],
+    "fingerprint": "3327f21659f7",
+    "awaiting_fresh_heartbeats": true,
+    "checked_at": "2026-10-20T13:16:18.289142+00:00"
+  }
+}

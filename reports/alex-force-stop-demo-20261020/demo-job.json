@@ -1,0 +1,13 @@
+{
+  "project_id": "43eea751-5d1b-4dde-bb57-e6468843f04e",
+  "job_id": "2718583f-01f9-4f70-a0e4-926fb72a23ad",
+  "owner": "alexander",
+  "alex_can_edit": true,
+  "run_id": "alex_force_stop_demo_20261020",
+  "auto_complete_minutes": 30,
+  "resources": {
+    "cpu_cores": 1,
+    "memory_mb": 4096
+  },
+  "project_url": "http://detecdiv-hub.detecdiv.internal/web/project.html?id=43eea751-5d1b-4dde-bb57-e6468843f04e"
+}

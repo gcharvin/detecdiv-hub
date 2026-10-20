@@ -1,0 +1,25 @@
+{
+  "id": "d20d4fce-bf96-415b-8b6e-fa47eb802bee",
+  "status": "cancelled",
+  "error": "Job forcibly stopped by user; all job processes have exited.",
+  "requested": "2026-10-20 13:28:04.246933+00:00",
+  "stopped": "2026-10-20 13:28:05.253093+00:00",
+  "runtime": {
+    "engine": "matlab",
+    "work_dir": "/home/charvin-admin/repos/DetecDiv-jobs/work/d20d4fce-bf96-415b-8b6e-fa47eb802bee/c639d0da-da56-43f2-b3e6-70b5204fa090",
+    "repo_root": "/home/charvin-admin/repos/DetecDiv-jobs/releases/2abc8f2ee32ab10cf204c2fe11be63d87c728764",
+    "stderr_log": "/home/charvin-admin/repos/DetecDiv-jobs/work/d20d4fce-bf96-415b-8b6e-fa47eb802bee/c639d0da-da56-43f2-b3e6-70b5204fa090/matlab_stderr.log",
+    "stdout_log": "/home/charvin-admin/repos/DetecDiv-jobs/work/d20d4fce-bf96-415b-8b6e-fa47eb802bee/c639d0da-da56-43f2-b3e6-70b5204fa090/matlab_stdout.log",
+    "code_commit": "2abc8f2ee32ab10cf204c2fe11be63d87c728764",
+    "process_scope": "linux_subreaper",
+    "supervisor_pid": 384982,
+    "force_stop_supported": true
+  },
+  "worker": null,
+  "locks": [
+    {
+      "id": "5b62bc05-f7d4-4d3a-8054-4324476cd5ea",
+      "status": "released"
+    }
+  ]
+}

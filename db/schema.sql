@@ -423,8 +423,18 @@ CREATE TABLE IF NOT EXISTS jobs (
     started_at TIMESTAMPTZ,
     heartbeat_at TIMESTAMPTZ,
     finished_at TIMESTAMPTZ,
+    force_stop_requested_at TIMESTAMPTZ,
+    force_stop_requested_by TEXT,
+    force_stop_requested_by_user_id UUID,
+    force_stopped_at TIMESTAMPTZ,
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+
+ALTER TABLE jobs
+    ADD COLUMN IF NOT EXISTS force_stop_requested_at TIMESTAMPTZ,
+    ADD COLUMN IF NOT EXISTS force_stop_requested_by TEXT,
+    ADD COLUMN IF NOT EXISTS force_stop_requested_by_user_id UUID,
+    ADD COLUMN IF NOT EXISTS force_stopped_at TIMESTAMPTZ;
 
 CREATE TABLE IF NOT EXISTS project_locks (
     id UUID PRIMARY KEY,

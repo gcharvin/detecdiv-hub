@@ -1,0 +1,889 @@
+CREATE TABLE IF NOT EXISTS users (
+    id UUID PRIMARY KEY,
+    user_key TEXT NOT NULL UNIQUE,
+    display_name TEXT NOT NULL,
+    email TEXT,
+    role TEXT NOT NULL DEFAULT 'user',
+    is_active BOOLEAN NOT NULL DEFAULT TRUE,
+    admin_portal_access BOOLEAN NOT NULL DEFAULT FALSE,
+    lab_status TEXT NOT NULL DEFAULT 'yes',
+    default_path TEXT,
+    password_hash TEXT,
+    metadata_json JSONB NOT NULL DEFAULT '{}'::jsonb,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS user_sessions (
+    id UUID PRIMARY KEY,
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    token_hash TEXT NOT NULL UNIQUE,
+    status TEXT NOT NULL DEFAULT 'active',
+    client_label TEXT,
+    last_seen_at TIMESTAMPTZ,
+    expires_at TIMESTAMPTZ NOT NULL,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    revoked_at TIMESTAMPTZ
+);
+
+CREATE TABLE IF NOT EXISTS system_settings (
+    key TEXT PRIMARY KEY,
+    value_json JSONB NOT NULL DEFAULT '{}'::jsonb,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS storage_roots (
+    id BIGSERIAL PRIMARY KEY,
+    name TEXT NOT NULL UNIQUE,
+    root_type TEXT NOT NULL,
+    host_scope TEXT NOT NULL,
+    path_prefix TEXT NOT NULL,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS storage_providers (
+    id UUID PRIMARY KEY,
+    provider_key TEXT NOT NULL UNIQUE,
+    display_name TEXT NOT NULL,
+    provider_kind TEXT NOT NULL DEFAULT 'posix_mount',
+    mount_root TEXT,
+    quota_mode TEXT NOT NULL DEFAULT 'measured_only',
+    is_active BOOLEAN NOT NULL DEFAULT TRUE,
+    capabilities_json JSONB NOT NULL DEFAULT '{}'::jsonb,
+    config_json JSONB NOT NULL DEFAULT '{}'::jsonb,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS user_storage_accounts (
+    id UUID PRIMARY KEY,
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    provider_id UUID NOT NULL REFERENCES storage_providers(id) ON DELETE CASCADE,
+    provider_user_key TEXT NOT NULL,
+    home_storage_root_id BIGINT REFERENCES storage_roots(id) ON DELETE SET NULL,
+    home_relative_path TEXT,
+    quota_bytes BIGINT,
+    quota_status TEXT NOT NULL DEFAULT 'unknown',
+    provisioning_status TEXT NOT NULL DEFAULT 'planned',
+    last_synced_at TIMESTAMPTZ,
+    metadata_json JSONB NOT NULL DEFAULT '{}'::jsonb,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    UNIQUE(user_id, provider_id),
+    UNIQUE(provider_id, provider_user_key)
+);
+
+CREATE TABLE IF NOT EXISTS storage_quota_snapshots (
+    id UUID PRIMARY KEY,
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    provider_id UUID NOT NULL REFERENCES storage_providers(id) ON DELETE CASCADE,
+    storage_account_id UUID REFERENCES user_storage_accounts(id) ON DELETE SET NULL,
+    provider_user_key TEXT NOT NULL,
+    quota_bytes BIGINT,
+    provider_used_bytes BIGINT,
+    hub_project_bytes BIGINT NOT NULL DEFAULT 0,
+    hub_raw_bytes BIGINT NOT NULL DEFAULT 0,
+    hub_artifact_bytes BIGINT NOT NULL DEFAULT 0,
+    measured_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    metadata_json JSONB NOT NULL DEFAULT '{}'::jsonb
+);
+
+CREATE TABLE IF NOT EXISTS storage_provisioning_events (
+    id UUID PRIMARY KEY,
+    user_id UUID REFERENCES users(id) ON DELETE SET NULL,
+    provider_id UUID REFERENCES storage_providers(id) ON DELETE SET NULL,
+    storage_account_id UUID REFERENCES user_storage_accounts(id) ON DELETE SET NULL,
+    event_kind TEXT NOT NULL,
+    status TEXT NOT NULL DEFAULT 'recorded',
+    message TEXT,
+    metadata_json JSONB NOT NULL DEFAULT '{}'::jsonb,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS raw_datasets (
+    id UUID PRIMARY KEY,
+    owner_user_id UUID REFERENCES users(id) ON DELETE SET NULL,
+    external_key TEXT UNIQUE,
+    microscope_name TEXT,
+    acquisition_label TEXT NOT NULL,
+    data_format TEXT NOT NULL DEFAULT 'unknown',
+    visibility TEXT NOT NULL DEFAULT 'private',
+    status TEXT NOT NULL DEFAULT 'discovered',
+    completeness_status TEXT NOT NULL DEFAULT 'unknown',
+    lifecycle_tier TEXT NOT NULL DEFAULT 'hot',
+    archive_status TEXT NOT NULL DEFAULT 'none',
+    archive_uri TEXT,
+    archive_compression TEXT,
+    display_settings_uri TEXT,
+    notes TEXT,
+    reclaimable_bytes BIGINT NOT NULL DEFAULT 0,
+    last_accessed_at TIMESTAMPTZ,
+    total_bytes BIGINT NOT NULL DEFAULT 0,
+    last_size_scan_at TIMESTAMPTZ,
+    started_at TIMESTAMPTZ,
+    ended_at TIMESTAMPTZ,
+    metadata_json JSONB NOT NULL DEFAULT '{}'::jsonb,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS raw_dataset_locations (
+    id BIGSERIAL PRIMARY KEY,
+    raw_dataset_id UUID NOT NULL REFERENCES raw_datasets(id) ON DELETE CASCADE,
+    storage_root_id BIGINT NOT NULL REFERENCES storage_roots(id) ON DELETE RESTRICT,
+    relative_path TEXT NOT NULL,
+    is_preferred BOOLEAN NOT NULL DEFAULT FALSE,
+    access_mode TEXT NOT NULL DEFAULT 'read',
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    UNIQUE(raw_dataset_id, storage_root_id, relative_path)
+);
+
+CREATE TABLE IF NOT EXISTS misc_storage_items (
+    id UUID PRIMARY KEY,
+    parent_item_id UUID REFERENCES misc_storage_items(id) ON DELETE SET NULL,
+    owner_user_id UUID REFERENCES users(id) ON DELETE SET NULL,
+    storage_root_id BIGINT NOT NULL REFERENCES storage_roots(id) ON DELETE RESTRICT,
+    relative_path TEXT NOT NULL,
+    display_name TEXT NOT NULL,
+    item_kind TEXT NOT NULL DEFAULT 'directory',
+    category TEXT NOT NULL DEFAULT 'unknown',
+    status TEXT NOT NULL DEFAULT 'indexed',
+    visibility TEXT NOT NULL DEFAULT 'private',
+    scan_depth INTEGER NOT NULL DEFAULT 0,
+    scan_status TEXT NOT NULL DEFAULT 'measured',
+    total_bytes BIGINT NOT NULL DEFAULT 0,
+    child_dir_count INTEGER NOT NULL DEFAULT 0,
+    child_file_count INTEGER NOT NULL DEFAULT 0,
+    last_size_scan_at TIMESTAMPTZ,
+    last_seen_at TIMESTAMPTZ,
+    notes TEXT,
+    lifecycle_tier TEXT NOT NULL DEFAULT 'hot',
+    archive_status TEXT NOT NULL DEFAULT 'none',
+    archive_uri TEXT,
+    backup_status TEXT NOT NULL DEFAULT 'none',
+    backup_excluded BOOLEAN NOT NULL DEFAULT FALSE,
+    last_backup_at TIMESTAMPTZ,
+    backup_snapshot_id TEXT,
+    metadata_json JSONB NOT NULL DEFAULT '{}'::jsonb,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    UNIQUE(storage_root_id, relative_path)
+);
+
+CREATE TABLE IF NOT EXISTS raw_dataset_positions (
+    id UUID PRIMARY KEY,
+    raw_dataset_id UUID NOT NULL REFERENCES raw_datasets(id) ON DELETE CASCADE,
+    position_key TEXT NOT NULL,
+    display_name TEXT NOT NULL,
+    description TEXT,
+    position_index INTEGER,
+    status TEXT NOT NULL DEFAULT 'indexed',
+    preview_status TEXT NOT NULL DEFAULT 'missing',
+    metadata_json JSONB NOT NULL DEFAULT '{}'::jsonb,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    UNIQUE(raw_dataset_id, position_key)
+);
+
+CREATE TABLE IF NOT EXISTS experiment_projects (
+    id UUID PRIMARY KEY,
+    owner_user_id UUID REFERENCES users(id) ON DELETE SET NULL,
+    experiment_key TEXT UNIQUE,
+    title TEXT NOT NULL,
+    visibility TEXT NOT NULL DEFAULT 'private',
+    status TEXT NOT NULL DEFAULT 'indexed',
+    summary TEXT,
+    started_at TIMESTAMPTZ,
+    ended_at TIMESTAMPTZ,
+    total_raw_bytes BIGINT NOT NULL DEFAULT 0,
+    total_derived_bytes BIGINT NOT NULL DEFAULT 0,
+    last_indexed_at TIMESTAMPTZ,
+    metadata_json JSONB NOT NULL DEFAULT '{}'::jsonb,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS experiment_raw_links (
+    id BIGSERIAL PRIMARY KEY,
+    experiment_project_id UUID NOT NULL REFERENCES experiment_projects(id) ON DELETE CASCADE,
+    raw_dataset_id UUID NOT NULL REFERENCES raw_datasets(id) ON DELETE CASCADE,
+    link_type TEXT NOT NULL DEFAULT 'acquisition',
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    UNIQUE(experiment_project_id, raw_dataset_id, link_type)
+);
+
+CREATE TABLE IF NOT EXISTS acquisition_sessions (
+    id UUID PRIMARY KEY,
+    owner_user_id UUID REFERENCES users(id) ON DELETE SET NULL,
+    raw_dataset_id UUID REFERENCES raw_datasets(id) ON DELETE SET NULL,
+    experiment_project_id UUID REFERENCES experiment_projects(id) ON DELETE SET NULL,
+    session_key TEXT NOT NULL UNIQUE,
+    acquisition_label TEXT NOT NULL,
+    microscope_name TEXT,
+    status TEXT NOT NULL DEFAULT 'draft',
+    landing_storage_root_id BIGINT REFERENCES storage_roots(id) ON DELETE SET NULL,
+    landing_relative_path TEXT,
+    local_spool_path TEXT,
+    transfer_status TEXT NOT NULL DEFAULT 'not_started',
+    progress_percent DOUBLE PRECISION,
+    metadata_json JSONB NOT NULL DEFAULT '{}'::jsonb,
+    acquisition_params_json JSONB NOT NULL DEFAULT '{}'::jsonb,
+    result_json JSONB NOT NULL DEFAULT '{}'::jsonb,
+    error_text TEXT,
+    started_at TIMESTAMPTZ,
+    completed_at TIMESTAMPTZ,
+    last_seen_at TIMESTAMPTZ,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS detecdiv_projects (
+    id UUID PRIMARY KEY,
+    experiment_project_id UUID REFERENCES experiment_projects(id) ON DELETE SET NULL,
+    owner_user_id UUID REFERENCES users(id) ON DELETE SET NULL,
+    project_key TEXT UNIQUE,
+    project_name TEXT NOT NULL,
+    notes TEXT,
+    visibility TEXT NOT NULL DEFAULT 'private',
+    status TEXT NOT NULL DEFAULT 'indexed',
+    health_status TEXT NOT NULL DEFAULT 'ok',
+    fov_count INTEGER NOT NULL DEFAULT 0,
+    roi_count INTEGER NOT NULL DEFAULT 0,
+    classifier_count INTEGER NOT NULL DEFAULT 0,
+    processor_count INTEGER NOT NULL DEFAULT 0,
+    pipeline_run_count INTEGER NOT NULL DEFAULT 0,
+    available_raw_count INTEGER NOT NULL DEFAULT 0,
+    missing_raw_count INTEGER NOT NULL DEFAULT 0,
+    run_json_count INTEGER NOT NULL DEFAULT 0,
+    h5_count INTEGER NOT NULL DEFAULT 0,
+    h5_bytes BIGINT NOT NULL DEFAULT 0,
+    latest_run_status TEXT,
+    latest_run_at TIMESTAMPTZ,
+    project_mat_bytes BIGINT NOT NULL DEFAULT 0,
+    project_dir_bytes BIGINT NOT NULL DEFAULT 0,
+    estimated_raw_bytes BIGINT NOT NULL DEFAULT 0,
+    total_bytes BIGINT NOT NULL DEFAULT 0,
+    last_size_scan_at TIMESTAMPTZ,
+    metadata_json JSONB NOT NULL DEFAULT '{}'::jsonb,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS project_locations (
+    id BIGSERIAL PRIMARY KEY,
+    project_id UUID NOT NULL REFERENCES detecdiv_projects(id) ON DELETE CASCADE,
+    storage_root_id BIGINT NOT NULL REFERENCES storage_roots(id) ON DELETE RESTRICT,
+    relative_path TEXT NOT NULL,
+    project_file_name TEXT,
+    access_mode TEXT NOT NULL DEFAULT 'readwrite',
+    is_preferred BOOLEAN NOT NULL DEFAULT FALSE,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    UNIQUE(project_id, storage_root_id, relative_path)
+);
+
+CREATE TABLE IF NOT EXISTS project_raw_links (
+    id BIGSERIAL PRIMARY KEY,
+    project_id UUID NOT NULL REFERENCES detecdiv_projects(id) ON DELETE CASCADE,
+    raw_dataset_id UUID NOT NULL REFERENCES raw_datasets(id) ON DELETE CASCADE,
+    link_type TEXT NOT NULL DEFAULT 'source',
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    UNIQUE(project_id, raw_dataset_id, link_type)
+);
+
+CREATE TABLE IF NOT EXISTS project_acl (
+    id BIGSERIAL PRIMARY KEY,
+    project_id UUID NOT NULL REFERENCES detecdiv_projects(id) ON DELETE CASCADE,
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    access_level TEXT NOT NULL DEFAULT 'viewer',
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    UNIQUE(project_id, user_id)
+);
+
+CREATE TABLE IF NOT EXISTS project_groups (
+    id UUID PRIMARY KEY,
+    owner_user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    group_key TEXT NOT NULL,
+    display_name TEXT NOT NULL,
+    description TEXT,
+    metadata_json JSONB NOT NULL DEFAULT '{}'::jsonb,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    UNIQUE(owner_user_id, group_key)
+);
+
+CREATE TABLE IF NOT EXISTS project_group_members (
+    id BIGSERIAL PRIMARY KEY,
+    group_id UUID NOT NULL REFERENCES project_groups(id) ON DELETE CASCADE,
+    project_id UUID NOT NULL REFERENCES detecdiv_projects(id) ON DELETE CASCADE,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    UNIQUE(group_id, project_id)
+);
+
+CREATE TABLE IF NOT EXISTS project_notes (
+    id BIGSERIAL PRIMARY KEY,
+    project_id UUID NOT NULL REFERENCES detecdiv_projects(id) ON DELETE CASCADE,
+    author_user_id UUID REFERENCES users(id) ON DELETE SET NULL,
+    note_text TEXT NOT NULL,
+    is_pinned BOOLEAN NOT NULL DEFAULT FALSE,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS project_deletion_events (
+    id UUID PRIMARY KEY,
+    project_id UUID NOT NULL REFERENCES detecdiv_projects(id) ON DELETE CASCADE,
+    requested_by_user_id UUID REFERENCES users(id) ON DELETE SET NULL,
+    status TEXT NOT NULL DEFAULT 'previewed',
+    delete_project_files BOOLEAN NOT NULL DEFAULT FALSE,
+    delete_linked_raw_data BOOLEAN NOT NULL DEFAULT FALSE,
+    reclaimable_bytes BIGINT NOT NULL DEFAULT 0,
+    preview_json JSONB NOT NULL DEFAULT '{}'::jsonb,
+    result_json JSONB NOT NULL DEFAULT '{}'::jsonb,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    executed_at TIMESTAMPTZ
+);
+
+CREATE TABLE IF NOT EXISTS indexing_jobs (
+    id UUID PRIMARY KEY,
+    requested_by_user_id UUID REFERENCES users(id) ON DELETE SET NULL,
+    owner_user_id UUID REFERENCES users(id) ON DELETE SET NULL,
+    source_kind TEXT NOT NULL DEFAULT 'project_root',
+    source_path TEXT NOT NULL,
+    storage_root_name TEXT,
+    host_scope TEXT NOT NULL DEFAULT 'server',
+    root_type TEXT NOT NULL DEFAULT 'project_root',
+    visibility TEXT NOT NULL DEFAULT 'private',
+    clear_existing_for_root BOOLEAN NOT NULL DEFAULT FALSE,
+    status TEXT NOT NULL DEFAULT 'queued',
+    phase TEXT NOT NULL DEFAULT 'queued',
+    total_projects INTEGER NOT NULL DEFAULT 0,
+    scanned_projects INTEGER NOT NULL DEFAULT 0,
+    indexed_projects INTEGER NOT NULL DEFAULT 0,
+    failed_projects INTEGER NOT NULL DEFAULT 0,
+    deleted_projects INTEGER NOT NULL DEFAULT 0,
+    mat_files_seen INTEGER NOT NULL DEFAULT 0,
+    current_project_path TEXT,
+    message TEXT,
+    error_text TEXT,
+    metadata_json JSONB NOT NULL DEFAULT '{}'::jsonb,
+    result_json JSONB NOT NULL DEFAULT '{}'::jsonb,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    started_at TIMESTAMPTZ,
+    heartbeat_at TIMESTAMPTZ,
+    finished_at TIMESTAMPTZ,
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS pipelines (
+    id UUID PRIMARY KEY,
+    pipeline_key TEXT UNIQUE,
+    display_name TEXT NOT NULL,
+    version TEXT NOT NULL DEFAULT '1.0',
+    runtime_kind TEXT NOT NULL DEFAULT 'matlab',
+    metadata_json JSONB NOT NULL DEFAULT '{}'::jsonb,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS execution_targets (
+    id UUID PRIMARY KEY,
+    target_key TEXT UNIQUE,
+    display_name TEXT NOT NULL,
+    target_kind TEXT NOT NULL,
+    host_name TEXT,
+    supports_gpu BOOLEAN NOT NULL DEFAULT FALSE,
+    supports_matlab BOOLEAN NOT NULL DEFAULT FALSE,
+    supports_python BOOLEAN NOT NULL DEFAULT TRUE,
+    status TEXT NOT NULL DEFAULT 'online',
+    metadata_json JSONB NOT NULL DEFAULT '{}'::jsonb,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS jobs (
+    id UUID PRIMARY KEY,
+    project_id UUID REFERENCES detecdiv_projects(id) ON DELETE SET NULL,
+    raw_dataset_id UUID REFERENCES raw_datasets(id) ON DELETE SET NULL,
+    pipeline_id UUID REFERENCES pipelines(id) ON DELETE SET NULL,
+    execution_target_id UUID REFERENCES execution_targets(id) ON DELETE SET NULL,
+    requested_mode TEXT NOT NULL DEFAULT 'auto',
+    resolved_mode TEXT,
+    status TEXT NOT NULL DEFAULT 'queued',
+    priority INTEGER NOT NULL DEFAULT 100,
+    requested_by TEXT,
+    requested_from_host TEXT,
+    params_json JSONB NOT NULL DEFAULT '{}'::jsonb,
+    result_json JSONB NOT NULL DEFAULT '{}'::jsonb,
+    error_text TEXT,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    started_at TIMESTAMPTZ,
+    heartbeat_at TIMESTAMPTZ,
+    finished_at TIMESTAMPTZ,
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS project_locks (
+    id UUID PRIMARY KEY,
+    project_id UUID NOT NULL REFERENCES detecdiv_projects(id) ON DELETE CASCADE,
+    job_id UUID REFERENCES jobs(id) ON DELETE SET NULL,
+    owner_user_id UUID REFERENCES users(id) ON DELETE SET NULL,
+    lock_kind TEXT NOT NULL DEFAULT 'client_edit_lease',
+    lock_scope TEXT NOT NULL DEFAULT 'project',
+    write_scope TEXT NOT NULL DEFAULT 'project_update',
+    status TEXT NOT NULL DEFAULT 'active',
+    holder_key TEXT,
+    holder_host TEXT,
+    reason TEXT,
+    metadata_json JSONB NOT NULL DEFAULT '{}'::jsonb,
+    expires_at TIMESTAMPTZ,
+    heartbeat_at TIMESTAMPTZ,
+    released_at TIMESTAMPTZ,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS worker_instances (
+    id UUID PRIMARY KEY,
+    execution_target_id UUID NOT NULL REFERENCES execution_targets(id) ON DELETE CASCADE,
+    worker_instance TEXT NOT NULL,
+    worker_host TEXT,
+    process_id INTEGER,
+    health TEXT NOT NULL DEFAULT 'online',
+    current_job_id UUID REFERENCES jobs(id) ON DELETE SET NULL,
+    current_job_kind TEXT,
+    current_job_status TEXT,
+    current_job_started_at TIMESTAMPTZ,
+    last_job_id UUID REFERENCES jobs(id) ON DELETE SET NULL,
+    last_job_status TEXT,
+    last_error TEXT,
+    deployment_version TEXT,
+    version_source TEXT,
+    code_fingerprint TEXT,
+    poll_interval_sec DOUBLE PRECISION,
+    claimed_at TIMESTAMPTZ,
+    last_seen_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    UNIQUE(execution_target_id, worker_instance)
+);
+
+CREATE TABLE IF NOT EXISTS artifacts (
+    id UUID PRIMARY KEY,
+    job_id UUID NOT NULL REFERENCES jobs(id) ON DELETE CASCADE,
+    artifact_kind TEXT NOT NULL,
+    uri TEXT NOT NULL,
+    metadata_json JSONB NOT NULL DEFAULT '{}'::jsonb,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+ALTER TABLE raw_dataset_positions ADD COLUMN IF NOT EXISTS description TEXT;
+ALTER TABLE raw_dataset_positions ADD COLUMN IF NOT EXISTS preview_artifact_id UUID REFERENCES artifacts(id) ON DELETE SET NULL;
+
+CREATE TABLE IF NOT EXISTS storage_migration_batches (
+    id UUID PRIMARY KEY,
+    owner_user_id UUID REFERENCES users(id) ON DELETE SET NULL,
+    batch_name TEXT NOT NULL,
+    source_kind TEXT NOT NULL,
+    source_path TEXT NOT NULL,
+    storage_root_name TEXT,
+    host_scope TEXT NOT NULL DEFAULT 'server',
+    root_type TEXT NOT NULL DEFAULT 'legacy_root',
+    strategy TEXT NOT NULL DEFAULT 'discover_only',
+    status TEXT NOT NULL DEFAULT 'planned',
+    metadata_json JSONB NOT NULL DEFAULT '{}'::jsonb,
+    summary_json JSONB NOT NULL DEFAULT '{}'::jsonb,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS storage_migration_items (
+    id BIGSERIAL PRIMARY KEY,
+    batch_id UUID NOT NULL REFERENCES storage_migration_batches(id) ON DELETE CASCADE,
+    item_type TEXT NOT NULL,
+    legacy_path TEXT NOT NULL,
+    legacy_key TEXT,
+    display_name TEXT NOT NULL,
+    status TEXT NOT NULL DEFAULT 'planned',
+    action TEXT NOT NULL DEFAULT 'review',
+    proposed_experiment_key TEXT,
+    proposed_project_key TEXT,
+    metadata_json JSONB NOT NULL DEFAULT '{}'::jsonb,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS external_publication_records (
+    id UUID PRIMARY KEY,
+    experiment_project_id UUID NOT NULL REFERENCES experiment_projects(id) ON DELETE CASCADE,
+    system_key TEXT NOT NULL,
+    status TEXT NOT NULL DEFAULT 'pending',
+    external_id TEXT,
+    external_url TEXT,
+    payload_json JSONB NOT NULL DEFAULT '{}'::jsonb,
+    error_text TEXT,
+    last_attempt_at TIMESTAMPTZ,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS external_experiment_records (
+    id UUID PRIMARY KEY,
+    system_key TEXT NOT NULL,
+    external_id TEXT NOT NULL,
+    title TEXT NOT NULL,
+    external_url TEXT,
+    owner_name TEXT,
+    started_at TIMESTAMPTZ,
+    updated_external_at TIMESTAMPTZ,
+    payload_json JSONB NOT NULL DEFAULT '{}'::jsonb,
+    last_synced_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    UNIQUE(system_key, external_id)
+);
+
+CREATE TABLE IF NOT EXISTS external_user_records (
+    id UUID PRIMARY KEY,
+    system_key TEXT NOT NULL,
+    external_id TEXT NOT NULL,
+    display_name TEXT NOT NULL,
+    email TEXT,
+    payload_json JSONB NOT NULL DEFAULT '{}'::jsonb,
+    matched_user_id UUID REFERENCES users(id) ON DELETE SET NULL,
+    match_status TEXT NOT NULL DEFAULT 'pending',
+    last_synced_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    UNIQUE(system_key, external_id)
+);
+
+CREATE TABLE IF NOT EXISTS labguru_yeast_strains (
+    id UUID PRIMARY KEY,
+    external_id TEXT NOT NULL UNIQUE,
+    name TEXT NOT NULL,
+    sys_id TEXT,
+    description TEXT,
+    owner_name TEXT,
+    external_url TEXT,
+    search_fields_json JSONB NOT NULL DEFAULT '{}'::jsonb,
+    payload_json JSONB NOT NULL DEFAULT '{}'::jsonb,
+    search_text TEXT NOT NULL DEFAULT '',
+    is_active BOOLEAN NOT NULL DEFAULT TRUE,
+    created_external_at TIMESTAMPTZ,
+    updated_external_at TIMESTAMPTZ,
+    last_synced_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    missing_since TIMESTAMPTZ,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS labguru_storage_locations (
+    id UUID PRIMARY KEY,
+    external_id TEXT NOT NULL UNIQUE,
+    parent_external_id TEXT,
+    name TEXT NOT NULL,
+    location_type TEXT,
+    external_url TEXT,
+    name_with_hierarchy TEXT,
+    payload_json JSONB NOT NULL DEFAULT '{}'::jsonb,
+    is_active BOOLEAN NOT NULL DEFAULT TRUE,
+    last_synced_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    missing_since TIMESTAMPTZ,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS labguru_storage_boxes (
+    id UUID PRIMARY KEY,
+    external_id TEXT NOT NULL UNIQUE,
+    storage_external_id TEXT,
+    name TEXT NOT NULL,
+    external_url TEXT,
+    rows INTEGER,
+    cols INTEGER,
+    payload_json JSONB NOT NULL DEFAULT '{}'::jsonb,
+    is_active BOOLEAN NOT NULL DEFAULT TRUE,
+    last_synced_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    missing_since TIMESTAMPTZ,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS labguru_yeast_stocks (
+    id UUID PRIMARY KEY,
+    yeast_strain_id UUID NOT NULL REFERENCES labguru_yeast_strains(id) ON DELETE CASCADE,
+    external_id TEXT NOT NULL UNIQUE,
+    name TEXT NOT NULL,
+    container_type TEXT,
+    box_external_id TEXT,
+    box_name TEXT,
+    box_url TEXT,
+    position TEXT,
+    owner_name TEXT,
+    stored_by_name TEXT,
+    stored_on DATE,
+    external_url TEXT,
+    storage_path_json JSONB NOT NULL DEFAULT '[]'::jsonb,
+    payload_json JSONB NOT NULL DEFAULT '{}'::jsonb,
+    is_active BOOLEAN NOT NULL DEFAULT TRUE,
+    updated_external_at TIMESTAMPTZ,
+    last_synced_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    missing_since TIMESTAMPTZ,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS external_user_credentials (
+    id UUID PRIMARY KEY,
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    system_key TEXT NOT NULL,
+    credential_kind TEXT NOT NULL DEFAULT 'api_token',
+    encrypted_token TEXT NOT NULL,
+    status TEXT NOT NULL DEFAULT 'stored',
+    expires_at TIMESTAMPTZ,
+    last_verified_at TIMESTAMPTZ,
+    last_error TEXT,
+    metadata_json JSONB NOT NULL DEFAULT '{}'::jsonb,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    UNIQUE(user_id, system_key)
+);
+
+CREATE TABLE IF NOT EXISTS external_match_candidates (
+    id UUID PRIMARY KEY,
+    raw_dataset_id UUID NOT NULL REFERENCES raw_datasets(id) ON DELETE CASCADE,
+    system_key TEXT NOT NULL,
+    external_experiment_record_id UUID NOT NULL REFERENCES external_experiment_records(id) ON DELETE CASCADE,
+    external_id TEXT NOT NULL,
+    score DOUBLE PRECISION NOT NULL DEFAULT 0,
+    candidate_rank INTEGER NOT NULL DEFAULT 0,
+    status TEXT NOT NULL DEFAULT 'proposed',
+    match_method TEXT NOT NULL DEFAULT 'deterministic_v1',
+    evidence_json JSONB NOT NULL DEFAULT '{}'::jsonb,
+    reviewed_by_user_id UUID REFERENCES users(id) ON DELETE SET NULL,
+    reviewed_at TIMESTAMPTZ,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    UNIQUE(raw_dataset_id, system_key, external_experiment_record_id)
+);
+
+CREATE TABLE IF NOT EXISTS storage_lifecycle_events (
+    id UUID PRIMARY KEY,
+    raw_dataset_id UUID NOT NULL REFERENCES raw_datasets(id) ON DELETE CASCADE,
+    requested_by_user_id UUID REFERENCES users(id) ON DELETE SET NULL,
+    event_kind TEXT NOT NULL,
+    from_tier TEXT,
+    to_tier TEXT,
+    archive_status TEXT,
+    reclaimable_bytes BIGINT NOT NULL DEFAULT 0,
+    metadata_json JSONB NOT NULL DEFAULT '{}'::jsonb,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS archive_policy_runs (
+    id UUID PRIMARY KEY,
+    triggered_by_user_id UUID REFERENCES users(id) ON DELETE SET NULL,
+    trigger_mode TEXT NOT NULL DEFAULT 'manual',
+    status TEXT NOT NULL DEFAULT 'running',
+    report_only BOOLEAN NOT NULL DEFAULT FALSE,
+    config_json JSONB NOT NULL DEFAULT '{}'::jsonb,
+    result_json JSONB NOT NULL DEFAULT '{}'::jsonb,
+    candidate_count INTEGER NOT NULL DEFAULT 0,
+    queued_count INTEGER NOT NULL DEFAULT 0,
+    skipped_count INTEGER NOT NULL DEFAULT 0,
+    total_reclaimable_bytes BIGINT NOT NULL DEFAULT 0,
+    error_text TEXT,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    started_at TIMESTAMPTZ,
+    finished_at TIMESTAMPTZ
+);
+
+CREATE TABLE IF NOT EXISTS micromanager_ingest_runs (
+    id UUID PRIMARY KEY,
+    triggered_by_user_id UUID REFERENCES users(id) ON DELETE SET NULL,
+    trigger_mode TEXT NOT NULL DEFAULT 'manual',
+    status TEXT NOT NULL DEFAULT 'running',
+    report_only BOOLEAN NOT NULL DEFAULT FALSE,
+    config_json JSONB NOT NULL DEFAULT '{}'::jsonb,
+    result_json JSONB NOT NULL DEFAULT '{}'::jsonb,
+    candidate_count INTEGER NOT NULL DEFAULT 0,
+    ingested_count INTEGER NOT NULL DEFAULT 0,
+    experiment_count INTEGER NOT NULL DEFAULT 0,
+    skipped_count INTEGER NOT NULL DEFAULT 0,
+    error_text TEXT,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    started_at TIMESTAMPTZ,
+    finished_at TIMESTAMPTZ
+);
+
+ALTER TABLE raw_datasets ADD COLUMN IF NOT EXISTS owner_user_id UUID REFERENCES users(id) ON DELETE SET NULL;
+ALTER TABLE raw_datasets ADD COLUMN IF NOT EXISTS data_format TEXT NOT NULL DEFAULT 'unknown';
+ALTER TABLE raw_datasets ADD COLUMN IF NOT EXISTS visibility TEXT NOT NULL DEFAULT 'private';
+ALTER TABLE raw_datasets ADD COLUMN IF NOT EXISTS lifecycle_tier TEXT NOT NULL DEFAULT 'hot';
+ALTER TABLE raw_datasets ADD COLUMN IF NOT EXISTS archive_status TEXT NOT NULL DEFAULT 'none';
+ALTER TABLE raw_datasets ADD COLUMN IF NOT EXISTS archive_uri TEXT;
+ALTER TABLE raw_datasets ADD COLUMN IF NOT EXISTS archive_compression TEXT;
+ALTER TABLE raw_datasets ADD COLUMN IF NOT EXISTS reclaimable_bytes BIGINT NOT NULL DEFAULT 0;
+ALTER TABLE raw_datasets ADD COLUMN IF NOT EXISTS last_accessed_at TIMESTAMPTZ;
+ALTER TABLE raw_datasets ADD COLUMN IF NOT EXISTS total_bytes BIGINT NOT NULL DEFAULT 0;
+ALTER TABLE raw_datasets ADD COLUMN IF NOT EXISTS last_size_scan_at TIMESTAMPTZ;
+ALTER TABLE users ADD COLUMN IF NOT EXISTS password_hash TEXT;
+ALTER TABLE users ADD COLUMN IF NOT EXISTS admin_portal_access BOOLEAN NOT NULL DEFAULT FALSE;
+ALTER TABLE users ADD COLUMN IF NOT EXISTS lab_status TEXT NOT NULL DEFAULT 'yes';
+ALTER TABLE users ADD COLUMN IF NOT EXISTS default_path TEXT;
+
+ALTER TABLE detecdiv_projects ADD COLUMN IF NOT EXISTS experiment_project_id UUID REFERENCES experiment_projects(id) ON DELETE SET NULL;
+ALTER TABLE detecdiv_projects ADD COLUMN IF NOT EXISTS owner_user_id UUID REFERENCES users(id) ON DELETE SET NULL;
+ALTER TABLE detecdiv_projects ADD COLUMN IF NOT EXISTS visibility TEXT NOT NULL DEFAULT 'private';
+ALTER TABLE detecdiv_projects ADD COLUMN IF NOT EXISTS fov_count INTEGER NOT NULL DEFAULT 0;
+ALTER TABLE detecdiv_projects ADD COLUMN IF NOT EXISTS roi_count INTEGER NOT NULL DEFAULT 0;
+ALTER TABLE detecdiv_projects ADD COLUMN IF NOT EXISTS classifier_count INTEGER NOT NULL DEFAULT 0;
+ALTER TABLE detecdiv_projects ADD COLUMN IF NOT EXISTS processor_count INTEGER NOT NULL DEFAULT 0;
+ALTER TABLE detecdiv_projects ADD COLUMN IF NOT EXISTS pipeline_run_count INTEGER NOT NULL DEFAULT 0;
+ALTER TABLE detecdiv_projects ADD COLUMN IF NOT EXISTS available_raw_count INTEGER NOT NULL DEFAULT 0;
+ALTER TABLE detecdiv_projects ADD COLUMN IF NOT EXISTS missing_raw_count INTEGER NOT NULL DEFAULT 0;
+ALTER TABLE detecdiv_projects ADD COLUMN IF NOT EXISTS run_json_count INTEGER NOT NULL DEFAULT 0;
+ALTER TABLE detecdiv_projects ADD COLUMN IF NOT EXISTS h5_count INTEGER NOT NULL DEFAULT 0;
+ALTER TABLE detecdiv_projects ADD COLUMN IF NOT EXISTS h5_bytes BIGINT NOT NULL DEFAULT 0;
+ALTER TABLE detecdiv_projects ADD COLUMN IF NOT EXISTS latest_run_status TEXT;
+ALTER TABLE detecdiv_projects ADD COLUMN IF NOT EXISTS latest_run_at TIMESTAMPTZ;
+ALTER TABLE detecdiv_projects ADD COLUMN IF NOT EXISTS project_mat_bytes BIGINT NOT NULL DEFAULT 0;
+ALTER TABLE detecdiv_projects ADD COLUMN IF NOT EXISTS project_dir_bytes BIGINT NOT NULL DEFAULT 0;
+ALTER TABLE detecdiv_projects ADD COLUMN IF NOT EXISTS estimated_raw_bytes BIGINT NOT NULL DEFAULT 0;
+ALTER TABLE detecdiv_projects ADD COLUMN IF NOT EXISTS total_bytes BIGINT NOT NULL DEFAULT 0;
+ALTER TABLE detecdiv_projects ADD COLUMN IF NOT EXISTS lifecycle_tier TEXT NOT NULL DEFAULT 'hot';
+ALTER TABLE detecdiv_projects ADD COLUMN IF NOT EXISTS archive_status TEXT NOT NULL DEFAULT 'none';
+ALTER TABLE detecdiv_projects ADD COLUMN IF NOT EXISTS archive_uri TEXT;
+ALTER TABLE detecdiv_projects ADD COLUMN IF NOT EXISTS archive_compression TEXT;
+ALTER TABLE detecdiv_projects ADD COLUMN IF NOT EXISTS last_size_scan_at TIMESTAMPTZ;
+CREATE INDEX IF NOT EXISTS idx_detecdiv_projects_archive_status ON detecdiv_projects(archive_status);
+ALTER TABLE jobs ADD COLUMN IF NOT EXISTS heartbeat_at TIMESTAMPTZ;
+ALTER TABLE indexing_jobs ADD COLUMN IF NOT EXISTS phase TEXT NOT NULL DEFAULT 'queued';
+ALTER TABLE indexing_jobs ADD COLUMN IF NOT EXISTS mat_files_seen INTEGER NOT NULL DEFAULT 0;
+ALTER TABLE indexing_jobs ADD COLUMN IF NOT EXISTS heartbeat_at TIMESTAMPTZ;
+ALTER TABLE worker_instances ADD COLUMN IF NOT EXISTS deployment_version TEXT;
+ALTER TABLE worker_instances ADD COLUMN IF NOT EXISTS version_source TEXT;
+ALTER TABLE worker_instances ADD COLUMN IF NOT EXISTS code_fingerprint TEXT;
+
+CREATE INDEX IF NOT EXISTS idx_projects_name ON detecdiv_projects(project_name);
+CREATE INDEX IF NOT EXISTS idx_projects_owner_user_id ON detecdiv_projects(owner_user_id);
+CREATE INDEX IF NOT EXISTS idx_projects_visibility ON detecdiv_projects(visibility);
+CREATE INDEX IF NOT EXISTS idx_projects_experiment_project_id ON detecdiv_projects(experiment_project_id);
+CREATE INDEX IF NOT EXISTS idx_experiment_projects_title ON experiment_projects(title);
+CREATE INDEX IF NOT EXISTS idx_experiment_projects_owner_user_id ON experiment_projects(owner_user_id);
+CREATE INDEX IF NOT EXISTS idx_experiment_projects_visibility ON experiment_projects(visibility);
+CREATE INDEX IF NOT EXISTS idx_experiment_raw_links_experiment_project_id ON experiment_raw_links(experiment_project_id);
+CREATE INDEX IF NOT EXISTS idx_experiment_raw_links_raw_dataset_id ON experiment_raw_links(raw_dataset_id);
+CREATE INDEX IF NOT EXISTS idx_acquisition_sessions_owner_status ON acquisition_sessions(owner_user_id, status, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_acquisition_sessions_landing_root ON acquisition_sessions(landing_storage_root_id, landing_relative_path);
+CREATE INDEX IF NOT EXISTS idx_acquisition_sessions_raw_dataset_id ON acquisition_sessions(raw_dataset_id);
+CREATE INDEX IF NOT EXISTS idx_acquisition_sessions_experiment_project_id ON acquisition_sessions(experiment_project_id);
+CREATE INDEX IF NOT EXISTS idx_jobs_status_priority ON jobs(status, priority, created_at);
+CREATE INDEX IF NOT EXISTS idx_jobs_project_id ON jobs(project_id);
+CREATE INDEX IF NOT EXISTS idx_raw_datasets_status ON raw_datasets(status, completeness_status);
+CREATE INDEX IF NOT EXISTS idx_raw_datasets_owner_user_id ON raw_datasets(owner_user_id);
+CREATE INDEX IF NOT EXISTS idx_raw_datasets_lifecycle_tier ON raw_datasets(lifecycle_tier, archive_status);
+CREATE INDEX IF NOT EXISTS idx_misc_storage_items_owner_user_id ON misc_storage_items(owner_user_id);
+CREATE INDEX IF NOT EXISTS idx_misc_storage_items_parent_item_id ON misc_storage_items(parent_item_id);
+CREATE INDEX IF NOT EXISTS idx_misc_storage_items_storage_root ON misc_storage_items(storage_root_id, relative_path);
+CREATE INDEX IF NOT EXISTS idx_misc_storage_items_category ON misc_storage_items(category, status);
+CREATE INDEX IF NOT EXISTS idx_misc_storage_items_total_bytes ON misc_storage_items(total_bytes DESC);
+CREATE INDEX IF NOT EXISTS idx_misc_storage_items_lifecycle ON misc_storage_items(lifecycle_tier, archive_status);
+CREATE INDEX IF NOT EXISTS idx_misc_storage_items_backup ON misc_storage_items(backup_status, backup_excluded);
+CREATE INDEX IF NOT EXISTS idx_raw_dataset_positions_raw_dataset_id ON raw_dataset_positions(raw_dataset_id, position_index, position_key);
+CREATE INDEX IF NOT EXISTS idx_raw_dataset_positions_preview_status ON raw_dataset_positions(preview_status);
+CREATE INDEX IF NOT EXISTS idx_project_acl_user_id ON project_acl(user_id);
+CREATE INDEX IF NOT EXISTS idx_project_groups_owner_user_id ON project_groups(owner_user_id);
+CREATE INDEX IF NOT EXISTS idx_project_group_members_project_id ON project_group_members(project_id);
+CREATE INDEX IF NOT EXISTS idx_project_notes_project_id ON project_notes(project_id);
+CREATE INDEX IF NOT EXISTS idx_project_deletion_events_project_id ON project_deletion_events(project_id);
+CREATE INDEX IF NOT EXISTS idx_project_locks_project_status ON project_locks(project_id, status, expires_at);
+CREATE INDEX IF NOT EXISTS idx_project_locks_job_id ON project_locks(job_id);
+CREATE INDEX IF NOT EXISTS idx_worker_instances_target_seen ON worker_instances(execution_target_id, last_seen_at DESC);
+CREATE INDEX IF NOT EXISTS idx_worker_instances_current_job_id ON worker_instances(current_job_id);
+CREATE INDEX IF NOT EXISTS idx_indexing_jobs_status_created_at ON indexing_jobs(status, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_indexing_jobs_requested_by_user_id ON indexing_jobs(requested_by_user_id);
+CREATE INDEX IF NOT EXISTS idx_indexing_jobs_heartbeat_at ON indexing_jobs(heartbeat_at DESC);
+CREATE INDEX IF NOT EXISTS idx_user_sessions_user_id ON user_sessions(user_id, status, expires_at);
+CREATE INDEX IF NOT EXISTS idx_storage_providers_kind ON storage_providers(provider_kind, is_active);
+CREATE INDEX IF NOT EXISTS idx_user_storage_accounts_user_id ON user_storage_accounts(user_id);
+CREATE INDEX IF NOT EXISTS idx_user_storage_accounts_provider_id ON user_storage_accounts(provider_id);
+CREATE INDEX IF NOT EXISTS idx_user_storage_accounts_home_root ON user_storage_accounts(home_storage_root_id);
+CREATE INDEX IF NOT EXISTS idx_storage_quota_snapshots_user_measured ON storage_quota_snapshots(user_id, measured_at DESC);
+CREATE INDEX IF NOT EXISTS idx_storage_quota_snapshots_provider_measured ON storage_quota_snapshots(provider_id, measured_at DESC);
+CREATE INDEX IF NOT EXISTS idx_storage_provisioning_events_user_created ON storage_provisioning_events(user_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_storage_provisioning_events_provider_created ON storage_provisioning_events(provider_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_storage_migration_batches_owner_user_id ON storage_migration_batches(owner_user_id);
+CREATE INDEX IF NOT EXISTS idx_storage_migration_batches_created_at ON storage_migration_batches(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_storage_migration_items_batch_id ON storage_migration_items(batch_id);
+CREATE INDEX IF NOT EXISTS idx_storage_migration_items_status ON storage_migration_items(status);
+CREATE INDEX IF NOT EXISTS idx_external_publication_records_experiment_project_id ON external_publication_records(experiment_project_id);
+CREATE INDEX IF NOT EXISTS idx_external_publication_records_system_key ON external_publication_records(system_key, status);
+CREATE UNIQUE INDEX IF NOT EXISTS uq_external_publication_records_experiment_system ON external_publication_records(experiment_project_id, system_key);
+CREATE INDEX IF NOT EXISTS idx_external_experiment_records_system_title ON external_experiment_records(system_key, title);
+CREATE INDEX IF NOT EXISTS idx_external_experiment_records_synced_at ON external_experiment_records(system_key, last_synced_at DESC);
+CREATE INDEX IF NOT EXISTS idx_external_user_records_system_name ON external_user_records(system_key, display_name);
+CREATE INDEX IF NOT EXISTS idx_external_user_records_matched_user_id ON external_user_records(matched_user_id);
+CREATE INDEX IF NOT EXISTS idx_labguru_yeast_strains_name ON labguru_yeast_strains(name);
+CREATE INDEX IF NOT EXISTS idx_labguru_yeast_strains_sys_id ON labguru_yeast_strains(sys_id);
+CREATE INDEX IF NOT EXISTS idx_labguru_yeast_strains_active_sync ON labguru_yeast_strains(is_active, last_synced_at DESC);
+CREATE INDEX IF NOT EXISTS idx_labguru_yeast_strains_created_external
+    ON labguru_yeast_strains(created_external_at DESC) WHERE is_active = TRUE;
+CREATE INDEX IF NOT EXISTS idx_labguru_yeast_strains_search
+    ON labguru_yeast_strains USING GIN (to_tsvector('simple', search_text));
+CREATE INDEX IF NOT EXISTS idx_labguru_storage_locations_parent
+    ON labguru_storage_locations(parent_external_id);
+CREATE INDEX IF NOT EXISTS idx_labguru_storage_boxes_storage
+    ON labguru_storage_boxes(storage_external_id);
+CREATE INDEX IF NOT EXISTS idx_labguru_yeast_stocks_strain_active
+    ON labguru_yeast_stocks(yeast_strain_id, is_active);
+CREATE INDEX IF NOT EXISTS idx_labguru_yeast_stocks_box
+    ON labguru_yeast_stocks(box_external_id);
+CREATE INDEX IF NOT EXISTS idx_external_user_credentials_user_system ON external_user_credentials(user_id, system_key);
+CREATE INDEX IF NOT EXISTS idx_external_user_credentials_status ON external_user_credentials(system_key, status, expires_at);
+CREATE INDEX IF NOT EXISTS idx_external_match_candidates_status_score ON external_match_candidates(system_key, status, score DESC);
+CREATE INDEX IF NOT EXISTS idx_external_match_candidates_raw_dataset_id ON external_match_candidates(raw_dataset_id);
+CREATE INDEX IF NOT EXISTS idx_external_match_candidates_external_record_id ON external_match_candidates(external_experiment_record_id);
+CREATE OR REPLACE FUNCTION normalize_labguru_external_url()
+RETURNS trigger AS $$
+BEGIN
+    IF NEW.system_key = 'labguru' AND NEW.external_url IS NOT NULL THEN
+        IF NEW.external_url LIKE '/%' THEN
+            NEW.external_url := 'https://cle.inserm.fr' || NEW.external_url;
+        ELSIF NEW.external_url ~ '^https?://[^/]+/knowledge/experiments/'
+            AND NEW.external_url NOT LIKE 'https://cle.inserm.fr/%' THEN
+            NEW.external_url := regexp_replace(
+                NEW.external_url,
+                '^https?://[^/]+/knowledge/experiments/',
+                'https://cle.inserm.fr/knowledge/experiments/'
+            );
+        END IF;
+    END IF;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+DROP TRIGGER IF EXISTS trg_external_experiment_records_labguru_url
+    ON external_experiment_records;
+CREATE TRIGGER trg_external_experiment_records_labguru_url
+    BEFORE INSERT OR UPDATE OF system_key, external_url
+    ON external_experiment_records
+    FOR EACH ROW
+    EXECUTE FUNCTION normalize_labguru_external_url();
+
+DROP TRIGGER IF EXISTS trg_external_publication_records_labguru_url
+    ON external_publication_records;
+CREATE TRIGGER trg_external_publication_records_labguru_url
+    BEFORE INSERT OR UPDATE OF system_key, external_url
+    ON external_publication_records
+    FOR EACH ROW
+    EXECUTE FUNCTION normalize_labguru_external_url();
+CREATE INDEX IF NOT EXISTS idx_storage_lifecycle_events_raw_dataset_id ON storage_lifecycle_events(raw_dataset_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_archive_policy_runs_created_at ON archive_policy_runs(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_archive_policy_runs_status ON archive_policy_runs(status, trigger_mode, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_micromanager_ingest_runs_created_at ON micromanager_ingest_runs(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_micromanager_ingest_runs_status ON micromanager_ingest_runs(status, trigger_mode, created_at DESC);

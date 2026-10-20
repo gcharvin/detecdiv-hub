@@ -1,0 +1,59 @@
+{
+  "activation": {
+    "complete": false,
+    "deferred": [
+      "windows-10-20-11-56-main"
+    ],
+    "reason": "busy_or_stale",
+    "checked_at": "2026-10-20T13:16:24.134620+00:00"
+  },
+  "trees": [
+    {
+      "pid": 31820,
+      "created": 1792136924.843288,
+      "children": [
+        {
+          "pid": 54932,
+          "name": "matlab.exe",
+          "created": 1792331098.0856707
+        },
+        {
+          "pid": 76496,
+          "name": "MATLAB.exe",
+          "created": 1792331098.1038232
+        },
+        {
+          "pid": 96660,
+          "name": "MATLABPyHost.exe",
+          "created": 1792331166.8344195
+        }
+      ]
+    },
+    {
+      "pid": 38076,
+      "created": 1792136924.836172,
+      "children": [
+        {
+          "pid": 31820,
+          "name": "python.exe",
+          "created": 1792136924.843288
+        },
+        {
+          "pid": 54932,
+          "name": "matlab.exe",
+          "created": 1792331098.0856707
+        },
+        {
+          "pid": 76496,
+          "name": "MATLAB.exe",
+          "created": 1792331098.1038232
+        },
+        {
+          "pid": 96660,
+          "name": "MATLABPyHost.exe",
+          "created": 1792331166.8344195
+        }
+      ]
+    }
+  ]
+}

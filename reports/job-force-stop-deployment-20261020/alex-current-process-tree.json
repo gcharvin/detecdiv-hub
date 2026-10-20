@@ -1,0 +1,66 @@
+{
+  "unit": "detecdiv-worker@1.service",
+  "cgroup": "/detecdiv.slice/detecdiv-workers.slice/detecdiv-worker@1.service",
+  "processes": [
+    {
+      "pid": 227710,
+      "parent": 1,
+      "name": "python",
+      "created": 1792408180.46,
+      "status": "sleeping",
+      "command": [
+        "/home/charvin-admin/repos/detecdiv-hub-webvm/.venv/bin/python",
+        "worker/run_worker.py"
+      ],
+      "cgroup": "0::/detecdiv.slice/detecdiv-workers.slice/detecdiv-worker@1.service\n"
+    },
+    {
+      "pid": 242715,
+      "parent": 227710,
+      "name": "MATLAB",
+      "created": 1792418452.95,
+      "status": "sleeping",
+      "command": [
+        "/usr/local/MATLAB/R2024b/bin/glnxa64/MATLAB",
+        "-batch",
+        "cd('/home/charvin-admin/repos/DetecDiv-jobs/releases/26e1c21fadedddd5d967b7afea93de024faf3048'); maxNumCompThreads(8); setenv('DETECDIV_ROOT', pwd); detecdiv_setup_path(pwd, 'DetecDivRoot', pwd); cd('/home/charvin-admin/repos/DetecDiv-jobs/work/c0fc44c4-4380-4c48-8f9d-8ad2b3286e6e/281a2ca6-06c4-438e-8ad0-c736bd1c80d6'); detecdiv_run_pipeline_job('/home/charvin-admin/repos/DetecDiv-jobs/work/c0fc44c4-4380-4c48-8f9d-8ad2b3286e6e/281a2ca6-06c4-438e-8ad0-c736bd1c80d6/pipeline_run_job.json')",
+        "-prefersoftwareopengl"
+      ],
+      "cgroup": "0::/detecdiv.slice/detecdiv-workers.slice/detecdiv-worker@1.service\n"
+    },
+    {
+      "pid": 242987,
+      "parent": 242715,
+      "name": "matlab_helper",
+      "created": 1792418458.75,
+      "status": "sleeping",
+      "command": [
+        "/usr/local/MATLAB/R2024b/bin/glnxa64/matlab_helper",
+        "/dev/pts/1",
+        "no"
+      ],
+      "cgroup": "0::/detecdiv.slice/detecdiv-workers.slice/detecdiv-worker@1.service\n"
+    },
+    {
+      "pid": 243142,
+      "parent": 242715,
+      "name": "MATLAB",
+      "created": 1792418561.24,
+      "status": "sleeping",
+      "command": [
+        "/usr/local/MATLAB/R2024b/bin/glnxa64/MATLAB",
+        "-parallelserver",
+        "-nodisplay",
+        "",
+        "",
+        "-r",
+        "distcomp_evaluate_filetask",
+        "-licmode",
+        "file",
+        "-c",
+        "/home/charvin-admin/.matlab/R2024b_licenses:/usr/local/MATLAB/R2024b/licenses/license.dat:/usr/local/MATLAB/R2024b/licenses/license_GC-CALCUL-306_40927269_R2024b.lic"
+      ],
+      "cgroup": "0::/detecdiv.slice/detecdiv-workers.slice/detecdiv-worker@1.service\n"
+    }
+  ]
+}

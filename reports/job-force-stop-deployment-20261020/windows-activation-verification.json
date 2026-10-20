@@ -1,0 +1,35 @@
+{
+  "checks": {
+    "api/models.py": "staged",
+    "api/schemas.py": "staged",
+    "api/routes_pipeline_runs.py": "staged",
+    "api/static/app.js": "staged",
+    "db/schema.sql": "staged",
+    "db/migrations/20261020_job_force_stop.sql": "staged",
+    "worker/run_worker.py": "staged",
+    "worker/pipeline_run_executor.py": "staged",
+    "worker/executors/matlab_executor.py": "staged",
+    "worker/executors/job_process_scope.py": "staged",
+    "worker/executors/linux_job_supervisor.py": "staged",
+    "worker/job_resources.py": "staged",
+    "worker/memory_resources.py": "staged",
+    "worker/autoscaling.py": "staged",
+    "worker/roi_extraction_resources.py": "staged"
+  },
+  "expected_fingerprint": "a1fffd69452e",
+  "watcher": {
+    "nextRun": "2026-10-20T15:34:21.0000000+02:00",
+    "tunnel": "Running",
+    "lastResult": 0,
+    "worker": "Ready",
+    "state": "Ready"
+  },
+  "activation": {
+    "complete": false,
+    "deferred": [
+      "windows-10-20-11-56-main"
+    ],
+    "reason": "busy_or_stale",
+    "checked_at": "2026-10-20T13:32:25.050545+00:00"
+  }
+}

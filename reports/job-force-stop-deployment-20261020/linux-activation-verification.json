@@ -1,0 +1,26 @@
+{
+  "checks": {
+    "api/models.py": "active",
+    "api/schemas.py": "active",
+    "api/routes_pipeline_runs.py": "active",
+    "api/static/app.js": "active",
+    "db/schema.sql": "active",
+    "db/migrations/20261020_job_force_stop.sql": "active",
+    "worker/run_worker.py": "active",
+    "worker/pipeline_run_executor.py": "active",
+    "worker/executors/matlab_executor.py": "active",
+    "worker/executors/job_process_scope.py": "active",
+    "worker/executors/linux_job_supervisor.py": "active"
+  },
+  "expected_fingerprint": "3327f21659f7",
+  "watcher": "NextElapseUSecMonotonic=3w 5d 6h 43min 43.230477s\nActiveState=active\n",
+  "activation": {
+    "complete": false,
+    "deferred": [
+      "@4",
+      "@1"
+    ],
+    "reason": "busy_or_stale",
+    "checked_at": "2026-10-20T13:33:20.193327+00:00"
+  }
+}

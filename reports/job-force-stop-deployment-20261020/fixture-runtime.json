@@ -1,0 +1,8 @@
+{
+  "release": "/home/charvin-admin/repos/DetecDiv-jobs/releases/2abc8f2ee32ab10cf204c2fe11be63d87c728764",
+  "exists": true,
+  "custom_module": [
+    "/home/charvin-admin/repos/DetecDiv-jobs/releases/2abc8f2ee32ab10cf204c2fe11be63d87c728764/engine/pipeline/+customModule/setparam.m"
+  ],
+  "matlab_command": "/usr/local/bin/matlab"
+}

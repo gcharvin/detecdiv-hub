@@ -1,0 +1,101 @@
+[
+  {
+    "id": "2718583f-01f9-4f70-a0e4-926fb72a23ad",
+    "status": "cancelled",
+    "finished_at": "2026-10-20 13:51:26.679941+00:00",
+    "force_stop_requested_at": "2026-10-20 13:51:26.019254+00:00",
+    "force_stop_requested_by": "alexander",
+    "force_stopped_at": "2026-10-20 13:51:26.634229+00:00",
+    "result_json": {
+      "status": "cancelled",
+      "message": "Job forcibly stopped by user; all job processes have exited.",
+      "progress": {
+        "phase": "matlab_running",
+        "updated_at": "2026-10-20T13:51:26.615781+00:00",
+        "current_step": "force_stop_demo",
+        "last_message": "This demonstration finishes automatically after 30 minutes if it is not stopped.",
+        "recent_stderr": [],
+        "recent_stdout": [
+          "[path] Added 55 folder(s).",
+          "[detecdiv_run_pipeline_job] repoRoot: /home/charvin-admin/repos/DetecDiv-jobs/releases/2abc8f2ee32ab10cf204c2fe11be63d87c728764",
+          "[detecdiv_run_pipeline_job] runPipelineStructured: /home/charvin-admin/repos/DetecDiv-jobs/releases/2abc8f2ee32ab10cf204c2fe11be63d87c728764/structure/io/runPipelineStructured.m",
+          "[detecdiv_run_pipeline_job] sam31.train: /home/charvin-admin/repos/DetecDiv-jobs/releases/2abc8f2ee32ab10cf204c2fe11be63d87c728764/engine/classification/+sam31/train.m",
+          "Successfully loaded lightweight shallow project /home/charvin-admin/repos/detecdiv-hub-webvm/.deploy-staging/alex-force-stop-demo-20261020/fixture/alex_force_stop_demo.json!",
+          "Pipeline run saved: /home/charvin-admin/repos/detecdiv-hub-webvm/.deploy-staging/alex-force-stop-demo-20261020/fixture/alex_force_stop_demo/pipeline/alex_force_stop_demo_20261020/run.json",
+          "DETECDIV_PIPELINE_PROGRESS node_start id=force_stop_demo type=custom index=1 total=1",
+          "[custom] forceStopAlexDemo (context) from /home/charvin-admin/repos/detecdiv-hub-webvm/.deploy-staging/alex-force-stop-demo-20261020/fixture/code/forceStopAlexDemo.m",
+          "DEMO READY: select this run, click Force stop, and confirm. No experimental data is being processed.",
+          "This demonstration finishes automatically after 30 minutes if it is not stopped."
+        ]
+      },
+      "cpu_usage": {
+        "peak_cores": 1.831,
+        "cpu_seconds": 38.1,
+        "sample_count": 211,
+        "wall_seconds": 115.431,
+        "average_cores": 0.33,
+        "host_cpu_count": 48,
+        "allocated_cores": 1,
+        "available_cpu_count": 48,
+        "sample_interval_seconds": 0.5
+      },
+      "preflight": {
+        "errors": [],
+        "reason": "dependency_audit_missing",
+        "status": "skipped",
+        "warnings": [
+          "No dependency_audit.json was found for pipeline payload."
+        ]
+      },
+      "prepared_run": {
+        "execution": {
+          "allow_gui": false,
+          "code_commit": "2abc8f2ee32ab10cf204c2fe11be63d87c728764",
+          "interactive": false,
+          "save_project": false,
+          "requested_mode": "server",
+          "matlab_max_threads": 1,
+          "execution_target_id": "0d9f55dc-54ce-4527-af5b-ff4b5d0d64e9",
+          "worker_path_mappings": []
+        },
+        "project_ref": {
+          "project_id": "43eea751-5d1b-4dde-bb57-e6468843f04e",
+          "project_mat_path": "/home/charvin-admin/repos/detecdiv-hub-webvm/.deploy-staging/alex-force-stop-demo-20261020/fixture/alex_force_stop_demo.json"
+        },
+        "pipeline_ref": {
+          "pipeline_json_path": "/home/charvin-admin/repos/detecdiv-hub-webvm/.deploy-staging/alex-force-stop-demo-20261020/fixture/force_stop_demo/pipeline.json"
+        },
+        "normalized_pipeline_path": "/home/charvin-admin/repos/detecdiv-hub-webvm/.deploy-staging/alex-force-stop-demo-20261020/fixture/force_stop_demo/pipeline.json",
+        "pipeline_resolution_method": null
+      },
+      "worker_runtime": {
+        "engine": "matlab",
+        "work_dir": "/home/charvin-admin/repos/DetecDiv-jobs/work/2718583f-01f9-4f70-a0e4-926fb72a23ad/b95dea15-a308-4513-bc2b-633db6484870",
+        "repo_root": "/home/charvin-admin/repos/DetecDiv-jobs/releases/2abc8f2ee32ab10cf204c2fe11be63d87c728764",
+        "stderr_log": "/home/charvin-admin/repos/DetecDiv-jobs/work/2718583f-01f9-4f70-a0e4-926fb72a23ad/b95dea15-a308-4513-bc2b-633db6484870/matlab_stderr.log",
+        "stdout_log": "/home/charvin-admin/repos/DetecDiv-jobs/work/2718583f-01f9-4f70-a0e4-926fb72a23ad/b95dea15-a308-4513-bc2b-633db6484870/matlab_stdout.log",
+        "code_commit": "2abc8f2ee32ab10cf204c2fe11be63d87c728764",
+        "process_scope": "linux_subreaper",
+        "supervisor_pid": 388902,
+        "force_stop_supported": true
+      },
+      "resource_allocation": {
+        "source": "conservative_pipeline_fallback",
+        "cpu_cores": 1,
+        "memory_mb": 4096,
+        "gpu_vram_mb": 0,
+        "gpu_required": false,
+        "disk_io_units": 3,
+        "gpu_permitted": true,
+        "swap_limit_mb": 256,
+        "requested_cpu_cores": 1,
+        "pipeline_gpu_profile": {
+          "reason": "pipeline_nodes_unavailable",
+          "status": "unknown",
+          "selected_node_ids": [],
+          "deep_learning_node_ids": []
+        }
+      }
+    }
+  }
+]

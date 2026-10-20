@@ -1,0 +1,75 @@
+{
+  "id": "c0fc44c4-4380-4c48-8f9d-8ad2b3286e6e",
+  "project_id": "a6d98a53-2290-4c60-a3ec-eadcff03d434",
+  "project_name": "anof_151026_X544rep",
+  "requested_by": "alexander",
+  "status": "cancelling",
+  "started_at": "2026-10-19 14:00:50.673898+00:00",
+  "heartbeat_at": "2026-10-20 13:45:22.645669+00:00",
+  "runtime": {
+    "engine": "matlab",
+    "work_dir": "/home/charvin-admin/repos/DetecDiv-jobs/work/c0fc44c4-4380-4c48-8f9d-8ad2b3286e6e/281a2ca6-06c4-438e-8ad0-c736bd1c80d6",
+    "repo_root": "/home/charvin-admin/repos/DetecDiv-jobs/releases/26e1c21fadedddd5d967b7afea93de024faf3048",
+    "stderr_log": "/home/charvin-admin/repos/DetecDiv-jobs/work/c0fc44c4-4380-4c48-8f9d-8ad2b3286e6e/281a2ca6-06c4-438e-8ad0-c736bd1c80d6/matlab_stderr.log",
+    "stdout_log": "/home/charvin-admin/repos/DetecDiv-jobs/work/c0fc44c4-4380-4c48-8f9d-8ad2b3286e6e/281a2ca6-06c4-438e-8ad0-c736bd1c80d6/matlab_stdout.log",
+    "code_commit": "26e1c21fadedddd5d967b7afea93de024faf3048"
+  },
+  "progress": {
+    "phase": "matlab_running",
+    "updated_at": "2026-10-20T13:45:23.292300+00:00",
+    "current_step": "[readImage] mode=File source=/data/Alexander/nobackup/data/151026_X544rep/151026_X544rep_2/5-X544_LOGEB-20/img_channel003_position016_time000000464_z001.tif",
+    "last_message": "[readImage] mode=File source=/data/Alexander/nobackup/data/151026_X544rep/151026_X544rep_2/5-X544_LOGEB-20/img_channel003_position016_time000000464_z001.tif",
+    "recent_stderr": [],
+    "recent_stdout": [
+      "[readImage] mode=File source=/data/Alexander/nobackup/data/151026_X544rep/151026_X544rep_2/5-X544_LOGEB-20/img_channel000_position016_time000000464_z002.tif",
+      "[readImage] loaded FOV=151026_X544rep_2_5-X544_LOGEB-20_16 channel=3 frame=465 mode=File size=[2048 2048] class=uint16 source=/data/Alexander/nobackup/data/151026_X544rep/151026_X544rep_2/5-X544_LOGEB-20",
+      "[readImage] request FOV=151026_X544rep_2_5-X544_LOGEB-20_16 frame=465 channel=4",
+      "[readImage] mode=File source=/data/Alexander/nobackup/data/151026_X544rep/151026_X544rep_2/5-X544_LOGEB-20/img_channel001_position016_time000000464_z001.tif",
+      "[readImage] loaded FOV=151026_X544rep_2_5-X544_LOGEB-20_16 channel=4 frame=117 mode=File size=[2048 2048] class=uint16 source=/data/Alexander/nobackup/data/151026_X544rep/151026_X544rep_2/5-X544_LOGEB-20",
+      "[readImage] request FOV=151026_X544rep_2_5-X544_LOGEB-20_16 frame=465 channel=5",
+      "[readImage] mode=File source=/data/Alexander/nobackup/data/151026_X544rep/151026_X544rep_2/5-X544_LOGEB-20/img_channel002_position016_time000000464_z001.tif",
+      "[readImage] loaded FOV=151026_X544rep_2_5-X544_LOGEB-20_16 channel=5 frame=117 mode=File size=[2048 2048] class=uint16 source=/data/Alexander/nobackup/data/151026_X544rep/151026_X544rep_2/5-X544_LOGEB-20",
+      "[readImage] request FOV=151026_X544rep_2_5-X544_LOGEB-20_16 frame=465 channel=6",
+      "[readImage] mode=File source=/data/Alexander/nobackup/data/151026_X544rep/151026_X544rep_2/5-X544_LOGEB-20/img_channel003_position016_time000000464_z001.tif"
+    ]
+  },
+  "allocation": {
+    "source": "pipeline_nodes_and_job_resource_settings",
+    "cpu_cores": 8,
+    "memory_mb": 24576,
+    "gpu_vram_mb": 0,
+    "gpu_required": false,
+    "disk_io_units": 3,
+    "gpu_permitted": true,
+    "swap_limit_mb": 1536,
+    "requested_cpu_cores": 8,
+    "pipeline_gpu_profile": {
+      "source": "/data/matlab/pipelines/Alex_Xtra_FullChannels_Conservative/pipeline/pipeline_2/pipeline.json",
+      "status": "known",
+      "gpu_node_ids": [],
+      "gpu_required": false,
+      "run_gpu_mode": "gpu",
+      "roi_extraction": {
+        "reason": "non_adaptive_selected_node",
+        "eligible": false
+      },
+      "selected_node_ids": [
+        "processor_savecroppedimagesxconservative_2",
+        "processor_xtrafullchannelsconservative_4"
+      ],
+      "deep_learning_node_ids": []
+    }
+  },
+  "worker": {
+    "instance": "@1",
+    "pid": 227710,
+    "fingerprint": "c367c1f32f1e"
+  },
+  "locks": [
+    {
+      "status": "active",
+      "scope": "project",
+      "heartbeat": "2026-10-20 13:45:23.292438+00:00"
+    }
+  ]
+}

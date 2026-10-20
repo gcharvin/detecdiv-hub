@@ -801,6 +801,10 @@ class Job(Base):
     started_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     heartbeat_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     finished_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    force_stop_requested_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    force_stop_requested_by: Mapped[str | None] = mapped_column(String)
+    force_stop_requested_by_user_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True))
+    force_stopped_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
     )

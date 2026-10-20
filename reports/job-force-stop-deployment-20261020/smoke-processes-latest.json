@@ -1,0 +1,21 @@
+{
+  "pids": {
+    "python-0.pid": 385270,
+    "matlab.pid": 384983,
+    "python-1.pid": 385272
+  },
+  "processes": [
+    {
+      "pid": 385270,
+      "alive": false
+    },
+    {
+      "pid": 384983,
+      "alive": false
+    },
+    {
+      "pid": 385272,
+      "alive": false
+    }
+  ]
+}

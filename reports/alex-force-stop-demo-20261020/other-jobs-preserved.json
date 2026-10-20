@@ -1,0 +1,30 @@
+{
+  "database_state_preserved": true,
+  "protected_job_ids": [
+    "137eec41-3bfc-4c7a-bbbf-03d5a948a329",
+    "f4150ff1-f1bf-4c89-8483-1b7e26c8726e"
+  ],
+  "checks": [
+    "unchanged registered worker PIDs",
+    "unchanged start times",
+    "unchanged allocations",
+    "unchanged parameter hashes",
+    "Linux heartbeat advancing",
+    "admission restored"
+  ],
+  "heartbeat_observations": [
+    {
+      "job_id": "137eec41-3bfc-4c7a-bbbf-03d5a948a329",
+      "before": "2026-10-20 13:47:12.226055+00:00",
+      "after": "2026-10-20 13:52:54.719958+00:00",
+      "advanced": true
+    },
+    {
+      "job_id": "f4150ff1-f1bf-4c89-8483-1b7e26c8726e",
+      "before": "2026-10-20 13:21:16.910078+00:00",
+      "after": "2026-10-20 13:21:16.910078+00:00",
+      "advanced": false
+    }
+  ],
+  "limitation": "Windows heartbeat was already stale at the initial snapshot (13:21 UTC); registered PID 31820 is absent on the host at final verification. No Windows process was modified by this operation. See windows-final-state.json. Database state does not establish Windows process health."
+}

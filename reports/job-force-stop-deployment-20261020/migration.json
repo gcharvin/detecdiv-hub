@@ -1,0 +1,9 @@
+{
+  "migration_applied": true,
+  "columns": [
+    "force_stop_requested_at",
+    "force_stop_requested_by",
+    "force_stop_requested_by_user_id",
+    "force_stopped_at"
+  ]
+}

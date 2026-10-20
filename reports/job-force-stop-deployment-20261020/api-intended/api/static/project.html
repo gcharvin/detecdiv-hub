@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Detecdiv server - Project</title>
+    <link rel="stylesheet" href="/web/styles.css?v=20260806-disk-warning1" />
+  </head>
+  <body data-page="project">
+    <div class="page-shell">
+      <aside class="sidebar-shell">
+        <div class="sidebar-brand">
+          <div class="eyebrow">DetecDiv Hub</div>
+          <h2>Navigation</h2>
+          <p class="muted">Projects, datasets, and admin tools stay available from one place.</p>
+        </div>
+        <div class="sidebar-auth"></div>
+        <div class="session-box hidden">
+          <div id="session-label" class="muted">Not logged in.</div>
+          <button id="logout-button">Logout</button>
+        </div>
+        <nav class="sidebar-menu" aria-label="Primary navigation"></nav>
+      </aside>
+
+      <div class="main-content">
+      <section id="login-panel" class="panel login-panel hidden">
+        <div class="panel-header">
+          <div>
+            <h2>Login</h2>
+            <p class="muted">Open a hub session with a user key and password.</p>
+          </div>
+        </div>
+        <div class="toolbar">
+          <label class="field compact">
+            <span>User key</span>
+            <input id="login-user-key" type="text" placeholder="admin" />
+          </label>
+          <label class="field compact">
+            <span>Password</span>
+            <input id="login-password" type="password" placeholder="password" />
+          </label>
+          <button id="login-button" class="primary">Login</button>
+        </div>
+      </section>
+
+      <header class="hero">
+        <div>
+          <div class="eyebrow">DetecDiv Hub</div>
+          <h1 id="project-page-title">Project</h1>
+          <p class="hero-copy">Review project metadata, notes, access, linked records, and run progress.</p>
+        </div>
+      </header>
+
+      <section class="layout-grid project-page-grid">
+        <main class="panel detail-panel" id="project-page-panel">
+          <div class="panel-header">
+            <div>
+              <h2>Project Details</h2>
+              <p id="detail-subtitle" class="muted">Loading project</p>
+            </div>
+          </div>
+
+          <div id="detail-empty" class="empty-state">Project not loaded.</div>
+
+          <div id="detail-content" class="detail-content project-detail-grid hidden">
+            <div class="action-stack detail-actions">
+              <button id="update-project-button">Update project</button>
+              <button id="add-to-group-button">Add to group</button>
+              <button id="preview-delete-button" class="danger">Delete</button>
+              <button id="change-project-owner-button" class="hidden">Change owner</button>
+            </div>
+
+            <dl class="detail-list project-metadata-list" id="detail-list"></dl>
+
+            <section class="subpanel">
+              <div class="subpanel-header">
+                <h3>Notes</h3>
+                <button id="project-notes-save-button" class="primary">Save</button>
+              </div>
+              <label class="field">
+                <span>Notes</span>
+                <textarea id="project-notes" rows="6" placeholder="Enter project notes here..."></textarea>
+              </label>
+            </section>
+
+            <section class="subpanel">
+              <div class="subpanel-header">
+                <h3>Access</h3>
+                <button id="share-button">Share</button>
+              </div>
+              <div id="acl-list" class="stack-list"></div>
+            </section>
+
+            <div class="linked-records-grid">
+              <section class="subpanel linked-records-narrow">
+                <div class="subpanel-header">
+                  <h3>Raw Datasets</h3>
+                  <button id="project-queue-raw-previews-button">Queue missing previews</button>
+                </div>
+                <div id="project-raw-datasets-list" class="stack-list"></div>
+              </section>
+
+              <section class="subpanel">
+                <div class="subpanel-header">
+                  <h3>External ELN</h3>
+                </div>
+                <div id="project-external-eln-list" class="stack-list"></div>
+              </section>
+            </div>
+
+            <section class="subpanel project-run-monitor-subpanel">
+              <div class="subpanel-header">
+                <div>
+                  <h3>Run Monitor</h3>
+                  <p class="muted">DetecDiv runs submitted by clients for this project.</p>
+                </div>
+                <div class="action-stack">
+                  <button id="refresh-pipeline-runs-button">Refresh runs</button>
+                  <button id="cancel-pipeline-run-button">Cancel run</button>
+                </div>
+              </div>
+              <div class="table-wrap jobs-table-wrap">
+                <table id="pipeline-runs-table">
+                  <thead>
+                    <tr>
+                      <th>Status</th>
+                      <th>Project</th>
+                      <th>Target</th>
+                      <th>Run ID</th>
+                      <th>Updated</th>
+                    </tr>
+                  </thead>
+                  <tbody></tbody>
+                </table>
+              </div>
+              <div id="pipeline-runs-pagination" class="pagination-controls hidden"></div>
+              <p class="muted">Single click inspects a run.</p>
+              <div id="pipeline-run-detail" class="run-detail stack-item-meta">Select a run to inspect its status.</div>
+            </section>
+
+            <section class="subpanel" id="project-backup-subpanel">
+              <div class="subpanel-header">
+                <h3>Backup</h3>
+                <button id="project-snapshots-load-button">Show snapshots</button>
+              </div>
+              <dl class="detail-list">
+                <dt>Status</dt><dd id="project-backup-status">—</dd>
+                <dt>Last backup</dt><dd id="project-last-backup-at">—</dd>
+              </dl>
+              <div class="action-stack" style="margin-top:0.5rem">
+                <button id="project-backup-now-button">Backup now</button>
+                <label class="field compact checkbox-field">
+                  <input type="checkbox" id="project-backup-excluded" />
+                  <span>Exclude from backup</span>
+                </label>
+              </div>
+              <div id="project-backup-feedback" class="muted" style="min-height:1.2em;margin-top:0.25rem;font-size:0.85em;"></div>
+              <div id="project-snapshots-list" class="stack-list hidden"></div>
+              <div id="project-restore-panel" class="hidden" style="margin-top:0.75rem">
+                <p class="muted" id="project-restore-snapshot-label"></p>
+                <div class="toolbar">
+                  <label class="field">
+                    <span>Restore target directory <span class="muted" style="font-weight:normal;font-size:0.85em">— "/" restaure en place (écrase)</span></span>
+                    <input id="project-restore-target-dir" type="text" placeholder="/" style="min-width:360px" />
+                  </label>
+                  <button id="project-restore-confirm-button" class="primary">Restore</button>
+                  <button id="project-restore-cancel-button">Cancel</button>
+                </div>
+              </div>
+
+              <div id="project-file-browser" class="hidden" style="margin-top:0.75rem">
+                <div class="subpanel-header" style="margin-bottom:0.5rem">
+                  <div>
+                    <span class="muted" style="font-size:0.85em">File browser —</span>
+                    <span id="project-browser-breadcrumb" style="font-size:0.85em;font-family:monospace">/</span>
+                  </div>
+                  <div class="action-stack">
+                    <button id="project-browser-up-button">↑ Up</button>
+                    <button id="project-browser-close-button">Close</button>
+                  </div>
+                </div>
+                <p id="project-browser-status" class="muted" style="font-size:0.85em;margin:0 0 0.5rem"></p>
+                <div id="project-browser-list" class="stack-list" style="max-height:320px;overflow-y:auto"></div>
+                <div id="project-browser-restore-panel" class="hidden" style="margin-top:0.75rem">
+                  <div class="toolbar">
+                    <label class="field">
+                      <span>Restore target directory <span class="muted" style="font-weight:normal;font-size:0.85em">— "/" restaure en place (écrase)</span></span>
+                      <input id="project-browser-target-dir" type="text" placeholder="/" style="min-width:360px" />
+                    </label>
+                    <button id="project-browser-restore-button" class="primary">Restore selected</button>
+                    <button id="project-browser-restore-cancel-button">Cancel</button>
+                  </div>
+                </div>
+              </div>
+            </section>
+          </div>
+        </main>
+
+      </section>
+
+      <footer class="footer">
+        <div id="status-line">Ready.</div>
+      </footer>
+      </div>
+    </div>
+
+    <script src="/web/app.js?v=20261020-force-stop" defer></script>
+  </body>
+</html>

@@ -2912,6 +2912,8 @@ function renderPipelineRunDetail(run) {
   }
   const progress = run.result_json?.progress || {};
   const canCancel = ["queued", "running", "cancelling"].includes(String(run.status || "").toLowerCase());
+  const active = ["running", "cancelling"].includes(String(run.status || "").toLowerCase());
+  const forceStopSupported = run.result_json?.worker_runtime?.force_stop_supported === true;
   const rows = [
     ["Run", run.id],
     ["Status", run.status],
@@ -2923,6 +2925,13 @@ function renderPipelineRunDetail(run) {
   ];
   if (run.error_text) {
     rows.push(["Error", shortText(run.error_text, 700)]);
+  }
+  if (run.force_stop_requested_at) {
+    rows.push(["Force stop requested", `${formatTimestamp(run.force_stop_requested_at)} — ${run.force_stop_requested_by || ""}`]);
+    rows.push(["Process termination", run.force_stopped_at
+      ? `Confirmed at ${formatTimestamp(run.force_stopped_at)}`
+      : active ? "Waiting for worker confirmation; resources remain reserved."
+        : "The job finished before the request was applied."]);
   }
   const recentLines = [
     ...(progress.recent_stdout || []),
@@ -2938,7 +2947,10 @@ function renderPipelineRunDetail(run) {
     <div class="toolbar">
       <button type="button" id="open-pipeline-run-json-button">Open JSON</button>
       ${canCancel ? '<button type="button" id="cancel-selected-pipeline-run-button">Cancel run</button>' : ""}
+      ${active ? `<button type="button" class="danger" id="force-stop-selected-pipeline-run-button"
+        ${!forceStopSupported || run.force_stop_requested_at ? "disabled" : ""}>${run.force_stop_requested_at ? "Force stop requested…" : "Force stop"}</button>` : ""}
     </div>
+    ${active && !forceStopSupported ? '<p class="muted">Force stop unavailable: this execution has no isolated process scope. Available for new jobs started by an updated worker.</p>' : ""}
     ${recentLines.length ? `
       <div>
         <div class="run-detail-label">Recent MATLAB output</div>
@@ -2955,12 +2967,22 @@ function renderPipelineRunDetail(run) {
       heartbeat_at: run.heartbeat_at,
       updated_at: run.updated_at,
       error_text: run.error_text,
+      force_stop_requested_at: run.force_stop_requested_at,
+      force_stop_requested_by: run.force_stop_requested_by,
+      force_stop_requested_by_user_id: run.force_stop_requested_by_user_id,
+      force_stopped_at: run.force_stopped_at,
       params_json: run.params_json || {},
       result_json: run.result_json || {},
     }, `pipeline-run-${run.id}.json`);
   });
   els.pipelineRunDetail.querySelector("#cancel-selected-pipeline-run-button")?.addEventListener("click", () => {
     cancelSelectedPipelineRun().catch((error) => {
+      setStatus(String(error));
+      window.alert(String(error));
+    });
+  });
+  els.pipelineRunDetail.querySelector("#force-stop-selected-pipeline-run-button")?.addEventListener("click", (event) => {
+    forceStopSelectedPipelineRun(event.currentTarget).catch((error) => {
       setStatus(String(error));
       window.alert(String(error));
     });
@@ -3933,6 +3955,31 @@ async function cancelSelectedPipelineRun() {
   state.selectedPipelineRun = saved;
   setStatus(`Cancellation requested for pipeline run ${saved.id}.`);
   await refreshPipelineRuns();
+}
+
+async function forceStopSelectedPipelineRun(button) {
+  const run = state.selectedPipelineRun;
+  if (!run || !["running", "cancelling"].includes(String(run.status || "").toLowerCase())) {
+    throw new Error("Select a running job.");
+  }
+  if (run.force_stop_requested_at) return;
+  const confirmed = window.confirm(
+    `Force-stop job ${run.id}?\n\n`
+    + "MATLAB, its parallel pool, and this job’s subprocesses will be terminated. "
+    + "Unsaved results will be lost. Interrupted writes may leave incomplete files.\n\n"
+    + "Confirm force stop?",
+  );
+  if (!confirmed) return;
+  button.disabled = true;
+  try {
+    const saved = await apiPost(`/pipeline-runs/${run.id}/force-stop`, {});
+    // The selected row may have changed while the request was in flight.
+    if (state.selectedPipelineRun?.id === run.id) state.selectedPipelineRun = saved;
+    setStatus(`Force stop requested for job ${saved.id}. Waiting for worker confirmation.`);
+    await refreshPipelineRuns();
+  } finally {
+    button.disabled = false;
+  }
 }
 
 function promptBooleanField(label, currentValue) {

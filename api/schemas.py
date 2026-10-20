@@ -1593,6 +1593,10 @@ class JobSummary(HubBaseModel):
     started_at: datetime | None = None
     heartbeat_at: datetime | None = None
     finished_at: datetime | None = None
+    force_stop_requested_at: datetime | None = None
+    force_stop_requested_by: str | None = None
+    force_stop_requested_by_user_id: UUID | None = None
+    force_stopped_at: datetime | None = None
     updated_at: datetime | None = None
 
 

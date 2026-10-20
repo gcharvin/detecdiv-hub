@@ -1,0 +1,16 @@
+{
+  "verified": true,
+  "ids": [
+    "137eec41-3bfc-4c7a-bbbf-03d5a948a329",
+    "f4150ff1-f1bf-4c89-8483-1b7e26c8726e",
+    "c0fc44c4-4380-4c48-8f9d-8ad2b3286e6e"
+  ],
+  "checks": [
+    "same worker PIDs",
+    "same job parameter hashes",
+    "same allocations",
+    "same start times",
+    "advancing heartbeats",
+    "admission restored"
+  ]
+}

@@ -1,0 +1,85 @@
+{
+  "activation": {
+    "complete": false,
+    "deferred": [
+      "@4",
+      "@1"
+    ],
+    "reason": "busy_or_stale",
+    "checked_at": "2026-10-20T13:16:48.164013+00:00"
+  },
+  "trees": [
+    {
+      "pid": 227710,
+      "created": 1792408180.46,
+      "children": [
+        {
+          "pid": 242715,
+          "name": "MATLAB",
+          "created": 1792418452.95
+        },
+        {
+          "pid": 242987,
+          "name": "matlab_helper",
+          "created": 1792418458.75
+        },
+        {
+          "pid": 243142,
+          "name": "MATLAB",
+          "created": 1792418561.24
+        }
+      ]
+    },
+    {
+      "pid": 382617,
+      "created": 1792502185.71,
+      "children": []
+    },
+    {
+      "pid": 382618,
+      "created": 1792502185.73,
+      "children": []
+    },
+    {
+      "pid": 382619,
+      "created": 1792502185.74,
+      "children": []
+    },
+    {
+      "pid": 382620,
+      "created": 1792502185.74,
+      "children": []
+    },
+    {
+      "pid": 2571587,
+      "created": 1791978338.71,
+      "children": [
+        {
+          "pid": 49435,
+          "name": "MATLAB",
+          "created": 1792213120.55
+        },
+        {
+          "pid": 49701,
+          "name": "matlab_helper",
+          "created": 1792213127.04
+        },
+        {
+          "pid": 49972,
+          "name": "MATLABPyHost",
+          "created": 1792213161.25
+        },
+        {
+          "pid": 360239,
+          "name": "MATLAB",
+          "created": 1792491276.86
+        },
+        {
+          "pid": 360242,
+          "name": "MATLAB",
+          "created": 1792491277.09
+        }
+      ]
+    }
+  ]
+}

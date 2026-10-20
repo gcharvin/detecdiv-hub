@@ -420,7 +420,7 @@ def apply_worker_job_filters(
 def mark_job_done(job_id, result_json: dict) -> None:
     settings = get_settings()
     with session_scope() as session:
-        job = session.get(Job, job_id)
+        job = session.get(Job, job_id, with_for_update=True, populate_existing=True)
         if job is None:
             return
         job.status = "done"

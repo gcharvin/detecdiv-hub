@@ -1,0 +1,14 @@
+{
+  "rollout": "job-force-stop-20261020",
+  "status": "api_live_idle_linux_workers_active_busy_workers_deferred",
+  "api": {"host": "webserver-labo", "fingerprint": "4246616565fb", "migration_applied": true, "ui_language": "English"},
+  "linux": {"active_instances": ["@2", "@3", "@5", "@6"], "fingerprint": "3327f21659f7", "deferred_instances": ["@1", "@4"], "idle_activation": "systemd user timer every 30 seconds"},
+  "windows": {"active_pid_preserved": 31820, "active_fingerprint": "957aa209126d", "staged_fingerprint": "a1fffd69452e", "idle_activation": "SYSTEM scheduled task every minute", "pending_roi_memory_included": true},
+  "synthetic_jobs": ["897ae1c1-9788-4a1a-840b-fa614ba2ee07", "d20d4fce-bf96-415b-8b6e-fa47eb802bee"],
+  "live_test": {"engine": "MATLAB", "descendants": "two Python processes, including a detached child", "status": "cancelled", "latency_seconds": [0.94978, 1.00616], "ui_confirmation_accepted_by": "user", "workers_survived": true, "project_locks_released": true, "logs_attached": true},
+  "protected_scientific_jobs": ["137eec41-3bfc-4c7a-bbbf-03d5a948a329", "f4150ff1-f1bf-4c89-8483-1b7e26c8726e", "c0fc44c4-4380-4c48-8f9d-8ad2b3286e6e"],
+  "preservation": ["worker PIDs", "parameter hashes", "allocations", "start times", "advancing heartbeats", "database tunnel", "unrelated MATLAB sessions"],
+  "test_project_url": "http://detecdiv-hub.detecdiv.internal/web/project.html?id=da7be4bb-2c2b-4877-b014-6b18cca050a2",
+  "temporary_ops_sessions_revoked": true,
+  "pending_activation_is_not_complete": true
+}

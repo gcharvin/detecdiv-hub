@@ -1,0 +1,38 @@
+{
+  "health": {
+    "status": "ok",
+    "service": "detecdiv-hub",
+    "database_status": "ok",
+    "database_message": null,
+    "hostname": "b4f165b9705b",
+    "deployment_version": "fp-4246616565fb",
+    "version_source": "fingerprint",
+    "code_fingerprint": "4246616565fb",
+    "disk_warning_threshold_percent": 95,
+    "disk_usage": [
+      {
+        "path": "/",
+        "label": "VM system disk",
+        "total_bytes": 84225998848,
+        "used_bytes": 50371272704,
+        "free_bytes": 29986258944,
+        "used_percent": 63.0,
+        "status": "ok",
+        "message": null
+      },
+      {
+        "path": "/data",
+        "label": "Shared data storage",
+        "total_bytes": 94009274970112,
+        "used_bytes": 89520099930112,
+        "free_bytes": 4489175040000,
+        "used_percent": 96.0,
+        "status": "warning",
+        "message": null
+      }
+    ]
+  },
+  "force_stop_route": true,
+  "english_ui": true,
+  "assistant_status": "The model is unavailable. An administrator can restart it."
+}

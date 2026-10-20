@@ -1,0 +1,45 @@
+{
+  "files": {
+    "api/models.py": {
+      "before": "709a4f2fb06c7846a2ef15522dae1c1ee606aae9fe7ef79a43e471d905fe01da",
+      "after": "33c0f0b9df846438888aa6ffb47831a999c7ff8be5d8e2426244d372fd929525"
+    },
+    "api/schemas.py": {
+      "before": "8ba7a21361821dc72a49bc33a123154e30dc075d586074435f2cd9bfd72a839c",
+      "after": "7baa1b5d85887e2cc16eb3a5fd6fadcee7e49d8fa2bfec1281e6d254aac51c01"
+    },
+    "api/routes_pipeline_runs.py": {
+      "before": "5c7ef2928db54c7885ecd13019e9c0eb6d213755eb2d51601cc37b5a441c69f6",
+      "after": "a351a709aa23de48492c761757484a663a367cab8b9382357a90c72a37135564"
+    },
+    "api/static/app.js": {
+      "before": "8fddfe1438488d5bab301a28df4c6328777b047caff06c93834fcf482485b7c5",
+      "after": "33eb5d54409b93143885ce4b8950651d56a26f584a56574206dcd922f27715e4"
+    },
+    "db/schema.sql": {
+      "before": "5f1ec6c79d6ff15078d47e1e804ebbe728650ee2414212a2c631eeee53ab0260",
+      "after": "e49c9be0dfcdbe8d20989a42581ee4cedd1cafc419ad0326cba21f7ee85be5b3"
+    },
+    "db/migrations/20261020_job_force_stop.sql": {
+      "before": null,
+      "after": "593d598c4c9883e0865b5844ba8533c5df97b3d1f72bc90bcfee9e54b26835e9"
+    },
+    "api/static/project.html": {
+      "before": "0170d3c6bcf3df384b0cad3903491abee476f07eaa7494dfa57383b90a66cfb3",
+      "after": "84d04272ed02ed78364bf3b5c0557ef5ad6a48ef864eeebe2853298ee74eb867"
+    },
+    "api/static/assistant.html": {
+      "before": "5d74f3ac193ee14d904fa3792d9e709a4375e6d711e081e1ec493a8e76557e67",
+      "after": "527ad4d04e8fe86fc13e8eb64efc5bb7b6746ec2eefdb67073a5c763db2fd58a"
+    },
+    "api/static/assistant.js": {
+      "before": "d126902688e5020b60463578e54258c3c447e952438a1dacb1031ca8ac4a1225",
+      "after": "b44f6fc0a8661485b8b19d77c6c4380b596e424637bb748bef5afdc77a145e2e"
+    },
+    "api/routes_assistant.py": {
+      "before": "ce034d96663c05883f582d4178640057c45bf24b3ceacda44d9ea5762e792711",
+      "after": "ad43d57662bf261d4a2ca79b9456b12bba6ce50435cceb0c19268078bfed9aba"
+    }
+  },
+  "expected_fingerprint": "4246616565fb"
+}

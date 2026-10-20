@@ -1,0 +1,10 @@
+{
+  "expected_fingerprint": "4246616565fb",
+  "files": {
+    "api/static/app.js": "33eb5d54409b93143885ce4b8950651d56a26f584a56574206dcd922f27715e4",
+    "api/static/project.html": "84d04272ed02ed78364bf3b5c0557ef5ad6a48ef864eeebe2853298ee74eb867",
+    "api/static/assistant.html": "527ad4d04e8fe86fc13e8eb64efc5bb7b6746ec2eefdb67073a5c763db2fd58a",
+    "api/static/assistant.js": "b44f6fc0a8661485b8b19d77c6c4380b596e424637bb748bef5afdc77a145e2e",
+    "api/routes_assistant.py": "ad43d57662bf261d4a2ca79b9456b12bba6ce50435cceb0c19268078bfed9aba"
+  }
+}

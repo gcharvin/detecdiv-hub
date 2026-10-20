@@ -1,0 +1,20 @@
+{
+  "synthetic_processes_exited": [
+    385270,
+    384983,
+    385272
+  ],
+  "workers_survived": {
+    "382618": {
+      "alive": true,
+      "created": 1792502185.73,
+      "children": 0
+    },
+    "382619": {
+      "alive": true,
+      "created": 1792502185.74,
+      "children": 0
+    }
+  },
+  "checked_at": "2026-10-20T13:30:43.752124+00:00"
+}

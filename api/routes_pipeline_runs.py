@@ -27,6 +27,42 @@ from worker.pipeline_run_executor import write_cancel_token
 router = APIRouter(prefix="/pipeline-runs", tags=["pipeline-runs"])
 
 
+@router.post("/{job_id}/force-stop", response_model=PipelineRunSummary)
+def force_stop_pipeline_run(
+    job_id: UUID,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> Job:
+    # Serialize with worker completion; the API never signals a host process.
+    job = db.get(Job, job_id, with_for_update=True, populate_existing=True)
+    if job is None or (job.params_json or {}).get("job_kind") != "pipeline_run":
+        raise HTTPException(status_code=404, detail="Pipeline run not found")
+    if job.project_id is not None:
+        project = ensure_project_readable(db.get(Project, job.project_id), current_user)
+        if not user_can_edit_project(project, current_user):
+            raise HTTPException(status_code=403, detail="Project edit access required")
+    elif current_user.role not in {"admin", "service"}:
+        raise HTTPException(status_code=404, detail="Pipeline run not found")
+    if job.status not in {"running", "cancelling"}:
+        raise HTTPException(status_code=409, detail=f"Cannot force-stop a {job.status} pipeline run")
+    runtime = (job.result_json or {}).get("worker_runtime") or {}
+    if runtime.get("force_stop_supported") is not True:
+        raise HTTPException(
+            status_code=409,
+            detail="This execution has no isolated process scope. An updated worker is required for new runs.",
+        )
+    if job.force_stop_requested_at is None:
+        job.force_stop_requested_at = datetime.now(timezone.utc)
+        job.force_stop_requested_by = current_user.user_key
+        job.force_stop_requested_by_user_id = current_user.id
+        job.status = "cancelling"
+        job.updated_at = job.force_stop_requested_at
+    # Keep locks, allocations, and the worker heartbeat until confirmed exit.
+    db.commit()
+    db.refresh(job)
+    return job
+
+
 @router.get("", response_model=list[PipelineRunSummary])
 def list_pipeline_runs(
     project_id: UUID | None = None,

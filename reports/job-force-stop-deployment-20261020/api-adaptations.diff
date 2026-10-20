@@ -1,0 +1,1298 @@
+--- HEAD/api/static/app.js
++++ api/api/static/app.js
+@@ -1395,10 +1395,10 @@
+   return state.storageRoots;
+ }
+ 
+-function findUserHomeStorageRoot(provider) {
+-  const mountRoot = String(provider?.mount_root || "/homes").trim();
+-  return state.storageRoots.find((root) => root.root_type === "user_home_root" && root.path_prefix === mountRoot)
+-    || state.storageRoots.find((root) => root.path_prefix === mountRoot);
++function findUserHomeStorageRoot() {
++  return state.storageRoots.find((root) => root.name === "user-homes")
++    || state.storageRoots.find((root) => root.root_type === "user_home_root" && root.path_prefix === "/homes")
++    || state.storageRoots.find((root) => root.path_prefix === "/homes");
+ }
+ 
+ function fieldValueFromForm(form, name) {
+@@ -1412,7 +1412,7 @@
+   return String(field.value || "");
+ }
+ 
+-function openFormDialog({ title, description = "", fields = [], submitLabel = "Save", onOpen = null }) {
++function openFormDialog({ title, description = "", fields = [], submitLabel = "Save" }) {
+   return new Promise((resolve) => {
+     const overlay = document.createElement("div");
+     overlay.className = "modal-backdrop";
+@@ -1446,11 +1446,10 @@
+           </label>
+         `;
+       }
+-      const step = field.step == null ? "" : `step="${escapeHtml(field.step)}"`;
+       return `
+         <label class="field dialog-field">
+           <span>${escapeHtml(field.label)}</span>
+-          <input name="${field.name}" type="${field.type || "text"}" value="${escapeHtml(value)}" ${step} ${required} />
++          <input name="${field.name}" type="${field.type || "text"}" value="${escapeHtml(value)}" ${required} />
+         </label>
+       `;
+     }).join("");
+@@ -1472,9 +1471,6 @@
+     document.body.appendChild(overlay);
+ 
+     const form = overlay.querySelector("form");
+-    if (typeof onOpen === "function") {
+-      onOpen(form);
+-    }
+     const close = (value) => {
+       overlay.remove();
+       resolve(value);
+@@ -3220,15 +3216,9 @@
+ }
+ 
+ function workerVramLabel(workerHealth) {
+-  const usage = workerHealth.gpu_memory_used_mb == null
+-    ? "usage unavailable"
+-    : `${workerMemoryLabel(workerHealth.gpu_memory_used_mb)} / ${workerMemoryLabel(workerHealth.gpu_shared_capacity_mb)} used`;
+-  const utilization = workerHealth.gpu_utilization_percent != null
+-    && Number.isFinite(Number(workerHealth.gpu_utilization_percent))
+-    ? ` · ${Number(workerHealth.gpu_utilization_percent)}%` : "";
+-  const reserved = `${workerMemoryLabel(workerHealth.vram_allocated_mb)} reserved`
+-    + (workerHealth.gpu_exclusive ? " exclusive" : "");
+-  return `${usage}${utilization} · ${reserved}`;
++  const reserved = workerMemoryLabel(workerHealth.vram_allocated_mb);
++  const shared = workerMemoryLabel(workerHealth.gpu_shared_capacity_mb);
++  return `${reserved}${workerHealth.gpu_exclusive ? " exclusive" : ""} / ${shared} shared`;
+ }
+ 
+ function workerCpuAvailabilityLabel(workerHealth) {
+@@ -3397,7 +3387,7 @@
+         <td>${workerId}</td>
+         <td title="Worker CPU budget (host logical CPUs: ${Number(workerHealth.host_cpu_count || 0)})">${active ? `${workerHealth.cpu_allocated_cores ?? "—"} / ${workerHealth.cpu_limit_cores ?? "—"}` : "—"}</td>
+         <td title="Worker RAM limit; swap: ${workerMemoryLabel(workerHealth.swap_allocated_mb)}">${active ? `${workerMemoryLabel(workerHealth.ram_allocated_mb)} / ${workerMemoryLabel(workerHealth.ram_limit_mb)}` : "—"}</td>
+-        <td title="Device-wide NVIDIA GPU memory use and utilization; reservation is the scheduler allocation for this job, not a hardware partition">${active ? workerVramLabel(workerHealth) : "—"}</td>
++        <td title="Current job VRAM reservation / visible shared GPU capacity; this is a scheduler reservation, not a hardware partition">${active ? workerVramLabel(workerHealth) : "—"}</td>
+         <td>${workerCpuUsageLabel(workerHealth, currentJob, targetJobs)}</td>
+         <td>${active ? (workerHealth.health || "unknown") : "inactive (stale)"}</td>
+         <td>${currentJobLabel}${currentProjectLink}</td>
+@@ -9568,12 +9558,8 @@
+     throw new Error("Admin role required.");
+   }
+   await ensureStorageRootsLoaded();
+-  const providers = (await apiGet("/storage/providers?active_only=false"))
+-    .filter((provider) => provider.provider_kind === "synology_dsm");
+-  const defaultProvider = providers.find((provider) => provider.provider_key === "synology-main") || providers[0];
+   const values = await openFormDialog({
+     title: "New account",
+-    description: "Inactive NAS providers only record a storage plan; they do not create a DSM user or directories yet.",
+     fields: [
+       { name: "userKey", label: "User key", required: true },
+       { name: "displayName", label: "Display name" },
+@@ -9602,39 +9588,11 @@
+       { name: "adminPortalAccess", label: "Admin portal access", type: "checkbox", value: false },
+       { name: "password", label: "Hub temporary password", type: "password" },
+       { name: "provisionSynology", label: "Provision Synology storage", type: "checkbox", value: true },
+-      {
+-        name: "storageProviderKey",
+-        label: "Synology NAS",
+-        type: "select",
+-        value: defaultProvider?.provider_key || "",
+-        options: providers.map((provider) => ({
+-          value: provider.provider_key,
+-          label: `${provider.display_name}${provider.is_active ? "" : " (staged only)"}`,
+-        })),
+-      },
+       { name: "synologyUserKey", label: "Synology user key" },
+       { name: "synologyInitialPassword", label: "Synology initial password", type: "password" },
+-      { name: "quotaGb", label: "Main NAS user quota (GiB)", type: "number", value: "100" },
+-      { name: "shareQuotaTb", label: "Dedicated-share quota target (To)", type: "number", step: "0.1", value: "10" },
++      { name: "quotaGb", label: "Synology quota GB", type: "number", value: "100" },
+     ],
+     submitLabel: "Create account",
+-    onOpen: (form) => {
+-      const providerField = form?.elements.namedItem("storageProviderKey");
+-      const mainQuotaField = form?.elements.namedItem("quotaGb");
+-      const shareQuotaField = form?.elements.namedItem("shareQuotaTb");
+-      const updateQuotaFields = () => {
+-        const provider = providers.find((item) => item.provider_key === providerField.value);
+-        const dedicatedShare = provider?.config_json?.quota_scope === "shared_folder";
+-        if (mainQuotaField) mainQuotaField.closest("label").hidden = dedicatedShare;
+-        if (shareQuotaField) shareQuotaField.closest("label").hidden = !dedicatedShare;
+-        const configuredBytes = Number(provider?.config_json?.default_quota_bytes);
+-        if (dedicatedShare && configuredBytes > 0 && shareQuotaField) {
+-          shareQuotaField.value = String(configuredBytes / (1000 ** 4));
+-        }
+-      };
+-      providerField?.addEventListener("change", updateQuotaFields);
+-      updateQuotaFields();
+-    },
+   });
+   if (!values) {
+     return;
+@@ -9645,30 +9603,17 @@
+   }
+   const providerUserKey = String(values.synologyUserKey || userKey).trim();
+   const provisionSynology = Boolean(values.provisionSynology);
+-  const provider = providers.find((item) => item.provider_key === values.storageProviderKey);
+-  const dedicatedShare = provider?.config_json?.quota_scope === "shared_folder";
+-  const homeRoot = findUserHomeStorageRoot(provider);
+-  if (provisionSynology && !provider) {
+-    throw new Error("Choose a configured Synology NAS before provisioning storage.");
+-  }
++  const homeRoot = findUserHomeStorageRoot();
+   if (provisionSynology && !homeRoot) {
+-    throw new Error(`No storage root is configured for ${provider.display_name}.`);
+-  }
+-  if (provisionSynology && provider.is_active && !String(values.synologyInitialPassword || "").trim()) {
++    throw new Error("No /homes storage root is configured in the hub.");
++  }
++  if (provisionSynology && !String(values.synologyInitialPassword || "").trim()) {
+     throw new Error("Synology initial password is required when provisioning Synology storage.");
+   }
+-  const quotaValue = Number(dedicatedShare ? values.shareQuotaTb : values.quotaGb);
+-  if (provisionSynology && (!Number.isFinite(quotaValue) || quotaValue <= 0)) {
+-    throw new Error("Storage quota target must be greater than zero.");
+-  }
+-  const quotaBytes = provisionSynology
+-    ? Math.round(quotaValue * (dedicatedShare ? 1000 ** 4 : 1024 ** 3))
+-    : null;
+-  if (quotaBytes !== null && !Number.isSafeInteger(quotaBytes)) {
+-    throw new Error("Storage quota target is too large.");
+-  }
++  const quotaGb = Number(values.quotaGb || 0);
++  const quotaBytes = Number.isFinite(quotaGb) && quotaGb > 0 ? Math.round(quotaGb * 1024 * 1024 * 1024) : null;
+   const defaultPath = String(values.defaultPath || "").trim()
+-    || (provisionSynology && provider.is_active && !dedicatedShare ? `${provider.mount_root || "/homes"}/${providerUserKey}/DetecDiv` : "");
++    || (provisionSynology ? `/homes/${providerUserKey}/DetecDiv` : "");
+   const createdUser = await apiPost("/users", {
+     user_key: userKey,
+     display_name: String(values.displayName || userKey).trim() || userKey,
+@@ -9682,23 +9627,13 @@
+   });
+   if (provisionSynology) {
+     const account = await apiPost(`/storage/users/${createdUser.id}/home-account`, {
+-      provider_key: provider.provider_key,
++      provider_key: "synology-main",
+       provider_user_key: providerUserKey,
+       home_storage_root_id: homeRoot.id,
+-      home_relative_path: `${providerUserKey}/${dedicatedShare ? "DetecdivHub" : "DetecDiv"}`,
++      home_relative_path: `${providerUserKey}/DetecDiv`,
+       quota_bytes: quotaBytes,
+       create_missing_provider: false,
+     });
+-    if (dedicatedShare) {
+-      await apiPatch(`/storage/user-accounts/${account.id}`, {
+-        metadata_json: { layout: "dedicated_share", quota_scope: "shared_folder" },
+-      });
+-    }
+-    if (!provider.is_active) {
+-      await refreshUsers();
+-      setStatus(`Created user ${userKey}. ${provider.display_name} storage and ${quotaValue} ${dedicatedShare ? "To" : "GiB"} quota are staged; no DSM user or directories were created.`);
+-      return;
+-    }
+     const ensured = await apiPost(`/storage/user-accounts/${account.id}/synology/ensure-user`, {
+       create_missing: true,
+       initial_password: String(values.synologyInitialPassword || "").trim(),
+@@ -9709,11 +9644,6 @@
+     if (!ensured.success) {
+       throw new Error(ensured.message || "Synology user provisioning failed.");
+     }
+-    if (dedicatedShare) {
+-      await refreshUsers();
+-      setStatus(`Created user ${userKey} and verified DSM user ${ensured.provider_user_key}. Dedicated share and ${quotaValue} To quota still require provisioning.`);
+-      return;
+-    }
+     if (quotaBytes) {
+       await apiPost(`/storage/user-accounts/${account.id}/synology/quota`, {
+         quota_bytes: quotaBytes,
+@@ -9758,12 +9688,6 @@
+ }
+ 
+ async function editUser(user) {
+-  const storageAccounts = hasAdminPrivileges()
+-    ? await apiGet(`/storage/user-accounts?user_id=${encodeURIComponent(user.id)}`)
+-    : [];
+-  const mainSynologyAccount = storageAccounts.find((account) => account.provider?.provider_key === "synology-main");
+-  const shareAccount = storageAccounts.find((account) => account.provider?.config_json?.quota_scope === "shared_folder"
+-    || account.provider?.provider_key === "synology-secondary");
+   const adminFields = hasAdminPrivileges()
+     ? [
+         {
+@@ -9817,20 +9741,12 @@
+           label: "Reset password",
+           type: "password",
+         },
+-        ...(mainSynologyAccount ? [{
++        {
+           name: "quotaGb",
+-          label: "Main NAS user quota (GiB)",
++          label: "Synology quota GB",
+           type: "number",
+-          value: mainSynologyAccount.quota_bytes
+-            ? String(Math.round(Number(mainSynologyAccount.quota_bytes) / (1024 ** 3))) : "",
+-        }] : []),
+-        ...(shareAccount ? [{
+-          name: "shareQuotaTb",
+-          label: `${shareAccount.provider.display_name} share quota target (To; not yet applied)`,
+-          type: "number",
+-          step: "0.1",
+-          value: String(Number(shareAccount.quota_bytes || 10 * 1000 ** 4) / (1000 ** 4)),
+-        }] : []),
++          value: user.storage_quota_bytes ? String(Math.round(Number(user.storage_quota_bytes) / (1024 * 1024 * 1024))) : "",
++        },
+       ]
+     : [];
+   const values = await openFormDialog({
+@@ -9846,23 +9762,6 @@
+   if (!values) {
+     return;
+   }
+-  let mainQuotaBytes = null;
+-  if (hasAdminPrivileges() && mainSynologyAccount && String(values.quotaGb || "").trim()) {
+-    const quotaGb = Number(values.quotaGb);
+-    mainQuotaBytes = Math.round(quotaGb * 1024 ** 3);
+-    if (!Number.isFinite(quotaGb) || quotaGb <= 0 || !Number.isSafeInteger(mainQuotaBytes)) {
+-      throw new Error("Main NAS user quota must be greater than zero and within the supported range.");
+-    }
+-  }
+-  let shareQuotaBytes = null;
+-  if (hasAdminPrivileges() && shareAccount) {
+-    const quotaText = String(values.shareQuotaTb || "").trim();
+-    const quotaTb = Number(quotaText);
+-    shareQuotaBytes = Math.round(quotaTb * 1000 ** 4);
+-    if (!quotaText || !Number.isFinite(quotaTb) || quotaTb <= 0 || !Number.isSafeInteger(shareQuotaBytes)) {
+-      throw new Error("Dedicated-share quota target must be greater than zero and within the supported range.");
+-    }
+-  }
+   const payload = {
+     display_name: values.displayName.trim(),
+     email: values.email.trim() || null,
+@@ -9880,19 +9779,18 @@
+   }
+   await apiPatch(`/users/${user.id}`, payload);
+   let quotaMessage = "";
+-  if (mainQuotaBytes !== null) {
+-    const quotaResult = await apiPost(`/storage/user-accounts/${mainSynologyAccount.id}/synology/quota`, {
+-      quota_bytes: mainQuotaBytes,
+-    });
+-    quotaMessage = quotaResult.message ? ` ${quotaResult.message}` : "";
+-  }
+-  if (shareQuotaBytes !== null && shareQuotaBytes !== Number(shareAccount.quota_bytes)) {
+-    await apiPatch(`/storage/user-accounts/${shareAccount.id}`, {
+-      quota_bytes: shareQuotaBytes,
+-      quota_status: "desired",
+-      metadata_json: { layout: "dedicated_share", quota_scope: "shared_folder" },
+-    });
+-    quotaMessage += " Dedicated-share quota target saved; it has not been applied on the NAS.";
++  if (hasAdminPrivileges() && user.storage_account_id) {
++    const quotaText = String(values.quotaGb || "").trim();
++    if (quotaText) {
++      const quotaGb = Number(quotaText);
++      if (!Number.isFinite(quotaGb) || quotaGb <= 0) {
++        throw new Error("Synology quota must be greater than zero.");
++      }
++      const quotaResult = await apiPost(`/storage/user-accounts/${user.storage_account_id}/synology/quota`, {
++        quota_bytes: Math.round(quotaGb * 1024 * 1024 * 1024),
++      });
++      quotaMessage = quotaResult.message ? ` ${quotaResult.message}` : "";
++    }
+   }
+   await refreshUsers();
+   setStatus(`Updated user ${user.user_key}.${quotaMessage}`);
+--- HEAD/db/schema.sql
++++ api/db/schema.sql
+@@ -452,9 +452,6 @@
+     worker_instance TEXT NOT NULL,
+     worker_host TEXT,
+     process_id INTEGER,
+-    host_cpu_count INTEGER,
+-    available_cpu_count INTEGER,
+-    current_job_cpu_cores DOUBLE PRECISION,
+     health TEXT NOT NULL DEFAULT 'online',
+     current_job_id UUID REFERENCES jobs(id) ON DELETE SET NULL,
+     current_job_kind TEXT,
+@@ -771,9 +768,6 @@
+ ALTER TABLE worker_instances ADD COLUMN IF NOT EXISTS deployment_version TEXT;
+ ALTER TABLE worker_instances ADD COLUMN IF NOT EXISTS version_source TEXT;
+ ALTER TABLE worker_instances ADD COLUMN IF NOT EXISTS code_fingerprint TEXT;
+-ALTER TABLE worker_instances ADD COLUMN IF NOT EXISTS host_cpu_count INTEGER;
+-ALTER TABLE worker_instances ADD COLUMN IF NOT EXISTS available_cpu_count INTEGER;
+-ALTER TABLE worker_instances ADD COLUMN IF NOT EXISTS current_job_cpu_cores DOUBLE PRECISION;
+ 
+ CREATE INDEX IF NOT EXISTS idx_projects_name ON detecdiv_projects(project_name);
+ CREATE INDEX IF NOT EXISTS idx_projects_owner_user_id ON detecdiv_projects(owner_user_id);
+--- HEAD/worker/run_worker.py
++++ api/worker/run_worker.py
+@@ -15,19 +15,8 @@
+ from api.models import ExecutionTarget, IndexingJob, Job, RawDatasetPosition
+ from api.services.external_eln import sync_external_eln_system
+ from api.services.indexing_jobs import execute_indexing_job
+-from api.services.job_priority_settings import (
+-    effective_job_priority_expression,
+-    resolve_job_priority_runtime_config,
+-    resolve_job_resource_runtime_config,
+-)
+-from api.services.project_deletion import (
+-    execute_project_deletion_job,
+-    finalize_project_deletion_failure,
+-)
+-from api.services.project_locks import (
+-    heartbeat_project_locks_for_job,
+-    release_project_locks_for_job,
+-)
++from api.services.project_deletion import execute_project_deletion_job, finalize_project_deletion_failure
++from api.services.project_locks import heartbeat_project_locks_for_job, release_project_locks_for_job
+ from api.services.raw_dataset_deletion import execute_raw_dataset_deletion_job
+ from api.services.raw_dataset_position_deletion import execute_raw_dataset_position_deletion_job
+ from api.services.worker_instances import (
+@@ -38,47 +27,12 @@
+ from worker.archive_policy_scheduler import run_archive_policy_if_due
+ from worker.backup_executor import BACKUP_JOB_KINDS, execute_backup_job, finalize_backup_failure
+ from worker.backup_scheduler import run_backup_if_due
+-from worker.cpu_usage import JobCpuMonitor, get_cpu_topology, merge_cpu_usage
+-from worker.dynamic_resources import apply_job_limits
+-from worker.dynamic_resources import enabled as dynamic_resources_enabled
+-from worker.gpu_arbitration import (
+-    GpuArbitrationError,
+-    execute_assistant_control_job,
+-    job_requires_gpu,
+-    pause_qwen_for_gpu_job,
+-    resume_qwen_if_gpu_is_idle,
+-)
+-from worker.job_resources import (
+-    HUB_RESOURCE_ALLOCATION_KEY,
+-    active_resource_totals,
+-    allocation_fits,
+-    allocation_fits_with_reservation,
+-    resolve_job_resource_allocation,
+-    resource_config_for_target,
+-)
+-from worker.legacy_matlab_executor import execute_legacy_matlab_job
+-from worker.memory_resources import memory_policy, positive_mb, worker_allocation_fits
+-from worker.micromanager_ingest_scheduler import (
+-    execute_micromanager_ingest_job,
+-    run_micromanager_ingest_if_due,
+-)
+ from worker.misc_storage_inventory import execute_misc_storage_inventory_job
+-from worker.path_mappings import parse_worker_path_mappings
++from worker.micromanager_ingest_scheduler import run_micromanager_ingest_if_due
+ from worker.pipeline_run_executor import PipelineRunCancelled, execute_pipeline_run_job
+-from worker.resource_reporting import worker_resource_snapshot
+-from worker.roi_extraction_resources import minimum_allocation
+-from worker.storage_lifecycle import (
+-    execute_storage_lifecycle_job,
+-    finalize_storage_lifecycle_failure,
+-)
+-from worker.storage_optimization import (
+-    execute_storage_optimization_job,
+-    finalize_storage_optimization_failure,
+-)
+-from worker.user_home_storage import (
+-    execute_user_home_storage_job,
+-    finalize_user_home_storage_failure,
+-)
++from worker.storage_lifecycle import execute_storage_lifecycle_job, finalize_storage_lifecycle_failure
++from worker.user_home_storage import execute_user_home_storage_job, finalize_user_home_storage_failure
++
+ 
+ logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
+ LOGGER = logging.getLogger("detecdiv-hub-worker")
+@@ -104,16 +58,6 @@
+     return normalize_worker_instance_id(f"{socket.gethostname()}-pid{os.getpid()}")
+ 
+ 
+-def finish_job_cpu_monitor(monitor: JobCpuMonitor | None, job: Job) -> dict | None:
+-    if monitor is None:
+-        return None
+-    usage = monitor.finish()
+-    allocation = (job.params_json or {}).get(HUB_RESOURCE_ALLOCATION_KEY)
+-    if isinstance(allocation, dict):
+-        usage["allocated_cores"] = allocation.get("cpu_cores")
+-    return usage
+-
+-
+ def normalize_worker_instance_id(value: str) -> str:
+     text = str(value or "").strip()
+     if not text:
+@@ -134,12 +78,7 @@
+     return (now - reference_time).total_seconds() > 60
+ 
+ 
+-def keep_running_job_alive(
+-    stop_event: threading.Event,
+-    *,
+-    job_id,
+-    cpu_monitor: JobCpuMonitor | None = None,
+-) -> None:
++def keep_running_job_alive(stop_event: threading.Event, *, job_id) -> None:
+     settings = get_settings()
+     while not stop_event.wait(10.0):
+         try:
+@@ -159,7 +98,6 @@
+                     health="busy",
+                     current_job=job,
+                     last_job_status="running",
+-                    current_job_cpu_cores=cpu_monitor.current_cores if cpu_monitor is not None else 0.0,
+                 )
+         except Exception:  # pragma: no cover - defensive around keepalive
+             LOGGER.exception("Job keepalive update failed for %s", job_id)
+@@ -202,11 +140,6 @@
+         job.finished_at = datetime.now(timezone.utc)
+         job.heartbeat_at = job.finished_at
+         job.updated_at = job.finished_at
+-        allocation = (job.params_json or {}).get(HUB_RESOURCE_ALLOCATION_KEY)
+-        if isinstance(allocation, dict):
+-            result_json = dict(job.result_json or {})
+-            result_json["resource_allocation"] = allocation
+-            job.result_json = result_json
+         sync_indexing_job_from_worker_job(
+             session,
+             job=job,
+@@ -218,7 +151,6 @@
+         )
+         if (job.params_json or {}).get("job_kind") == "raw_preview_video":
+             update_raw_preview_position_state(session, job=job, status="failed")
+-        release_project_locks_for_job(session, job_id=job.id)
+         recovered += 1
+         LOGGER.warning("Recovered orphaned job %s on target %s", job.id, target.display_name)
+     if recovered:
+@@ -236,12 +168,6 @@
+     settings = get_settings()
+     with session_scope() as session:
+         target = resolve_worker_target(session, settings.worker_target_key)
+-        if settings.worker_target_key and target is None:
+-            raise RuntimeError(
+-                f"Configured worker target '{settings.worker_target_key}' does not exist."
+-            )
+-        if target is None and not settings.worker_claim_unassigned_jobs:
+-            raise RuntimeError("A worker target is required when unassigned jobs are disabled.")
+         if target is not None:
+             target = session.scalars(select(ExecutionTarget).where(ExecutionTarget.id == target.id).with_for_update()).one()
+             if bool((target.metadata_json or {}).get("drain_new_jobs")):
+@@ -270,116 +196,29 @@
+                         last_job_status="capacity_full",
+                     )
+                     return None
+-        priority_config = resolve_job_priority_runtime_config(session)
+-        resource_config = resource_config_for_target(resolve_job_resource_runtime_config(session), target)
+-        effective_priority = effective_job_priority_expression(priority_config)
+         stmt = (
+             select(Job)
+             .where(Job.status == "queued")
+-            .order_by(effective_priority.asc(), Job.created_at.asc())
+-            .limit(100)
++            .order_by(Job.priority.asc(), Job.created_at.asc())
++            .limit(1)
+             .with_for_update(skip_locked=True)
+         )
+-        allowed_job_kinds = tuple(
+-            kind.strip() for kind in settings.worker_job_kinds.split(",") if kind.strip()
+-        )
+-        excluded_job_kinds = tuple(
+-            kind.strip()
+-            for kind in settings.worker_excluded_job_kinds.split(",")
+-            if kind.strip()
+-        )
+-        stmt = apply_worker_job_filters(
+-            stmt,
+-            target=target,
+-            claim_unassigned_jobs=settings.worker_claim_unassigned_jobs,
+-            allowed_job_kinds=allowed_job_kinds,
+-            excluded_job_kinds=excluded_job_kinds,
+-        )
+-        candidates = list(session.scalars(stmt))
+-        totals = active_resource_totals(session, target=target, config=resource_config)
+-        worker_memory_policy = memory_policy(target)
+-        empty_totals = {
+-            "cpu_cores": 0,
+-            "memory_mb": 0,
+-            "memory_capacity_mb": totals["memory_capacity_mb"],
+-            "disk_io_units": 0,
+-            "gpu_jobs": 0,
+-            "gpu_vram_mb": 0,
+-            "gpu_exclusive": False,
+-            "allocations": {},
+-        }
+-        reserved_allocation = None
+-        job = None
+-        for candidate in candidates:
+-            try:
+-                allocation = resolve_job_resource_allocation(
+-                    session,
+-                    job=candidate,
+-                    target=target,
+-                    config=resource_config,
+-                    totals=totals,
+-                    reserved_allocation=reserved_allocation,
+-                )
+-            except ValueError as exc:
+-                candidate.status = "failed"
+-                candidate.error_text = f"Invalid resource request: {exc}"
+-                candidate.finished_at = candidate.updated_at = datetime.now(timezone.utc)
+-                candidate.heartbeat_at = candidate.finished_at
+-                release_project_locks_for_job(session, job_id=candidate.id)
+-                continue
+-            worker_fits, worker_reason = worker_allocation_fits(allocation, policy=worker_memory_policy)
+-            if not worker_fits:
+-                LOGGER.debug("Job %s waits: %s", candidate.id, worker_reason)
+-                continue
+-            fits, _reason = allocation_fits(allocation, totals=totals, config=resource_config)
+-            if fits:
+-                if reserved_allocation is not None:
+-                    # Keep both resource headroom and one slot in the bounded
+-                    # worker pool for the first higher-priority job that fits
+-                    # once currently running jobs release resources.
+-                    if not allocation_fits_with_reservation(
+-                        allocation,
+-                        reserved_allocation=reserved_allocation,
+-                        totals=totals,
+-                        config=resource_config,
+-                    ):
+-                        continue
+-                    if target is not None:
+-                        target_metadata = target.metadata_json or {}
+-                        slot_limits = [
+-                            read_positive_int(target_metadata.get("max_concurrent_jobs")),
+-                            read_positive_int(target_metadata.get("worker_instances_desired")),
+-                        ]
+-                        slot_limits = [limit for limit in slot_limits if limit is not None]
+-                        worker_slot_capacity = min(slot_limits) if slot_limits else None
+-                        if (
+-                            worker_slot_capacity is not None
+-                            and len(totals["allocations"]) + 1 >= worker_slot_capacity
+-                        ):
+-                            continue
+-                job = candidate
+-                params = dict(candidate.params_json or {})
+-                params[HUB_RESOURCE_ALLOCATION_KEY] = allocation
+-                candidate.params_json = params
+-                break
+-            if reserved_allocation is None:
+-                waiting_allocation = minimum_allocation(allocation)
+-                fits_when_idle, _reason = allocation_fits(waiting_allocation, totals=empty_totals, config=resource_config)
+-                if fits_when_idle:
+-                    reserved_allocation = waiting_allocation
++        if target is not None:
++            stmt = stmt.where((Job.execution_target_id.is_(None)) | (Job.execution_target_id == target.id))
++        job = session.scalars(stmt).first()
+         if job is None:
+             update_worker_target_state(
+                 session,
+                 target=target,
+-                health="busy" if candidates else "idle",
++                health="idle",
+                 current_job=None,
+-                last_job_status="resource_capacity_full" if candidates else None,
++                last_job_status=None,
+             )
+             return None
+ 
+         job.status = "running"
+         job.resolved_mode = job.requested_mode if job.requested_mode != "auto" else "server"
+-        job.started_at = job.started_at or datetime.now(timezone.utc)
++        job.started_at = datetime.now(timezone.utc)
+         job.heartbeat_at = job.started_at
+         job.updated_at = datetime.now(timezone.utc)
+         if target is not None and job.execution_target_id is None:
+@@ -394,27 +233,6 @@
+         session.flush()
+         session.expunge(job)
+         return job
+-
+-
+-def apply_worker_job_filters(
+-    stmt,
+-    *,
+-    target: ExecutionTarget | None,
+-    claim_unassigned_jobs: bool,
+-    allowed_job_kinds: tuple[str, ...],
+-    excluded_job_kinds: tuple[str, ...] = (),
+-):
+-    if target is not None:
+-        if claim_unassigned_jobs:
+-            stmt = stmt.where((Job.execution_target_id.is_(None)) | (Job.execution_target_id == target.id))
+-        else:
+-            stmt = stmt.where(Job.execution_target_id == target.id)
+-    if allowed_job_kinds:
+-        stmt = stmt.where(Job.params_json["job_kind"].as_string().in_(allowed_job_kinds))
+-    if excluded_job_kinds:
+-        job_kind = func.coalesce(Job.params_json["job_kind"].as_string(), "generic")
+-        stmt = stmt.where(~job_kind.in_(excluded_job_kinds))
+-    return stmt
+ 
+ 
+ def mark_job_done(job_id, result_json: dict) -> None:
+@@ -424,16 +242,7 @@
+         if job is None:
+             return
+         job.status = "done"
+-        completed_result = dict(job.result_json or {})
+-        previous_cpu_usage = completed_result.get("cpu_usage")
+-        completed_result.update(result_json)
+-        cpu_usage = merge_cpu_usage(previous_cpu_usage, result_json.get("cpu_usage"))
+-        if cpu_usage is not None:
+-            completed_result["cpu_usage"] = cpu_usage
+-        allocation = (job.params_json or {}).get(HUB_RESOURCE_ALLOCATION_KEY)
+-        if isinstance(allocation, dict):
+-            completed_result["resource_allocation"] = allocation
+-        job.result_json = completed_result
++        job.result_json = result_json
+         job.finished_at = datetime.now(timezone.utc)
+         job.heartbeat_at = job.finished_at
+         job.updated_at = datetime.now(timezone.utc)
+@@ -449,44 +258,9 @@
+             last_job_status="done",
+             last_job=job,
+         )
+-        resume_qwen_if_gpu_is_idle(session, settings=settings)
+-
+-
+-def requeue_job(job_id, result_json: dict) -> None:
+-    """Return a resumable job to the queue while retaining its job ID."""
+-    settings = get_settings()
+-    with session_scope() as session:
+-        job = session.get(Job, job_id)
+-        if job is None:
+-            return
+-        now = datetime.now(timezone.utc)
+-        job.status = "queued"
+-        previous_result = dict(job.result_json or {})
+-        cpu_usage = merge_cpu_usage(previous_result.get("cpu_usage"), result_json.get("cpu_usage"))
+-        result_json = {**previous_result, **result_json}
+-        if cpu_usage is not None:
+-            result_json["cpu_usage"] = cpu_usage
+-        allocation = (job.params_json or {}).get(HUB_RESOURCE_ALLOCATION_KEY)
+-        if isinstance(allocation, dict):
+-            result_json = {**result_json, "last_resource_allocation": allocation}
+-        job.result_json = result_json
+-        params = dict(job.params_json or {})
+-        params.pop(HUB_RESOURCE_ALLOCATION_KEY, None)
+-        job.params_json = params
+-        job.heartbeat_at = now
+-        job.updated_at = now
+-        target = resolve_target_for_job(session, job=job, configured_target_key=settings.worker_target_key)
+-        update_worker_target_state(
+-            session,
+-            target=target,
+-            health="online",
+-            current_job=None,
+-            last_job_status="requeued",
+-            last_job=job,
+-        )
+-
+-
+-def mark_job_failed(job_id, error_text: str, *, cpu_usage: dict | None = None) -> None:
++
++
++def mark_job_failed(job_id, error_text: str) -> None:
+     settings = get_settings()
+     with session_scope() as session:
+         job = session.get(Job, job_id)
+@@ -494,14 +268,6 @@
+             return
+         job.status = "failed"
+         job.error_text = error_text
+-        result_json = dict(job.result_json or {})
+-        merged_cpu_usage = merge_cpu_usage(result_json.get("cpu_usage"), cpu_usage)
+-        if merged_cpu_usage is not None:
+-            result_json["cpu_usage"] = merged_cpu_usage
+-        allocation = (job.params_json or {}).get(HUB_RESOURCE_ALLOCATION_KEY)
+-        if isinstance(allocation, dict):
+-            result_json["resource_allocation"] = allocation
+-        job.result_json = result_json
+         job.finished_at = datetime.now(timezone.utc)
+         job.heartbeat_at = job.finished_at
+         job.updated_at = datetime.now(timezone.utc)
+@@ -527,10 +293,9 @@
+             last_job=job,
+             error_text=error_text,
+         )
+-        resume_qwen_if_gpu_is_idle(session, settings=settings)
+-
+-
+-def mark_job_cancelled(job_id, message: str, *, cpu_usage: dict | None = None) -> None:
++
++
++def mark_job_cancelled(job_id, message: str) -> None:
+     settings = get_settings()
+     with session_scope() as session:
+         job = session.get(Job, job_id)
+@@ -540,12 +305,6 @@
+         result_json = dict(job.result_json or {})
+         result_json["status"] = "cancelled"
+         result_json["message"] = message or "Pipeline run cancelled by user."
+-        merged_cpu_usage = merge_cpu_usage(result_json.get("cpu_usage"), cpu_usage)
+-        if merged_cpu_usage is not None:
+-            result_json["cpu_usage"] = merged_cpu_usage
+-        allocation = (job.params_json or {}).get(HUB_RESOURCE_ALLOCATION_KEY)
+-        if isinstance(allocation, dict):
+-            result_json["resource_allocation"] = allocation
+         job.result_json = result_json
+         job.error_text = message or None
+         job.finished_at = datetime.now(timezone.utc)
+@@ -570,31 +329,16 @@
+             last_job_status="cancelled",
+             last_job=job,
+         )
+-        resume_qwen_if_gpu_is_idle(session, settings=settings)
+ 
+ 
+ def execute_job(job: Job) -> dict:
+     job_kind = (job.params_json or {}).get("job_kind")
+     LOGGER.info("Executing job %s on host %s instance %s", job.id, socket.gethostname(), get_worker_instance_id())
+-    if job_kind == "assistant_service_control":
+-        with session_scope() as session:
+-            job_record = session.get(Job, job.id)
+-            if job_record is None:
+-                raise ValueError(f"Assistant control job {job.id} disappeared before execution")
+-            result_json = execute_assistant_control_job(session, job=job_record, settings=get_settings())
+-            result_json["worker_host"] = socket.gethostname()
+-            result_json["worker_instance"] = get_worker_instance_id()
+-            return result_json
+     if job_kind == "pipeline_run":
+         with session_scope() as session:
+             job_record = session.get(Job, job.id)
+             if job_record is None:
+                 raise ValueError(f"Job {job.id} disappeared before execution")
+-            if job_requires_gpu(session, job=job_record):
+-                try:
+-                    pause_qwen_for_gpu_job(settings=get_settings())
+-                except GpuArbitrationError as exc:
+-                    raise RuntimeError(f"GPU arbitration blocked this pipeline job: {exc}") from exc
+             result_json = execute_pipeline_run_job(session, job=job_record)
+             result_json["worker_instance"] = get_worker_instance_id()
+             return result_json
+@@ -608,37 +352,12 @@
+         result_json["requested_mode"] = job.requested_mode
+         result_json["resolved_mode"] = job.resolved_mode
+         return result_json
+-    if job_kind == "micromanager_ingest":
+-        with session_scope() as session:
+-            job_record = session.get(Job, job.id)
+-            if job_record is None:
+-                raise ValueError(f"Micro-Manager ingestion job {job.id} disappeared before execution")
+-            result_json = execute_micromanager_ingest_job(session, job=job_record)
+-            result_json["worker_host"] = socket.gethostname()
+-            result_json["worker_instance"] = get_worker_instance_id()
+-            return result_json
+     if job_kind in {"archive_raw_dataset", "restore_raw_dataset"}:
+         with session_scope() as session:
+             job_record = session.get(Job, job.id)
+             if job_record is None:
+                 raise ValueError(f"Job {job.id} disappeared before execution")
+             result_json = execute_storage_lifecycle_job(session, job=job_record)
+-            result_json["worker_instance"] = get_worker_instance_id()
+-            return result_json
+-    if job_kind == "legacy_matlab":
+-        with session_scope() as session:
+-            job_record = session.get(Job, job.id)
+-            if job_record is None:
+-                raise ValueError(f"Job {job.id} disappeared before execution")
+-            result_json = execute_legacy_matlab_job(session, job=job_record)
+-            result_json["worker_instance"] = get_worker_instance_id()
+-            return result_json
+-    if job_kind in {"storage_optimization", "storage_optimization_scan", "storage_optimization_chunk"}:
+-        with session_scope() as session:
+-            job_record = session.get(Job, job.id)
+-            if job_record is None:
+-                raise ValueError(f"Storage optimization job {job.id} disappeared before execution")
+-            result_json = execute_storage_optimization_job(session, job=job_record)
+             result_json["worker_instance"] = get_worker_instance_id()
+             return result_json
+     if job_kind == "project_deletion":
+@@ -762,15 +481,6 @@
+ 
+ def run_forever() -> None:
+     settings = get_settings()
+-    parse_worker_path_mappings(settings.worker_path_mappings)
+-    with session_scope() as session:
+-        target = resolve_worker_target(session, settings.worker_target_key)
+-        if settings.worker_target_key and target is None:
+-            raise RuntimeError(
+-                f"Configured worker target '{settings.worker_target_key}' does not exist."
+-            )
+-        if target is None and not settings.worker_claim_unassigned_jobs:
+-            raise RuntimeError("A worker target is required when unassigned jobs are disabled.")
+     last_archive_policy_run_at: datetime | None = None
+     last_micromanager_ingest_run_at: datetime | None = None
+     last_backup_run_at: datetime | None = None
+@@ -784,48 +494,41 @@
+         except Exception:  # pragma: no cover - defensive around heartbeat
+             LOGGER.exception("Execution target heartbeat update failed")
+ 
+-        if settings.worker_enable_schedulers:
+-            try:
+-                with session_scope() as session:
+-                    last_archive_policy_run_at = run_archive_policy_if_due(
+-                        session,
+-                        last_run_at=last_archive_policy_run_at,
+-                    )
+-            except Exception:  # pragma: no cover - defensive around periodic maintenance
+-                LOGGER.exception("Automatic archive policy run failed")
+-
+-            try:
+-                with session_scope() as session:
+-                    last_micromanager_ingest_run_at = run_micromanager_ingest_if_due(
+-                        session,
+-                        last_run_at=last_micromanager_ingest_run_at,
+-                        target=resolve_worker_target(session, settings.worker_target_key),
+-                    )
+-            except Exception:  # pragma: no cover - defensive around periodic maintenance
+-                LOGGER.exception("Micro-Manager ingest run failed")
+-
+-            try:
+-                with session_scope() as session:
+-                    last_backup_run_at = run_backup_if_due(session, last_run_at=last_backup_run_at)
+-            except Exception:  # pragma: no cover - defensive around periodic maintenance
+-                LOGGER.exception("Backup scheduler run failed")
++        try:
++            with session_scope() as session:
++                last_archive_policy_run_at = run_archive_policy_if_due(
++                    session,
++                    last_run_at=last_archive_policy_run_at,
++                )
++        except Exception:  # pragma: no cover - defensive around periodic maintenance
++            LOGGER.exception("Automatic archive policy run failed")
++
++        try:
++            with session_scope() as session:
++                last_micromanager_ingest_run_at = run_micromanager_ingest_if_due(
++                    session,
++                    last_run_at=last_micromanager_ingest_run_at,
++                )
++        except Exception:  # pragma: no cover - defensive around periodic maintenance
++            LOGGER.exception("Micro-Manager ingest run failed")
++
++        try:
++            with session_scope() as session:
++                last_backup_run_at = run_backup_if_due(session, last_run_at=last_backup_run_at)
++        except Exception:  # pragma: no cover - defensive around periodic maintenance
++            LOGGER.exception("Backup scheduler run failed")
+ 
+         job = claim_next_job()
+         if job is None:
+             time.sleep(settings.worker_poll_interval_sec)
+             continue
+ 
+-        keepalive_stop: threading.Event | None = None
+-        keepalive_thread: threading.Thread | None = None
+-        cpu_monitor: JobCpuMonitor | None = None
+         try:
+-            cpu_monitor = JobCpuMonitor()
+-            cpu_monitor.start()
+             keepalive_stop = threading.Event()
+             keepalive_thread = threading.Thread(
+                 target=keep_running_job_alive,
+                 args=(keepalive_stop,),
+-                kwargs={"job_id": job.id, "cpu_monitor": cpu_monitor},
++                kwargs={"job_id": job.id},
+                 daemon=True,
+                 name=f"job-keepalive-{job.id}",
+             )
+@@ -833,23 +536,20 @@
+             result_json = execute_job(job)
+             keepalive_stop.set()
+             keepalive_thread.join(timeout=1.0)
+-            cpu_usage = finish_job_cpu_monitor(cpu_monitor, job)
+-            if cpu_usage is not None:
+-                result_json["cpu_usage"] = cpu_usage
+-            if result_json.get("requeue"):
+-                requeue_job(job.id, result_json)
+-                LOGGER.info("Job %s processed one storage optimization chunk and was requeued", job.id)
+-            else:
+-                mark_job_done(job.id, result_json)
+-                LOGGER.info("Job %s completed", job.id)
++            mark_job_done(job.id, result_json)
++            LOGGER.info("Job %s completed", job.id)
+         except PipelineRunCancelled as exc:
++            keepalive_stop = locals().get("keepalive_stop")
++            keepalive_thread = locals().get("keepalive_thread")
+             if isinstance(keepalive_stop, threading.Event):
+                 keepalive_stop.set()
+             if isinstance(keepalive_thread, threading.Thread):
+                 keepalive_thread.join(timeout=1.0)
+-            mark_job_cancelled(job.id, str(exc), cpu_usage=finish_job_cpu_monitor(cpu_monitor, job))
++            mark_job_cancelled(job.id, str(exc))
+             LOGGER.info("Job %s cancelled", job.id)
+         except Exception as exc:  # pragma: no cover - defensive for worker loop
++            keepalive_stop = locals().get("keepalive_stop")
++            keepalive_thread = locals().get("keepalive_thread")
+             if isinstance(keepalive_stop, threading.Event):
+                 keepalive_stop.set()
+             if isinstance(keepalive_thread, threading.Thread):
+@@ -858,11 +558,10 @@
+                 job_record = session.get(Job, job.id)
+                 if job_record is not None:
+                     finalize_storage_lifecycle_failure(session, job=job_record, error_text=str(exc))
+-                    finalize_storage_optimization_failure(session, job=job_record, error_text=str(exc))
+                     finalize_backup_failure(session, job=job_record, error_text=str(exc))
+                     finalize_user_home_storage_failure(session, job=job_record, error_text=str(exc))
+                     finalize_project_deletion_failure(session, job=job_record, error_text=str(exc))
+-            mark_job_failed(job.id, str(exc), cpu_usage=finish_job_cpu_monitor(cpu_monitor, job))
++            mark_job_failed(job.id, str(exc))
+             LOGGER.exception("Job %s failed", job.id)
+ 
+ 
+@@ -900,23 +599,12 @@
+     last_job_status: str | None,
+     last_job: Job | None = None,
+     error_text: str | None = None,
+-    current_job_cpu_cores: float | None = None,
+ ) -> None:
+     if target is None:
+         return
+ 
+-    target = session.scalars(select(ExecutionTarget).where(
+-        ExecutionTarget.id == target.id,
+-    ).with_for_update().execution_options(populate_existing=True)).one()
+     now = datetime.now(timezone.utc)
+     worker_instance_id = get_worker_instance_id()
+-    apply_job_limits(worker_instance_id, current_job)
+-    host_cpu_count, available_cpu_count = get_cpu_topology()
+-    cpu_limit = positive_mb(os.getenv("DETECDIV_HUB_WORKER_CPU_LIMIT"))
+-    if cpu_limit is not None:
+-        available_cpu_count = min(available_cpu_count, cpu_limit)
+-    if current_job is None or current_job_cpu_cores is None:
+-        current_job_cpu_cores = 0.0
+     upsert_worker_instance(
+         session,
+         target=target,
+@@ -926,29 +614,10 @@
+         last_job=last_job,
+         last_job_status=last_job_status,
+         error_text=error_text,
+-        host_cpu_count=host_cpu_count,
+-        available_cpu_count=available_cpu_count,
+-        current_job_cpu_cores=current_job_cpu_cores,
+         poll_interval_sec=get_settings().worker_poll_interval_sec,
+         now=now,
+     )
+     metadata = execution_target_worker_metadata(session, target)
+-    for key, env_name in (
+-        ("memory_capacity_mb", "DETECDIV_HUB_WORKER_MEMORY_BUDGET_MB"),
+-        ("worker_memory_limit_mb", "DETECDIV_HUB_WORKER_MEMORY_LIMIT_MB"),
+-        ("worker_swap_limit_mb", "DETECDIV_HUB_WORKER_SWAP_LIMIT_MB"),
+-        ("worker_cpu_limit", "DETECDIV_HUB_WORKER_CPU_LIMIT"),
+-        ("worker_cpu_capacity", "DETECDIV_HUB_WORKER_CPU_BUDGET"),
+-    ):
+-        value = positive_mb(os.getenv(env_name))
+-        if value is not None:
+-            metadata[key] = value
+-    resources = dict(metadata.get("worker_resource_allocations") or {})
+-    resources[worker_instance_id] = worker_resource_snapshot(
+-        available_cpu_count=available_cpu_count, current_job=current_job, now=now,
+-    )
+-    metadata["worker_resource_allocations"] = resources
+-    metadata["worker_dynamic_resources"] = dynamic_resources_enabled()
+     target.metadata_json = metadata
+     if health == "error":
+         target.status = "degraded"
+--- HEAD/worker/pipeline_run_executor.py
++++ api/worker/pipeline_run_executor.py
+@@ -1,35 +1,26 @@
+ from __future__ import annotations
+ 
+ import json
+-import os
+ import re
+ import tempfile
+-from datetime import datetime, timezone
+ from pathlib import Path
+ from typing import Any
++from datetime import datetime, timezone
+ 
+ from sqlalchemy import select
+ from sqlalchemy.orm import Session, joinedload
+ 
+ from api.config import get_settings
+ from api.models import Artifact, ExecutionTarget, Job, Pipeline, Project, ProjectLocation
+-from api.services.pipeline_raw_ingest import (
+-    ingest_pipeline_run_raw_dataset,
+-    pipeline_run_requests_raw_ingest,
+-)
+ from api.services.project_deletion import resolve_project_location_paths
+ from api.services.project_locks import heartbeat_project_locks_for_job
+ from worker.executors.matlab_executor import build_matlab_batch_command, run_matlab_command
+-from worker.path_mappings import (
+-    WorkerPathMapping,
+-    map_payload_path_fields,
+-    parse_worker_path_mappings,
+-)
+ from worker.pipeline_dependency_preflight import (
+     build_preflight_error_text,
+     evaluate_pipeline_dependency_preflight,
+ )
+ from worker.pipeline_prepared_run import merge_prepared_pipeline_run, persist_prepared_pipeline_run
++
+ 
+ PIPELINE_REF_PATH_KEYS = ("export_manifest_uri", "pipeline_bundle_uri", "pipeline_json_path")
+ PIPELINE_PATHISH_KEYS = {
+@@ -62,60 +53,18 @@
+     if not repo_root:
+         raise ValueError("DETECDIV_HUB_MATLAB_REPO_ROOT is required for pipeline_run jobs.")
+ 
+-    from worker.matlab_code_checkout import prepare_job_checkout, job_workspace, job_environment
+-    repo_root, code_commit = prepare_job_checkout(session, job, settings)
+     matlab_command = str(settings.matlab_command or "matlab").strip() or "matlab"
+ 
+-    with job_workspace(settings, job, session) as tmpdir:
++    payload = normalize_pipeline_run_payload(session, job=job)
++    payload = normalize_pipeline_ref_paths_for_posix(payload=payload, job=job)
++    persist_prepared_pipeline_run(session, job=job, payload=payload)
++    preflight = evaluate_pipeline_dependency_preflight(payload)
++    persist_pipeline_preflight(session, job=job, preflight=preflight)
++    if preflight.get("status") == "failed":
++        raise PipelinePreflightFailed(build_preflight_error_text(preflight))
++
++    with tempfile.TemporaryDirectory(prefix="detecdiv_pipeline_job_") as tmpdir:
+         tmp_path = Path(tmpdir)
+-        payload = normalize_pipeline_run_payload(session, job=job)
+-        path_mappings = parse_worker_path_mappings(settings.worker_path_mappings)
+-        if path_mappings:
+-            payload = map_payload_path_fields(payload, path_mappings)
+-            project_ref = dict(payload.get("project_ref") or {})
+-            pipeline_ref = dict(payload.get("pipeline_ref") or {})
+-            resolve_pipeline_ref_for_server(
+-                session, job=job, project_ref=project_ref, pipeline_ref=pipeline_ref
+-            )
+-            payload["pipeline_ref"] = pipeline_ref
+-        # MATLAB also loads paths from the shared project, which were not
+-        # present in this JSON. Give it the trusted execution-host mappings
+-        # separately from the unchanged client-to-canonical path mappings.
+-        payload.setdefault("execution", {})["worker_path_mappings"] = [
+-            {"source": mapping.source, "target": mapping.target}
+-            for mapping in path_mappings
+-        ]
+-        payload = normalize_pipeline_ref_paths_for_posix(
+-            payload=payload,
+-            job=job,
+-            path_mappings=path_mappings,
+-            runtime_dir=tmp_path if path_mappings else None,
+-        )
+-        if os.name == "nt" and pipeline_run_requests_raw_ingest(payload):
+-            raise ValueError(
+-                "Raw-dataset ingestion during a pipeline run requires the Linux storage worker; "
+-                "submit this job to a Linux target."
+-            )
+-        raw_ingest = None
+-        if pipeline_run_requests_raw_ingest(payload):
+-            raw_ingest = ingest_pipeline_run_raw_dataset(session, job=job)
+-            # Keep this provenance even when the subsequent MATLAB execution fails.
+-            job_record = session.get(Job, job.id)
+-            if job_record is not None:
+-                result_json = dict(job_record.result_json or {})
+-                result_json["raw_dataset_ingest"] = raw_ingest
+-                job_record.result_json = result_json
+-            session.commit()
+-        persist_prepared_pipeline_run(session, job=job, payload=payload)
+-        preflight = evaluate_pipeline_dependency_preflight(
+-            payload,
+-            worker_platform="windows" if os.name == "nt" else "linux",
+-            path_mappings=path_mappings,
+-        )
+-        persist_pipeline_preflight(session, job=job, preflight=preflight)
+-        if preflight.get("status") == "failed":
+-            raise PipelinePreflightFailed(build_preflight_error_text(preflight))
+-
+         payload_path = tmp_path / "pipeline_run_job.json"
+         result_path = tmp_path / "pipeline_run_result.json"
+         stdout_path = tmp_path / "matlab_stdout.log"
+@@ -128,13 +77,10 @@
+         payload_path.write_text(json.dumps(payload, indent=2), encoding="utf-8")
+ 
+         matlab_max_threads = resolve_matlab_max_threads(session, job=job)
+-        entrypoint = build_pipeline_matlab_entrypoint(payload_path,
+-            matlab_max_threads=matlab_max_threads, work_dir=tmp_path)
++        entrypoint = build_pipeline_matlab_entrypoint(payload_path, matlab_max_threads=matlab_max_threads)
+         command = build_matlab_batch_command(repo_root, entrypoint, matlab_command=matlab_command)
+         completed = run_matlab_command(
+             command,
+-            env=job_environment(tmp_path),
+-            cwd=str(tmp_path),
+             heartbeat_callback=lambda: update_job_heartbeat(session, job=job),
+             progress_callback=lambda: update_pipeline_run_progress(
+                 session,
+@@ -154,10 +100,16 @@
+             except json.JSONDecodeError:
+                 result_json = {}
+ 
+-        validate_pipeline_run_result(
+-            session, job=job, returncode=completed.returncode,
+-            result_json=result_json, stdout=completed.stdout or "", stderr=completed.stderr or "",
+-        )
++        if completed.returncode != 0:
++            error_text = build_pipeline_run_error(
++                completed.returncode,
++                completed.stdout or "",
++                completed.stderr or "",
++                result_json,
++            )
++            if is_pipeline_cancelled(session, job=job, result_json=result_json, error_text=error_text):
++                raise PipelineRunCancelled(error_text)
++            raise RuntimeError(error_text)
+ 
+         if not result_json:
+             result_json = {
+@@ -165,8 +117,6 @@
+                 "message": "MATLAB batch returned success without a result JSON payload.",
+             }
+         result_json = merge_prepared_pipeline_run(payload=payload, result_json=result_json)
+-        if raw_ingest is not None:
+-            result_json["raw_dataset_ingest"] = raw_ingest
+         result_json["preflight"] = preflight
+ 
+         attach_pipeline_run_artifacts(
+@@ -183,8 +133,6 @@
+                 "engine": "matlab",
+                 "command": matlab_command,
+                 "repo_root": repo_root,
+-                "code_commit": code_commit,
+-                "work_dir": str(tmp_path),
+                 "matlab_max_threads": matlab_max_threads,
+                 "returncode": completed.returncode,
+                 "stdout_log": str(stdout_path),
+@@ -234,12 +182,6 @@
+ 
+     run_request = dict(payload.get("run_request") or {})
+     gpu = dict(run_request.get("gpu") or {})
+-    allocation = dict((job.params_json or {}).get("_hub_resource_allocation") or {})
+-    if allocation.get("gpu_permitted") is False:
+-        gpu["mode"] = "force_cpu"
+-    pipeline_profile = dict(allocation.get("pipeline_gpu_profile") or {})
+-    if pipeline_profile.get("status") == "known" and not pipeline_profile.get("deep_learning_node_ids"):
+-        gpu["mode"] = "force_cpu"
+     if not gpu.get("mode"):
+         gpu["mode"] = default_gpu_mode_for_job(session, job=job)
+     run_request["gpu"] = gpu
+@@ -277,35 +219,25 @@
+     return str(token_path)
+ 
+ 
+-def build_pipeline_matlab_entrypoint(payload_path: Path, *, matlab_max_threads: int | None,
+-                                    work_dir: Path | None = None) -> str:
++def build_pipeline_matlab_entrypoint(payload_path: Path, *, matlab_max_threads: int | None) -> str:
+     run_command = f"detecdiv_run_pipeline_job('{matlab_escape(str(payload_path))}')"
+-    run_command = "setenv('DETECDIV_ROOT', pwd); " + run_command
+-    if work_dir is not None:
+-        run_command = "setenv('DETECDIV_ROOT', pwd); detecdiv_setup_path(pwd, 'DetecDivRoot', pwd); " + \
+-            f"cd('{matlab_escape(str(work_dir))}'); detecdiv_run_pipeline_job('{matlab_escape(str(payload_path))}')"
+     if matlab_max_threads is None:
+         return run_command
+     return f"maxNumCompThreads({matlab_max_threads}); {run_command}"
+ 
+ 
+ def resolve_matlab_max_threads(session: Session, *, job: Job) -> int | None:
+-    allocation = dict((job.params_json or {}).get("_hub_resource_allocation") or {})
+-    allocated_cores = read_positive_int(allocation.get("cpu_cores"))
+     execution = dict((job.params_json or {}).get("execution") or {})
+     from_payload = read_positive_int(execution.get("matlab_max_threads"))
+     if from_payload is not None:
+-        return min(from_payload, allocated_cores) if allocated_cores is not None else from_payload
++        return from_payload
+ 
+     if not job.execution_target_id:
+         return None
+     target = session.get(ExecutionTarget, job.execution_target_id)
+     if target is None:
+-        return allocated_cores
+-    configured = read_positive_int((target.metadata_json or {}).get("matlab_max_threads"))
+-    if allocated_cores is not None:
+-        return min(configured, allocated_cores) if configured is not None else allocated_cores
+-    return configured
++        return None
++    return read_positive_int((target.metadata_json or {}).get("matlab_max_threads"))
+ 
+ 
+ def read_positive_int(value) -> int | None:
+@@ -575,13 +507,7 @@
+     return parts[-1] if parts else ""
+ 
+ 
+-def normalize_pipeline_ref_paths_for_posix(
+-    *,
+-    payload: dict[str, Any],
+-    job: Job,
+-    path_mappings: tuple[WorkerPathMapping, ...] = (),
+-    runtime_dir: Path | None = None,
+-) -> dict[str, Any]:
++def normalize_pipeline_ref_paths_for_posix(*, payload: dict[str, Any], job: Job) -> dict[str, Any]:
+     pipeline_ref = dict(payload.get("pipeline_ref") or {})
+     pipeline_json_path = str(pipeline_ref.get("pipeline_json_path") or "").strip()
+     if not pipeline_json_path:
+@@ -602,20 +528,16 @@
+     except (OSError, json.JSONDecodeError):
+         return payload
+ 
+-    mapped_data = map_payload_path_fields(pipeline_data, path_mappings)
+-    normalized_data, normalized = normalize_pipeline_data_paths_for_posix(mapped_data)
+-    changed = mapped_data != pipeline_data or normalized
++    normalized_data, changed = normalize_pipeline_data_paths_for_posix(pipeline_data)
+     if not changed:
+         return payload
+ 
+-    runtime_path = (runtime_dir or source_path.parent) / f".detecdiv_runtime_pipeline_{job.id}.json"
++    runtime_path = source_path.parent / f".detecdiv_runtime_pipeline_{job.id}.json"
+     runtime_path.write_text(json.dumps(normalized_data, indent=2), encoding="utf-8")
+ 
+     pipeline_ref["pipeline_json_path_original"] = pipeline_json_path
+     pipeline_ref["pipeline_json_path"] = str(runtime_path)
+-    pipeline_ref["path_normalization"] = (
+-        "worker_local_paths" if path_mappings else "relative_windows_paths_rewritten_for_posix"
+-    )
++    pipeline_ref["path_normalization"] = "relative_windows_paths_rewritten_for_posix"
+ 
+     normalized_payload = dict(payload)
+     normalized_payload["pipeline_ref"] = pipeline_ref
+@@ -682,24 +604,8 @@
+     return "path" in lowered or "file" in lowered or "dir" in lowered or "folder" in lowered
+ 
+ 
+-def validate_pipeline_run_result(
+-    session: Session, *, job: Job, returncode: int, result_json: dict[str, Any],
+-    stdout: str = "", stderr: str = "",
+-) -> None:
+-    """MATLAB's zero exit code does not guarantee a completed pipeline."""
+-    result_status = str(result_json.get("status") or "").strip().lower()
+-    error_text = str(result_json.get("error") or "")
+-    if is_pipeline_cancelled(session, job=job, result_json=result_json, error_text=error_text):
+-        raise PipelineRunCancelled(build_pipeline_run_error(returncode, stdout, stderr, result_json))
+-    if returncode != 0 or result_status in {"failed", "error", "incomplete"}:
+-        raise RuntimeError(build_pipeline_run_error(returncode, stdout, stderr, result_json))
+-
+-
+ def build_pipeline_run_error(returncode: int, stdout: str, stderr: str, result_json: dict[str, Any]) -> str:
+     parts = [f"pipeline_run MATLAB batch failed with exit code {returncode}."]
+-    if returncode == 0:
+-        status = str(result_json.get("status") or "cancelled")
+-        parts = [f"pipeline_run MATLAB reported status {status} with exit code 0."]
+     result_error = str(result_json.get("error") or "").strip()
+     if result_error:
+         parts.append(result_error)
+--- HEAD/worker/executors/matlab_executor.py
++++ api/worker/executors/matlab_executor.py
+@@ -21,14 +21,12 @@
+     heartbeat_interval_sec: float = 10.0,
+     stdout_path: Path | None = None,
+     stderr_path: Path | None = None,
+-    env: dict[str, str] | None = None,
+-    cwd: str | None = None,
+ ) -> subprocess.CompletedProcess[str]:
+     if heartbeat_callback is None:
+-        return subprocess.run(command, check=False, text=True, capture_output=True, env=env, cwd=cwd)
++        return subprocess.run(command, check=False, text=True, capture_output=True)
+ 
+     if stdout_path is None or stderr_path is None:
+-        process = subprocess.Popen(command, text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, env=env, cwd=cwd)
++        process = subprocess.Popen(command, text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+         stdout = ""
+         stderr = ""
+         while True:
+@@ -42,7 +40,7 @@
+         return subprocess.CompletedProcess(command, process.returncode or 0, stdout, stderr)
+ 
+     with stdout_path.open("w", encoding="utf-8") as stdout_file, stderr_path.open("w", encoding="utf-8") as stderr_file:
+-        process = subprocess.Popen(command, text=True, stdout=stdout_file, stderr=stderr_file, env=env, cwd=cwd)
++        process = subprocess.Popen(command, text=True, stdout=stdout_file, stderr=stderr_file)
+         while process.poll() is None:
+             time.sleep(heartbeat_interval_sec)
+             heartbeat_callback()

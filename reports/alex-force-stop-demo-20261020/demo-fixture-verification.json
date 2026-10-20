@@ -1,0 +1,11 @@
+{
+  "ready": {
+    "matlab_pid": 388903,
+    "auto_finish_unix": 1792506004.660778
+  },
+  "child_pids": {
+    "python-0.pid": 389298,
+    "python-1.pid": 389300
+  },
+  "children_alive": true
+}
