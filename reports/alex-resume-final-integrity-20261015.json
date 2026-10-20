@@ -1,0 +1,923 @@
+{
+  "job_id": "23df4d34-af78-4cef-b084-a2a410e56930",
+  "verified_at": "2026-10-15T12:36:59.378838+00:00",
+  "run_status": "done",
+  "protected_count": 131,
+  "unchanged_protected_count": 131,
+  "protected_errors": [],
+  "processed_count": 126,
+  "processed_unique": 126,
+  "processed_exactly_pending": true,
+  "stderr_empty": true,
+  "node_report": {
+    "errors": [],
+    "warnings": [
+      "Node xtra_full_channels_legacy needs channel selection from upstream choices."
+    ],
+    "order": [
+      "xtra_full_channels_legacy"
+    ],
+    "edges": [],
+    "semantic": {
+      "xtra_full_channels_legacy": {
+        "summary": "Processes ROI content. Requires ROI support and usually at least one ROI image channel.",
+        "requiredChannels": 1,
+        "configuredChannels": [],
+        "availableChannels": [
+          "channel000_z000",
+          "channel000_z001",
+          "channel000_z002",
+          "channel001_z001",
+          "channel002_z001",
+          "channel003_z001",
+          "seg"
+        ],
+        "channelCheck": "Upstream channels available: channel000_z000, channel000_z001, channel000_z002, channel001_z001, channel002_z001, channel003_z001, seg",
+        "masksRequired": false,
+        "dataSeriesRequired": false
+      }
+    },
+    "binding": {
+      "errors": [],
+      "warnings": [
+        "Node xtra_full_channels_legacy needs channel selection from upstream choices."
+      ],
+      "nodes": {
+        "xtra_full_channels_legacy": {
+          "nodeId": "xtra_full_channels_legacy",
+          "scope": "roi",
+          "mode": "channelSet",
+          "resolveAt": "run",
+          "status": "needs_user_binding",
+          "message": "Node xtra_full_channels_legacy needs channel selection from upstream choices.",
+          "requiredCount": 1,
+          "exactCount": [],
+          "configuredChannels": [],
+          "availableChannels": [
+            "channel000_z000",
+            "channel000_z001",
+            "channel000_z002",
+            "channel001_z001",
+            "channel002_z001",
+            "channel003_z001",
+            "seg"
+          ],
+          "autoChoice": [],
+          "producedChannelName": [],
+          "resources": {
+            "inputs": {
+              "type": "channel",
+              "role": "roi_image",
+              "symbol": "channels",
+              "concreteName": "",
+              "sourceNode": "",
+              "sourcePort": "",
+              "sourceKind": "",
+              "param": "channels",
+              "status": "resolved",
+              "message": "Node xtra_full_channels_legacy has optional channel/roi_image resource binding.",
+              "configured": "",
+              "available": [
+                {
+                  "type": "channel",
+                  "role": "roi_image",
+                  "symbol": "channel000_z000",
+                  "concreteName": "channel000_z000",
+                  "sourceNode": "ctx",
+                  "sourcePort": "channels",
+                  "sourceKind": "context"
+                },
+                {
+                  "type": "channel",
+                  "role": "roi_image",
+                  "symbol": "channel000_z001",
+                  "concreteName": "channel000_z001",
+                  "sourceNode": "ctx",
+                  "sourcePort": "channels",
+                  "sourceKind": "context"
+                },
+                {
+                  "type": "channel",
+                  "role": "roi_image",
+                  "symbol": "channel000_z002",
+                  "concreteName": "channel000_z002",
+                  "sourceNode": "ctx",
+                  "sourcePort": "channels",
+                  "sourceKind": "context"
+                },
+                {
+                  "type": "channel",
+                  "role": "roi_image",
+                  "symbol": "channel001_z001",
+                  "concreteName": "channel001_z001",
+                  "sourceNode": "ctx",
+                  "sourcePort": "channels",
+                  "sourceKind": "context"
+                },
+                {
+                  "type": "channel",
+                  "role": "roi_image",
+                  "symbol": "channel002_z001",
+                  "concreteName": "channel002_z001",
+                  "sourceNode": "ctx",
+                  "sourcePort": "channels",
+                  "sourceKind": "context"
+                },
+                {
+                  "type": "channel",
+                  "role": "roi_image",
+                  "symbol": "channel003_z001",
+                  "concreteName": "channel003_z001",
+                  "sourceNode": "ctx",
+                  "sourcePort": "channels",
+                  "sourceKind": "context"
+                },
+                {
+                  "type": "channel",
+                  "role": "roi_image",
+                  "symbol": "seg",
+                  "concreteName": "seg",
+                  "sourceNode": "ctx",
+                  "sourcePort": "channels",
+                  "sourceKind": "context"
+                }
+              ],
+              "autoChoice": []
+            },
+            "outputs": {
+              "type": "dataSeries",
+              "role": "processor_output",
+              "symbol": "xtra_full_channels_legacy.dataSeries",
+              "concreteName": "xtra_full_channels_legacy",
+              "sourceNode": "xtra_full_channels_legacy",
+              "sourcePort": "dataSeries",
+              "sourceKind": "roiDataSeries",
+              "param": "outputName",
+              "status": "resolved",
+              "message": "Node xtra_full_channels_legacy provides dataSeries/processor_output resource \"xtra_full_channels_legacy\".",
+              "configured": "",
+              "available": [],
+              "autoChoice": []
+            }
+          },
+          "downstreamDemand": 1
+        }
+      },
+      "needsUserBinding": [
+        "xtra_full_channels_legacy"
+      ],
+      "needsRunBinding": [],
+      "autoResolvable": []
+    },
+    "classifierArtifacts": [],
+    "pluginPackages": {
+      "nodeId": "xtra_full_channels_legacy",
+      "type": "processor",
+      "package": "xtraFullChannelsConservative",
+      "configuredRoot": "X:\\matlab\\pipelines\\Alex_Xtra_FullChannels_Conservative\\assets\\plugins\\processor",
+      "configuredDir": "X:\\matlab\\pipelines\\Alex_Xtra_FullChannels_Conservative\\assets\\plugins\\processor\\+xtraFullChannelsConservative",
+      "resolvedDir": "/data/matlab/pipelines/Alex_Xtra_FullChannels_Conservative/assets/plugins/processor/+xtraFullChannelsConservative",
+      "serverPath": "/data/matlab/pipelines/Alex_Xtra_FullChannels_Conservative/assets/plugins/processor/+xtraFullChannelsConservative",
+      "registeredDir": "",
+      "target": "Hub/server execution",
+      "status": "mapped",
+      "accessible": true
+    },
+    "pathChecks": [],
+    "solver": {
+      "issues": {
+        "id": "needs_design_binding_xtra_full_channels_legacy_channels_Channel",
+        "severity": "warning",
+        "status": "needs_design_binding",
+        "scope": "node",
+        "nodeId": "xtra_full_channels_legacy",
+        "nodeName": "Xtra full channels (original)",
+        "moduleType": "processor",
+        "package": "xtraFullChannelsConservative",
+        "param": "channels, channel",
+        "message": "Node xtra_full_channels_legacy needs channel selection from upstream choices.",
+        "stage": "Config",
+        "resolveAt": "design",
+        "action": "open_node_params",
+        "actionLabel": "Configure node"
+      },
+      "table": [
+        "warning",
+        "Config",
+        "Xtra full channels (original)",
+        "processor",
+        "channels, channel",
+        "design",
+        "Node xtra_full_channels_legacy needs channel selection from upstream choices.",
+        "Configure node"
+      ],
+      "summary": {
+        "errors": 0,
+        "warnings": 1,
+        "info": 0,
+        "total": 1
+      },
+      "hasBlocking": false
+    },
+    "missingParams": [],
+    "deferredParams": [],
+    "needsGui": [],
+    "bindingResolution": {
+      "validation": {
+        "errors": [],
+        "warnings": [
+          "Node xtra_full_channels_legacy needs channel selection from upstream choices."
+        ],
+        "order": [
+          "xtra_full_channels_legacy"
+        ],
+        "nodes": {
+          "id": "xtra_full_channels_legacy",
+          "name": "Xtra full channels (original)",
+          "type": "processor",
+          "func": "xtraFullChannelsConservative.process",
+          "pkg": "xtraFullChannelsConservative",
+          "params": {
+            "roiList": [
+              132,
+              133,
+              134,
+              135,
+              136,
+              137,
+              138,
+              139,
+              140,
+              141,
+              142,
+              143,
+              144,
+              145,
+              146,
+              147,
+              148,
+              149,
+              150,
+              151,
+              152,
+              153,
+              154,
+              155,
+              156,
+              157,
+              158,
+              159,
+              160,
+              161,
+              162,
+              163,
+              164,
+              165,
+              166,
+              167,
+              168,
+              169,
+              170,
+              171,
+              172,
+              173,
+              174,
+              175,
+              176,
+              177,
+              178,
+              179,
+              180,
+              181,
+              182,
+              183,
+              184,
+              185,
+              186,
+              187,
+              188,
+              189,
+              190,
+              191,
+              192,
+              193,
+              194,
+              195,
+              196,
+              197,
+              198,
+              199,
+              200,
+              201,
+              202,
+              203,
+              204,
+              205,
+              206,
+              207,
+              208,
+              209,
+              210,
+              211,
+              212,
+              213,
+              214,
+              215,
+              216,
+              217,
+              218,
+              219,
+              220,
+              221,
+              222,
+              223,
+              224,
+              225,
+              226,
+              227,
+              228,
+              229,
+              230,
+              231,
+              232,
+              233,
+              234,
+              235,
+              236,
+              237,
+              238,
+              239,
+              240,
+              241,
+              242,
+              243,
+              244,
+              245,
+              246,
+              247,
+              248,
+              249,
+              250,
+              251,
+              252,
+              253,
+              254,
+              255,
+              256,
+              257
+            ],
+            "executionEnvironment": "gpu"
+          },
+          "paramRequired": [],
+          "gui": "",
+          "guiMode": "",
+          "layout": [
+            2,
+            1,
+            1,
+            1
+          ],
+          "uiAdvanced": false,
+          "status": "OK",
+          "enabled": true,
+          "customPackageRoot": "X:\\matlab\\pipelines\\Alex_Xtra_FullChannels_Conservative\\assets\\plugins\\processor",
+          "customPackageDir": "X:\\matlab\\pipelines\\Alex_Xtra_FullChannels_Conservative\\assets\\plugins\\processor\\+xtraFullChannelsConservative",
+          "customPackageLoadedAt": "",
+          "contract": {
+            "in": {
+              "name": "roiList",
+              "type": "roiList",
+              "required": true,
+              "source": "edge"
+            },
+            "out": [
+              {
+                "name": "roiList",
+                "type": "roiList",
+                "required": true,
+                "source": "edge"
+              },
+              {
+                "name": "dataSeries",
+                "type": "dataSeriesSet",
+                "required": true,
+                "source": "edge"
+              }
+            ],
+            "selectors": {
+              "channelParam": "channel",
+              "channelIndexParam": "",
+              "channelsParam": "channels",
+              "framesParam": "frames",
+              "outputNameParam": "outputName",
+              "defaultChannels": [],
+              "defaultChannelCount": [],
+              "defaultOutputName": ""
+            },
+            "parameters": {
+              "fixed": [],
+              "design": [],
+              "template": [
+                "pkg",
+                "moduleVar",
+                "modulePath",
+                "moduleId",
+                "description",
+                "category"
+              ],
+              "static": [],
+              "run": [
+                "roiList",
+                "channels",
+                "channel",
+                "frames",
+                "outputName"
+              ],
+              "data": [],
+              "paths": [
+                "modulePath"
+              ],
+              "notes": []
+            },
+            "requirements": {
+              "images": {
+                "required": false,
+                "channelsMin": 0
+              },
+              "roi": {
+                "required": true,
+                "channelsMin": 1,
+                "masks": false,
+                "dataSeries": false
+              },
+              "params": {
+                "required": [
+                  "pkg"
+                ],
+                "optional": []
+              },
+              "notes": []
+            },
+            "capabilities": {
+              "createsRoiList": false,
+              "preservesRoiList": true,
+              "roiChannels": false,
+              "roiMasks": false,
+              "roiDataSeries": true,
+              "outputsImages": false,
+              "outputsFovList": false,
+              "outputsChannels": false,
+              "outputsMasks": false,
+              "outputsDataSeries": true,
+              "notes": []
+            },
+            "binding": {
+              "scope": "roi",
+              "outputScope": "roi",
+              "mode": "channelSet",
+              "selectorKeys": [
+                "channels",
+                "channel"
+              ],
+              "minCount": 1,
+              "exactCount": [],
+              "exactCountParam": "",
+              "defaultCount": [],
+              "resolveAt": "run",
+              "outputChannelNameParam": "",
+              "transfer": "",
+              "notes": []
+            },
+            "resources": {
+              "in": {
+                "type": "channel",
+                "role": "roi_image",
+                "symbol": "channels",
+                "param": "channels",
+                "port": "channels",
+                "nameParam": "channels",
+                "required": false,
+                "transfer": ""
+              },
+              "out": {
+                "type": "dataSeries",
+                "role": "processor_output",
+                "symbol": "dataSeries",
+                "param": "outputName",
+                "port": "dataSeries",
+                "nameParam": "outputName",
+                "required": false,
+                "transfer": "roiDataSeries"
+              }
+            },
+            "summary": "Processes ROI content. Requires ROI support and usually at least one ROI image channel."
+          },
+          "inputs": [
+            "roiList"
+          ],
+          "outputs": [
+            "roiList",
+            "dataSeries"
+          ]
+        },
+        "edges": [],
+        "contracts": {
+          "xtra_full_channels_legacy": {
+            "in": {
+              "name": "roiList",
+              "type": "roiList",
+              "required": true,
+              "source": "edge"
+            },
+            "out": [
+              {
+                "name": "roiList",
+                "type": "roiList",
+                "required": true,
+                "source": "edge"
+              },
+              {
+                "name": "dataSeries",
+                "type": "dataSeriesSet",
+                "required": true,
+                "source": "edge"
+              }
+            ],
+            "selectors": {
+              "channelParam": "channel",
+              "channelIndexParam": "",
+              "channelsParam": "channels",
+              "framesParam": "frames",
+              "outputNameParam": "outputName",
+              "defaultChannels": [],
+              "defaultChannelCount": [],
+              "defaultOutputName": ""
+            },
+            "parameters": {
+              "fixed": [],
+              "design": [],
+              "template": [
+                "pkg",
+                "moduleVar",
+                "modulePath",
+                "moduleId",
+                "description",
+                "category"
+              ],
+              "static": [],
+              "run": [
+                "roiList",
+                "channels",
+                "channel",
+                "frames",
+                "outputName"
+              ],
+              "data": [],
+              "paths": [
+                "modulePath"
+              ],
+              "notes": []
+            },
+            "requirements": {
+              "images": {
+                "required": false,
+                "channelsMin": 0
+              },
+              "roi": {
+                "required": true,
+                "channelsMin": 1,
+                "masks": false,
+                "dataSeries": false
+              },
+              "params": {
+                "required": [
+                  "pkg"
+                ],
+                "optional": []
+              },
+              "notes": []
+            },
+            "capabilities": {
+              "createsRoiList": false,
+              "preservesRoiList": true,
+              "roiChannels": false,
+              "roiMasks": false,
+              "roiDataSeries": true,
+              "outputsImages": false,
+              "outputsFovList": false,
+              "outputsChannels": false,
+              "outputsMasks": false,
+              "outputsDataSeries": true,
+              "notes": []
+            },
+            "binding": {
+              "scope": "roi",
+              "outputScope": "roi",
+              "mode": "channelSet",
+              "selectorKeys": [
+                "channels",
+                "channel"
+              ],
+              "minCount": 1,
+              "exactCount": [],
+              "exactCountParam": "",
+              "defaultCount": [],
+              "resolveAt": "run",
+              "outputChannelNameParam": "",
+              "transfer": "",
+              "notes": []
+            },
+            "resources": {
+              "in": {
+                "type": "channel",
+                "role": "roi_image",
+                "symbol": "channels",
+                "param": "channels",
+                "port": "channels",
+                "nameParam": "channels",
+                "required": false,
+                "transfer": ""
+              },
+              "out": {
+                "type": "dataSeries",
+                "role": "processor_output",
+                "symbol": "dataSeries",
+                "param": "outputName",
+                "port": "dataSeries",
+                "nameParam": "outputName",
+                "required": false,
+                "transfer": "roiDataSeries"
+              }
+            },
+            "summary": "Processes ROI content. Requires ROI support and usually at least one ROI image channel."
+          }
+        },
+        "semantic": {
+          "xtra_full_channels_legacy": {
+            "summary": "Processes ROI content. Requires ROI support and usually at least one ROI image channel.",
+            "requiredChannels": 1,
+            "configuredChannels": [],
+            "availableChannels": [
+              "channel000_z000",
+              "channel000_z001",
+              "channel000_z002",
+              "channel001_z001",
+              "channel002_z001",
+              "channel003_z001",
+              "seg"
+            ],
+            "channelCheck": "Upstream channels available: channel000_z000, channel000_z001, channel000_z002, channel001_z001, channel002_z001, channel003_z001, seg",
+            "masksRequired": false,
+            "dataSeriesRequired": false
+          }
+        },
+        "binding": {
+          "errors": [],
+          "warnings": [
+            "Node xtra_full_channels_legacy needs channel selection from upstream choices."
+          ],
+          "nodes": {
+            "xtra_full_channels_legacy": {
+              "nodeId": "xtra_full_channels_legacy",
+              "scope": "roi",
+              "mode": "channelSet",
+              "resolveAt": "run",
+              "status": "needs_user_binding",
+              "message": "Node xtra_full_channels_legacy needs channel selection from upstream choices.",
+              "requiredCount": 1,
+              "exactCount": [],
+              "configuredChannels": [],
+              "availableChannels": [
+                "channel000_z000",
+                "channel000_z001",
+                "channel000_z002",
+                "channel001_z001",
+                "channel002_z001",
+                "channel003_z001",
+                "seg"
+              ],
+              "autoChoice": [],
+              "producedChannelName": [],
+              "resources": {
+                "inputs": {
+                  "type": "channel",
+                  "role": "roi_image",
+                  "symbol": "channels",
+                  "concreteName": "",
+                  "sourceNode": "",
+                  "sourcePort": "",
+                  "sourceKind": "",
+                  "param": "channels",
+                  "status": "resolved",
+                  "message": "Node xtra_full_channels_legacy has optional channel/roi_image resource binding.",
+                  "configured": "",
+                  "available": [
+                    {
+                      "type": "channel",
+                      "role": "roi_image",
+                      "symbol": "channel000_z000",
+                      "concreteName": "channel000_z000",
+                      "sourceNode": "ctx",
+                      "sourcePort": "channels",
+                      "sourceKind": "context"
+                    },
+                    {
+                      "type": "channel",
+                      "role": "roi_image",
+                      "symbol": "channel000_z001",
+                      "concreteName": "channel000_z001",
+                      "sourceNode": "ctx",
+                      "sourcePort": "channels",
+                      "sourceKind": "context"
+                    },
+                    {
+                      "type": "channel",
+                      "role": "roi_image",
+                      "symbol": "channel000_z002",
+                      "concreteName": "channel000_z002",
+                      "sourceNode": "ctx",
+                      "sourcePort": "channels",
+                      "sourceKind": "context"
+                    },
+                    {
+                      "type": "channel",
+                      "role": "roi_image",
+                      "symbol": "channel001_z001",
+                      "concreteName": "channel001_z001",
+                      "sourceNode": "ctx",
+                      "sourcePort": "channels",
+                      "sourceKind": "context"
+                    },
+                    {
+                      "type": "channel",
+                      "role": "roi_image",
+                      "symbol": "channel002_z001",
+                      "concreteName": "channel002_z001",
+                      "sourceNode": "ctx",
+                      "sourcePort": "channels",
+                      "sourceKind": "context"
+                    },
+                    {
+                      "type": "channel",
+                      "role": "roi_image",
+                      "symbol": "channel003_z001",
+                      "concreteName": "channel003_z001",
+                      "sourceNode": "ctx",
+                      "sourcePort": "channels",
+                      "sourceKind": "context"
+                    },
+                    {
+                      "type": "channel",
+                      "role": "roi_image",
+                      "symbol": "seg",
+                      "concreteName": "seg",
+                      "sourceNode": "ctx",
+                      "sourcePort": "channels",
+                      "sourceKind": "context"
+                    }
+                  ],
+                  "autoChoice": []
+                },
+                "outputs": {
+                  "type": "dataSeries",
+                  "role": "processor_output",
+                  "symbol": "xtra_full_channels_legacy.dataSeries",
+                  "concreteName": "xtra_full_channels_legacy",
+                  "sourceNode": "xtra_full_channels_legacy",
+                  "sourcePort": "dataSeries",
+                  "sourceKind": "roiDataSeries",
+                  "param": "outputName",
+                  "status": "resolved",
+                  "message": "Node xtra_full_channels_legacy provides dataSeries/processor_output resource \"xtra_full_channels_legacy\".",
+                  "configured": "",
+                  "available": [],
+                  "autoChoice": []
+                }
+              },
+              "downstreamDemand": 1
+            }
+          },
+          "needsUserBinding": [
+            "xtra_full_channels_legacy"
+          ],
+          "needsRunBinding": [],
+          "autoResolvable": []
+        },
+        "classifierArtifacts": [],
+        "pluginPackages": {
+          "nodeId": "xtra_full_channels_legacy",
+          "type": "processor",
+          "package": "xtraFullChannelsConservative",
+          "configuredRoot": "X:\\matlab\\pipelines\\Alex_Xtra_FullChannels_Conservative\\assets\\plugins\\processor",
+          "configuredDir": "X:\\matlab\\pipelines\\Alex_Xtra_FullChannels_Conservative\\assets\\plugins\\processor\\+xtraFullChannelsConservative",
+          "resolvedDir": "/data/matlab/pipelines/Alex_Xtra_FullChannels_Conservative/assets/plugins/processor/+xtraFullChannelsConservative",
+          "serverPath": "/data/matlab/pipelines/Alex_Xtra_FullChannels_Conservative/assets/plugins/processor/+xtraFullChannelsConservative",
+          "registeredDir": "",
+          "target": "Hub/server execution",
+          "status": "mapped",
+          "accessible": true
+        },
+        "pathChecks": [],
+        "solver": {
+          "issues": {
+            "id": "needs_design_binding_xtra_full_channels_legacy_channels_Channel",
+            "severity": "warning",
+            "status": "needs_design_binding",
+            "scope": "node",
+            "nodeId": "xtra_full_channels_legacy",
+            "nodeName": "Xtra full channels (original)",
+            "moduleType": "processor",
+            "package": "xtraFullChannelsConservative",
+            "param": "channels, channel",
+            "message": "Node xtra_full_channels_legacy needs channel selection from upstream choices.",
+            "stage": "Config",
+            "resolveAt": "design",
+            "action": "open_node_params",
+            "actionLabel": "Configure node"
+          },
+          "table": [
+            "warning",
+            "Config",
+            "Xtra full channels (original)",
+            "processor",
+            "channels, channel",
+            "design",
+            "Node xtra_full_channels_legacy needs channel selection from upstream choices.",
+            "Configure node"
+          ],
+          "summary": {
+            "errors": 0,
+            "warnings": 1,
+            "info": 0,
+            "total": 1
+          },
+          "hasBlocking": false
+        },
+        "missingParams": [],
+        "deferredParams": [],
+        "needsGui": []
+      },
+      "applied": [],
+      "warnings": []
+    },
+    "runId": "alex_resume_after_disk_cleanup_20261015_4c2b2fa1",
+    "startedAt": "15-Oct-2026 13:01:03",
+    "endedAt": "15-Oct-2026 14:32:17",
+    "nodeRuns": {
+      "nodeId": "xtra_full_channels_legacy",
+      "nodeType": "processor",
+      "status": "done",
+      "runPolicy": "resume",
+      "existingPolicy": "skip",
+      "outputName": "xtra_full_channels_legacy",
+      "durationSec": 5467.09408,
+      "before": {
+        "fovCount": 5,
+        "roiCount": 257,
+        "dataSeriesCount": 0,
+        "maskCount": 1
+      },
+      "after": {
+        "fovCount": 5,
+        "roiCount": 126,
+        "dataSeriesCount": 0,
+        "maskCount": 1
+      },
+      "message": ""
+    },
+    "summary": {
+      "totalNodes": 1,
+      "doneNodes": 1,
+      "skippedNodes": 0,
+      "failedNodes": 0
+    }
+  },
+  "node_runs": {
+    "nodeId": "xtra_full_channels_legacy",
+    "nodeType": "processor",
+    "status": "done",
+    "runPolicy": "resume",
+    "existingPolicy": "skip",
+    "outputName": "xtra_full_channels_legacy",
+    "durationSec": 5467.09408,
+    "before": {
+      "fovCount": 5,
+      "roiCount": 257,
+      "dataSeriesCount": 0,
+      "maskCount": 1
+    },
+    "after": {
+      "fovCount": 5,
+      "roiCount": 126,
+      "dataSeriesCount": 0,
+      "maskCount": 1
+    },
+    "message": ""
+  },
+  "pipeline_summary": {
+    "totalNodes": 1,
+    "doneNodes": 1,
+    "skippedNodes": 0,
+    "failedNodes": 0
+  }
+}

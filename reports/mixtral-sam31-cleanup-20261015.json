@@ -1,0 +1,1380 @@
+{
+  "started_utc": "2026-10-15T11:21:45Z",
+  "filesystem_before": {
+    "total_bytes": 760458240000,
+    "available_bytes": 83931918336,
+    "used_bytes": 637821968384
+  },
+  "preserved_checkpoint": {
+    "checkpoint": "/home/charvin-admin/runs/sam31_size_sweep_aligned_stratified_20260718/experiment/diagnostic_repeat200_fixed123/artifacts/moma_sam31_image_instance_prompt_scoring_encoder_repeat200_fixed123_instance_200_seed0_560/checkpoints/checkpoint.pt",
+    "bytes": 3548463034,
+    "mtime": 1784468430.320778,
+    "sha256": "7b5beadfe333c25c87b17a59078239c4a80e4074030af8519e7f0a83eb0ec094",
+    "zip_crc_valid": true,
+    "zip_entries": 2019,
+    "torch_load_cpu_valid": true,
+    "model_tensor_count": 1134,
+    "model_parameters": 841230646,
+    "epoch": 10,
+    "steps": {
+      "train": 2000,
+      "val": 0
+    },
+    "keys": [
+      "model",
+      "optimizer",
+      "epoch",
+      "loss",
+      "steps",
+      "time_elapsed",
+      "best_meter_values",
+      "scaler"
+    ],
+    "validation_summary": {
+      "grid_name": "s0p4_m0p4_a20_n128_iou0p5",
+      "score_threshold": 0.4,
+      "mask_threshold": 0.4,
+      "min_pred_area": 20,
+      "max_preds": 128,
+      "iou_threshold": 0.5,
+      "frames": 12,
+      "tp": 679,
+      "fp": 2,
+      "fn": 87,
+      "micro_precision": 0.9970631424375918,
+      "micro_recall": 0.8864229765013055,
+      "micro_f1": 0.9384934346924672,
+      "mean_frame_precision": 0.9980999265880728,
+      "mean_frame_recall": 0.932550531603816,
+      "mean_best_iou_gt": 0.8781970689694086,
+      "mean_matched_iou": 0.9405287326169495,
+      "mean_pred_objects": 56.75,
+      "mean_gt_objects": 63.833333333333336,
+      "oversegmented_gt_objects": 5,
+      "undersegmented_pred_objects": 6,
+      "split_extra_pred_fragments": 5,
+      "merge_extra_gt_fragments": 6,
+      "oversegmented_gt_rate": 0.006527415143603133,
+      "undersegmented_pred_rate": 0.00881057268722467,
+      "mean_oversegmented_gt_objects": 0.4166666666666667,
+      "mean_undersegmented_pred_objects": 0.5,
+      "mean_pred_fragments_per_gt": 0.9395339068541722,
+      "mean_gt_fragments_per_pred": 1.005805714677316
+    },
+    "verified_at_utc": "2026-10-15T11:20:49Z"
+  },
+  "sam_checkpoints_before": 23,
+  "sam_checkpoints_deleted": 22,
+  "mixtral_gguf_deleted": 2,
+  "process_references": [],
+  "proc_other_users_unreadable": 712,
+  "planned_files": [
+    {
+      "path": "/home/charvin-admin/llama.cpp/models/Mixtral-8x7B-Instruct-v0.1.Q5_K_M.gguf",
+      "bytes": 33229581664,
+      "allocated_bytes": 33229586432,
+      "hardlink_count": 1
+    },
+    {
+      "path": "/home/charvin-admin/llama.cpp/models/mixtral-8x7b-instruct-v0.1.Q4_K_M.gguf",
+      "bytes": 26441533376,
+      "allocated_bytes": 26441539584,
+      "hardlink_count": 1
+    },
+    {
+      "path": "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/consolidated.04.pt",
+      "bytes": 136,
+      "allocated_bytes": 4096,
+      "hardlink_count": 1
+    },
+    {
+      "path": "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/model-00018-of-00019.safetensors",
+      "bytes": 135,
+      "allocated_bytes": 4096,
+      "hardlink_count": 1
+    },
+    {
+      "path": "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/config.json",
+      "bytes": 720,
+      "allocated_bytes": 4096,
+      "hardlink_count": 1
+    },
+    {
+      "path": "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/README.md",
+      "bytes": 8723,
+      "allocated_bytes": 12288,
+      "hardlink_count": 1
+    },
+    {
+      "path": "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/model-00005-of-00019.safetensors",
+      "bytes": 135,
+      "allocated_bytes": 4096,
+      "hardlink_count": 1
+    },
+    {
+      "path": "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/consolidated.01.pt",
+      "bytes": 136,
+      "allocated_bytes": 4096,
+      "hardlink_count": 1
+    },
+    {
+      "path": "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/model-00012-of-00019.safetensors",
+      "bytes": 135,
+      "allocated_bytes": 4096,
+      "hardlink_count": 1
+    },
+    {
+      "path": "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/model-00017-of-00019.safetensors",
+      "bytes": 135,
+      "allocated_bytes": 4096,
+      "hardlink_count": 1
+    },
+    {
+      "path": "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/consolidated.00.pt",
+      "bytes": 136,
+      "allocated_bytes": 4096,
+      "hardlink_count": 1
+    },
+    {
+      "path": "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/tokenizer.json",
+      "bytes": 1795188,
+      "allocated_bytes": 1798144,
+      "hardlink_count": 1
+    },
+    {
+      "path": "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/model-00013-of-00019.safetensors",
+      "bytes": 135,
+      "allocated_bytes": 4096,
+      "hardlink_count": 1
+    },
+    {
+      "path": "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/tokenizer.model",
+      "bytes": 131,
+      "allocated_bytes": 4096,
+      "hardlink_count": 1
+    },
+    {
+      "path": "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/model-00011-of-00019.safetensors",
+      "bytes": 135,
+      "allocated_bytes": 4096,
+      "hardlink_count": 1
+    },
+    {
+      "path": "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/model-00014-of-00019.safetensors",
+      "bytes": 135,
+      "allocated_bytes": 4096,
+      "hardlink_count": 1
+    },
+    {
+      "path": "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/model-00003-of-00019.safetensors",
+      "bytes": 135,
+      "allocated_bytes": 4096,
+      "hardlink_count": 1
+    },
+    {
+      "path": "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/model-00019-of-00019.safetensors",
+      "bytes": 135,
+      "allocated_bytes": 4096,
+      "hardlink_count": 1
+    },
+    {
+      "path": "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/model-00004-of-00019.safetensors",
+      "bytes": 135,
+      "allocated_bytes": 4096,
+      "hardlink_count": 1
+    },
+    {
+      "path": "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/model-00008-of-00019.safetensors",
+      "bytes": 135,
+      "allocated_bytes": 4096,
+      "hardlink_count": 1
+    },
+    {
+      "path": "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/model-00015-of-00019.safetensors",
+      "bytes": 135,
+      "allocated_bytes": 4096,
+      "hardlink_count": 1
+    },
+    {
+      "path": "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/model-00006-of-00019.safetensors",
+      "bytes": 135,
+      "allocated_bytes": 4096,
+      "hardlink_count": 1
+    },
+    {
+      "path": "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/consolidated.05.pt",
+      "bytes": 136,
+      "allocated_bytes": 4096,
+      "hardlink_count": 1
+    },
+    {
+      "path": "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/consolidated.02.pt",
+      "bytes": 136,
+      "allocated_bytes": 4096,
+      "hardlink_count": 1
+    },
+    {
+      "path": "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/model-00001-of-00019.safetensors",
+      "bytes": 135,
+      "allocated_bytes": 4096,
+      "hardlink_count": 1
+    },
+    {
+      "path": "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/model.safetensors.index.json",
+      "bytes": 92658,
+      "allocated_bytes": 94208,
+      "hardlink_count": 1
+    },
+    {
+      "path": "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/model-00016-of-00019.safetensors",
+      "bytes": 135,
+      "allocated_bytes": 4096,
+      "hardlink_count": 1
+    },
+    {
+      "path": "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/consolidated.07.pt",
+      "bytes": 136,
+      "allocated_bytes": 4096,
+      "hardlink_count": 1
+    },
+    {
+      "path": "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/tokenizer_config.json",
+      "bytes": 2103,
+      "allocated_bytes": 4096,
+      "hardlink_count": 1
+    },
+    {
+      "path": "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/model-00010-of-00019.safetensors",
+      "bytes": 135,
+      "allocated_bytes": 4096,
+      "hardlink_count": 1
+    },
+    {
+      "path": "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/consolidated.06.pt",
+      "bytes": 136,
+      "allocated_bytes": 4096,
+      "hardlink_count": 1
+    },
+    {
+      "path": "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/model-00002-of-00019.safetensors",
+      "bytes": 135,
+      "allocated_bytes": 4096,
+      "hardlink_count": 1
+    },
+    {
+      "path": "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/special_tokens_map.json",
+      "bytes": 414,
+      "allocated_bytes": 4096,
+      "hardlink_count": 1
+    },
+    {
+      "path": "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/generation_config.json",
+      "bytes": 116,
+      "allocated_bytes": 4096,
+      "hardlink_count": 1
+    },
+    {
+      "path": "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/model-00007-of-00019.safetensors",
+      "bytes": 135,
+      "allocated_bytes": 4096,
+      "hardlink_count": 1
+    },
+    {
+      "path": "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.gitattributes",
+      "bytes": 1519,
+      "allocated_bytes": 4096,
+      "hardlink_count": 1
+    },
+    {
+      "path": "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/model-00009-of-00019.safetensors",
+      "bytes": 135,
+      "allocated_bytes": 4096,
+      "hardlink_count": 1
+    },
+    {
+      "path": "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/consolidated.03.pt",
+      "bytes": 136,
+      "allocated_bytes": 4096,
+      "hardlink_count": 1
+    },
+    {
+      "path": "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/packed-refs",
+      "bytes": 112,
+      "allocated_bytes": 4096,
+      "hardlink_count": 1
+    },
+    {
+      "path": "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/config",
+      "bytes": 280,
+      "allocated_bytes": 4096,
+      "hardlink_count": 1
+    },
+    {
+      "path": "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/HEAD",
+      "bytes": 21,
+      "allocated_bytes": 4096,
+      "hardlink_count": 1
+    },
+    {
+      "path": "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/description",
+      "bytes": 73,
+      "allocated_bytes": 4096,
+      "hardlink_count": 1
+    },
+    {
+      "path": "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/index",
+      "bytes": 3346,
+      "allocated_bytes": 4096,
+      "hardlink_count": 1
+    },
+    {
+      "path": "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/logs/HEAD",
+      "bytes": 213,
+      "allocated_bytes": 4096,
+      "hardlink_count": 1
+    },
+    {
+      "path": "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/info/exclude",
+      "bytes": 240,
+      "allocated_bytes": 4096,
+      "hardlink_count": 1
+    },
+    {
+      "path": "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/hooks/pre-push.sample",
+      "bytes": 1374,
+      "allocated_bytes": 4096,
+      "hardlink_count": 1
+    },
+    {
+      "path": "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/hooks/push-to-checkout.sample",
+      "bytes": 2783,
+      "allocated_bytes": 4096,
+      "hardlink_count": 1
+    },
+    {
+      "path": "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/hooks/commit-msg.sample",
+      "bytes": 896,
+      "allocated_bytes": 4096,
+      "hardlink_count": 1
+    },
+    {
+      "path": "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/hooks/fsmonitor-watchman.sample",
+      "bytes": 4726,
+      "allocated_bytes": 8192,
+      "hardlink_count": 1
+    },
+    {
+      "path": "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/hooks/pre-merge-commit.sample",
+      "bytes": 416,
+      "allocated_bytes": 4096,
+      "hardlink_count": 1
+    },
+    {
+      "path": "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/hooks/pre-receive.sample",
+      "bytes": 544,
+      "allocated_bytes": 4096,
+      "hardlink_count": 1
+    },
+    {
+      "path": "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/hooks/pre-rebase.sample",
+      "bytes": 4898,
+      "allocated_bytes": 8192,
+      "hardlink_count": 1
+    },
+    {
+      "path": "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/hooks/prepare-commit-msg.sample",
+      "bytes": 1492,
+      "allocated_bytes": 4096,
+      "hardlink_count": 1
+    },
+    {
+      "path": "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/hooks/sendemail-validate.sample",
+      "bytes": 2308,
+      "allocated_bytes": 4096,
+      "hardlink_count": 1
+    },
+    {
+      "path": "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/hooks/update.sample",
+      "bytes": 3650,
+      "allocated_bytes": 4096,
+      "hardlink_count": 1
+    },
+    {
+      "path": "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/hooks/applypatch-msg.sample",
+      "bytes": 478,
+      "allocated_bytes": 4096,
+      "hardlink_count": 1
+    },
+    {
+      "path": "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/hooks/pre-applypatch.sample",
+      "bytes": 424,
+      "allocated_bytes": 4096,
+      "hardlink_count": 1
+    },
+    {
+      "path": "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/hooks/pre-commit.sample",
+      "bytes": 1643,
+      "allocated_bytes": 4096,
+      "hardlink_count": 1
+    },
+    {
+      "path": "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/hooks/post-update.sample",
+      "bytes": 189,
+      "allocated_bytes": 4096,
+      "hardlink_count": 1
+    },
+    {
+      "path": "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/logs/refs/heads/main",
+      "bytes": 213,
+      "allocated_bytes": 4096,
+      "hardlink_count": 1
+    },
+    {
+      "path": "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/logs/refs/remotes/origin/HEAD",
+      "bytes": 213,
+      "allocated_bytes": 4096,
+      "hardlink_count": 1
+    },
+    {
+      "path": "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/refs/heads/main",
+      "bytes": 41,
+      "allocated_bytes": 4096,
+      "hardlink_count": 1
+    },
+    {
+      "path": "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/refs/remotes/origin/HEAD",
+      "bytes": 30,
+      "allocated_bytes": 4096,
+      "hardlink_count": 1
+    },
+    {
+      "path": "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/18/0be0b42a6e0c09f758539935c370f1ab975d66",
+      "bytes": 2106,
+      "allocated_bytes": 4096,
+      "hardlink_count": 1
+    },
+    {
+      "path": "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/29/34722b67b24ea73f2ef98892912e68e623bef5",
+      "bytes": 1077,
+      "allocated_bytes": 4096,
+      "hardlink_count": 1
+    },
+    {
+      "path": "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/1d/afe9b01b66dde9181e3e83f54ca9e0069afbe0",
+      "bytes": 2632,
+      "allocated_bytes": 4096,
+      "hardlink_count": 1
+    },
+    {
+      "path": "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/fa/a910006414ae16dcc81becfbf850720cd04eaa",
+      "bytes": 128,
+      "allocated_bytes": 4096,
+      "hardlink_count": 1
+    },
+    {
+      "path": "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/cd/b3642376309383d09fcd55b4cc462f9dccefa9",
+      "bytes": 978,
+      "allocated_bytes": 4096,
+      "hardlink_count": 1
+    },
+    {
+      "path": "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/cd/e3a3b282d3154a18ac7d4faaf4c73b6d67ca12",
+      "bytes": 405,
+      "allocated_bytes": 4096,
+      "hardlink_count": 1
+    },
+    {
+      "path": "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/e2/d44c05b53516ba61d625448a10c095aa104725",
+      "bytes": 992,
+      "allocated_bytes": 4096,
+      "hardlink_count": 1
+    },
+    {
+      "path": "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/43/95cb1de1a5714ac43e88714a9d3cadfd0fce5b",
+      "bytes": 1498,
+      "allocated_bytes": 4096,
+      "hardlink_count": 1
+    },
+    {
+      "path": "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/43/e6daf936dc0f953cb867ec864adab78f92d9ce",
+      "bytes": 548636,
+      "allocated_bytes": 548864,
+      "hardlink_count": 1
+    },
+    {
+      "path": "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/98/4202e4d97389f6e5895ae51db7ba90944ec3cc",
+      "bytes": 1077,
+      "allocated_bytes": 4096,
+      "hardlink_count": 1
+    },
+    {
+      "path": "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/12/5c431e2ff41a156b9f9076f744d2f35dd6e67a",
+      "bytes": 307,
+      "allocated_bytes": 4096,
+      "hardlink_count": 1
+    },
+    {
+      "path": "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/a5/2c50a199269393cd1548c7e6a77a654bd2001b",
+      "bytes": 58,
+      "allocated_bytes": 4096,
+      "hardlink_count": 1
+    },
+    {
+      "path": "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/a5/580715f0a50e1d40f0bbc54815aabb67ba349b",
+      "bytes": 128,
+      "allocated_bytes": 4096,
+      "hardlink_count": 1
+    },
+    {
+      "path": "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/ba/c44fdacce6e6665af6dae7f19395366e9814fa",
+      "bytes": 3183,
+      "allocated_bytes": 4096,
+      "hardlink_count": 1
+    },
+    {
+      "path": "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/62/74d740d38e11a99b3af51c9f75beb2fcbd3186",
+      "bytes": 127,
+      "allocated_bytes": 4096,
+      "hardlink_count": 1
+    },
+    {
+      "path": "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/68/420bd09f7b41273b209a03a353628f8d8940e9",
+      "bytes": 127,
+      "allocated_bytes": 4096,
+      "hardlink_count": 1
+    },
+    {
+      "path": "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/3d/e0408ae8b591d9ac516a2384925dd98ebc66f4",
+      "bytes": 258,
+      "allocated_bytes": 4096,
+      "hardlink_count": 1
+    },
+    {
+      "path": "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/a7/4fe5781f5748ced9bbfe64abdaf9b7f815149e",
+      "bytes": 128,
+      "allocated_bytes": 4096,
+      "hardlink_count": 1
+    },
+    {
+      "path": "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/13/c87604282692cb500566884e1e511b4b62ac06",
+      "bytes": 128,
+      "allocated_bytes": 4096,
+      "hardlink_count": 1
+    },
+    {
+      "path": "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/61/eded3d041d0cba0815d19db03f54affa36d9af",
+      "bytes": 128,
+      "allocated_bytes": 4096,
+      "hardlink_count": 1
+    },
+    {
+      "path": "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/5b/3768ce6952c0c5e92d872c7ecd1d7008dc555a",
+      "bytes": 129,
+      "allocated_bytes": 4096,
+      "hardlink_count": 1
+    },
+    {
+      "path": "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/1e/9f59c515a01088e1f7f72b68ab99f92d15fb96",
+      "bytes": 548646,
+      "allocated_bytes": 548864,
+      "hardlink_count": 1
+    },
+    {
+      "path": "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/1e/637f2d7cb0a9d6fb1922f305cb784995190a83",
+      "bytes": 945,
+      "allocated_bytes": 4096,
+      "hardlink_count": 1
+    },
+    {
+      "path": "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/d5/99a48a0f36590d3431b963a71626724a62e4f6",
+      "bytes": 2114,
+      "allocated_bytes": 4096,
+      "hardlink_count": 1
+    },
+    {
+      "path": "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/41/bd4c9e7e4fb318ca40e721131d4933966c2cc1",
+      "bytes": 938,
+      "allocated_bytes": 4096,
+      "hardlink_count": 1
+    },
+    {
+      "path": "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/41/0fc235c02be595b61a2eac7ee0be19f6216694",
+      "bytes": 1077,
+      "allocated_bytes": 4096,
+      "hardlink_count": 1
+    },
+    {
+      "path": "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/41/f0ae28f8fe6e87ba820c3d3d59bb110f777441",
+      "bytes": 950,
+      "allocated_bytes": 4096,
+      "hardlink_count": 1
+    },
+    {
+      "path": "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/8c/43142a3e45edc54e1c1c7f7cf479d45a4174ae",
+      "bytes": 127,
+      "allocated_bytes": 4096,
+      "hardlink_count": 1
+    },
+    {
+      "path": "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/81/3428465c76c624386e106f16104ef3cbece77c",
+      "bytes": 1077,
+      "allocated_bytes": 4096,
+      "hardlink_count": 1
+    },
+    {
+      "path": "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/e1/772729e81114d6916dc5bb709738b07dae76e1",
+      "bytes": 204,
+      "allocated_bytes": 4096,
+      "hardlink_count": 1
+    },
+    {
+      "path": "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/a1/efe8c2e91bd444ef365f2a9433dd2c425bd369",
+      "bytes": 2472,
+      "allocated_bytes": 4096,
+      "hardlink_count": 1
+    },
+    {
+      "path": "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/a6/344aac8c09253b3b630fb776ae94478aa0275b",
+      "bytes": 224,
+      "allocated_bytes": 4096,
+      "hardlink_count": 1
+    },
+    {
+      "path": "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/a6/0832cb6c88d5cb6e507680d0e9996fbad77050",
+      "bytes": 911,
+      "allocated_bytes": 4096,
+      "hardlink_count": 1
+    },
+    {
+      "path": "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/a6/28250c2ac769dcfa7add6268d877fc2060c886",
+      "bytes": 1077,
+      "allocated_bytes": 4096,
+      "hardlink_count": 1
+    },
+    {
+      "path": "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/d0/a6a7ae25b1d3f6f784c438c1730ff472335ce0",
+      "bytes": 1077,
+      "allocated_bytes": 4096,
+      "hardlink_count": 1
+    },
+    {
+      "path": "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/d0/9f0470994dd1616ddfe4d3985de12be8eb104d",
+      "bytes": 128,
+      "allocated_bytes": 4096,
+      "hardlink_count": 1
+    },
+    {
+      "path": "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/57/a8de40323b6c33f1fad231f7dd05f660fecda4",
+      "bytes": 127,
+      "allocated_bytes": 4096,
+      "hardlink_count": 1
+    },
+    {
+      "path": "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/0c/dc0d0702c0fa5aa8883ad943416efa47fbbfdf",
+      "bytes": 1077,
+      "allocated_bytes": 4096,
+      "hardlink_count": 1
+    },
+    {
+      "path": "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/3c/b1cb55fb98638c6de696473573f1511239bd41",
+      "bytes": 572,
+      "allocated_bytes": 4096,
+      "hardlink_count": 1
+    },
+    {
+      "path": "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/e0/bbb53cee412aba95f3b3fa4fc0265b1a0788b2",
+      "bytes": 199,
+      "allocated_bytes": 4096,
+      "hardlink_count": 1
+    },
+    {
+      "path": "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/1a/6075af6e83ff1e548837f9806141ed2cec72c9",
+      "bytes": 127,
+      "allocated_bytes": 4096,
+      "hardlink_count": 1
+    },
+    {
+      "path": "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/11/89bfc50d0b817e7489ebadf5f916e0df966774",
+      "bytes": 1076,
+      "allocated_bytes": 4096,
+      "hardlink_count": 1
+    },
+    {
+      "path": "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/c4/41554e91bd20deec0e4c45388b2ac2cc602f2b",
+      "bytes": 109,
+      "allocated_bytes": 4096,
+      "hardlink_count": 1
+    },
+    {
+      "path": "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/b6/da1d3149dfcf982faaad668cafdde442421782",
+      "bytes": 353,
+      "allocated_bytes": 4096,
+      "hardlink_count": 1
+    },
+    {
+      "path": "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/fc/6de58e070254aaf6fe4a23c825f87fd16aa816",
+      "bytes": 4350,
+      "allocated_bytes": 8192,
+      "hardlink_count": 1
+    },
+    {
+      "path": "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/86/4f0a1caefaad4b60aaa341eca0442c49ee0594",
+      "bytes": 1076,
+      "allocated_bytes": 4096,
+      "hardlink_count": 1
+    },
+    {
+      "path": "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/ec/c17935bc6bdb2e835f499687a2c7c3e690fe9e",
+      "bytes": 127,
+      "allocated_bytes": 4096,
+      "hardlink_count": 1
+    },
+    {
+      "path": "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/a3/dddaff395ffba41e6b7cdfde22fe8b0151be0e",
+      "bytes": 197,
+      "allocated_bytes": 4096,
+      "hardlink_count": 1
+    },
+    {
+      "path": "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/0a/867b6c27ce25bcc40fcf7a63514fdd9aba9044",
+      "bytes": 1077,
+      "allocated_bytes": 4096,
+      "hardlink_count": 1
+    },
+    {
+      "path": "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/0a/d53ea9a4afe0a75cc559bdc6bcdf27ac925826",
+      "bytes": 128,
+      "allocated_bytes": 4096,
+      "hardlink_count": 1
+    },
+    {
+      "path": "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/5c/79a376139be989ef1838f360bf4f1f256d7aec",
+      "bytes": 852,
+      "allocated_bytes": 4096,
+      "hardlink_count": 1
+    },
+    {
+      "path": "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/3f/c6ba74ca0195dfa83f7d5b9dfd805215e6df66",
+      "bytes": 2640,
+      "allocated_bytes": 4096,
+      "hardlink_count": 1
+    },
+    {
+      "path": "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/66/7dacd66f020b40ec87344a857f8b7a32ec2330",
+      "bytes": 1077,
+      "allocated_bytes": 4096,
+      "hardlink_count": 1
+    },
+    {
+      "path": "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/b8/af8fdc8685148665507a508424b93c45661401",
+      "bytes": 127,
+      "allocated_bytes": 4096,
+      "hardlink_count": 1
+    },
+    {
+      "path": "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/45/4ca45d559a296051ebbc5cde58e3464c25c455",
+      "bytes": 3182,
+      "allocated_bytes": 4096,
+      "hardlink_count": 1
+    },
+    {
+      "path": "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/45/1134b2ddc2e78555d1e857518c54b4bdc2e87d",
+      "bytes": 123,
+      "allocated_bytes": 4096,
+      "hardlink_count": 1
+    },
+    {
+      "path": "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/f6/3c0374bad221568938f908e397a38d9f0dfac0",
+      "bytes": 753,
+      "allocated_bytes": 4096,
+      "hardlink_count": 1
+    },
+    {
+      "path": "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/f6/f220536182bb3f6eabefe22301d94c43f8356b",
+      "bytes": 1077,
+      "allocated_bytes": 4096,
+      "hardlink_count": 1
+    },
+    {
+      "path": "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/04/208cad38a81897dc6352587234a70bd67f5b7e",
+      "bytes": 2436,
+      "allocated_bytes": 4096,
+      "hardlink_count": 1
+    },
+    {
+      "path": "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/85/8fdc292793fc3e671bf51fc5586c5cc10fbe3a",
+      "bytes": 367,
+      "allocated_bytes": 4096,
+      "hardlink_count": 1
+    },
+    {
+      "path": "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/a9/3f2e48dff5a8697ab3eb5459d3e3241b555f39",
+      "bytes": 485,
+      "allocated_bytes": 4096,
+      "hardlink_count": 1
+    },
+    {
+      "path": "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/22/1acf01bff963f0c60a22a8e439fa5b74ccfa11",
+      "bytes": 2482,
+      "allocated_bytes": 4096,
+      "hardlink_count": 1
+    },
+    {
+      "path": "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/97/c36632aa7dc83ef2b060ba44b2bc8044a4ef4a",
+      "bytes": 127,
+      "allocated_bytes": 4096,
+      "hardlink_count": 1
+    },
+    {
+      "path": "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/ad/29d293ec6b347f185e4532643302abfe688da9",
+      "bytes": 3181,
+      "allocated_bytes": 4096,
+      "hardlink_count": 1
+    },
+    {
+      "path": "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/89/2b78cd63fc5ebf9516747ad16c3ff23844431a",
+      "bytes": 1077,
+      "allocated_bytes": 4096,
+      "hardlink_count": 1
+    },
+    {
+      "path": "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/e5/fb5f3ce13436bcc16784a27cbe5ede4437c016",
+      "bytes": 1076,
+      "allocated_bytes": 4096,
+      "hardlink_count": 1
+    },
+    {
+      "path": "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/e5/768b9fe0424b6addfd197a7f52c56712de0c47",
+      "bytes": 855,
+      "allocated_bytes": 4096,
+      "hardlink_count": 1
+    },
+    {
+      "path": "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/c2/5b623234d968ade0473ace187f3b2e1eb9863e",
+      "bytes": 1076,
+      "allocated_bytes": 4096,
+      "hardlink_count": 1
+    },
+    {
+      "path": "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/f7/86cb50de9c8f1ae5f7d0ebaf82ee1bca5bf4d4",
+      "bytes": 1076,
+      "allocated_bytes": 4096,
+      "hardlink_count": 1
+    },
+    {
+      "path": "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/d8/96bff7598f934cf595663607eb61b015b916b5",
+      "bytes": 128,
+      "allocated_bytes": 4096,
+      "hardlink_count": 1
+    },
+    {
+      "path": "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/a8/93da0dae5576d7c85998da229829d071b265a1",
+      "bytes": 573,
+      "allocated_bytes": 4096,
+      "hardlink_count": 1
+    },
+    {
+      "path": "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/de/132a80b25c9d12c674dbd84cedc1d6f35fb756",
+      "bytes": 407,
+      "allocated_bytes": 4096,
+      "hardlink_count": 1
+    },
+    {
+      "path": "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/38/60a8d9fe5832746a231e781b5ba30a051ad558",
+      "bytes": 406,
+      "allocated_bytes": 4096,
+      "hardlink_count": 1
+    },
+    {
+      "path": "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/64/3aefd556b914c12ef0f5b9ef749d02415b7495",
+      "bytes": 198,
+      "allocated_bytes": 4096,
+      "hardlink_count": 1
+    },
+    {
+      "path": "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/0f/15601a8fecd9a8c5d8a0f4aa7e6b95547c12e5",
+      "bytes": 127,
+      "allocated_bytes": 4096,
+      "hardlink_count": 1
+    },
+    {
+      "path": "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/59/9f2eb517dcf92c28cfdc11ffdd694ebd07f5cc",
+      "bytes": 3063,
+      "allocated_bytes": 4096,
+      "hardlink_count": 1
+    },
+    {
+      "path": "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/5e/c55bc484c3fa0f8c03d1c5305958649be177a2",
+      "bytes": 405,
+      "allocated_bytes": 4096,
+      "hardlink_count": 1
+    },
+    {
+      "path": "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/26/266dff2043d3b28fd0e57026fd0b7ff2d4dca3",
+      "bytes": 851,
+      "allocated_bytes": 4096,
+      "hardlink_count": 1
+    },
+    {
+      "path": "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/f1/ca00645f0b1565c7f9a1c863d2be6ebf896b04",
+      "bytes": 258,
+      "allocated_bytes": 4096,
+      "hardlink_count": 1
+    },
+    {
+      "path": "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/4e/a6232d3dfd553274ee24a569fefded56253bc5",
+      "bytes": 254,
+      "allocated_bytes": 4096,
+      "hardlink_count": 1
+    },
+    {
+      "path": "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/39/ac65774e579ac2b3fdba30d21453941eda3751",
+      "bytes": 128,
+      "allocated_bytes": 4096,
+      "hardlink_count": 1
+    },
+    {
+      "path": "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/39/0fc3120e37f735cbc35f20d20e57899854616e",
+      "bytes": 127,
+      "allocated_bytes": 4096,
+      "hardlink_count": 1
+    },
+    {
+      "path": "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/39/22d905fe43753d52f2537a8e217e995df8f2a0",
+      "bytes": 3169,
+      "allocated_bytes": 4096,
+      "hardlink_count": 1
+    },
+    {
+      "path": "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/c6/a64947eb9ab6f2aeb15605cdb3e2c520b1948c",
+      "bytes": 1077,
+      "allocated_bytes": 4096,
+      "hardlink_count": 1
+    },
+    {
+      "path": "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/67/c3bf6b0aa8b6670f892629331d314f9af0b522",
+      "bytes": 853,
+      "allocated_bytes": 4096,
+      "hardlink_count": 1
+    },
+    {
+      "path": "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/4b/751c99993a9d06ac6c1440ef1e7cad22dac66e",
+      "bytes": 1078,
+      "allocated_bytes": 4096,
+      "hardlink_count": 1
+    },
+    {
+      "path": "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/bb/ae113847402a22031211225b5ee45c005de7dd",
+      "bytes": 1082,
+      "allocated_bytes": 4096,
+      "hardlink_count": 1
+    },
+    {
+      "path": "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/ee/54dbc929f9dc82af0cf1663af807e7cd7897ff",
+      "bytes": 128,
+      "allocated_bytes": 4096,
+      "hardlink_count": 1
+    },
+    {
+      "path": "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/20/45470083c658f9897b3cf37da61e85ef6abd05",
+      "bytes": 127,
+      "allocated_bytes": 4096,
+      "hardlink_count": 1
+    },
+    {
+      "path": "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/10/f60db7f4c3a0c4c5adf53a0c5333868f783c31",
+      "bytes": 1077,
+      "allocated_bytes": 4096,
+      "hardlink_count": 1
+    },
+    {
+      "path": "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/06/108b2b2337baccb13aef6b4c5799efa00f9188",
+      "bytes": 128,
+      "allocated_bytes": 4096,
+      "hardlink_count": 1
+    },
+    {
+      "path": "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/06/66ea2627ef0a7681260d0f460385fbd99169f4",
+      "bytes": 2488,
+      "allocated_bytes": 4096,
+      "hardlink_count": 1
+    },
+    {
+      "path": "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/06/192e74e2e7b0c0230a138b822ef50f9f0c6695",
+      "bytes": 128,
+      "allocated_bytes": 4096,
+      "hardlink_count": 1
+    },
+    {
+      "path": "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/cf/ef283a5239b1f48c6a82a83bb0fc3309af01c1",
+      "bytes": 127,
+      "allocated_bytes": 4096,
+      "hardlink_count": 1
+    },
+    {
+      "path": "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/8b/99f02de9899448dd2337de6c9a5dde30eb2c1f",
+      "bytes": 266,
+      "allocated_bytes": 4096,
+      "hardlink_count": 1
+    },
+    {
+      "path": "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/8b/443ef19c2a19acc3ac64fb9c3db4a72921dff6",
+      "bytes": 124,
+      "allocated_bytes": 4096,
+      "hardlink_count": 1
+    },
+    {
+      "path": "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/ae/c16c51c30d3c409d7c7c29ccb3cc3f23f8ff49",
+      "bytes": 126,
+      "allocated_bytes": 4096,
+      "hardlink_count": 1
+    },
+    {
+      "path": "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/48/0c94b7269ca99a7072d85be54b09cc2209375d",
+      "bytes": 127,
+      "allocated_bytes": 4096,
+      "hardlink_count": 1
+    },
+    {
+      "path": "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/b5/888be9e708ded05ea4a069c3522728667db5d7",
+      "bytes": 3168,
+      "allocated_bytes": 4096,
+      "hardlink_count": 1
+    },
+    {
+      "path": "/home/charvin-admin/llama.cpp/models/.cache/huggingface/download/mixtral-8x7b-instruct-v0.1.Q4_K_M.gguf.lock",
+      "bytes": 0,
+      "allocated_bytes": 0,
+      "hardlink_count": 1
+    },
+    {
+      "path": "/home/charvin-admin/runs/sam31_size_sweep_aligned_stratified_20260718/experiment/full_sweep_max200/artifacts/moma_sam31_image_instance_prompt_scoring_encoder_s31strat_instance_200_seed2_560/checkpoints/checkpoint.pt",
+      "bytes": 3548463034,
+      "allocated_bytes": 3548467200,
+      "hardlink_count": 1
+    },
+    {
+      "path": "/home/charvin-admin/runs/sam31_size_sweep_aligned_stratified_20260718/experiment/full_sweep_max200/artifacts/moma_sam31_image_instance_prompt_scoring_encoder_s31strat_instance_200_seed1_560/checkpoints/checkpoint.pt",
+      "bytes": 3548463034,
+      "allocated_bytes": 3548467200,
+      "hardlink_count": 1
+    },
+    {
+      "path": "/home/charvin-admin/runs/sam31_size_sweep_aligned_stratified_20260718/experiment/full_sweep_max200/artifacts/moma_sam31_image_instance_prompt_scoring_encoder_s31strat_instance_200_seed0_560/checkpoints/checkpoint.pt",
+      "bytes": 3548463034,
+      "allocated_bytes": 3548467200,
+      "hardlink_count": 1
+    },
+    {
+      "path": "/home/charvin-admin/runs/sam31_size_sweep_aligned_stratified_20260718/experiment/full_sweep_max200/artifacts/moma_sam31_image_instance_prompt_scoring_encoder_s31strat_instance_100_seed2_560/checkpoints/checkpoint.pt",
+      "bytes": 3548463034,
+      "allocated_bytes": 3548467200,
+      "hardlink_count": 1
+    },
+    {
+      "path": "/home/charvin-admin/runs/sam31_size_sweep_aligned_stratified_20260718/experiment/full_sweep_max200/artifacts/moma_sam31_image_instance_prompt_scoring_encoder_s31strat_instance_100_seed1_560/checkpoints/checkpoint.pt",
+      "bytes": 3548463034,
+      "allocated_bytes": 3548467200,
+      "hardlink_count": 1
+    },
+    {
+      "path": "/home/charvin-admin/runs/sam31_size_sweep_aligned_stratified_20260718/experiment/full_sweep_max200/artifacts/moma_sam31_image_instance_prompt_scoring_encoder_s31strat_instance_100_seed0_560/checkpoints/checkpoint.pt",
+      "bytes": 3548463034,
+      "allocated_bytes": 3548467200,
+      "hardlink_count": 1
+    },
+    {
+      "path": "/home/charvin-admin/runs/sam31_size_sweep_aligned_stratified_20260718/experiment/full_sweep_max200/artifacts/moma_sam31_image_instance_prompt_scoring_encoder_s31strat_instance_20_seed2_560/checkpoints/checkpoint.pt",
+      "bytes": 3548463034,
+      "allocated_bytes": 3548467200,
+      "hardlink_count": 1
+    },
+    {
+      "path": "/home/charvin-admin/runs/sam31_size_sweep_aligned_stratified_20260718/experiment/full_sweep_max200/artifacts/moma_sam31_image_instance_prompt_scoring_encoder_s31strat_instance_20_seed1_560/checkpoints/checkpoint.pt",
+      "bytes": 3548463034,
+      "allocated_bytes": 3548467200,
+      "hardlink_count": 1
+    },
+    {
+      "path": "/home/charvin-admin/runs/sam31_size_sweep_aligned_stratified_20260718/experiment/full_sweep_max200/artifacts/moma_sam31_image_instance_prompt_scoring_encoder_s31strat_instance_20_seed0_560/checkpoints/checkpoint.pt",
+      "bytes": 3548463034,
+      "allocated_bytes": 3548467200,
+      "hardlink_count": 1
+    },
+    {
+      "path": "/home/charvin-admin/runs/sam31_size_sweep_aligned_stratified_20260718/experiment/full_sweep_max200/artifacts/moma_sam31_image_instance_prompt_scoring_encoder_s31strat_instance_10_seed2_560/checkpoints/checkpoint.pt",
+      "bytes": 3548463034,
+      "allocated_bytes": 3548467200,
+      "hardlink_count": 1
+    },
+    {
+      "path": "/home/charvin-admin/runs/sam31_size_sweep_aligned_stratified_20260718/experiment/full_sweep_max200/artifacts/moma_sam31_image_instance_prompt_scoring_encoder_s31strat_instance_10_seed1_560/checkpoints/checkpoint.pt",
+      "bytes": 3548463034,
+      "allocated_bytes": 3548467200,
+      "hardlink_count": 1
+    },
+    {
+      "path": "/home/charvin-admin/runs/sam31_size_sweep_aligned_stratified_20260718/experiment/full_sweep_max200/artifacts/moma_sam31_image_instance_prompt_scoring_encoder_s31strat_instance_10_seed0_560/checkpoints/checkpoint.pt",
+      "bytes": 3548463034,
+      "allocated_bytes": 3548467200,
+      "hardlink_count": 1
+    },
+    {
+      "path": "/home/charvin-admin/runs/sam31_size_sweep_aligned_stratified_20260718/experiment/full_sweep_max200/artifacts/moma_sam31_image_instance_prompt_scoring_encoder_s31strat_instance_5_seed2_560/checkpoints/checkpoint.pt",
+      "bytes": 3548463034,
+      "allocated_bytes": 3548467200,
+      "hardlink_count": 1
+    },
+    {
+      "path": "/home/charvin-admin/runs/sam31_size_sweep_aligned_stratified_20260718/experiment/full_sweep_max200/artifacts/moma_sam31_image_instance_prompt_scoring_encoder_s31strat_instance_5_seed1_560/checkpoints/checkpoint.pt",
+      "bytes": 3548463034,
+      "allocated_bytes": 3548467200,
+      "hardlink_count": 1
+    },
+    {
+      "path": "/home/charvin-admin/runs/sam31_size_sweep_aligned_stratified_20260718/experiment/full_sweep_max200/artifacts/moma_sam31_image_instance_prompt_scoring_encoder_s31strat_instance_5_seed0_560/checkpoints/checkpoint.pt",
+      "bytes": 3548463034,
+      "allocated_bytes": 3548467200,
+      "hardlink_count": 1
+    },
+    {
+      "path": "/home/charvin-admin/runs/sam31_size_sweep_aligned_stratified_20260718/experiment/full_sweep_max200/artifacts/moma_sam31_image_instance_prompt_scoring_encoder_s31strat_instance_2_seed2_560/checkpoints/checkpoint.pt",
+      "bytes": 3548463034,
+      "allocated_bytes": 3548467200,
+      "hardlink_count": 1
+    },
+    {
+      "path": "/home/charvin-admin/runs/sam31_size_sweep_aligned_stratified_20260718/experiment/full_sweep_max200/artifacts/moma_sam31_image_instance_prompt_scoring_encoder_s31strat_instance_2_seed1_560/checkpoints/checkpoint.pt",
+      "bytes": 3548463034,
+      "allocated_bytes": 3548467200,
+      "hardlink_count": 1
+    },
+    {
+      "path": "/home/charvin-admin/runs/sam31_size_sweep_aligned_stratified_20260718/experiment/full_sweep_max200/artifacts/moma_sam31_image_instance_prompt_scoring_encoder_s31strat_instance_2_seed0_560/checkpoints/checkpoint.pt",
+      "bytes": 3548463034,
+      "allocated_bytes": 3548467200,
+      "hardlink_count": 1
+    },
+    {
+      "path": "/home/charvin-admin/runs/sam31_size_sweep_aligned_stratified_20260718/experiment/full_sweep_max200/artifacts/moma_sam31_image_instance_prompt_scoring_encoder_s31strat_instance_1_seed2_560/checkpoints/checkpoint.pt",
+      "bytes": 3548463034,
+      "allocated_bytes": 3548467200,
+      "hardlink_count": 1
+    },
+    {
+      "path": "/home/charvin-admin/runs/sam31_size_sweep_aligned_stratified_20260718/experiment/full_sweep_max200/artifacts/moma_sam31_image_instance_prompt_scoring_encoder_s31strat_instance_1_seed1_560/checkpoints/checkpoint.pt",
+      "bytes": 3548463034,
+      "allocated_bytes": 3548467200,
+      "hardlink_count": 1
+    },
+    {
+      "path": "/home/charvin-admin/runs/sam31_size_sweep_aligned_stratified_20260718/experiment/full_sweep_max200/artifacts/moma_sam31_image_instance_prompt_scoring_encoder_s31strat_instance_1_seed0_560/checkpoints/checkpoint.pt",
+      "bytes": 3548463034,
+      "allocated_bytes": 3548467200,
+      "hardlink_count": 1
+    },
+    {
+      "path": "/home/charvin-admin/runs/sam31_size_sweep_aligned_stratified_20260718/experiment/single20_max200/artifacts/moma_sam31_image_instance_prompt_scoring_encoder_single20_s0_max200_instance_20_seed0_560/checkpoints/checkpoint.pt",
+      "bytes": 3548463034,
+      "allocated_bytes": 3548467200,
+      "hardlink_count": 1
+    }
+  ],
+  "deleted_files": [
+    "/home/charvin-admin/llama.cpp/models/Mixtral-8x7B-Instruct-v0.1.Q5_K_M.gguf",
+    "/home/charvin-admin/llama.cpp/models/mixtral-8x7b-instruct-v0.1.Q4_K_M.gguf",
+    "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/consolidated.04.pt",
+    "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/model-00018-of-00019.safetensors",
+    "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/config.json",
+    "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/README.md",
+    "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/model-00005-of-00019.safetensors",
+    "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/consolidated.01.pt",
+    "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/model-00012-of-00019.safetensors",
+    "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/model-00017-of-00019.safetensors",
+    "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/consolidated.00.pt",
+    "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/tokenizer.json",
+    "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/model-00013-of-00019.safetensors",
+    "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/tokenizer.model",
+    "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/model-00011-of-00019.safetensors",
+    "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/model-00014-of-00019.safetensors",
+    "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/model-00003-of-00019.safetensors",
+    "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/model-00019-of-00019.safetensors",
+    "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/model-00004-of-00019.safetensors",
+    "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/model-00008-of-00019.safetensors",
+    "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/model-00015-of-00019.safetensors",
+    "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/model-00006-of-00019.safetensors",
+    "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/consolidated.05.pt",
+    "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/consolidated.02.pt",
+    "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/model-00001-of-00019.safetensors",
+    "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/model.safetensors.index.json",
+    "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/model-00016-of-00019.safetensors",
+    "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/consolidated.07.pt",
+    "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/tokenizer_config.json",
+    "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/model-00010-of-00019.safetensors",
+    "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/consolidated.06.pt",
+    "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/model-00002-of-00019.safetensors",
+    "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/special_tokens_map.json",
+    "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/generation_config.json",
+    "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/model-00007-of-00019.safetensors",
+    "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.gitattributes",
+    "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/model-00009-of-00019.safetensors",
+    "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/consolidated.03.pt",
+    "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/packed-refs",
+    "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/config",
+    "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/HEAD",
+    "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/description",
+    "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/index",
+    "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/logs/HEAD",
+    "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/info/exclude",
+    "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/hooks/pre-push.sample",
+    "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/hooks/push-to-checkout.sample",
+    "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/hooks/commit-msg.sample",
+    "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/hooks/fsmonitor-watchman.sample",
+    "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/hooks/pre-merge-commit.sample",
+    "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/hooks/pre-receive.sample",
+    "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/hooks/pre-rebase.sample",
+    "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/hooks/prepare-commit-msg.sample",
+    "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/hooks/sendemail-validate.sample",
+    "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/hooks/update.sample",
+    "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/hooks/applypatch-msg.sample",
+    "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/hooks/pre-applypatch.sample",
+    "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/hooks/pre-commit.sample",
+    "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/hooks/post-update.sample",
+    "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/logs/refs/heads/main",
+    "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/logs/refs/remotes/origin/HEAD",
+    "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/refs/heads/main",
+    "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/refs/remotes/origin/HEAD",
+    "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/18/0be0b42a6e0c09f758539935c370f1ab975d66",
+    "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/29/34722b67b24ea73f2ef98892912e68e623bef5",
+    "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/1d/afe9b01b66dde9181e3e83f54ca9e0069afbe0",
+    "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/fa/a910006414ae16dcc81becfbf850720cd04eaa",
+    "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/cd/b3642376309383d09fcd55b4cc462f9dccefa9",
+    "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/cd/e3a3b282d3154a18ac7d4faaf4c73b6d67ca12",
+    "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/e2/d44c05b53516ba61d625448a10c095aa104725",
+    "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/43/95cb1de1a5714ac43e88714a9d3cadfd0fce5b",
+    "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/43/e6daf936dc0f953cb867ec864adab78f92d9ce",
+    "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/98/4202e4d97389f6e5895ae51db7ba90944ec3cc",
+    "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/12/5c431e2ff41a156b9f9076f744d2f35dd6e67a",
+    "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/a5/2c50a199269393cd1548c7e6a77a654bd2001b",
+    "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/a5/580715f0a50e1d40f0bbc54815aabb67ba349b",
+    "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/ba/c44fdacce6e6665af6dae7f19395366e9814fa",
+    "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/62/74d740d38e11a99b3af51c9f75beb2fcbd3186",
+    "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/68/420bd09f7b41273b209a03a353628f8d8940e9",
+    "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/3d/e0408ae8b591d9ac516a2384925dd98ebc66f4",
+    "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/a7/4fe5781f5748ced9bbfe64abdaf9b7f815149e",
+    "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/13/c87604282692cb500566884e1e511b4b62ac06",
+    "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/61/eded3d041d0cba0815d19db03f54affa36d9af",
+    "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/5b/3768ce6952c0c5e92d872c7ecd1d7008dc555a",
+    "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/1e/9f59c515a01088e1f7f72b68ab99f92d15fb96",
+    "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/1e/637f2d7cb0a9d6fb1922f305cb784995190a83",
+    "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/d5/99a48a0f36590d3431b963a71626724a62e4f6",
+    "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/41/bd4c9e7e4fb318ca40e721131d4933966c2cc1",
+    "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/41/0fc235c02be595b61a2eac7ee0be19f6216694",
+    "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/41/f0ae28f8fe6e87ba820c3d3d59bb110f777441",
+    "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/8c/43142a3e45edc54e1c1c7f7cf479d45a4174ae",
+    "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/81/3428465c76c624386e106f16104ef3cbece77c",
+    "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/e1/772729e81114d6916dc5bb709738b07dae76e1",
+    "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/a1/efe8c2e91bd444ef365f2a9433dd2c425bd369",
+    "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/a6/344aac8c09253b3b630fb776ae94478aa0275b",
+    "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/a6/0832cb6c88d5cb6e507680d0e9996fbad77050",
+    "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/a6/28250c2ac769dcfa7add6268d877fc2060c886",
+    "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/d0/a6a7ae25b1d3f6f784c438c1730ff472335ce0",
+    "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/d0/9f0470994dd1616ddfe4d3985de12be8eb104d",
+    "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/57/a8de40323b6c33f1fad231f7dd05f660fecda4",
+    "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/0c/dc0d0702c0fa5aa8883ad943416efa47fbbfdf",
+    "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/3c/b1cb55fb98638c6de696473573f1511239bd41",
+    "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/e0/bbb53cee412aba95f3b3fa4fc0265b1a0788b2",
+    "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/1a/6075af6e83ff1e548837f9806141ed2cec72c9",
+    "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/11/89bfc50d0b817e7489ebadf5f916e0df966774",
+    "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/c4/41554e91bd20deec0e4c45388b2ac2cc602f2b",
+    "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/b6/da1d3149dfcf982faaad668cafdde442421782",
+    "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/fc/6de58e070254aaf6fe4a23c825f87fd16aa816",
+    "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/86/4f0a1caefaad4b60aaa341eca0442c49ee0594",
+    "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/ec/c17935bc6bdb2e835f499687a2c7c3e690fe9e",
+    "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/a3/dddaff395ffba41e6b7cdfde22fe8b0151be0e",
+    "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/0a/867b6c27ce25bcc40fcf7a63514fdd9aba9044",
+    "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/0a/d53ea9a4afe0a75cc559bdc6bcdf27ac925826",
+    "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/5c/79a376139be989ef1838f360bf4f1f256d7aec",
+    "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/3f/c6ba74ca0195dfa83f7d5b9dfd805215e6df66",
+    "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/66/7dacd66f020b40ec87344a857f8b7a32ec2330",
+    "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/b8/af8fdc8685148665507a508424b93c45661401",
+    "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/45/4ca45d559a296051ebbc5cde58e3464c25c455",
+    "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/45/1134b2ddc2e78555d1e857518c54b4bdc2e87d",
+    "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/f6/3c0374bad221568938f908e397a38d9f0dfac0",
+    "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/f6/f220536182bb3f6eabefe22301d94c43f8356b",
+    "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/04/208cad38a81897dc6352587234a70bd67f5b7e",
+    "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/85/8fdc292793fc3e671bf51fc5586c5cc10fbe3a",
+    "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/a9/3f2e48dff5a8697ab3eb5459d3e3241b555f39",
+    "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/22/1acf01bff963f0c60a22a8e439fa5b74ccfa11",
+    "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/97/c36632aa7dc83ef2b060ba44b2bc8044a4ef4a",
+    "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/ad/29d293ec6b347f185e4532643302abfe688da9",
+    "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/89/2b78cd63fc5ebf9516747ad16c3ff23844431a",
+    "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/e5/fb5f3ce13436bcc16784a27cbe5ede4437c016",
+    "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/e5/768b9fe0424b6addfd197a7f52c56712de0c47",
+    "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/c2/5b623234d968ade0473ace187f3b2e1eb9863e",
+    "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/f7/86cb50de9c8f1ae5f7d0ebaf82ee1bca5bf4d4",
+    "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/d8/96bff7598f934cf595663607eb61b015b916b5",
+    "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/a8/93da0dae5576d7c85998da229829d071b265a1",
+    "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/de/132a80b25c9d12c674dbd84cedc1d6f35fb756",
+    "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/38/60a8d9fe5832746a231e781b5ba30a051ad558",
+    "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/64/3aefd556b914c12ef0f5b9ef749d02415b7495",
+    "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/0f/15601a8fecd9a8c5d8a0f4aa7e6b95547c12e5",
+    "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/59/9f2eb517dcf92c28cfdc11ffdd694ebd07f5cc",
+    "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/5e/c55bc484c3fa0f8c03d1c5305958649be177a2",
+    "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/26/266dff2043d3b28fd0e57026fd0b7ff2d4dca3",
+    "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/f1/ca00645f0b1565c7f9a1c863d2be6ebf896b04",
+    "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/4e/a6232d3dfd553274ee24a569fefded56253bc5",
+    "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/39/ac65774e579ac2b3fdba30d21453941eda3751",
+    "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/39/0fc3120e37f735cbc35f20d20e57899854616e",
+    "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/39/22d905fe43753d52f2537a8e217e995df8f2a0",
+    "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/c6/a64947eb9ab6f2aeb15605cdb3e2c520b1948c",
+    "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/67/c3bf6b0aa8b6670f892629331d314f9af0b522",
+    "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/4b/751c99993a9d06ac6c1440ef1e7cad22dac66e",
+    "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/bb/ae113847402a22031211225b5ee45c005de7dd",
+    "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/ee/54dbc929f9dc82af0cf1663af807e7cd7897ff",
+    "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/20/45470083c658f9897b3cf37da61e85ef6abd05",
+    "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/10/f60db7f4c3a0c4c5adf53a0c5333868f783c31",
+    "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/06/108b2b2337baccb13aef6b4c5799efa00f9188",
+    "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/06/66ea2627ef0a7681260d0f460385fbd99169f4",
+    "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/06/192e74e2e7b0c0230a138b822ef50f9f0c6695",
+    "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/cf/ef283a5239b1f48c6a82a83bb0fc3309af01c1",
+    "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/8b/99f02de9899448dd2337de6c9a5dde30eb2c1f",
+    "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/8b/443ef19c2a19acc3ac64fb9c3db4a72921dff6",
+    "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/ae/c16c51c30d3c409d7c7c29ccb3cc3f23f8ff49",
+    "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/48/0c94b7269ca99a7072d85be54b09cc2209375d",
+    "/home/charvin-admin/llama.cpp/models/models/mixtral-instruct-8x7b/.git/objects/b5/888be9e708ded05ea4a069c3522728667db5d7",
+    "/home/charvin-admin/llama.cpp/models/.cache/huggingface/download/mixtral-8x7b-instruct-v0.1.Q4_K_M.gguf.lock",
+    "/home/charvin-admin/runs/sam31_size_sweep_aligned_stratified_20260718/experiment/full_sweep_max200/artifacts/moma_sam31_image_instance_prompt_scoring_encoder_s31strat_instance_200_seed2_560/checkpoints/checkpoint.pt",
+    "/home/charvin-admin/runs/sam31_size_sweep_aligned_stratified_20260718/experiment/full_sweep_max200/artifacts/moma_sam31_image_instance_prompt_scoring_encoder_s31strat_instance_200_seed1_560/checkpoints/checkpoint.pt",
+    "/home/charvin-admin/runs/sam31_size_sweep_aligned_stratified_20260718/experiment/full_sweep_max200/artifacts/moma_sam31_image_instance_prompt_scoring_encoder_s31strat_instance_200_seed0_560/checkpoints/checkpoint.pt",
+    "/home/charvin-admin/runs/sam31_size_sweep_aligned_stratified_20260718/experiment/full_sweep_max200/artifacts/moma_sam31_image_instance_prompt_scoring_encoder_s31strat_instance_100_seed2_560/checkpoints/checkpoint.pt",
+    "/home/charvin-admin/runs/sam31_size_sweep_aligned_stratified_20260718/experiment/full_sweep_max200/artifacts/moma_sam31_image_instance_prompt_scoring_encoder_s31strat_instance_100_seed1_560/checkpoints/checkpoint.pt",
+    "/home/charvin-admin/runs/sam31_size_sweep_aligned_stratified_20260718/experiment/full_sweep_max200/artifacts/moma_sam31_image_instance_prompt_scoring_encoder_s31strat_instance_100_seed0_560/checkpoints/checkpoint.pt",
+    "/home/charvin-admin/runs/sam31_size_sweep_aligned_stratified_20260718/experiment/full_sweep_max200/artifacts/moma_sam31_image_instance_prompt_scoring_encoder_s31strat_instance_20_seed2_560/checkpoints/checkpoint.pt",
+    "/home/charvin-admin/runs/sam31_size_sweep_aligned_stratified_20260718/experiment/full_sweep_max200/artifacts/moma_sam31_image_instance_prompt_scoring_encoder_s31strat_instance_20_seed1_560/checkpoints/checkpoint.pt",
+    "/home/charvin-admin/runs/sam31_size_sweep_aligned_stratified_20260718/experiment/full_sweep_max200/artifacts/moma_sam31_image_instance_prompt_scoring_encoder_s31strat_instance_20_seed0_560/checkpoints/checkpoint.pt",
+    "/home/charvin-admin/runs/sam31_size_sweep_aligned_stratified_20260718/experiment/full_sweep_max200/artifacts/moma_sam31_image_instance_prompt_scoring_encoder_s31strat_instance_10_seed2_560/checkpoints/checkpoint.pt",
+    "/home/charvin-admin/runs/sam31_size_sweep_aligned_stratified_20260718/experiment/full_sweep_max200/artifacts/moma_sam31_image_instance_prompt_scoring_encoder_s31strat_instance_10_seed1_560/checkpoints/checkpoint.pt",
+    "/home/charvin-admin/runs/sam31_size_sweep_aligned_stratified_20260718/experiment/full_sweep_max200/artifacts/moma_sam31_image_instance_prompt_scoring_encoder_s31strat_instance_10_seed0_560/checkpoints/checkpoint.pt",
+    "/home/charvin-admin/runs/sam31_size_sweep_aligned_stratified_20260718/experiment/full_sweep_max200/artifacts/moma_sam31_image_instance_prompt_scoring_encoder_s31strat_instance_5_seed2_560/checkpoints/checkpoint.pt",
+    "/home/charvin-admin/runs/sam31_size_sweep_aligned_stratified_20260718/experiment/full_sweep_max200/artifacts/moma_sam31_image_instance_prompt_scoring_encoder_s31strat_instance_5_seed1_560/checkpoints/checkpoint.pt",
+    "/home/charvin-admin/runs/sam31_size_sweep_aligned_stratified_20260718/experiment/full_sweep_max200/artifacts/moma_sam31_image_instance_prompt_scoring_encoder_s31strat_instance_5_seed0_560/checkpoints/checkpoint.pt",
+    "/home/charvin-admin/runs/sam31_size_sweep_aligned_stratified_20260718/experiment/full_sweep_max200/artifacts/moma_sam31_image_instance_prompt_scoring_encoder_s31strat_instance_2_seed2_560/checkpoints/checkpoint.pt",
+    "/home/charvin-admin/runs/sam31_size_sweep_aligned_stratified_20260718/experiment/full_sweep_max200/artifacts/moma_sam31_image_instance_prompt_scoring_encoder_s31strat_instance_2_seed1_560/checkpoints/checkpoint.pt",
+    "/home/charvin-admin/runs/sam31_size_sweep_aligned_stratified_20260718/experiment/full_sweep_max200/artifacts/moma_sam31_image_instance_prompt_scoring_encoder_s31strat_instance_2_seed0_560/checkpoints/checkpoint.pt",
+    "/home/charvin-admin/runs/sam31_size_sweep_aligned_stratified_20260718/experiment/full_sweep_max200/artifacts/moma_sam31_image_instance_prompt_scoring_encoder_s31strat_instance_1_seed2_560/checkpoints/checkpoint.pt",
+    "/home/charvin-admin/runs/sam31_size_sweep_aligned_stratified_20260718/experiment/full_sweep_max200/artifacts/moma_sam31_image_instance_prompt_scoring_encoder_s31strat_instance_1_seed1_560/checkpoints/checkpoint.pt",
+    "/home/charvin-admin/runs/sam31_size_sweep_aligned_stratified_20260718/experiment/full_sweep_max200/artifacts/moma_sam31_image_instance_prompt_scoring_encoder_s31strat_instance_1_seed0_560/checkpoints/checkpoint.pt",
+    "/home/charvin-admin/runs/sam31_size_sweep_aligned_stratified_20260718/experiment/single20_max200/artifacts/moma_sam31_image_instance_prompt_scoring_encoder_single20_s0_max200_instance_20_seed0_560/checkpoints/checkpoint.pt"
+  ],
+  "filesystem_after": {
+    "total_bytes": 760458240000,
+    "available_bytes": 221673328640,
+    "used_bytes": 500080558080
+  },
+  "deleted_allocated_bytes": 137741053952,
+  "sam_checkpoints_remaining": 1,
+  "mixtral_remaining": [],
+  "complete": true,
+  "finished_utc": "2026-10-15T11:21:45Z"
+}

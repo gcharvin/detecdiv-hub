@@ -1,0 +1,150 @@
+{
+  "job_id": "8d23a039-3082-46a7-913a-1feb097522f1",
+  "checked_at_utc": "2026-10-16T09:32:51Z",
+  "logs": {
+    "matlab_stdout.log": {
+      "bytes": 27111984,
+      "age_seconds": 0.4,
+      "tail": [
+        "[readImage] mode=File source=/data/Alexander/nobackup/data/Nouveau dossier/071026_X54445_LOGEB/071026_X54445_LOGEB_2/3-X544_LOG-10/img_channel000_position010_time000000674_z001.tif",
+        "[readImage] loaded FOV=071026_X54445_LOGEB_2_3-X544_LOG-10_11 channel=2 frame=675 mode=File size=[2048 2048] class=uint16 source=/data/Alexander/nobackup/data/Nouveau dossier/071026_X54445_LOGEB/071026_X54445_LOGEB_2/3-X544_LOG-10",
+        "[readImage] request FOV=071026_X54445_LOGEB_2_3-X544_LOG-10_11 frame=675 channel=3",
+        "[readImage] mode=File source=/data/Alexander/nobackup/data/Nouveau dossier/071026_X54445_LOGEB/071026_X54445_LOGEB_2/3-X544_LOG-10/img_channel000_position010_time000000674_z002.tif",
+        "[readImage] loaded FOV=071026_X54445_LOGEB_2_3-X544_LOG-10_11 channel=3 frame=675 mode=File size=[2048 2048] class=uint16 source=/data/Alexander/nobackup/data/Nouveau dossier/071026_X54445_LOGEB/071026_X54445_LOGEB_2/3-X544_LOG-10",
+        "[readImage] request FOV=071026_X54445_LOGEB_2_3-X544_LOG-10_11 frame=675 channel=4",
+        "[readImage] mode=File source=/data/Alexander/nobackup/data/Nouveau dossier/071026_X54445_LOGEB/071026_X54445_LOGEB_2/3-X544_LOG-10/img_channel001_position010_time000000676_z001.tif",
+        "[readImage] loaded FOV=071026_X54445_LOGEB_2_3-X544_LOG-10_11 channel=4 frame=170 mode=File size=[2048 2048] class=uint16 source=/data/Alexander/nobackup/data/Nouveau dossier/071026_X54445_LOGEB/071026_X54445_LOGEB_2/3-X544_LOG-10",
+        "[readImage] request FOV=071026_X54445_LOGEB_2_3-X544_LOG-10_11 frame=675 channel=5",
+        "[readImage] mode=File source=/data/Alexander/nobackup/data/Nouveau dossier/071026_X54445_LOGEB/071026_X54445_LOGEB_2/3-X544_LOG-10/img_channel002_position010_time000000676_z001.tif"
+      ]
+    },
+    "matlab_stderr.log": {
+      "bytes": 0,
+      "age_seconds": 56238.3,
+      "tail": []
+    }
+  },
+  "processes": [
+    {
+      "pid": 3788893,
+      "name": "MATLAB",
+      "status": "sleeping",
+      "rss_gib": 9.386,
+      "cpu_percent": 5.0
+    },
+    {
+      "pid": 3789573,
+      "name": "matlab_helper",
+      "status": "sleeping",
+      "rss_gib": 0.003,
+      "cpu_percent": 0.0
+    },
+    {
+      "pid": 3795786,
+      "name": "MATLAB",
+      "status": "sleeping",
+      "rss_gib": 4.16,
+      "cpu_percent": 44.9
+    }
+  ],
+  "extraction": {
+    "fovs_observed": [
+      "071026_X54445_LOGEB_2_1-X545_LOG-1_2",
+      "071026_X54445_LOGEB_2_1-X545_LOG-2_3",
+      "071026_X54445_LOGEB_2_1-X545_LOG-3_4",
+      "071026_X54445_LOGEB_2_1-X545_LOG-4_5",
+      "071026_X54445_LOGEB_2_2-X545_LOGEB-5_6",
+      "071026_X54445_LOGEB_2_2-X545_LOGEB-6_7",
+      "071026_X54445_LOGEB_2_2-X545_LOGEB-7_8",
+      "071026_X54445_LOGEB_2_2-X545_LOGEB-8_9",
+      "071026_X54445_LOGEB_2_3-X544_LOG-9_10",
+      "071026_X54445_LOGEB_2_3-X544_LOG-10_11"
+    ],
+    "max_read_group_by_fov": {
+      "071026_X54445_LOGEB_2_1-X545_LOG-1_2": 10,
+      "071026_X54445_LOGEB_2_1-X545_LOG-2_3": 10,
+      "071026_X54445_LOGEB_2_1-X545_LOG-3_4": 10,
+      "071026_X54445_LOGEB_2_1-X545_LOG-4_5": 10,
+      "071026_X54445_LOGEB_2_2-X545_LOGEB-5_6": 10,
+      "071026_X54445_LOGEB_2_2-X545_LOGEB-6_7": 10,
+      "071026_X54445_LOGEB_2_2-X545_LOGEB-7_8": 10,
+      "071026_X54445_LOGEB_2_2-X545_LOGEB-8_9": 10,
+      "071026_X54445_LOGEB_2_3-X544_LOG-9_10": 10,
+      "071026_X54445_LOGEB_2_3-X544_LOG-10_11": 8
+    },
+    "last_read": "Reading frame: 59 / 88 in group of frame : 8 / 10 for FOV:  071026_X54445_LOGEB_2_3-X544_LOG-10_11",
+    "recent_markers": [
+      "Computing drift for frame: 610 of fov10.....",
+      "Computing drift for frame: 611 of fov10.....",
+      "Computing drift for frame: 612 of fov10.....",
+      "Computing drift for frame: 613 of fov10.....",
+      "Computing drift for frame: 614 of fov10.....",
+      "Computing drift for frame: 615 of fov10.....",
+      "Computing drift for frame: 616 of fov10.....",
+      "Cropping ROIs...."
+    ],
+    "processed_messages": 0,
+    "last_processed": []
+  },
+  "cgroup": {
+    "memory.current": "16965152768",
+    "memory.max": "25769803776",
+    "memory.high": "23192403968",
+    "memory.swap.current": "1610338304",
+    "memory.swap.max": "1610612736",
+    "memory.events": "low 0\nhigh 447963\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+  },
+  "disk": {
+    "/": {
+      "free_gib": 206.43,
+      "used_percent": 65.8
+    },
+    "/data": {
+      "free_gib": 6726.58,
+      "used_percent": 92.3
+    }
+  },
+  "gpu_processes": [
+    "2972412, /usr/local/MATLAB/R2024b/interprocess/bin/glnxa64/pycli/MATLABPyHost, 2184",
+    "3006329, /usr/local/MATLAB/R2024b/interprocess/bin/glnxa64/pycli/MATLABPyHost, 2184",
+    "3788893, /usr/local/MATLAB/R2024b/bin/glnxa64/MATLAB, 3646",
+    "2971309, /usr/local/MATLAB/R2024b/bin/glnxa64/MATLAB, 260",
+    "3005733, /usr/local/MATLAB/R2024b/bin/glnxa64/MATLAB, 260"
+  ],
+  "previous_observation": {
+    "checked_at": "2026-10-16T06:33:59Z",
+    "status": "running",
+    "fov_name": "071026_X54445_LOGEB_2_2-X545_LOGEB-8_9",
+    "fovs_seen_in_log": 8,
+    "fovs_total": 28,
+    "raw_block": 10,
+    "raw_blocks_total": 10,
+    "raw_last_read": "Reading frame: 21 / 59 in group of frame : 10 / 10 for FOV:  071026_X54445_LOGEB_2_2-X545_LOGEB-8_9",
+    "processed_roi_count": 0,
+    "stderr_empty": true,
+    "matlab_pid": 3788893,
+    "pool_pids": [
+      3795786
+    ],
+    "memory": {
+      "memory.current": "23179108352",
+      "memory.max": "25769803776",
+      "memory.high": "23192403968",
+      "memory.swap.current": "1610387456",
+      "memory.swap.max": "1610612736",
+      "memory.events": "low 0\nhigh 363594\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+    },
+    "disk": {
+      "/": {
+        "free_gib": 207.28,
+        "used_percent": 65.6
+      },
+      "/data": {
+        "free_gib": 6784.63,
+        "used_percent": 92.3
+      }
+    }
+  },
+  "progress_corroborated": true,
+  "monitor_state_updated": true
+}

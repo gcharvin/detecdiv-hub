@@ -1,0 +1,17 @@
+Run ID: alex_logeb2_full_auto_gpu_20261015
+Status: done
+Run folder: /data/Alexander/nobackup/analysis/anof_071026_X54445_LOGEB_2/pipeline/alex_logeb2_full_auto_gpu_20261015
+Event log: /data/Alexander/nobackup/analysis/anof_071026_X54445_LOGEB_2/pipeline/alex_logeb2_full_auto_gpu_20261015/run_events.jsonl
+
+Summary
+  totalNodes: 2
+  doneNodes: 2
+  skippedNodes: 0
+  failedNodes: 0
+  cancelledNodes: 0
+  startedAt: 2026-10-15 19:55:53.006
+  endedAt: 2026-10-18 11:07:34.571
+
+Nodes
+- processor_savecroppedimagesxconservative_2 [processor] status=done duration=172440.758
+- processor_xtrafullchannelsconservative_4 [processor] status=done duration=55049.061

@@ -1,0 +1,171 @@
+{
+  "job_id": "8d23a039-3082-46a7-913a-1feb097522f1",
+  "checked_at_utc": "2026-10-15T20:51:16Z",
+  "logs": {
+    "matlab_stdout.log": {
+      "bytes": 5743435,
+      "age_seconds": 3.9,
+      "tail": [
+        "Loading MAT (legacy) image file: im_071026_X54445_LOGEB_2_1-X545_LOG-2_3_34.mat",
+        "Loading MAT (legacy) image file: im_071026_X54445_LOGEB_2_1-X545_LOG-2_3_35.mat",
+        "Loading MAT (legacy) image file: im_071026_X54445_LOGEB_2_1-X545_LOG-2_3_36.mat",
+        "Loading MAT (legacy) image file: im_071026_X54445_LOGEB_2_1-X545_LOG-2_3_37.mat",
+        "Loading MAT (legacy) image file: im_071026_X54445_LOGEB_2_1-X545_LOG-2_3_38.mat",
+        "Loading MAT (legacy) image file: im_071026_X54445_LOGEB_2_1-X545_LOG-2_3_39.mat",
+        "Loading MAT (legacy) image file: im_071026_X54445_LOGEB_2_1-X545_LOG-2_3_40.mat",
+        "Loading MAT (legacy) image file: im_071026_X54445_LOGEB_2_1-X545_LOG-2_3_41.mat",
+        "Loading MAT (legacy) image file: im_071026_X54445_LOGEB_2_1-X545_LOG-2_3_42.mat",
+        "Loading MAT (legacy) image file: im_071026_X54445_LOGEB_2_1-X545_LOG-2_3_43.mat"
+      ]
+    },
+    "matlab_stderr.log": {
+      "bytes": 0,
+      "age_seconds": 10543.2,
+      "tail": []
+    }
+  },
+  "processes": [
+    {
+      "pid": 3788893,
+      "name": "MATLAB",
+      "status": "sleeping",
+      "rss_gib": 5.709,
+      "cpu_percent": 25.0
+    },
+    {
+      "pid": 3789573,
+      "name": "matlab_helper",
+      "status": "sleeping",
+      "rss_gib": 0.003,
+      "cpu_percent": 0.0
+    },
+    {
+      "pid": 3795786,
+      "name": "MATLAB",
+      "status": "sleeping",
+      "rss_gib": 0.695,
+      "cpu_percent": 5.0
+    }
+  ],
+  "extraction": {
+    "fovs_observed": [
+      "071026_X54445_LOGEB_2_1-X545_LOG-1_2",
+      "071026_X54445_LOGEB_2_1-X545_LOG-2_3"
+    ],
+    "last_read": "Reading frame: 84 / 88 in group of frame : 8 / 10 for FOV:  071026_X54445_LOGEB_2_1-X545_LOG-2_3",
+    "recent_markers": [
+      "Computing drift for frame: 694 of fov2.....",
+      "Computing drift for frame: 695 of fov2.....",
+      "Computing drift for frame: 696 of fov2.....",
+      "Computing drift for frame: 697 of fov2.....",
+      "Computing drift for frame: 698 of fov2.....",
+      "Computing drift for frame: 699 of fov2.....",
+      "Computing drift for frame: 700 of fov2.....",
+      "Computing drift for frame: 701 of fov2.....",
+      "Computing drift for frame: 702 of fov2.....",
+      "Computing drift for frame: 703 of fov2.....",
+      "Computing drift for frame: 704 of fov2.....",
+      "Cropping ROIs...."
+    ],
+    "processed_messages": 0,
+    "last_processed": []
+  },
+  "cgroup": {
+    "memory.current": "21145415680",
+    "memory.max": "25769803776",
+    "memory.swap.current": "1610055680",
+    "memory.swap.max": "1610612736",
+    "memory.events": "low 0\nhigh 79144\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+  },
+  "disk": {
+    "/": {
+      "free_gib": 207.62,
+      "used_percent": 65.6
+    },
+    "/data": {
+      "free_gib": 6873.73,
+      "used_percent": 92.1
+    }
+  },
+  "gpu_processes": [
+    "2972412, /usr/local/MATLAB/R2024b/interprocess/bin/glnxa64/pycli/MATLABPyHost, 2184",
+    "3006329, /usr/local/MATLAB/R2024b/interprocess/bin/glnxa64/pycli/MATLABPyHost, 2184",
+    "3788893, /usr/local/MATLAB/R2024b/bin/glnxa64/MATLAB, 3646",
+    "2971309, /usr/local/MATLAB/R2024b/bin/glnxa64/MATLAB, 260"
+  ],
+  "previous_monitor_state": {
+    "current_job_id": "8d23a039-3082-46a7-913a-1feb097522f1",
+    "project_id": "9f3b7b44-f2c1-401a-94b4-5755b2da667e",
+    "run_id": "alex_logeb2_full_auto_gpu_20261015",
+    "automatic_target_selection": true,
+    "monitor_interval_hours": 3,
+    "initial_status": "running",
+    "initial_runtime": {
+      "engine": "matlab",
+      "work_dir": "/home/charvin-admin/repos/DetecDiv-jobs/work/8d23a039-3082-46a7-913a-1feb097522f1/63f4ea48-f025-4352-9f84-91c5fbb78e4d",
+      "repo_root": "/home/charvin-admin/repos/DetecDiv-jobs/releases/dce3ca768bcae597224424620abc46ede0788a12",
+      "stderr_log": "/home/charvin-admin/repos/DetecDiv-jobs/work/8d23a039-3082-46a7-913a-1feb097522f1/63f4ea48-f025-4352-9f84-91c5fbb78e4d/matlab_stderr.log",
+      "stdout_log": "/home/charvin-admin/repos/DetecDiv-jobs/work/8d23a039-3082-46a7-913a-1feb097522f1/63f4ea48-f025-4352-9f84-91c5fbb78e4d/matlab_stdout.log",
+      "code_commit": "dce3ca768bcae597224424620abc46ede0788a12"
+    },
+    "initial_allocation": {
+      "source": "pipeline_nodes_and_job_resource_settings",
+      "cpu_cores": 8,
+      "memory_mb": 24576,
+      "gpu_vram_mb": 8192,
+      "gpu_required": true,
+      "disk_io_units": 3,
+      "gpu_permitted": true,
+      "swap_limit_mb": 1536,
+      "requested_cpu_cores": 8,
+      "pipeline_gpu_profile": {
+        "source": "/data/Alexander/nobackup/analysis/anof_071026_X54445_LOGEB_2/pipeline/alex_logeb2_full_auto_gpu_20261015/pipeline_snapshot.json",
+        "status": "known",
+        "gpu_node_ids": [
+          "processor_savecroppedimagesxconservative_2",
+          "processor_xtrafullchannelsconservative_4"
+        ],
+        "gpu_required": true,
+        "run_gpu_mode": "force_gpu",
+        "selected_node_ids": [
+          "processor_savecroppedimagesxconservative_2",
+          "processor_xtrafullchannelsconservative_4"
+        ],
+        "deep_learning_node_ids": [
+          "processor_savecroppedimagesxconservative_2",
+          "processor_xtrafullchannelsconservative_4"
+        ]
+      }
+    },
+    "retry_history": [
+      {
+        "job_id": "2b39e194-d75a-485e-bfe3-4af8cdb381f1",
+        "status": "cancelled",
+        "reason": "Missing GPU device declaration corrected in both node parameters; no scientific output was written"
+      }
+    ],
+    "user_authorized_troubleshoot_and_resume": true,
+    "updated_at": "2026-10-15T17:56:41.831364+00:00",
+    "last_observation": {
+      "checked_at": "2026-10-15T18:27:36.832269+00:00",
+      "status": "running",
+      "fov_ordinal": 1,
+      "fovs_total": 28,
+      "raw_block": 4,
+      "raw_blocks_total": 10,
+      "processed_roi_count": 0,
+      "stderr_empty": true,
+      "matlab_pid": 3788893,
+      "pool_pid": 3795786,
+      "memory": {
+        "memory.current": "17034973184",
+        "memory.max": "25769803776",
+        "memory.high": "23192403968",
+        "memory.swap.current": "1314803712",
+        "memory.events": "low 0\nhigh 9430\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+      },
+      "gpu_matlab_memory_mib": 3646,
+      "root_free_gib": 207.6
+    }
+  }
+}

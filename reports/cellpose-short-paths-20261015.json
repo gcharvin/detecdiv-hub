@@ -1,0 +1,58 @@
+{
+  "date": "2026-10-15",
+  "code_commit": "79a3166c1c1826709b36c33c194c51623d399833",
+  "previous_release": "41d0a81e5efae6d6b10cd03fdb032744abd83bfe",
+  "scope": "Windows Cellpose per-ROI Python exchange scratch files; project data and scientific parameters are unchanged",
+  "selection": {
+    "trigger": "Windows project work path plus config filename exceeds 240 characters",
+    "primary_root": "MATLAB tempdir, normally scoped to the Hub attempt",
+    "fallback_root": "Windows LOCALAPPDATA/Temp",
+    "directory_name": "unique compact tempname with no project/node/ROI components",
+    "checks": ["local Windows path", "final config path at most 240 characters", "directory creation and writable config probe"],
+    "linux_behavior": "existing project work-directory selection is unchanged"
+  },
+  "validation": {
+    "native_windows": {
+      "matlab": "R2025b",
+      "account": "GMGM\\Charvin-Admin",
+      "python": "C:\\Users\\Charvin-Admin\\.conda\\envs\\detecdiv_python\\python.exe",
+      "passed": 5,
+      "failed": 0,
+      "incomplete": 0,
+      "inherited_temp_root_characters": 191,
+      "default_config_path_characters": 113,
+      "long_config_path_roundtrip_characters": 238,
+      "finished_utc": "2026-10-15T12:52:39.7537919Z",
+      "logs": "C:/Users/Charvin-Admin/Documents/GitHub/DetecDiv-jobs/checks/cp-short-20261015/matlab.log",
+      "independent_scheduled_task_removed": true
+    },
+    "linux": {
+      "matlab": "R2024b",
+      "python": "/opt/miniconda3/envs/pyDetecDiv-0.5.0/bin/python",
+      "passed": 5,
+      "failed": 0,
+      "incomplete": 0,
+      "default_config_path_characters": 76,
+      "long_config_path_roundtrip_characters": 238,
+      "logs": "/tmp/dd-cp-short-20261015/matlab.log"
+    },
+    "coverage": [
+      "long job temporary root still fits the final path budget",
+      "distinct directories for repeated invocations",
+      "overlong first candidate skipped for writable next candidate",
+      "actionable failure when no root fits",
+      "native platform default root selection",
+      "MATLAB writes JSON and MAT; actual inference Python reads both and writes MAT; MATLAB reads and compares returned arrays"
+    ],
+    "full_analysis_rerun": false
+  },
+  "deployment": {
+    "method": "scripts/deploy_detecdiv_release.ps1",
+    "published_default": "79a3166c1c1826709b36c33c194c51623d399833",
+    "linux_release": "/home/charvin-admin/repos/DetecDiv-jobs/releases/79a3166c1c1826709b36c33c194c51623d399833",
+    "windows_release": "C:/Users/Charvin-Admin/Documents/GitHub/DetecDiv-jobs/releases/79a3166c1c1826709b36c33c194c51623d399833",
+    "worker_restarts": 0,
+    "existing_job_pins_changed": false,
+    "desktop_matlab_sessions_preserved": true
+  }
+}

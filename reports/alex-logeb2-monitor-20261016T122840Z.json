@@ -1,0 +1,154 @@
+{
+  "job_id": "8d23a039-3082-46a7-913a-1feb097522f1",
+  "checked_at_utc": "2026-10-16T12:28:40Z",
+  "logs": {
+    "matlab_stdout.log": {
+      "bytes": 31760278,
+      "age_seconds": 2.5,
+      "tail": [
+        "Loading MAT (legacy) image file: im_071026_X54445_LOGEB_2_3-X544_LOG-12_13_15.mat",
+        "Loading MAT (legacy) image file: im_071026_X54445_LOGEB_2_3-X544_LOG-12_13_16.mat",
+        "Loading MAT (legacy) image file: im_071026_X54445_LOGEB_2_3-X544_LOG-12_13_17.mat",
+        "Loading MAT (legacy) image file: im_071026_X54445_LOGEB_2_3-X544_LOG-12_13_18.mat",
+        "Loading MAT (legacy) image file: im_071026_X54445_LOGEB_2_3-X544_LOG-12_13_19.mat",
+        "Loading MAT (legacy) image file: im_071026_X54445_LOGEB_2_3-X544_LOG-12_13_20.mat",
+        "Loading MAT (legacy) image file: im_071026_X54445_LOGEB_2_3-X544_LOG-12_13_21.mat",
+        "Loading MAT (legacy) image file: im_071026_X54445_LOGEB_2_3-X544_LOG-12_13_22.mat",
+        "Loading MAT (legacy) image file: im_071026_X54445_LOGEB_2_3-X544_LOG-12_13_23.mat",
+        "Loading MAT (legacy) image file: im_071026_X54445_LOGEB_2_3-X544_LOG-12_13_24.mat"
+      ]
+    },
+    "matlab_stderr.log": {
+      "bytes": 0,
+      "age_seconds": 66787.7,
+      "tail": []
+    }
+  },
+  "processes": [
+    {
+      "pid": 3788893,
+      "name": "MATLAB",
+      "status": "sleeping",
+      "rss_gib": 5.266,
+      "cpu_percent": 20.0
+    },
+    {
+      "pid": 3789573,
+      "name": "matlab_helper",
+      "status": "sleeping",
+      "rss_gib": 0.003,
+      "cpu_percent": 0.0
+    },
+    {
+      "pid": 3795786,
+      "name": "MATLAB",
+      "status": "sleeping",
+      "rss_gib": 0.746,
+      "cpu_percent": 0.0
+    }
+  ],
+  "extraction": {
+    "fovs_observed": [
+      "071026_X54445_LOGEB_2_1-X545_LOG-1_2",
+      "071026_X54445_LOGEB_2_1-X545_LOG-2_3",
+      "071026_X54445_LOGEB_2_1-X545_LOG-3_4",
+      "071026_X54445_LOGEB_2_1-X545_LOG-4_5",
+      "071026_X54445_LOGEB_2_2-X545_LOGEB-5_6",
+      "071026_X54445_LOGEB_2_2-X545_LOGEB-6_7",
+      "071026_X54445_LOGEB_2_2-X545_LOGEB-7_8",
+      "071026_X54445_LOGEB_2_2-X545_LOGEB-8_9",
+      "071026_X54445_LOGEB_2_3-X544_LOG-9_10",
+      "071026_X54445_LOGEB_2_3-X544_LOG-10_11",
+      "071026_X54445_LOGEB_2_3-X544_LOG-11_12",
+      "071026_X54445_LOGEB_2_3-X544_LOG-12_13"
+    ],
+    "max_read_group_by_fov": {
+      "071026_X54445_LOGEB_2_1-X545_LOG-1_2": 10,
+      "071026_X54445_LOGEB_2_1-X545_LOG-2_3": 10,
+      "071026_X54445_LOGEB_2_1-X545_LOG-3_4": 10,
+      "071026_X54445_LOGEB_2_1-X545_LOG-4_5": 10,
+      "071026_X54445_LOGEB_2_2-X545_LOGEB-5_6": 10,
+      "071026_X54445_LOGEB_2_2-X545_LOGEB-6_7": 10,
+      "071026_X54445_LOGEB_2_2-X545_LOGEB-7_8": 10,
+      "071026_X54445_LOGEB_2_2-X545_LOGEB-8_9": 10,
+      "071026_X54445_LOGEB_2_3-X544_LOG-9_10": 10,
+      "071026_X54445_LOGEB_2_3-X544_LOG-10_11": 10,
+      "071026_X54445_LOGEB_2_3-X544_LOG-11_12": 10,
+      "071026_X54445_LOGEB_2_3-X544_LOG-12_13": 5
+    },
+    "last_read": "Reading frame: 84 / 88 in group of frame : 5 / 10 for FOV:  071026_X54445_LOGEB_2_3-X544_LOG-12_13",
+    "recent_markers": [
+      "Computing drift for frame: 434 of fov12.....",
+      "Computing drift for frame: 435 of fov12.....",
+      "Computing drift for frame: 436 of fov12.....",
+      "Computing drift for frame: 437 of fov12.....",
+      "Computing drift for frame: 438 of fov12.....",
+      "Computing drift for frame: 439 of fov12.....",
+      "Computing drift for frame: 440 of fov12.....",
+      "Cropping ROIs...."
+    ],
+    "processed_messages": 0,
+    "last_processed": []
+  },
+  "cgroup": {
+    "memory.current": "17232007168",
+    "memory.max": "25769803776",
+    "memory.high": "23192403968",
+    "memory.swap.current": "1610301440",
+    "memory.swap.max": "1610612736",
+    "memory.events": "low 0\nhigh 529980\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+  },
+  "disk": {
+    "/": {
+      "free_gib": 206.22,
+      "used_percent": 65.8
+    },
+    "/data": {
+      "free_gib": 6688.17,
+      "used_percent": 92.4
+    }
+  },
+  "gpu_processes": [
+    "2972412, /usr/local/MATLAB/R2024b/interprocess/bin/glnxa64/pycli/MATLABPyHost, 2184",
+    "3006329, /usr/local/MATLAB/R2024b/interprocess/bin/glnxa64/pycli/MATLABPyHost, 2184",
+    "3788893, /usr/local/MATLAB/R2024b/bin/glnxa64/MATLAB, 3646",
+    "2971309, /usr/local/MATLAB/R2024b/bin/glnxa64/MATLAB, 260",
+    "3005733, /usr/local/MATLAB/R2024b/bin/glnxa64/MATLAB, 260"
+  ],
+  "previous_observation": {
+    "checked_at": "2026-10-16T09:32:51Z",
+    "status": "running",
+    "fov_name": "071026_X54445_LOGEB_2_3-X544_LOG-10_11",
+    "fovs_seen_in_log": 10,
+    "fovs_total": 28,
+    "raw_block": 8,
+    "raw_blocks_total": 10,
+    "raw_last_read": "Reading frame: 59 / 88 in group of frame : 8 / 10 for FOV:  071026_X54445_LOGEB_2_3-X544_LOG-10_11",
+    "processed_roi_count": 0,
+    "stderr_empty": true,
+    "matlab_pid": 3788893,
+    "pool_pids": [
+      3795786
+    ],
+    "memory": {
+      "memory.current": "16965152768",
+      "memory.max": "25769803776",
+      "memory.high": "23192403968",
+      "memory.swap.current": "1610338304",
+      "memory.swap.max": "1610612736",
+      "memory.events": "low 0\nhigh 447963\nmax 0\noom 0\noom_kill 0\noom_group_kill 0"
+    },
+    "disk": {
+      "/": {
+        "free_gib": 206.43,
+        "used_percent": 65.8
+      },
+      "/data": {
+        "free_gib": 6726.58,
+        "used_percent": 92.3
+      }
+    }
+  },
+  "progress_corroborated": true,
+  "monitor_state_updated": true
+}

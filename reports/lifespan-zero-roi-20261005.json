@@ -1,0 +1,126 @@
+{
+  "project": "X:\\Gilles\\analysis\\projects\\x2026_04_28_Scerev_Calb_Cglab_1",
+  "run": "lifespan_3",
+  "job_id": "53c4c111-39f8-4beb-aded-24a99d93a944",
+  "code_commit": "5a71907dca8d51af0f52180fa81a90764c3b4be5",
+  "requested_execution_mode": "server",
+  "selected_positions": [
+    "Pos11_3",
+    "Pos15_4"
+  ],
+  "actually_processed_roi_position": "Pos0_2",
+  "actually_processed_roi_count": 57,
+  "working_pattern": {
+    "run": "lifespan_1",
+    "source": "Pos0_2",
+    "size": [
+      80,
+      80
+    ]
+  },
+  "failed_pattern": {
+    "source": "Pos1_2",
+    "matches_current_shared_template": true,
+    "runs": [
+      "lifespan_2",
+      "lifespan_3"
+    ],
+    "size": [
+      130,
+      130
+    ]
+  },
+  "verification": "Read-only MATLAB imread/normxcorr2/regionprops on frame 5, channel z001, using embedded run patches and original detector boundary checks. Counts are detections before extraction or biological validation.",
+  "measurements": [
+    {
+      "position": 0,
+      "patch": "run1_80px",
+      "maxCorrelation": 0.9999999999999963,
+      "detectionsAtPoint5": 57,
+      "imageSize": [
+        1024,
+        1024
+      ]
+    },
+    {
+      "position": 0,
+      "patch": "run3_130px",
+      "maxCorrelation": 0.11104857157609482,
+      "detectionsAtPoint5": 0,
+      "imageSize": [
+        1024,
+        1024
+      ]
+    },
+    {
+      "position": 0,
+      "patch": "run3_half_65px",
+      "maxCorrelation": 0.5198745059708992,
+      "detectionsAtPoint5": 2,
+      "imageSize": [
+        1024,
+        1024
+      ]
+    },
+    {
+      "position": 11,
+      "patch": "run1_80px",
+      "maxCorrelation": 0.776816787884017,
+      "detectionsAtPoint5": 63,
+      "imageSize": [
+        1024,
+        1024
+      ]
+    },
+    {
+      "position": 11,
+      "patch": "run3_130px",
+      "maxCorrelation": 0.11865882301432772,
+      "detectionsAtPoint5": 0,
+      "imageSize": [
+        1024,
+        1024
+      ]
+    },
+    {
+      "position": 11,
+      "patch": "run3_half_65px",
+      "maxCorrelation": 0.5252331870981837,
+      "detectionsAtPoint5": 6,
+      "imageSize": [
+        1024,
+        1024
+      ]
+    },
+    {
+      "position": 15,
+      "patch": "run1_80px",
+      "maxCorrelation": 0.6689882684660312,
+      "detectionsAtPoint5": 51,
+      "imageSize": [
+        1024,
+        1024
+      ]
+    },
+    {
+      "position": 15,
+      "patch": "run3_130px",
+      "maxCorrelation": 0.12211818421440292,
+      "detectionsAtPoint5": 0,
+      "imageSize": [
+        1024,
+        1024
+      ]
+    },
+    {
+      "position": 15,
+      "patch": "run3_half_65px",
+      "maxCorrelation": 0.6338657508164939,
+      "detectionsAtPoint5": 21,
+      "imageSize": [
+        1024,
+        1024
+      ]
+    }
+  ]
+}

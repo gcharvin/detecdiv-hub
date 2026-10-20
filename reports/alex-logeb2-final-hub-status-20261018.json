@@ -1,0 +1,69 @@
+{
+  "job_id": "8d23a039-3082-46a7-913a-1feb097522f1",
+  "project_id": "9f3b7b44-f2c1-401a-94b4-5755b2da667e",
+  "status": "done",
+  "requested_by": "alexander",
+  "started_at": "2026-10-15 17:55:30.842526+00:00",
+  "target_id": "0d9f55dc-54ce-4527-af5b-ff4b5d0d64e9",
+  "error": null,
+  "runtime": {
+    "engine": "matlab",
+    "command": "/usr/local/bin/matlab",
+    "work_dir": "/home/charvin-admin/repos/DetecDiv-jobs/work/8d23a039-3082-46a7-913a-1feb097522f1/63f4ea48-f025-4352-9f84-91c5fbb78e4d",
+    "repo_root": "/home/charvin-admin/repos/DetecDiv-jobs/releases/dce3ca768bcae597224424620abc46ede0788a12",
+    "returncode": 0,
+    "stderr_log": "/home/charvin-admin/repos/DetecDiv-jobs/work/8d23a039-3082-46a7-913a-1feb097522f1/63f4ea48-f025-4352-9f84-91c5fbb78e4d/matlab_stderr.log",
+    "stdout_log": "/home/charvin-admin/repos/DetecDiv-jobs/work/8d23a039-3082-46a7-913a-1feb097522f1/63f4ea48-f025-4352-9f84-91c5fbb78e4d/matlab_stdout.log",
+    "code_commit": "dce3ca768bcae597224424620abc46ede0788a12",
+    "matlab_max_threads": 8
+  },
+  "progress": {
+    "phase": "matlab_running",
+    "updated_at": "2026-10-18T09:19:15.067912+00:00",
+    "current_step": "/data/Alexander/nobackup/analysis/anof_071026_X54445_LOGEB_2/pipeline/alex_logeb2_full_auto_gpu_20261015/run.json",
+    "last_message": "dependency_audit: [1x1 struct]",
+    "recent_stderr": [],
+    "recent_stdout": [
+      "job_id: '8d23a039-3082-46a7-913a-1feb097522f1'",
+      "run_id: 'alex_logeb2_full_auto_gpu_20261015'",
+      "project_mat_path: '/data/Alexander/nobackup/analysis/anof_071026_X54445_LOGEB_2.json'",
+      "pipeline_json_path: '/data/Alexander/nobackup/analysis/anof_071026_X54445_LOGEB_2/pipeline/alex_logeb2_full_auto_gpu_20261015/pipeline_snapshot.json'",
+      "run_json_path: '/data/Alexander/nobackup/analysis/anof_071026_X54445_LOGEB_2/pipeline/alex_logeb2_full_auto_gpu_20261015/run.json'",
+      "artifacts: [1x4 struct]",
+      "mutation_manifest: [1x1 struct]",
+      "summary: [1x1 struct]",
+      "error: ''",
+      "dependency_audit: [1x1 struct]"
+    ]
+  },
+  "allocation": {
+    "source": "pipeline_nodes_and_job_resource_settings",
+    "cpu_cores": 8,
+    "memory_mb": 24576,
+    "gpu_vram_mb": 8192,
+    "gpu_required": true,
+    "disk_io_units": 3,
+    "gpu_permitted": true,
+    "swap_limit_mb": 1536,
+    "requested_cpu_cores": 8,
+    "pipeline_gpu_profile": {
+      "source": "/data/Alexander/nobackup/analysis/anof_071026_X54445_LOGEB_2/pipeline/alex_logeb2_full_auto_gpu_20261015/pipeline_snapshot.json",
+      "status": "known",
+      "gpu_node_ids": [
+        "processor_savecroppedimagesxconservative_2",
+        "processor_xtrafullchannelsconservative_4"
+      ],
+      "gpu_required": true,
+      "run_gpu_mode": "force_gpu",
+      "selected_node_ids": [
+        "processor_savecroppedimagesxconservative_2",
+        "processor_xtrafullchannelsconservative_4"
+      ],
+      "deep_learning_node_ids": [
+        "processor_savecroppedimagesxconservative_2",
+        "processor_xtrafullchannelsconservative_4"
+      ]
+    }
+  },
+  "worker": []
+}

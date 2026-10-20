@@ -1,0 +1,42 @@
+{
+  "job_id": "954e2708-6d67-47ab-ad37-74f2d8f48cc8",
+  "hub_finished_at_utc": "2026-10-15T02:58:09.137560Z",
+  "confirmed_cause": "ENOSPC copying the existing ROI HDF5 to local scratch in roi.save, line187",
+  "failed_fov": 8,
+  "failed_roi": 7,
+  "event_log": "/data/Alexander/nobackup/analysis/anof_071026_X54445_LOGEB/pipeline/alex_xtra_full_channels_conservative_1/run_events.jsonl",
+  "evidence": [
+    {
+      "line": 62,
+      "ts": "2026-10-15 04:57:42.475",
+      "type": "node_failed",
+      "runId": "alex_xtra_full_channels_conservative_1",
+      "NodeId": "xtra_full_channels_legacy",
+      "NodeType": "processor",
+      "NodeIndex": 2,
+      "TotalNodes": 2,
+      "Status": "failed",
+      "DurationSec": 9352.682934,
+      "Message": "Node xtra_full_channels_legacy failed: Aucun espace disponible sur le périphérique [MATLAB:COPYFILE:OSError] @ save:187 [runPipeline:NodeFailed] @ throwNodeFailed:1159"
+    },
+    {
+      "line": 63,
+      "ts": "2026-10-15 04:57:46.570",
+      "type": "run_failed",
+      "runId": "alex_xtra_full_channels_conservative_1",
+      "Summary": {
+        "totalNodes": 2,
+        "doneNodes": 1,
+        "skippedNodes": 0,
+        "failedNodes": 1
+      },
+      "StartedAt": "14-Oct-2026 15:02:26",
+      "EndedAt": "15-Oct-2026 04:57:42",
+      "Message": "Node xtra_full_channels_legacy failed: Aucun espace disponible sur le périphérique [MATLAB:COPYFILE:OSError] @ save:187 [runPipeline:NodeFailed] @ throwNodeFailed:1159"
+    }
+  ],
+  "empty_worker_result_json": true,
+  "empty_stderr_log": true,
+  "classified_rois_completed": 357,
+  "last_classified_roi": "071026_X54445_LOGEB_2_4-X544_LOGEB-16_8_6"
+}

@@ -1,0 +1,89 @@
+{
+  "jobId": "8d23a039-3082-46a7-913a-1feb097522f1",
+  "owner": "alexander",
+  "status": "final_verified",
+  "verifiedAtUtc": "2026-10-18T13:17:02Z",
+  "roiCount": 1437,
+  "fovCount": 28,
+  "frames": 851,
+  "failedAssertions": 0,
+  "resultsDataOnlyAndFullReloadExactForAllRois": true,
+  "sixRawChannelsAllPixelsMatchExtractionForAllRois": true,
+  "blockBoundaryChecksPerRoi": 20,
+  "channelMapping": "1:7 without duplicates",
+  "imageSize": [
+    171,
+    171,
+    7,
+    851
+  ],
+  "probabilitySize": [
+    6,
+    851
+  ],
+  "fluorescenceSize": [
+    3,
+    851
+  ],
+  "resultsFields": [
+    "div_1",
+    "RLS.from_div_1",
+    "signal.full",
+    "signal.onemask"
+  ],
+  "nodeRuns": [
+    {
+      "nodeId": "processor_savecroppedimagesxconservative_2",
+      "nodeType": "processor",
+      "status": "done",
+      "runPolicy": "resume",
+      "existingPolicy": "skip",
+      "outputName": "processor_savecroppedimagesxconservative_2",
+      "durationSec": 172440.730846,
+      "before": {
+        "fovCount": 28,
+        "roiCount": 1437,
+        "dataSeriesCount": 0,
+        "maskCount": 0
+      },
+      "after": {
+        "fovCount": 28,
+        "roiCount": 1437,
+        "dataSeriesCount": 0,
+        "maskCount": 0
+      },
+      "message": ""
+    },
+    {
+      "nodeId": "processor_xtrafullchannelsconservative_4",
+      "nodeType": "processor",
+      "status": "done",
+      "runPolicy": "resume",
+      "existingPolicy": "skip",
+      "outputName": "processor_xtrafullchannelsconservative_4",
+      "durationSec": 55049.08031,
+      "before": {
+        "fovCount": 28,
+        "roiCount": 1437,
+        "dataSeriesCount": 0,
+        "maskCount": 0
+      },
+      "after": {
+        "fovCount": 28,
+        "roiCount": 1437,
+        "dataSeriesCount": 0,
+        "maskCount": 0
+      },
+      "message": ""
+    }
+  ],
+  "verificationElapsedSeconds": 12498.521409,
+  "reportSha256": "fcf4629b8279121b417c7f7eba98fdfb1016bbf9a7e0b24bb57839bb5826c035",
+  "verifierSha256": "df5730f302da6c00ce1e5f6726552bf12f243aeff76d3caff68ef6f728d48614",
+  "reports": [
+    "alex-logeb2-final-results-20261018.json",
+    "alex-logeb2-final-verifier-20261018.m",
+    "alex-logeb2-final-hub-status-20261018.json",
+    "alex-logeb2-run-summary-20261018.txt"
+  ]
+}

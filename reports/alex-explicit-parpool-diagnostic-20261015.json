@@ -1,0 +1,38 @@
+{
+  "version": "24.2.0.2806996 (R2024b) Update 3",
+  "release": "2024b",
+  "prefdir": "/home/charvin-admin/.matlab/R2024b",
+  "autoCreateBefore": false,
+  "startupSeconds": 13.323144,
+  "poolWorkers": 2,
+  "loopSeconds": 1.18296,
+  "pids": [
+    2984565.0,
+    2984560.0,
+    2984565.0,
+    2984565.0,
+    2984560.0,
+    2984560.0,
+    2984565.0,
+    2984560.0
+  ],
+  "workerFlags": [
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true,
+    true
+  ],
+  "distinctWorkerProcesses": 2,
+  "poolClosed": true,
+  "autoCreateAfter": false,
+  "success": true,
+  "checkedAt": "2026-10-15 13:48:29",
+  "saved_preference_file": "/home/charvin-admin/.matlab/R2024b/parallel.mlsettings",
+  "saved_preference_file_mtime_paris": "2025-09-27T20:22:30.192955+02:00",
+  "r2024a_test": "Cannot launch: installed R2024a license expired (License Manager Error -10)",
+  "scope": "Current charvin-admin R2024b preferences; does not prove historical sessions or other users had no running pool"
+}

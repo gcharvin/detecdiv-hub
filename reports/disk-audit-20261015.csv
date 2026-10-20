@@ -1,0 +1,10 @@
+﻿Dossier,Occupation Gio,Categorie,Action proposee
+/home/charvin-admin/runs/sam31_size_sweep_aligned_stratified_20260718,76.68,Essais SAM3.1 juillet,Archiver ou trier les checkpoints apres validation scientifique
+/home/charvin-admin/llama.cpp/models,55.62,Anciens modeles Mixtral GGUF,"Deux variantes Q4 et Q5, verifier utilite et archivage"
+/home/charvin-admin/.conda,44.62,Conda utilisateur,"Inventorier les environnements et doublons, pas de suppression globale"
+/home/charvin-admin/anaconda3,18.93,Anaconda,Verifier usages et doublons avec les autres distributions
+/home/charvin-admin/venvs,22.02,Environnements Python,"Qwen, Trackastra et SAM3, inventorier les usages"
+/home/charvin-admin/.matlab/R2024b/ClassiRepository,12.91,Modeles scientifiques MATLAB,"Verifier doublons avec depot partage, conserver les modeles utiles"
+/home/charvin-admin/libvirt-images,15.92,Images de VM,"Conserver les disques actifs, audit libvirt avant toute operation"
+/home/charvin-admin/.config/google-chrome,6.9,Chrome et modele local embarque,"Caches et modele local a examiner, conserver profils"
+/usr/local,19.45,Logiciels locaux,Versions MATLAB/CUDA : inventorier avant desinstallation

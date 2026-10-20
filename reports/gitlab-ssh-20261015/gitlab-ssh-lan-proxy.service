@@ -1,0 +1,15 @@
+[Unit]
+Description=GitLab SSH relay from lab LAN to webserver-labo VM
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+EnvironmentFile=%h/.config/gitlab-ssh-lan-proxy.env
+ExecStart=/usr/bin/socat ${GITLAB_SSH_LISTEN} ${GITLAB_SSH_TARGET}
+Restart=always
+RestartSec=5
+NoNewPrivileges=yes
+UMask=0077
+
+[Install]
+WantedBy=default.target

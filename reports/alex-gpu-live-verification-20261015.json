@@ -1,0 +1,827 @@
+{
+  "job_id": "23df4d34-af78-4cef-b084-a2a410e56930",
+  "matlab_pid": 2956210,
+  "duration_seconds": 48.07,
+  "samples": [
+    {
+      "elapsed": 0.04,
+      "gpu": "0, 0, 8519",
+      "cpu_ticks": 87058,
+      "process_state": "S",
+      "wchan": "futex_wait_queue",
+      "io": {
+        "rchar": 29531007621,
+        "wchar": 22473698567,
+        "syscr": 665510,
+        "syscw": 226077,
+        "read_bytes": 124485632,
+        "write_bytes": 22461194240,
+        "cancelled_write_bytes": 5636734976
+      },
+      "new_log_lines": []
+    },
+    {
+      "elapsed": 1.08,
+      "gpu": "0, 0, 8519",
+      "cpu_ticks": 87098,
+      "process_state": "S",
+      "wchan": "futex_wait_queue",
+      "io": {
+        "rchar": 29567080526,
+        "wchar": 22509350440,
+        "syscr": 666077,
+        "syscw": 226351,
+        "read_bytes": 124485632,
+        "write_bytes": 22496845824,
+        "cancelled_write_bytes": 5636734976
+      },
+      "new_log_lines": [
+        "No data file for ROI 071026_X54445_LOGEB_2_5-X544_LOGEB2-19_11_16 (expected: /data/Alexander/nobackup/analysis/anof_071026_X54445_LOGEB/071026_X54445_LOGEB_2_5-X544_LOGEB2-19_11/data_071026_X54445_LOGEB_2_5-X544_LOGEB2-19_11_16.mat).",
+        "Processed 071026_X54445_LOGEB_2_5-X544_LOGEB2-19_11_16"
+      ]
+    },
+    {
+      "elapsed": 2.11,
+      "gpu": "0, 0, 8519",
+      "cpu_ticks": 87140,
+      "process_state": "S",
+      "wchan": "futex_wait_queue",
+      "io": {
+        "rchar": 29700444367,
+        "wchar": 22641902215,
+        "syscr": 668537,
+        "syscw": 227627,
+        "read_bytes": 124485632,
+        "write_bytes": 22629335040,
+        "cancelled_write_bytes": 5636734976
+      },
+      "new_log_lines": [
+        "ROI #071026_X54445_LOGEB_2_5-X544_LOGEB2-19_11_16: HDF5 save of \"seg\" (1 subchan, 517 frames)."
+      ]
+    },
+    {
+      "elapsed": 3.15,
+      "gpu": "0, 0, 8519",
+      "cpu_ticks": 87149,
+      "process_state": "S",
+      "wchan": "futex_wait_queue",
+      "io": {
+        "rchar": 29727715497,
+        "wchar": 22669165191,
+        "syscr": 668747,
+        "syscw": 227835,
+        "read_bytes": 124485632,
+        "write_bytes": 22656598016,
+        "cancelled_write_bytes": 5636734976
+      },
+      "new_log_lines": []
+    },
+    {
+      "elapsed": 4.19,
+      "gpu": "0, 0, 8519",
+      "cpu_ticks": 87159,
+      "process_state": "S",
+      "wchan": "futex_wait_queue",
+      "io": {
+        "rchar": 29784143166,
+        "wchar": 22725592860,
+        "syscr": 669180,
+        "syscw": 228266,
+        "read_bytes": 124485632,
+        "write_bytes": 22713028608,
+        "cancelled_write_bytes": 5636734976
+      },
+      "new_log_lines": []
+    },
+    {
+      "elapsed": 5.23,
+      "gpu": "0, 0, 8519",
+      "cpu_ticks": 87177,
+      "process_state": "S",
+      "wchan": "futex_wait_queue",
+      "io": {
+        "rchar": 29796229468,
+        "wchar": 22725592936,
+        "syscr": 669332,
+        "syscw": 228267,
+        "read_bytes": 124485632,
+        "write_bytes": 22713028608,
+        "cancelled_write_bytes": 5636734976
+      },
+      "new_log_lines": [
+        "Loading HDF5 image file: im_071026_X54445_LOGEB_2_5-X544_LOGEB2-19_11_17.h5"
+      ]
+    },
+    {
+      "elapsed": 6.28,
+      "gpu": "0, 0, 8519",
+      "cpu_ticks": 87191,
+      "process_state": "S",
+      "wchan": "futex_wait_queue",
+      "io": {
+        "rchar": 29806146685,
+        "wchar": 22725592936,
+        "syscr": 669611,
+        "syscw": 228267,
+        "read_bytes": 124485632,
+        "write_bytes": 22713028608,
+        "cancelled_write_bytes": 5636734976
+      },
+      "new_log_lines": []
+    },
+    {
+      "elapsed": 7.32,
+      "gpu": "0, 0, 8519",
+      "cpu_ticks": 87213,
+      "process_state": "S",
+      "wchan": "futex_wait_queue",
+      "io": {
+        "rchar": 29827744719,
+        "wchar": 22725592936,
+        "syscr": 669708,
+        "syscw": 228267,
+        "read_bytes": 124485632,
+        "write_bytes": 22713028608,
+        "cancelled_write_bytes": 5636734976
+      },
+      "new_log_lines": []
+    },
+    {
+      "elapsed": 8.36,
+      "gpu": "0, 0, 8519",
+      "cpu_ticks": 87217,
+      "process_state": "S",
+      "wchan": "futex_wait_queue",
+      "io": {
+        "rchar": 29827821089,
+        "wchar": 22725592936,
+        "syscr": 669823,
+        "syscw": 228267,
+        "read_bytes": 124485632,
+        "write_bytes": 22713028608,
+        "cancelled_write_bytes": 5636734976
+      },
+      "new_log_lines": []
+    },
+    {
+      "elapsed": 9.4,
+      "gpu": "0, 0, 8519",
+      "cpu_ticks": 87220,
+      "process_state": "S",
+      "wchan": "futex_wait_queue",
+      "io": {
+        "rchar": 29827880145,
+        "wchar": 22725592936,
+        "syscr": 669920,
+        "syscw": 228267,
+        "read_bytes": 124485632,
+        "write_bytes": 22713028608,
+        "cancelled_write_bytes": 5636734976
+      },
+      "new_log_lines": []
+    },
+    {
+      "elapsed": 10.45,
+      "gpu": "0, 0, 8519",
+      "cpu_ticks": 87243,
+      "process_state": "S",
+      "wchan": "futex_wait_queue",
+      "io": {
+        "rchar": 29849503630,
+        "wchar": 22725592936,
+        "syscr": 669986,
+        "syscw": 228267,
+        "read_bytes": 124485632,
+        "write_bytes": 22713028608,
+        "cancelled_write_bytes": 5636734976
+      },
+      "new_log_lines": []
+    },
+    {
+      "elapsed": 11.49,
+      "gpu": "0, 0, 8519",
+      "cpu_ticks": 87247,
+      "process_state": "S",
+      "wchan": "futex_wait_queue",
+      "io": {
+        "rchar": 29849562686,
+        "wchar": 22725592936,
+        "syscr": 670083,
+        "syscw": 228267,
+        "read_bytes": 124485632,
+        "write_bytes": 22713028608,
+        "cancelled_write_bytes": 5636734976
+      },
+      "new_log_lines": []
+    },
+    {
+      "elapsed": 12.54,
+      "gpu": "0, 0, 8519",
+      "cpu_ticks": 87250,
+      "process_state": "S",
+      "wchan": "futex_wait_queue",
+      "io": {
+        "rchar": 29849628832,
+        "wchar": 22725592936,
+        "syscr": 670191,
+        "syscw": 228267,
+        "read_bytes": 124485632,
+        "write_bytes": 22713028608,
+        "cancelled_write_bytes": 5636734976
+      },
+      "new_log_lines": []
+    },
+    {
+      "elapsed": 13.59,
+      "gpu": "0, 0, 8519",
+      "cpu_ticks": 87266,
+      "process_state": "S",
+      "wchan": "futex_wait_queue",
+      "io": {
+        "rchar": 29854385797,
+        "wchar": 22725592936,
+        "syscr": 670288,
+        "syscw": 228267,
+        "read_bytes": 124485632,
+        "write_bytes": 22713028608,
+        "cancelled_write_bytes": 5636734976
+      },
+      "new_log_lines": []
+    },
+    {
+      "elapsed": 14.63,
+      "gpu": "0, 0, 8519",
+      "cpu_ticks": 87270,
+      "process_state": "S",
+      "wchan": "futex_wait_queue",
+      "io": {
+        "rchar": 29854444621,
+        "wchar": 22725592936,
+        "syscr": 670384,
+        "syscw": 228267,
+        "read_bytes": 124485632,
+        "write_bytes": 22713028608,
+        "cancelled_write_bytes": 5636734976
+      },
+      "new_log_lines": []
+    },
+    {
+      "elapsed": 15.68,
+      "gpu": "0, 0, 8519",
+      "cpu_ticks": 87273,
+      "process_state": "S",
+      "wchan": "futex_wait_queue",
+      "io": {
+        "rchar": 29854502501,
+        "wchar": 22725592936,
+        "syscr": 670490,
+        "syscw": 228267,
+        "read_bytes": 124485632,
+        "write_bytes": 22713036800,
+        "cancelled_write_bytes": 5636734976
+      },
+      "new_log_lines": []
+    },
+    {
+      "elapsed": 16.72,
+      "gpu": "0, 0, 8519",
+      "cpu_ticks": 87287,
+      "process_state": "S",
+      "wchan": "futex_wait_queue",
+      "io": {
+        "rchar": 29857894890,
+        "wchar": 22725592936,
+        "syscr": 670601,
+        "syscw": 228267,
+        "read_bytes": 124485632,
+        "write_bytes": 22713036800,
+        "cancelled_write_bytes": 5636734976
+      },
+      "new_log_lines": []
+    },
+    {
+      "elapsed": 17.76,
+      "gpu": "0, 0, 8519",
+      "cpu_ticks": 87295,
+      "process_state": "S",
+      "wchan": "futex_wait_queue",
+      "io": {
+        "rchar": 29859803447,
+        "wchar": 22725592936,
+        "syscr": 670697,
+        "syscw": 228267,
+        "read_bytes": 124485632,
+        "write_bytes": 22713036800,
+        "cancelled_write_bytes": 5636734976
+      },
+      "new_log_lines": []
+    },
+    {
+      "elapsed": 18.81,
+      "gpu": "0, 0, 8519",
+      "cpu_ticks": 87299,
+      "process_state": "S",
+      "wchan": "futex_wait_queue",
+      "io": {
+        "rchar": 29859892015,
+        "wchar": 22725592936,
+        "syscr": 670847,
+        "syscw": 228267,
+        "read_bytes": 124485632,
+        "write_bytes": 22713036800,
+        "cancelled_write_bytes": 5636734976
+      },
+      "new_log_lines": []
+    },
+    {
+      "elapsed": 19.86,
+      "gpu": "0, 0, 8519",
+      "cpu_ticks": 87301,
+      "process_state": "S",
+      "wchan": "futex_wait_queue",
+      "io": {
+        "rchar": 29859921559,
+        "wchar": 22725592936,
+        "syscr": 670891,
+        "syscw": 228267,
+        "read_bytes": 124485632,
+        "write_bytes": 22713036800,
+        "cancelled_write_bytes": 5636734976
+      },
+      "new_log_lines": []
+    },
+    {
+      "elapsed": 20.9,
+      "gpu": "0, 0, 8519",
+      "cpu_ticks": 87319,
+      "process_state": "S",
+      "wchan": "futex_wait_queue",
+      "io": {
+        "rchar": 29868383061,
+        "wchar": 22725592936,
+        "syscr": 670938,
+        "syscw": 228267,
+        "read_bytes": 124485632,
+        "write_bytes": 22713036800,
+        "cancelled_write_bytes": 5636734976
+      },
+      "new_log_lines": []
+    },
+    {
+      "elapsed": 21.95,
+      "gpu": "0, 0, 8519",
+      "cpu_ticks": 87320,
+      "process_state": "S",
+      "wchan": "futex_wait_queue",
+      "io": {
+        "rchar": 29868393349,
+        "wchar": 22725592936,
+        "syscr": 670959,
+        "syscw": 228267,
+        "read_bytes": 124485632,
+        "write_bytes": 22713036800,
+        "cancelled_write_bytes": 5636734976
+      },
+      "new_log_lines": []
+    },
+    {
+      "elapsed": 22.99,
+      "gpu": "0, 0, 8519",
+      "cpu_ticks": 87324,
+      "process_state": "S",
+      "wchan": "futex_wait_queue",
+      "io": {
+        "rchar": 29868468591,
+        "wchar": 22725592936,
+        "syscr": 671069,
+        "syscw": 228267,
+        "read_bytes": 124485632,
+        "write_bytes": 22713036800,
+        "cancelled_write_bytes": 5636734976
+      },
+      "new_log_lines": []
+    },
+    {
+      "elapsed": 24.03,
+      "gpu": "0, 0, 8519",
+      "cpu_ticks": 87327,
+      "process_state": "S",
+      "wchan": "futex_wait_queue",
+      "io": {
+        "rchar": 29868526583,
+        "wchar": 22725592936,
+        "syscr": 671175,
+        "syscw": 228267,
+        "read_bytes": 124485632,
+        "write_bytes": 22713036800,
+        "cancelled_write_bytes": 5636734976
+      },
+      "new_log_lines": []
+    },
+    {
+      "elapsed": 25.08,
+      "gpu": "0, 0, 8519",
+      "cpu_ticks": 87347,
+      "process_state": "S",
+      "wchan": "futex_wait_queue",
+      "io": {
+        "rchar": 29868753311,
+        "wchar": 22725593246,
+        "syscr": 671290,
+        "syscw": 228269,
+        "read_bytes": 124485632,
+        "write_bytes": 22713040896,
+        "cancelled_write_bytes": 5636734976
+      },
+      "new_log_lines": [
+        "No data file for ROI 071026_X54445_LOGEB_2_5-X544_LOGEB2-19_11_17 (expected: /data/Alexander/nobackup/analysis/anof_071026_X54445_LOGEB/071026_X54445_LOGEB_2_5-X544_LOGEB2-19_11/data_071026_X54445_LOGEB_2_5-X544_LOGEB2-19_11_17.mat).",
+        "Loading HDF5 image file: im_071026_X54445_LOGEB_2_5-X544_LOGEB2-19_11_17.h5"
+      ]
+    },
+    {
+      "elapsed": 26.13,
+      "gpu": "0, 0, 8519",
+      "cpu_ticks": 87367,
+      "process_state": "S",
+      "wchan": "futex_wait_queue",
+      "io": {
+        "rchar": 29890390638,
+        "wchar": 22725593246,
+        "syscr": 671370,
+        "syscw": 228269,
+        "read_bytes": 124485632,
+        "write_bytes": 22713040896,
+        "cancelled_write_bytes": 5636734976
+      },
+      "new_log_lines": []
+    },
+    {
+      "elapsed": 27.2,
+      "gpu": "0, 0, 8519",
+      "cpu_ticks": 87400,
+      "process_state": "S",
+      "wchan": "futex_wait_queue",
+      "io": {
+        "rchar": 29912250816,
+        "wchar": 22725593246,
+        "syscr": 671899,
+        "syscw": 228269,
+        "read_bytes": 124485632,
+        "write_bytes": 22713040896,
+        "cancelled_write_bytes": 5636734976
+      },
+      "new_log_lines": []
+    },
+    {
+      "elapsed": 28.24,
+      "gpu": "0, 0, 8519",
+      "cpu_ticks": 87447,
+      "process_state": "S",
+      "wchan": "futex_wait_queue",
+      "io": {
+        "rchar": 29938792292,
+        "wchar": 22725593246,
+        "syscr": 672329,
+        "syscw": 228269,
+        "read_bytes": 124485632,
+        "write_bytes": 22713040896,
+        "cancelled_write_bytes": 5636734976
+      },
+      "new_log_lines": []
+    },
+    {
+      "elapsed": 29.29,
+      "gpu": "35, 13, 8519",
+      "cpu_ticks": 87493,
+      "process_state": "S",
+      "wchan": "futex_wait_queue",
+      "io": {
+        "rchar": 29952813322,
+        "wchar": 22725593246,
+        "syscr": 673027,
+        "syscw": 228269,
+        "read_bytes": 124485632,
+        "write_bytes": 22713040896,
+        "cancelled_write_bytes": 5636734976
+      },
+      "new_log_lines": []
+    },
+    {
+      "elapsed": 30.35,
+      "gpu": "16, 3, 8519",
+      "cpu_ticks": 87634,
+      "process_state": "S",
+      "wchan": "futex_wait_queue",
+      "io": {
+        "rchar": 29952905986,
+        "wchar": 22725593480,
+        "syscr": 673178,
+        "syscw": 228270,
+        "read_bytes": 124485632,
+        "write_bytes": 22713040896,
+        "cancelled_write_bytes": 5636734976
+      },
+      "new_log_lines": [
+        "No data file for ROI 071026_X54445_LOGEB_2_5-X544_LOGEB2-19_11_17 (expected: /data/Alexander/nobackup/analysis/anof_071026_X54445_LOGEB/071026_X54445_LOGEB_2_5-X544_LOGEB2-19_11/data_071026_X54445_LOGEB_2_5-X544_LOGEB2-19_11_17.mat)."
+      ]
+    },
+    {
+      "elapsed": 31.39,
+      "gpu": "29, 13, 8519",
+      "cpu_ticks": 87811,
+      "process_state": "S",
+      "wchan": "futex_wait_queue",
+      "io": {
+        "rchar": 29952905986,
+        "wchar": 22725593480,
+        "syscr": 673178,
+        "syscw": 228270,
+        "read_bytes": 124485632,
+        "write_bytes": 22713040896,
+        "cancelled_write_bytes": 5636734976
+      },
+      "new_log_lines": []
+    },
+    {
+      "elapsed": 32.46,
+      "gpu": "35, 13, 8519",
+      "cpu_ticks": 88150,
+      "process_state": "S",
+      "wchan": "futex_wait_queue",
+      "io": {
+        "rchar": 29952905986,
+        "wchar": 22725593480,
+        "syscr": 673178,
+        "syscw": 228270,
+        "read_bytes": 124485632,
+        "write_bytes": 22713040896,
+        "cancelled_write_bytes": 5636734976
+      },
+      "new_log_lines": []
+    },
+    {
+      "elapsed": 33.53,
+      "gpu": "76, 28, 8519",
+      "cpu_ticks": 88388,
+      "process_state": "S",
+      "wchan": "futex_wait_queue",
+      "io": {
+        "rchar": 29952914140,
+        "wchar": 22725593480,
+        "syscr": 673180,
+        "syscw": 228270,
+        "read_bytes": 124485632,
+        "write_bytes": 22713040896,
+        "cancelled_write_bytes": 5636734976
+      },
+      "new_log_lines": []
+    },
+    {
+      "elapsed": 34.57,
+      "gpu": "20, 6, 8519",
+      "cpu_ticks": 88528,
+      "process_state": "S",
+      "wchan": "futex_wait_queue",
+      "io": {
+        "rchar": 29952914140,
+        "wchar": 22725593480,
+        "syscr": 673180,
+        "syscw": 228270,
+        "read_bytes": 124485632,
+        "write_bytes": 22713040896,
+        "cancelled_write_bytes": 5636734976
+      },
+      "new_log_lines": []
+    },
+    {
+      "elapsed": 35.62,
+      "gpu": "38, 13, 8519",
+      "cpu_ticks": 88730,
+      "process_state": "S",
+      "wchan": "futex_wait_queue",
+      "io": {
+        "rchar": 29957846332,
+        "wchar": 22730181000,
+        "syscr": 673315,
+        "syscw": 228305,
+        "read_bytes": 124485632,
+        "write_bytes": 22717661184,
+        "cancelled_write_bytes": 5636734976
+      },
+      "new_log_lines": []
+    },
+    {
+      "elapsed": 36.66,
+      "gpu": "39, 13, 8519",
+      "cpu_ticks": 88752,
+      "process_state": "S",
+      "wchan": "futex_wait_queue",
+      "io": {
+        "rchar": 30036358213,
+        "wchar": 22808823953,
+        "syscr": 673916,
+        "syscw": 228905,
+        "read_bytes": 124485632,
+        "write_bytes": 22796271616,
+        "cancelled_write_bytes": 5691129856
+      },
+      "new_log_lines": []
+    },
+    {
+      "elapsed": 37.7,
+      "gpu": "34, 13, 8519",
+      "cpu_ticks": 88845,
+      "process_state": "S",
+      "wchan": "futex_wait_queue",
+      "io": {
+        "rchar": 30036659503,
+        "wchar": 22829567634,
+        "syscr": 674119,
+        "syscw": 229067,
+        "read_bytes": 124485632,
+        "write_bytes": 22817021952,
+        "cancelled_write_bytes": 5719965696
+      },
+      "new_log_lines": []
+    },
+    {
+      "elapsed": 38.74,
+      "gpu": "33, 13, 8519",
+      "cpu_ticks": 88948,
+      "process_state": "S",
+      "wchan": "futex_wait_queue",
+      "io": {
+        "rchar": 30036950623,
+        "wchar": 22852118136,
+        "syscr": 674587,
+        "syscw": 229518,
+        "read_bytes": 124485632,
+        "write_bytes": 22839496704,
+        "cancelled_write_bytes": 5719965696
+      },
+      "new_log_lines": [
+        "ROI #071026_X54445_LOGEB_2_5-X544_LOGEB2-19_11_17: HDF5 save of \"channel000_z000\" (1 subchan, 517 frames).",
+        "ROI #071026_X54445_LOGEB_2_5-X544_LOGEB2-19_11_17: HDF5 save of \"channel000_z001\" (1 subchan, 517 frames)."
+      ]
+    },
+    {
+      "elapsed": 39.8,
+      "gpu": "29, 10, 8519",
+      "cpu_ticks": 89052,
+      "process_state": "S",
+      "wchan": "futex_wait_queue",
+      "io": {
+        "rchar": 30037096183,
+        "wchar": 22878473013,
+        "syscr": 674821,
+        "syscw": 229864,
+        "read_bytes": 124485632,
+        "write_bytes": 22865813504,
+        "cancelled_write_bytes": 5719965696
+      },
+      "new_log_lines": [
+        "ROI #071026_X54445_LOGEB_2_5-X544_LOGEB2-19_11_17: HDF5 save of \"channel000_z002\" (1 subchan, 517 frames)."
+      ]
+    },
+    {
+      "elapsed": 40.84,
+      "gpu": "29, 11, 8519",
+      "cpu_ticks": 89156,
+      "process_state": "S",
+      "wchan": "futex_wait_queue",
+      "io": {
+        "rchar": 30037536559,
+        "wchar": 22892363766,
+        "syscr": 675544,
+        "syscw": 230393,
+        "read_bytes": 124485632,
+        "write_bytes": 22879571968,
+        "cancelled_write_bytes": 5719965696
+      },
+      "new_log_lines": [
+        "ROI #071026_X54445_LOGEB_2_5-X544_LOGEB2-19_11_17: HDF5 save of \"channel001_z001\" (1 subchan, 517 frames).",
+        "ROI #071026_X54445_LOGEB_2_5-X544_LOGEB2-19_11_17: HDF5 save of \"channel002_z001\" (1 subchan, 517 frames).",
+        "ROI #071026_X54445_LOGEB_2_5-X544_LOGEB2-19_11_17: HDF5 save of \"channel003_z001\" (1 subchan, 517 frames)."
+      ]
+    },
+    {
+      "elapsed": 41.88,
+      "gpu": "0, 0, 8519",
+      "cpu_ticks": 89189,
+      "process_state": "S",
+      "wchan": "futex_wait_queue",
+      "io": {
+        "rchar": 30123635878,
+        "wchar": 22977921512,
+        "syscr": 677096,
+        "syscw": 231273,
+        "read_bytes": 124485632,
+        "write_bytes": 22965075968,
+        "cancelled_write_bytes": 5719965696
+      },
+      "new_log_lines": [
+        "ROI #071026_X54445_LOGEB_2_5-X544_LOGEB2-19_11_17: HDF5 save of \"seg\" (1 subchan, 517 frames)."
+      ]
+    },
+    {
+      "elapsed": 42.92,
+      "gpu": "0, 0, 8519",
+      "cpu_ticks": 89200,
+      "process_state": "S",
+      "wchan": "futex_wait_queue",
+      "io": {
+        "rchar": 30205301641,
+        "wchar": 23059579121,
+        "syscr": 677723,
+        "syscw": 231896,
+        "read_bytes": 124485632,
+        "write_bytes": 23046733824,
+        "cancelled_write_bytes": 5719965696
+      },
+      "new_log_lines": []
+    },
+    {
+      "elapsed": 43.95,
+      "gpu": "0, 0, 8519",
+      "cpu_ticks": 89229,
+      "process_state": "S",
+      "wchan": "futex_wait_queue",
+      "io": {
+        "rchar": 30205645331,
+        "wchar": 23059698452,
+        "syscr": 678062,
+        "syscw": 231922,
+        "read_bytes": 124489728,
+        "write_bytes": 23046860800,
+        "cancelled_write_bytes": 5781979136
+      },
+      "new_log_lines": [
+        "No data file for ROI 071026_X54445_LOGEB_2_5-X544_LOGEB2-19_11_17 (expected: /data/Alexander/nobackup/analysis/anof_071026_X54445_LOGEB/071026_X54445_LOGEB_2_5-X544_LOGEB2-19_11/data_071026_X54445_LOGEB_2_5-X544_LOGEB2-19_11_17.mat).",
+        "Loading HDF5 image file: im_071026_X54445_LOGEB_2_5-X544_LOGEB2-19_11_17.h5"
+      ]
+    },
+    {
+      "elapsed": 44.99,
+      "gpu": "0, 0, 8519",
+      "cpu_ticks": 89273,
+      "process_state": "S",
+      "wchan": "futex_wait_queue",
+      "io": {
+        "rchar": 30248351096,
+        "wchar": 23059698452,
+        "syscr": 678493,
+        "syscw": 231922,
+        "read_bytes": 124489728,
+        "write_bytes": 23046860800,
+        "cancelled_write_bytes": 5781979136
+      },
+      "new_log_lines": []
+    },
+    {
+      "elapsed": 46.03,
+      "gpu": "0, 0, 8519",
+      "cpu_ticks": 89309,
+      "process_state": "S",
+      "wchan": "futex_wait_queue",
+      "io": {
+        "rchar": 30271036081,
+        "wchar": 23059698452,
+        "syscr": 678923,
+        "syscw": 231922,
+        "read_bytes": 124489728,
+        "write_bytes": 23046868992,
+        "cancelled_write_bytes": 5781979136
+      },
+      "new_log_lines": []
+    },
+    {
+      "elapsed": 47.07,
+      "gpu": "0, 0, 8519",
+      "cpu_ticks": 89352,
+      "process_state": "S",
+      "wchan": "futex_wait_queue",
+      "io": {
+        "rchar": 30281226190,
+        "wchar": 23059698452,
+        "syscr": 679474,
+        "syscw": 231922,
+        "read_bytes": 124489728,
+        "write_bytes": 23046868992,
+        "cancelled_write_bytes": 5781979136
+      },
+      "new_log_lines": []
+    }
+  ],
+  "gpu_utilization_peak": 76,
+  "gpu_nonzero_samples": 12,
+  "io_delta": {
+    "rchar": 750218569,
+    "wchar": 585999885,
+    "syscr": 13964,
+    "syscw": 5845,
+    "read_bytes": 4096,
+    "write_bytes": 585674752,
+    "cancelled_write_bytes": 145244160
+  },
+  "cpu_seconds": 22.94
+}

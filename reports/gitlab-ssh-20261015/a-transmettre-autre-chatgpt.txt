@@ -1,0 +1,31 @@
+Le problème côté serveur GitLab a été corrigé le 15 octobre 2026.
+
+Cause : gitlab.detecdiv.internal pointe sur 10.20.11.100, mais GitLab SSH tourne dans la VM privée 192.168.122.185:2222. Le relais LAN manquait. Le laptop d'administration utilisait un ProxyCommand et contournait ce manque.
+
+Un relais persistant est maintenant actif :
+10.20.11.100:2222 -> 192.168.122.185:2222
+Accès limité au réseau du labo 10.20.0.0/16.
+
+Vérifications réalisées :
+- authentification SSH directe : Welcome to GitLab, @charvin!
+- git ls-remote direct sur micromanager-group/MicroManager.git : HEAD 1e1c93485adfbb7897a6fa8016ea25c8f2ebeda8
+- connexion TCP et bannière SSH depuis un deuxième PC Windows, 10.20.11.56.
+
+Empreinte ED25519 de GitLab, obtenue directement dans le conteneur via la connexion d'administration déjà vérifiée :
+SHA256:9zddjRVVYksBICqKkA404qZe/Hf9/Q1sSyp5FtTC0Vw
+
+Clé publique hôte correspondante pour known_hosts :
+[gitlab.detecdiv.internal]:2222,[10.20.11.100]:2222 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKk1jR/Bx9rC+9ONmdjFWuegn31eHy9K+3W4YR2xPzLQ
+
+Sur ce poste microscope, termine maintenant la configuration et clone les dépôts demandés. Utilise Windows OpenSSH et la clé personnelle de CE poste enregistrée dans GitLab. Aucun accès administrateur au serveur ni ProxyJump n'est nécessaire. Si un fichier SSH config local impose un autre port ou proxy pour ce nom, corrige ce bloc pour une connexion directe sur le port 2222. Vérifie la clé hôte contre la valeur ci-dessus ; conserve la vérification des clés hôtes.
+
+Test PowerShell :
+& "$env:WINDIR\System32\OpenSSH\ssh.exe" -p 2222 -T git@gitlab.detecdiv.internal
+
+URL de clonage MicroManager :
+ssh://git@gitlab.detecdiv.internal:2222/micromanager-group/MicroManager.git
+
+Pour Git, sélectionne Windows OpenSSH si nécessaire :
+git config --global core.sshCommand C:/Windows/System32/OpenSSH/ssh.exe
+
+Si l'authentification échoue encore par publickey, vérifie quelle clé de CE poste est offerte et que sa clé publique est enregistrée dans le bon compte GitLab ; le relais réseau et l'identité du serveur ont déjà été vérifiés.

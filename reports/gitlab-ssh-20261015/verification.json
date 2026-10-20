@@ -1,0 +1,20 @@
+{
+  "date": "2026-10-15",
+  "cause": "LAN TCP 2222 was not relayed to GitLab VM; administrative alias used SSH ProxyCommand",
+  "service": "gitlab-ssh-lan-proxy.service",
+  "service_scope": "systemd user charvin-admin",
+  "listen": "10.20.11.100:2222",
+  "allowed_sources": "10.20.0.0/16",
+  "target": "192.168.122.185:2222",
+  "lingering": {
+    "previous": false,
+    "current": true
+  },
+  "verified_ed25519": "SHA256:9zddjRVVYksBICqKkA404qZe/Hf9/Q1sSyp5FtTC0Vw",
+  "direct_ssh": "Welcome to GitLab, @charvin!",
+  "direct_git_repository": "micromanager-group/MicroManager.git",
+  "direct_git_head": "1e1c93485adfbb7897a6fa8016ea25c8f2ebeda8",
+  "independent_tcp_client": "10.20.11.56",
+  "microscope_tested": false,
+  "host_reboot_tested": false
+}

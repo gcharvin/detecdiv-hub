@@ -1,0 +1,92 @@
+{
+  "action": "remove obsolete execution target",
+  "requested_by": "Gilles (Codex chat)",
+  "retired_at": "2026-10-15T07:26:01.190412+00:00",
+  "target_before": {
+    "id": "3f85ede2-5203-4ab6-8496-d688be07dbc3",
+    "target_key": "legacy-matlab-smoke",
+    "display_name": "Legacy MATLAB smoke test",
+    "target_kind": "server",
+    "host_name": null,
+    "supports_gpu": false,
+    "supports_matlab": true,
+    "supports_python": true,
+    "status": "offline",
+    "metadata_json": {
+      "max_concurrent_jobs": 1
+    },
+    "created_at": "2026-09-21 09:19:43.920383+00:00",
+    "updated_at": "2026-09-21 09:21:59.794170+00:00"
+  },
+  "jobs_before": [
+    {
+      "id": "285be220-dfcb-4c8b-bb6c-b9ef191c9271",
+      "project_id": null,
+      "raw_dataset_id": null,
+      "pipeline_id": null,
+      "execution_target_id": "3f85ede2-5203-4ab6-8496-d688be07dbc3",
+      "requested_mode": "server",
+      "resolved_mode": null,
+      "status": "cancelled",
+      "priority": 1,
+      "requested_by": "alexander",
+      "requested_from_host": "legacy-smoke-test",
+      "params_json": {
+        "job_kind": "legacy_matlab",
+        "arguments": [],
+        "routine_path": "/data/Alexander/code/gillestest/hub_legacy_smoke_test.m",
+        "function_name": "hub_legacy_smoke_test"
+      },
+      "result_json": {},
+      "error_text": "Legacy smoke test cancelled: temporary worker lacked access to protected production environment.",
+      "created_at": "2026-09-21 09:19:57.951814+00:00",
+      "started_at": null,
+      "finished_at": "2026-09-21 09:21:59.773602+00:00",
+      "updated_at": "2026-09-21 09:21:59.773602+00:00",
+      "heartbeat_at": null
+    }
+  ],
+  "jobs_after": [
+    {
+      "id": "285be220-dfcb-4c8b-bb6c-b9ef191c9271",
+      "status": "cancelled",
+      "execution_target_id": null,
+      "result_json": {
+        "retired_execution_target": {
+          "reason": "Obsolete smoke-test target removed at user request",
+          "target": {
+            "id": "3f85ede2-5203-4ab6-8496-d688be07dbc3",
+            "status": "offline",
+            "host_name": null,
+            "created_at": "2026-09-21 09:19:43.920383+00:00",
+            "target_key": "legacy-matlab-smoke",
+            "updated_at": "2026-09-21 09:21:59.794170+00:00",
+            "target_kind": "server",
+            "display_name": "Legacy MATLAB smoke test",
+            "supports_gpu": false,
+            "metadata_json": {
+              "max_concurrent_jobs": 1
+            },
+            "supports_matlab": true,
+            "supports_python": true
+          },
+          "retired_at": "2026-10-15T07:26:01.190412+00:00"
+        }
+      }
+    }
+  ],
+  "targets_after": [
+    {
+      "id": "0d9f55dc-54ce-4527-af5b-ff4b5d0d64e9",
+      "target_key": "detecdiv-server",
+      "display_name": "DetecDiv Server",
+      "status": "online"
+    },
+    {
+      "id": "a8eedb3f-85fc-47a8-b327-2aa766550f51",
+      "target_key": "windows-10-20-11-56",
+      "display_name": "Windows MATLAB 10.20.11.56",
+      "status": "online"
+    }
+  ]
+}

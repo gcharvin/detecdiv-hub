@@ -1,0 +1,135 @@
+{
+  "checkedAtUtc": "2026-10-18T15:53:51Z",
+  "session": {
+    "pid": 148132,
+    "startedAtUtc": "2026-10-18T09:48:37Z",
+    "script": "/data/Alexander/nobackup/analysis/anof_071026_X54445_LOGEB_2/pipeline/alex_logeb2_full_auto_gpu_20261015/verify_alex_logeb2_851.m",
+    "stdout": "/data/Alexander/nobackup/analysis/anof_071026_X54445_LOGEB_2/pipeline/alex_logeb2_full_auto_gpu_20261015/final_verification_matlab.log",
+    "stderr": "/data/Alexander/nobackup/analysis/anof_071026_X54445_LOGEB_2/pipeline/alex_logeb2_full_auto_gpu_20261015/final_verification_matlab_stderr.log",
+    "maxThreads": 1,
+    "nice": 10,
+    "scientificWrites": false,
+    "availableRamGiB": 99.88
+  },
+  "running": false,
+  "final_verification_progress.json": {
+    "status": "verifying",
+    "checkedCount": 1437,
+    "totalCount": 1437,
+    "passedCount": 1437,
+    "failedCount": 0,
+    "elapsedSeconds": 12498.419365
+  },
+  "final_results_verification_851.json": {
+    "jobId": "8d23a039-3082-46a7-913a-1feb097522f1",
+    "status": "final_verified",
+    "verifiedAtUtc": "2026-10-18T13:17:02Z",
+    "coreCommit": "dce3ca768bcae597224424620abc46ede0788a12",
+    "roiCode": "/home/charvin-admin/repos/DetecDiv-jobs/releases/dce3ca768bcae597224424620abc46ede0788a12/structure/classes/@roi/roi.m",
+    "matlabVersion": "24.2.0.2806996 (R2024b) Update 3",
+    "frames": 851,
+    "roiCount": 1437,
+    "fovCount": 28,
+    "completedCount": 1437,
+    "failedCount": 0,
+    "blockBoundaryFrames": [
+      1,
+      88,
+      89,
+      176,
+      177,
+      264,
+      265,
+      352,
+      353,
+      440,
+      441,
+      528,
+      529,
+      616,
+      617,
+      704,
+      705,
+      792,
+      793,
+      851
+    ],
+    "rawSourceAcquisitions": [
+      851,
+      851,
+      851,
+      214,
+      214,
+      214
+    ],
+    "fullRawPixelComparison": true,
+    "dataOnlyAndFullReload": true,
+    "nodeRuns": [
+      {
+        "nodeId": "processor_savecroppedimagesxconservative_2",
+        "nodeType": "processor",
+        "status": "done",
+        "runPolicy": "resume",
+        "existingPolicy": "skip",
+        "outputName": "processor_savecroppedimagesxconservative_2",
+        "durationSec": 172440.730846,
+        "before": {
+          "fovCount": 28,
+          "roiCount": 1437,
+          "dataSeriesCount": 0,
+          "maskCount": 0
+        },
+        "after": {
+          "fovCount": 28,
+          "roiCount": 1437,
+          "dataSeriesCount": 0,
+          "maskCount": 0
+        },
+        "message": ""
+      },
+      {
+        "nodeId": "processor_xtrafullchannelsconservative_4",
+        "nodeType": "processor",
+        "status": "done",
+        "runPolicy": "resume",
+        "existingPolicy": "skip",
+        "outputName": "processor_xtrafullchannelsconservative_4",
+        "durationSec": 55049.08031,
+        "before": {
+          "fovCount": 28,
+          "roiCount": 1437,
+          "dataSeriesCount": 0,
+          "maskCount": 0
+        },
+        "after": {
+          "fovCount": 28,
+          "roiCount": 1437,
+          "dataSeriesCount": 0,
+          "maskCount": 0
+        },
+        "message": ""
+      }
+    ],
+    "elapsedSeconds": 12498.521409,
+    "failures": []
+  },
+  "final_verification_matlab.log": {
+    "bytes": 342456,
+    "tail": [
+      "VERIFY_PROGRESS 1430/1437 passed=1430 failed=0 seconds=12437.8",
+      "No data file for ROI 071026_X54445_LOGEB_2_7-X654RpNU3_LOG-28_29_45 (expected: /data/Alexander/nobackup/analysis/anof_071026_X54445_LOGEB_2/071026_X54445_LOGEB_2_7-X654RpNU3_LOG-28_29/data_071026_X54445_LOGEB_2_7-X654RpNU3_LOG-28_29_45.mat).",
+      "No data file for ROI 071026_X54445_LOGEB_2_7-X654RpNU3_LOG-28_29_46 (expected: /data/Alexander/nobackup/analysis/anof_071026_X54445_LOGEB_2/071026_X54445_LOGEB_2_7-X654RpNU3_LOG-28_29/data_071026_X54445_LOGEB_2_7-X654RpNU3_LOG-28_29_46.mat).",
+      "No data file for ROI 071026_X54445_LOGEB_2_7-X654RpNU3_LOG-28_29_47 (expected: /data/Alexander/nobackup/analysis/anof_071026_X54445_LOGEB_2/071026_X54445_LOGEB_2_7-X654RpNU3_LOG-28_29/data_071026_X54445_LOGEB_2_7-X654RpNU3_LOG-28_29_47.mat).",
+      "No data file for ROI 071026_X54445_LOGEB_2_7-X654RpNU3_LOG-28_29_48 (expected: /data/Alexander/nobackup/analysis/anof_071026_X54445_LOGEB_2/071026_X54445_LOGEB_2_7-X654RpNU3_LOG-28_29/data_071026_X54445_LOGEB_2_7-X654RpNU3_LOG-28_29_48.mat).",
+      "No data file for ROI 071026_X54445_LOGEB_2_7-X654RpNU3_LOG-28_29_49 (expected: /data/Alexander/nobackup/analysis/anof_071026_X54445_LOGEB_2/071026_X54445_LOGEB_2_7-X654RpNU3_LOG-28_29/data_071026_X54445_LOGEB_2_7-X654RpNU3_LOG-28_29_49.mat).",
+      "No data file for ROI 071026_X54445_LOGEB_2_7-X654RpNU3_LOG-28_29_50 (expected: /data/Alexander/nobackup/analysis/anof_071026_X54445_LOGEB_2/071026_X54445_LOGEB_2_7-X654RpNU3_LOG-28_29/data_071026_X54445_LOGEB_2_7-X654RpNU3_LOG-28_29_50.mat).",
+      "No data file for ROI 071026_X54445_LOGEB_2_7-X654RpNU3_LOG-28_29_51 (expected: /data/Alexander/nobackup/analysis/anof_071026_X54445_LOGEB_2/071026_X54445_LOGEB_2_7-X654RpNU3_LOG-28_29/data_071026_X54445_LOGEB_2_7-X654RpNU3_LOG-28_29_51.mat).",
+      "VERIFY_PROGRESS 1437/1437 passed=1437 failed=0 seconds=12498.4",
+      "FINAL_VERIFIED passed=1437 failed=0 total=1437"
+    ]
+  },
+  "final_verification_matlab_stderr.log": {
+    "bytes": 0,
+    "tail": []
+  }
+}

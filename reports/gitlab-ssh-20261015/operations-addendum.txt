@@ -1,0 +1,42 @@
+
+## GitLab SSH accessible directement depuis le LAN (2026-10-15)
+
+Le port annonce par GitLab etait inaccessible depuis le LAN : le frontal
+10.20.11.100 ne relayait pas TCP 2222 vers la VM 192.168.122.185:2222.
+Le ProxyCommand du poste d'administration masquait ce manque.
+
+Un relais socat sans privilege tourne maintenant sur detecdiv-server, sous
+charvin-admin, via systemd utilisateur :
+- unite : ~/.config/systemd/user/gitlab-ssh-lan-proxy.service
+- configuration : ~/.config/gitlab-ssh-lan-proxy.env
+- ecoute : 10.20.11.100:2222, sources autorisees 10.20.0.0/16
+- cible : 192.168.122.185:2222
+- Restart=always ; service active dans default.target
+- loginctl enable-linger charvin-admin : Linger=yes, pour demarrer au boot et
+  rester actif sans session SSH (valeur precedente : no).
+
+Sources : deploy/systemd/gitlab-ssh-lan-proxy.service et
+scripts/install_gitlab_ssh_lan_proxy.sh. Le fichier env propre au serveur
+contient GITLAB_SSH_LISTEN et GITLAB_SSH_TARGET.
+Reinstallation comme charvin-admin, sans sudo :
+bash scripts/install_gitlab_ssh_lan_proxy.sh ~/.config/gitlab-ssh-lan-proxy.env
+
+Verification :
+systemctl --user status gitlab-ssh-lan-proxy.service
+journalctl --user -u gitlab-ssh-lan-proxy.service
+Depuis un client : ssh -p 2222 -T git@gitlab.detecdiv.internal
+
+Empreinte ED25519 lue dans le conteneur GitLab via la connexion admin connue :
+SHA256:9zddjRVVYksBICqKkA404qZe/Hf9/Q1sSyp5FtTC0Vw
+
+Valide depuis le laptop : authentification directe, puis git ls-remote du depot
+micromanager-group/MicroManager.git (HEAD 1e1c93485adfbb7897a6fa8016ea25c8f2ebeda8).
+Valide depuis le second client 10.20.11.56 : connexion TCP et banniere SSH.
+Le microscope 10.20.11.6 n'a pas ete teste directement. La persistance est
+configuree ; aucun redemarrage de l'hote n'a ete effectue pour la tester.
+
+Arret / retour arriere :
+systemctl --user disable --now gitlab-ssh-lan-proxy.service
+Pour retablir aussi Linger=no, verifier d'abord qu'aucun autre nouveau service
+utilisateur n'en depend, puis loginctl disable-linger charvin-admin.
+Les anciennes connexions SSH via gitlab-webserver restent utilisables.
