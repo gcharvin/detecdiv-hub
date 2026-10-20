@@ -21,7 +21,7 @@
     const item = document.createElement("article");
     item.className = `assistant-message ${role}`;
     const label = document.createElement("strong");
-    label.textContent = role === "assistant" ? "Qwen" : "Vous";
+    label.textContent = role === "assistant" ? "Qwen" : "You";
     const content = document.createElement("div");
     content.textContent = text;
     item.append(label, content);
@@ -45,7 +45,7 @@
     try {
       const response = await fetch("/assistant/status", { credentials: "same-origin", headers: headers() });
       const payload = await response.json();
-      if (!response.ok) throw new Error(payload.detail || "Connexion au Hub requise.");
+      if (!response.ok) throw new Error(payload.detail || "Hub sign-in required.");
       status.textContent = payload.message;
       send.disabled = !payload.enabled || !payload.configured || !payload.running;
       if (adminControls) adminControls.classList.toggle("hidden", !payload.can_control);
@@ -53,7 +53,7 @@
       if (stopModel) stopModel.disabled = controlBusy || payload.control_pending || !payload.running;
       return payload;
     } catch (error) {
-      status.textContent = error.message || "Connexion au Hub requise pour utiliser l’assistant.";
+      status.textContent = error.message || "Sign in to the Hub to use the assistant.";
       send.disabled = true;
       if (adminControls) adminControls.classList.add("hidden");
       return null;
@@ -65,7 +65,7 @@
     controlBusy = true;
     if (startModel) startModel.disabled = true;
     if (stopModel) stopModel.disabled = true;
-    if (controlFeedback) controlFeedback.textContent = action === "start" ? "Envoi de l’ordre de démarrage…" : "Envoi de l’ordre d’arrêt…";
+    if (controlFeedback) controlFeedback.textContent = action === "start" ? "Sending start request…" : "Sending stop request…";
     try {
       const response = await fetch("/assistant/control", {
         method: "POST",
@@ -74,34 +74,34 @@
         body: JSON.stringify({ action }),
       });
       const payload = await response.json();
-      if (!response.ok) throw new Error(payload.detail || "Impossible de contrôler le service Qwen.");
+      if (!response.ok) throw new Error(payload.detail || "Unable to control the Qwen service.");
 
       const deadline = Date.now() + 180000;
       let job;
       while (Date.now() < deadline) {
         const jobResponse = await fetch(`/jobs/${payload.id}`, { credentials: "same-origin", headers: headers() });
         job = await jobResponse.json();
-        if (!jobResponse.ok) throw new Error(job.detail || "Impossible de suivre l’ordre envoyé au worker.");
+        if (!jobResponse.ok) throw new Error(job.detail || "Unable to track the command sent to the worker.");
         if (["done", "failed", "cancelled"].includes(job.status)) break;
-        if (controlFeedback) controlFeedback.textContent = "Le worker applique la commande…";
+        if (controlFeedback) controlFeedback.textContent = "The worker is applying the command…";
         await new Promise((resolve) => window.setTimeout(resolve, 1500));
       }
       if (!job || !["done", "failed", "cancelled"].includes(job.status)) {
-        throw new Error("Le worker n’a pas terminé dans le délai prévu.");
+        throw new Error("The worker did not finish within the expected time.");
       }
-      if (job.status !== "done") throw new Error(job.error_text || "Le worker n’a pas pu appliquer la commande.");
+      if (job.status !== "done") throw new Error(job.error_text || "The worker could not apply the command.");
 
-      if (controlFeedback) controlFeedback.textContent = action === "start" ? "Qwen démarre…" : "Qwen s’arrête…";
+      if (controlFeedback) controlFeedback.textContent = action === "start" ? "Qwen is starting…" : "Qwen is stopping…";
       const targetRunning = action === "start";
       while (Date.now() < deadline) {
         const current = await getStatus();
         if (current && current.running === targetRunning) {
-          if (controlFeedback) controlFeedback.textContent = targetRunning ? "Qwen est prêt." : "Qwen est arrêté.";
+          if (controlFeedback) controlFeedback.textContent = targetRunning ? "Qwen is ready." : "Qwen is stopped.";
           return;
         }
         await new Promise((resolve) => window.setTimeout(resolve, 2000));
       }
-      throw new Error(action === "start" ? "Qwen n’est pas encore prêt. Consultez son état dans quelques instants." : "Le service Qwen ne confirme pas encore son arrêt.");
+      throw new Error(action === "start" ? "Qwen is not ready yet. Check its status again shortly." : "The Qwen service has not confirmed its stop yet.");
     } catch (error) {
       if (controlFeedback) controlFeedback.textContent = error.message;
     } finally {
@@ -120,8 +120,8 @@
     addMessage("user", message);
     input.value = "";
     send.disabled = true;
-    feedback.textContent = "Qwen répond…";
-    const thinking = addMessage("assistant", "Qwen réfléchit");
+    feedback.textContent = "Qwen is responding…";
+    const thinking = addMessage("assistant", "Qwen is thinking");
     thinking.classList.add("assistant-thinking");
     try {
       const response = await fetch("/assistant/chat", {
@@ -129,10 +129,10 @@
         body: JSON.stringify({ message, mode: mode.value }),
       });
       const payload = await response.json();
-      if (!response.ok) throw new Error(payload.detail || "Erreur du service assistant.");
+      if (!response.ok) throw new Error(payload.detail || "Assistant service error.");
       thinking.remove();
-      addMessage("assistant", finalAnswerOnly(payload.answer) || "Je n’ai pas pu produire de réponse finale.");
-      feedback.textContent = `Réponse générée par ${payload.model}.`;
+      addMessage("assistant", finalAnswerOnly(payload.answer) || "No final response could be generated.");
+      feedback.textContent = `Response generated by ${payload.model}.`;
     } catch (error) {
       thinking.remove();
       feedback.textContent = error.message;

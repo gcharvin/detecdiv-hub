@@ -88,6 +88,8 @@ early, so they should be considered before the job system gets too rigid.
 
 ## Coding guidelines
 
+- Write Hub interface labels, confirmations, status messages, and errors in English.
+- Preserve user-authored content in its original language.
 - Prefer small, explicit modules over clever abstractions.
 - Favor PostgreSQL-compatible SQL and keep SQLite assumptions out of the server path.
 - Treat paths as machine-dependent views of a stable resource identity.

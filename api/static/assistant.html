@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="en">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -12,64 +12,64 @@
         <div class="sidebar-brand">
           <div class="eyebrow">DetecDiv Hub</div>
           <h2>Navigation</h2>
-          <p class="muted">Projets, données, calcul et assistant.</p>
+          <p class="muted">Projects, data, compute, and assistant.</p>
         </div>
         <div class="sidebar-auth"></div>
         <div class="session-box hidden">
-          <div id="session-label" class="muted">Non connecté.</div>
-          <button id="logout-button">Déconnexion</button>
+          <div id="session-label" class="muted">Not signed in.</div>
+          <button id="logout-button">Log out</button>
         </div>
-        <nav class="sidebar-menu" aria-label="Navigation principale"></nav>
+        <nav class="sidebar-menu" aria-label="Primary navigation"></nav>
       </aside>
 
       <div class="main-content">
         <section id="login-panel" class="panel login-panel hidden">
-          <div class="panel-header"><div><h2>Connexion</h2><p class="muted">Ouvrir une session Hub.</p></div></div>
+          <div class="panel-header"><div><h2>Sign in</h2><p class="muted">Sign in to the Hub.</p></div></div>
           <div class="toolbar">
-            <label class="field compact"><span>Identifiant</span><input id="login-user-key" type="text" /></label>
-            <label class="field compact"><span>Mot de passe</span><input id="login-password" type="password" /></label>
-            <button id="login-button" class="primary">Connexion</button>
+            <label class="field compact"><span>Username</span><input id="login-user-key" type="text" /></label>
+            <label class="field compact"><span>Password</span><input id="login-password" type="password" /></label>
+            <button id="login-button" class="primary">Sign in</button>
           </div>
         </section>
 
         <header class="hero">
           <div>
-            <div class="eyebrow">IA locale</div>
-            <h1>Assistant Qwen</h1>
-            <p class="hero-copy">Discussion et traduction sur l’infrastructure DetecDiv. Cette première version n’accède ni aux fichiers ni aux jobs.</p>
+            <div class="eyebrow">Local AI</div>
+            <h1>Qwen Assistant</h1>
+            <p class="hero-copy">Chat and translation on the DetecDiv infrastructure. This version has no access to files or jobs.</p>
           </div>
         </header>
 
         <section class="panel assistant-panel">
           <div class="panel-header">
-            <div><h2>Conversation</h2><p id="assistant-status" class="muted">Vérification du service…</p></div>
+            <div><h2>Conversation</h2><p id="assistant-status" class="muted">Checking service…</p></div>
             <label class="field compact"><span>Mode</span>
-              <select id="assistant-mode"><option value="chat">Discussion</option><option value="translation">Traduction</option></select>
+              <select id="assistant-mode"><option value="chat">Chat</option><option value="translation">Translation</option></select>
             </label>
           </div>
           <div id="assistant-messages" class="assistant-messages" aria-live="polite"></div>
           <form id="assistant-form" class="assistant-form">
-            <label class="field"><span>Votre message</span><textarea id="assistant-message" maxlength="12000" placeholder="Écrivez une question ou un texte à traduire…" required></textarea></label>
-            <div class="assistant-actions"><span id="assistant-feedback" class="muted"></span><button id="assistant-send" class="primary" type="submit">Envoyer</button></div>
+            <label class="field"><span>Your message</span><textarea id="assistant-message" maxlength="12000" placeholder="Enter a question or text to translate…" required></textarea></label>
+            <div class="assistant-actions"><span id="assistant-feedback" class="muted"></span><button id="assistant-send" class="primary" type="submit">Send</button></div>
           </form>
         </section>
 
         <section id="assistant-admin-controls" class="panel assistant-admin-controls hidden">
           <div class="panel-header">
             <div>
-              <h2>Service du modèle</h2>
-              <p class="muted">Contrôle réservé aux administrateurs. L’ordre passe par un worker du serveur GPU.</p>
+              <h2>Model service</h2>
+              <p class="muted">Administrators only. Commands are handled by a GPU server worker.</p>
             </div>
           </div>
           <div class="assistant-admin-actions">
-            <button id="assistant-start-model" class="primary" type="button">Démarrer Qwen</button>
-            <button id="assistant-stop-model" class="danger" type="button">Arrêter Qwen</button>
+            <button id="assistant-start-model" class="primary" type="button">Start Qwen</button>
+            <button id="assistant-stop-model" class="danger" type="button">Stop Qwen</button>
             <span id="assistant-control-feedback" class="muted" role="status" aria-live="polite"></span>
           </div>
         </section>
       </div>
     </div>
-    <script src="/web/app.js?v=20260926-cpu1" defer></script>
-    <script src="/web/assistant.js?v=20260922-assistant-chat-polish1" defer></script>
+    <script src="/web/app.js?v=20261020-force-stop-en1" defer></script>
+    <script src="/web/assistant.js?v=20261020-english1" defer></script>
   </body>
 </html>

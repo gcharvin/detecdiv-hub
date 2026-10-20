@@ -42,19 +42,19 @@ def get_assistant_status(
     )
     running = _qwen_is_running(settings) if configured else False
     if not settings.assistant_enabled:
-        message = "Assistant désactivé dans la configuration."
+        message = "The assistant is disabled in the configuration."
     elif not configured:
-        message = "Le service Qwen n’est pas configuré."
+        message = "The Qwen service is not configured."
     elif pending_control and desired_state == "running" and not running:
-        message = "Démarrage de Qwen en cours."
+        message = "Qwen is starting."
     elif pending_control and desired_state == "stopped" and running:
-        message = "Arrêt de Qwen en cours."
+        message = "Qwen is stopping."
     elif desired_state == "stopped" and not running:
-        message = "Modèle arrêté par l’administration."
+        message = "The model was stopped by an administrator."
     elif not running:
-        message = "Modèle indisponible. Un administrateur peut le relancer."
+        message = "The model is unavailable. An administrator can restart it."
     else:
-        message = "Qwen est disponible."
+        message = "Qwen is available."
     return AssistantStatusResponse(
         enabled=settings.assistant_enabled,
         configured=configured,
