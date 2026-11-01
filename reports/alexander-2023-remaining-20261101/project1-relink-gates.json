@@ -1,0 +1,10 @@
+{
+  "phase": "verified_existing_copy_ready_for_relink",
+  "project_lease_id": "fe48ef68-3959-4a90-9b36-337f46bcc28d",
+  "original_project_preserved": true,
+  "existing_copy_verified": true,
+  "pre_relink_mat_sha256": "c7c6b30c1882d2ad7f1fb91276b2565bfac0e38177b45e31c5712dc8b9cea874",
+  "existing_full_copy_verification_receipt": "rsync --checksum --dry-run; no itemized changes; 43,201 regular files; 556,819,935,168 bytes; zero files transferred",
+  "raw_2023_1_copy_gate": "copy-preservation-gates.json",
+  "raw_staging_kept_stable_for_70_catalog_locations": true
+}

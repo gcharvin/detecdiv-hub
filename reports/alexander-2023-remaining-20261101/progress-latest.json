@@ -1,0 +1,5 @@
+{
+  "project1-relink-progress.json": "{\n  \"phase\": \"sidecar_path_audit\",\n  \"files\": 19750,\n  \"total\": 28772\n}\n",
+  "project3-listing-export.exit": "0\n",
+  "exported_projects": 11
+}

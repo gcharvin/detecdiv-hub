@@ -1,0 +1,29 @@
+{
+  "private_directory": "/home/charvin-admin/storage-transfers/alexander-2023-remaining-20261101/private-checkpoint",
+  "files": {
+    "catalog-before.json": {
+      "bytes": 787703,
+      "sha256": "0476df1b401eddc3d2f8845075a9ad09fd033fc9c07a00a955e34a90248153ae"
+    },
+    "2023_1-current-locations.json": {
+      "bytes": 343744,
+      "sha256": "302113bdfdd6cd72a2e3969aea241ca697232bab3b06f48c05e3776a9cb45dfa"
+    },
+    "all-project-path-inspection.json": {
+      "bytes": 289462,
+      "sha256": "908950f6756ad2ab9eefc0cce5dc74b65b2495d68b88c6572047ada9baba84e2"
+    },
+    "all-project-path-request.json": {
+      "bytes": 30287,
+      "sha256": "2e422481e84051da45ea3480271962da9aadd39ff4ae78b3789c89624e308f5d"
+    },
+    "project-path-discovery-checkpoint.json": {
+      "bytes": 18377,
+      "sha256": "6a7a12cabf6a4662728363cd0cc7877839609c8f2a1d452be2f6b35b47d3a2ae"
+    },
+    "api-media-plan.json": {
+      "bytes": 538979,
+      "sha256": "c522b9402a4ef40662f0bbf0623f66245121951684aa3c25fd3370f74e0b484a"
+    }
+  }
+}

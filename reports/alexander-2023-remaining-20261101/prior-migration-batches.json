@@ -1,0 +1,129 @@
+{
+  "batches": [
+    {
+      "id": "c2eaf913-4f9f-42ee-9c0f-b5df6d2beb18",
+      "name": "alexander-2023-2-api-cache-20261101",
+      "status": "verified_complete",
+      "strategy": "retain_verified_api_projection",
+      "updated_at": "2026-11-01 19:31:51.072599+00:00",
+      "summary": {
+        "bytes": 5874728850,
+        "files": 354,
+        "artifacts": 335,
+        "display_settings": 19,
+        "originals_deleted": false
+      },
+      "metadata_keys": [
+        "reason",
+        "changes",
+        "operator",
+        "full_content_verified_on_native_nas"
+      ]
+    },
+    {
+      "id": "268a32d9-0a87-4d26-b4a1-02e41838d1d2",
+      "name": "alexander-project-relocation-20261101",
+      "status": "verified_complete",
+      "strategy": "verified_independent_copy_relink_keep_original",
+      "updated_at": "2026-11-01 19:45:01.381107+00:00",
+      "summary": {
+        "fovs": 12,
+        "rois": 5724,
+        "projects": 1,
+        "project_mat_sha256": "60fe1a608a40b7e559145cc799e71f33ed5e33e80473606b1f172a2d99774faa",
+        "original_project_preserved": true
+      },
+      "metadata_keys": [
+        "operator",
+        "linux_verification",
+        "windows_verification",
+        "before_project_columns",
+        "original_source_location_id",
+        "protected_identity_and_relationships"
+      ]
+    },
+    {
+      "id": "061627d8-0ef1-4e00-b572-c5b7d94d82b0",
+      "name": "alexander-2023-20261008",
+      "status": "in_progress",
+      "strategy": "copy_verify_only",
+      "updated_at": "2026-11-01 19:51:18.997301+00:00",
+      "summary": {
+        "raw_record_count": 121,
+        "sources_retained": true,
+        "physical_tree_count": 3,
+        "2023_2_catalog_cutover_raw_records": 21
+      },
+      "metadata_keys": [
+        "raw_ids",
+        "next_gate",
+        "approved_by",
+        "target_root",
+        "git_revision",
+        "snapshot_sha256",
+        "source_deletion_allowed",
+        "database_cutover_allowed",
+        "alexander_consent_reported_at",
+        "catalog_cutover_2023_2_batch_id",
+        "subsequent_2023_2_retirement_batch_id"
+      ]
+    },
+    {
+      "id": "459a5303-c15e-458d-bd48-ac10be19f037",
+      "name": "alexander-2023-2-source-retirement-20261101",
+      "status": "verified_source_retirement_complete",
+      "strategy": "retire_verified_duplicate_manifest",
+      "updated_at": "2026-11-01 19:51:18.997301+00:00",
+      "summary": {
+        "raw_records": 21,
+        "manifest_bytes": 3583194799325,
+        "manifest_files": 425112,
+        "source_deleted": true,
+        "free_bytes_after": 4921802833920,
+        "positions_preserved": 337,
+        "api_cache_bytes_retained": 5874728850,
+        "retired_source_locations": 21,
+        "project_original_preserved": true,
+        "measured_free_bytes_increase": 3577917788160
+      },
+      "metadata_keys": [
+        "guards",
+        "operator",
+        "inventory",
+        "other_locations",
+        "project_cutover",
+        "project_lock_id",
+        "approval_in_chat",
+        "retirement_receipt",
+        "source_locations_before_retirement"
+      ]
+    },
+    {
+      "id": "b2530427-9baf-4276-a5da-855ce3831394",
+      "name": "alexander-2023-2-cutover-20261101",
+      "status": "catalog_cutover_complete_sources_retained",
+      "strategy": "catalog_cutover_keep_sources",
+      "updated_at": "2026-11-01 19:51:18.997301+00:00",
+      "summary": {
+        "raw_records": 21,
+        "payload_bytes": 3583194799325,
+        "payload_files": 425112,
+        "source_deleted": false,
+        "project_relocation_pending": true,
+        "original_locations_retained": true
+      },
+      "metadata_keys": [
+        "operator",
+        "plan_sha256",
+        "project_saved",
+        "approved_in_chat",
+        "original_batch_id",
+        "verification_receipts",
+        "compatibility_strategy",
+        "source_deletion_allowed",
+        "previous_full_sha1_receipt",
+        "subsequent_2023_2_retirement_batch_id"
+      ]
+    }
+  ]
+}

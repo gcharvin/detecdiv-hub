@@ -1,0 +1,11 @@
+{
+  "success": true,
+  "batch_id": "23a0fd56-b832-49da-9013-65fcad5052bc",
+  "committed_at": "2026-11-01T20:53:45.397829+00:00",
+  "files": 774,
+  "bytes": 11051646071,
+  "handlers_verified": 774,
+  "artifact_ids_preserved": 710,
+  "raw_display_setting_ids_preserved": 64,
+  "preexisting_missing_references_unchanged": 156
+}

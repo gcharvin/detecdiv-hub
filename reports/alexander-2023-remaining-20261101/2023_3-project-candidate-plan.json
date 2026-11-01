@@ -1,0 +1,469 @@
+{
+  "candidate_projects": [
+    {
+      "project_id": "9e2f2539-7e95-4443-b3b3-650dca2db54c",
+      "name": "anof_07122023_5354_log1724",
+      "source_mat": "/mnt/detecdiv-secondary-sauvegarde/Alexander/analysis/anof_07122023_5354_log1724.mat",
+      "fovs": 23,
+      "rois": 6996,
+      "candidate_raw_acquisitions": [
+        "07122023_5354_log1724_dfcnts2_test"
+      ],
+      "candidate_raw_records": [
+        {
+          "id": "68794a95-2c43-49ad-9d4a-50b2f99ac86f",
+          "path": "/data/Alexander/data/2023_3/07122023_5354_log1724_dfcnts2_test/07122023_5354_log1724_dfcnts2_test_1"
+        },
+        {
+          "id": "5a45b43c-1f5f-4728-87a6-67849e638103",
+          "path": "/data/Alexander/data/2023_3/07122023_5354_log1724_dfcnts2_test/07122023_5354_log1724_dfcnts2_test_2"
+        },
+        {
+          "id": "ab217e41-2132-4c22-8f9f-961021684560",
+          "path": "/data/Alexander/data/2023_3/07122023_5354_log1724_dfcnts2_test/07122023_5354_log1724_dfcnts2_test_3"
+        },
+        {
+          "id": "b64d2942-9c2c-4247-9d4d-db890e50e057",
+          "path": "/data/Alexander/data/2023_3/07122023_5354_log1724_dfcnts2_test/07122023_5354_log1724_dfcnts2_test_4"
+        }
+      ],
+      "saved_raw_paths": [
+        "Z:\\Alexander\\07122023_5354_log1724_dfcnts2_test\\07122023_5354_log1724_dfcnts2_test_4\\Pos1",
+        "Z:\\Alexander\\07122023_5354_log1724_dfcnts2_test\\07122023_5354_log1724_dfcnts2_test_4\\Pos2",
+        "Z:\\Alexander\\07122023_5354_log1724_dfcnts2_test\\07122023_5354_log1724_dfcnts2_test_4\\Pos3",
+        "Z:\\Alexander\\07122023_5354_log1724_dfcnts2_test\\07122023_5354_log1724_dfcnts2_test_4\\Pos4",
+        "Z:\\Alexander\\07122023_5354_log1724_dfcnts2_test\\07122023_5354_log1724_dfcnts2_test_4\\Pos5",
+        "Z:\\Alexander\\07122023_5354_log1724_dfcnts2_test\\07122023_5354_log1724_dfcnts2_test_4\\Pos6",
+        "Z:\\Alexander\\07122023_5354_log1724_dfcnts2_test\\07122023_5354_log1724_dfcnts2_test_4\\Pos7",
+        "Z:\\Alexander\\07122023_5354_log1724_dfcnts2_test\\07122023_5354_log1724_dfcnts2_test_4\\Pos8",
+        "Z:\\Alexander\\07122023_5354_log1724_dfcnts2_test\\07122023_5354_log1724_dfcnts2_test_4\\Pos9",
+        "Z:\\Alexander\\07122023_5354_log1724_dfcnts2_test\\07122023_5354_log1724_dfcnts2_test_4\\Pos10",
+        "Z:\\Alexander\\07122023_5354_log1724_dfcnts2_test\\07122023_5354_log1724_dfcnts2_test_4\\Pos11",
+        "Z:\\Alexander\\07122023_5354_log1724_dfcnts2_test\\07122023_5354_log1724_dfcnts2_test_4\\Pos12",
+        "Z:\\Alexander\\07122023_5354_log1724_dfcnts2_test\\07122023_5354_log1724_dfcnts2_test_4\\Pos13",
+        "Z:\\Alexander\\07122023_5354_log1724_dfcnts2_test\\07122023_5354_log1724_dfcnts2_test_4\\Pos14",
+        "Z:\\Alexander\\07122023_5354_log1724_dfcnts2_test\\07122023_5354_log1724_dfcnts2_test_4\\Pos15",
+        "Z:\\Alexander\\07122023_5354_log1724_dfcnts2_test\\07122023_5354_log1724_dfcnts2_test_4\\Pos16",
+        "Z:\\Alexander\\07122023_5354_log1724_dfcnts2_test\\07122023_5354_log1724_dfcnts2_test_4\\Pos17",
+        "Z:\\Alexander\\07122023_5354_log1724_dfcnts2_test\\07122023_5354_log1724_dfcnts2_test_4\\Pos18",
+        "Z:\\Alexander\\07122023_5354_log1724_dfcnts2_test\\07122023_5354_log1724_dfcnts2_test_4\\Pos19",
+        "Z:\\Alexander\\07122023_5354_log1724_dfcnts2_test\\07122023_5354_log1724_dfcnts2_test_4\\Pos20",
+        "Z:\\Alexander\\07122023_5354_log1724_dfcnts2_test\\07122023_5354_log1724_dfcnts2_test_4\\Pos21",
+        "Z:\\Alexander\\07122023_5354_log1724_dfcnts2_test\\07122023_5354_log1724_dfcnts2_test_4\\Pos22",
+        "Z:\\Alexander\\07122023_5354_log1724_dfcnts2_test\\07122023_5354_log1724_dfcnts2_test_4\\Pos24"
+      ],
+      "status": "unproven_legacy_alias_identity_requires_metadata_and_content_review"
+    },
+    {
+      "project_id": "6dd570e7-668d-48d5-8586-7b3f69af5136",
+      "name": "anof_13122023_crelox_test",
+      "source_mat": "/mnt/detecdiv-secondary-sauvegarde/Alexander/analysis/anof_13122023_crelox_test.mat",
+      "fovs": 16,
+      "rois": 7494,
+      "candidate_raw_acquisitions": [
+        "13122023_crelox_test"
+      ],
+      "candidate_raw_records": [
+        {
+          "id": "fa0f25d5-f924-4fb1-b41f-0b2838755b64",
+          "path": "/data/Alexander/data/2023_3/13122023_crelox_test/13122023_crelox_test_3"
+        },
+        {
+          "id": "1191f1c6-6deb-451a-95b6-20cc3b7016e7",
+          "path": "/data/Alexander/data/2023_3/13122023_crelox_test/13122023_crelox_test_1"
+        },
+        {
+          "id": "99995959-db51-4dcb-91d0-4b5d27ad1af4",
+          "path": "/data/Alexander/data/2023_3/13122023_crelox_test/13122023_crelox_test_2"
+        },
+        {
+          "id": "bfd9527c-c7c0-4310-8628-c8419e0b2dfa",
+          "path": "/data/Alexander/data/2023_3/13122023_crelox_test/13122023_crelox_test_4"
+        }
+      ],
+      "saved_raw_paths": [
+        "Z:\\Alexander\\13122023_crelox_test\\13122023_crelox_test_4\\Pos1",
+        "Z:\\Alexander\\13122023_crelox_test\\13122023_crelox_test_4\\Pos4",
+        "Z:\\Alexander\\13122023_crelox_test\\13122023_crelox_test_4\\Pos5",
+        "Z:\\Alexander\\13122023_crelox_test\\13122023_crelox_test_4\\Pos8",
+        "Z:\\Alexander\\13122023_crelox_test\\13122023_crelox_test_4\\Pos9",
+        "Z:\\Alexander\\13122023_crelox_test\\13122023_crelox_test_4\\Pos12",
+        "Z:\\Alexander\\13122023_crelox_test\\13122023_crelox_test_4\\Pos13",
+        "Z:\\Alexander\\13122023_crelox_test\\13122023_crelox_test_4\\Pos16",
+        "Z:\\Alexander\\13122023_crelox_test\\13122023_crelox_test_4\\Pos17",
+        "Z:\\Alexander\\13122023_crelox_test\\13122023_crelox_test_4\\Pos20",
+        "Z:\\Alexander\\13122023_crelox_test\\13122023_crelox_test_4\\Pos21",
+        "Z:\\Alexander\\13122023_crelox_test\\13122023_crelox_test_4\\Pos24",
+        "Z:\\Alexander\\13122023_crelox_test\\13122023_crelox_test_4\\Pos25",
+        "Z:\\Alexander\\13122023_crelox_test\\13122023_crelox_test_4\\Pos28",
+        "Z:\\Alexander\\13122023_crelox_test\\13122023_crelox_test_4\\Pos29",
+        "Z:\\Alexander\\13122023_crelox_test\\13122023_crelox_test_4\\Pos32"
+      ],
+      "status": "unproven_legacy_alias_identity_requires_metadata_and_content_review"
+    },
+    {
+      "project_id": "6aa9c80c-ac32-41d6-a021-6f2d83e0a5bf",
+      "name": "anof_171123_apx1",
+      "source_mat": "/mnt/detecdiv-secondary-sauvegarde/Alexander/analysis/anof_171123_apx1.mat",
+      "fovs": 8,
+      "rois": 3854,
+      "candidate_raw_acquisitions": [
+        "171123dhyapx1_nhgch5"
+      ],
+      "candidate_raw_records": [
+        {
+          "id": "a0edaa03-0857-433e-bec8-314d871f62dd",
+          "path": "/data/Alexander/data/2023_3/171123dhyapx1_nhgch5/171123dhyapx1_nhgch5_3"
+        },
+        {
+          "id": "57d7259d-15d3-491f-b196-2d5bf911039b",
+          "path": "/data/Alexander/data/2023_3/171123dhyapx1_nhgch5/171123dhyapx1_nhgch5_1"
+        },
+        {
+          "id": "a0b42315-68f3-45c3-ae05-8cab747469c9",
+          "path": "/data/Alexander/data/2023_3/171123dhyapx1_nhgch5/171123dhyapx1_nhgch5_4"
+        },
+        {
+          "id": "2d5e05b2-0e9b-4b1f-925c-2d3d0df3d9f4",
+          "path": "/data/Alexander/data/2023_3/171123dhyapx1_nhgch5/171123dhyapx1_nhgch5_2"
+        }
+      ],
+      "saved_raw_paths": [
+        "Z:\\Alexander\\171123dhyapx1_nhgch5\\171123dhyapx1_nhgch5_4\\Pos1",
+        "Z:\\Alexander\\171123dhyapx1_nhgch5\\171123dhyapx1_nhgch5_4\\Pos2",
+        "Z:\\Alexander\\171123dhyapx1_nhgch5\\171123dhyapx1_nhgch5_4\\Pos3",
+        "Z:\\Alexander\\171123dhyapx1_nhgch5\\171123dhyapx1_nhgch5_4\\Pos4",
+        "Z:\\Alexander\\171123dhyapx1_nhgch5\\171123dhyapx1_nhgch5_4\\Pos5",
+        "Z:\\Alexander\\171123dhyapx1_nhgch5\\171123dhyapx1_nhgch5_4\\Pos6",
+        "Z:\\Alexander\\171123dhyapx1_nhgch5\\171123dhyapx1_nhgch5_4\\Pos7",
+        "Z:\\Alexander\\171123dhyapx1_nhgch5\\171123dhyapx1_nhgch5_4\\Pos8"
+      ],
+      "status": "unproven_legacy_alias_identity_requires_metadata_and_content_review"
+    },
+    {
+      "project_id": "9d70b40a-43b2-472a-8410-b6a7965184b6",
+      "name": "anof_171123_sgfhap4",
+      "source_mat": "/mnt/detecdiv-secondary-sauvegarde/Alexander/analysis/anof_171123_sgfhap4.mat",
+      "fovs": 4,
+      "rois": 1966,
+      "candidate_raw_acquisitions": [
+        "171123dhyapx1_nhgch5"
+      ],
+      "candidate_raw_records": [
+        {
+          "id": "a0edaa03-0857-433e-bec8-314d871f62dd",
+          "path": "/data/Alexander/data/2023_3/171123dhyapx1_nhgch5/171123dhyapx1_nhgch5_3"
+        },
+        {
+          "id": "57d7259d-15d3-491f-b196-2d5bf911039b",
+          "path": "/data/Alexander/data/2023_3/171123dhyapx1_nhgch5/171123dhyapx1_nhgch5_1"
+        },
+        {
+          "id": "a0b42315-68f3-45c3-ae05-8cab747469c9",
+          "path": "/data/Alexander/data/2023_3/171123dhyapx1_nhgch5/171123dhyapx1_nhgch5_4"
+        },
+        {
+          "id": "2d5e05b2-0e9b-4b1f-925c-2d3d0df3d9f4",
+          "path": "/data/Alexander/data/2023_3/171123dhyapx1_nhgch5/171123dhyapx1_nhgch5_2"
+        }
+      ],
+      "saved_raw_paths": [
+        "Z:\\Alexander\\171123dhyapx1_nhgch5\\171123dhyapx1_nhgch5_4\\Pos25",
+        "Z:\\Alexander\\171123dhyapx1_nhgch5\\171123dhyapx1_nhgch5_4\\Pos26",
+        "Z:\\Alexander\\171123dhyapx1_nhgch5\\171123dhyapx1_nhgch5_4\\Pos27",
+        "Z:\\Alexander\\171123dhyapx1_nhgch5\\171123dhyapx1_nhgch5_4\\Pos28"
+      ],
+      "status": "unproven_legacy_alias_identity_requires_metadata_and_content_review"
+    },
+    {
+      "project_id": "c1661f69-7579-473b-aa7d-f2acdb7de5bc",
+      "name": "anof_231123_nh52",
+      "source_mat": "/mnt/detecdiv-secondary-sauvegarde/Alexander/analysis/anof_231123_nh52.mat",
+      "fovs": 16,
+      "rois": 7804,
+      "candidate_raw_acquisitions": [
+        "231123newleft_nh52"
+      ],
+      "candidate_raw_records": [
+        {
+          "id": "79b16b7f-9e83-450b-b575-7d6b8f54f77e",
+          "path": "/data/Alexander/data/2023_3/231123newleft_nh52/231123newleft_nh52_4"
+        },
+        {
+          "id": "d006c480-004b-441a-87b3-b6e4b040ebfa",
+          "path": "/data/Alexander/data/2023_3/231123newleft_nh52/231123newleft_nh52_1"
+        },
+        {
+          "id": "51906376-35f3-44c6-a8e2-9eb6e07342ee",
+          "path": "/data/Alexander/data/2023_3/231123newleft_nh52/231123newleft_nh52_2"
+        },
+        {
+          "id": "3e4c45a4-0574-4eaf-ac76-93d686ae06a2",
+          "path": "/data/Alexander/data/2023_3/231123newleft_nh52/231123newleft_nh52_3"
+        }
+      ],
+      "saved_raw_paths": [
+        "Z:\\Alexander\\231123newleft_nh52\\231123newleft_nh52_4\\Pos9",
+        "Z:\\Alexander\\231123newleft_nh52\\231123newleft_nh52_4\\Pos10",
+        "Z:\\Alexander\\231123newleft_nh52\\231123newleft_nh52_4\\Pos11",
+        "Z:\\Alexander\\231123newleft_nh52\\231123newleft_nh52_4\\Pos12",
+        "Z:\\Alexander\\231123newleft_nh52\\231123newleft_nh52_4\\Pos13",
+        "Z:\\Alexander\\231123newleft_nh52\\231123newleft_nh52_4\\Pos14",
+        "Z:\\Alexander\\231123newleft_nh52\\231123newleft_nh52_4\\Pos15",
+        "Z:\\Alexander\\231123newleft_nh52\\231123newleft_nh52_4\\Pos16",
+        "Z:\\Alexander\\231123newleft_nh52\\231123newleft_nh52_4\\Pos17",
+        "Z:\\Alexander\\231123newleft_nh52\\231123newleft_nh52_4\\Pos18",
+        "Z:\\Alexander\\231123newleft_nh52\\231123newleft_nh52_4\\Pos19",
+        "Z:\\Alexander\\231123newleft_nh52\\231123newleft_nh52_4\\Pos20",
+        "Z:\\Alexander\\231123newleft_nh52\\231123newleft_nh52_4\\Pos21",
+        "Z:\\Alexander\\231123newleft_nh52\\231123newleft_nh52_4\\Pos22",
+        "Z:\\Alexander\\231123newleft_nh52\\231123newleft_nh52_4\\Pos23",
+        "Z:\\Alexander\\231123newleft_nh52\\231123newleft_nh52_4\\Pos24"
+      ],
+      "status": "unproven_legacy_alias_identity_requires_metadata_and_content_review"
+    },
+    {
+      "project_id": "6e2aa8c7-a59e-4ed7-b7e2-c48916160a02",
+      "name": "anof_291123_nh_sgf73",
+      "source_mat": "/mnt/detecdiv-secondary-sauvegarde/Alexander/analysis/anof_291123_nh_sgf73.mat",
+      "fovs": 12,
+      "rois": 5177,
+      "candidate_raw_acquisitions": [
+        "291123_nhsgf73hap4"
+      ],
+      "candidate_raw_records": [
+        {
+          "id": "e915e211-398f-4e78-87b3-c5c90b37fcb7",
+          "path": "/data/Alexander/data/2023_3/291123_nhsgf73hap4/291123_nhsgf73hap4_2"
+        },
+        {
+          "id": "2fd52116-9240-4230-9d4a-ece42f1d1581",
+          "path": "/data/Alexander/data/2023_3/291123_nhsgf73hap4/291123_nhsgf73hap4_4"
+        },
+        {
+          "id": "20a78f49-eefa-4812-b6df-a097e455697b",
+          "path": "/data/Alexander/data/2023_3/291123_nhsgf73hap4/291123_nhsgf73hap4_1"
+        },
+        {
+          "id": "02e51eb3-16a8-4dc0-9fb7-0a45eec11704",
+          "path": "/data/Alexander/data/2023_3/291123_nhsgf73hap4/291123_nhsgf73hap4_3"
+        }
+      ],
+      "saved_raw_paths": [
+        "Z:\\Alexander\\291123_nhsgf73hap4\\291123_nhsgf73hap4_4\\Pos1",
+        "Z:\\Alexander\\291123_nhsgf73hap4\\291123_nhsgf73hap4_4\\Pos2",
+        "Z:\\Alexander\\291123_nhsgf73hap4\\291123_nhsgf73hap4_4\\Pos3",
+        "Z:\\Alexander\\291123_nhsgf73hap4\\291123_nhsgf73hap4_4\\Pos4",
+        "Z:\\Alexander\\291123_nhsgf73hap4\\291123_nhsgf73hap4_4\\Pos9",
+        "Z:\\Alexander\\291123_nhsgf73hap4\\291123_nhsgf73hap4_4\\Pos10",
+        "Z:\\Alexander\\291123_nhsgf73hap4\\291123_nhsgf73hap4_4\\Pos11",
+        "Z:\\Alexander\\291123_nhsgf73hap4\\291123_nhsgf73hap4_4\\Pos12",
+        "Z:\\Alexander\\291123_nhsgf73hap4\\291123_nhsgf73hap4_4\\Pos17",
+        "Z:\\Alexander\\291123_nhsgf73hap4\\291123_nhsgf73hap4_4\\Pos18",
+        "Z:\\Alexander\\291123_nhsgf73hap4\\291123_nhsgf73hap4_4\\Pos19",
+        "Z:\\Alexander\\291123_nhsgf73hap4\\291123_nhsgf73hap4_4\\Pos20"
+      ],
+      "status": "unproven_legacy_alias_identity_requires_metadata_and_content_review"
+    },
+    {
+      "project_id": "c00f3571-2721-4dc5-9783-2d464fbec635",
+      "name": "anof_291123_nh_wts",
+      "source_mat": "/mnt/detecdiv-secondary-sauvegarde/Alexander/analysis/anof_291123_nh_wts.mat",
+      "fovs": 8,
+      "rois": 3247,
+      "candidate_raw_acquisitions": [
+        "291123_nhsgf73hap4"
+      ],
+      "candidate_raw_records": [
+        {
+          "id": "e915e211-398f-4e78-87b3-c5c90b37fcb7",
+          "path": "/data/Alexander/data/2023_3/291123_nhsgf73hap4/291123_nhsgf73hap4_2"
+        },
+        {
+          "id": "2fd52116-9240-4230-9d4a-ece42f1d1581",
+          "path": "/data/Alexander/data/2023_3/291123_nhsgf73hap4/291123_nhsgf73hap4_4"
+        },
+        {
+          "id": "20a78f49-eefa-4812-b6df-a097e455697b",
+          "path": "/data/Alexander/data/2023_3/291123_nhsgf73hap4/291123_nhsgf73hap4_1"
+        },
+        {
+          "id": "02e51eb3-16a8-4dc0-9fb7-0a45eec11704",
+          "path": "/data/Alexander/data/2023_3/291123_nhsgf73hap4/291123_nhsgf73hap4_3"
+        }
+      ],
+      "saved_raw_paths": [
+        "Z:\\Alexander\\291123_nhsgf73hap4\\291123_nhsgf73hap4_4\\Pos25",
+        "Z:\\Alexander\\291123_nhsgf73hap4\\291123_nhsgf73hap4_4\\Pos26",
+        "Z:\\Alexander\\291123_nhsgf73hap4\\291123_nhsgf73hap4_4\\Pos27",
+        "Z:\\Alexander\\291123_nhsgf73hap4\\291123_nhsgf73hap4_4\\Pos28",
+        "Z:\\Alexander\\291123_nhsgf73hap4\\291123_nhsgf73hap4_4\\Pos29",
+        "Z:\\Alexander\\291123_nhsgf73hap4\\291123_nhsgf73hap4_4\\Pos30",
+        "Z:\\Alexander\\291123_nhsgf73hap4\\291123_nhsgf73hap4_4\\Pos31",
+        "Z:\\Alexander\\291123_nhsgf73hap4\\291123_nhsgf73hap4_4\\Pos32"
+      ],
+      "status": "unproven_legacy_alias_identity_requires_metadata_and_content_review"
+    },
+    {
+      "project_id": "707acc12-89b0-4d74-a98c-d69e86b68531",
+      "name": "anof_291123_nh_sgf73hap4",
+      "source_mat": "/mnt/detecdiv-secondary-sauvegarde/Alexander/analysis/anof_291123_nh_sgf73hap4.mat",
+      "fovs": 8,
+      "rois": 3365,
+      "candidate_raw_acquisitions": [
+        "291123_nhsgf73hap4"
+      ],
+      "candidate_raw_records": [
+        {
+          "id": "e915e211-398f-4e78-87b3-c5c90b37fcb7",
+          "path": "/data/Alexander/data/2023_3/291123_nhsgf73hap4/291123_nhsgf73hap4_2"
+        },
+        {
+          "id": "2fd52116-9240-4230-9d4a-ece42f1d1581",
+          "path": "/data/Alexander/data/2023_3/291123_nhsgf73hap4/291123_nhsgf73hap4_4"
+        },
+        {
+          "id": "20a78f49-eefa-4812-b6df-a097e455697b",
+          "path": "/data/Alexander/data/2023_3/291123_nhsgf73hap4/291123_nhsgf73hap4_1"
+        },
+        {
+          "id": "02e51eb3-16a8-4dc0-9fb7-0a45eec11704",
+          "path": "/data/Alexander/data/2023_3/291123_nhsgf73hap4/291123_nhsgf73hap4_3"
+        }
+      ],
+      "saved_raw_paths": [
+        "Z:\\Alexander\\291123_nhsgf73hap4\\291123_nhsgf73hap4_4\\Pos5",
+        "Z:\\Alexander\\291123_nhsgf73hap4\\291123_nhsgf73hap4_4\\Pos6",
+        "Z:\\Alexander\\291123_nhsgf73hap4\\291123_nhsgf73hap4_4\\Pos7",
+        "Z:\\Alexander\\291123_nhsgf73hap4\\291123_nhsgf73hap4_4\\Pos8",
+        "Z:\\Alexander\\291123_nhsgf73hap4\\291123_nhsgf73hap4_4\\Pos21",
+        "Z:\\Alexander\\291123_nhsgf73hap4\\291123_nhsgf73hap4_4\\Pos22",
+        "Z:\\Alexander\\291123_nhsgf73hap4\\291123_nhsgf73hap4_4\\Pos23",
+        "Z:\\Alexander\\291123_nhsgf73hap4\\291123_nhsgf73hap4_4\\Pos24"
+      ],
+      "status": "unproven_legacy_alias_identity_requires_metadata_and_content_review"
+    },
+    {
+      "project_id": "78c84671-9e8f-4ee4-bed9-d6397f86e5fd",
+      "name": "anof_231123_newleft",
+      "source_mat": "/mnt/detecdiv-secondary-sauvegarde/Alexander/analysis/anof_231123_newleft.mat",
+      "fovs": 8,
+      "rois": 3929,
+      "candidate_raw_acquisitions": [
+        "231123newleft_nh52"
+      ],
+      "candidate_raw_records": [
+        {
+          "id": "79b16b7f-9e83-450b-b575-7d6b8f54f77e",
+          "path": "/data/Alexander/data/2023_3/231123newleft_nh52/231123newleft_nh52_4"
+        },
+        {
+          "id": "d006c480-004b-441a-87b3-b6e4b040ebfa",
+          "path": "/data/Alexander/data/2023_3/231123newleft_nh52/231123newleft_nh52_1"
+        },
+        {
+          "id": "51906376-35f3-44c6-a8e2-9eb6e07342ee",
+          "path": "/data/Alexander/data/2023_3/231123newleft_nh52/231123newleft_nh52_2"
+        },
+        {
+          "id": "3e4c45a4-0574-4eaf-ac76-93d686ae06a2",
+          "path": "/data/Alexander/data/2023_3/231123newleft_nh52/231123newleft_nh52_3"
+        }
+      ],
+      "saved_raw_paths": [
+        "Z:\\Alexander\\231123newleft_nh52\\231123newleft_nh52_4\\Pos1",
+        "Z:\\Alexander\\231123newleft_nh52\\231123newleft_nh52_4\\Pos2",
+        "Z:\\Alexander\\231123newleft_nh52\\231123newleft_nh52_4\\Pos3",
+        "Z:\\Alexander\\231123newleft_nh52\\231123newleft_nh52_4\\Pos4",
+        "Z:\\Alexander\\231123newleft_nh52\\231123newleft_nh52_4\\Pos5",
+        "Z:\\Alexander\\231123newleft_nh52\\231123newleft_nh52_4\\Pos6",
+        "Z:\\Alexander\\231123newleft_nh52\\231123newleft_nh52_4\\Pos7",
+        "Z:\\Alexander\\231123newleft_nh52\\231123newleft_nh52_4\\Pos8"
+      ],
+      "status": "unproven_legacy_alias_identity_requires_metadata_and_content_review"
+    },
+    {
+      "project_id": "9f88f839-d908-44c6-8937-0b04713e36e3",
+      "name": "anof_171123_RM_NTS1NGtest",
+      "source_mat": "/mnt/detecdiv-secondary-sauvegarde/Alexander/analysis/anof_171123_RM_NTS1NGtest.mat",
+      "fovs": 4,
+      "rois": 1963,
+      "candidate_raw_acquisitions": [
+        "171123dhyapx1_nhgch5"
+      ],
+      "candidate_raw_records": [
+        {
+          "id": "a0edaa03-0857-433e-bec8-314d871f62dd",
+          "path": "/data/Alexander/data/2023_3/171123dhyapx1_nhgch5/171123dhyapx1_nhgch5_3"
+        },
+        {
+          "id": "57d7259d-15d3-491f-b196-2d5bf911039b",
+          "path": "/data/Alexander/data/2023_3/171123dhyapx1_nhgch5/171123dhyapx1_nhgch5_1"
+        },
+        {
+          "id": "a0b42315-68f3-45c3-ae05-8cab747469c9",
+          "path": "/data/Alexander/data/2023_3/171123dhyapx1_nhgch5/171123dhyapx1_nhgch5_4"
+        },
+        {
+          "id": "2d5e05b2-0e9b-4b1f-925c-2d3d0df3d9f4",
+          "path": "/data/Alexander/data/2023_3/171123dhyapx1_nhgch5/171123dhyapx1_nhgch5_2"
+        }
+      ],
+      "saved_raw_paths": [
+        "Z:\\Alexander\\171123dhyapx1_nhgch5\\171123dhyapx1_nhgch5_4\\Pos29",
+        "Z:\\Alexander\\171123dhyapx1_nhgch5\\171123dhyapx1_nhgch5_4\\Pos30",
+        "Z:\\Alexander\\171123dhyapx1_nhgch5\\171123dhyapx1_nhgch5_4\\Pos31",
+        "Z:\\Alexander\\171123dhyapx1_nhgch5\\171123dhyapx1_nhgch5_4\\Pos32"
+      ],
+      "status": "unproven_legacy_alias_identity_requires_metadata_and_content_review"
+    },
+    {
+      "project_id": "de439577-471f-4eeb-afd8-3154f13732a6",
+      "name": "anof_171123_nhwt_gcn5",
+      "source_mat": "/mnt/detecdiv-secondary-sauvegarde/Alexander/analysis/anof_171123_nhwt_gcn5.mat",
+      "fovs": 16,
+      "rois": 7828,
+      "candidate_raw_acquisitions": [
+        "171123dhyapx1_nhgch5"
+      ],
+      "candidate_raw_records": [
+        {
+          "id": "a0edaa03-0857-433e-bec8-314d871f62dd",
+          "path": "/data/Alexander/data/2023_3/171123dhyapx1_nhgch5/171123dhyapx1_nhgch5_3"
+        },
+        {
+          "id": "57d7259d-15d3-491f-b196-2d5bf911039b",
+          "path": "/data/Alexander/data/2023_3/171123dhyapx1_nhgch5/171123dhyapx1_nhgch5_1"
+        },
+        {
+          "id": "a0b42315-68f3-45c3-ae05-8cab747469c9",
+          "path": "/data/Alexander/data/2023_3/171123dhyapx1_nhgch5/171123dhyapx1_nhgch5_4"
+        },
+        {
+          "id": "2d5e05b2-0e9b-4b1f-925c-2d3d0df3d9f4",
+          "path": "/data/Alexander/data/2023_3/171123dhyapx1_nhgch5/171123dhyapx1_nhgch5_2"
+        }
+      ],
+      "saved_raw_paths": [
+        "Z:\\Alexander\\171123dhyapx1_nhgch5\\171123dhyapx1_nhgch5_4\\Pos9",
+        "Z:\\Alexander\\171123dhyapx1_nhgch5\\171123dhyapx1_nhgch5_4\\Pos10",
+        "Z:\\Alexander\\171123dhyapx1_nhgch5\\171123dhyapx1_nhgch5_4\\Pos11",
+        "Z:\\Alexander\\171123dhyapx1_nhgch5\\171123dhyapx1_nhgch5_4\\Pos12",
+        "Z:\\Alexander\\171123dhyapx1_nhgch5\\171123dhyapx1_nhgch5_4\\Pos13",
+        "Z:\\Alexander\\171123dhyapx1_nhgch5\\171123dhyapx1_nhgch5_4\\Pos14",
+        "Z:\\Alexander\\171123dhyapx1_nhgch5\\171123dhyapx1_nhgch5_4\\Pos15",
+        "Z:\\Alexander\\171123dhyapx1_nhgch5\\171123dhyapx1_nhgch5_4\\Pos16",
+        "Z:\\Alexander\\171123dhyapx1_nhgch5\\171123dhyapx1_nhgch5_4\\Pos17",
+        "Z:\\Alexander\\171123dhyapx1_nhgch5\\171123dhyapx1_nhgch5_4\\Pos18",
+        "Z:\\Alexander\\171123dhyapx1_nhgch5\\171123dhyapx1_nhgch5_4\\Pos19",
+        "Z:\\Alexander\\171123dhyapx1_nhgch5\\171123dhyapx1_nhgch5_4\\Pos20",
+        "Z:\\Alexander\\171123dhyapx1_nhgch5\\171123dhyapx1_nhgch5_4\\Pos21",
+        "Z:\\Alexander\\171123dhyapx1_nhgch5\\171123dhyapx1_nhgch5_4\\Pos22",
+        "Z:\\Alexander\\171123dhyapx1_nhgch5\\171123dhyapx1_nhgch5_4\\Pos23",
+        "Z:\\Alexander\\171123dhyapx1_nhgch5\\171123dhyapx1_nhgch5_4\\Pos24"
+      ],
+      "status": "unproven_legacy_alias_identity_requires_metadata_and_content_review"
+    }
+  ],
+  "note": "Path-name matches are candidates only. No source path rewritten, no raw identity or catalog link changed."
+}

@@ -1,0 +1,17 @@
+{
+  "before": 750255,
+  "source_now": 87364,
+  "target_now": 750255,
+  "target_missing": 0,
+  "target_extra": 0,
+  "target_size_changes": 0,
+  "target_time_changes_over_1000ns": 1,
+  "time_sample": [
+    {
+      "path": "03042023_nh_tk1_adap_cyc1/03042023_nh_tk1_adap_cyc1_4/Pos5/img_channel000_position005_time000000082_z002.tif",
+      "difference_ns": 110913288013327261
+    }
+  ],
+  "source_added": 0,
+  "source_modified": 0
+}

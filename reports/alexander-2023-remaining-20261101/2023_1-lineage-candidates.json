@@ -1,0 +1,1103 @@
+{
+  "raws": [
+    {
+      "id": "1ebbbdb4-25e9-4396-b868-2e7025b63344",
+      "label": "160623_2",
+      "metadata": {
+        "source": "project_srcpath_relink",
+        "dimensions": {
+          "width_px": 0,
+          "height_px": 0,
+          "pixel_type": "GRAY16",
+          "autostretch": true,
+          "frame_count": 1,
+          "slice_count": 3,
+          "display_mode": "COMPOSITE",
+          "playback_fps": 10.0,
+          "channel_count": 3,
+          "channel_names": [
+            "BF",
+            "GFP",
+            "mCh"
+          ],
+          "roi_autoscale": true,
+          "position_count": 25,
+          "channel_settings": [
+            {
+              "color": {
+                "Alpha": 1.0,
+                "ColorSpace": "sRGB",
+                "Components": [
+                  1.0,
+                  1.0,
+                  1.0
+                ]
+              },
+              "index": 0,
+              "frames": null,
+              "channel": "BF",
+              "visible": true,
+              "led_power": 0,
+              "exposure_ms": 10,
+              "interval_ms": null,
+              "channel_group": "X",
+              "binning_factor": 1,
+              "led_power_text": "COM20",
+              "histogram_bit_depth": 16,
+              "use_camera_bit_depth": true,
+              "uniform_component_scaling": false
+            },
+            {
+              "color": {
+                "Alpha": 1.0,
+                "ColorSpace": "sRGB",
+                "Components": [
+                  0.4,
+                  1.0,
+                  0.4
+                ]
+              },
+              "index": 1,
+              "frames": null,
+              "channel": "GFP",
+              "visible": true,
+              "led_power": 0,
+              "exposure_ms": 3,
+              "interval_ms": null,
+              "channel_group": "X",
+              "binning_factor": 1,
+              "led_power_text": "COM20",
+              "histogram_bit_depth": 16,
+              "use_camera_bit_depth": true,
+              "uniform_component_scaling": false
+            },
+            {
+              "color": {
+                "Alpha": 1.0,
+                "ColorSpace": "sRGB",
+                "Components": [
+                  1.0,
+                  0.2,
+                  0.2
+                ]
+              },
+              "index": 2,
+              "frames": null,
+              "channel": "mCh",
+              "visible": true,
+              "led_power": 70,
+              "exposure_ms": 5,
+              "interval_ms": null,
+              "channel_group": "X",
+              "binning_factor": 1,
+              "led_power_text": "COM20",
+              "histogram_bit_depth": 16,
+              "use_camera_bit_depth": true,
+              "uniform_component_scaling": false
+            }
+          ],
+          "file_backed_corrections": {
+            "frame_count": {
+              "files": 1,
+              "metadata": 1000
+            }
+          },
+          "uniform_channel_scaling": false
+        },
+        "data_format": "micromanager_tiff_dir",
+        "dataset_dir_abs": "/data/Alexander/data/2023_1/160623_test/160623_2",
+        "dataset_rel_from_root": "160623_test/160623_2",
+        "tiff_sequence_summary": {
+          "source": "tiff_files",
+          "positions": [
+            "Pos0",
+            "Pos10",
+            "Pos11",
+            "Pos12",
+            "Pos13",
+            "Pos14",
+            "Pos15",
+            "Pos16",
+            "Pos17",
+            "Pos18",
+            "Pos19",
+            "Pos20",
+            "Pos21",
+            "Pos22",
+            "Pos23",
+            "Pos24",
+            "Pos25",
+            "Pos26",
+            "Pos27",
+            "Pos28",
+            "Pos5",
+            "Pos6",
+            "Pos7",
+            "Pos8",
+            "Pos9"
+          ],
+          "file_count": 101,
+          "frame_count": 1,
+          "slice_count": 3,
+          "channel_count": 3,
+          "position_count": 25
+        }
+      },
+      "positions": [
+        {
+          "key": "pos15",
+          "metadata": {
+            "source": "directory_heuristic",
+            "relative_path": "Pos15"
+          }
+        },
+        {
+          "key": "pos12",
+          "metadata": {
+            "source": "directory_heuristic",
+            "relative_path": "Pos12"
+          }
+        }
+      ]
+    },
+    {
+      "id": "79ce3058-47a0-4e83-9678-7171d4c67c9a",
+      "label": "160623_3",
+      "metadata": {
+        "source": "project_srcpath_relink",
+        "dimensions": {
+          "width_px": 0,
+          "height_px": 0,
+          "pixel_type": "GRAY16",
+          "autostretch": true,
+          "frame_count": 1,
+          "slice_count": 3,
+          "display_mode": "COMPOSITE",
+          "playback_fps": 10.0,
+          "channel_count": 3,
+          "channel_names": [
+            "BF",
+            "GFP",
+            "mCh"
+          ],
+          "roi_autoscale": true,
+          "position_count": 25,
+          "channel_settings": [
+            {
+              "color": {
+                "Alpha": 1.0,
+                "ColorSpace": "sRGB",
+                "Components": [
+                  1.0,
+                  1.0,
+                  1.0
+                ]
+              },
+              "index": 0,
+              "frames": null,
+              "channel": "BF",
+              "visible": true,
+              "led_power": 0,
+              "exposure_ms": 20,
+              "interval_ms": null,
+              "channel_group": "X",
+              "binning_factor": 1,
+              "led_power_text": "COM20",
+              "histogram_bit_depth": 16,
+              "use_camera_bit_depth": true,
+              "uniform_component_scaling": false
+            },
+            {
+              "color": {
+                "Alpha": 1.0,
+                "ColorSpace": "sRGB",
+                "Components": [
+                  0.4,
+                  1.0,
+                  0.4
+                ]
+              },
+              "index": 1,
+              "frames": null,
+              "channel": "GFP",
+              "visible": true,
+              "led_power": 0,
+              "exposure_ms": 3,
+              "interval_ms": null,
+              "channel_group": "X",
+              "binning_factor": 1,
+              "led_power_text": "COM20",
+              "histogram_bit_depth": 16,
+              "use_camera_bit_depth": true,
+              "uniform_component_scaling": false
+            },
+            {
+              "color": {
+                "Alpha": 1.0,
+                "ColorSpace": "sRGB",
+                "Components": [
+                  1.0,
+                  0.2,
+                  0.2
+                ]
+              },
+              "index": 2,
+              "frames": null,
+              "channel": "mCh",
+              "visible": true,
+              "led_power": 70,
+              "exposure_ms": 5,
+              "interval_ms": null,
+              "channel_group": "X",
+              "binning_factor": 1,
+              "led_power_text": "COM20",
+              "histogram_bit_depth": 16,
+              "use_camera_bit_depth": true,
+              "uniform_component_scaling": false
+            }
+          ],
+          "file_backed_corrections": {
+            "frame_count": {
+              "files": 1,
+              "metadata": 1000
+            }
+          },
+          "uniform_channel_scaling": false
+        },
+        "data_format": "micromanager_tiff_dir",
+        "dataset_dir_abs": "/data/Alexander/data/2023_1/160623_test/160623_3",
+        "dataset_rel_from_root": "160623_test/160623_3",
+        "tiff_sequence_summary": {
+          "source": "tiff_files",
+          "positions": [
+            "Pos0",
+            "Pos10",
+            "Pos11",
+            "Pos12",
+            "Pos13",
+            "Pos14",
+            "Pos15",
+            "Pos16",
+            "Pos17",
+            "Pos18",
+            "Pos19",
+            "Pos20",
+            "Pos21",
+            "Pos22",
+            "Pos23",
+            "Pos24",
+            "Pos25",
+            "Pos26",
+            "Pos27",
+            "Pos28",
+            "Pos5",
+            "Pos6",
+            "Pos7",
+            "Pos8",
+            "Pos9"
+          ],
+          "file_count": 125,
+          "frame_count": 1,
+          "slice_count": 3,
+          "channel_count": 3,
+          "position_count": 25
+        }
+      },
+      "positions": [
+        {
+          "key": "pos19",
+          "metadata": {
+            "source": "directory_heuristic",
+            "relative_path": "Pos19"
+          }
+        },
+        {
+          "key": "pos24",
+          "metadata": {
+            "source": "directory_heuristic",
+            "relative_path": "Pos24"
+          }
+        }
+      ]
+    },
+    {
+      "id": "2d79deb5-a904-46e5-8268-f9285ec18a4b",
+      "label": "160623_1",
+      "metadata": {
+        "source": "project_srcpath_relink",
+        "dimensions": {
+          "width_px": 0,
+          "height_px": 0,
+          "pixel_type": "GRAY16",
+          "autostretch": true,
+          "frame_count": 1,
+          "slice_count": 3,
+          "display_mode": "COMPOSITE",
+          "playback_fps": 10.0,
+          "channel_count": 3,
+          "channel_names": [
+            "BF",
+            "GFP",
+            "mCh"
+          ],
+          "roi_autoscale": true,
+          "position_count": 25,
+          "channel_settings": [
+            {
+              "color": {
+                "Alpha": 1.0,
+                "ColorSpace": "sRGB",
+                "Components": [
+                  1.0,
+                  1.0,
+                  1.0
+                ]
+              },
+              "index": 0,
+              "frames": null,
+              "channel": "BF",
+              "visible": true,
+              "led_power": 0,
+              "exposure_ms": 10,
+              "interval_ms": null,
+              "channel_group": "X",
+              "binning_factor": 1,
+              "led_power_text": "COM20",
+              "histogram_bit_depth": 16,
+              "use_camera_bit_depth": true,
+              "uniform_component_scaling": false
+            },
+            {
+              "color": {
+                "Alpha": 1.0,
+                "ColorSpace": "sRGB",
+                "Components": [
+                  0.4,
+                  1.0,
+                  0.4
+                ]
+              },
+              "index": 1,
+              "frames": null,
+              "channel": "GFP",
+              "visible": true,
+              "led_power": 0,
+              "exposure_ms": 3,
+              "interval_ms": null,
+              "channel_group": "X",
+              "binning_factor": 1,
+              "led_power_text": "COM20",
+              "histogram_bit_depth": 16,
+              "use_camera_bit_depth": true,
+              "uniform_component_scaling": false
+            },
+            {
+              "color": {
+                "Alpha": 1.0,
+                "ColorSpace": "sRGB",
+                "Components": [
+                  1.0,
+                  0.2,
+                  0.2
+                ]
+              },
+              "index": 2,
+              "frames": null,
+              "channel": "mCh",
+              "visible": true,
+              "led_power": 70,
+              "exposure_ms": 5,
+              "interval_ms": null,
+              "channel_group": "X",
+              "binning_factor": 1,
+              "led_power_text": "COM20",
+              "histogram_bit_depth": 16,
+              "use_camera_bit_depth": true,
+              "uniform_component_scaling": false
+            }
+          ],
+          "file_backed_corrections": {
+            "frame_count": {
+              "files": 1,
+              "metadata": 1000
+            }
+          },
+          "uniform_channel_scaling": false
+        },
+        "data_format": "micromanager_tiff_dir",
+        "dataset_dir_abs": "/data/Alexander/data/2023_1/160623_test/160623_1",
+        "dataset_rel_from_root": "160623_test/160623_1",
+        "tiff_sequence_summary": {
+          "source": "tiff_files",
+          "positions": [
+            "Pos0",
+            "Pos10",
+            "Pos11",
+            "Pos12",
+            "Pos13",
+            "Pos14",
+            "Pos15",
+            "Pos16",
+            "Pos17",
+            "Pos18",
+            "Pos19",
+            "Pos20",
+            "Pos21",
+            "Pos22",
+            "Pos23",
+            "Pos24",
+            "Pos25",
+            "Pos26",
+            "Pos27",
+            "Pos28",
+            "Pos5",
+            "Pos6",
+            "Pos7",
+            "Pos8",
+            "Pos9"
+          ],
+          "file_count": 125,
+          "frame_count": 1,
+          "slice_count": 3,
+          "channel_count": 3,
+          "position_count": 25
+        }
+      },
+      "positions": [
+        {
+          "key": "pos11",
+          "metadata": {
+            "source": "directory_heuristic",
+            "relative_path": "Pos11"
+          }
+        },
+        {
+          "key": "pos14",
+          "metadata": {
+            "source": "directory_heuristic",
+            "relative_path": "Pos14"
+          }
+        }
+      ]
+    },
+    {
+      "id": "ca34c838-dfa7-4478-86ef-85753a47fcfc",
+      "label": "160623_4",
+      "metadata": {
+        "source": "project_srcpath_relink",
+        "dimensions": {
+          "width_px": 0,
+          "height_px": 0,
+          "pixel_type": "GRAY16",
+          "autostretch": true,
+          "frame_count": 1,
+          "slice_count": 3,
+          "display_mode": "COMPOSITE",
+          "playback_fps": 10.0,
+          "channel_count": 3,
+          "channel_names": [
+            "BF",
+            "GFP",
+            "mCh"
+          ],
+          "roi_autoscale": true,
+          "position_count": 25,
+          "channel_settings": [
+            {
+              "color": {
+                "Alpha": 1.0,
+                "ColorSpace": "sRGB",
+                "Components": [
+                  1.0,
+                  1.0,
+                  1.0
+                ]
+              },
+              "index": 0,
+              "frames": null,
+              "channel": "BF",
+              "visible": true,
+              "led_power": 0,
+              "exposure_ms": 10,
+              "interval_ms": null,
+              "channel_group": "X",
+              "binning_factor": 1,
+              "led_power_text": "COM20",
+              "histogram_bit_depth": 16,
+              "use_camera_bit_depth": true,
+              "uniform_component_scaling": false
+            },
+            {
+              "color": {
+                "Alpha": 1.0,
+                "ColorSpace": "sRGB",
+                "Components": [
+                  0.4,
+                  1.0,
+                  0.4
+                ]
+              },
+              "index": 1,
+              "frames": null,
+              "channel": "GFP",
+              "visible": true,
+              "led_power": 0,
+              "exposure_ms": 3,
+              "interval_ms": null,
+              "channel_group": "X",
+              "binning_factor": 1,
+              "led_power_text": "COM20",
+              "histogram_bit_depth": 16,
+              "use_camera_bit_depth": true,
+              "uniform_component_scaling": false
+            },
+            {
+              "color": {
+                "Alpha": 1.0,
+                "ColorSpace": "sRGB",
+                "Components": [
+                  1.0,
+                  0.2,
+                  0.2
+                ]
+              },
+              "index": 2,
+              "frames": null,
+              "channel": "mCh",
+              "visible": true,
+              "led_power": 70,
+              "exposure_ms": 5,
+              "interval_ms": null,
+              "channel_group": "X",
+              "binning_factor": 1,
+              "led_power_text": "COM20",
+              "histogram_bit_depth": 16,
+              "use_camera_bit_depth": true,
+              "uniform_component_scaling": false
+            }
+          ],
+          "file_backed_corrections": {
+            "frame_count": {
+              "files": 1,
+              "metadata": 1000
+            }
+          },
+          "uniform_channel_scaling": false
+        },
+        "data_format": "micromanager_tiff_dir",
+        "dataset_dir_abs": "/data/Alexander/data/2023_1/160623_test/160623_4",
+        "dataset_rel_from_root": "160623_test/160623_4",
+        "tiff_sequence_summary": {
+          "source": "tiff_files",
+          "positions": [
+            "Pos0",
+            "Pos10",
+            "Pos11",
+            "Pos12",
+            "Pos13",
+            "Pos14",
+            "Pos15",
+            "Pos16",
+            "Pos17",
+            "Pos18",
+            "Pos19",
+            "Pos20",
+            "Pos21",
+            "Pos22",
+            "Pos23",
+            "Pos24",
+            "Pos25",
+            "Pos26",
+            "Pos27",
+            "Pos28",
+            "Pos5",
+            "Pos6",
+            "Pos7",
+            "Pos8",
+            "Pos9"
+          ],
+          "file_count": 125,
+          "frame_count": 1,
+          "slice_count": 3,
+          "channel_count": 3,
+          "position_count": 25
+        }
+      },
+      "positions": [
+        {
+          "key": "pos8",
+          "metadata": {
+            "source": "directory_heuristic",
+            "relative_path": "Pos8"
+          }
+        },
+        {
+          "key": "pos6",
+          "metadata": {
+            "source": "directory_heuristic",
+            "relative_path": "Pos6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "f8e01cc3-eb34-4b0a-99b5-951cc687b65e",
+      "label": "160623_2",
+      "metadata": {
+        "source": "project_srcpath_relink",
+        "dimensions": {
+          "width_px": 0,
+          "height_px": 0,
+          "pixel_type": "GRAY16",
+          "autostretch": true,
+          "frame_count": 1,
+          "slice_count": 12,
+          "display_mode": "COMPOSITE",
+          "playback_fps": 10.0,
+          "channel_count": 3,
+          "channel_names": [
+            "BF",
+            "GFP",
+            "mCh"
+          ],
+          "roi_autoscale": true,
+          "position_count": 1,
+          "channel_settings": [
+            {
+              "color": {
+                "Alpha": 1.0,
+                "ColorSpace": "sRGB",
+                "Components": [
+                  1.0,
+                  1.0,
+                  1.0
+                ]
+              },
+              "index": 0,
+              "frames": null,
+              "channel": "BF",
+              "visible": true,
+              "led_power": 0,
+              "exposure_ms": 10,
+              "interval_ms": null,
+              "channel_group": "X",
+              "binning_factor": 1,
+              "led_power_text": "COM20",
+              "histogram_bit_depth": 16,
+              "use_camera_bit_depth": true,
+              "uniform_component_scaling": false
+            },
+            {
+              "color": {
+                "Alpha": 1.0,
+                "ColorSpace": "sRGB",
+                "Components": [
+                  1.0,
+                  1.0,
+                  1.0
+                ]
+              },
+              "index": 1,
+              "frames": null,
+              "channel": "GFP",
+              "visible": true,
+              "led_power": 0,
+              "exposure_ms": 3,
+              "interval_ms": null,
+              "channel_group": "X",
+              "binning_factor": 1,
+              "led_power_text": "COM20",
+              "histogram_bit_depth": 16,
+              "use_camera_bit_depth": true,
+              "uniform_component_scaling": false
+            },
+            {
+              "color": {
+                "Alpha": 1.0,
+                "ColorSpace": "sRGB",
+                "Components": [
+                  1.0,
+                  1.0,
+                  1.0
+                ]
+              },
+              "index": 2,
+              "frames": null,
+              "channel": "mCh",
+              "visible": true,
+              "led_power": 70,
+              "exposure_ms": 5,
+              "interval_ms": null,
+              "channel_group": "X",
+              "binning_factor": 1,
+              "led_power_text": "COM20",
+              "histogram_bit_depth": 16,
+              "use_camera_bit_depth": true,
+              "uniform_component_scaling": false
+            }
+          ],
+          "uniform_channel_scaling": false
+        },
+        "data_format": "tiff_sequence",
+        "dataset_dir_abs": "/data/Alexander/data/2023_1/160623/160623_2",
+        "dataset_rel_from_root": "data/2023_1/160623/160623_2",
+        "tiff_sequence_summary": {
+          "source": "tiff_files",
+          "positions": [
+            "Pos0"
+          ],
+          "file_count": 14,
+          "frame_count": 1,
+          "slice_count": 12,
+          "channel_count": 3,
+          "position_count": 1
+        }
+      },
+      "positions": [
+        {
+          "key": "pos0",
+          "metadata": {
+            "source": "directory_heuristic",
+            "relative_path": "Pos0"
+          }
+        }
+      ]
+    },
+    {
+      "id": "8ce10090-843c-4e02-8dd2-fa58b9b37e58",
+      "label": "160623_1",
+      "metadata": {
+        "source": "project_srcpath_relink",
+        "dimensions": {
+          "width_px": 0,
+          "height_px": 0,
+          "pixel_type": "GRAY16",
+          "autostretch": true,
+          "frame_count": 1,
+          "slice_count": 9,
+          "display_mode": "COMPOSITE",
+          "playback_fps": 10.0,
+          "channel_count": 3,
+          "channel_names": [
+            "BF",
+            "GFP",
+            "mCh"
+          ],
+          "roi_autoscale": true,
+          "position_count": 1,
+          "channel_settings": [
+            {
+              "color": {
+                "Alpha": 1.0,
+                "ColorSpace": "sRGB",
+                "Components": [
+                  1.0,
+                  1.0,
+                  1.0
+                ]
+              },
+              "index": 0,
+              "frames": null,
+              "channel": "BF",
+              "visible": true,
+              "led_power": 0,
+              "exposure_ms": 10,
+              "interval_ms": null,
+              "channel_group": "X",
+              "binning_factor": 1,
+              "led_power_text": "COM20",
+              "histogram_bit_depth": 16,
+              "use_camera_bit_depth": true,
+              "uniform_component_scaling": false
+            },
+            {
+              "color": {
+                "Alpha": 1.0,
+                "ColorSpace": "sRGB",
+                "Components": [
+                  1.0,
+                  1.0,
+                  1.0
+                ]
+              },
+              "index": 1,
+              "frames": null,
+              "channel": "GFP",
+              "visible": true,
+              "led_power": 0,
+              "exposure_ms": 3,
+              "interval_ms": null,
+              "channel_group": "X",
+              "binning_factor": 1,
+              "led_power_text": "COM20",
+              "histogram_bit_depth": 16,
+              "use_camera_bit_depth": true,
+              "uniform_component_scaling": false
+            },
+            {
+              "color": {
+                "Alpha": 1.0,
+                "ColorSpace": "sRGB",
+                "Components": [
+                  1.0,
+                  1.0,
+                  1.0
+                ]
+              },
+              "index": 2,
+              "frames": null,
+              "channel": "mCh",
+              "visible": true,
+              "led_power": 70,
+              "exposure_ms": 5,
+              "interval_ms": null,
+              "channel_group": "X",
+              "binning_factor": 1,
+              "led_power_text": "COM20",
+              "histogram_bit_depth": 16,
+              "use_camera_bit_depth": true,
+              "uniform_component_scaling": false
+            }
+          ],
+          "uniform_channel_scaling": false
+        },
+        "data_format": "tiff_sequence",
+        "dataset_dir_abs": "/data/Alexander/data/2023_1/160623/160623_1",
+        "dataset_rel_from_root": "data/2023_1/160623/160623_1",
+        "tiff_sequence_summary": {
+          "source": "tiff_files",
+          "positions": [
+            "Pos0"
+          ],
+          "file_count": 11,
+          "frame_count": 1,
+          "slice_count": 9,
+          "channel_count": 3,
+          "position_count": 1
+        }
+      },
+      "positions": [
+        {
+          "key": "pos0",
+          "metadata": {
+            "source": "directory_heuristic",
+            "relative_path": "Pos0"
+          }
+        }
+      ]
+    },
+    {
+      "id": "094444cd-1aa8-49d6-b6ab-d7c7df730b96",
+      "label": "190423_nh_sir2_tween_4",
+      "metadata": {
+        "source": "pipeline_run_raw_ingest",
+        "dimensions": {
+          "width_px": 0,
+          "height_px": 0,
+          "pixel_type": "GRAY16",
+          "autostretch": true,
+          "frame_count": 888,
+          "slice_count": 3,
+          "display_mode": "COMPOSITE",
+          "playback_fps": 10.0,
+          "channel_count": 3,
+          "channel_names": [
+            "BF",
+            "GFP",
+            "mCh"
+          ],
+          "roi_autoscale": true,
+          "position_count": 28,
+          "channel_settings": [
+            {
+              "color": {
+                "Alpha": 1.0,
+                "ColorSpace": "sRGB",
+                "Components": [
+                  1.0,
+                  1.0,
+                  1.0
+                ]
+              },
+              "index": 0,
+              "frames": null,
+              "channel": "BF",
+              "visible": true,
+              "led_power": 0,
+              "exposure_ms": 10,
+              "interval_ms": null,
+              "channel_group": "TL",
+              "binning_factor": 1,
+              "led_power_text": "COM20",
+              "histogram_bit_depth": 16,
+              "use_camera_bit_depth": true,
+              "uniform_component_scaling": false
+            },
+            {
+              "color": {
+                "Alpha": 1.0,
+                "ColorSpace": "sRGB",
+                "Components": [
+                  0.4,
+                  1.0,
+                  0.4
+                ]
+              },
+              "index": 1,
+              "frames": null,
+              "channel": "GFP",
+              "visible": true,
+              "led_power": 0,
+              "exposure_ms": 50,
+              "interval_ms": null,
+              "channel_group": "TL",
+              "binning_factor": 1,
+              "led_power_text": "COM20",
+              "histogram_bit_depth": 16,
+              "use_camera_bit_depth": true,
+              "uniform_component_scaling": false
+            },
+            {
+              "color": {
+                "Alpha": 1.0,
+                "ColorSpace": "sRGB",
+                "Components": [
+                  1.0,
+                  0.2,
+                  0.2
+                ]
+              },
+              "index": 2,
+              "frames": null,
+              "channel": "mCh",
+              "visible": true,
+              "led_power": 70,
+              "exposure_ms": 100,
+              "interval_ms": null,
+              "channel_group": "TL",
+              "binning_factor": 1,
+              "led_power_text": "COM20",
+              "histogram_bit_depth": 16,
+              "use_camera_bit_depth": true,
+              "uniform_component_scaling": false
+            }
+          ],
+          "file_backed_corrections": {
+            "frame_count": {
+              "files": 888,
+              "metadata": 900
+            },
+            "position_count": {
+              "files": 28,
+              "metadata": 29
+            }
+          },
+          "uniform_channel_scaling": false
+        },
+        "data_format": "micromanager_tiff_dir",
+        "dataset_dir_abs": "/data/Alexander/data/2023_1/190423_nh_sir2_tween/190423_nh_sir2_tween_4",
+        "dataset_rel_from_root": "190423_nh_sir2_tween/190423_nh_sir2_tween_4",
+        "tiff_sequence_summary": {
+          "source": "tiff_files",
+          "positions": [
+            "Pos1",
+            "Pos10",
+            "Pos11",
+            "Pos12",
+            "Pos13",
+            "Pos14",
+            "Pos15",
+            "Pos16",
+            "Pos17",
+            "Pos18",
+            "Pos19",
+            "Pos2",
+            "Pos20",
+            "Pos21",
+            "Pos22",
+            "Pos23",
+            "Pos24",
+            "Pos25",
+            "Pos26",
+            "Pos27",
+            "Pos28",
+            "Pos3",
+            "Pos4",
+            "Pos5",
+            "Pos6",
+            "Pos7",
+            "Pos8",
+            "Pos9"
+          ],
+          "file_count": 87192,
+          "frame_count": 888,
+          "slice_count": 3,
+          "channel_count": 3,
+          "position_count": 28
+        }
+      },
+      "positions": [
+        {
+          "key": "pos2",
+          "metadata": {
+            "source": "directory_heuristic",
+            "relative_path": "Pos2"
+          }
+        },
+        {
+          "key": "pos16",
+          "metadata": {
+            "source": "directory_heuristic",
+            "relative_path": "Pos16"
+          }
+        }
+      ]
+    }
+  ],
+  "projects": [
+    {
+      "id": "064028d5-4a22-45f9-860a-756c6f15ae1f",
+      "name": "anof_10052023_nh_fob1s_lessfluo",
+      "owner": "localdev",
+      "mat": "/data/Gilles/anof_10052023_nh_fob1s_lessfluo.mat",
+      "locations": [
+        {
+          "prefix": "/data/Gilles",
+          "relative": "",
+          "file": "anof_10052023_nh_fob1s_lessfluo.mat"
+        }
+      ]
+    },
+    {
+      "id": "0e485efc-6b23-4faa-a316-4faea283477d",
+      "name": "190423_nh_sir2_tween",
+      "owner": "gilles",
+      "mat": "/data/Gilles/analysis/projects/190423_nh_sir2_tween.mat",
+      "locations": [
+        {
+          "prefix": "/data/Gilles",
+          "relative": "analysis/projects",
+          "file": "190423_nh_sir2_tween.mat"
+        }
+      ]
+    },
+    {
+      "id": "1bbe0337-ba93-4c15-a7e9-39ae6df47979",
+      "name": "anof_190423_nh_sir2_tween",
+      "owner": "alexander",
+      "mat": "/homes2/maliavko/DetecdivHub/projects/anof_190423_nh_sir2_tween/anof_190423_nh_sir2_tween.mat",
+      "locations": [
+        {
+          "prefix": "/homes2",
+          "relative": "maliavko/DetecdivHub/projects/anof_190423_nh_sir2_tween",
+          "file": "anof_190423_nh_sir2_tween.mat"
+        },
+        {
+          "prefix": "/mnt/detecdiv-secondary-sauvegarde/Alexander/analysis",
+          "relative": "",
+          "file": "anof_190423_nh_sir2_tween.mat"
+        }
+      ]
+    }
+  ]
+}

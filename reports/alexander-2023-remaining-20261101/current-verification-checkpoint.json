@@ -1,0 +1,40 @@
+{
+  "utc": "2026-11-01T21:30:09.053421+00:00",
+  "project1": {
+    "phase": "sidecar_path_audit",
+    "files": 4250,
+    "total": 28772
+  },
+  "all_projects": {
+    "files": 142,
+    "total": 153,
+    "last_id": "16a9d1ed-f8af-4727-870d-455ff51b9ade",
+    "last_status": "inspected_readonly"
+  },
+  "data_parent": [
+    {
+      "variable": "data",
+      "class": "dataseries",
+      "count": 4,
+      "parents": [
+        {
+          "class": "double",
+          "empty": true
+        },
+        {
+          "class": "double",
+          "empty": true
+        },
+        {
+          "class": "double",
+          "empty": true
+        },
+        {
+          "class": "double",
+          "empty": true
+        }
+      ]
+    }
+  ],
+  "project_log": ""
+}

@@ -1,0 +1,9 @@
+{
+  "backup_sha256": "c7c6b30c1882d2ad7f1fb91276b2565bfac0e38177b45e31c5712dc8b9cea874",
+  "original_mat_sha256": "c7c6b30c1882d2ad7f1fb91276b2565bfac0e38177b45e31c5712dc8b9cea874",
+  "target_matches_original_mat": true,
+  "backup_owner": "maliavko",
+  "independent_reflink": true,
+  "backup_bytes": 547098427,
+  "baseline_mat": "/homes2/maliavko/DetecdivHub/.migration-backups/alexander-2023-remaining-20261101/anof_190423_nh_sir2_tween.mat"
+}

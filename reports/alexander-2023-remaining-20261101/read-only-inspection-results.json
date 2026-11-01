@@ -1,0 +1,100 @@
+{
+  "project-inspection.json": [
+    {
+      "id": "0e485efc-6b23-4faa-a316-4faea283477d",
+      "file": "/data/Gilles/analysis/projects/190423_nh_sir2_tween.mat",
+      "exists": false,
+      "project_saved": false
+    },
+    {
+      "id": "1bbe0337-ba93-4c15-a7e9-39ae6df47979",
+      "file": "/homes2/maliavko/DetecdivHub/projects/anof_190423_nh_sir2_tween/anof_190423_nh_sir2_tween.mat",
+      "exists": true,
+      "project_saved": false,
+      "variable": "shallowObj",
+      "io": {
+        "path": "/DataVault/Alexander/analysis/",
+        "file": "anof_190423_nh_sir2_tween"
+      },
+      "fovs": 28,
+      "rois": 14386,
+      "roi_paths": [
+        "/DataVault/Alexander/analysis/anof_190423_nh_sir2_tween/190423_nh_sir2_tween_4_Pos1_1",
+        "/DataVault/Alexander/analysis/anof_190423_nh_sir2_tween/190423_nh_sir2_tween_4_Pos2_2",
+        "/DataVault/Alexander/analysis/anof_190423_nh_sir2_tween/190423_nh_sir2_tween_4_Pos3_3",
+        "/DataVault/Alexander/analysis/anof_190423_nh_sir2_tween/190423_nh_sir2_tween_4_Pos4_4",
+        "/DataVault/Alexander/analysis/anof_190423_nh_sir2_tween/190423_nh_sir2_tween_4_Pos5_5",
+        "/DataVault/Alexander/analysis/anof_190423_nh_sir2_tween/190423_nh_sir2_tween_4_Pos6_6",
+        "/DataVault/Alexander/analysis/anof_190423_nh_sir2_tween/190423_nh_sir2_tween_4_Pos7_7",
+        "/DataVault/Alexander/analysis/anof_190423_nh_sir2_tween/190423_nh_sir2_tween_4_Pos8_8",
+        "/DataVault/Alexander/analysis/anof_190423_nh_sir2_tween/190423_nh_sir2_tween_4_Pos9_9",
+        "/DataVault/Alexander/analysis/anof_190423_nh_sir2_tween/190423_nh_sir2_tween_4_Pos10_10",
+        "/DataVault/Alexander/analysis/anof_190423_nh_sir2_tween/190423_nh_sir2_tween_4_Pos11_11",
+        "/DataVault/Alexander/analysis/anof_190423_nh_sir2_tween/190423_nh_sir2_tween_4_Pos12_12",
+        "/DataVault/Alexander/analysis/anof_190423_nh_sir2_tween/190423_nh_sir2_tween_4_Pos13_13",
+        "/DataVault/Alexander/analysis/anof_190423_nh_sir2_tween/190423_nh_sir2_tween_4_Pos14_14",
+        "/DataVault/Alexander/analysis/anof_190423_nh_sir2_tween/190423_nh_sir2_tween_4_Pos15_15",
+        "/DataVault/Alexander/analysis/anof_190423_nh_sir2_tween/190423_nh_sir2_tween_4_Pos16_16",
+        "/DataVault/Alexander/analysis/anof_190423_nh_sir2_tween/190423_nh_sir2_tween_4_Pos17_17",
+        "/DataVault/Alexander/analysis/anof_190423_nh_sir2_tween/190423_nh_sir2_tween_4_Pos18_18",
+        "/DataVault/Alexander/analysis/anof_190423_nh_sir2_tween/190423_nh_sir2_tween_4_Pos19_19",
+        "/DataVault/Alexander/analysis/anof_190423_nh_sir2_tween/190423_nh_sir2_tween_4_Pos20_20",
+        "/DataVault/Alexander/analysis/anof_190423_nh_sir2_tween/190423_nh_sir2_tween_4_Pos21_21",
+        "/DataVault/Alexander/analysis/anof_190423_nh_sir2_tween/190423_nh_sir2_tween_4_Pos22_22",
+        "/DataVault/Alexander/analysis/anof_190423_nh_sir2_tween/190423_nh_sir2_tween_4_Pos23_23",
+        "/DataVault/Alexander/analysis/anof_190423_nh_sir2_tween/190423_nh_sir2_tween_4_Pos24_24",
+        "/DataVault/Alexander/analysis/anof_190423_nh_sir2_tween/190423_nh_sir2_tween_4_Pos25_25",
+        "/DataVault/Alexander/analysis/anof_190423_nh_sir2_tween/190423_nh_sir2_tween_4_Pos26_26",
+        "/DataVault/Alexander/analysis/anof_190423_nh_sir2_tween/190423_nh_sir2_tween_4_Pos27_27",
+        "/DataVault/Alexander/analysis/anof_190423_nh_sir2_tween/190423_nh_sir2_tween_4_Pos28_28"
+      ],
+      "raw_paths": [
+        "\\\\10.20.11.250\\data\\Alexander\\190423_nh_sir2_tween\\190423_nh_sir2_tween_4\\Pos1",
+        "\\\\10.20.11.250\\data\\Alexander\\190423_nh_sir2_tween\\190423_nh_sir2_tween_4\\Pos2",
+        "\\\\10.20.11.250\\data\\Alexander\\190423_nh_sir2_tween\\190423_nh_sir2_tween_4\\Pos3",
+        "\\\\10.20.11.250\\data\\Alexander\\190423_nh_sir2_tween\\190423_nh_sir2_tween_4\\Pos4",
+        "\\\\10.20.11.250\\data\\Alexander\\190423_nh_sir2_tween\\190423_nh_sir2_tween_4\\Pos5",
+        "\\\\10.20.11.250\\data\\Alexander\\190423_nh_sir2_tween\\190423_nh_sir2_tween_4\\Pos6",
+        "\\\\10.20.11.250\\data\\Alexander\\190423_nh_sir2_tween\\190423_nh_sir2_tween_4\\Pos7",
+        "\\\\10.20.11.250\\data\\Alexander\\190423_nh_sir2_tween\\190423_nh_sir2_tween_4\\Pos8",
+        "\\\\10.20.11.250\\data\\Alexander\\190423_nh_sir2_tween\\190423_nh_sir2_tween_4\\Pos9",
+        "\\\\10.20.11.250\\data\\Alexander\\190423_nh_sir2_tween\\190423_nh_sir2_tween_4\\Pos10",
+        "\\\\10.20.11.250\\data\\Alexander\\190423_nh_sir2_tween\\190423_nh_sir2_tween_4\\Pos11",
+        "\\\\10.20.11.250\\data\\Alexander\\190423_nh_sir2_tween\\190423_nh_sir2_tween_4\\Pos12",
+        "\\\\10.20.11.250\\data\\Alexander\\190423_nh_sir2_tween\\190423_nh_sir2_tween_4\\Pos13",
+        "\\\\10.20.11.250\\data\\Alexander\\190423_nh_sir2_tween\\190423_nh_sir2_tween_4\\Pos14",
+        "\\\\10.20.11.250\\data\\Alexander\\190423_nh_sir2_tween\\190423_nh_sir2_tween_4\\Pos15",
+        "\\\\10.20.11.250\\data\\Alexander\\190423_nh_sir2_tween\\190423_nh_sir2_tween_4\\Pos16",
+        "\\\\10.20.11.250\\data\\Alexander\\190423_nh_sir2_tween\\190423_nh_sir2_tween_4\\Pos17",
+        "\\\\10.20.11.250\\data\\Alexander\\190423_nh_sir2_tween\\190423_nh_sir2_tween_4\\Pos18",
+        "\\\\10.20.11.250\\data\\Alexander\\190423_nh_sir2_tween\\190423_nh_sir2_tween_4\\Pos19",
+        "\\\\10.20.11.250\\data\\Alexander\\190423_nh_sir2_tween\\190423_nh_sir2_tween_4\\Pos20",
+        "\\\\10.20.11.250\\data\\Alexander\\190423_nh_sir2_tween\\190423_nh_sir2_tween_4\\Pos21",
+        "\\\\10.20.11.250\\data\\Alexander\\190423_nh_sir2_tween\\190423_nh_sir2_tween_4\\Pos22",
+        "\\\\10.20.11.250\\data\\Alexander\\190423_nh_sir2_tween\\190423_nh_sir2_tween_4\\Pos23",
+        "\\\\10.20.11.250\\data\\Alexander\\190423_nh_sir2_tween\\190423_nh_sir2_tween_4\\Pos24",
+        "\\\\10.20.11.250\\data\\Alexander\\190423_nh_sir2_tween\\190423_nh_sir2_tween_4\\Pos25",
+        "\\\\10.20.11.250\\data\\Alexander\\190423_nh_sir2_tween\\190423_nh_sir2_tween_4\\Pos26",
+        "\\\\10.20.11.250\\data\\Alexander\\190423_nh_sir2_tween\\190423_nh_sir2_tween_4\\Pos27",
+        "\\\\10.20.11.250\\data\\Alexander\\190423_nh_sir2_tween\\190423_nh_sir2_tween_4\\Pos28"
+      ],
+      "parsed_data_class": "double",
+      "parsed_data_empty": true,
+      "processing_fields": [
+        "roi",
+        "classification",
+        "processor"
+      ],
+      "roi_id": "190423_nh_sir2_tween_4_Pos1_1_1"
+    },
+    {
+      "id": "064028d5-4a22-45f9-860a-756c6f15ae1f",
+      "file": "/data/Gilles/anof_10052023_nh_fob1s_lessfluo.mat",
+      "exists": false,
+      "project_saved": false
+    }
+  ],
+  "project-inspection.exit": "0\n",
+  "project-inspection.log": "",
+  "target-inventory-controller.log": ""
+}

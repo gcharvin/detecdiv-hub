@@ -1,0 +1,27 @@
+{
+  "original_full_sha1_passed": true,
+  "all_original_destination_files_preserved": true,
+  "current_source_is_unchanged_subset": true,
+  "destination_core_files": 750255,
+  "destination_bytes": 6316035396988,
+  "remaining_source_files": 87364,
+  "remaining_source_bytes": 737182660223,
+  "source_files_already_absent_before_this_operation": 662891,
+  "source_absence_cause": "Prior movement inferred from retained homes2-only catalog locations; no deletion performed by this operation.",
+  "timestamp_exceptions_verified_before_full_sha1": [
+    {
+      "path": "03042023_nh_tk1_adap_cyc1/03042023_nh_tk1_adap_cyc1_4/Pos5/img_channel000_position005_time000000082_z002.tif",
+      "before_mtime_ns": 1680559780978170300,
+      "destination_mtime_ns": 1791473068991497561,
+      "full_sha1_verified_at": "2026-10-12T06:42:18.756678+00:00",
+      "reason": "Destination timestamp predates the successful full content comparison; not a post-verification modification."
+    }
+  ],
+  "target_inventory": {
+    "files": 750255,
+    "bytes": 6316035396988,
+    "sha256": "628d99f6e90734c32dd02127ddbfd7347ffa93bc2cb84100eed1c5766b1e5edf"
+  },
+  "source_inventory_sha256": "ea08c7b7411bbf934005b8a8be0b1c0fbf3b1e59a69e11272a32b9c7dbe0c650",
+  "new_source_deletion_performed": false
+}

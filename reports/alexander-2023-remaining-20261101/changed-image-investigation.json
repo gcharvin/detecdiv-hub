@@ -1,0 +1,38 @@
+{
+  "changed_target_file": {
+    "before": {
+      "bytes": 8411806,
+      "kind": "file",
+      "mtime_ns": 1680559780978170300,
+      "path": "03042023_nh_tk1_adap_cyc1/03042023_nh_tk1_adap_cyc1_4/Pos5/img_channel000_position005_time000000082_z002.tif",
+      "mtime_utc": "2023-04-03T22:09:40.978170+00:00"
+    },
+    "target": {
+      "bytes": 8411806,
+      "kind": "file",
+      "mtime_ns": 1791473068991497561,
+      "path": "03042023_nh_tk1_adap_cyc1/03042023_nh_tk1_adap_cyc1_4/Pos5/img_channel000_position005_time000000082_z002.tif",
+      "mtime_utc": "2026-10-08T15:24:28.991498+00:00"
+    }
+  },
+  "primary_recycle_check": {
+    "candidates": [
+      {
+        "path": "/volume1/DATA/#recycle/Alexander/data/2023_1/03042023_nh_tk1_adap_cyc1/03042023_nh_tk1_adap_cyc1_4/Pos5/img_channel000_position005_time000000082_z002.tif",
+        "exists": false,
+        "size": null
+      },
+      {
+        "path": "/volume1/DATA/#recycle/2023_1/03042023_nh_tk1_adap_cyc1/03042023_nh_tk1_adap_cyc1_4/Pos5/img_channel000_position005_time000000082_z002.tif",
+        "exists": false,
+        "size": null
+      },
+      {
+        "path": "/volume1/DATA/Alexander/data/2023_1/03042023_nh_tk1_adap_cyc1/03042023_nh_tk1_adap_cyc1_4/Pos5/img_channel000_position005_time000000082_z002.tif",
+        "exists": false,
+        "size": null
+      }
+    ],
+    "recycle_exists": false
+  }
+}

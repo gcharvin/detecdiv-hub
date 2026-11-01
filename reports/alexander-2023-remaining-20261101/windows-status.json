@@ -1,0 +1,587 @@
+{
+  "task": {
+    "state": "Ready",
+    "result": 0
+  },
+  "project1-session-verification.json": {
+    "started_at": "2026-11-01T21:31:10.303582+00:00",
+    "success": true,
+    "project_saved": false,
+    "windows_identity": "gmgm\\charvin-admin",
+    "session_id": 1,
+    "matlab_exit_code": 0,
+    "verification": {
+      "success": true,
+      "project_saved": false,
+      "fovs": 28,
+      "rois": 14386,
+      "roi_sidecar_files_present": 43158,
+      "project": "\\\\srv-data-pb-lan1.u-strasbg.fr\\home\\DetecdivHub\\projects\\anof_190423_nh_sir2_tween\\anof_190423_nh_sir2_tween.mat",
+      "engine_release": "C:/Users/Charvin-Admin/Documents/GitHub/DetecDiv-jobs/releases/d83c4dbc0638bc0d3f6012b4f1df5744e0c017c7",
+      "samples": [
+        {
+          "fov": 1,
+          "roi": "190423_nh_sir2_tween_4_Pos1_1_1",
+          "path": "\\\\srv-data-pb-lan1.u-strasbg.fr\\home\\DetecdivHub\\projects\\anof_190423_nh_sir2_tween\\anof_190423_nh_sir2_tween\\190423_nh_sir2_tween_4_Pos1_1",
+          "imageClass": "uint16",
+          "imageSize": [
+            58,
+            57,
+            9,
+            888
+          ],
+          "rawClass": "uint16",
+          "rawSize": [
+            2048,
+            2048
+          ],
+          "rawPath": "\\\\srv-data-pb-lan1.u-strasbg.fr\\home\\DetecdivHub\\raw\\.incoming-alexander-2023-20261008\\2023_1\\190423_nh_sir2_tween\\190423_nh_sir2_tween_4\\Pos1\\img_channel000_position001_time000000000_z000.tif",
+          "legacyLoadPreservesMappedPath": true,
+          "roiAndRawReadable": true
+        },
+        {
+          "fov": 2,
+          "roi": "190423_nh_sir2_tween_4_Pos2_2_1",
+          "path": "\\\\srv-data-pb-lan1.u-strasbg.fr\\home\\DetecdivHub\\projects\\anof_190423_nh_sir2_tween\\anof_190423_nh_sir2_tween\\190423_nh_sir2_tween_4_Pos2_2",
+          "imageClass": "uint16",
+          "imageSize": [
+            58,
+            57,
+            8,
+            888
+          ],
+          "rawClass": "uint16",
+          "rawSize": [
+            2048,
+            2048
+          ],
+          "rawPath": "\\\\srv-data-pb-lan1.u-strasbg.fr\\home\\DetecdivHub\\raw\\.incoming-alexander-2023-20261008\\2023_1\\190423_nh_sir2_tween\\190423_nh_sir2_tween_4\\Pos2\\img_channel000_position002_time000000000_z000.tif",
+          "legacyLoadPreservesMappedPath": true,
+          "roiAndRawReadable": true
+        },
+        {
+          "fov": 3,
+          "roi": "190423_nh_sir2_tween_4_Pos3_3_1",
+          "path": "\\\\srv-data-pb-lan1.u-strasbg.fr\\home\\DetecdivHub\\projects\\anof_190423_nh_sir2_tween\\anof_190423_nh_sir2_tween\\190423_nh_sir2_tween_4_Pos3_3",
+          "imageClass": "uint16",
+          "imageSize": [
+            58,
+            57,
+            9,
+            888
+          ],
+          "rawClass": "uint16",
+          "rawSize": [
+            2048,
+            2048
+          ],
+          "rawPath": "\\\\srv-data-pb-lan1.u-strasbg.fr\\home\\DetecdivHub\\raw\\.incoming-alexander-2023-20261008\\2023_1\\190423_nh_sir2_tween\\190423_nh_sir2_tween_4\\Pos3\\img_channel000_position003_time000000000_z000.tif",
+          "legacyLoadPreservesMappedPath": true,
+          "roiAndRawReadable": true
+        },
+        {
+          "fov": 4,
+          "roi": "190423_nh_sir2_tween_4_Pos4_4_1",
+          "path": "\\\\srv-data-pb-lan1.u-strasbg.fr\\home\\DetecdivHub\\projects\\anof_190423_nh_sir2_tween\\anof_190423_nh_sir2_tween\\190423_nh_sir2_tween_4_Pos4_4",
+          "imageClass": "uint16",
+          "imageSize": [
+            58,
+            57,
+            9,
+            888
+          ],
+          "rawClass": "uint16",
+          "rawSize": [
+            2048,
+            2048
+          ],
+          "rawPath": "\\\\srv-data-pb-lan1.u-strasbg.fr\\home\\DetecdivHub\\raw\\.incoming-alexander-2023-20261008\\2023_1\\190423_nh_sir2_tween\\190423_nh_sir2_tween_4\\Pos4\\img_channel000_position004_time000000000_z000.tif",
+          "legacyLoadPreservesMappedPath": true,
+          "roiAndRawReadable": true
+        },
+        {
+          "fov": 5,
+          "roi": "190423_nh_sir2_tween_4_Pos5_5_1",
+          "path": "\\\\srv-data-pb-lan1.u-strasbg.fr\\home\\DetecdivHub\\projects\\anof_190423_nh_sir2_tween\\anof_190423_nh_sir2_tween\\190423_nh_sir2_tween_4_Pos5_5",
+          "imageClass": "uint16",
+          "imageSize": [
+            58,
+            57,
+            9,
+            888
+          ],
+          "rawClass": "uint16",
+          "rawSize": [
+            2048,
+            2048
+          ],
+          "rawPath": "\\\\srv-data-pb-lan1.u-strasbg.fr\\home\\DetecdivHub\\raw\\.incoming-alexander-2023-20261008\\2023_1\\190423_nh_sir2_tween\\190423_nh_sir2_tween_4\\Pos5\\img_channel000_position005_time000000000_z000.tif",
+          "legacyLoadPreservesMappedPath": true,
+          "roiAndRawReadable": true
+        },
+        {
+          "fov": 6,
+          "roi": "190423_nh_sir2_tween_4_Pos6_6_1",
+          "path": "\\\\srv-data-pb-lan1.u-strasbg.fr\\home\\DetecdivHub\\projects\\anof_190423_nh_sir2_tween\\anof_190423_nh_sir2_tween\\190423_nh_sir2_tween_4_Pos6_6",
+          "imageClass": "uint16",
+          "imageSize": [
+            58,
+            57,
+            9,
+            888
+          ],
+          "rawClass": "uint16",
+          "rawSize": [
+            2048,
+            2048
+          ],
+          "rawPath": "\\\\srv-data-pb-lan1.u-strasbg.fr\\home\\DetecdivHub\\raw\\.incoming-alexander-2023-20261008\\2023_1\\190423_nh_sir2_tween\\190423_nh_sir2_tween_4\\Pos6\\img_channel000_position006_time000000000_z000.tif",
+          "legacyLoadPreservesMappedPath": true,
+          "roiAndRawReadable": true
+        },
+        {
+          "fov": 7,
+          "roi": "190423_nh_sir2_tween_4_Pos7_7_1",
+          "path": "\\\\srv-data-pb-lan1.u-strasbg.fr\\home\\DetecdivHub\\projects\\anof_190423_nh_sir2_tween\\anof_190423_nh_sir2_tween\\190423_nh_sir2_tween_4_Pos7_7",
+          "imageClass": "uint16",
+          "imageSize": [
+            58,
+            57,
+            9,
+            888
+          ],
+          "rawClass": "uint16",
+          "rawSize": [
+            2048,
+            2048
+          ],
+          "rawPath": "\\\\srv-data-pb-lan1.u-strasbg.fr\\home\\DetecdivHub\\raw\\.incoming-alexander-2023-20261008\\2023_1\\190423_nh_sir2_tween\\190423_nh_sir2_tween_4\\Pos7\\img_channel000_position007_time000000000_z000.tif",
+          "legacyLoadPreservesMappedPath": true,
+          "roiAndRawReadable": true
+        },
+        {
+          "fov": 8,
+          "roi": "190423_nh_sir2_tween_4_Pos8_8_1",
+          "path": "\\\\srv-data-pb-lan1.u-strasbg.fr\\home\\DetecdivHub\\projects\\anof_190423_nh_sir2_tween\\anof_190423_nh_sir2_tween\\190423_nh_sir2_tween_4_Pos8_8",
+          "imageClass": "uint16",
+          "imageSize": [
+            58,
+            57,
+            9,
+            888
+          ],
+          "rawClass": "uint16",
+          "rawSize": [
+            2048,
+            2048
+          ],
+          "rawPath": "\\\\srv-data-pb-lan1.u-strasbg.fr\\home\\DetecdivHub\\raw\\.incoming-alexander-2023-20261008\\2023_1\\190423_nh_sir2_tween\\190423_nh_sir2_tween_4\\Pos8\\img_channel000_position008_time000000000_z000.tif",
+          "legacyLoadPreservesMappedPath": true,
+          "roiAndRawReadable": true
+        },
+        {
+          "fov": 9,
+          "roi": "190423_nh_sir2_tween_4_Pos9_9_1",
+          "path": "\\\\srv-data-pb-lan1.u-strasbg.fr\\home\\DetecdivHub\\projects\\anof_190423_nh_sir2_tween\\anof_190423_nh_sir2_tween\\190423_nh_sir2_tween_4_Pos9_9",
+          "imageClass": "uint16",
+          "imageSize": [
+            58,
+            57,
+            9,
+            888
+          ],
+          "rawClass": "uint16",
+          "rawSize": [
+            2048,
+            2048
+          ],
+          "rawPath": "\\\\srv-data-pb-lan1.u-strasbg.fr\\home\\DetecdivHub\\raw\\.incoming-alexander-2023-20261008\\2023_1\\190423_nh_sir2_tween\\190423_nh_sir2_tween_4\\Pos9\\img_channel000_position009_time000000000_z000.tif",
+          "legacyLoadPreservesMappedPath": true,
+          "roiAndRawReadable": true
+        },
+        {
+          "fov": 10,
+          "roi": "190423_nh_sir2_tween_4_Pos10_10_1",
+          "path": "\\\\srv-data-pb-lan1.u-strasbg.fr\\home\\DetecdivHub\\projects\\anof_190423_nh_sir2_tween\\anof_190423_nh_sir2_tween\\190423_nh_sir2_tween_4_Pos10_10",
+          "imageClass": "uint16",
+          "imageSize": [
+            58,
+            57,
+            9,
+            888
+          ],
+          "rawClass": "uint16",
+          "rawSize": [
+            2048,
+            2048
+          ],
+          "rawPath": "\\\\srv-data-pb-lan1.u-strasbg.fr\\home\\DetecdivHub\\raw\\.incoming-alexander-2023-20261008\\2023_1\\190423_nh_sir2_tween\\190423_nh_sir2_tween_4\\Pos10\\img_channel000_position010_time000000000_z000.tif",
+          "legacyLoadPreservesMappedPath": true,
+          "roiAndRawReadable": true
+        },
+        {
+          "fov": 11,
+          "roi": "190423_nh_sir2_tween_4_Pos11_11_1",
+          "path": "\\\\srv-data-pb-lan1.u-strasbg.fr\\home\\DetecdivHub\\projects\\anof_190423_nh_sir2_tween\\anof_190423_nh_sir2_tween\\190423_nh_sir2_tween_4_Pos11_11",
+          "imageClass": "uint16",
+          "imageSize": [
+            58,
+            57,
+            9,
+            888
+          ],
+          "rawClass": "uint16",
+          "rawSize": [
+            2048,
+            2048
+          ],
+          "rawPath": "\\\\srv-data-pb-lan1.u-strasbg.fr\\home\\DetecdivHub\\raw\\.incoming-alexander-2023-20261008\\2023_1\\190423_nh_sir2_tween\\190423_nh_sir2_tween_4\\Pos11\\img_channel000_position011_time000000000_z000.tif",
+          "legacyLoadPreservesMappedPath": true,
+          "roiAndRawReadable": true
+        },
+        {
+          "fov": 12,
+          "roi": "190423_nh_sir2_tween_4_Pos12_12_1",
+          "path": "\\\\srv-data-pb-lan1.u-strasbg.fr\\home\\DetecdivHub\\projects\\anof_190423_nh_sir2_tween\\anof_190423_nh_sir2_tween\\190423_nh_sir2_tween_4_Pos12_12",
+          "imageClass": "uint16",
+          "imageSize": [
+            58,
+            57,
+            9,
+            888
+          ],
+          "rawClass": "uint16",
+          "rawSize": [
+            2048,
+            2048
+          ],
+          "rawPath": "\\\\srv-data-pb-lan1.u-strasbg.fr\\home\\DetecdivHub\\raw\\.incoming-alexander-2023-20261008\\2023_1\\190423_nh_sir2_tween\\190423_nh_sir2_tween_4\\Pos12\\img_channel000_position012_time000000000_z000.tif",
+          "legacyLoadPreservesMappedPath": true,
+          "roiAndRawReadable": true
+        },
+        {
+          "fov": 13,
+          "roi": "190423_nh_sir2_tween_4_Pos13_13_1",
+          "path": "\\\\srv-data-pb-lan1.u-strasbg.fr\\home\\DetecdivHub\\projects\\anof_190423_nh_sir2_tween\\anof_190423_nh_sir2_tween\\190423_nh_sir2_tween_4_Pos13_13",
+          "imageClass": "uint16",
+          "imageSize": [
+            58,
+            57,
+            9,
+            888
+          ],
+          "rawClass": "uint16",
+          "rawSize": [
+            2048,
+            2048
+          ],
+          "rawPath": "\\\\srv-data-pb-lan1.u-strasbg.fr\\home\\DetecdivHub\\raw\\.incoming-alexander-2023-20261008\\2023_1\\190423_nh_sir2_tween\\190423_nh_sir2_tween_4\\Pos13\\img_channel000_position013_time000000000_z000.tif",
+          "legacyLoadPreservesMappedPath": true,
+          "roiAndRawReadable": true
+        },
+        {
+          "fov": 14,
+          "roi": "190423_nh_sir2_tween_4_Pos14_14_1",
+          "path": "\\\\srv-data-pb-lan1.u-strasbg.fr\\home\\DetecdivHub\\projects\\anof_190423_nh_sir2_tween\\anof_190423_nh_sir2_tween\\190423_nh_sir2_tween_4_Pos14_14",
+          "imageClass": "uint16",
+          "imageSize": [
+            58,
+            57,
+            9,
+            888
+          ],
+          "rawClass": "uint16",
+          "rawSize": [
+            2048,
+            2048
+          ],
+          "rawPath": "\\\\srv-data-pb-lan1.u-strasbg.fr\\home\\DetecdivHub\\raw\\.incoming-alexander-2023-20261008\\2023_1\\190423_nh_sir2_tween\\190423_nh_sir2_tween_4\\Pos14\\img_channel000_position014_time000000000_z000.tif",
+          "legacyLoadPreservesMappedPath": true,
+          "roiAndRawReadable": true
+        },
+        {
+          "fov": 15,
+          "roi": "190423_nh_sir2_tween_4_Pos15_15_1",
+          "path": "\\\\srv-data-pb-lan1.u-strasbg.fr\\home\\DetecdivHub\\projects\\anof_190423_nh_sir2_tween\\anof_190423_nh_sir2_tween\\190423_nh_sir2_tween_4_Pos15_15",
+          "imageClass": "uint16",
+          "imageSize": [
+            58,
+            57,
+            9,
+            888
+          ],
+          "rawClass": "uint16",
+          "rawSize": [
+            2048,
+            2048
+          ],
+          "rawPath": "\\\\srv-data-pb-lan1.u-strasbg.fr\\home\\DetecdivHub\\raw\\.incoming-alexander-2023-20261008\\2023_1\\190423_nh_sir2_tween\\190423_nh_sir2_tween_4\\Pos15\\img_channel000_position015_time000000000_z000.tif",
+          "legacyLoadPreservesMappedPath": true,
+          "roiAndRawReadable": true
+        },
+        {
+          "fov": 16,
+          "roi": "190423_nh_sir2_tween_4_Pos16_16_1",
+          "path": "\\\\srv-data-pb-lan1.u-strasbg.fr\\home\\DetecdivHub\\projects\\anof_190423_nh_sir2_tween\\anof_190423_nh_sir2_tween\\190423_nh_sir2_tween_4_Pos16_16",
+          "imageClass": "uint16",
+          "imageSize": [
+            58,
+            57,
+            9,
+            888
+          ],
+          "rawClass": "uint16",
+          "rawSize": [
+            2048,
+            2048
+          ],
+          "rawPath": "\\\\srv-data-pb-lan1.u-strasbg.fr\\home\\DetecdivHub\\raw\\.incoming-alexander-2023-20261008\\2023_1\\190423_nh_sir2_tween\\190423_nh_sir2_tween_4\\Pos16\\img_channel000_position016_time000000000_z000.tif",
+          "legacyLoadPreservesMappedPath": true,
+          "roiAndRawReadable": true
+        },
+        {
+          "fov": 17,
+          "roi": "190423_nh_sir2_tween_4_Pos17_17_1",
+          "path": "\\\\srv-data-pb-lan1.u-strasbg.fr\\home\\DetecdivHub\\projects\\anof_190423_nh_sir2_tween\\anof_190423_nh_sir2_tween\\190423_nh_sir2_tween_4_Pos17_17",
+          "imageClass": "uint16",
+          "imageSize": [
+            58,
+            57,
+            9,
+            888
+          ],
+          "rawClass": "uint16",
+          "rawSize": [
+            2048,
+            2048
+          ],
+          "rawPath": "\\\\srv-data-pb-lan1.u-strasbg.fr\\home\\DetecdivHub\\raw\\.incoming-alexander-2023-20261008\\2023_1\\190423_nh_sir2_tween\\190423_nh_sir2_tween_4\\Pos17\\img_channel000_position017_time000000000_z000.tif",
+          "legacyLoadPreservesMappedPath": true,
+          "roiAndRawReadable": true
+        },
+        {
+          "fov": 18,
+          "roi": "190423_nh_sir2_tween_4_Pos18_18_1",
+          "path": "\\\\srv-data-pb-lan1.u-strasbg.fr\\home\\DetecdivHub\\projects\\anof_190423_nh_sir2_tween\\anof_190423_nh_sir2_tween\\190423_nh_sir2_tween_4_Pos18_18",
+          "imageClass": "uint16",
+          "imageSize": [
+            58,
+            57,
+            9,
+            888
+          ],
+          "rawClass": "uint16",
+          "rawSize": [
+            2048,
+            2048
+          ],
+          "rawPath": "\\\\srv-data-pb-lan1.u-strasbg.fr\\home\\DetecdivHub\\raw\\.incoming-alexander-2023-20261008\\2023_1\\190423_nh_sir2_tween\\190423_nh_sir2_tween_4\\Pos18\\img_channel000_position018_time000000000_z000.tif",
+          "legacyLoadPreservesMappedPath": true,
+          "roiAndRawReadable": true
+        },
+        {
+          "fov": 19,
+          "roi": "190423_nh_sir2_tween_4_Pos19_19_1",
+          "path": "\\\\srv-data-pb-lan1.u-strasbg.fr\\home\\DetecdivHub\\projects\\anof_190423_nh_sir2_tween\\anof_190423_nh_sir2_tween\\190423_nh_sir2_tween_4_Pos19_19",
+          "imageClass": "uint16",
+          "imageSize": [
+            58,
+            57,
+            9,
+            888
+          ],
+          "rawClass": "uint16",
+          "rawSize": [
+            2048,
+            2048
+          ],
+          "rawPath": "\\\\srv-data-pb-lan1.u-strasbg.fr\\home\\DetecdivHub\\raw\\.incoming-alexander-2023-20261008\\2023_1\\190423_nh_sir2_tween\\190423_nh_sir2_tween_4\\Pos19\\img_channel000_position019_time000000000_z000.tif",
+          "legacyLoadPreservesMappedPath": true,
+          "roiAndRawReadable": true
+        },
+        {
+          "fov": 20,
+          "roi": "190423_nh_sir2_tween_4_Pos20_20_1",
+          "path": "\\\\srv-data-pb-lan1.u-strasbg.fr\\home\\DetecdivHub\\projects\\anof_190423_nh_sir2_tween\\anof_190423_nh_sir2_tween\\190423_nh_sir2_tween_4_Pos20_20",
+          "imageClass": "uint16",
+          "imageSize": [
+            58,
+            57,
+            9,
+            888
+          ],
+          "rawClass": "uint16",
+          "rawSize": [
+            2048,
+            2048
+          ],
+          "rawPath": "\\\\srv-data-pb-lan1.u-strasbg.fr\\home\\DetecdivHub\\raw\\.incoming-alexander-2023-20261008\\2023_1\\190423_nh_sir2_tween\\190423_nh_sir2_tween_4\\Pos20\\img_channel000_position020_time000000000_z000.tif",
+          "legacyLoadPreservesMappedPath": true,
+          "roiAndRawReadable": true
+        },
+        {
+          "fov": 21,
+          "roi": "190423_nh_sir2_tween_4_Pos21_21_1",
+          "path": "\\\\srv-data-pb-lan1.u-strasbg.fr\\home\\DetecdivHub\\projects\\anof_190423_nh_sir2_tween\\anof_190423_nh_sir2_tween\\190423_nh_sir2_tween_4_Pos21_21",
+          "imageClass": "uint16",
+          "imageSize": [
+            58,
+            57,
+            9,
+            888
+          ],
+          "rawClass": "uint16",
+          "rawSize": [
+            2048,
+            2048
+          ],
+          "rawPath": "\\\\srv-data-pb-lan1.u-strasbg.fr\\home\\DetecdivHub\\raw\\.incoming-alexander-2023-20261008\\2023_1\\190423_nh_sir2_tween\\190423_nh_sir2_tween_4\\Pos21\\img_channel000_position021_time000000000_z000.tif",
+          "legacyLoadPreservesMappedPath": true,
+          "roiAndRawReadable": true
+        },
+        {
+          "fov": 22,
+          "roi": "190423_nh_sir2_tween_4_Pos22_22_1",
+          "path": "\\\\srv-data-pb-lan1.u-strasbg.fr\\home\\DetecdivHub\\projects\\anof_190423_nh_sir2_tween\\anof_190423_nh_sir2_tween\\190423_nh_sir2_tween_4_Pos22_22",
+          "imageClass": "uint16",
+          "imageSize": [
+            58,
+            57,
+            9,
+            888
+          ],
+          "rawClass": "uint16",
+          "rawSize": [
+            2048,
+            2048
+          ],
+          "rawPath": "\\\\srv-data-pb-lan1.u-strasbg.fr\\home\\DetecdivHub\\raw\\.incoming-alexander-2023-20261008\\2023_1\\190423_nh_sir2_tween\\190423_nh_sir2_tween_4\\Pos22\\img_channel000_position022_time000000000_z000.tif",
+          "legacyLoadPreservesMappedPath": true,
+          "roiAndRawReadable": true
+        },
+        {
+          "fov": 23,
+          "roi": "190423_nh_sir2_tween_4_Pos23_23_1",
+          "path": "\\\\srv-data-pb-lan1.u-strasbg.fr\\home\\DetecdivHub\\projects\\anof_190423_nh_sir2_tween\\anof_190423_nh_sir2_tween\\190423_nh_sir2_tween_4_Pos23_23",
+          "imageClass": "uint16",
+          "imageSize": [
+            58,
+            57,
+            9,
+            888
+          ],
+          "rawClass": "uint16",
+          "rawSize": [
+            2048,
+            2048
+          ],
+          "rawPath": "\\\\srv-data-pb-lan1.u-strasbg.fr\\home\\DetecdivHub\\raw\\.incoming-alexander-2023-20261008\\2023_1\\190423_nh_sir2_tween\\190423_nh_sir2_tween_4\\Pos23\\img_channel000_position023_time000000000_z000.tif",
+          "legacyLoadPreservesMappedPath": true,
+          "roiAndRawReadable": true
+        },
+        {
+          "fov": 24,
+          "roi": "190423_nh_sir2_tween_4_Pos24_24_1",
+          "path": "\\\\srv-data-pb-lan1.u-strasbg.fr\\home\\DetecdivHub\\projects\\anof_190423_nh_sir2_tween\\anof_190423_nh_sir2_tween\\190423_nh_sir2_tween_4_Pos24_24",
+          "imageClass": "uint16",
+          "imageSize": [
+            58,
+            57,
+            9,
+            888
+          ],
+          "rawClass": "uint16",
+          "rawSize": [
+            2048,
+            2048
+          ],
+          "rawPath": "\\\\srv-data-pb-lan1.u-strasbg.fr\\home\\DetecdivHub\\raw\\.incoming-alexander-2023-20261008\\2023_1\\190423_nh_sir2_tween\\190423_nh_sir2_tween_4\\Pos24\\img_channel000_position024_time000000000_z000.tif",
+          "legacyLoadPreservesMappedPath": true,
+          "roiAndRawReadable": true
+        },
+        {
+          "fov": 25,
+          "roi": "190423_nh_sir2_tween_4_Pos25_25_1",
+          "path": "\\\\srv-data-pb-lan1.u-strasbg.fr\\home\\DetecdivHub\\projects\\anof_190423_nh_sir2_tween\\anof_190423_nh_sir2_tween\\190423_nh_sir2_tween_4_Pos25_25",
+          "imageClass": "uint16",
+          "imageSize": [
+            58,
+            57,
+            9,
+            888
+          ],
+          "rawClass": "uint16",
+          "rawSize": [
+            2048,
+            2048
+          ],
+          "rawPath": "\\\\srv-data-pb-lan1.u-strasbg.fr\\home\\DetecdivHub\\raw\\.incoming-alexander-2023-20261008\\2023_1\\190423_nh_sir2_tween\\190423_nh_sir2_tween_4\\Pos25\\img_channel000_position025_time000000000_z000.tif",
+          "legacyLoadPreservesMappedPath": true,
+          "roiAndRawReadable": true
+        },
+        {
+          "fov": 26,
+          "roi": "190423_nh_sir2_tween_4_Pos26_26_1",
+          "path": "\\\\srv-data-pb-lan1.u-strasbg.fr\\home\\DetecdivHub\\projects\\anof_190423_nh_sir2_tween\\anof_190423_nh_sir2_tween\\190423_nh_sir2_tween_4_Pos26_26",
+          "imageClass": "uint16",
+          "imageSize": [
+            58,
+            57,
+            9,
+            888
+          ],
+          "rawClass": "uint16",
+          "rawSize": [
+            2048,
+            2048
+          ],
+          "rawPath": "\\\\srv-data-pb-lan1.u-strasbg.fr\\home\\DetecdivHub\\raw\\.incoming-alexander-2023-20261008\\2023_1\\190423_nh_sir2_tween\\190423_nh_sir2_tween_4\\Pos26\\img_channel000_position026_time000000000_z000.tif",
+          "legacyLoadPreservesMappedPath": true,
+          "roiAndRawReadable": true
+        },
+        {
+          "fov": 27,
+          "roi": "190423_nh_sir2_tween_4_Pos27_27_1",
+          "path": "\\\\srv-data-pb-lan1.u-strasbg.fr\\home\\DetecdivHub\\projects\\anof_190423_nh_sir2_tween\\anof_190423_nh_sir2_tween\\190423_nh_sir2_tween_4_Pos27_27",
+          "imageClass": "uint16",
+          "imageSize": [
+            58,
+            57,
+            9,
+            888
+          ],
+          "rawClass": "uint16",
+          "rawSize": [
+            2048,
+            2048
+          ],
+          "rawPath": "\\\\srv-data-pb-lan1.u-strasbg.fr\\home\\DetecdivHub\\raw\\.incoming-alexander-2023-20261008\\2023_1\\190423_nh_sir2_tween\\190423_nh_sir2_tween_4\\Pos27\\img_channel000_position027_time000000000_z000.tif",
+          "legacyLoadPreservesMappedPath": true,
+          "roiAndRawReadable": true
+        },
+        {
+          "fov": 28,
+          "roi": "190423_nh_sir2_tween_4_Pos28_28_1",
+          "path": "\\\\srv-data-pb-lan1.u-strasbg.fr\\home\\DetecdivHub\\projects\\anof_190423_nh_sir2_tween\\anof_190423_nh_sir2_tween\\190423_nh_sir2_tween_4_Pos28_28",
+          "imageClass": "uint16",
+          "imageSize": [
+            58,
+            57,
+            9,
+            888
+          ],
+          "rawClass": "uint16",
+          "rawSize": [
+            2048,
+            2048
+          ],
+          "rawPath": "\\\\srv-data-pb-lan1.u-strasbg.fr\\home\\DetecdivHub\\raw\\.incoming-alexander-2023-20261008\\2023_1\\190423_nh_sir2_tween\\190423_nh_sir2_tween_4\\Pos28\\img_channel000_position028_time000000000_z000.tif",
+          "legacyLoadPreservesMappedPath": true,
+          "roiAndRawReadable": true
+        }
+      ]
+    },
+    "finished_at": "2026-11-01T21:40:02.413200+00:00"
+  },
+  "project1-verification-matlab.log": ""
+}

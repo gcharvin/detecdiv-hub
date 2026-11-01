@@ -1,0 +1,9 @@
+{
+  "year": "2023_3",
+  "bandwidth_kib": 61440,
+  "source_deletion_allowed": false,
+  "catalog_cutover_allowed": false,
+  "runner_sha256": "fff7ef9af207245adc1b7d8810ec0c7a601676a68b3365cdb7ef1ccceed9a15b",
+  "approved_user_request": "ok continue avec le transfert de 2023_1 puis 2023_3 sur homes2, et libere la place sur /data des que les copies et les chemins des projets sont verifies",
+  "batch_id": "a8c8e0da-72b6-42c5-9644-2028709c9707"
+}

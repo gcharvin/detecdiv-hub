@@ -1,0 +1,67 @@
+{
+  "sample_folder": "/homes2/maliavko/DetecdivHub/projects/anof_190423_nh_sir2_tween/anof_190423_nh_sir2_tween/190423_nh_sir2_tween_4_Pos10_10",
+  "sample_files": [
+    {
+      "name": "data_190423_nh_sir2_tween_4_Pos10_10_1.mat",
+      "bytes": 87640
+    },
+    {
+      "name": "data_190423_nh_sir2_tween_4_Pos10_10_10.mat",
+      "bytes": 87603
+    },
+    {
+      "name": "data_190423_nh_sir2_tween_4_Pos10_10_100.mat",
+      "bytes": 82148
+    },
+    {
+      "name": "data_190423_nh_sir2_tween_4_Pos10_10_101.mat",
+      "bytes": 85422
+    },
+    {
+      "name": "data_190423_nh_sir2_tween_4_Pos10_10_102.mat",
+      "bytes": 84008
+    },
+    {
+      "name": "data_190423_nh_sir2_tween_4_Pos10_10_103.mat",
+      "bytes": 80419
+    },
+    {
+      "name": "data_190423_nh_sir2_tween_4_Pos10_10_104.mat",
+      "bytes": 83129
+    },
+    {
+      "name": "data_190423_nh_sir2_tween_4_Pos10_10_105.mat",
+      "bytes": 70322
+    },
+    {
+      "name": "data_190423_nh_sir2_tween_4_Pos10_10_106.mat",
+      "bytes": 82501
+    },
+    {
+      "name": "data_190423_nh_sir2_tween_4_Pos10_10_107.mat",
+      "bytes": 81216
+    },
+    {
+      "name": "data_190423_nh_sir2_tween_4_Pos10_10_108.mat",
+      "bytes": 83426
+    },
+    {
+      "name": "data_190423_nh_sir2_tween_4_Pos10_10_109.mat",
+      "bytes": 83605
+    }
+  ],
+  "prefix_counts": {
+    "data": 544,
+    "im": 544,
+    "results": 544
+  },
+  "source_mat": {
+    "exists": true,
+    "bytes": 547098427
+  },
+  "target_mat": {
+    "bytes": 547098427,
+    "mtime_ns": 1747493616997510400
+  },
+  "raw_alias_present": false
+}
