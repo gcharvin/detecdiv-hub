@@ -1,0 +1,25 @@
+{
+  "success": true,
+  "committed_at": "2026-11-01T22:04:35.643179+00:00",
+  "batch_id": "6c5f88a0-da46-4bf8-aa37-6e4026a7ec9b",
+  "project_id": "1bbe0337-ba93-4c15-a7e9-39ae6df47979",
+  "fovs": 28,
+  "rois": 14386,
+  "preferred_location_id": 4246,
+  "original_location_id": 2761,
+  "identity_unchanged": {
+    "owner": "420588b7-758a-4579-bf96-c6684d4c52dd",
+    "key": "anof_190423_nh_sir2_tween_8d5662d3ca",
+    "visibility": "private",
+    "notes": "Catalogage 2023 en lecture seule. Liens raw et inventaire du dossier \u00e0 v\u00e9rifier avant utilisation ou migration.",
+    "acl": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+    "groups": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+    "notes_entries": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+    "raw_links": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "mat_sha256": "0207cf3b34cb2f20dbb38be2837360596c7ee67b67560f1bd874918e6bc7ac4a",
+  "total_bytes": 556820526007,
+  "project_lease_released": true,
+  "primary_source_deleted": false,
+  "primary_retirement_deferred": "Dependent Gilles project MAT location is not yet validated."
+}

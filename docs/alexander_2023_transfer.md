@@ -236,20 +236,28 @@ The completed 2023_2 operation is unchanged. The follow-up is tracked in
   the other source files is not space reclaimed by this continuation.
 - Keep the existing homes2 staging namespace: 70 preferred raw locations
   already reference it. The copied Alex project path rewrite passed Windows
-  validation in the actual limited worker session (28 FOVs / 14,386 ROIs);
-  the complete Linux sidecar audit is still running at this checkpoint.
-- Primary retirement remains deferred because a linked Gilles project's
-  declared MAT is already absent and its current location is unresolved.
-  No new primary source file was deleted by this continuation.
+  validation in the actual limited worker session and the complete Linux
+  sidecar/save/reopen audit (28 FOVs / 14,386 ROIs). Its original remains on
+  Sauvegarde. The linked Gilles project was found as a v3 JSON manifest and
+  retained under /data/Gilles: 301 raw references in 32 metadata files were
+  relinked, with original backups and unchanged scientific values/HDF5 arrays.
+  Linux before/after and actual Windows reads passed (30 FOVs / 15,281 ROIs).
+- At 22:25 UTC the 87,364 verified residual source files were retired. Measured
+  free space increased by 737,304,760,320 bytes, to 5,648,026,640,384 bytes.
+  Source rows 3703/4288 were removed, preferred homes2 location 5512 retained,
+  and all other raw identities/locations/links preserved. Both own leases
+  were released. Batch: `7ec51c52-e14a-4ac5-ab74-85bd4ee30590`.
 - API continuity for 2023_1 is verified for 710 existing previews and 64
   display settings using a temporary 11.052-GB projection on /data. The 156
   already-missing references under `160623_test` were left unchanged. Retire
   all temporary projections only after the API can serve homes2 directly.
 - 2023_3: a detached copy/full-checksum runner is active, copying 708,590
   files / 5,967,100,516,555 bytes. It cannot delete sources, publish preferred
-  raw locations or rewrite projects. Eleven candidate project dependencies
-  were found by the read-only catalog MAT scan; legacy alias identity and
-  full project/Windows checks are still required before source retirement.
+  raw locations or rewrite projects. At 22:34 UTC, 324,619,727,042 bytes (5.44%)
+  had transferred. Eleven dependent Alexander project copies are separately
+  preparing as independent maliavko-owned clones with full content checks,
+  preserving Sauvegarde originals. Legacy alias identity and final project/
+  Windows checks are still required before source retirement.
 
 The GitGuardian alert on commit `dcf7560` was a confirmed false positive on
 two POSIX username-to-UID lookups. Clarification was pushed as `7779e1f`;

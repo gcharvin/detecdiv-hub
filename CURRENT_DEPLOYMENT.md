@@ -11,12 +11,68 @@ and validate all affected project copies, and update catalog references before
 retiring their verified source manifests. The separate staged 2023_1 pilot
 must retain a working catalog location throughout publication.
 
-The final scope also includes retiring the temporary 2023_2 API cache from
-`/data/.detecdiv-hub-api-cache/alexander-2023_2` after the API can serve its
+The final scope also includes retiring the temporary 2023_1 and 2023_2 API caches
+from `/data/.detecdiv-hub-api-cache/alexander-2023_{1,2}` after the API can serve their
 verified homes2 equivalents. The existing cache is an interim dependency,
 not the final storage arrangement. Do not remove it while its URIs are live.
 The 2023_2 scientific payload has already been retired as recorded below.
 Detailed conditions and the user's instruction: `docs/alexander_2023_transfer.md`.
+
+## Alexander 2023_1 retired; 2023_3 raw/project copies active, 2026-11-01
+
+At 22:25 UTC, the verified residual 2023_1 source was retired: exactly 87,364
+regular files / 737,182,660,223 logical bytes. Measured primary free space grew
+by **737,304,760,320 bytes**, to **5,648,026,640,384 bytes**. No scientific source
+payload remains in 2023_1; NAS system metadata/nonempty ancestors were retained.
+The original full homes2 copy has 750,255 files / 6,316,035,396,988 bytes. The
+other 662,891 source files were already absent before this continuation and
+must not be counted as new space reclaimed here.
+
+Both affected projects passed Linux and actual limited Windows-session checks:
+
+- Alexander's `anof_190423_nh_sir2_tween`: 28 FOVs / 14,386 ROIs, copied MAT
+  relinked, scientific values/annotations compared across save/reopen, all
+  28,772 data/results sidecars audited, representative ROI/raw pixel equality.
+  Preferred homes2 location 4246 and original readonly Sauvegarde location 2761
+  remain. Project batch `6c5f88a0-da46-4bf8-aa37-6e4026a7ec9b`.
+- Gilles's `190423_nh_sir2_tween` remains under `/data/Gilles/analysis/projects`
+  as a v3 JSON project: 30 FOVs / 15,281 declared ROIs. Only 301 raw references
+  in 32 JSON files were changed; original metadata backups, live inodes/owners/
+  modes/ACLs, HDF5 results, annotations and historical runs were preserved.
+  The existing .mat catalog alias is retained because the registration API
+  requires it; the pinned engine resolves it to the sibling JSON on both hosts.
+  Metadata explicitly records the actual JSON manifest. Project batch
+  `369692d0-be0f-4f3c-94e6-150310c42276`. The old mention of M: was a mistaken
+  interpretation of the user's wording, not an actual missing drive.
+
+Retirement batch `7ec51c52-e14a-4ac5-ab74-85bd4ee30590` retired only dead source
+locations 3703/4288. Raw ID, preferred homes2 location 5512, ownership, links,
+positions and all 2,572 unrelated locations were preserved. Both project leases
+were released. Keep the working staging namespace: 70 existing preferred raw
+locations and the verified project paths already reference it.
+
+All 774 actual API preview/settings handlers passed after retirement. The
+2023_1 temporary projection retains 11,051,646,071 bytes alongside the earlier
+2023_2 cache (5,874,728,850 bytes). The 156 already-missing references under
+phantom `160623_test` were left unchanged. The API still mounts only /data;
+homes2 serving and eventual cache retirement remain pending, without a service
+or credential change in this phase.
+
+2023_3 raw copy/full verification runs in tmux `alex2023-3-copy-20261101`:
+708,590 files / 5,967,100,516,555 bytes. At 22:34 UTC, 324,619,727,042 bytes
+(5.44%) had transferred. The copy cannot delete sources or publish locations.
+Eleven Alexander project copies are also preparing as independent maliavko-owned
+Btrfs clones with full per-file hashes and source stability inventories, in
+tmux `alex2023-3-project-copies-20261101`. Their originals remain on Sauvegarde;
+no 2023_3 MAT is rewritten or preferred location changed by this copy task.
+Raw copy, legacy alias review and final Linux/Windows project gates must finish
+before any 2023_3 primary retirement.
+
+At 22:34 UTC, API/database health was OK and all seven pollers were idle with
+unchanged PIDs/fingerprints. No API/worker restart, engine-default change,
+provider activation, quota change or backup-policy change occurred. Evidence:
+`reports/alexander-2023-remaining-20261101/README.md`; private compute work:
+`/home/charvin-admin/storage-transfers/alexander-2023-remaining-20261101`.
 
 ## Alexander project on homes2 and 2023_2 space reclaimed, 2026-11-01
 

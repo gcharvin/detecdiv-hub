@@ -23,7 +23,10 @@ if p.exists():
  with p.open('rb') as f:f.seek(max(0,p.stat().st_size-8192));tail=f.read()
  values=re.findall(rb'([0-9.]+)\s+[0-9]+%',tail)
  if values:transferred=int(values[-1].replace(b'.',b''))
-print(json.dumps({'state':s,'copied_bytes_from_rsync':transferred}))
+r={'state':s,'copied_bytes_from_rsync':transferred}
+projects=w.parent/'projects3/state.json'
+if projects.exists():r['dependent_project_copies']=json.loads(projects.read_text())
+print(json.dumps(r))
 '''
 
 
@@ -46,10 +49,14 @@ with SessionLocal.begin() as db:
  b.status=phase
  m=dict(b.metadata_json or {});m['standalone_copy_progress']={'state_path':'/home/charvin-admin/storage-transfers/alexander-2023-remaining-20261101/2023_3/state.json',
   'phase':phase,'heartbeat_at':s['heartbeat_at'],'copied_bytes_from_rsync':v['copied_bytes_from_rsync'],'full_sha1_passed':s.get('full_sha1_passed',False)}
+ if 'dependent_project_copies' in v:
+  projects=v['dependent_project_copies'];assert not projects['source_deleted'] and not projects['catalog_changed'] and not projects['project_paths_rewritten']
+  m['dependent_project_copy_progress']=projects
  b.metadata_json=m
  summary=dict(b.summary_json or {});summary.update(source_deleted=False,catalog_cutover_performed=False,
   total_bytes=s.get('source_inventory',{}).get('bytes'),total_files=s.get('source_inventory',{}).get('files'),
   copied_bytes=v['copied_bytes_from_rsync'],full_sha1_passed=s.get('full_sha1_passed',False),project_path_gates_pending=True)
+ if 'dependent_project_copies' in v:summary['dependent_project_copies_verified']=len(v['dependent_project_copies']['projects'])
  b.summary_json=summary
  print(json.dumps({'updated':True,'phase':phase,'checked_at':datetime.now(timezone.utc).isoformat()}))
 '''.replace('PAYLOAD',repr(value)).replace('BATCH',repr(BATCH))

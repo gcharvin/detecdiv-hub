@@ -1,0 +1,84 @@
+{
+  "file": "/data/Gilles/analysis/projects/190423_nh_sir2_tween.json",
+  "bytes": 37533,
+  "sha256": "a32e6da807edc21221efceba057cc378637ab486d17c9d14f0123f78b9cc615b",
+  "keys": [
+    "schemaVersion",
+    "projectId",
+    "projectName",
+    "tag",
+    "createdAt",
+    "updatedAt",
+    "detecdivVersion",
+    "paths",
+    "rawSources",
+    "fovs",
+    "pipelines",
+    "pipelineRuns",
+    "classifiers",
+    "processors",
+    "runProfilesPath",
+    "compat"
+  ],
+  "nested_types": {
+    "schemaVersion": "int",
+    "projectId": "str",
+    "projectName": "str",
+    "tag": "str",
+    "createdAt": "str",
+    "updatedAt": "str",
+    "detecdivVersion": "str",
+    "paths": "dict",
+    "rawSources": "list",
+    "fovs": "list",
+    "pipelines": "list",
+    "pipelineRuns": "list",
+    "classifiers": "list",
+    "processors": "list",
+    "runProfilesPath": "str",
+    "compat": "dict"
+  },
+  "path_count": 154,
+  "path_examples": [
+    {
+      "field": "$.projectName",
+      "value": "190423_nh_sir2_tween"
+    },
+    {
+      "field": "$.paths.projectRoot",
+      "value": "/data/Gilles/analysis/projects/"
+    },
+    {
+      "field": "$.paths.projectDir",
+      "value": "/data/Gilles/analysis/projects/190423_nh_sir2_tween"
+    },
+    {
+      "field": "$.paths.legacyMat",
+      "value": "/data/Gilles/analysis/projects/190423_nh_sir2_tween.mat"
+    },
+    {
+      "field": "$.rawSources[0].path",
+      "value": "/data/Alexander/data/2023_1/190423_nh_sir2_tween/190423_nh_sir2_tween_4/Pos1"
+    },
+    {
+      "field": "$.rawSources[1].path",
+      "value": "/data/Alexander/data/2023_1/190423_nh_sir2_tween/190423_nh_sir2_tween_4/Pos1"
+    },
+    {
+      "field": "$.rawSources[2].path",
+      "value": "/data/Alexander/data/2023_1/190423_nh_sir2_tween/190423_nh_sir2_tween_4/Pos1"
+    },
+    {
+      "field": "$.rawSources[3].path",
+      "value": "/data/Alexander/data/2023_1/190423_nh_sir2_tween/190423_nh_sir2_tween_4/Pos1"
+    },
+    {
+      "field": "$.rawSources[4].path",
+      "value": "/data/Alexander/data/2023_1/190423_nh_sir2_tween/190423_nh_sir2_tween_4/Pos1"
+    },
+    {
+      "field": "$.rawSources[5].path",
+      "value": "/data/Alexander/data/2023_1/190423_nh_sir2_tween/190423_nh_sir2_tween_4/Pos2"
+    }
+  ]
+}

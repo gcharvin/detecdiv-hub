@@ -1,0 +1,673 @@
+{
+  "verification": {
+    "success": true,
+    "source_preserved": true,
+    "copied_project_file": "/homes2/maliavko/DetecdivHub/projects/anof_190423_nh_sir2_tween/anof_190423_nh_sir2_tween.mat",
+    "source_project_file": "/mnt/detecdiv-secondary-sauvegarde/Alexander/analysis/anof_190423_nh_sir2_tween.mat",
+    "project_path_changes": 101723,
+    "path_change_examples": [
+      {
+        "field": "mat.shallowObj.fov.roi.path",
+        "before": "/DataVault/Alexander/analysis/anof_190423_nh_sir2_tween/190423_nh_sir2_tween_4_Pos1_1",
+        "after": "/homes2/maliavko/DetecdivHub/projects/anof_190423_nh_sir2_tween/anof_190423_nh_sir2_tween/190423_nh_sir2_tween_4_Pos1_1"
+      },
+      {
+        "field": "mat.shallowObj.fov.roi.path",
+        "before": "/DataVault/Alexander/analysis/anof_190423_nh_sir2_tween/190423_nh_sir2_tween_4_Pos1_1",
+        "after": "/homes2/maliavko/DetecdivHub/projects/anof_190423_nh_sir2_tween/anof_190423_nh_sir2_tween/190423_nh_sir2_tween_4_Pos1_1"
+      },
+      {
+        "field": "mat.shallowObj.fov.roi.path",
+        "before": "/DataVault/Alexander/analysis/anof_190423_nh_sir2_tween/190423_nh_sir2_tween_4_Pos1_1",
+        "after": "/homes2/maliavko/DetecdivHub/projects/anof_190423_nh_sir2_tween/anof_190423_nh_sir2_tween/190423_nh_sir2_tween_4_Pos1_1"
+      },
+      {
+        "field": "mat.shallowObj.fov.roi.path",
+        "before": "/DataVault/Alexander/analysis/anof_190423_nh_sir2_tween/190423_nh_sir2_tween_4_Pos1_1",
+        "after": "/homes2/maliavko/DetecdivHub/projects/anof_190423_nh_sir2_tween/anof_190423_nh_sir2_tween/190423_nh_sir2_tween_4_Pos1_1"
+      },
+      {
+        "field": "mat.shallowObj.fov.roi.path",
+        "before": "/DataVault/Alexander/analysis/anof_190423_nh_sir2_tween/190423_nh_sir2_tween_4_Pos1_1",
+        "after": "/homes2/maliavko/DetecdivHub/projects/anof_190423_nh_sir2_tween/anof_190423_nh_sir2_tween/190423_nh_sir2_tween_4_Pos1_1"
+      },
+      {
+        "field": "mat.shallowObj.fov.roi.path",
+        "before": "/DataVault/Alexander/analysis/anof_190423_nh_sir2_tween/190423_nh_sir2_tween_4_Pos1_1",
+        "after": "/homes2/maliavko/DetecdivHub/projects/anof_190423_nh_sir2_tween/anof_190423_nh_sir2_tween/190423_nh_sir2_tween_4_Pos1_1"
+      },
+      {
+        "field": "mat.shallowObj.fov.roi.path",
+        "before": "/DataVault/Alexander/analysis/anof_190423_nh_sir2_tween/190423_nh_sir2_tween_4_Pos1_1",
+        "after": "/homes2/maliavko/DetecdivHub/projects/anof_190423_nh_sir2_tween/anof_190423_nh_sir2_tween/190423_nh_sir2_tween_4_Pos1_1"
+      },
+      {
+        "field": "mat.shallowObj.fov.roi.path",
+        "before": "/DataVault/Alexander/analysis/anof_190423_nh_sir2_tween/190423_nh_sir2_tween_4_Pos1_1",
+        "after": "/homes2/maliavko/DetecdivHub/projects/anof_190423_nh_sir2_tween/anof_190423_nh_sir2_tween/190423_nh_sir2_tween_4_Pos1_1"
+      },
+      {
+        "field": "mat.shallowObj.fov.roi.path",
+        "before": "/DataVault/Alexander/analysis/anof_190423_nh_sir2_tween/190423_nh_sir2_tween_4_Pos1_1",
+        "after": "/homes2/maliavko/DetecdivHub/projects/anof_190423_nh_sir2_tween/anof_190423_nh_sir2_tween/190423_nh_sir2_tween_4_Pos1_1"
+      },
+      {
+        "field": "mat.shallowObj.fov.roi.path",
+        "before": "/DataVault/Alexander/analysis/anof_190423_nh_sir2_tween/190423_nh_sir2_tween_4_Pos1_1",
+        "after": "/homes2/maliavko/DetecdivHub/projects/anof_190423_nh_sir2_tween/anof_190423_nh_sir2_tween/190423_nh_sir2_tween_4_Pos1_1"
+      },
+      {
+        "field": "mat.shallowObj.fov.roi.path",
+        "before": "/DataVault/Alexander/analysis/anof_190423_nh_sir2_tween/190423_nh_sir2_tween_4_Pos1_1",
+        "after": "/homes2/maliavko/DetecdivHub/projects/anof_190423_nh_sir2_tween/anof_190423_nh_sir2_tween/190423_nh_sir2_tween_4_Pos1_1"
+      },
+      {
+        "field": "mat.shallowObj.fov.roi.path",
+        "before": "/DataVault/Alexander/analysis/anof_190423_nh_sir2_tween/190423_nh_sir2_tween_4_Pos1_1",
+        "after": "/homes2/maliavko/DetecdivHub/projects/anof_190423_nh_sir2_tween/anof_190423_nh_sir2_tween/190423_nh_sir2_tween_4_Pos1_1"
+      },
+      {
+        "field": "mat.shallowObj.fov.roi.path",
+        "before": "/DataVault/Alexander/analysis/anof_190423_nh_sir2_tween/190423_nh_sir2_tween_4_Pos1_1",
+        "after": "/homes2/maliavko/DetecdivHub/projects/anof_190423_nh_sir2_tween/anof_190423_nh_sir2_tween/190423_nh_sir2_tween_4_Pos1_1"
+      },
+      {
+        "field": "mat.shallowObj.fov.roi.path",
+        "before": "/DataVault/Alexander/analysis/anof_190423_nh_sir2_tween/190423_nh_sir2_tween_4_Pos1_1",
+        "after": "/homes2/maliavko/DetecdivHub/projects/anof_190423_nh_sir2_tween/anof_190423_nh_sir2_tween/190423_nh_sir2_tween_4_Pos1_1"
+      },
+      {
+        "field": "mat.shallowObj.fov.roi.path",
+        "before": "/DataVault/Alexander/analysis/anof_190423_nh_sir2_tween/190423_nh_sir2_tween_4_Pos1_1",
+        "after": "/homes2/maliavko/DetecdivHub/projects/anof_190423_nh_sir2_tween/anof_190423_nh_sir2_tween/190423_nh_sir2_tween_4_Pos1_1"
+      },
+      {
+        "field": "mat.shallowObj.fov.roi.path",
+        "before": "/DataVault/Alexander/analysis/anof_190423_nh_sir2_tween/190423_nh_sir2_tween_4_Pos1_1",
+        "after": "/homes2/maliavko/DetecdivHub/projects/anof_190423_nh_sir2_tween/anof_190423_nh_sir2_tween/190423_nh_sir2_tween_4_Pos1_1"
+      },
+      {
+        "field": "mat.shallowObj.fov.roi.path",
+        "before": "/DataVault/Alexander/analysis/anof_190423_nh_sir2_tween/190423_nh_sir2_tween_4_Pos1_1",
+        "after": "/homes2/maliavko/DetecdivHub/projects/anof_190423_nh_sir2_tween/anof_190423_nh_sir2_tween/190423_nh_sir2_tween_4_Pos1_1"
+      },
+      {
+        "field": "mat.shallowObj.fov.roi.path",
+        "before": "/DataVault/Alexander/analysis/anof_190423_nh_sir2_tween/190423_nh_sir2_tween_4_Pos1_1",
+        "after": "/homes2/maliavko/DetecdivHub/projects/anof_190423_nh_sir2_tween/anof_190423_nh_sir2_tween/190423_nh_sir2_tween_4_Pos1_1"
+      },
+      {
+        "field": "mat.shallowObj.fov.roi.path",
+        "before": "/DataVault/Alexander/analysis/anof_190423_nh_sir2_tween/190423_nh_sir2_tween_4_Pos1_1",
+        "after": "/homes2/maliavko/DetecdivHub/projects/anof_190423_nh_sir2_tween/anof_190423_nh_sir2_tween/190423_nh_sir2_tween_4_Pos1_1"
+      },
+      {
+        "field": "mat.shallowObj.fov.roi.path",
+        "before": "/DataVault/Alexander/analysis/anof_190423_nh_sir2_tween/190423_nh_sir2_tween_4_Pos1_1",
+        "after": "/homes2/maliavko/DetecdivHub/projects/anof_190423_nh_sir2_tween/anof_190423_nh_sir2_tween/190423_nh_sir2_tween_4_Pos1_1"
+      },
+      {
+        "field": "mat.shallowObj.fov.roi.path",
+        "before": "/DataVault/Alexander/analysis/anof_190423_nh_sir2_tween/190423_nh_sir2_tween_4_Pos1_1",
+        "after": "/homes2/maliavko/DetecdivHub/projects/anof_190423_nh_sir2_tween/anof_190423_nh_sir2_tween/190423_nh_sir2_tween_4_Pos1_1"
+      },
+      {
+        "field": "mat.shallowObj.fov.roi.path",
+        "before": "/DataVault/Alexander/analysis/anof_190423_nh_sir2_tween/190423_nh_sir2_tween_4_Pos1_1",
+        "after": "/homes2/maliavko/DetecdivHub/projects/anof_190423_nh_sir2_tween/anof_190423_nh_sir2_tween/190423_nh_sir2_tween_4_Pos1_1"
+      },
+      {
+        "field": "mat.shallowObj.fov.roi.path",
+        "before": "/DataVault/Alexander/analysis/anof_190423_nh_sir2_tween/190423_nh_sir2_tween_4_Pos1_1",
+        "after": "/homes2/maliavko/DetecdivHub/projects/anof_190423_nh_sir2_tween/anof_190423_nh_sir2_tween/190423_nh_sir2_tween_4_Pos1_1"
+      },
+      {
+        "field": "mat.shallowObj.fov.roi.path",
+        "before": "/DataVault/Alexander/analysis/anof_190423_nh_sir2_tween/190423_nh_sir2_tween_4_Pos1_1",
+        "after": "/homes2/maliavko/DetecdivHub/projects/anof_190423_nh_sir2_tween/anof_190423_nh_sir2_tween/190423_nh_sir2_tween_4_Pos1_1"
+      },
+      {
+        "field": "mat.shallowObj.fov.roi.path",
+        "before": "/DataVault/Alexander/analysis/anof_190423_nh_sir2_tween/190423_nh_sir2_tween_4_Pos1_1",
+        "after": "/homes2/maliavko/DetecdivHub/projects/anof_190423_nh_sir2_tween/anof_190423_nh_sir2_tween/190423_nh_sir2_tween_4_Pos1_1"
+      },
+      {
+        "field": "mat.shallowObj.fov.roi.path",
+        "before": "/DataVault/Alexander/analysis/anof_190423_nh_sir2_tween/190423_nh_sir2_tween_4_Pos1_1",
+        "after": "/homes2/maliavko/DetecdivHub/projects/anof_190423_nh_sir2_tween/anof_190423_nh_sir2_tween/190423_nh_sir2_tween_4_Pos1_1"
+      },
+      {
+        "field": "mat.shallowObj.fov.roi.path",
+        "before": "/DataVault/Alexander/analysis/anof_190423_nh_sir2_tween/190423_nh_sir2_tween_4_Pos1_1",
+        "after": "/homes2/maliavko/DetecdivHub/projects/anof_190423_nh_sir2_tween/anof_190423_nh_sir2_tween/190423_nh_sir2_tween_4_Pos1_1"
+      },
+      {
+        "field": "mat.shallowObj.fov.roi.path",
+        "before": "/DataVault/Alexander/analysis/anof_190423_nh_sir2_tween/190423_nh_sir2_tween_4_Pos1_1",
+        "after": "/homes2/maliavko/DetecdivHub/projects/anof_190423_nh_sir2_tween/anof_190423_nh_sir2_tween/190423_nh_sir2_tween_4_Pos1_1"
+      },
+      {
+        "field": "mat.shallowObj.fov.roi.path",
+        "before": "/DataVault/Alexander/analysis/anof_190423_nh_sir2_tween/190423_nh_sir2_tween_4_Pos1_1",
+        "after": "/homes2/maliavko/DetecdivHub/projects/anof_190423_nh_sir2_tween/anof_190423_nh_sir2_tween/190423_nh_sir2_tween_4_Pos1_1"
+      },
+      {
+        "field": "mat.shallowObj.fov.roi.path",
+        "before": "/DataVault/Alexander/analysis/anof_190423_nh_sir2_tween/190423_nh_sir2_tween_4_Pos1_1",
+        "after": "/homes2/maliavko/DetecdivHub/projects/anof_190423_nh_sir2_tween/anof_190423_nh_sir2_tween/190423_nh_sir2_tween_4_Pos1_1"
+      },
+      {
+        "field": "mat.shallowObj.fov.roi.path",
+        "before": "/DataVault/Alexander/analysis/anof_190423_nh_sir2_tween/190423_nh_sir2_tween_4_Pos1_1",
+        "after": "/homes2/maliavko/DetecdivHub/projects/anof_190423_nh_sir2_tween/anof_190423_nh_sir2_tween/190423_nh_sir2_tween_4_Pos1_1"
+      },
+      {
+        "field": "mat.shallowObj.fov.roi.path",
+        "before": "/DataVault/Alexander/analysis/anof_190423_nh_sir2_tween/190423_nh_sir2_tween_4_Pos1_1",
+        "after": "/homes2/maliavko/DetecdivHub/projects/anof_190423_nh_sir2_tween/anof_190423_nh_sir2_tween/190423_nh_sir2_tween_4_Pos1_1"
+      },
+      {
+        "field": "mat.shallowObj.fov.roi.path",
+        "before": "/DataVault/Alexander/analysis/anof_190423_nh_sir2_tween/190423_nh_sir2_tween_4_Pos1_1",
+        "after": "/homes2/maliavko/DetecdivHub/projects/anof_190423_nh_sir2_tween/anof_190423_nh_sir2_tween/190423_nh_sir2_tween_4_Pos1_1"
+      },
+      {
+        "field": "mat.shallowObj.fov.roi.path",
+        "before": "/DataVault/Alexander/analysis/anof_190423_nh_sir2_tween/190423_nh_sir2_tween_4_Pos1_1",
+        "after": "/homes2/maliavko/DetecdivHub/projects/anof_190423_nh_sir2_tween/anof_190423_nh_sir2_tween/190423_nh_sir2_tween_4_Pos1_1"
+      },
+      {
+        "field": "mat.shallowObj.fov.roi.path",
+        "before": "/DataVault/Alexander/analysis/anof_190423_nh_sir2_tween/190423_nh_sir2_tween_4_Pos1_1",
+        "after": "/homes2/maliavko/DetecdivHub/projects/anof_190423_nh_sir2_tween/anof_190423_nh_sir2_tween/190423_nh_sir2_tween_4_Pos1_1"
+      },
+      {
+        "field": "mat.shallowObj.fov.roi.path",
+        "before": "/DataVault/Alexander/analysis/anof_190423_nh_sir2_tween/190423_nh_sir2_tween_4_Pos1_1",
+        "after": "/homes2/maliavko/DetecdivHub/projects/anof_190423_nh_sir2_tween/anof_190423_nh_sir2_tween/190423_nh_sir2_tween_4_Pos1_1"
+      },
+      {
+        "field": "mat.shallowObj.fov.roi.path",
+        "before": "/DataVault/Alexander/analysis/anof_190423_nh_sir2_tween/190423_nh_sir2_tween_4_Pos1_1",
+        "after": "/homes2/maliavko/DetecdivHub/projects/anof_190423_nh_sir2_tween/anof_190423_nh_sir2_tween/190423_nh_sir2_tween_4_Pos1_1"
+      },
+      {
+        "field": "mat.shallowObj.fov.roi.path",
+        "before": "/DataVault/Alexander/analysis/anof_190423_nh_sir2_tween/190423_nh_sir2_tween_4_Pos1_1",
+        "after": "/homes2/maliavko/DetecdivHub/projects/anof_190423_nh_sir2_tween/anof_190423_nh_sir2_tween/190423_nh_sir2_tween_4_Pos1_1"
+      },
+      {
+        "field": "mat.shallowObj.fov.roi.path",
+        "before": "/DataVault/Alexander/analysis/anof_190423_nh_sir2_tween/190423_nh_sir2_tween_4_Pos1_1",
+        "after": "/homes2/maliavko/DetecdivHub/projects/anof_190423_nh_sir2_tween/anof_190423_nh_sir2_tween/190423_nh_sir2_tween_4_Pos1_1"
+      },
+      {
+        "field": "mat.shallowObj.fov.roi.path",
+        "before": "/DataVault/Alexander/analysis/anof_190423_nh_sir2_tween/190423_nh_sir2_tween_4_Pos1_1",
+        "after": "/homes2/maliavko/DetecdivHub/projects/anof_190423_nh_sir2_tween/anof_190423_nh_sir2_tween/190423_nh_sir2_tween_4_Pos1_1"
+      },
+      {
+        "field": "mat.shallowObj.fov.roi.path",
+        "before": "/DataVault/Alexander/analysis/anof_190423_nh_sir2_tween/190423_nh_sir2_tween_4_Pos1_1",
+        "after": "/homes2/maliavko/DetecdivHub/projects/anof_190423_nh_sir2_tween/anof_190423_nh_sir2_tween/190423_nh_sir2_tween_4_Pos1_1"
+      },
+      {
+        "field": "mat.shallowObj.fov.roi.path",
+        "before": "/DataVault/Alexander/analysis/anof_190423_nh_sir2_tween/190423_nh_sir2_tween_4_Pos1_1",
+        "after": "/homes2/maliavko/DetecdivHub/projects/anof_190423_nh_sir2_tween/anof_190423_nh_sir2_tween/190423_nh_sir2_tween_4_Pos1_1"
+      },
+      {
+        "field": "mat.shallowObj.fov.roi.path",
+        "before": "/DataVault/Alexander/analysis/anof_190423_nh_sir2_tween/190423_nh_sir2_tween_4_Pos1_1",
+        "after": "/homes2/maliavko/DetecdivHub/projects/anof_190423_nh_sir2_tween/anof_190423_nh_sir2_tween/190423_nh_sir2_tween_4_Pos1_1"
+      },
+      {
+        "field": "mat.shallowObj.fov.roi.path",
+        "before": "/DataVault/Alexander/analysis/anof_190423_nh_sir2_tween/190423_nh_sir2_tween_4_Pos1_1",
+        "after": "/homes2/maliavko/DetecdivHub/projects/anof_190423_nh_sir2_tween/anof_190423_nh_sir2_tween/190423_nh_sir2_tween_4_Pos1_1"
+      },
+      {
+        "field": "mat.shallowObj.fov.roi.path",
+        "before": "/DataVault/Alexander/analysis/anof_190423_nh_sir2_tween/190423_nh_sir2_tween_4_Pos1_1",
+        "after": "/homes2/maliavko/DetecdivHub/projects/anof_190423_nh_sir2_tween/anof_190423_nh_sir2_tween/190423_nh_sir2_tween_4_Pos1_1"
+      },
+      {
+        "field": "mat.shallowObj.fov.roi.path",
+        "before": "/DataVault/Alexander/analysis/anof_190423_nh_sir2_tween/190423_nh_sir2_tween_4_Pos1_1",
+        "after": "/homes2/maliavko/DetecdivHub/projects/anof_190423_nh_sir2_tween/anof_190423_nh_sir2_tween/190423_nh_sir2_tween_4_Pos1_1"
+      },
+      {
+        "field": "mat.shallowObj.fov.roi.path",
+        "before": "/DataVault/Alexander/analysis/anof_190423_nh_sir2_tween/190423_nh_sir2_tween_4_Pos1_1",
+        "after": "/homes2/maliavko/DetecdivHub/projects/anof_190423_nh_sir2_tween/anof_190423_nh_sir2_tween/190423_nh_sir2_tween_4_Pos1_1"
+      },
+      {
+        "field": "mat.shallowObj.fov.roi.path",
+        "before": "/DataVault/Alexander/analysis/anof_190423_nh_sir2_tween/190423_nh_sir2_tween_4_Pos1_1",
+        "after": "/homes2/maliavko/DetecdivHub/projects/anof_190423_nh_sir2_tween/anof_190423_nh_sir2_tween/190423_nh_sir2_tween_4_Pos1_1"
+      },
+      {
+        "field": "mat.shallowObj.fov.roi.path",
+        "before": "/DataVault/Alexander/analysis/anof_190423_nh_sir2_tween/190423_nh_sir2_tween_4_Pos1_1",
+        "after": "/homes2/maliavko/DetecdivHub/projects/anof_190423_nh_sir2_tween/anof_190423_nh_sir2_tween/190423_nh_sir2_tween_4_Pos1_1"
+      },
+      {
+        "field": "mat.shallowObj.fov.roi.path",
+        "before": "/DataVault/Alexander/analysis/anof_190423_nh_sir2_tween/190423_nh_sir2_tween_4_Pos1_1",
+        "after": "/homes2/maliavko/DetecdivHub/projects/anof_190423_nh_sir2_tween/anof_190423_nh_sir2_tween/190423_nh_sir2_tween_4_Pos1_1"
+      }
+    ],
+    "scientific_values_and_annotations_preserved": true,
+    "full_project_save_reopen_verified": true,
+    "fovs": 28,
+    "rois": 14386,
+    "roi_sidecar_files_present": 43158,
+    "result_sidecars_audited": 14386,
+    "data_sidecars_audited": 14386,
+    "result_and_data_sidecars_rewritten": [],
+    "legacy_image_mats_rewritten": false,
+    "legacy_image_path_policy": "roi.load excludes id/path; validated on a representative ROI from each FOV",
+    "samples": [
+      {
+        "fov": 1,
+        "roi": "190423_nh_sir2_tween_4_Pos1_1_1",
+        "path": "/homes2/maliavko/DetecdivHub/projects/anof_190423_nh_sir2_tween/anof_190423_nh_sir2_tween/190423_nh_sir2_tween_4_Pos1_1",
+        "imageClass": "uint16",
+        "imageSize": [
+          58,
+          57,
+          9,
+          888
+        ],
+        "roiPixelsMatchOriginal": true,
+        "rawPixelsMatchOriginal": true
+      },
+      {
+        "fov": 2,
+        "roi": "190423_nh_sir2_tween_4_Pos2_2_1",
+        "path": "/homes2/maliavko/DetecdivHub/projects/anof_190423_nh_sir2_tween/anof_190423_nh_sir2_tween/190423_nh_sir2_tween_4_Pos2_2",
+        "imageClass": "uint16",
+        "imageSize": [
+          58,
+          57,
+          8,
+          888
+        ],
+        "roiPixelsMatchOriginal": true,
+        "rawPixelsMatchOriginal": true
+      },
+      {
+        "fov": 3,
+        "roi": "190423_nh_sir2_tween_4_Pos3_3_1",
+        "path": "/homes2/maliavko/DetecdivHub/projects/anof_190423_nh_sir2_tween/anof_190423_nh_sir2_tween/190423_nh_sir2_tween_4_Pos3_3",
+        "imageClass": "uint16",
+        "imageSize": [
+          58,
+          57,
+          9,
+          888
+        ],
+        "roiPixelsMatchOriginal": true,
+        "rawPixelsMatchOriginal": true
+      },
+      {
+        "fov": 4,
+        "roi": "190423_nh_sir2_tween_4_Pos4_4_1",
+        "path": "/homes2/maliavko/DetecdivHub/projects/anof_190423_nh_sir2_tween/anof_190423_nh_sir2_tween/190423_nh_sir2_tween_4_Pos4_4",
+        "imageClass": "uint16",
+        "imageSize": [
+          58,
+          57,
+          9,
+          888
+        ],
+        "roiPixelsMatchOriginal": true,
+        "rawPixelsMatchOriginal": true
+      },
+      {
+        "fov": 5,
+        "roi": "190423_nh_sir2_tween_4_Pos5_5_1",
+        "path": "/homes2/maliavko/DetecdivHub/projects/anof_190423_nh_sir2_tween/anof_190423_nh_sir2_tween/190423_nh_sir2_tween_4_Pos5_5",
+        "imageClass": "uint16",
+        "imageSize": [
+          58,
+          57,
+          9,
+          888
+        ],
+        "roiPixelsMatchOriginal": true,
+        "rawPixelsMatchOriginal": true
+      },
+      {
+        "fov": 6,
+        "roi": "190423_nh_sir2_tween_4_Pos6_6_1",
+        "path": "/homes2/maliavko/DetecdivHub/projects/anof_190423_nh_sir2_tween/anof_190423_nh_sir2_tween/190423_nh_sir2_tween_4_Pos6_6",
+        "imageClass": "uint16",
+        "imageSize": [
+          58,
+          57,
+          9,
+          888
+        ],
+        "roiPixelsMatchOriginal": true,
+        "rawPixelsMatchOriginal": true
+      },
+      {
+        "fov": 7,
+        "roi": "190423_nh_sir2_tween_4_Pos7_7_1",
+        "path": "/homes2/maliavko/DetecdivHub/projects/anof_190423_nh_sir2_tween/anof_190423_nh_sir2_tween/190423_nh_sir2_tween_4_Pos7_7",
+        "imageClass": "uint16",
+        "imageSize": [
+          58,
+          57,
+          9,
+          888
+        ],
+        "roiPixelsMatchOriginal": true,
+        "rawPixelsMatchOriginal": true
+      },
+      {
+        "fov": 8,
+        "roi": "190423_nh_sir2_tween_4_Pos8_8_1",
+        "path": "/homes2/maliavko/DetecdivHub/projects/anof_190423_nh_sir2_tween/anof_190423_nh_sir2_tween/190423_nh_sir2_tween_4_Pos8_8",
+        "imageClass": "uint16",
+        "imageSize": [
+          58,
+          57,
+          9,
+          888
+        ],
+        "roiPixelsMatchOriginal": true,
+        "rawPixelsMatchOriginal": true
+      },
+      {
+        "fov": 9,
+        "roi": "190423_nh_sir2_tween_4_Pos9_9_1",
+        "path": "/homes2/maliavko/DetecdivHub/projects/anof_190423_nh_sir2_tween/anof_190423_nh_sir2_tween/190423_nh_sir2_tween_4_Pos9_9",
+        "imageClass": "uint16",
+        "imageSize": [
+          58,
+          57,
+          9,
+          888
+        ],
+        "roiPixelsMatchOriginal": true,
+        "rawPixelsMatchOriginal": true
+      },
+      {
+        "fov": 10,
+        "roi": "190423_nh_sir2_tween_4_Pos10_10_1",
+        "path": "/homes2/maliavko/DetecdivHub/projects/anof_190423_nh_sir2_tween/anof_190423_nh_sir2_tween/190423_nh_sir2_tween_4_Pos10_10",
+        "imageClass": "uint16",
+        "imageSize": [
+          58,
+          57,
+          9,
+          888
+        ],
+        "roiPixelsMatchOriginal": true,
+        "rawPixelsMatchOriginal": true
+      },
+      {
+        "fov": 11,
+        "roi": "190423_nh_sir2_tween_4_Pos11_11_1",
+        "path": "/homes2/maliavko/DetecdivHub/projects/anof_190423_nh_sir2_tween/anof_190423_nh_sir2_tween/190423_nh_sir2_tween_4_Pos11_11",
+        "imageClass": "uint16",
+        "imageSize": [
+          58,
+          57,
+          9,
+          888
+        ],
+        "roiPixelsMatchOriginal": true,
+        "rawPixelsMatchOriginal": true
+      },
+      {
+        "fov": 12,
+        "roi": "190423_nh_sir2_tween_4_Pos12_12_1",
+        "path": "/homes2/maliavko/DetecdivHub/projects/anof_190423_nh_sir2_tween/anof_190423_nh_sir2_tween/190423_nh_sir2_tween_4_Pos12_12",
+        "imageClass": "uint16",
+        "imageSize": [
+          58,
+          57,
+          9,
+          888
+        ],
+        "roiPixelsMatchOriginal": true,
+        "rawPixelsMatchOriginal": true
+      },
+      {
+        "fov": 13,
+        "roi": "190423_nh_sir2_tween_4_Pos13_13_1",
+        "path": "/homes2/maliavko/DetecdivHub/projects/anof_190423_nh_sir2_tween/anof_190423_nh_sir2_tween/190423_nh_sir2_tween_4_Pos13_13",
+        "imageClass": "uint16",
+        "imageSize": [
+          58,
+          57,
+          9,
+          888
+        ],
+        "roiPixelsMatchOriginal": true,
+        "rawPixelsMatchOriginal": true
+      },
+      {
+        "fov": 14,
+        "roi": "190423_nh_sir2_tween_4_Pos14_14_1",
+        "path": "/homes2/maliavko/DetecdivHub/projects/anof_190423_nh_sir2_tween/anof_190423_nh_sir2_tween/190423_nh_sir2_tween_4_Pos14_14",
+        "imageClass": "uint16",
+        "imageSize": [
+          58,
+          57,
+          9,
+          888
+        ],
+        "roiPixelsMatchOriginal": true,
+        "rawPixelsMatchOriginal": true
+      },
+      {
+        "fov": 15,
+        "roi": "190423_nh_sir2_tween_4_Pos15_15_1",
+        "path": "/homes2/maliavko/DetecdivHub/projects/anof_190423_nh_sir2_tween/anof_190423_nh_sir2_tween/190423_nh_sir2_tween_4_Pos15_15",
+        "imageClass": "uint16",
+        "imageSize": [
+          58,
+          57,
+          9,
+          888
+        ],
+        "roiPixelsMatchOriginal": true,
+        "rawPixelsMatchOriginal": true
+      },
+      {
+        "fov": 16,
+        "roi": "190423_nh_sir2_tween_4_Pos16_16_1",
+        "path": "/homes2/maliavko/DetecdivHub/projects/anof_190423_nh_sir2_tween/anof_190423_nh_sir2_tween/190423_nh_sir2_tween_4_Pos16_16",
+        "imageClass": "uint16",
+        "imageSize": [
+          58,
+          57,
+          9,
+          888
+        ],
+        "roiPixelsMatchOriginal": true,
+        "rawPixelsMatchOriginal": true
+      },
+      {
+        "fov": 17,
+        "roi": "190423_nh_sir2_tween_4_Pos17_17_1",
+        "path": "/homes2/maliavko/DetecdivHub/projects/anof_190423_nh_sir2_tween/anof_190423_nh_sir2_tween/190423_nh_sir2_tween_4_Pos17_17",
+        "imageClass": "uint16",
+        "imageSize": [
+          58,
+          57,
+          9,
+          888
+        ],
+        "roiPixelsMatchOriginal": true,
+        "rawPixelsMatchOriginal": true
+      },
+      {
+        "fov": 18,
+        "roi": "190423_nh_sir2_tween_4_Pos18_18_1",
+        "path": "/homes2/maliavko/DetecdivHub/projects/anof_190423_nh_sir2_tween/anof_190423_nh_sir2_tween/190423_nh_sir2_tween_4_Pos18_18",
+        "imageClass": "uint16",
+        "imageSize": [
+          58,
+          57,
+          9,
+          888
+        ],
+        "roiPixelsMatchOriginal": true,
+        "rawPixelsMatchOriginal": true
+      },
+      {
+        "fov": 19,
+        "roi": "190423_nh_sir2_tween_4_Pos19_19_1",
+        "path": "/homes2/maliavko/DetecdivHub/projects/anof_190423_nh_sir2_tween/anof_190423_nh_sir2_tween/190423_nh_sir2_tween_4_Pos19_19",
+        "imageClass": "uint16",
+        "imageSize": [
+          58,
+          57,
+          9,
+          888
+        ],
+        "roiPixelsMatchOriginal": true,
+        "rawPixelsMatchOriginal": true
+      },
+      {
+        "fov": 20,
+        "roi": "190423_nh_sir2_tween_4_Pos20_20_1",
+        "path": "/homes2/maliavko/DetecdivHub/projects/anof_190423_nh_sir2_tween/anof_190423_nh_sir2_tween/190423_nh_sir2_tween_4_Pos20_20",
+        "imageClass": "uint16",
+        "imageSize": [
+          58,
+          57,
+          9,
+          888
+        ],
+        "roiPixelsMatchOriginal": true,
+        "rawPixelsMatchOriginal": true
+      },
+      {
+        "fov": 21,
+        "roi": "190423_nh_sir2_tween_4_Pos21_21_1",
+        "path": "/homes2/maliavko/DetecdivHub/projects/anof_190423_nh_sir2_tween/anof_190423_nh_sir2_tween/190423_nh_sir2_tween_4_Pos21_21",
+        "imageClass": "uint16",
+        "imageSize": [
+          58,
+          57,
+          9,
+          888
+        ],
+        "roiPixelsMatchOriginal": true,
+        "rawPixelsMatchOriginal": true
+      },
+      {
+        "fov": 22,
+        "roi": "190423_nh_sir2_tween_4_Pos22_22_1",
+        "path": "/homes2/maliavko/DetecdivHub/projects/anof_190423_nh_sir2_tween/anof_190423_nh_sir2_tween/190423_nh_sir2_tween_4_Pos22_22",
+        "imageClass": "uint16",
+        "imageSize": [
+          58,
+          57,
+          9,
+          888
+        ],
+        "roiPixelsMatchOriginal": true,
+        "rawPixelsMatchOriginal": true
+      },
+      {
+        "fov": 23,
+        "roi": "190423_nh_sir2_tween_4_Pos23_23_1",
+        "path": "/homes2/maliavko/DetecdivHub/projects/anof_190423_nh_sir2_tween/anof_190423_nh_sir2_tween/190423_nh_sir2_tween_4_Pos23_23",
+        "imageClass": "uint16",
+        "imageSize": [
+          58,
+          57,
+          9,
+          888
+        ],
+        "roiPixelsMatchOriginal": true,
+        "rawPixelsMatchOriginal": true
+      },
+      {
+        "fov": 24,
+        "roi": "190423_nh_sir2_tween_4_Pos24_24_1",
+        "path": "/homes2/maliavko/DetecdivHub/projects/anof_190423_nh_sir2_tween/anof_190423_nh_sir2_tween/190423_nh_sir2_tween_4_Pos24_24",
+        "imageClass": "uint16",
+        "imageSize": [
+          58,
+          57,
+          9,
+          888
+        ],
+        "roiPixelsMatchOriginal": true,
+        "rawPixelsMatchOriginal": true
+      },
+      {
+        "fov": 25,
+        "roi": "190423_nh_sir2_tween_4_Pos25_25_1",
+        "path": "/homes2/maliavko/DetecdivHub/projects/anof_190423_nh_sir2_tween/anof_190423_nh_sir2_tween/190423_nh_sir2_tween_4_Pos25_25",
+        "imageClass": "uint16",
+        "imageSize": [
+          58,
+          57,
+          9,
+          888
+        ],
+        "roiPixelsMatchOriginal": true,
+        "rawPixelsMatchOriginal": true
+      },
+      {
+        "fov": 26,
+        "roi": "190423_nh_sir2_tween_4_Pos26_26_1",
+        "path": "/homes2/maliavko/DetecdivHub/projects/anof_190423_nh_sir2_tween/anof_190423_nh_sir2_tween/190423_nh_sir2_tween_4_Pos26_26",
+        "imageClass": "uint16",
+        "imageSize": [
+          58,
+          57,
+          9,
+          888
+        ],
+        "roiPixelsMatchOriginal": true,
+        "rawPixelsMatchOriginal": true
+      },
+      {
+        "fov": 27,
+        "roi": "190423_nh_sir2_tween_4_Pos27_27_1",
+        "path": "/homes2/maliavko/DetecdivHub/projects/anof_190423_nh_sir2_tween/anof_190423_nh_sir2_tween/190423_nh_sir2_tween_4_Pos27_27",
+        "imageClass": "uint16",
+        "imageSize": [
+          58,
+          57,
+          9,
+          888
+        ],
+        "roiPixelsMatchOriginal": true,
+        "rawPixelsMatchOriginal": true
+      },
+      {
+        "fov": 28,
+        "roi": "190423_nh_sir2_tween_4_Pos28_28_1",
+        "path": "/homes2/maliavko/DetecdivHub/projects/anof_190423_nh_sir2_tween/anof_190423_nh_sir2_tween/190423_nh_sir2_tween_4_Pos28_28",
+        "imageClass": "uint16",
+        "imageSize": [
+          58,
+          57,
+          9,
+          888
+        ],
+        "roiPixelsMatchOriginal": true,
+        "rawPixelsMatchOriginal": true
+      }
+    ],
+    "engine_release": "/home/charvin-admin/repos/DetecDiv-jobs/releases/d83c4dbc0638bc0d3f6012b4f1df5744e0c017c7"
+  },
+  "footprint": {
+    "directory_files": 43200,
+    "directory_bytes": 556272836741,
+    "mat_bytes": 547689266,
+    "mat_sha256": "0207cf3b34cb2f20dbb38be2837360596c7ee67b67560f1bd874918e6bc7ac4a",
+    "original_mat_sha256_unchanged": "c7c6b30c1882d2ad7f1fb91276b2565bfac0e38177b45e31c5712dc8b9cea874"
+  }
+}

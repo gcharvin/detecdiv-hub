@@ -1,0 +1,98 @@
+{
+  "checked_at": "2026-11-01T22:34:40.158325+00:00",
+  "workers": [
+    {
+      "instance": "windows-10-20-11-56-main",
+      "pid": 3720,
+      "fingerprint": "b35b0444d5f0",
+      "current_job_id": null,
+      "last_seen_at": "2026-11-01 22:34:37.236163+00:00"
+    },
+    {
+      "instance": "@2",
+      "pid": 433434,
+      "fingerprint": "a2649a68b316",
+      "current_job_id": null,
+      "last_seen_at": "2026-11-01 22:34:37.151033+00:00"
+    },
+    {
+      "instance": "@4",
+      "pid": 912963,
+      "fingerprint": "a2649a68b316",
+      "current_job_id": null,
+      "last_seen_at": "2026-11-01 22:34:38.784138+00:00"
+    },
+    {
+      "instance": "@5",
+      "pid": 694307,
+      "fingerprint": "a2649a68b316",
+      "current_job_id": null,
+      "last_seen_at": "2026-11-01 22:34:38.748009+00:00"
+    },
+    {
+      "instance": "@6",
+      "pid": 433435,
+      "fingerprint": "a2649a68b316",
+      "current_job_id": null,
+      "last_seen_at": "2026-11-01 22:34:38.629039+00:00"
+    },
+    {
+      "instance": "@3",
+      "pid": 911503,
+      "fingerprint": "a2649a68b316",
+      "current_job_id": null,
+      "last_seen_at": "2026-11-01 22:34:38.663455+00:00"
+    },
+    {
+      "instance": "@1",
+      "pid": 433433,
+      "fingerprint": "a2649a68b316",
+      "current_job_id": null,
+      "last_seen_at": "2026-11-01 22:34:37.117534+00:00"
+    }
+  ],
+  "active_jobs": [],
+  "completed_project_leases": [
+    {
+      "id": "68ce3140-5d35-4737-8c55-906184e9948c",
+      "status": "released"
+    },
+    {
+      "id": "fe48ef68-3959-4a90-9b36-337f46bcc28d",
+      "status": "released"
+    }
+  ],
+  "api_health": {
+    "status": "ok",
+    "service": "detecdiv-hub",
+    "database_status": "ok",
+    "database_message": null,
+    "hostname": "af62fa10591a",
+    "deployment_version": "fp-15fed3245ae8",
+    "version_source": "fingerprint",
+    "code_fingerprint": "15fed3245ae8",
+    "disk_warning_threshold_percent": 95,
+    "disk_usage": [
+      {
+        "path": "/",
+        "label": "VM system disk",
+        "total_bytes": 84225998848,
+        "used_bytes": 52494532608,
+        "free_bytes": 27862999040,
+        "used_percent": 66.0,
+        "status": "ok",
+        "message": null
+      },
+      {
+        "path": "/data",
+        "label": "Shared data storage",
+        "total_bytes": 94009274970112,
+        "used_bytes": 88361248329728,
+        "free_bytes": 5648026640384,
+        "used_percent": 94.0,
+        "status": "ok",
+        "message": null
+      }
+    ]
+  }
+}

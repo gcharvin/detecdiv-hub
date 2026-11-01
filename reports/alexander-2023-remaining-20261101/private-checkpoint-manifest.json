@@ -24,6 +24,26 @@
     "api-media-plan.json": {
       "bytes": 538979,
       "sha256": "c522b9402a4ef40662f0bbf0623f66245121951684aa3c25fd3370f74e0b484a"
+    },
+    "api-homes2-bridge-preflight.json": {
+      "bytes": 1366,
+      "sha256": "7b96658ade9ac911d0dbe297ad837f5637660b4080accf7fd471e5d53c52ed03"
+    },
+    "gilles-primary-layout.json": {
+      "bytes": 1816,
+      "sha256": "60d8858aec47d1c179e319dc3f03bedd51aae26b611be29d004e33365a02e8bb"
+    },
+    "gilles-project-nas-search.json": {
+      "bytes": 523,
+      "sha256": "ff6a1d88ef7302194d8fa1c3c339d861ee7cc13f543e50c22d7274c407f4db53"
+    },
+    "gilles-json-layout.json": {
+      "bytes": 14551,
+      "sha256": "3f2056cb1e1f9888b91f326c30f0cf6e570d0eee1a33e71b7e8b9066fad787f3"
+    },
+    "gilles-project-location-investigation.json": {
+      "bytes": 954,
+      "sha256": "41ceac62fffcb80fafa7b7516969501e2cc9268be0dbad945f72defb7fedbae5"
     }
   }
 }

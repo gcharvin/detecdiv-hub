@@ -1,0 +1,235 @@
+{
+  "projects": [
+    {
+      "name": "anof_07122023_5354_log1724",
+      "source_files": {
+        ".mat": {
+          "exists": true,
+          "bytes": 329256295
+        },
+        ".json": {
+          "exists": false,
+          "bytes": null
+        },
+        ".bak": {
+          "exists": false,
+          "bytes": null
+        }
+      },
+      "source_directory_exists": true,
+      "source_project_metadata_exists": false,
+      "destination_exists": false,
+      "incoming_exists": false
+    },
+    {
+      "name": "anof_13122023_crelox_test",
+      "source_files": {
+        ".mat": {
+          "exists": true,
+          "bytes": 398256551
+        },
+        ".json": {
+          "exists": false,
+          "bytes": null
+        },
+        ".bak": {
+          "exists": false,
+          "bytes": null
+        }
+      },
+      "source_directory_exists": true,
+      "source_project_metadata_exists": false,
+      "destination_exists": false,
+      "incoming_exists": false
+    },
+    {
+      "name": "anof_171123_apx1",
+      "source_files": {
+        ".mat": {
+          "exists": true,
+          "bytes": 235441761
+        },
+        ".json": {
+          "exists": false,
+          "bytes": null
+        },
+        ".bak": {
+          "exists": false,
+          "bytes": null
+        }
+      },
+      "source_directory_exists": true,
+      "source_project_metadata_exists": false,
+      "destination_exists": false,
+      "incoming_exists": false
+    },
+    {
+      "name": "anof_171123_sgfhap4",
+      "source_files": {
+        ".mat": {
+          "exists": true,
+          "bytes": 123254613
+        },
+        ".json": {
+          "exists": false,
+          "bytes": null
+        },
+        ".bak": {
+          "exists": false,
+          "bytes": null
+        }
+      },
+      "source_directory_exists": true,
+      "source_project_metadata_exists": false,
+      "destination_exists": false,
+      "incoming_exists": false
+    },
+    {
+      "name": "anof_231123_nh52",
+      "source_files": {
+        ".mat": {
+          "exists": true,
+          "bytes": 456544001
+        },
+        ".json": {
+          "exists": false,
+          "bytes": null
+        },
+        ".bak": {
+          "exists": false,
+          "bytes": null
+        }
+      },
+      "source_directory_exists": true,
+      "source_project_metadata_exists": false,
+      "destination_exists": false,
+      "incoming_exists": false
+    },
+    {
+      "name": "anof_291123_nh_sgf73",
+      "source_files": {
+        ".mat": {
+          "exists": true,
+          "bytes": 448741854
+        },
+        ".json": {
+          "exists": false,
+          "bytes": null
+        },
+        ".bak": {
+          "exists": false,
+          "bytes": null
+        }
+      },
+      "source_directory_exists": true,
+      "source_project_metadata_exists": false,
+      "destination_exists": false,
+      "incoming_exists": false
+    },
+    {
+      "name": "anof_291123_nh_wts",
+      "source_files": {
+        ".mat": {
+          "exists": true,
+          "bytes": 226139674
+        },
+        ".json": {
+          "exists": false,
+          "bytes": null
+        },
+        ".bak": {
+          "exists": false,
+          "bytes": null
+        }
+      },
+      "source_directory_exists": true,
+      "source_project_metadata_exists": false,
+      "destination_exists": false,
+      "incoming_exists": false
+    },
+    {
+      "name": "anof_291123_nh_sgf73hap4",
+      "source_files": {
+        ".mat": {
+          "exists": true,
+          "bytes": 302414787
+        },
+        ".json": {
+          "exists": false,
+          "bytes": null
+        },
+        ".bak": {
+          "exists": false,
+          "bytes": null
+        }
+      },
+      "source_directory_exists": true,
+      "source_project_metadata_exists": false,
+      "destination_exists": false,
+      "incoming_exists": false
+    },
+    {
+      "name": "anof_231123_newleft",
+      "source_files": {
+        ".mat": {
+          "exists": true,
+          "bytes": 234380409
+        },
+        ".json": {
+          "exists": false,
+          "bytes": null
+        },
+        ".bak": {
+          "exists": false,
+          "bytes": null
+        }
+      },
+      "source_directory_exists": true,
+      "source_project_metadata_exists": false,
+      "destination_exists": false,
+      "incoming_exists": false
+    },
+    {
+      "name": "anof_171123_RM_NTS1NGtest",
+      "source_files": {
+        ".mat": {
+          "exists": true,
+          "bytes": 123925648
+        },
+        ".json": {
+          "exists": false,
+          "bytes": null
+        },
+        ".bak": {
+          "exists": false,
+          "bytes": null
+        }
+      },
+      "source_directory_exists": true,
+      "source_project_metadata_exists": false,
+      "destination_exists": false,
+      "incoming_exists": false
+    },
+    {
+      "name": "anof_171123_nhwt_gcn5",
+      "source_files": {
+        ".mat": {
+          "exists": true,
+          "bytes": 471885353
+        },
+        ".json": {
+          "exists": false,
+          "bytes": null
+        },
+        ".bak": {
+          "exists": false,
+          "bytes": null
+        }
+      },
+      "source_directory_exists": true,
+      "source_project_metadata_exists": false,
+      "destination_exists": false,
+      "incoming_exists": false
+    }
+  ]
+}

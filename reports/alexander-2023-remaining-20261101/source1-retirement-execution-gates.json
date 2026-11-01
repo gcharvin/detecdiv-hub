@@ -1,0 +1,21 @@
+{
+  "checked_at": "2026-11-01T22:21:35.159326+00:00",
+  "batch_id": "7ec51c52-e14a-4ac5-ab74-85bd4ee30590",
+  "approval": "ok continue avec le transfert de 2023_1 puis 2023_3 sur homes2, et lib\u00e8re la place sur /data d\u00e8s que les copies et les chemins des projets sont v\u00e9rifi\u00e9s",
+  "both_projects_linux_windows_validated": true,
+  "api_dependencies_resolved": true,
+  "original_projects_preserved": true,
+  "gilles_project_retained_under_gilles": true,
+  "retirement_project_leases_active": true,
+  "project_leases": [
+    "c08e2a7d-abf3-4351-94b8-04fb8a6bbcdc",
+    "68ce3140-5d35-4737-8c55-906184e9948c"
+  ],
+  "retirement_runner_sha256": "6a7930a0753e173ba64ce4a4998d3510de83305426d698bbdef14f7494f98551",
+  "source_location_ids": [
+    3703,
+    4288
+  ],
+  "preferred_location_id": 5512,
+  "prelaunch_encoding_corrected": true
+}

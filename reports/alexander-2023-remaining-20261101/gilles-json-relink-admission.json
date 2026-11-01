@@ -1,0 +1,31 @@
+{
+  "project_id": "0e485efc-6b23-4faa-a316-4faea283477d",
+  "lease_id": "68ce3140-5d35-4737-8c55-906184e9948c",
+  "expires_at": "2026-11-01 23:58:54.761501+00:00",
+  "before_metadata": {
+    "source": "matlab_direct_registration",
+    "project_dir_abs": "/data/Gilles/analysis/projects/190423_nh_sir2_tween",
+    "project_mat_abs": "/data/Gilles/analysis/projects/190423_nh_sir2_tween.mat",
+    "project_rel_from_root": "analysis/projects/190423_nh_sir2_tween",
+    "registered_without_scan": true,
+    "direct_registration_request": {
+      "reason": "pipeline run hub submission",
+      "requested_by": "DetecDiv MATLAB",
+      "local_project_dir_path": "X:\\Gilles\\analysis\\projects\\190423_nh_sir2_tween",
+      "local_project_mat_path": "X:\\Gilles\\analysis\\projects\\190423_nh_sir2_tween.mat"
+    },
+    "last_direct_registration_at": "2026-09-18T08:42:39.334434+00:00"
+  },
+  "before_key": "analysis_projects_190423_nh_sir2_tween_f8f6748ea9",
+  "before_fovs": 0,
+  "before_rois": 0,
+  "locations": [
+    {
+      "id": 2746,
+      "root_id": 1,
+      "relative": "analysis/projects",
+      "file": "190423_nh_sir2_tween.mat",
+      "preferred": true
+    }
+  ]
+}

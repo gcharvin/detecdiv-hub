@@ -1,0 +1,21 @@
+{
+  "success": true,
+  "committed_at": "2026-11-01T22:25:03.705035+00:00",
+  "batch_id": "7ec51c52-e14a-4ac5-ab74-85bd4ee30590",
+  "files_unlinked": 87364,
+  "logical_bytes_unlinked": 737182660223,
+  "measured_free_bytes_increase": 737304760320,
+  "free_bytes_after": 5648026640384,
+  "preferred_location_id": 5512,
+  "source_location_rows_retired": [
+    3703,
+    4288
+  ],
+  "api_content_handlers_verified": 774,
+  "both_project_leases_released": true,
+  "original_projects_preserved": true,
+  "other_locations": {
+    "count": 2572,
+    "sha256": "22c5d8bb2069459a5faa95602a252134c1b62cc693351e8d0632059199cf320c"
+  }
+}

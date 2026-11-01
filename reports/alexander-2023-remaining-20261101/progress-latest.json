@@ -1,5 +1,42 @@
 {
-  "project1-relink-progress.json": "{\n  \"phase\": \"sidecar_path_audit\",\n  \"files\": 19750,\n  \"total\": 28772\n}\n",
-  "project3-listing-export.exit": "0\n",
-  "exported_projects": 11
+  "raw_copy_state": {
+    "started_at": "2026-11-01T20:34:56.435058+00:00",
+    "year": "2023_3",
+    "phase": "copying",
+    "source_deleted": false,
+    "catalog_changed": false,
+    "project_relink_required_before_retirement": true,
+    "heartbeat_at": "2026-11-01T22:37:01.096060+00:00",
+    "runner_pid": 2698047,
+    "inventory_progress": {
+      "files": 671967,
+      "bytes": 5658647323066,
+      "child_pid": 2698059
+    },
+    "source_inventory": {
+      "sha256": "4abdfbfff41264b9bc069c3968ac742ac06fa9b7c52127bbf4369a7d95306fd3",
+      "bytes": 5967100516555,
+      "files": 708590
+    },
+    "staging_path": "/homes2/maliavko/DetecdivHub/raw/.incoming-alexander-2023-20261008/2023_3",
+    "bandwidth_kib": 61440,
+    "child_pid": 2699375
+  },
+  "copied_bytes": 332291285246,
+  "project_copy_state": {
+    "phase": "verify",
+    "projects": [],
+    "source_deleted": false,
+    "catalog_changed": false,
+    "project_paths_rewritten": false,
+    "heartbeat_at": "2026-11-01T22:37:08.524365+00:00",
+    "runner_pid": 2747353,
+    "current_project": "anof_07122023_5354_log1724",
+    "expected_files": 13997,
+    "expected_bytes": 159299082820,
+    "placeholders": 13001,
+    "phase_files": 202,
+    "phase_bytes": 5120310675
+  },
+  "project_copy_log_tail": ""
 }

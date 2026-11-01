@@ -1,0 +1,11 @@
+{
+  "phase": "paths_updated_validation_pending",
+  "files_modified": 32,
+  "path_changes": 301,
+  "backup": "/volume1/DATA/Gilles/analysis/projects/.detecdiv-path-backups/20261101-homes2-190423_nh_sir2_tween",
+  "project_retained_under_gilles": true,
+  "live_inodes_owners_modes_preserved": true,
+  "roi_arrays_modified": false,
+  "historical_pipeline_records_modified": false,
+  "raw_source_deleted": false
+}

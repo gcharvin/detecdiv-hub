@@ -1,0 +1,747 @@
+{
+  "success": true,
+  "phase": "after",
+  "project_saved": false,
+  "project": "/data/Gilles/analysis/projects/190423_nh_sir2_tween.json",
+  "projectId": "67556ff2-8555-478c-a957-1c952a4f49d7",
+  "fovs": 30,
+  "rois": 15281,
+  "samples": [
+    {
+      "fov": 1,
+      "id": "Pos1_1",
+      "roiCount": 472,
+      "rawPath": "/homes2/maliavko/DetecdivHub/raw/.incoming-alexander-2023-20261008/2023_1/190423_nh_sir2_tween/190423_nh_sir2_tween_4/Pos1/img_channel000_position001_time000000000_z000.tif",
+      "rawClass": "uint16",
+      "rawSize": [
+        2048,
+        2048
+      ],
+      "rawPixelsSha256": "9b737607dbfec621a8efeab50df861e7eea28234106f37e8c40b1e59eabe10ac",
+      "rawPixelsMatchPrimaryAndHomes2": true,
+      "roiSamplePresent": true,
+      "imageFilesPresent": 472,
+      "imageInventorySha256": "2599bc1af8532f1f648a2dc286d3da30df8035b55011d4327600595fee4c45a8",
+      "roiId": "Pos1_1_1",
+      "roiClass": "uint16",
+      "roiSize": [
+        59,
+        60,
+        5,
+        636
+      ],
+      "roiPixelsSha256": "94bfb2ad5e6b1841fb74ce3b0790e09f2e7c58a0c1fc5d80ec0d8ad64802d839"
+    },
+    {
+      "fov": 2,
+      "id": "Pos2_2",
+      "roiCount": 546,
+      "rawPath": "/homes2/maliavko/DetecdivHub/raw/.incoming-alexander-2023-20261008/2023_1/190423_nh_sir2_tween/190423_nh_sir2_tween_4/Pos2/img_channel000_position002_time000000000_z000.tif",
+      "rawClass": "uint16",
+      "rawSize": [
+        2048,
+        2048
+      ],
+      "rawPixelsSha256": "4b440abdabe94da441deda14ba0fb6fed3cb96e1e263c18c67c8816fadbd29cb",
+      "rawPixelsMatchPrimaryAndHomes2": true,
+      "roiSamplePresent": true,
+      "imageFilesPresent": 546,
+      "imageInventorySha256": "c20d1c3afb5c0c81c9dd1918b0e97e75ed79d8305c564bdd2885f7533c054dd7",
+      "roiId": "Pos2_2_1",
+      "roiClass": "uint16",
+      "roiSize": [
+        59,
+        60,
+        5,
+        552
+      ],
+      "roiPixelsSha256": "dc184b003a75315b15743d8cfc96ad4a45c971172c259b563ef46fd5c5629a69"
+    },
+    {
+      "fov": 3,
+      "id": "Pos3_3",
+      "roiCount": 540,
+      "rawPath": "/homes2/maliavko/DetecdivHub/raw/.incoming-alexander-2023-20261008/2023_1/190423_nh_sir2_tween/190423_nh_sir2_tween_4/Pos3/img_channel000_position003_time000000000_z000.tif",
+      "rawClass": "uint16",
+      "rawSize": [
+        2048,
+        2048
+      ],
+      "rawPixelsSha256": "b13bb69b1c563b6905b33a887682f5122de09a2f51c2af581b612a8d0aefb189",
+      "rawPixelsMatchPrimaryAndHomes2": true,
+      "roiSamplePresent": true,
+      "imageFilesPresent": 540,
+      "imageInventorySha256": "76d8e353ef9bb4c4e57e9c3fc2bf0dc57a15f3a4d94e0252c06914401d907bc0",
+      "roiId": "Pos3_3_1",
+      "roiClass": "uint16",
+      "roiSize": [
+        59,
+        60,
+        8,
+        888
+      ],
+      "roiPixelsSha256": "62ee812faba9115fe203c2c427255ccbf62d5e25dc5c33cada139f714c9e63d4"
+    },
+    {
+      "fov": 4,
+      "id": "Pos4_4",
+      "roiCount": 482,
+      "rawPath": "/homes2/maliavko/DetecdivHub/raw/.incoming-alexander-2023-20261008/2023_1/190423_nh_sir2_tween/190423_nh_sir2_tween_4/Pos4/img_channel000_position004_time000000000_z000.tif",
+      "rawClass": "uint16",
+      "rawSize": [
+        2048,
+        2048
+      ],
+      "rawPixelsSha256": "262e1549b345799cc1515326055e75591a20e82ebeb07c5491c729fc435e980a",
+      "rawPixelsMatchPrimaryAndHomes2": true,
+      "roiSamplePresent": true,
+      "imageFilesPresent": 482,
+      "imageInventorySha256": "8a499b42c4f062408244b1077fa0b3a13bfa416b5d537c44d12feadcffb99ffd",
+      "roiId": "Pos4_4_1",
+      "roiClass": "uint16",
+      "roiSize": [
+        59,
+        60,
+        8,
+        888
+      ],
+      "roiPixelsSha256": "2ed9d7e96f54761979c6deb8103c8fd3cd3ac2c7bd9e96cf7133aac99b7de0f7"
+    },
+    {
+      "fov": 5,
+      "id": "Pos5_5",
+      "roiCount": 483,
+      "rawPath": "/homes2/maliavko/DetecdivHub/raw/.incoming-alexander-2023-20261008/2023_1/190423_nh_sir2_tween/190423_nh_sir2_tween_4/Pos5/img_channel000_position005_time000000000_z000.tif",
+      "rawClass": "uint16",
+      "rawSize": [
+        2048,
+        2048
+      ],
+      "rawPixelsSha256": "1af989f67a30a42e57cc347823aaa2b23f062ec0bfd3c0e4959d8079f2aa3c8b",
+      "rawPixelsMatchPrimaryAndHomes2": true,
+      "roiSamplePresent": true,
+      "imageFilesPresent": 483,
+      "imageInventorySha256": "41b62021a963eb04b56e00921f0a43de65c00002e8b34a695acbef7da72a32ff",
+      "roiId": "Pos5_5_1",
+      "roiClass": "uint16",
+      "roiSize": [
+        59,
+        60,
+        8,
+        888
+      ],
+      "roiPixelsSha256": "a3412f026cd732a02b2e3ca79aad441e7b66b93b72c041daf250b6d439a39721"
+    },
+    {
+      "fov": 6,
+      "id": "Pos6_6",
+      "roiCount": 545,
+      "rawPath": "/homes2/maliavko/DetecdivHub/raw/.incoming-alexander-2023-20261008/2023_1/190423_nh_sir2_tween/190423_nh_sir2_tween_4/Pos6/img_channel000_position006_time000000000_z000.tif",
+      "rawClass": "uint16",
+      "rawSize": [
+        2048,
+        2048
+      ],
+      "rawPixelsSha256": "fc465534dbb5d2f231f3a53ce6472ee6ef9cfdc912d45d87c3e51daab1370a75",
+      "rawPixelsMatchPrimaryAndHomes2": true,
+      "roiSamplePresent": true,
+      "imageFilesPresent": 545,
+      "imageInventorySha256": "480ed1d5e21bda053f9e327aa06afefb82c0adb4b4bbf4a1d62ff14a11b8f0af",
+      "roiId": "Pos6_6_1",
+      "roiClass": "uint16",
+      "roiSize": [
+        59,
+        60,
+        8,
+        888
+      ],
+      "roiPixelsSha256": "b2c36f9df4fbc3e34c66bb8f27ea5b02ac922a6f73cfabfff355eb321111877f"
+    },
+    {
+      "fov": 7,
+      "id": "Pos7_7",
+      "roiCount": 541,
+      "rawPath": "/homes2/maliavko/DetecdivHub/raw/.incoming-alexander-2023-20261008/2023_1/190423_nh_sir2_tween/190423_nh_sir2_tween_4/Pos7/img_channel000_position007_time000000000_z000.tif",
+      "rawClass": "uint16",
+      "rawSize": [
+        2048,
+        2048
+      ],
+      "rawPixelsSha256": "25dea91ac2c705b0a6ade4d7848c3bd89398ae3c482b3927167bcabe0f38fa60",
+      "rawPixelsMatchPrimaryAndHomes2": true,
+      "roiSamplePresent": true,
+      "imageFilesPresent": 541,
+      "imageInventorySha256": "384a060859c2a4e1e1569558cb8ce41809b137b98d36b1cd2bbabedb9e4157fd",
+      "roiId": "Pos7_7_1",
+      "roiClass": "uint16",
+      "roiSize": [
+        59,
+        60,
+        8,
+        888
+      ],
+      "roiPixelsSha256": "a45ee5840a09f8e02bd5baaa6710d11d4a42c3a83cdc490e7ae7a6820390efca"
+    },
+    {
+      "fov": 8,
+      "id": "Pos8_8",
+      "roiCount": 483,
+      "rawPath": "/homes2/maliavko/DetecdivHub/raw/.incoming-alexander-2023-20261008/2023_1/190423_nh_sir2_tween/190423_nh_sir2_tween_4/Pos8/img_channel000_position008_time000000000_z000.tif",
+      "rawClass": "uint16",
+      "rawSize": [
+        2048,
+        2048
+      ],
+      "rawPixelsSha256": "685e85a7d95db5847bcf1e1b7716a57afe76839e6f9ab9582babaa8556c13e6b",
+      "rawPixelsMatchPrimaryAndHomes2": true,
+      "roiSamplePresent": true,
+      "imageFilesPresent": 483,
+      "imageInventorySha256": "2f722e9b2468fcd425768d58753611df2bcd4f40aeb31418984f58bb93fc1ad0",
+      "roiId": "Pos8_8_1",
+      "roiClass": "uint16",
+      "roiSize": [
+        59,
+        60,
+        8,
+        888
+      ],
+      "roiPixelsSha256": "3b79b2ac932922749985e118ef98c5affde479f9cdf6189e4d7210be1d4d1544"
+    },
+    {
+      "fov": 9,
+      "id": "Pos9_9",
+      "roiCount": 483,
+      "rawPath": "/homes2/maliavko/DetecdivHub/raw/.incoming-alexander-2023-20261008/2023_1/190423_nh_sir2_tween/190423_nh_sir2_tween_4/Pos9/img_channel000_position009_time000000000_z000.tif",
+      "rawClass": "uint16",
+      "rawSize": [
+        2048,
+        2048
+      ],
+      "rawPixelsSha256": "fa0885fd3ebd9201f0fd0e2f0a208680d16cd084714fb6c32ab85a9c6f77a8e4",
+      "rawPixelsMatchPrimaryAndHomes2": true,
+      "roiSamplePresent": true,
+      "imageFilesPresent": 483,
+      "imageInventorySha256": "bf7018697631c56a8e5b99efd965090fb8550c6da9514e15e2a872982286ebf5",
+      "roiId": "Pos9_9_1",
+      "roiClass": "uint16",
+      "roiSize": [
+        59,
+        60,
+        8,
+        888
+      ],
+      "roiPixelsSha256": "4639c692cc1a9e7a0d5d9faecf226604e0d092ea712f3ba9941ae354bda28230"
+    },
+    {
+      "fov": 10,
+      "id": "Pos10_10",
+      "roiCount": 532,
+      "rawPath": "/homes2/maliavko/DetecdivHub/raw/.incoming-alexander-2023-20261008/2023_1/190423_nh_sir2_tween/190423_nh_sir2_tween_4/Pos10/img_channel000_position010_time000000000_z000.tif",
+      "rawClass": "uint16",
+      "rawSize": [
+        2048,
+        2048
+      ],
+      "rawPixelsSha256": "8060bc1e9ee42a7dbdbb91b00ae3b646b3431abe7e116ab558a2f3c74f2af42c",
+      "rawPixelsMatchPrimaryAndHomes2": true,
+      "roiSamplePresent": true,
+      "imageFilesPresent": 532,
+      "imageInventorySha256": "023c30a3dd0dd7599d7b11d7a76ca1e56a13bad82d8be185ddb56fce5ed127e8",
+      "roiId": "Pos10_10_1",
+      "roiClass": "uint16",
+      "roiSize": [
+        59,
+        60,
+        8,
+        888
+      ],
+      "roiPixelsSha256": "acac5317240196a5db6d93db5c79bfae49efdedac7bec85d5995e81c41c92b76"
+    },
+    {
+      "fov": 11,
+      "id": "Pos11_11",
+      "roiCount": 546,
+      "rawPath": "/homes2/maliavko/DetecdivHub/raw/.incoming-alexander-2023-20261008/2023_1/190423_nh_sir2_tween/190423_nh_sir2_tween_4/Pos11/img_channel000_position011_time000000000_z000.tif",
+      "rawClass": "uint16",
+      "rawSize": [
+        2048,
+        2048
+      ],
+      "rawPixelsSha256": "a142c923121627358a71b033e4878f366478337e6de70998fd9f9f8123024e0c",
+      "rawPixelsMatchPrimaryAndHomes2": true,
+      "roiSamplePresent": true,
+      "imageFilesPresent": 546,
+      "imageInventorySha256": "63a04201d703b272e73fd2530caf3b626d5717ab274438b7021dff6c3734b65f",
+      "roiId": "Pos11_11_1",
+      "roiClass": "uint16",
+      "roiSize": [
+        59,
+        60,
+        8,
+        888
+      ],
+      "roiPixelsSha256": "32188dcdb60111a4b58e4b205c4d132c2521a2de3faa7eb009435934c2c0b008"
+    },
+    {
+      "fov": 12,
+      "id": "Pos12_12",
+      "roiCount": 483,
+      "rawPath": "/homes2/maliavko/DetecdivHub/raw/.incoming-alexander-2023-20261008/2023_1/190423_nh_sir2_tween/190423_nh_sir2_tween_4/Pos12/img_channel000_position012_time000000000_z000.tif",
+      "rawClass": "uint16",
+      "rawSize": [
+        2048,
+        2048
+      ],
+      "rawPixelsSha256": "969dd35361b10256f24be42fe03b965368ec10b685a123e47489e584be95f76b",
+      "rawPixelsMatchPrimaryAndHomes2": true,
+      "roiSamplePresent": true,
+      "imageFilesPresent": 483,
+      "imageInventorySha256": "92dd63339b1080164b5ea9620ea258f5e6378f0769305d805f02e877a9dfdefa",
+      "roiId": "Pos12_12_1",
+      "roiClass": "uint16",
+      "roiSize": [
+        59,
+        60,
+        8,
+        888
+      ],
+      "roiPixelsSha256": "1dc163fd5cdc41dace4e58aabe254f5565f7cde4b0aaa6eed099fc25885a5540"
+    },
+    {
+      "fov": 13,
+      "id": "Pos13_13",
+      "roiCount": 479,
+      "rawPath": "/homes2/maliavko/DetecdivHub/raw/.incoming-alexander-2023-20261008/2023_1/190423_nh_sir2_tween/190423_nh_sir2_tween_4/Pos13/img_channel000_position013_time000000000_z000.tif",
+      "rawClass": "uint16",
+      "rawSize": [
+        2048,
+        2048
+      ],
+      "rawPixelsSha256": "5f0bc9ad622a8a9aa43f98ec88f581c20e9be2b7a8a4665a1ca135b78e5da5fb",
+      "rawPixelsMatchPrimaryAndHomes2": true,
+      "roiSamplePresent": true,
+      "imageFilesPresent": 479,
+      "imageInventorySha256": "07d44b6765c6f60a057a7c9b5f0a5dbca7cd8b1daeb86a202b7fa1573777b1bc",
+      "roiId": "Pos13_13_1",
+      "roiClass": "uint16",
+      "roiSize": [
+        59,
+        60,
+        8,
+        888
+      ],
+      "roiPixelsSha256": "6355956579d3a49e01b72bf54877c1f975940251a122d7a852d1522d6ca6748d"
+    },
+    {
+      "fov": 14,
+      "id": "Pos14_14",
+      "roiCount": 544,
+      "rawPath": "/homes2/maliavko/DetecdivHub/raw/.incoming-alexander-2023-20261008/2023_1/190423_nh_sir2_tween/190423_nh_sir2_tween_4/Pos14/img_channel000_position014_time000000000_z000.tif",
+      "rawClass": "uint16",
+      "rawSize": [
+        2048,
+        2048
+      ],
+      "rawPixelsSha256": "072e97767df5b8d23d0bc99367280919a3f9ee566d3a369f1cf01fe9c30c6ac8",
+      "rawPixelsMatchPrimaryAndHomes2": true,
+      "roiSamplePresent": true,
+      "imageFilesPresent": 545,
+      "imageInventorySha256": "ef5f65b3f82dd66315d66e92615c78c1f76d88c8f6ca884ffa98e56daef55a17",
+      "roiId": "Pos14_14_1",
+      "roiClass": "uint16",
+      "roiSize": [
+        59,
+        60,
+        8,
+        888
+      ],
+      "roiPixelsSha256": "3ebe23a401e696b91ae61d41a42189f0a1d39201e33b9164bb628b41cb3c709d"
+    },
+    {
+      "fov": 15,
+      "id": "Pos15_15",
+      "roiCount": 544,
+      "rawPath": "/homes2/maliavko/DetecdivHub/raw/.incoming-alexander-2023-20261008/2023_1/190423_nh_sir2_tween/190423_nh_sir2_tween_4/Pos15/img_channel000_position015_time000000000_z000.tif",
+      "rawClass": "uint16",
+      "rawSize": [
+        2048,
+        2048
+      ],
+      "rawPixelsSha256": "693afe139340fbda10ef1803a08c841894294b3d7a01d186ba4aa7e37f97695b",
+      "rawPixelsMatchPrimaryAndHomes2": true,
+      "roiSamplePresent": true,
+      "imageFilesPresent": 544,
+      "imageInventorySha256": "4803fdcf7945920908a0618dc3aa84087ad771e92a2752126f628605686a3acf",
+      "roiId": "Pos15_15_1",
+      "roiClass": "uint16",
+      "roiSize": [
+        59,
+        60,
+        8,
+        888
+      ],
+      "roiPixelsSha256": "c90ba0ca99753ed19ebdf79f6bbdb7e40b431e9e9fc35539f4957e5cc0a339c9"
+    },
+    {
+      "fov": 16,
+      "id": "Pos16_16",
+      "roiCount": 483,
+      "rawPath": "/homes2/maliavko/DetecdivHub/raw/.incoming-alexander-2023-20261008/2023_1/190423_nh_sir2_tween/190423_nh_sir2_tween_4/Pos16/img_channel000_position016_time000000000_z000.tif",
+      "rawClass": "uint16",
+      "rawSize": [
+        2048,
+        2048
+      ],
+      "rawPixelsSha256": "b93f8cfdd48a3a672e8a7c50cafd3b0533659c39aeb8edf3505cbaa0cba78978",
+      "rawPixelsMatchPrimaryAndHomes2": true,
+      "roiSamplePresent": true,
+      "imageFilesPresent": 483,
+      "imageInventorySha256": "0324381aceb2b268483439a0cbd102ff2d4c811fce37227cac4caf526634701b",
+      "roiId": "Pos16_16_1",
+      "roiClass": "uint16",
+      "roiSize": [
+        59,
+        60,
+        8,
+        888
+      ],
+      "roiPixelsSha256": "400abbd74c476177136472b230ec4b7a4d69e39827d9a5b9a5938b0f9c790e95"
+    },
+    {
+      "fov": 17,
+      "id": "Pos17_17",
+      "roiCount": 483,
+      "rawPath": "/homes2/maliavko/DetecdivHub/raw/.incoming-alexander-2023-20261008/2023_1/190423_nh_sir2_tween/190423_nh_sir2_tween_4/Pos17/img_channel000_position017_time000000000_z000.tif",
+      "rawClass": "uint16",
+      "rawSize": [
+        2048,
+        2048
+      ],
+      "rawPixelsSha256": "6e64463227f1a2309ffe0fa4eb9f0bf12aab0f62a3bb6301dea03ce36714a3d2",
+      "rawPixelsMatchPrimaryAndHomes2": true,
+      "roiSamplePresent": true,
+      "imageFilesPresent": 483,
+      "imageInventorySha256": "7f6b243fcee75016bdd3dbaa033d31aa2fb14c8be9ba82313769411d603f660c",
+      "roiId": "Pos17_17_1",
+      "roiClass": "uint16",
+      "roiSize": [
+        59,
+        60,
+        8,
+        888
+      ],
+      "roiPixelsSha256": "9db929353463ed55abe0b26e31d7354e405e665ce199d62adde98f95a9991371"
+    },
+    {
+      "fov": 18,
+      "id": "Pos18_18",
+      "roiCount": 545,
+      "rawPath": "/homes2/maliavko/DetecdivHub/raw/.incoming-alexander-2023-20261008/2023_1/190423_nh_sir2_tween/190423_nh_sir2_tween_4/Pos18/img_channel000_position018_time000000000_z000.tif",
+      "rawClass": "uint16",
+      "rawSize": [
+        2048,
+        2048
+      ],
+      "rawPixelsSha256": "cf97980bfdafc93dbf6e89f11adca9241ec361ad2418ea83bc9dc8d37849b9f0",
+      "rawPixelsMatchPrimaryAndHomes2": true,
+      "roiSamplePresent": true,
+      "imageFilesPresent": 545,
+      "imageInventorySha256": "76e0c75fa7898394057be327820a06d14375980c6c29300b086076c53830e25a",
+      "roiId": "Pos18_18_1",
+      "roiClass": "uint16",
+      "roiSize": [
+        59,
+        60,
+        8,
+        888
+      ],
+      "roiPixelsSha256": "5216b6a9ed14703b4d7e8fb25ff8e1d272fae8ba1fc3fd11b94ad76b4f67f366"
+    },
+    {
+      "fov": 19,
+      "id": "Pos19_19",
+      "roiCount": 543,
+      "rawPath": "/homes2/maliavko/DetecdivHub/raw/.incoming-alexander-2023-20261008/2023_1/190423_nh_sir2_tween/190423_nh_sir2_tween_4/Pos19/img_channel000_position019_time000000000_z000.tif",
+      "rawClass": "uint16",
+      "rawSize": [
+        2048,
+        2048
+      ],
+      "rawPixelsSha256": "c8f86b7062b0357bb801fc4cf564dcb5f18592700417bf0bd9562420afa4783a",
+      "rawPixelsMatchPrimaryAndHomes2": true,
+      "roiSamplePresent": true,
+      "imageFilesPresent": 543,
+      "imageInventorySha256": "09523c9293bbb5682f67798ddf9b475ced8019ceca9c5826712ef06f0cd0dae5",
+      "roiId": "Pos19_19_1",
+      "roiClass": "uint16",
+      "roiSize": [
+        59,
+        60,
+        8,
+        888
+      ],
+      "roiPixelsSha256": "a1b104042b5a3fac7bfb640ec6bae3aaa677fa8dd1c666555e05ec85af60448f"
+    },
+    {
+      "fov": 20,
+      "id": "Pos20_20",
+      "roiCount": 482,
+      "rawPath": "/homes2/maliavko/DetecdivHub/raw/.incoming-alexander-2023-20261008/2023_1/190423_nh_sir2_tween/190423_nh_sir2_tween_4/Pos20/img_channel000_position020_time000000000_z000.tif",
+      "rawClass": "uint16",
+      "rawSize": [
+        2048,
+        2048
+      ],
+      "rawPixelsSha256": "589f4ad9783bd7898e299cdeda1a7ea6c2f4c8810c22e9b322e63486fb928fd4",
+      "rawPixelsMatchPrimaryAndHomes2": true,
+      "roiSamplePresent": true,
+      "imageFilesPresent": 482,
+      "imageInventorySha256": "f0b7c40801549dd271166d32c6f8ede03fe288a44d11f65a4f94d22279aecc85",
+      "roiId": "Pos20_20_1",
+      "roiClass": "uint16",
+      "roiSize": [
+        59,
+        60,
+        8,
+        888
+      ],
+      "roiPixelsSha256": "6832924f9a74a0c10287eb00e97311bb87330afe89677e8bfa99f14dff20a299"
+    },
+    {
+      "fov": 21,
+      "id": "Pos21_21",
+      "roiCount": 481,
+      "rawPath": "/homes2/maliavko/DetecdivHub/raw/.incoming-alexander-2023-20261008/2023_1/190423_nh_sir2_tween/190423_nh_sir2_tween_4/Pos21/img_channel000_position021_time000000000_z000.tif",
+      "rawClass": "uint16",
+      "rawSize": [
+        2048,
+        2048
+      ],
+      "rawPixelsSha256": "81d110a4151594034b8e3f592dbe0de21322d0106a1842c32a721a93f28096b1",
+      "rawPixelsMatchPrimaryAndHomes2": true,
+      "roiSamplePresent": true,
+      "imageFilesPresent": 481,
+      "imageInventorySha256": "e6861843a1e5cd6fcd23dcca966adc2945222ee23ac9238f78f79cf34cd18d28",
+      "roiId": "Pos21_21_1",
+      "roiClass": "uint16",
+      "roiSize": [
+        59,
+        60,
+        8,
+        888
+      ],
+      "roiPixelsSha256": "edd54c233e0f74d7c1af49f9f076e089550ed33ba16ce38b7e1965ecc1fca4c2"
+    },
+    {
+      "fov": 22,
+      "id": "Pos22_22",
+      "roiCount": 542,
+      "rawPath": "/homes2/maliavko/DetecdivHub/raw/.incoming-alexander-2023-20261008/2023_1/190423_nh_sir2_tween/190423_nh_sir2_tween_4/Pos22/img_channel000_position022_time000000000_z000.tif",
+      "rawClass": "uint16",
+      "rawSize": [
+        2048,
+        2048
+      ],
+      "rawPixelsSha256": "be13debc2ae51400b9fe8c07013c6f3cea9f1cb7454541d3773f71bce99a33f3",
+      "rawPixelsMatchPrimaryAndHomes2": true,
+      "roiSamplePresent": true,
+      "imageFilesPresent": 543,
+      "imageInventorySha256": "89fd84b03dc187308d1f3e1b202bf940ab0a60943cef30f049ef9a1f7b839644",
+      "roiId": "Pos22_22_1",
+      "roiClass": "uint16",
+      "roiSize": [
+        59,
+        60,
+        8,
+        888
+      ],
+      "roiPixelsSha256": "96b75b5a12ed5739c8d9c262b43bc24de00d450370df571520654e92c21833bd"
+    },
+    {
+      "fov": 23,
+      "id": "Pos23_23",
+      "roiCount": 545,
+      "rawPath": "/homes2/maliavko/DetecdivHub/raw/.incoming-alexander-2023-20261008/2023_1/190423_nh_sir2_tween/190423_nh_sir2_tween_4/Pos23/img_channel000_position023_time000000000_z000.tif",
+      "rawClass": "uint16",
+      "rawSize": [
+        2048,
+        2048
+      ],
+      "rawPixelsSha256": "a9ba50ab6393d4ba708a069e47372e71a781f965be935864a737c7e35e4594bf",
+      "rawPixelsMatchPrimaryAndHomes2": true,
+      "roiSamplePresent": true,
+      "imageFilesPresent": 546,
+      "imageInventorySha256": "9b073d1fac96be62ef89d33906741bc4dcf73ca8b9a593ad0ecdef3bbeac029a",
+      "roiId": "Pos23_23_1",
+      "roiClass": "uint16",
+      "roiSize": [
+        59,
+        60,
+        8,
+        888
+      ],
+      "roiPixelsSha256": "412d36d3cd24b8f2485d1593f77aae148ecab3b8209386d8e0c9bc58da549f12"
+    },
+    {
+      "fov": 24,
+      "id": "Pos24_24",
+      "roiCount": 483,
+      "rawPath": "/homes2/maliavko/DetecdivHub/raw/.incoming-alexander-2023-20261008/2023_1/190423_nh_sir2_tween/190423_nh_sir2_tween_4/Pos24/img_channel000_position024_time000000000_z000.tif",
+      "rawClass": "uint16",
+      "rawSize": [
+        2048,
+        2048
+      ],
+      "rawPixelsSha256": "adeadec68701e5377b57f1d121abeb6f2195a83a4df5107fc5092e6ff2736515",
+      "rawPixelsMatchPrimaryAndHomes2": true,
+      "roiSamplePresent": true,
+      "imageFilesPresent": 483,
+      "imageInventorySha256": "e1766c00a3991c61be73083fd42a6d6dce50b62732f54f9dc326fde5acaea2b4",
+      "roiId": "Pos24_24_1",
+      "roiClass": "uint16",
+      "roiSize": [
+        59,
+        60,
+        8,
+        888
+      ],
+      "roiPixelsSha256": "10f6c7909339214ad0e30023e526efb35dbc857c6eec224c3921a7c459999cec"
+    },
+    {
+      "fov": 25,
+      "id": "Pos25_25",
+      "roiCount": 481,
+      "rawPath": "/homes2/maliavko/DetecdivHub/raw/.incoming-alexander-2023-20261008/2023_1/190423_nh_sir2_tween/190423_nh_sir2_tween_4/Pos25/img_channel000_position025_time000000000_z000.tif",
+      "rawClass": "uint16",
+      "rawSize": [
+        2048,
+        2048
+      ],
+      "rawPixelsSha256": "c83c1ba2327db12c30fe86154f076e5329b06a51e185369b720aab8d16988c91",
+      "rawPixelsMatchPrimaryAndHomes2": true,
+      "roiSamplePresent": true,
+      "imageFilesPresent": 479,
+      "imageInventorySha256": "ef6bfdb47f2c153a65327a397961164bebaaca7c58df7fe3f7db026d199db544",
+      "roiId": "Pos25_25_1",
+      "roiClass": "uint16",
+      "roiSize": [
+        59,
+        60,
+        8,
+        888
+      ],
+      "roiPixelsSha256": "193cb9e0462d5a481e175b59ca21b2904511d8aede2a1cb5d6a5c16e6142b23b"
+    },
+    {
+      "fov": 26,
+      "id": "Pos26_26",
+      "roiCount": 541,
+      "rawPath": "/homes2/maliavko/DetecdivHub/raw/.incoming-alexander-2023-20261008/2023_1/190423_nh_sir2_tween/190423_nh_sir2_tween_4/Pos26/img_channel000_position026_time000000000_z000.tif",
+      "rawClass": "uint16",
+      "rawSize": [
+        2048,
+        2048
+      ],
+      "rawPixelsSha256": "d7cdea26d16a6c63a396c2ef407e68c15c3d61ff391b1511f490a9c63780764d",
+      "rawPixelsMatchPrimaryAndHomes2": true,
+      "roiSamplePresent": true,
+      "imageFilesPresent": 542,
+      "imageInventorySha256": "31388bd762a337c320e4750100c8efd995eda81b6714dca53d84e9066567360b",
+      "roiId": "Pos26_26_1",
+      "roiClass": "uint16",
+      "roiSize": [
+        59,
+        60,
+        8,
+        888
+      ],
+      "roiPixelsSha256": "143e8824f7d5c2fac1dcd9f358a23145463a3a0cb2be4ff350ef50aab767a233"
+    },
+    {
+      "fov": 27,
+      "id": "Pos27_27",
+      "roiCount": 542,
+      "rawPath": "/homes2/maliavko/DetecdivHub/raw/.incoming-alexander-2023-20261008/2023_1/190423_nh_sir2_tween/190423_nh_sir2_tween_4/Pos27/img_channel000_position027_time000000000_z000.tif",
+      "rawClass": "uint16",
+      "rawSize": [
+        2048,
+        2048
+      ],
+      "rawPixelsSha256": "297027c2eb3a01d30ef64127d2effb2b7ac99bfe084604876bc12524e0d13906",
+      "rawPixelsMatchPrimaryAndHomes2": true,
+      "roiSamplePresent": true,
+      "imageFilesPresent": 543,
+      "imageInventorySha256": "ef4b3d3427a3b501e665e60e80a818ab0de7a26ccdf7220493e2f3ec684e3db6",
+      "roiId": "Pos27_27_1",
+      "roiClass": "uint16",
+      "roiSize": [
+        59,
+        60,
+        8,
+        888
+      ],
+      "roiPixelsSha256": "4c1773b09c6aa300dbd6a2f91cf0ac823c320e1da3786b3a7aee714408f38413"
+    },
+    {
+      "fov": 28,
+      "id": "Pos28_28",
+      "roiCount": 483,
+      "rawPath": "/homes2/maliavko/DetecdivHub/raw/.incoming-alexander-2023-20261008/2023_1/190423_nh_sir2_tween/190423_nh_sir2_tween_4/Pos28/img_channel000_position028_time000000000_z000.tif",
+      "rawClass": "uint16",
+      "rawSize": [
+        2048,
+        2048
+      ],
+      "rawPixelsSha256": "b2170f773223c35d23c173dd12db4ddf88a39cb14d7f28c6cb0d26725ef36da5",
+      "rawPixelsMatchPrimaryAndHomes2": true,
+      "roiSamplePresent": true,
+      "imageFilesPresent": 483,
+      "imageInventorySha256": "5f4f416bb96c3683bf0231d9bd19ec709ddf9dea7d984183d8dd55dfd2896529",
+      "roiId": "Pos28_28_1",
+      "roiClass": "uint16",
+      "roiSize": [
+        59,
+        60,
+        8,
+        888
+      ],
+      "roiPixelsSha256": "f3ec037f205e213f26204b93f1dc7242b5aa76ea1b894b1eeca31cc1e17fdb1f"
+    },
+    {
+      "fov": 29,
+      "id": "Pos1_29",
+      "roiCount": 472,
+      "rawPath": "/homes2/maliavko/DetecdivHub/raw/.incoming-alexander-2023-20261008/2023_1/190423_nh_sir2_tween/190423_nh_sir2_tween_4/Pos1/img_channel000_position001_time000000000_z000.tif",
+      "rawClass": "uint16",
+      "rawSize": [
+        2048,
+        2048
+      ],
+      "rawPixelsSha256": "9b737607dbfec621a8efeab50df861e7eea28234106f37e8c40b1e59eabe10ac",
+      "rawPixelsMatchPrimaryAndHomes2": true,
+      "roiSamplePresent": false,
+      "imageFilesPresent": 0,
+      "imageInventorySha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "fov": 30,
+      "id": "Pos1_30",
+      "roiCount": 472,
+      "rawPath": "/homes2/maliavko/DetecdivHub/raw/.incoming-alexander-2023-20261008/2023_1/190423_nh_sir2_tween/190423_nh_sir2_tween_4/Pos1/img_channel000_position001_time000000000_z000.tif",
+      "rawClass": "uint16",
+      "rawSize": [
+        2048,
+        2048
+      ],
+      "rawPixelsSha256": "9b737607dbfec621a8efeab50df861e7eea28234106f37e8c40b1e59eabe10ac",
+      "rawPixelsMatchPrimaryAndHomes2": true,
+      "roiSamplePresent": false,
+      "imageFilesPresent": 0,
+      "imageInventorySha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    }
+  ],
+  "project_retained_under_gilles": true,
+  "historical_mat_alias_loads_json": true,
+  "engine_release": "/home/charvin-admin/repos/DetecDiv-jobs/releases/d83c4dbc0638bc0d3f6012b4f1df5744e0c017c7",
+  "baseline_images_and_raw_reads_unchanged": true
+}
