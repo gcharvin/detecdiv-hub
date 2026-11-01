@@ -1,5 +1,41 @@
 # Alexander 2023 — approved migration, 2026-10-08
 
+## 2023_2 raw locations switched, 2026-11-01
+
+The 21 existing Alexander raw records now prefer read locations under
+`/homes2/maliavko/DetecdivHub/raw/2023_2`. The copied year directory was published
+from `.incoming-alexander-2023-20261008/2023_2` using an atomic no-replace rename;
+the original primary-NAS files and their catalog locations are retained.
+No raw ID, owner, external key, metadata, project/experiment link or position
+was replaced. Post-transaction verification checked 337 unchanged positions,
+all 21 API detail views and all 2,554 unrelated locations.
+
+Fresh native inventories of both NAS trees found 425,112 regular files and
+3,583,194,799,325 bytes, with identical file paths and sizes. The full source
+metadata inventory exactly matched the initial receipt. Destination timestamps
+on 223 files differed by at most one microsecond, consistent with the copy's
+CIFS timestamp precision. The earlier full SHA1 content comparison had exit 0
+and no discrepancy output; no new full-payload checksum pass was run here.
+
+The original linked project `anof_26102023_yam76s_100ms` reopened read-only in
+MATLAB: 12 FOVs and 5,724 ROIs. All 12 original and published raw paths were also
+readable from the limited Windows worker session. This phase intentionally
+retains that Sauvegarde MAT and its primary-NAS raw references as compatibility
+sources. No MAT was saved, relinked or relocated. Before any source reclamation,
+copy and verify the project, relink only its copy, test reopening on the required
+clients, and establish backup/restore coverage. Original-source retention remains
+in force until deletion is explicitly requested and reviewed.
+
+The original copy-only manifest was not changed. A separate audited batch,
+`b2530427-9baf-4276-a5da-855ce3831394`, records this raw-only cutover and retains
+the old preferred-location IDs for rollback. Its receipts, plan, preserved
+catalog snapshots and verification are in
+`reports/alexander-2023-cutover-20261101/`. The original batch links to it;
+neither batch authorizes deleting sources. The independent 2023_1 pilot
+`190423_nh_sir2_tween_4` remains at its prior staging location, and 2023_3 was
+not copied by this phase. Secondary-provider activation and quota/backup policy
+changes were not included.
+
 ## Windows access gate passed, 2026-11-01
 
 The Windows worker now resolves `/homes2/maliavko/DetecdivHub` to the secondary
@@ -11,8 +47,9 @@ copied image header and temporary-file read/write. Native NAS ownership checks
 confirmed `maliavko`; test probes were removed. The evidence is in
 `reports/homes2-access-audit-20261101/`.
 
-The catalog cutover is still pending: these 21 raws continue to prefer the
-primary NAS. The earlier separate `190423_nh_sir2_tween_4` pilot already prefers
+At completion of the Windows access gate, these 21 raws still preferred the
+primary NAS; their subsequent raw-only cutover is recorded above. The earlier
+separate `190423_nh_sir2_tween_4` pilot already prefers
 its copied location in the 2023_1 staging tree; preserve that reference when
 planning publication or renames. Do not treat the old runner's `failed_safe`
 or database batch's `copying` status as a current transfer process. The resumed
@@ -81,9 +118,12 @@ against SSH disconnection, not reboot. No unrequested scheduler is installed.
 - Publish validated copies and add locations to the existing raw records;
   change preferred locations transactionally, retaining original locations as
   rollback references. Never create replacement raw records using path hashes.
-- Resolve all affected project/FOV source paths. Relink only verified copied
-  MATs, test a reopen, and retain `Sauvegarde` originals. Pending legacy aliases
-  are not proof of a source identity, and the 2023 projects are not all linked.
+- Resolve all affected project/FOV source paths. For a raw-location cutover
+  retaining compatibility sources, verify that the original project reopens
+  and its source paths remain readable alongside the new raw locations.
+  Before retiring any original source, relink only verified copied MATs, test
+  a reopen, and retain `Sauvegarde` originals. Pending legacy aliases are not
+  proof of a source identity, and the 2023 projects are not all linked.
 - Test Linux **and Windows** access to `/homes2`. The native Windows worker's
   per-user mapping and read/write validation passed on 2026-11-01 as recorded
   above. This is not a deployment of path mappings to every other client, nor
@@ -99,10 +139,13 @@ replace an entire storage-root prefix spanning unmoved years.
 ## Read-only status
 
 ```powershell
+ssh detecdiv-server 'cat /home/charvin-admin/storage-transfers/alexander-2023-cutover-20261101/cutover-status.json'
 ssh detecdiv-server 'cat /home/charvin-admin/storage-transfers/alexander-2023-20261008/state.json'
 ssh detecdiv-server 'tail -c 2000 /home/charvin-admin/storage-transfers/alexander-2023-20261008/2023_1-copy.log'
 ```
 
-The authoritative physical phase is `state.json`, not a guessed ETA. The Hub
-batch records launch/copying; audit synchronization and preferred-location
-changes are separate, reviewed operations after the physical receipts exist.
+The new `cutover-status.json` records the completed 2023_2 raw-location phase.
+The original runner's `state.json` remains a historical copy-phase receipt;
+its old `failed_safe` state is not evidence of a current running transfer or a
+failed resumed checksum pass. Preferred-location changes are journaled in the
+separate cutover batch rather than silently rewriting that old manifest.

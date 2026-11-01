@@ -1,0 +1,55 @@
+{
+  "status": "raw_catalog_cutover_complete_sources_retained",
+  "batch_id": "b2530427-9baf-4276-a5da-855ce3831394",
+  "verified_at_utc": "2026-11-01T18:36:02.146395+00:00",
+  "commit_before_continuation": "6c70134",
+  "raw_records": 21,
+  "payload_files": 425112,
+  "payload_bytes": 3583194799325,
+  "preferred_root": "/homes2/maliavko/DetecdivHub/raw/2023_2",
+  "verification": {
+    "native_source_metadata_exactly_matches_initial": true,
+    "source_and_copy_file_paths_and_sizes_match": true,
+    "prior_full_sha1_exit_code": 0,
+    "fresh_full_content_checksum_run": false,
+    "windows_raw_directories": 21,
+    "windows_source_and_final_fov_pairs": 12,
+    "api_detail_views": 21,
+    "positions_preserved": 337,
+    "unrelated_locations_unchanged": 2554,
+    "timestamp_rounding_within_one_microsecond_files": 223
+  },
+  "project": {
+    "name": "anof_26102023_yam76s_100ms",
+    "reopened_read_only": true,
+    "fovs": 12,
+    "rois": 5724,
+    "original_mat_saved_or_relocated": false,
+    "old_raw_paths_remain_valid": true,
+    "engine_release": "/home/charvin-admin/repos/DetecDiv-jobs/releases/d83c4dbc0638bc0d3f6012b4f1df5744e0c017c7"
+  },
+  "preserved": {
+    "raw_ids_owners_external_keys_metadata_links": true,
+    "primary_source_files": true,
+    "original_primary_locations": true,
+    "original_sauvegarde_project": true,
+    "2023_1_pilot_location": true,
+    "2023_3_untouched": true,
+    "services_restarted_in_catalog_phase": false
+  },
+  "remaining": [
+    "Migrate verified project copies and rebase their internal raw/ROI paths before any original-source retirement.",
+    "Retain primary sources and Sauvegarde originals; no deletion is authorized by this cutover.",
+    "2023_1 still has remaining raw locations to review; its existing pilot reference was preserved.",
+    "2023_3 remains untransferred.",
+    "Verify backup/restore coverage and quota/provider readiness separately; no policy activation occurred."
+  ],
+  "evidence": {
+    "catalog_verification": "catalog-cutover-verification.json",
+    "publication": "publication.json",
+    "windows_validation": "windows-final-path-verification.json",
+    "rollback_references": "rollback-location-references.json",
+    "runtime": "runtime-after-cutover.json",
+    "remote_status": "/home/charvin-admin/storage-transfers/alexander-2023-cutover-20261101/cutover-status.json"
+  }
+}

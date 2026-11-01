@@ -1,0 +1,61 @@
+{
+  "workers": [
+    {
+      "target": "windows-10-20-11-56",
+      "instance": "windows-10-20-11-56-main",
+      "pid": 3720,
+      "fingerprint": "b35b0444d5f0",
+      "current_job": "None",
+      "last_seen": "2026-11-01 18:37:12.149416+00:00"
+    },
+    {
+      "target": "detecdiv-server",
+      "instance": "@2",
+      "pid": 433434,
+      "fingerprint": "a2649a68b316",
+      "current_job": "None",
+      "last_seen": "2026-11-01 18:37:11.442421+00:00"
+    },
+    {
+      "target": "detecdiv-server",
+      "instance": "@4",
+      "pid": 912963,
+      "fingerprint": "a2649a68b316",
+      "current_job": "None",
+      "last_seen": "2026-11-01 18:37:11.474406+00:00"
+    },
+    {
+      "target": "detecdiv-server",
+      "instance": "@5",
+      "pid": 694307,
+      "fingerprint": "a2649a68b316",
+      "current_job": "None",
+      "last_seen": "2026-11-01 18:37:11.323225+00:00"
+    },
+    {
+      "target": "detecdiv-server",
+      "instance": "@6",
+      "pid": 433435,
+      "fingerprint": "a2649a68b316",
+      "current_job": "None",
+      "last_seen": "2026-11-01 18:37:11.161411+00:00"
+    },
+    {
+      "target": "detecdiv-server",
+      "instance": "@3",
+      "pid": 911503,
+      "fingerprint": "a2649a68b316",
+      "current_job": "None",
+      "last_seen": "2026-11-01 18:37:11.286847+00:00"
+    },
+    {
+      "target": "detecdiv-server",
+      "instance": "@1",
+      "pid": 433433,
+      "fingerprint": "a2649a68b316",
+      "current_job": "None",
+      "last_seen": "2026-11-01 18:37:11.194516+00:00"
+    }
+  ],
+  "active_jobs": []
+}

@@ -1,0 +1,183 @@
+{
+  "task": {
+    "state": "Ready",
+    "result": 0
+  },
+  "receipt": {
+    "success": true,
+    "checks": [
+      {
+        "raw_id": "04e0e415-2838-4c6b-b315-5243fbea049d",
+        "final_exists": true,
+        "source_retained_and_readable": true
+      },
+      {
+        "raw_id": "0c6f16cd-c0c2-407d-9cb6-519ff56d0ede",
+        "final_exists": true,
+        "source_retained_and_readable": true
+      },
+      {
+        "raw_id": "1cd55dd1-1857-4523-9b6c-7d6b93d29ebf",
+        "final_exists": true,
+        "source_retained_and_readable": true
+      },
+      {
+        "raw_id": "1d7be1b5-4539-41c0-a452-780f2d1dd0f6",
+        "final_exists": true,
+        "source_retained_and_readable": true
+      },
+      {
+        "raw_id": "2d0fa3fd-be0d-4d93-8d1e-1b97c0cd1fad",
+        "final_exists": true,
+        "source_retained_and_readable": true
+      },
+      {
+        "raw_id": "336bf2e6-0d2b-42e5-9df7-99601638b6bb",
+        "final_exists": true,
+        "source_retained_and_readable": true
+      },
+      {
+        "raw_id": "3c9228f3-e233-4ae4-9150-a75ffcc76aa5",
+        "final_exists": true,
+        "source_retained_and_readable": true
+      },
+      {
+        "raw_id": "625a076c-b5b8-4d9b-807b-a69d5bf84183",
+        "final_exists": true,
+        "source_retained_and_readable": true
+      },
+      {
+        "raw_id": "6c66f871-1aa2-4b2b-9676-41e23f06fc44",
+        "final_exists": true,
+        "source_retained_and_readable": true
+      },
+      {
+        "raw_id": "6d96eea4-0a41-4643-95a6-8e884bf6cb3c",
+        "final_exists": true,
+        "source_retained_and_readable": true
+      },
+      {
+        "raw_id": "80a43fd0-9152-460d-be00-61ae3b50ec18",
+        "final_exists": true,
+        "source_retained_and_readable": true
+      },
+      {
+        "raw_id": "87a9ef20-b3b7-4635-a7ef-8c5a76061d67",
+        "final_exists": true,
+        "source_retained_and_readable": true
+      },
+      {
+        "raw_id": "88880c56-555e-43f6-8817-f0b3e068973d",
+        "final_exists": true,
+        "source_retained_and_readable": true
+      },
+      {
+        "raw_id": "97adf685-885d-4c2e-92e0-bb6ba4949f87",
+        "final_exists": true,
+        "source_retained_and_readable": true
+      },
+      {
+        "raw_id": "9d5f4451-fe06-4a72-9ba0-34c852839fa2",
+        "final_exists": true,
+        "source_retained_and_readable": true
+      },
+      {
+        "raw_id": "a252309c-62ee-4299-beb0-d85cf6124eaa",
+        "final_exists": true,
+        "source_retained_and_readable": true
+      },
+      {
+        "raw_id": "a8775b67-d785-48b5-af0e-103d4339cbd9",
+        "final_exists": true,
+        "source_retained_and_readable": true
+      },
+      {
+        "raw_id": "aaa98478-6fe6-475a-9279-e1620c5158ef",
+        "final_exists": true,
+        "source_retained_and_readable": true
+      },
+      {
+        "raw_id": "ae96b9bc-56bc-4e8c-89ac-c873788184bd",
+        "final_exists": true,
+        "source_retained_and_readable": true
+      },
+      {
+        "raw_id": "be2689f0-3a0b-4ff2-b5ab-1fb553a1a722",
+        "final_exists": true,
+        "source_retained_and_readable": true
+      },
+      {
+        "raw_id": "d43dff09-d53f-4d27-9264-7eef08ebb444",
+        "final_exists": true,
+        "source_retained_and_readable": true
+      }
+    ],
+    "fov_checks": [
+      {
+        "source": "/data/Alexander/data/2023_2/26102023_yam76s_100ms/26102023_yam76s_100ms_4/Pos1",
+        "final": "/homes2/maliavko/DetecdivHub/raw/2023_2/26102023_yam76s_100ms/26102023_yam76s_100ms_4/Pos1",
+        "both_readable": true
+      },
+      {
+        "source": "/data/Alexander/data/2023_2/26102023_yam76s_100ms/26102023_yam76s_100ms_4/Pos2",
+        "final": "/homes2/maliavko/DetecdivHub/raw/2023_2/26102023_yam76s_100ms/26102023_yam76s_100ms_4/Pos2",
+        "both_readable": true
+      },
+      {
+        "source": "/data/Alexander/data/2023_2/26102023_yam76s_100ms/26102023_yam76s_100ms_4/Pos3",
+        "final": "/homes2/maliavko/DetecdivHub/raw/2023_2/26102023_yam76s_100ms/26102023_yam76s_100ms_4/Pos3",
+        "both_readable": true
+      },
+      {
+        "source": "/data/Alexander/data/2023_2/26102023_yam76s_100ms/26102023_yam76s_100ms_4/Pos4",
+        "final": "/homes2/maliavko/DetecdivHub/raw/2023_2/26102023_yam76s_100ms/26102023_yam76s_100ms_4/Pos4",
+        "both_readable": true
+      },
+      {
+        "source": "/data/Alexander/data/2023_2/26102023_yam76s_100ms/26102023_yam76s_100ms_4/Pos5",
+        "final": "/homes2/maliavko/DetecdivHub/raw/2023_2/26102023_yam76s_100ms/26102023_yam76s_100ms_4/Pos5",
+        "both_readable": true
+      },
+      {
+        "source": "/data/Alexander/data/2023_2/26102023_yam76s_100ms/26102023_yam76s_100ms_4/Pos6",
+        "final": "/homes2/maliavko/DetecdivHub/raw/2023_2/26102023_yam76s_100ms/26102023_yam76s_100ms_4/Pos6",
+        "both_readable": true
+      },
+      {
+        "source": "/data/Alexander/data/2023_2/26102023_yam76s_100ms/26102023_yam76s_100ms_4/Pos7",
+        "final": "/homes2/maliavko/DetecdivHub/raw/2023_2/26102023_yam76s_100ms/26102023_yam76s_100ms_4/Pos7",
+        "both_readable": true
+      },
+      {
+        "source": "/data/Alexander/data/2023_2/26102023_yam76s_100ms/26102023_yam76s_100ms_4/Pos8",
+        "final": "/homes2/maliavko/DetecdivHub/raw/2023_2/26102023_yam76s_100ms/26102023_yam76s_100ms_4/Pos8",
+        "both_readable": true
+      },
+      {
+        "source": "/data/Alexander/data/2023_2/26102023_yam76s_100ms/26102023_yam76s_100ms_4/Pos29",
+        "final": "/homes2/maliavko/DetecdivHub/raw/2023_2/26102023_yam76s_100ms/26102023_yam76s_100ms_4/Pos29",
+        "both_readable": true
+      },
+      {
+        "source": "/data/Alexander/data/2023_2/26102023_yam76s_100ms/26102023_yam76s_100ms_4/Pos30",
+        "final": "/homes2/maliavko/DetecdivHub/raw/2023_2/26102023_yam76s_100ms/26102023_yam76s_100ms_4/Pos30",
+        "both_readable": true
+      },
+      {
+        "source": "/data/Alexander/data/2023_2/26102023_yam76s_100ms/26102023_yam76s_100ms_4/Pos31",
+        "final": "/homes2/maliavko/DetecdivHub/raw/2023_2/26102023_yam76s_100ms/26102023_yam76s_100ms_4/Pos31",
+        "both_readable": true
+      },
+      {
+        "source": "/data/Alexander/data/2023_2/26102023_yam76s_100ms/26102023_yam76s_100ms_4/Pos32",
+        "final": "/homes2/maliavko/DetecdivHub/raw/2023_2/26102023_yam76s_100ms/26102023_yam76s_100ms_4/Pos32",
+        "both_readable": true
+      }
+    ],
+    "scientific_files_changed": false,
+    "windows_identity": "gmgm\\charvin-admin",
+    "session_id": 1,
+    "sample_file_header_verified": true,
+    "mapping_count": 10
+  }
+}

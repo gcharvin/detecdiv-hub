@@ -28,7 +28,10 @@ still require their existing per-kind validation.
 The protected environment backup is
 `C:\ProgramData\DetecDivHub\homes2-connection-private\worker.env.before-homes2-20261101`.
 Do not print or copy it to the repository. Detailed evidence is in
-`reports/homes2-access-audit-20261101/`. The 2023_2 catalog cutover remains pending.
+`reports/homes2-access-audit-20261101/`. The subsequent 2023_2 raw-only catalog
+cutover is documented in `docs/alexander_2023_transfer.md`; published final paths
+and retained primary compatibility paths were checked in this same worker
+session. The original Sauvegarde project has not been relocated or relinked.
 
 ## GPU activation (2026-10-16)
 

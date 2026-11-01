@@ -1,0 +1,9 @@
+{
+  "published_at": "2026-11-01T18:33:32.010293+00:00",
+  "plan_sha256": "27d62ce55129302723d3e2d86ae53ddcb4a96d9cc624a15c86721c75ae40980b",
+  "stage": "/homes2/maliavko/DetecdivHub/raw/.incoming-alexander-2023-20261008/2023_2",
+  "final": "/homes2/maliavko/DetecdivHub/raw/2023_2",
+  "source_preserved": true,
+  "database_cutover_performed": false,
+  "raw_directories": 21
+}

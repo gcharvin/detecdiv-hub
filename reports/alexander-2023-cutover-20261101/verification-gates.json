@@ -1,0 +1,162 @@
+{
+  "inventory": {
+    "started_at": "2026-11-01T18:24:32.558547+00:00",
+    "pid": 2645094,
+    "phase": "metadata_and_prior_checksum_gates_passed",
+    "content_files_read": false,
+    "source_deleted": false,
+    "database_changed": false,
+    "heartbeat_at": "2026-11-01T18:30:09.633882+00:00",
+    "files": 417983,
+    "bytes": 3523148750138,
+    "native_ssh_pid": 2646179,
+    "source_inventory": {
+      "files": 425112,
+      "bytes": 3583194799325,
+      "sha256": "bfe6b368e2c8d0a2de897c6351733060e2e0e62870b30a391afd14a40f52e063"
+    },
+    "source_file_difference": {
+      "added_count": 0,
+      "removed_count": 0,
+      "modified_count": 0,
+      "added_sample": [],
+      "removed_sample": [],
+      "modified_sample": []
+    },
+    "source_regular_files_unchanged": true,
+    "source_directory_changes": {
+      "added": 0,
+      "removed": 0
+    },
+    "destination_inventory": {
+      "files": 425112,
+      "bytes": 3583194799325,
+      "sha256": "18dde21570220f03f0e62bc113201737b37d0cf8490beea6634f1e5968b35d76"
+    },
+    "destination_file_size_difference": {
+      "added_count": 0,
+      "removed_count": 0,
+      "modified_count": 0,
+      "added_sample": [],
+      "removed_sample": [],
+      "modified_sample": []
+    },
+    "destination_paths_and_sizes_match": true,
+    "destination_mtime_differences": {
+      "count": 223,
+      "over_1000ns_count": 0,
+      "over_1000ns_sample": []
+    },
+    "previous_full_content_verification_passed": true,
+    "destination_directory_changes": {
+      "added": 0,
+      "removed": 0
+    },
+    "finished_at": "2026-11-01T18:30:09.633868+00:00"
+  },
+  "project": {
+    "success": true,
+    "read_only": true,
+    "project_saved": false,
+    "source_mat": "/mnt/detecdiv-secondary-sauvegarde/Alexander/analysis/anof_26102023_yam76s_100ms.mat",
+    "engine_release": "/home/charvin-admin/repos/DetecDiv-jobs/releases/d83c4dbc0638bc0d3f6012b4f1df5744e0c017c7",
+    "matlab_version": "24.2.0.2806996 (R2024b) Update 3",
+    "fov_count": 12,
+    "roi_count": 5724,
+    "io_before": {
+      "path": "/DataVault/Alexander/analysis/",
+      "file": "anof_26102023_yam76s_100ms"
+    },
+    "io_rebased_in_memory": {
+      "path": "/mnt/detecdiv-secondary-sauvegarde/Alexander/analysis",
+      "file": "anof_26102023_yam76s_100ms"
+    },
+    "raw_path_checks": [
+      {
+        "source": "/data/Alexander/data/2023_2/26102023_yam76s_100ms/26102023_yam76s_100ms_4/Pos1",
+        "staging": "/homes2/maliavko/DetecdivHub/raw/.incoming-alexander-2023-20261008/2023_2/26102023_yam76s_100ms/26102023_yam76s_100ms_4/Pos1",
+        "final": "/homes2/maliavko/DetecdivHub/raw/2023_2/26102023_yam76s_100ms/26102023_yam76s_100ms_4/Pos1",
+        "sourceExists": true,
+        "stagingExists": true
+      },
+      {
+        "source": "/data/Alexander/data/2023_2/26102023_yam76s_100ms/26102023_yam76s_100ms_4/Pos2",
+        "staging": "/homes2/maliavko/DetecdivHub/raw/.incoming-alexander-2023-20261008/2023_2/26102023_yam76s_100ms/26102023_yam76s_100ms_4/Pos2",
+        "final": "/homes2/maliavko/DetecdivHub/raw/2023_2/26102023_yam76s_100ms/26102023_yam76s_100ms_4/Pos2",
+        "sourceExists": true,
+        "stagingExists": true
+      },
+      {
+        "source": "/data/Alexander/data/2023_2/26102023_yam76s_100ms/26102023_yam76s_100ms_4/Pos3",
+        "staging": "/homes2/maliavko/DetecdivHub/raw/.incoming-alexander-2023-20261008/2023_2/26102023_yam76s_100ms/26102023_yam76s_100ms_4/Pos3",
+        "final": "/homes2/maliavko/DetecdivHub/raw/2023_2/26102023_yam76s_100ms/26102023_yam76s_100ms_4/Pos3",
+        "sourceExists": true,
+        "stagingExists": true
+      },
+      {
+        "source": "/data/Alexander/data/2023_2/26102023_yam76s_100ms/26102023_yam76s_100ms_4/Pos4",
+        "staging": "/homes2/maliavko/DetecdivHub/raw/.incoming-alexander-2023-20261008/2023_2/26102023_yam76s_100ms/26102023_yam76s_100ms_4/Pos4",
+        "final": "/homes2/maliavko/DetecdivHub/raw/2023_2/26102023_yam76s_100ms/26102023_yam76s_100ms_4/Pos4",
+        "sourceExists": true,
+        "stagingExists": true
+      },
+      {
+        "source": "/data/Alexander/data/2023_2/26102023_yam76s_100ms/26102023_yam76s_100ms_4/Pos5",
+        "staging": "/homes2/maliavko/DetecdivHub/raw/.incoming-alexander-2023-20261008/2023_2/26102023_yam76s_100ms/26102023_yam76s_100ms_4/Pos5",
+        "final": "/homes2/maliavko/DetecdivHub/raw/2023_2/26102023_yam76s_100ms/26102023_yam76s_100ms_4/Pos5",
+        "sourceExists": true,
+        "stagingExists": true
+      },
+      {
+        "source": "/data/Alexander/data/2023_2/26102023_yam76s_100ms/26102023_yam76s_100ms_4/Pos6",
+        "staging": "/homes2/maliavko/DetecdivHub/raw/.incoming-alexander-2023-20261008/2023_2/26102023_yam76s_100ms/26102023_yam76s_100ms_4/Pos6",
+        "final": "/homes2/maliavko/DetecdivHub/raw/2023_2/26102023_yam76s_100ms/26102023_yam76s_100ms_4/Pos6",
+        "sourceExists": true,
+        "stagingExists": true
+      },
+      {
+        "source": "/data/Alexander/data/2023_2/26102023_yam76s_100ms/26102023_yam76s_100ms_4/Pos7",
+        "staging": "/homes2/maliavko/DetecdivHub/raw/.incoming-alexander-2023-20261008/2023_2/26102023_yam76s_100ms/26102023_yam76s_100ms_4/Pos7",
+        "final": "/homes2/maliavko/DetecdivHub/raw/2023_2/26102023_yam76s_100ms/26102023_yam76s_100ms_4/Pos7",
+        "sourceExists": true,
+        "stagingExists": true
+      },
+      {
+        "source": "/data/Alexander/data/2023_2/26102023_yam76s_100ms/26102023_yam76s_100ms_4/Pos8",
+        "staging": "/homes2/maliavko/DetecdivHub/raw/.incoming-alexander-2023-20261008/2023_2/26102023_yam76s_100ms/26102023_yam76s_100ms_4/Pos8",
+        "final": "/homes2/maliavko/DetecdivHub/raw/2023_2/26102023_yam76s_100ms/26102023_yam76s_100ms_4/Pos8",
+        "sourceExists": true,
+        "stagingExists": true
+      },
+      {
+        "source": "/data/Alexander/data/2023_2/26102023_yam76s_100ms/26102023_yam76s_100ms_4/Pos29",
+        "staging": "/homes2/maliavko/DetecdivHub/raw/.incoming-alexander-2023-20261008/2023_2/26102023_yam76s_100ms/26102023_yam76s_100ms_4/Pos29",
+        "final": "/homes2/maliavko/DetecdivHub/raw/2023_2/26102023_yam76s_100ms/26102023_yam76s_100ms_4/Pos29",
+        "sourceExists": true,
+        "stagingExists": true
+      },
+      {
+        "source": "/data/Alexander/data/2023_2/26102023_yam76s_100ms/26102023_yam76s_100ms_4/Pos30",
+        "staging": "/homes2/maliavko/DetecdivHub/raw/.incoming-alexander-2023-20261008/2023_2/26102023_yam76s_100ms/26102023_yam76s_100ms_4/Pos30",
+        "final": "/homes2/maliavko/DetecdivHub/raw/2023_2/26102023_yam76s_100ms/26102023_yam76s_100ms_4/Pos30",
+        "sourceExists": true,
+        "stagingExists": true
+      },
+      {
+        "source": "/data/Alexander/data/2023_2/26102023_yam76s_100ms/26102023_yam76s_100ms_4/Pos31",
+        "staging": "/homes2/maliavko/DetecdivHub/raw/.incoming-alexander-2023-20261008/2023_2/26102023_yam76s_100ms/26102023_yam76s_100ms_4/Pos31",
+        "final": "/homes2/maliavko/DetecdivHub/raw/2023_2/26102023_yam76s_100ms/26102023_yam76s_100ms_4/Pos31",
+        "sourceExists": true,
+        "stagingExists": true
+      },
+      {
+        "source": "/data/Alexander/data/2023_2/26102023_yam76s_100ms/26102023_yam76s_100ms_4/Pos32",
+        "staging": "/homes2/maliavko/DetecdivHub/raw/.incoming-alexander-2023-20261008/2023_2/26102023_yam76s_100ms/26102023_yam76s_100ms_4/Pos32",
+        "final": "/homes2/maliavko/DetecdivHub/raw/2023_2/26102023_yam76s_100ms/26102023_yam76s_100ms_4/Pos32",
+        "sourceExists": true,
+        "stagingExists": true
+      }
+    ],
+    "compatibility_strategy": "Retain primary raw paths and the original Sauvegarde project; no source reclamation."
+  }
+}

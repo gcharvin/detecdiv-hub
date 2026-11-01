@@ -1,5 +1,41 @@
 # Current Deployment
 
+## Alexander 2023_2 raw catalog cutover, 2026-11-01
+
+At 18:35 UTC, the same 21 Alexander raw records were transactionally switched
+to preferred read locations under `/homes2/maliavko/DetecdivHub/raw/2023_2`.
+The verified copy was first published from its incoming directory by an atomic,
+no-replace rename on the secondary NAS. All original primary-NAS locations and
+files remain intact. No source storage was reclaimed.
+
+Fresh native NAS inventories matched all 425,112 file paths and sizes,
+3,583,194,799,325 payload bytes. The source inventory, including modification
+times, exactly matched its initial inventory. Destination timestamp differences
+were within one microsecond on 223 files. The separate earlier
+full-content SHA1 verification receipt remains valid; this phase did not reread
+the entire payload for new content checksums.
+
+The linked original Sauvegarde project reopened read-only in MATLAB using the
+currently published release `d83c4dbc0638bc0d3f6012b4f1df5744e0c017c7`: 12 FOVs,
+5,724 ROIs. Both original and published FOV paths were checked from the Windows
+worker session. No project MAT was saved or relocated: its old raw paths remain
+usable through the retained primary sources. Migrating those project internals
+and establishing backup/restore coverage remain prerequisites to any future
+source retirement, which is not authorized by this source-retaining cutover.
+
+Post-transaction checks validated all 21 API detail views, unchanged raw
+identity/ownership/metadata/links, 337 preserved positions, the unchanged linked
+project, and all 2,554 other storage locations. Audit batch:
+`b2530427-9baf-4276-a5da-855ce3831394`. Evidence and rollback location references:
+`reports/alexander-2023-cutover-20261101/`. Live read-only status:
+`/home/charvin-admin/storage-transfers/alexander-2023-cutover-20261101/cutover-status.json`.
+
+No service or worker was restarted during this catalog phase. Windows remains
+PID `3720` / `b35b0444d5f0`; all six Linux pollers report `a2649a68b316`. The
+existing 2023_1 pilot location was preserved, and 2023_3 was not transferred.
+The secondary provider/account remain inactive/planned; Hub backups remain
+disabled. These settings were not activated implicitly by the cutover.
+
 ## Alexander homes2 Windows access, 2026-11-01
 
 The Windows worker now maps `/homes2/maliavko/DetecdivHub` to
@@ -19,10 +55,9 @@ owners were `maliavko`; both probes were removed. The database tunnel, original
 worker task and unlimited task duration were preserved. No API or Linux worker
 deployment accompanied this change.
 
-This completes the Windows access gate, not the raw catalog cutover. The 21
-2023_2 raws still prefer the primary NAS, and the secondary provider/account
-remain inactive/planned. Source-stability checks, project relinking and the
-catalog transaction remain separate; no scientific source was deleted.
+This access change initially left the 21 2023_2 raws on the primary NAS. Their
+subsequent source-retaining catalog cutover is recorded above. The secondary
+provider/account remain inactive/planned, and no scientific source was deleted.
 Evidence: `reports/homes2-access-audit-20261101/summary.json` and the detailed
 activation, session verification, and NAS ownership receipts in that directory.
 

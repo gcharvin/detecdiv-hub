@@ -1,0 +1,14 @@
+{
+  "status": "raw_catalog_cutover_complete_sources_retained",
+  "batch_id": "b2530427-9baf-4276-a5da-855ce3831394",
+  "raws": 21,
+  "payload_files": 425112,
+  "payload_bytes": 3583194799325,
+  "catalog_verified_at": "2026-11-01T18:36:02.146395+00:00",
+  "source_deleted": false,
+  "project_saved": false,
+  "project_relocation_pending": true,
+  "final_root": "/homes2/maliavko/DetecdivHub/raw/2023_2",
+  "rollback_references": "rollback-location-references.json",
+  "published_folder_owner": "maliavko"
+}
