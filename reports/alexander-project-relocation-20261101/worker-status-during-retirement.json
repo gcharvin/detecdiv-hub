@@ -1,0 +1,55 @@
+{
+  "checked_at": "2026-11-01T19:47:12.410875+00:00",
+  "workers": [
+    {
+      "instance": "windows-10-20-11-56-main",
+      "pid": 3720,
+      "fingerprint": "b35b0444d5f0",
+      "current_job_id": null,
+      "heartbeat_age_seconds": 2.449815
+    },
+    {
+      "instance": "@2",
+      "pid": 433434,
+      "fingerprint": "a2649a68b316",
+      "current_job_id": null,
+      "heartbeat_age_seconds": 3.354579
+    },
+    {
+      "instance": "@4",
+      "pid": 912963,
+      "fingerprint": "a2649a68b316",
+      "current_job_id": null,
+      "heartbeat_age_seconds": 3.869435
+    },
+    {
+      "instance": "@5",
+      "pid": 694307,
+      "fingerprint": "a2649a68b316",
+      "current_job_id": null,
+      "heartbeat_age_seconds": 3.662538
+    },
+    {
+      "instance": "@6",
+      "pid": 433435,
+      "fingerprint": "a2649a68b316",
+      "current_job_id": null,
+      "heartbeat_age_seconds": 3.767728
+    },
+    {
+      "instance": "@3",
+      "pid": 911503,
+      "fingerprint": "a2649a68b316",
+      "current_job_id": null,
+      "heartbeat_age_seconds": 3.987458
+    },
+    {
+      "instance": "@1",
+      "pid": 433433,
+      "fingerprint": "a2649a68b316",
+      "current_job_id": null,
+      "heartbeat_age_seconds": 3.957386
+    }
+  ],
+  "active_jobs": []
+}

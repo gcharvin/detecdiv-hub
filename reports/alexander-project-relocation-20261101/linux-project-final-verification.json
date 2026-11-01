@@ -1,0 +1,445 @@
+{
+  "verification": {
+    "success": true,
+    "source_preserved": true,
+    "copied_project_file": "/homes2/maliavko/DetecdivHub/projects/anof_26102023_yam76s_100ms/anof_26102023_yam76s_100ms.mat",
+    "source_project_file": "/mnt/detecdiv-secondary-sauvegarde/Alexander/analysis/anof_26102023_yam76s_100ms.mat",
+    "project_path_changes": 47965,
+    "path_change_examples": [
+      {
+        "field": "mat.shallowObj.fov.roi.path",
+        "before": "/DataVault/Alexander/analysis/anof_26102023_yam76s_100ms/26102023_yam76s_100ms_4_Pos1_1",
+        "after": "/homes2/maliavko/DetecdivHub/projects/anof_26102023_yam76s_100ms/anof_26102023_yam76s_100ms/26102023_yam76s_100ms_4_Pos1_1"
+      },
+      {
+        "field": "mat.shallowObj.fov.roi.path",
+        "before": "/DataVault/Alexander/analysis/anof_26102023_yam76s_100ms/26102023_yam76s_100ms_4_Pos1_1",
+        "after": "/homes2/maliavko/DetecdivHub/projects/anof_26102023_yam76s_100ms/anof_26102023_yam76s_100ms/26102023_yam76s_100ms_4_Pos1_1"
+      },
+      {
+        "field": "mat.shallowObj.fov.roi.path",
+        "before": "/DataVault/Alexander/analysis/anof_26102023_yam76s_100ms/26102023_yam76s_100ms_4_Pos1_1",
+        "after": "/homes2/maliavko/DetecdivHub/projects/anof_26102023_yam76s_100ms/anof_26102023_yam76s_100ms/26102023_yam76s_100ms_4_Pos1_1"
+      },
+      {
+        "field": "mat.shallowObj.fov.roi.path",
+        "before": "/DataVault/Alexander/analysis/anof_26102023_yam76s_100ms/26102023_yam76s_100ms_4_Pos1_1",
+        "after": "/homes2/maliavko/DetecdivHub/projects/anof_26102023_yam76s_100ms/anof_26102023_yam76s_100ms/26102023_yam76s_100ms_4_Pos1_1"
+      },
+      {
+        "field": "mat.shallowObj.fov.roi.path",
+        "before": "/DataVault/Alexander/analysis/anof_26102023_yam76s_100ms/26102023_yam76s_100ms_4_Pos1_1",
+        "after": "/homes2/maliavko/DetecdivHub/projects/anof_26102023_yam76s_100ms/anof_26102023_yam76s_100ms/26102023_yam76s_100ms_4_Pos1_1"
+      },
+      {
+        "field": "mat.shallowObj.fov.roi.path",
+        "before": "/DataVault/Alexander/analysis/anof_26102023_yam76s_100ms/26102023_yam76s_100ms_4_Pos1_1",
+        "after": "/homes2/maliavko/DetecdivHub/projects/anof_26102023_yam76s_100ms/anof_26102023_yam76s_100ms/26102023_yam76s_100ms_4_Pos1_1"
+      },
+      {
+        "field": "mat.shallowObj.fov.roi.path",
+        "before": "/DataVault/Alexander/analysis/anof_26102023_yam76s_100ms/26102023_yam76s_100ms_4_Pos1_1",
+        "after": "/homes2/maliavko/DetecdivHub/projects/anof_26102023_yam76s_100ms/anof_26102023_yam76s_100ms/26102023_yam76s_100ms_4_Pos1_1"
+      },
+      {
+        "field": "mat.shallowObj.fov.roi.path",
+        "before": "/DataVault/Alexander/analysis/anof_26102023_yam76s_100ms/26102023_yam76s_100ms_4_Pos1_1",
+        "after": "/homes2/maliavko/DetecdivHub/projects/anof_26102023_yam76s_100ms/anof_26102023_yam76s_100ms/26102023_yam76s_100ms_4_Pos1_1"
+      },
+      {
+        "field": "mat.shallowObj.fov.roi.path",
+        "before": "/DataVault/Alexander/analysis/anof_26102023_yam76s_100ms/26102023_yam76s_100ms_4_Pos1_1",
+        "after": "/homes2/maliavko/DetecdivHub/projects/anof_26102023_yam76s_100ms/anof_26102023_yam76s_100ms/26102023_yam76s_100ms_4_Pos1_1"
+      },
+      {
+        "field": "mat.shallowObj.fov.roi.path",
+        "before": "/DataVault/Alexander/analysis/anof_26102023_yam76s_100ms/26102023_yam76s_100ms_4_Pos1_1",
+        "after": "/homes2/maliavko/DetecdivHub/projects/anof_26102023_yam76s_100ms/anof_26102023_yam76s_100ms/26102023_yam76s_100ms_4_Pos1_1"
+      },
+      {
+        "field": "mat.shallowObj.fov.roi.path",
+        "before": "/DataVault/Alexander/analysis/anof_26102023_yam76s_100ms/26102023_yam76s_100ms_4_Pos1_1",
+        "after": "/homes2/maliavko/DetecdivHub/projects/anof_26102023_yam76s_100ms/anof_26102023_yam76s_100ms/26102023_yam76s_100ms_4_Pos1_1"
+      },
+      {
+        "field": "mat.shallowObj.fov.roi.path",
+        "before": "/DataVault/Alexander/analysis/anof_26102023_yam76s_100ms/26102023_yam76s_100ms_4_Pos1_1",
+        "after": "/homes2/maliavko/DetecdivHub/projects/anof_26102023_yam76s_100ms/anof_26102023_yam76s_100ms/26102023_yam76s_100ms_4_Pos1_1"
+      },
+      {
+        "field": "mat.shallowObj.fov.roi.path",
+        "before": "/DataVault/Alexander/analysis/anof_26102023_yam76s_100ms/26102023_yam76s_100ms_4_Pos1_1",
+        "after": "/homes2/maliavko/DetecdivHub/projects/anof_26102023_yam76s_100ms/anof_26102023_yam76s_100ms/26102023_yam76s_100ms_4_Pos1_1"
+      },
+      {
+        "field": "mat.shallowObj.fov.roi.path",
+        "before": "/DataVault/Alexander/analysis/anof_26102023_yam76s_100ms/26102023_yam76s_100ms_4_Pos1_1",
+        "after": "/homes2/maliavko/DetecdivHub/projects/anof_26102023_yam76s_100ms/anof_26102023_yam76s_100ms/26102023_yam76s_100ms_4_Pos1_1"
+      },
+      {
+        "field": "mat.shallowObj.fov.roi.path",
+        "before": "/DataVault/Alexander/analysis/anof_26102023_yam76s_100ms/26102023_yam76s_100ms_4_Pos1_1",
+        "after": "/homes2/maliavko/DetecdivHub/projects/anof_26102023_yam76s_100ms/anof_26102023_yam76s_100ms/26102023_yam76s_100ms_4_Pos1_1"
+      },
+      {
+        "field": "mat.shallowObj.fov.roi.path",
+        "before": "/DataVault/Alexander/analysis/anof_26102023_yam76s_100ms/26102023_yam76s_100ms_4_Pos1_1",
+        "after": "/homes2/maliavko/DetecdivHub/projects/anof_26102023_yam76s_100ms/anof_26102023_yam76s_100ms/26102023_yam76s_100ms_4_Pos1_1"
+      },
+      {
+        "field": "mat.shallowObj.fov.roi.path",
+        "before": "/DataVault/Alexander/analysis/anof_26102023_yam76s_100ms/26102023_yam76s_100ms_4_Pos1_1",
+        "after": "/homes2/maliavko/DetecdivHub/projects/anof_26102023_yam76s_100ms/anof_26102023_yam76s_100ms/26102023_yam76s_100ms_4_Pos1_1"
+      },
+      {
+        "field": "mat.shallowObj.fov.roi.path",
+        "before": "/DataVault/Alexander/analysis/anof_26102023_yam76s_100ms/26102023_yam76s_100ms_4_Pos1_1",
+        "after": "/homes2/maliavko/DetecdivHub/projects/anof_26102023_yam76s_100ms/anof_26102023_yam76s_100ms/26102023_yam76s_100ms_4_Pos1_1"
+      },
+      {
+        "field": "mat.shallowObj.fov.roi.path",
+        "before": "/DataVault/Alexander/analysis/anof_26102023_yam76s_100ms/26102023_yam76s_100ms_4_Pos1_1",
+        "after": "/homes2/maliavko/DetecdivHub/projects/anof_26102023_yam76s_100ms/anof_26102023_yam76s_100ms/26102023_yam76s_100ms_4_Pos1_1"
+      },
+      {
+        "field": "mat.shallowObj.fov.roi.path",
+        "before": "/DataVault/Alexander/analysis/anof_26102023_yam76s_100ms/26102023_yam76s_100ms_4_Pos1_1",
+        "after": "/homes2/maliavko/DetecdivHub/projects/anof_26102023_yam76s_100ms/anof_26102023_yam76s_100ms/26102023_yam76s_100ms_4_Pos1_1"
+      },
+      {
+        "field": "mat.shallowObj.fov.roi.path",
+        "before": "/DataVault/Alexander/analysis/anof_26102023_yam76s_100ms/26102023_yam76s_100ms_4_Pos1_1",
+        "after": "/homes2/maliavko/DetecdivHub/projects/anof_26102023_yam76s_100ms/anof_26102023_yam76s_100ms/26102023_yam76s_100ms_4_Pos1_1"
+      },
+      {
+        "field": "mat.shallowObj.fov.roi.path",
+        "before": "/DataVault/Alexander/analysis/anof_26102023_yam76s_100ms/26102023_yam76s_100ms_4_Pos1_1",
+        "after": "/homes2/maliavko/DetecdivHub/projects/anof_26102023_yam76s_100ms/anof_26102023_yam76s_100ms/26102023_yam76s_100ms_4_Pos1_1"
+      },
+      {
+        "field": "mat.shallowObj.fov.roi.path",
+        "before": "/DataVault/Alexander/analysis/anof_26102023_yam76s_100ms/26102023_yam76s_100ms_4_Pos1_1",
+        "after": "/homes2/maliavko/DetecdivHub/projects/anof_26102023_yam76s_100ms/anof_26102023_yam76s_100ms/26102023_yam76s_100ms_4_Pos1_1"
+      },
+      {
+        "field": "mat.shallowObj.fov.roi.path",
+        "before": "/DataVault/Alexander/analysis/anof_26102023_yam76s_100ms/26102023_yam76s_100ms_4_Pos1_1",
+        "after": "/homes2/maliavko/DetecdivHub/projects/anof_26102023_yam76s_100ms/anof_26102023_yam76s_100ms/26102023_yam76s_100ms_4_Pos1_1"
+      },
+      {
+        "field": "mat.shallowObj.fov.roi.path",
+        "before": "/DataVault/Alexander/analysis/anof_26102023_yam76s_100ms/26102023_yam76s_100ms_4_Pos1_1",
+        "after": "/homes2/maliavko/DetecdivHub/projects/anof_26102023_yam76s_100ms/anof_26102023_yam76s_100ms/26102023_yam76s_100ms_4_Pos1_1"
+      },
+      {
+        "field": "mat.shallowObj.fov.roi.path",
+        "before": "/DataVault/Alexander/analysis/anof_26102023_yam76s_100ms/26102023_yam76s_100ms_4_Pos1_1",
+        "after": "/homes2/maliavko/DetecdivHub/projects/anof_26102023_yam76s_100ms/anof_26102023_yam76s_100ms/26102023_yam76s_100ms_4_Pos1_1"
+      },
+      {
+        "field": "mat.shallowObj.fov.roi.path",
+        "before": "/DataVault/Alexander/analysis/anof_26102023_yam76s_100ms/26102023_yam76s_100ms_4_Pos1_1",
+        "after": "/homes2/maliavko/DetecdivHub/projects/anof_26102023_yam76s_100ms/anof_26102023_yam76s_100ms/26102023_yam76s_100ms_4_Pos1_1"
+      },
+      {
+        "field": "mat.shallowObj.fov.roi.path",
+        "before": "/DataVault/Alexander/analysis/anof_26102023_yam76s_100ms/26102023_yam76s_100ms_4_Pos1_1",
+        "after": "/homes2/maliavko/DetecdivHub/projects/anof_26102023_yam76s_100ms/anof_26102023_yam76s_100ms/26102023_yam76s_100ms_4_Pos1_1"
+      },
+      {
+        "field": "mat.shallowObj.fov.roi.path",
+        "before": "/DataVault/Alexander/analysis/anof_26102023_yam76s_100ms/26102023_yam76s_100ms_4_Pos1_1",
+        "after": "/homes2/maliavko/DetecdivHub/projects/anof_26102023_yam76s_100ms/anof_26102023_yam76s_100ms/26102023_yam76s_100ms_4_Pos1_1"
+      },
+      {
+        "field": "mat.shallowObj.fov.roi.path",
+        "before": "/DataVault/Alexander/analysis/anof_26102023_yam76s_100ms/26102023_yam76s_100ms_4_Pos1_1",
+        "after": "/homes2/maliavko/DetecdivHub/projects/anof_26102023_yam76s_100ms/anof_26102023_yam76s_100ms/26102023_yam76s_100ms_4_Pos1_1"
+      },
+      {
+        "field": "mat.shallowObj.fov.roi.path",
+        "before": "/DataVault/Alexander/analysis/anof_26102023_yam76s_100ms/26102023_yam76s_100ms_4_Pos1_1",
+        "after": "/homes2/maliavko/DetecdivHub/projects/anof_26102023_yam76s_100ms/anof_26102023_yam76s_100ms/26102023_yam76s_100ms_4_Pos1_1"
+      },
+      {
+        "field": "mat.shallowObj.fov.roi.path",
+        "before": "/DataVault/Alexander/analysis/anof_26102023_yam76s_100ms/26102023_yam76s_100ms_4_Pos1_1",
+        "after": "/homes2/maliavko/DetecdivHub/projects/anof_26102023_yam76s_100ms/anof_26102023_yam76s_100ms/26102023_yam76s_100ms_4_Pos1_1"
+      },
+      {
+        "field": "mat.shallowObj.fov.roi.path",
+        "before": "/DataVault/Alexander/analysis/anof_26102023_yam76s_100ms/26102023_yam76s_100ms_4_Pos1_1",
+        "after": "/homes2/maliavko/DetecdivHub/projects/anof_26102023_yam76s_100ms/anof_26102023_yam76s_100ms/26102023_yam76s_100ms_4_Pos1_1"
+      },
+      {
+        "field": "mat.shallowObj.fov.roi.path",
+        "before": "/DataVault/Alexander/analysis/anof_26102023_yam76s_100ms/26102023_yam76s_100ms_4_Pos1_1",
+        "after": "/homes2/maliavko/DetecdivHub/projects/anof_26102023_yam76s_100ms/anof_26102023_yam76s_100ms/26102023_yam76s_100ms_4_Pos1_1"
+      },
+      {
+        "field": "mat.shallowObj.fov.roi.path",
+        "before": "/DataVault/Alexander/analysis/anof_26102023_yam76s_100ms/26102023_yam76s_100ms_4_Pos1_1",
+        "after": "/homes2/maliavko/DetecdivHub/projects/anof_26102023_yam76s_100ms/anof_26102023_yam76s_100ms/26102023_yam76s_100ms_4_Pos1_1"
+      },
+      {
+        "field": "mat.shallowObj.fov.roi.path",
+        "before": "/DataVault/Alexander/analysis/anof_26102023_yam76s_100ms/26102023_yam76s_100ms_4_Pos1_1",
+        "after": "/homes2/maliavko/DetecdivHub/projects/anof_26102023_yam76s_100ms/anof_26102023_yam76s_100ms/26102023_yam76s_100ms_4_Pos1_1"
+      },
+      {
+        "field": "mat.shallowObj.fov.roi.path",
+        "before": "/DataVault/Alexander/analysis/anof_26102023_yam76s_100ms/26102023_yam76s_100ms_4_Pos1_1",
+        "after": "/homes2/maliavko/DetecdivHub/projects/anof_26102023_yam76s_100ms/anof_26102023_yam76s_100ms/26102023_yam76s_100ms_4_Pos1_1"
+      },
+      {
+        "field": "mat.shallowObj.fov.roi.path",
+        "before": "/DataVault/Alexander/analysis/anof_26102023_yam76s_100ms/26102023_yam76s_100ms_4_Pos1_1",
+        "after": "/homes2/maliavko/DetecdivHub/projects/anof_26102023_yam76s_100ms/anof_26102023_yam76s_100ms/26102023_yam76s_100ms_4_Pos1_1"
+      },
+      {
+        "field": "mat.shallowObj.fov.roi.path",
+        "before": "/DataVault/Alexander/analysis/anof_26102023_yam76s_100ms/26102023_yam76s_100ms_4_Pos1_1",
+        "after": "/homes2/maliavko/DetecdivHub/projects/anof_26102023_yam76s_100ms/anof_26102023_yam76s_100ms/26102023_yam76s_100ms_4_Pos1_1"
+      },
+      {
+        "field": "mat.shallowObj.fov.roi.path",
+        "before": "/DataVault/Alexander/analysis/anof_26102023_yam76s_100ms/26102023_yam76s_100ms_4_Pos1_1",
+        "after": "/homes2/maliavko/DetecdivHub/projects/anof_26102023_yam76s_100ms/anof_26102023_yam76s_100ms/26102023_yam76s_100ms_4_Pos1_1"
+      },
+      {
+        "field": "mat.shallowObj.fov.roi.path",
+        "before": "/DataVault/Alexander/analysis/anof_26102023_yam76s_100ms/26102023_yam76s_100ms_4_Pos1_1",
+        "after": "/homes2/maliavko/DetecdivHub/projects/anof_26102023_yam76s_100ms/anof_26102023_yam76s_100ms/26102023_yam76s_100ms_4_Pos1_1"
+      },
+      {
+        "field": "mat.shallowObj.fov.roi.path",
+        "before": "/DataVault/Alexander/analysis/anof_26102023_yam76s_100ms/26102023_yam76s_100ms_4_Pos1_1",
+        "after": "/homes2/maliavko/DetecdivHub/projects/anof_26102023_yam76s_100ms/anof_26102023_yam76s_100ms/26102023_yam76s_100ms_4_Pos1_1"
+      },
+      {
+        "field": "mat.shallowObj.fov.roi.path",
+        "before": "/DataVault/Alexander/analysis/anof_26102023_yam76s_100ms/26102023_yam76s_100ms_4_Pos1_1",
+        "after": "/homes2/maliavko/DetecdivHub/projects/anof_26102023_yam76s_100ms/anof_26102023_yam76s_100ms/26102023_yam76s_100ms_4_Pos1_1"
+      },
+      {
+        "field": "mat.shallowObj.fov.roi.path",
+        "before": "/DataVault/Alexander/analysis/anof_26102023_yam76s_100ms/26102023_yam76s_100ms_4_Pos1_1",
+        "after": "/homes2/maliavko/DetecdivHub/projects/anof_26102023_yam76s_100ms/anof_26102023_yam76s_100ms/26102023_yam76s_100ms_4_Pos1_1"
+      },
+      {
+        "field": "mat.shallowObj.fov.roi.path",
+        "before": "/DataVault/Alexander/analysis/anof_26102023_yam76s_100ms/26102023_yam76s_100ms_4_Pos1_1",
+        "after": "/homes2/maliavko/DetecdivHub/projects/anof_26102023_yam76s_100ms/anof_26102023_yam76s_100ms/26102023_yam76s_100ms_4_Pos1_1"
+      },
+      {
+        "field": "mat.shallowObj.fov.roi.path",
+        "before": "/DataVault/Alexander/analysis/anof_26102023_yam76s_100ms/26102023_yam76s_100ms_4_Pos1_1",
+        "after": "/homes2/maliavko/DetecdivHub/projects/anof_26102023_yam76s_100ms/anof_26102023_yam76s_100ms/26102023_yam76s_100ms_4_Pos1_1"
+      },
+      {
+        "field": "mat.shallowObj.fov.roi.path",
+        "before": "/DataVault/Alexander/analysis/anof_26102023_yam76s_100ms/26102023_yam76s_100ms_4_Pos1_1",
+        "after": "/homes2/maliavko/DetecdivHub/projects/anof_26102023_yam76s_100ms/anof_26102023_yam76s_100ms/26102023_yam76s_100ms_4_Pos1_1"
+      },
+      {
+        "field": "mat.shallowObj.fov.roi.path",
+        "before": "/DataVault/Alexander/analysis/anof_26102023_yam76s_100ms/26102023_yam76s_100ms_4_Pos1_1",
+        "after": "/homes2/maliavko/DetecdivHub/projects/anof_26102023_yam76s_100ms/anof_26102023_yam76s_100ms/26102023_yam76s_100ms_4_Pos1_1"
+      },
+      {
+        "field": "mat.shallowObj.fov.roi.path",
+        "before": "/DataVault/Alexander/analysis/anof_26102023_yam76s_100ms/26102023_yam76s_100ms_4_Pos1_1",
+        "after": "/homes2/maliavko/DetecdivHub/projects/anof_26102023_yam76s_100ms/anof_26102023_yam76s_100ms/26102023_yam76s_100ms_4_Pos1_1"
+      },
+      {
+        "field": "mat.shallowObj.fov.roi.path",
+        "before": "/DataVault/Alexander/analysis/anof_26102023_yam76s_100ms/26102023_yam76s_100ms_4_Pos1_1",
+        "after": "/homes2/maliavko/DetecdivHub/projects/anof_26102023_yam76s_100ms/anof_26102023_yam76s_100ms/26102023_yam76s_100ms_4_Pos1_1"
+      }
+    ],
+    "scientific_values_and_annotations_preserved": true,
+    "full_project_save_reopen_verified": true,
+    "fovs": 12,
+    "rois": 5724,
+    "roi_sidecar_files_present": 11448,
+    "result_sidecars_audited": 5724,
+    "result_sidecars_rewritten": [],
+    "legacy_image_mats_rewritten": false,
+    "legacy_image_path_policy": "roi.load excludes id/path; validated on a representative ROI from each FOV",
+    "samples": [
+      {
+        "fov": 1,
+        "roi": "26102023_yam76s_100ms_4_Pos1_1_1",
+        "path": "/homes2/maliavko/DetecdivHub/projects/anof_26102023_yam76s_100ms/anof_26102023_yam76s_100ms/26102023_yam76s_100ms_4_Pos1_1",
+        "imageClass": "uint16",
+        "imageSize": [
+          59,
+          59,
+          6,
+          1003
+        ],
+        "roiPixelsMatchOriginal": true,
+        "rawPixelsMatchOriginal": true
+      },
+      {
+        "fov": 2,
+        "roi": "26102023_yam76s_100ms_4_Pos2_2_1",
+        "path": "/homes2/maliavko/DetecdivHub/projects/anof_26102023_yam76s_100ms/anof_26102023_yam76s_100ms/26102023_yam76s_100ms_4_Pos2_2",
+        "imageClass": "uint16",
+        "imageSize": [
+          59,
+          59,
+          6,
+          1003
+        ],
+        "roiPixelsMatchOriginal": true,
+        "rawPixelsMatchOriginal": true
+      },
+      {
+        "fov": 3,
+        "roi": "26102023_yam76s_100ms_4_Pos3_3_1",
+        "path": "/homes2/maliavko/DetecdivHub/projects/anof_26102023_yam76s_100ms/anof_26102023_yam76s_100ms/26102023_yam76s_100ms_4_Pos3_3",
+        "imageClass": "uint16",
+        "imageSize": [
+          59,
+          59,
+          6,
+          1003
+        ],
+        "roiPixelsMatchOriginal": true,
+        "rawPixelsMatchOriginal": true
+      },
+      {
+        "fov": 4,
+        "roi": "26102023_yam76s_100ms_4_Pos4_4_1",
+        "path": "/homes2/maliavko/DetecdivHub/projects/anof_26102023_yam76s_100ms/anof_26102023_yam76s_100ms/26102023_yam76s_100ms_4_Pos4_4",
+        "imageClass": "uint16",
+        "imageSize": [
+          59,
+          59,
+          6,
+          1003
+        ],
+        "roiPixelsMatchOriginal": true,
+        "rawPixelsMatchOriginal": true
+      },
+      {
+        "fov": 5,
+        "roi": "26102023_yam76s_100ms_4_Pos5_5_1",
+        "path": "/homes2/maliavko/DetecdivHub/projects/anof_26102023_yam76s_100ms/anof_26102023_yam76s_100ms/26102023_yam76s_100ms_4_Pos5_5",
+        "imageClass": "uint16",
+        "imageSize": [
+          59,
+          59,
+          6,
+          1003
+        ],
+        "roiPixelsMatchOriginal": true,
+        "rawPixelsMatchOriginal": true
+      },
+      {
+        "fov": 6,
+        "roi": "26102023_yam76s_100ms_4_Pos6_6_1",
+        "path": "/homes2/maliavko/DetecdivHub/projects/anof_26102023_yam76s_100ms/anof_26102023_yam76s_100ms/26102023_yam76s_100ms_4_Pos6_6",
+        "imageClass": "uint16",
+        "imageSize": [
+          59,
+          59,
+          6,
+          1003
+        ],
+        "roiPixelsMatchOriginal": true,
+        "rawPixelsMatchOriginal": true
+      },
+      {
+        "fov": 7,
+        "roi": "26102023_yam76s_100ms_4_Pos7_7_1",
+        "path": "/homes2/maliavko/DetecdivHub/projects/anof_26102023_yam76s_100ms/anof_26102023_yam76s_100ms/26102023_yam76s_100ms_4_Pos7_7",
+        "imageClass": "uint16",
+        "imageSize": [
+          59,
+          59,
+          6,
+          1003
+        ],
+        "roiPixelsMatchOriginal": true,
+        "rawPixelsMatchOriginal": true
+      },
+      {
+        "fov": 8,
+        "roi": "26102023_yam76s_100ms_4_Pos8_8_1",
+        "path": "/homes2/maliavko/DetecdivHub/projects/anof_26102023_yam76s_100ms/anof_26102023_yam76s_100ms/26102023_yam76s_100ms_4_Pos8_8",
+        "imageClass": "uint16",
+        "imageSize": [
+          59,
+          59,
+          6,
+          1003
+        ],
+        "roiPixelsMatchOriginal": true,
+        "rawPixelsMatchOriginal": true
+      },
+      {
+        "fov": 9,
+        "roi": "26102023_yam76s_100ms_4_Pos29_13_1",
+        "path": "/homes2/maliavko/DetecdivHub/projects/anof_26102023_yam76s_100ms/anof_26102023_yam76s_100ms/26102023_yam76s_100ms_4_Pos29_13",
+        "imageClass": "uint16",
+        "imageSize": [
+          59,
+          59,
+          6,
+          1003
+        ],
+        "roiPixelsMatchOriginal": true,
+        "rawPixelsMatchOriginal": true
+      },
+      {
+        "fov": 10,
+        "roi": "26102023_yam76s_100ms_4_Pos30_14_1",
+        "path": "/homes2/maliavko/DetecdivHub/projects/anof_26102023_yam76s_100ms/anof_26102023_yam76s_100ms/26102023_yam76s_100ms_4_Pos30_14",
+        "imageClass": "uint16",
+        "imageSize": [
+          59,
+          59,
+          6,
+          1003
+        ],
+        "roiPixelsMatchOriginal": true,
+        "rawPixelsMatchOriginal": true
+      },
+      {
+        "fov": 11,
+        "roi": "26102023_yam76s_100ms_4_Pos31_15_1",
+        "path": "/homes2/maliavko/DetecdivHub/projects/anof_26102023_yam76s_100ms/anof_26102023_yam76s_100ms/26102023_yam76s_100ms_4_Pos31_15",
+        "imageClass": "uint16",
+        "imageSize": [
+          59,
+          59,
+          6,
+          1003
+        ],
+        "roiPixelsMatchOriginal": true,
+        "rawPixelsMatchOriginal": true
+      },
+      {
+        "fov": 12,
+        "roi": "26102023_yam76s_100ms_4_Pos32_16_1",
+        "path": "/homes2/maliavko/DetecdivHub/projects/anof_26102023_yam76s_100ms/anof_26102023_yam76s_100ms/26102023_yam76s_100ms_4_Pos32_16",
+        "imageClass": "uint16",
+        "imageSize": [
+          59,
+          59,
+          6,
+          1003
+        ],
+        "roiPixelsMatchOriginal": true,
+        "rawPixelsMatchOriginal": true
+      }
+    ],
+    "engine_release": "/home/charvin-admin/repos/DetecDiv-jobs/releases/d83c4dbc0638bc0d3f6012b4f1df5744e0c017c7"
+  },
+  "mat_bytes": 360161475,
+  "directory_bytes": 152501823975,
+  "mat_sha256": "60fe1a608a40b7e559145cc799e71f33ed5e33e80473606b1f172a2d99774faa",
+  "source_mat_sha256_unchanged": true
+}

@@ -1,0 +1,17 @@
+{
+  "retirement_phase": "verified_source_retirement_complete",
+  "homes2_final_inventory": {
+    "success": true,
+    "started_at": "2026-11-01T19:49:51.308642+00:00",
+    "finished_at": "2026-11-01T19:52:58.522748+00:00",
+    "files": 425112,
+    "bytes": 3583194799325,
+    "sha256": "18dde21570220f03f0e62bc113201737b37d0cf8490beea6634f1e5968b35d76",
+    "exact_metadata_matches_pre_retirement": true
+  },
+  "primary_space_at_final_check": {
+    "total_bytes": 94009274970112,
+    "used_bytes": 89087472136192,
+    "free_bytes": 4921802833920
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "success": true,
+  "committed_at": "2026-11-01T19:45:01.674486+00:00",
+  "batch_id": "268a32d9-0a87-4d26-b4a1-02e41838d1d2",
+  "project_id": "aee22015-d2a7-4c78-a715-bf957c722c72",
+  "project_key": "anof_26102023_yam76s_100ms_da024e6529",
+  "new_location_id": 4257,
+  "original_location_id": 2765,
+  "preferred_mat_path": "/homes2/maliavko/DetecdivHub/projects/anof_26102023_yam76s_100ms/anof_26102023_yam76s_100ms.mat",
+  "original_project_preserved": true,
+  "protected_identity_and_relationships": {
+    "owner_user_id": "420588b7-758a-4579-bf96-c6684d4c52dd",
+    "project_key": "anof_26102023_yam76s_100ms_da024e6529",
+    "visibility": "private",
+    "notes": "Catalogage 2023 en lecture seule. Liens raw et inventaire du dossier \u00e0 v\u00e9rifier avant utilisation ou migration.",
+    "acl": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+    "groups": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+    "notes_entries": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+    "raw_links": "ec2ac663285d7967260afdd3dbdbd59dd3d20d56d5655adee7b006109e9203b5"
+  },
+  "mat_bytes": 360161475,
+  "directory_bytes": 152501823975,
+  "total_bytes": 152861985450,
+  "guards": {
+    "active_affected_jobs": 0,
+    "active_affected_locks": 0,
+    "active_indexing_jobs": 0,
+    "project_ids": [
+      "aee22015-d2a7-4c78-a715-bf957c722c72"
+    ]
+  }
+}

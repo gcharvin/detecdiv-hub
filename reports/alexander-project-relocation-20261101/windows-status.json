@@ -1,0 +1,267 @@
+{
+  "task": {
+    "state": "Ready",
+    "result": 0
+  },
+  "project-session-verification.json": {
+    "started_at": "2026-11-01T19:42:26.619742+00:00",
+    "success": true,
+    "project_saved": false,
+    "windows_identity": "gmgm\\charvin-admin",
+    "session_id": 1,
+    "matlab_exit_code": 0,
+    "verification": {
+      "success": true,
+      "project_saved": false,
+      "fovs": 12,
+      "rois": 5724,
+      "roi_sidecar_files_present": 11448,
+      "project": "\\\\srv-data-pb-lan1.u-strasbg.fr\\home\\DetecdivHub\\projects\\anof_26102023_yam76s_100ms\\anof_26102023_yam76s_100ms.mat",
+      "engine_release": "C:/Users/Charvin-Admin/Documents/GitHub/DetecDiv-jobs/releases/d83c4dbc0638bc0d3f6012b4f1df5744e0c017c7",
+      "samples": [
+        {
+          "fov": 1,
+          "roi": "26102023_yam76s_100ms_4_Pos1_1_1",
+          "path": "\\\\srv-data-pb-lan1.u-strasbg.fr\\home\\DetecdivHub\\projects\\anof_26102023_yam76s_100ms\\anof_26102023_yam76s_100ms\\26102023_yam76s_100ms_4_Pos1_1",
+          "imageClass": "uint16",
+          "imageSize": [
+            59,
+            59,
+            6,
+            1003
+          ],
+          "rawClass": "uint16",
+          "rawSize": [
+            2048,
+            2048
+          ],
+          "rawPath": "\\\\srv-data-pb-lan1.u-strasbg.fr\\home\\DetecdivHub\\raw\\2023_2\\26102023_yam76s_100ms\\26102023_yam76s_100ms_4\\Pos1\\img_channel000_position001_time000000000_z000.tif",
+          "legacyLoadPreservesMappedPath": true,
+          "roiAndRawReadable": true
+        },
+        {
+          "fov": 2,
+          "roi": "26102023_yam76s_100ms_4_Pos2_2_1",
+          "path": "\\\\srv-data-pb-lan1.u-strasbg.fr\\home\\DetecdivHub\\projects\\anof_26102023_yam76s_100ms\\anof_26102023_yam76s_100ms\\26102023_yam76s_100ms_4_Pos2_2",
+          "imageClass": "uint16",
+          "imageSize": [
+            59,
+            59,
+            6,
+            1003
+          ],
+          "rawClass": "uint16",
+          "rawSize": [
+            2048,
+            2048
+          ],
+          "rawPath": "\\\\srv-data-pb-lan1.u-strasbg.fr\\home\\DetecdivHub\\raw\\2023_2\\26102023_yam76s_100ms\\26102023_yam76s_100ms_4\\Pos2\\img_channel000_position002_time000000000_z000.tif",
+          "legacyLoadPreservesMappedPath": true,
+          "roiAndRawReadable": true
+        },
+        {
+          "fov": 3,
+          "roi": "26102023_yam76s_100ms_4_Pos3_3_1",
+          "path": "\\\\srv-data-pb-lan1.u-strasbg.fr\\home\\DetecdivHub\\projects\\anof_26102023_yam76s_100ms\\anof_26102023_yam76s_100ms\\26102023_yam76s_100ms_4_Pos3_3",
+          "imageClass": "uint16",
+          "imageSize": [
+            59,
+            59,
+            6,
+            1003
+          ],
+          "rawClass": "uint16",
+          "rawSize": [
+            2048,
+            2048
+          ],
+          "rawPath": "\\\\srv-data-pb-lan1.u-strasbg.fr\\home\\DetecdivHub\\raw\\2023_2\\26102023_yam76s_100ms\\26102023_yam76s_100ms_4\\Pos3\\img_channel000_position003_time000000000_z000.tif",
+          "legacyLoadPreservesMappedPath": true,
+          "roiAndRawReadable": true
+        },
+        {
+          "fov": 4,
+          "roi": "26102023_yam76s_100ms_4_Pos4_4_1",
+          "path": "\\\\srv-data-pb-lan1.u-strasbg.fr\\home\\DetecdivHub\\projects\\anof_26102023_yam76s_100ms\\anof_26102023_yam76s_100ms\\26102023_yam76s_100ms_4_Pos4_4",
+          "imageClass": "uint16",
+          "imageSize": [
+            59,
+            59,
+            6,
+            1003
+          ],
+          "rawClass": "uint16",
+          "rawSize": [
+            2048,
+            2048
+          ],
+          "rawPath": "\\\\srv-data-pb-lan1.u-strasbg.fr\\home\\DetecdivHub\\raw\\2023_2\\26102023_yam76s_100ms\\26102023_yam76s_100ms_4\\Pos4\\img_channel000_position004_time000000000_z000.tif",
+          "legacyLoadPreservesMappedPath": true,
+          "roiAndRawReadable": true
+        },
+        {
+          "fov": 5,
+          "roi": "26102023_yam76s_100ms_4_Pos5_5_1",
+          "path": "\\\\srv-data-pb-lan1.u-strasbg.fr\\home\\DetecdivHub\\projects\\anof_26102023_yam76s_100ms\\anof_26102023_yam76s_100ms\\26102023_yam76s_100ms_4_Pos5_5",
+          "imageClass": "uint16",
+          "imageSize": [
+            59,
+            59,
+            6,
+            1003
+          ],
+          "rawClass": "uint16",
+          "rawSize": [
+            2048,
+            2048
+          ],
+          "rawPath": "\\\\srv-data-pb-lan1.u-strasbg.fr\\home\\DetecdivHub\\raw\\2023_2\\26102023_yam76s_100ms\\26102023_yam76s_100ms_4\\Pos5\\img_channel000_position005_time000000000_z000.tif",
+          "legacyLoadPreservesMappedPath": true,
+          "roiAndRawReadable": true
+        },
+        {
+          "fov": 6,
+          "roi": "26102023_yam76s_100ms_4_Pos6_6_1",
+          "path": "\\\\srv-data-pb-lan1.u-strasbg.fr\\home\\DetecdivHub\\projects\\anof_26102023_yam76s_100ms\\anof_26102023_yam76s_100ms\\26102023_yam76s_100ms_4_Pos6_6",
+          "imageClass": "uint16",
+          "imageSize": [
+            59,
+            59,
+            6,
+            1003
+          ],
+          "rawClass": "uint16",
+          "rawSize": [
+            2048,
+            2048
+          ],
+          "rawPath": "\\\\srv-data-pb-lan1.u-strasbg.fr\\home\\DetecdivHub\\raw\\2023_2\\26102023_yam76s_100ms\\26102023_yam76s_100ms_4\\Pos6\\img_channel000_position006_time000000000_z000.tif",
+          "legacyLoadPreservesMappedPath": true,
+          "roiAndRawReadable": true
+        },
+        {
+          "fov": 7,
+          "roi": "26102023_yam76s_100ms_4_Pos7_7_1",
+          "path": "\\\\srv-data-pb-lan1.u-strasbg.fr\\home\\DetecdivHub\\projects\\anof_26102023_yam76s_100ms\\anof_26102023_yam76s_100ms\\26102023_yam76s_100ms_4_Pos7_7",
+          "imageClass": "uint16",
+          "imageSize": [
+            59,
+            59,
+            6,
+            1003
+          ],
+          "rawClass": "uint16",
+          "rawSize": [
+            2048,
+            2048
+          ],
+          "rawPath": "\\\\srv-data-pb-lan1.u-strasbg.fr\\home\\DetecdivHub\\raw\\2023_2\\26102023_yam76s_100ms\\26102023_yam76s_100ms_4\\Pos7\\img_channel000_position007_time000000000_z000.tif",
+          "legacyLoadPreservesMappedPath": true,
+          "roiAndRawReadable": true
+        },
+        {
+          "fov": 8,
+          "roi": "26102023_yam76s_100ms_4_Pos8_8_1",
+          "path": "\\\\srv-data-pb-lan1.u-strasbg.fr\\home\\DetecdivHub\\projects\\anof_26102023_yam76s_100ms\\anof_26102023_yam76s_100ms\\26102023_yam76s_100ms_4_Pos8_8",
+          "imageClass": "uint16",
+          "imageSize": [
+            59,
+            59,
+            6,
+            1003
+          ],
+          "rawClass": "uint16",
+          "rawSize": [
+            2048,
+            2048
+          ],
+          "rawPath": "\\\\srv-data-pb-lan1.u-strasbg.fr\\home\\DetecdivHub\\raw\\2023_2\\26102023_yam76s_100ms\\26102023_yam76s_100ms_4\\Pos8\\img_channel000_position008_time000000000_z000.tif",
+          "legacyLoadPreservesMappedPath": true,
+          "roiAndRawReadable": true
+        },
+        {
+          "fov": 9,
+          "roi": "26102023_yam76s_100ms_4_Pos29_13_1",
+          "path": "\\\\srv-data-pb-lan1.u-strasbg.fr\\home\\DetecdivHub\\projects\\anof_26102023_yam76s_100ms\\anof_26102023_yam76s_100ms\\26102023_yam76s_100ms_4_Pos29_13",
+          "imageClass": "uint16",
+          "imageSize": [
+            59,
+            59,
+            6,
+            1003
+          ],
+          "rawClass": "uint16",
+          "rawSize": [
+            2048,
+            2048
+          ],
+          "rawPath": "\\\\srv-data-pb-lan1.u-strasbg.fr\\home\\DetecdivHub\\raw\\2023_2\\26102023_yam76s_100ms\\26102023_yam76s_100ms_4\\Pos29\\img_channel000_position029_time000000000_z000.tif",
+          "legacyLoadPreservesMappedPath": true,
+          "roiAndRawReadable": true
+        },
+        {
+          "fov": 10,
+          "roi": "26102023_yam76s_100ms_4_Pos30_14_1",
+          "path": "\\\\srv-data-pb-lan1.u-strasbg.fr\\home\\DetecdivHub\\projects\\anof_26102023_yam76s_100ms\\anof_26102023_yam76s_100ms\\26102023_yam76s_100ms_4_Pos30_14",
+          "imageClass": "uint16",
+          "imageSize": [
+            59,
+            59,
+            6,
+            1003
+          ],
+          "rawClass": "uint16",
+          "rawSize": [
+            2048,
+            2048
+          ],
+          "rawPath": "\\\\srv-data-pb-lan1.u-strasbg.fr\\home\\DetecdivHub\\raw\\2023_2\\26102023_yam76s_100ms\\26102023_yam76s_100ms_4\\Pos30\\img_channel000_position030_time000000000_z000.tif",
+          "legacyLoadPreservesMappedPath": true,
+          "roiAndRawReadable": true
+        },
+        {
+          "fov": 11,
+          "roi": "26102023_yam76s_100ms_4_Pos31_15_1",
+          "path": "\\\\srv-data-pb-lan1.u-strasbg.fr\\home\\DetecdivHub\\projects\\anof_26102023_yam76s_100ms\\anof_26102023_yam76s_100ms\\26102023_yam76s_100ms_4_Pos31_15",
+          "imageClass": "uint16",
+          "imageSize": [
+            59,
+            59,
+            6,
+            1003
+          ],
+          "rawClass": "uint16",
+          "rawSize": [
+            2048,
+            2048
+          ],
+          "rawPath": "\\\\srv-data-pb-lan1.u-strasbg.fr\\home\\DetecdivHub\\raw\\2023_2\\26102023_yam76s_100ms\\26102023_yam76s_100ms_4\\Pos31\\img_channel000_position031_time000000000_z000.tif",
+          "legacyLoadPreservesMappedPath": true,
+          "roiAndRawReadable": true
+        },
+        {
+          "fov": 12,
+          "roi": "26102023_yam76s_100ms_4_Pos32_16_1",
+          "path": "\\\\srv-data-pb-lan1.u-strasbg.fr\\home\\DetecdivHub\\projects\\anof_26102023_yam76s_100ms\\anof_26102023_yam76s_100ms\\26102023_yam76s_100ms_4_Pos32_16",
+          "imageClass": "uint16",
+          "imageSize": [
+            59,
+            59,
+            6,
+            1003
+          ],
+          "rawClass": "uint16",
+          "rawSize": [
+            2048,
+            2048
+          ],
+          "rawPath": "\\\\srv-data-pb-lan1.u-strasbg.fr\\home\\DetecdivHub\\raw\\2023_2\\26102023_yam76s_100ms\\26102023_yam76s_100ms_4\\Pos32\\img_channel000_position032_time000000000_z000.tif",
+          "legacyLoadPreservesMappedPath": true,
+          "roiAndRawReadable": true
+        }
+      ]
+    },
+    "finished_at": "2026-11-01T19:44:25.957282+00:00"
+  },
+  "project-verification-matlab.log": ""
+}

@@ -1,0 +1,8 @@
+{
+  "success": true,
+  "receipt_sha256": "8cb805594d12985c62946aab36db1a2b83877f42c732e04a85d0ba25ffb3ec6b",
+  "files": 425112,
+  "bytes": 3583194799325,
+  "exact_manifest_paths_verified": true,
+  "remaining_source_payload_files": 0
+}

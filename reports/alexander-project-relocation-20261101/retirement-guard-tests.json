@@ -1,0 +1,23 @@
+{
+  "success": true,
+  "fixtures_only": true,
+  "production_data_touched": false,
+  "checks": [
+    {
+      "case": "unexpected_file",
+      "passed": true
+    },
+    {
+      "case": "changed_file",
+      "passed": true
+    },
+    {
+      "case": "symlink_directory",
+      "passed": true
+    },
+    {
+      "case": "valid_manifest",
+      "passed": true
+    }
+  ]
+}

@@ -1,0 +1,37 @@
+{
+  "files": 11450,
+  "directories": 13,
+  "bytes": 152861817319,
+  "extensions": {
+    ".mat": {
+      "files": 11449,
+      "bytes": 152861811171
+    },
+    "": {
+      "files": 1,
+      "bytes": 6148
+    }
+  },
+  "inventory_sha256": "a37346bebaf222699459b6fe23fe3363cbea0e1ceca695414adb001c8bb618df",
+  "sample_files": [
+    "anof_26102023_yam76s_100ms.mat",
+    "anof_26102023_yam76s_100ms/.DS_Store",
+    "anof_26102023_yam76s_100ms/26102023_yam76s_100ms_4_Pos1_1/im_26102023_yam76s_100ms_4_Pos1_1_1.mat",
+    "anof_26102023_yam76s_100ms/26102023_yam76s_100ms_4_Pos1_1/im_26102023_yam76s_100ms_4_Pos1_1_10.mat",
+    "anof_26102023_yam76s_100ms/26102023_yam76s_100ms_4_Pos1_1/im_26102023_yam76s_100ms_4_Pos1_1_100.mat",
+    "anof_26102023_yam76s_100ms/26102023_yam76s_100ms_4_Pos1_1/im_26102023_yam76s_100ms_4_Pos1_1_101.mat",
+    "anof_26102023_yam76s_100ms/26102023_yam76s_100ms_4_Pos1_1/im_26102023_yam76s_100ms_4_Pos1_1_102.mat",
+    "anof_26102023_yam76s_100ms/26102023_yam76s_100ms_4_Pos1_1/im_26102023_yam76s_100ms_4_Pos1_1_103.mat",
+    "anof_26102023_yam76s_100ms/26102023_yam76s_100ms_4_Pos1_1/im_26102023_yam76s_100ms_4_Pos1_1_104.mat",
+    "anof_26102023_yam76s_100ms/26102023_yam76s_100ms_4_Pos1_1/im_26102023_yam76s_100ms_4_Pos1_1_105.mat",
+    "anof_26102023_yam76s_100ms/26102023_yam76s_100ms_4_Pos1_1/im_26102023_yam76s_100ms_4_Pos1_1_106.mat",
+    "anof_26102023_yam76s_100ms/26102023_yam76s_100ms_4_Pos1_1/im_26102023_yam76s_100ms_4_Pos1_1_107.mat",
+    "anof_26102023_yam76s_100ms/26102023_yam76s_100ms_4_Pos1_1/im_26102023_yam76s_100ms_4_Pos1_1_108.mat",
+    "anof_26102023_yam76s_100ms/26102023_yam76s_100ms_4_Pos1_1/im_26102023_yam76s_100ms_4_Pos1_1_109.mat",
+    "anof_26102023_yam76s_100ms/26102023_yam76s_100ms_4_Pos1_1/im_26102023_yam76s_100ms_4_Pos1_1_11.mat"
+  ],
+  "secondary_space": {
+    "f_bavail": 39459718728,
+    "f_frsize": 1024
+  }
+}

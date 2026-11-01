@@ -1,0 +1,20 @@
+{
+  "published_at": "2026-11-01T19:17:55.808070+00:00",
+  "final": "/homes2/maliavko/DetecdivHub/projects/anof_26102023_yam76s_100ms",
+  "source_preserved": true,
+  "backup": {
+    "unchanged_mat_backup": "/volume1/homes/maliavko/DetecdivHub/.migration-backups/alexander-project-20261101/anof_26102023_yam76s_100ms.mat",
+    "sha256": "ef4bdb4155e4866ecef3d8fbf1c2466a644c85d7063d943488dab625613bdc96",
+    "owner": "maliavko"
+  },
+  "copied_payload_bytes": 152861817319,
+  "copy_verification": {
+    "files": 11450,
+    "bytes": 152861817319,
+    "algorithms": [
+      "SHA256",
+      "SHA1"
+    ],
+    "receipt_sha256": "00996de9b88d97d6678b21d0cff763787c2c317f5a872e15e690186bcb3055c6"
+  }
+}

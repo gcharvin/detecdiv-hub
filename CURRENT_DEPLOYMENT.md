@@ -1,8 +1,65 @@
 # Current Deployment
 
+## Alexander project on homes2 and 2023_2 space reclaimed, 2026-11-01
+
+The linked project `anof_26102023_yam76s_100ms` now prefers the independently
+verified copy at
+`/homes2/maliavko/DetecdivHub/projects/anof_26102023_yam76s_100ms/anof_26102023_yam76s_100ms.mat`.
+Its original Sauvegarde MAT and all original project files remain intact;
+original readonly catalog location `2765` is retained, new preferred location
+`4257`. Project ID/key, Alexander ownership, privacy, notes, ACLs, groups and
+the exact raw link are preserved. The copied project has 12 FOVs and 5,724 ROIs.
+All 11,450 copied files passed full content comparison before relinking;
+47,965 saved path values were rebased. Scientific values and annotations passed
+canonical before/after save/reopen comparisons. All 5,724 results sidecars were
+audited; none required rewriting. Legacy image MATs remain byte-identical.
+
+MATLAB validation passed on Linux R2024b and in the actual limited Windows
+worker session using R2025b, both with pinned engine release
+`d83c4dbc0638bc0d3f6012b4f1df5744e0c017c7`. Every ROI image/results path was
+checked, with representative ROI/raw reads in every FOV and Linux pixel
+comparisons against the originals. Windows path translation was in memory;
+the shared MAT retains canonical server paths. Project cutover batch:
+`268a32d9-0a87-4d26-b4a1-02e41838d1d2` (19:45 UTC).
+
+After those validations, the user explicitly authorized retiring the verified
+2023_2 duplicates from `/data`. Native manifest-driven unlink removed exactly
+425,112 regular files (3,583,194,799,325 logical bytes), with another type/size/
+mtime check before every unlink. No source payload file remains. NAS `@eaDir`
+metadata and their nonempty ancestors were retained, along with the year root.
+Measured primary-NAS free space increased by **3,577,917,788,160 bytes**, from
+1,343,885,045,760 to **4,921,802,833,920 bytes**. The 21 dead source-location
+rows were subsequently retired; raw identities, preferred homes2 locations,
+337 positions, links and all 2,554 unrelated locations were preserved. The
+temporary project lease was released. Retirement batch:
+`459a5303-c15e-458d-bd48-ac10be19f037`, finalized 19:51 UTC.
+
+The API container still mounts `/data`, not homes2. Its 335 preview MP4s and
+19 display-setting JSON files remain available through a verified 5,874,728,850
+byte cache at `/data/.detecdiv-hub-api-cache/alexander-2023_2`. All artifact/raw
+IDs were preserved and all 354 content handlers checked after retirement.
+Cache audit batch: `c2eaf913-4f9f-42ee-9c0f-b5df6d2beb18`. Future preview
+generation directly on homes2 still needs an API-visible serving solution.
+
+No API/service/worker restart or engine-default change occurred in this phase.
+Windows remains PID `3720` / `b35b0444d5f0`; all six Linux pollers retain their
+previous PIDs and `a2649a68b316`. Temporary Windows diagnostics were removed.
+2023_1 (including its staged pilot) and 2023_3 were not retired. Hub automatic
+backups remain disabled; secondary provider/account activation was not changed.
+The retained original Sauvegarde MAT has historical primary raw paths; use the
+relinked homes2 copy. Restoring retired primary raw paths requires a copy back
+from homes2, rather than merely restoring preferred flags.
+
+Evidence: `reports/alexander-project-relocation-20261101/`. Full private
+manifests and receipts:
+`/home/charvin-admin/storage-transfers/alexander-project-relocation-20261101`.
+Earlier sections below describe historical gates, not the current retention
+state of the retired 2023_2 primary copies.
+
 ## Alexander 2023_2 raw catalog cutover, 2026-11-01
 
-At 18:35 UTC, the same 21 Alexander raw records were transactionally switched
+Historical raw-only phase at 18:35 UTC: the same 21 Alexander raw records were
+transactionally switched
 to preferred read locations under `/homes2/maliavko/DetecdivHub/raw/2023_2`.
 The verified copy was first published from its incoming directory by an atomic,
 no-replace rename on the secondary NAS. All original primary-NAS locations and

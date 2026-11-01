@@ -1,0 +1,92 @@
+{
+  "project": {
+    "id": "aee22015-d2a7-4c78-a715-bf957c722c72",
+    "name": "anof_26102023_yam76s_100ms",
+    "owner": "alexander",
+    "updated": "2026-10-01 08:52:36.176003+00:00",
+    "metadata": {
+      "source": "ops_readonly_manifest_registration",
+      "project_dir_abs": "/mnt/detecdiv-secondary-sauvegarde/Alexander/analysis/anof_26102023_yam76s_100ms",
+      "project_mat_abs": "/mnt/detecdiv-secondary-sauvegarde/Alexander/analysis/anof_26102023_yam76s_100ms.mat",
+      "migration_preflight": {
+        "batch": "alexander-2023-20261001",
+        "operator": "gilles",
+        "transport": "authenticated_admin_ssh",
+        "registered_at": "2026-10-01T08:48:34.868734+00:00",
+        "lineage_report": "alexander-2023-raw-reconciliation-20261001.json",
+        "lineage_status": "exact_server_link_recorded",
+        "saved_raw_paths": [
+          "/data/Alexander/data/2023_2/26102023_yam76s_100ms/26102023_yam76s_100ms_4/Pos1",
+          "/data/Alexander/data/2023_2/26102023_yam76s_100ms/26102023_yam76s_100ms_4/Pos2",
+          "/data/Alexander/data/2023_2/26102023_yam76s_100ms/26102023_yam76s_100ms_4/Pos3",
+          "/data/Alexander/data/2023_2/26102023_yam76s_100ms/26102023_yam76s_100ms_4/Pos4",
+          "/data/Alexander/data/2023_2/26102023_yam76s_100ms/26102023_yam76s_100ms_4/Pos5",
+          "/data/Alexander/data/2023_2/26102023_yam76s_100ms/26102023_yam76s_100ms_4/Pos6",
+          "/data/Alexander/data/2023_2/26102023_yam76s_100ms/26102023_yam76s_100ms_4/Pos7",
+          "/data/Alexander/data/2023_2/26102023_yam76s_100ms/26102023_yam76s_100ms_4/Pos8",
+          "/data/Alexander/data/2023_2/26102023_yam76s_100ms/26102023_yam76s_100ms_4/Pos29",
+          "/data/Alexander/data/2023_2/26102023_yam76s_100ms/26102023_yam76s_100ms_4/Pos30",
+          "/data/Alexander/data/2023_2/26102023_yam76s_100ms/26102023_yam76s_100ms_4/Pos31",
+          "/data/Alexander/data/2023_2/26102023_yam76s_100ms/26102023_yam76s_100ms_4/Pos32"
+        ],
+        "inventory_status": "mat_only_directory_size_pending",
+        "migration_status": "not_copied",
+        "source_preserved": true,
+        "worker_jobs_queued": false,
+        "mat_header_verified": true,
+        "mat_loaded_readonly": true,
+        "exact_server_raw_ids": [
+          "d43dff09-d53f-4d27-9264-7eef08ebb444"
+        ],
+        "lineage_inspected_at": "2026-10-01T08:52:34.215649+00:00",
+        "paired_directory_verified": true
+      },
+      "project_rel_from_root": "anof_26102023_yam76s_100ms",
+      "registered_without_scan": true,
+      "direct_registration_request": {
+        "manifest": "alexander-2023-project-pilot-20261001.json",
+        "source_mtime_ns": 1749541296813787600,
+        "source_file_bytes": 359993344
+      },
+      "last_direct_registration_at": "2026-10-01T08:48:34.864334+00:00"
+    },
+    "locations": [
+      {
+        "id": 2765,
+        "root": "alexander-sauvegarde-analysis",
+        "prefix": "/mnt/detecdiv-secondary-sauvegarde/Alexander/analysis",
+        "relative": "",
+        "file": "anof_26102023_yam76s_100ms.mat",
+        "preferred": true,
+        "access_mode": "readonly"
+      }
+    ],
+    "raw_links": [
+      "d43dff09-d53f-4d27-9264-7eef08ebb444"
+    ]
+  },
+  "jobs": [],
+  "locks": [
+    {
+      "id": "03f41187-9486-41a3-839c-9d0ab25119c7",
+      "project_id": "84ee1aa0-64b7-4a6d-ac1d-556caf4816a8",
+      "expires": "2026-11-01 18:46:26.660622+00:00"
+    },
+    {
+      "id": "f44cc265-2af2-42c1-8f3d-937b2c154acc",
+      "project_id": "ccf6e72f-6ffe-4884-89a8-fde8b708f480",
+      "expires": "2026-11-01 18:46:26.995265+00:00"
+    },
+    {
+      "id": "6fa88a39-a4a7-4b4c-910d-09dee4ce75e1",
+      "project_id": "c34f4e90-b79f-43b5-b543-319ef8fa76c1",
+      "expires": "2026-11-01 18:46:02.518052+00:00"
+    },
+    {
+      "id": "fd47517b-db99-4905-8f94-d9866c10f637",
+      "project_id": "1bb229be-79c8-4c1c-a3a2-34f0c6848bb1",
+      "expires": "2026-11-01 18:46:21.867303+00:00"
+    }
+  ],
+  "engine": "d83c4dbc0638bc0d3f6012b4f1df5744e0c017c7"
+}

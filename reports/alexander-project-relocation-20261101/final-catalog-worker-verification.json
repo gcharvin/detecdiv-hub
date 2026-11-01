@@ -1,0 +1,69 @@
+{
+  "success": true,
+  "checked_at": "2026-11-01T19:53:16.543467+00:00",
+  "project_id": "aee22015-d2a7-4c78-a715-bf957c722c72",
+  "project_key": "anof_26102023_yam76s_100ms_da024e6529",
+  "project_identity_notes_acl_groups_and_links_preserved": true,
+  "original_project_location_preserved": 2765,
+  "preferred_project_location": 4257,
+  "raws": 21,
+  "positions": 337,
+  "unrelated_locations_preserved": {
+    "count": 2554,
+    "sha256": "7146a982f2511a4d4866f8f4b148e330921f79b2256fd466ceab58374775b4a5"
+  },
+  "project_lease_released": true,
+  "guards": {
+    "active_affected_jobs": 0,
+    "active_affected_locks": 0,
+    "active_indexing_jobs": 0,
+    "project_ids": [
+      "aee22015-d2a7-4c78-a715-bf957c722c72"
+    ]
+  },
+  "workers_unchanged": [
+    {
+      "instance": "windows-10-20-11-56-main",
+      "pid": 3720,
+      "fingerprint": "b35b0444d5f0",
+      "heartbeat_age_seconds": 0.42768
+    },
+    {
+      "instance": "@2",
+      "pid": 433434,
+      "fingerprint": "a2649a68b316",
+      "heartbeat_age_seconds": 4.634119
+    },
+    {
+      "instance": "@4",
+      "pid": 912963,
+      "fingerprint": "a2649a68b316",
+      "heartbeat_age_seconds": 0.29042
+    },
+    {
+      "instance": "@5",
+      "pid": 694307,
+      "fingerprint": "a2649a68b316",
+      "heartbeat_age_seconds": 0.165055
+    },
+    {
+      "instance": "@6",
+      "pid": 433435,
+      "fingerprint": "a2649a68b316",
+      "heartbeat_age_seconds": 0.196092
+    },
+    {
+      "instance": "@3",
+      "pid": 911503,
+      "fingerprint": "a2649a68b316",
+      "heartbeat_age_seconds": 0.400607
+    },
+    {
+      "instance": "@1",
+      "pid": 433433,
+      "fingerprint": "a2649a68b316",
+      "heartbeat_age_seconds": 0.369879
+    }
+  ],
+  "retirement_batch_status": "verified_source_retirement_complete"
+}

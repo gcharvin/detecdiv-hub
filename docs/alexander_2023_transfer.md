@@ -1,8 +1,52 @@
 # Alexander 2023 — approved migration, 2026-10-08
 
+## Project relocated and approved source retirement completed, 2026-11-01
+
+The active `anof_26102023_yam76s_100ms` project is now its verified, relinked
+homes2 copy. The original Sauvegarde MAT/tree is intact and retained as a
+readonly nonpreferred location. All 11,450 files were fully content-checked;
+47,965 path values in the copied MAT were rebased, preserving scientific values
+and annotations through save/reopen comparison. Linux and the actual limited
+Windows worker session validated 12 FOVs, 5,724 ROIs, every sidecar path and
+representative image reads in each FOV. Project identity and relationships
+are unchanged. Project batch: `268a32d9-0a87-4d26-b4a1-02e41838d1d2`.
+
+The user then explicitly approved removing the verified 2023_2 primary duplicates
+while retaining homes2 data and the original Sauvegarde project. Exactly
+425,112 files / 3,583,194,799,325 logical bytes were unlinked from the explicit
+manifest after fresh inventories and per-file type/size/mtime gates. Actual
+free space increased by **3,577,917,788,160 bytes (3.578 TB)**; primary-NAS
+available space was **4,921,802,833,920 bytes (4.922 TB)** at completion.
+Only excluded NAS `@eaDir` metadata and its ancestors remain in that source
+year tree. No NAS snapshot, backup, 2023_1 or 2023_3 payload was deleted.
+
+A verified 5.875-GB API projection retains 335 MP4s and 19 display-setting JSON
+files outside the retired tree at
+`/data/.detecdiv-hub-api-cache/alexander-2023_2`. The API container lacks a
+homes2 mount; this preserves existing content handlers without deployment.
+The 21 dead source locations were retired after the complete unlink receipt;
+their IDs/paths remain in batch `459a5303-c15e-458d-bd48-ac10be19f037`.
+All 337 positions, raw identities, ownership and relationships were preserved,
+along with all unrelated locations. The temporary project lease was released.
+
+No worker or API restart occurred. Existing engine defaults, staged 2023_1
+pilot, inactive/planned secondary provider/account and disabled Hub automatic
+backup setting are unchanged. No additional automatic raw backup is claimed.
+The historical Sauvegarde MAT retains its original saved raw paths; the active
+homes2 MAT is the usable relinked project. Reversing source retirement requires
+copying data back from homes2; the earlier preferred-flag rollback alone is
+no longer sufficient.
+
+Evidence and operational boundaries:
+`reports/alexander-project-relocation-20261101/README.md`. The earlier sections
+below record the retention state at each historical gate.
+
 ## 2023_2 raw locations switched, 2026-11-01
 
-The 21 existing Alexander raw records now prefer read locations under
+This section records the 18:35 UTC raw-only phase, before the separate project
+relocation and explicitly approved source retirement.
+
+The 21 existing Alexander raw records prefer read locations under
 `/homes2/maliavko/DetecdivHub/raw/2023_2`. The copied year directory was published
 from `.incoming-alexander-2023-20261008/2023_2` using an atomic no-replace rename;
 the original primary-NAS files and their catalog locations are retained.

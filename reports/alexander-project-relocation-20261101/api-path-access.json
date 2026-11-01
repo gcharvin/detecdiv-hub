@@ -1,0 +1,22 @@
+[
+  {
+    "path": "/data",
+    "exists": true,
+    "directory": true
+  },
+  {
+    "path": "/homes2",
+    "exists": false,
+    "directory": false
+  },
+  {
+    "path": "/homes2/maliavko/DetecdivHub/raw/2023_2",
+    "exists": false,
+    "directory": false
+  },
+  {
+    "path": "/homes2/maliavko/DetecdivHub/raw/2023_2/26102023_yam76s_100ms/26102023_yam76s_100ms_4/DisplaySettings.json",
+    "exists": false,
+    "directory": false
+  }
+]
