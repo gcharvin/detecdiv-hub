@@ -1,5 +1,47 @@
 # Alexander 2023 — approved migration, 2026-10-08
 
+## Final scope and standing source-retirement authorization, 2026-11-01
+
+After completion of the 2023_2 retirement, the user clarified:
+
+> il faut à terme surpprimer tout 2023 sur /data une fois que tout est transféré
+
+The final objective covers Alexander's three explicit source trees:
+`/data/Alexander/data/2023_1`, `2023_2` and `2023_3`. All their scientific
+payloads must ultimately reside on verified homes2 storage rather than retain
+primary-NAS duplicates. This supersedes any earlier copy-only/source-retention
+restriction for those trees once the validation conditions below are met.
+It is standing authorization to retire the verified duplicates; no repeated
+deletion approval is needed for the same scope and conditions. It does not
+authorize deleting untransferred/unverified files, other users' data, other
+years, original Sauvegarde projects, NAS snapshots or backups.
+
+Complete the remaining work in this order, reclaiming verified lots promptly:
+
+1. Finish and fully verify remaining 2023_1 and 2023_3 transfers. Preserve the
+   working location of the already staged 2023_1 pilot during any publication.
+2. Resolve every affected project/raw relationship. Copy and verify affected
+   projects, relink only their copies, and validate saved/reopened paths plus
+   image access on Linux and the actual Windows worker session. Keep original
+   Sauvegarde project files intact.
+3. Switch the existing catalog records and live dependent URIs to working
+   destinations, preserving identities, ownership, annotations and links.
+4. Check source stability, verified destination contents, jobs and leases;
+   retire only the corresponding verified source manifests, audit the action,
+   measure reclaimed space, and remove dead source-location references.
+5. Provide API access to homes2 preview/display-setting files, verify all
+   existing content handlers, switch their live URIs, then retire the temporary
+   5,874,728,850-byte cache at
+   `/data/.detecdiv-hub-api-cache/alexander-2023_2`. Until that serving change
+   passes, the cache must remain available.
+
+Completion means no Alexander 2023 scientific payload or required API serving
+copy remains on `/data`. The already completed 2023_2 scientific retirement
+does not by itself complete this broader objective. Retained NAS-managed
+`@eaDir` metadata/empty ancestors are accounted for separately and must not
+trigger a blind recursive cleanup. Backup/provider activation remains a
+separate configuration change; do not describe it as enabled by this approval.
+
 ## Project relocated and approved source retirement completed, 2026-11-01
 
 The active `anof_26102023_yam76s_100ms` project is now its verified, relinked

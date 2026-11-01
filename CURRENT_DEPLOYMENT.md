@@ -1,5 +1,23 @@
 # Current Deployment
 
+## Alexander 2023 final migration scope, confirmed 2026-11-01
+
+The user requires eventual retirement of all Alexander 2023 data from `/data`
+after transfer and validation on homes2. This is standing authorization for
+verified source retirement across `/data/Alexander/data/2023_{1,2,3}`; it does
+not permit deleting any untransferred or unverified file. Preserve the original
+Sauvegarde projects. Complete the remaining 2023_1 and 2023_3 transfers, relink
+and validate all affected project copies, and update catalog references before
+retiring their verified source manifests. The separate staged 2023_1 pilot
+must retain a working catalog location throughout publication.
+
+The final scope also includes retiring the temporary 2023_2 API cache from
+`/data/.detecdiv-hub-api-cache/alexander-2023_2` after the API can serve its
+verified homes2 equivalents. The existing cache is an interim dependency,
+not the final storage arrangement. Do not remove it while its URIs are live.
+The 2023_2 scientific payload has already been retired as recorded below.
+Detailed conditions and the user's instruction: `docs/alexander_2023_transfer.md`.
+
 ## Alexander project on homes2 and 2023_2 space reclaimed, 2026-11-01
 
 The linked project `anof_26102023_yam76s_100ms` now prefers the independently
