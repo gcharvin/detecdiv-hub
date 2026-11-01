@@ -15,13 +15,15 @@ import time
 
 WORK=Path(__file__).resolve().parent
 NATIVE=r'''
-import json,sys,os,stat,pwd,hashlib
+import json,sys,os,stat,hashlib
+import pwd as posix_accounts
 from pathlib import Path
 from concurrent.futures import ThreadPoolExecutor
 files=json.load(sys.stdin)
 source=Path('/volume1/Sauvegarde/Alexander/analysis')
 dest=Path('/volume1/homes/maliavko/DetecdivHub/projects/.incoming-anof_26102023_yam76s_100ms-20261101')
-uid=pwd.getpwnam('maliavko').pw_uid
+# POSIX account name -> numeric file-owner UID; no authentication data.
+uid=posix_accounts.getpwnam('maliavko').pw_uid
 def digest(path):
  h=hashlib.sha1()
  with path.open('rb') as f:

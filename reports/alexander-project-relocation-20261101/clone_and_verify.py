@@ -26,12 +26,14 @@ def save():
     temporary=WORK/'copy-state.tmp';temporary.write_text(json.dumps(state,indent=2)+'\n');temporary.replace(WORK/'copy-state.json')
 
 NATIVE=r'''
-import json,sys,os,stat,pwd,fcntl,hashlib,time
+import json,sys,os,stat,fcntl,hashlib,time
+import pwd as posix_accounts
 from pathlib import Path
 payload=json.load(sys.stdin);mode=payload['mode']
 source=Path('/volume1/Sauvegarde/Alexander/analysis')
 dest=Path(NATIVE_STAGE)
-expected_uid=pwd.getpwnam('maliavko').pw_uid
+# POSIX account name -> numeric file-owner UID; no authentication data.
+expected_uid=posix_accounts.getpwnam('maliavko').pw_uid
 def digest(path):
  h=hashlib.sha256()
  with path.open('rb') as f:
