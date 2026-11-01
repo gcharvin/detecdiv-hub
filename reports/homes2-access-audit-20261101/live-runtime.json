@@ -1,0 +1,158 @@
+{
+  "utc": "2026-11-01 18:14:18.819706+00:00",
+  "jobs": [],
+  "locks": [
+    {
+      "project": "84ee1aa0-64b7-4a6d-ac1d-556caf4816a8",
+      "job": "None",
+      "expires": "2026-11-01 18:18:00.208308+00:00",
+      "affected_2023_2": false
+    },
+    {
+      "project": "ccf6e72f-6ffe-4884-89a8-fde8b708f480",
+      "job": "None",
+      "expires": "2026-11-01 18:18:00.586305+00:00",
+      "affected_2023_2": false
+    },
+    {
+      "project": "1bb229be-79c8-4c1c-a3a2-34f0c6848bb1",
+      "job": "None",
+      "expires": "2026-11-01 18:17:56.131432+00:00",
+      "affected_2023_2": false
+    },
+    {
+      "project": "c34f4e90-b79f-43b5-b543-319ef8fa76c1",
+      "job": "None",
+      "expires": "2026-11-01 18:19:16.080871+00:00",
+      "affected_2023_2": false
+    }
+  ],
+  "workers": [
+    {
+      "target": "windows-10-20-11-56",
+      "instance": "windows-10-20-11-56-main",
+      "pid": 93632,
+      "health": "idle",
+      "current_job": "None",
+      "last_seen": "2026-11-01 18:14:16.667549+00:00",
+      "fingerprint": "b35b0444d5f0"
+    },
+    {
+      "target": "detecdiv-server",
+      "instance": "@2",
+      "pid": 433434,
+      "health": "idle",
+      "current_job": "None",
+      "last_seen": "2026-11-01 18:14:17.335137+00:00",
+      "fingerprint": "a2649a68b316"
+    },
+    {
+      "target": "detecdiv-server",
+      "instance": "@4",
+      "pid": 912963,
+      "health": "idle",
+      "current_job": "None",
+      "last_seen": "2026-11-01 18:14:17.368145+00:00",
+      "fingerprint": "a2649a68b316"
+    },
+    {
+      "target": "detecdiv-server",
+      "instance": "@5",
+      "pid": 694307,
+      "health": "idle",
+      "current_job": "None",
+      "last_seen": "2026-11-01 18:14:17.235149+00:00",
+      "fingerprint": "a2649a68b316"
+    },
+    {
+      "target": "detecdiv-server",
+      "instance": "@6",
+      "pid": 433435,
+      "health": "idle",
+      "current_job": "None",
+      "last_seen": "2026-11-01 18:14:18.384777+00:00",
+      "fingerprint": "a2649a68b316"
+    },
+    {
+      "target": "detecdiv-server",
+      "instance": "@3",
+      "pid": 911503,
+      "health": "idle",
+      "current_job": "None",
+      "last_seen": "2026-11-01 18:14:17.199188+00:00",
+      "fingerprint": "a2649a68b316"
+    },
+    {
+      "target": "detecdiv-server",
+      "instance": "@1",
+      "pid": 433433,
+      "health": "idle",
+      "current_job": "None",
+      "last_seen": "2026-11-01 18:14:17.132505+00:00",
+      "fingerprint": "a2649a68b316"
+    }
+  ],
+  "batches": [
+    {
+      "id": "061627d8-0ef1-4e00-b572-c5b7d94d82b0",
+      "name": "alexander-2023-20261008",
+      "status": "copying",
+      "updated": "2026-10-08 13:39:02.442610+00:00",
+      "summary": {
+        "raw_record_count": 121,
+        "physical_tree_count": 3
+      },
+      "items": [
+        {
+          "name": "2023_1",
+          "status": "copying",
+          "action": "copy_verify_only"
+        },
+        {
+          "name": "2023_2",
+          "status": "copying",
+          "action": "copy_verify_only"
+        },
+        {
+          "name": "2023_3",
+          "status": "copying",
+          "action": "copy_verify_only"
+        }
+      ]
+    }
+  ],
+  "providers": [
+    {
+      "key": "synology-secondary",
+      "active": false,
+      "mount": "/homes2",
+      "quota_mode": "provider_enforced"
+    },
+    {
+      "key": "synology-main",
+      "active": true,
+      "mount": "/homes",
+      "quota_mode": "provider_enforced"
+    }
+  ],
+  "accounts": [
+    {
+      "provider": "legacy-data",
+      "dsm_user": "Alexander",
+      "status": "ready",
+      "quota_status": "unknown",
+      "quota_bytes": null
+    },
+    {
+      "provider": "synology-secondary",
+      "dsm_user": "maliavko",
+      "status": "planned",
+      "quota_status": "desired",
+      "quota_bytes": 60000000000000
+    }
+  ],
+  "backup": {
+    "enabled": false,
+    "runs": 0
+  }
+}

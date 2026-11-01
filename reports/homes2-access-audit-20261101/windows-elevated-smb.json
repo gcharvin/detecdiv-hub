@@ -1,0 +1,96 @@
+{
+  "task": {
+    "state": "Ready",
+    "lastTaskResult": 0,
+    "lastRun": "2026-11-01T17:00:36.0000000Z",
+    "resultPresent": true
+  },
+  "receipt": {
+    "utc": "2026-11-01T17:00:37.2027191Z",
+    "identity": "GMGM\\Charvin-Admin",
+    "session": 1,
+    "pid": 101532,
+    "paths": [
+      {
+        "path": "\\\\10.20.8.250\\home\\DetecdivHub",
+        "readable": false,
+        "firstEntry": null,
+        "error": "Exception lors de l'appel de ®ÿEnumerateFileSystemEntriesÿ¯ avec ®ÿ1ÿ¯ argument(s)ÿ: ®ÿImpossible de trouver une partie du chemin d'accŠs '\\\\10.20.8.250\\home\\DetecdivHub'.ÿ¯"
+      },
+      {
+        "path": "\\\\10.20.8.250\\home\\DetecdivHub\\raw\\.incoming-alexander-2023-20261008\\2023_2",
+        "readable": false,
+        "firstEntry": null,
+        "error": "Exception lors de l'appel de ®ÿEnumerateFileSystemEntriesÿ¯ avec ®ÿ1ÿ¯ argument(s)ÿ: ®ÿImpossible de trouver une partie du chemin d'accŠs '\\\\10.20.8.250\\home\\DetecdivHub\\raw\\.incoming-alexander-2023-20261008\\2023_2'.ÿ¯"
+      },
+      {
+        "path": "\\\\10.20.8.250\\homes\\maliavko\\DetecdivHub",
+        "readable": true,
+        "firstEntry": "projects",
+        "error": null
+      },
+      {
+        "path": "\\\\10.20.8.250\\homes\\maliavko\\DetecdivHub\\raw\\.incoming-alexander-2023-20261008\\2023_2",
+        "readable": true,
+        "firstEntry": "010723_sf1.48_ramm",
+        "error": null
+      }
+    ],
+    "connectionsBefore": [
+      {
+        "ServerName": "10.20.8.250",
+        "ShareName": "home",
+        "UserName": "GMGM\\Charvin-Admin",
+        "Credential": "GMGM\\Charvin-Admin",
+        "NumOpens": 1
+      },
+      {
+        "ServerName": "10.20.8.250",
+        "ShareName": "homes",
+        "UserName": "GMGM\\Charvin-Admin",
+        "Credential": "GMGM\\Charvin-Admin",
+        "NumOpens": 1
+      }
+    ],
+    "connectionsAfter": [
+      {
+        "ServerName": "10.20.8.250",
+        "ShareName": "home",
+        "UserName": "GMGM\\Charvin-Admin",
+        "Credential": "GMGM\\Charvin-Admin",
+        "NumOpens": 0
+      },
+      {
+        "ServerName": "10.20.8.250",
+        "ShareName": "homes",
+        "UserName": "GMGM\\Charvin-Admin",
+        "Credential": "GMGM\\Charvin-Admin",
+        "NumOpens": 0
+      }
+    ],
+    "mappings": [],
+    "errors": [],
+    "nativeSmbUsers": [
+      {
+        "status": 2250,
+        "share": "\\\\10.20.8.250\\home",
+        "user": ""
+      },
+      {
+        "status": 2250,
+        "share": "\\\\10.20.8.250\\homes",
+        "user": ""
+      },
+      {
+        "status": 2250,
+        "share": "X:",
+        "user": ""
+      },
+      {
+        "status": 2250,
+        "share": "Y:",
+        "user": ""
+      }
+    ]
+  }
+}

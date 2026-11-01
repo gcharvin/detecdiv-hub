@@ -1,0 +1,54 @@
+{
+  "state": {
+    "batch_name": "alexander-2023-20261008",
+    "batch_id": "061627d8-0ef1-4e00-b572-c5b7d94d82b0",
+    "manifest_sha256": "beb92d742308681148dd012ce960a6cb96e135f85d1e33b0915a8290cda02488",
+    "started_at": "2026-10-08T13:39:04.170283+00:00",
+    "years": {
+      "2023_1": {
+        "phase": "verified_in_staging",
+        "source_inventory": {
+          "sha256": "09405a6f005b2d8ed4c9cd480de7f96259c40780e3ac1042732886ee09319f19",
+          "bytes": 6316035396988,
+          "files": 750255
+        },
+        "copy_started_at": "2026-10-08T13:42:55.259517+00:00",
+        "verified_at": "2026-10-12T06:42:18.756678+00:00",
+        "staging_path": "/homes2/maliavko/DetecdivHub/raw/.incoming-alexander-2023-20261008/2023_1",
+        "content_verification": "full rsync SHA1 source/destination comparison",
+        "source_stability_verified": true
+      },
+      "2023_2": {
+        "phase": "verifying_full_content",
+        "source_inventory": {
+          "sha256": "bfe6b368e2c8d0a2de897c6351733060e2e0e62870b30a391afd14a40f52e063",
+          "bytes": 3583194799325,
+          "files": 425112
+        },
+        "copy_started_at": "2026-10-12T06:44:11.768486+00:00"
+      }
+    },
+    "phase": "failed_safe",
+    "source_deleted": false,
+    "database_cutover_performed": false,
+    "current_year": "2023_2",
+    "heartbeat_at": "2026-10-13T16:23:33.920366+00:00",
+    "runner_pid": 1806323,
+    "inventory_progress": {
+      "files": 392369,
+      "bytes": 3307449806298,
+      "child_pid": 2150892
+    },
+    "child_pid": 2213152,
+    "error": "Content verification found differences or errors"
+  },
+  "verify_2023_2_exit": "0",
+  "verify_2023_2_log_bytes": 0,
+  "staging_roots": [
+    "2023_1",
+    "2023_2"
+  ],
+  "published_roots": [
+    ".incoming-alexander-2023-20261008"
+  ]
+}

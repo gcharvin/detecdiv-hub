@@ -1,5 +1,24 @@
 # Alexander 2023 — approved migration, 2026-10-08
 
+## Windows access gate passed, 2026-11-01
+
+The Windows worker now resolves `/homes2/maliavko/DetecdivHub` to the secondary
+NAS personal `home` share through its verified DNS name,
+`//srv-data-pb-lan1.u-strasbg.fr/home/DetecdivHub`, authenticated as `maliavko`.
+The mapping was loaded by an admission-guarded idle restart. Validation in the
+worker's limited session passed for all 21 copied 2023_2 raw directories, a
+copied image header and temporary-file read/write. Native NAS ownership checks
+confirmed `maliavko`; test probes were removed. The evidence is in
+`reports/homes2-access-audit-20261101/`.
+
+The catalog cutover is still pending: these 21 raws continue to prefer the
+primary NAS. The earlier separate `190423_nh_sir2_tween_4` pilot already prefers
+its copied location in the 2023_1 staging tree; preserve that reference when
+planning publication or renames. Do not treat the old runner's `failed_safe`
+or database batch's `copying` status as a current transfer process. The resumed
+2023_2 SHA1 check has a separate successful receipt (exit 0, empty discrepancy
+log); fresh source-stability and catalog checks are required before cutover.
+
 The user reports Alexander's agreement to move his 2023 data. Start with the
 three explicit primary-NAS trees `/data/Alexander/data/2023_{1,2,3}`; the native
 2026-10-01 inventory measured 15,866,515,072,652 payload bytes. The target is
@@ -65,9 +84,10 @@ against SSH disconnection, not reboot. No unrequested scheduler is installed.
 - Resolve all affected project/FOV source paths. Relink only verified copied
   MATs, test a reopen, and retain `Sauvegarde` originals. Pending legacy aliases
   are not proof of a source identity, and the 2023 projects are not all linked.
-- Test Linux **and Windows** access to `/homes2`: current Windows workers may
-  only know `/data` and `/archive`. Coordinate required worker/client mappings
-  with the separate worker thread; do not modify workers here.
+- Test Linux **and Windows** access to `/homes2`. The native Windows worker's
+  per-user mapping and read/write validation passed on 2026-11-01 as recorded
+  above. This is not a deployment of path mappings to every other client, nor
+  validation of every Windows filesystem job kind.
 - Verify backup/restore coverage and compatibility paths before retiring old
   data. The secondary provider remains inactive; this copy is not an automatic
   activation or quota/backup-policy change.

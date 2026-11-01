@@ -1,0 +1,63 @@
+{
+  "checked_at_utc": "2026-11-01 18:19:37.051882+00:00",
+  "windows": {
+    "worker_pid": 3720,
+    "worker_identity": "GMGM\\Charvin-Admin",
+    "worker_session_id": 1,
+    "worker_health": "online",
+    "homes2_path_mapping_present": true,
+    "readable_unc": "\\\\srv-data-pb-lan1.u-strasbg.fr\\home\\DetecdivHub",
+    "personal_home_unc_readable": true,
+    "smb_identity": "maliavko via NAS DNS name; existing IP connections preserved",
+    "write_access_tested": true,
+    "limited_session_receipt": "windows-limited-session-result.txt",
+    "elevated_smb_inventory": "windows-elevated-smb.json",
+    "mapping": {
+      "source": "/homes2/maliavko/DetecdivHub",
+      "target": "//srv-data-pb-lan1.u-strasbg.fr/home/DetecdivHub"
+    },
+    "mapping_count": 10,
+    "worker_fingerprint": "b35b0444d5f0",
+    "nas_probe_owner_verified": "maliavko",
+    "probes_removed": true,
+    "credentials_saved_for_worker": true,
+    "post_restart_validation": "post-restart-session-verification.json",
+    "admission_restored": true
+  },
+  "2023_2": {
+    "raw_records": 21,
+    "owners": [
+      "alexander"
+    ],
+    "locations_on_secondary": 0,
+    "preferred_on_primary": 21,
+    "catalog_records_unchanged_since_copy_snapshot": true,
+    "active_jobs": 0,
+    "affected_locks": 0,
+    "checksum_receipt_exit_code": 0,
+    "checksum_receipt_log_bytes": 0,
+    "fresh_content_or_source_stability_scan_run": false,
+    "linked_project": "anof_26102023_yam76s_100ms_da024e6529",
+    "linked_project_still_references_old_raw_paths": true,
+    "copied_raw_directories_readable_from_worker": 21
+  },
+  "pending": [
+    "Review old verification and accepted empty-directory differences, refresh source-stability evidence before cutover",
+    "Choose and publish final destination paths, preserving the already preferred 2023_1 _4 location",
+    "Add preferred locations to the same 21 raw records transactionally; retain originals and original locations",
+    "Relink only verified project copies and test reopening; retain Sauvegarde originals",
+    "Reconcile obsolete runner and catalog-batch status after successful operations",
+    "Establish backup/restore coverage before source reclamation; Hub backup disabled and zero backup runs"
+  ],
+  "scope": {
+    "database_changed": "temporary Windows target admission marker; restored",
+    "worker_configuration_changed": true,
+    "mounts_changed": false,
+    "worker_restarted": true,
+    "scientific_files_changed": false,
+    "temporary_diagnostic_task_removed": true,
+    "temporary_remote_receipt_removed": true,
+    "catalog_changed": false,
+    "probe_files_removed": true
+  }
+}

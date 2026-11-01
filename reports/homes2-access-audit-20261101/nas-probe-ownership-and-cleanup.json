@@ -1,0 +1,17 @@
+{
+  "all_owned_by_maliavko": true,
+  "probes": [
+    {
+      "name": ".detecdiv-windows-home-probe-027011a7058f45aba2040edc49234e00.tmp",
+      "nas_owner": "maliavko",
+      "bytes": 34,
+      "removed": true
+    },
+    {
+      "name": ".detecdiv-windows-home-probe-146e0329b2424a1a921930242ed15235.tmp",
+      "nas_owner": "maliavko",
+      "bytes": 42,
+      "removed": true
+    }
+  ]
+}

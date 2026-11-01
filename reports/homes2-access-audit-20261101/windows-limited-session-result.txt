@@ -1,0 +1,67 @@
+{"state":"Ready","lastTaskResult":0,"lastRun":"2026-11-01T16:58:16.0000000Z","resultPresent":true}
+{
+    "utc":  "2026-11-01T16:58:17.1161486Z",
+    "identity":  "GMGM\\Charvin-Admin",
+    "session":  1,
+    "pid":  78524,
+    "paths":  [
+                  {
+                      "path":  "\\\\10.20.8.250\\home\\DetecdivHub",
+                      "readable":  false,
+                      "firstEntry":  null,
+                      "error":  "Exception lors de l\u0027appel de ®ÿEnumerateFileSystemEntriesÿ¯ avec ®ÿ1ÿ¯ argument(s)ÿ: ®ÿImpossible de trouver une partie du chemin d\u0027accŠs \u0027\\\\10.20.8.250\\home\\DetecdivHub\u0027.ÿ¯"
+                  },
+                  {
+                      "path":  "\\\\10.20.8.250\\home\\DetecdivHub\\raw\\.incoming-alexander-2023-20261008\\2023_2",
+                      "readable":  false,
+                      "firstEntry":  null,
+                      "error":  "Exception lors de l\u0027appel de ®ÿEnumerateFileSystemEntriesÿ¯ avec ®ÿ1ÿ¯ argument(s)ÿ: ®ÿImpossible de trouver une partie du chemin d\u0027accŠs \u0027\\\\10.20.8.250\\home\\DetecdivHub\\raw\\.incoming-alexander-2023-20261008\\2023_2\u0027.ÿ¯"
+                  },
+                  {
+                      "path":  "\\\\10.20.8.250\\homes\\maliavko\\DetecdivHub",
+                      "readable":  true,
+                      "firstEntry":  "projects",
+                      "error":  null
+                  },
+                  {
+                      "path":  "\\\\10.20.8.250\\homes\\maliavko\\DetecdivHub\\raw\\.incoming-alexander-2023-20261008\\2023_2",
+                      "readable":  true,
+                      "firstEntry":  "010723_sf1.48_ramm",
+                      "error":  null
+                  }
+              ],
+    "connectionsBefore":  [
+
+                          ],
+    "connectionsAfter":  [
+
+                         ],
+    "mappings":  [
+                     {
+                         "LocalPath":  "X:",
+                         "RemotePath":  "\\\\10.20.8.250\\homes",
+                         "Status":  0
+                     },
+                     {
+                         "LocalPath":  "Y:",
+                         "RemotePath":  "\\\\10.20.8.250\\home",
+                         "Status":  0
+                     }
+                 ],
+    "errors":  [
+                   "Get-SmbConnection: AccŠs refus‚. ",
+                   "Get-SmbConnection: AccŠs refus‚. "
+               ],
+    "nativeSmbUsers":  [
+                           {
+                               "status":  2250,
+                               "share":  "\\\\10.20.8.250\\home",
+                               "user":  ""
+                           },
+                           {
+                               "status":  2250,
+                               "share":  "\\\\10.20.8.250\\homes",
+                               "user":  ""
+                           }
+                       ]
+}

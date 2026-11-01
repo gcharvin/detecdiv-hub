@@ -1,5 +1,35 @@
 # Windows MATLAB worker pilot
 
+## Alexander homes2 access (2026-11-01)
+
+The live worker has a trusted, per-user mapping from
+`/homes2/maliavko/DetecdivHub` to
+`//srv-data-pb-lan1.u-strasbg.fr/home/DetecdivHub`. The NAS DNS name resolves to
+`10.20.8.250`; its separate SMB endpoint permits authentication as `maliavko`
+while preserving the existing IP-address connections under Charvin-Admin.
+The scope intentionally covers Alexander's Hub subtree rather than all homes.
+
+The password was entered by the user in a masked SSH prompt. A temporary,
+restricted, machine-DPAPI-encrypted envelope passed it to the existing limited
+worker logon session, where the connection was made and the credential saved
+in that user's Windows Credential Manager. The encrypted envelope and
+temporary task were removed. The setup helper is
+`C:\ProgramData\DetecDivHub\connect-alexander-home-ssh.ps1`; it does not modify
+the worker configuration or catalog. Never print or retrieve credential blobs.
+
+An admission-guarded idle restart loaded the tenth mapping. New worker PID
+`3720` reports unchanged fingerprint `b35b0444d5f0`. Post-restart validation in
+the worker's limited session checked the saved credential metadata, all 21
+2023_2 raw directories, a copied PNG header and a write/read probe. Native NAS
+stat confirmed ownership as `maliavko`, and probes were removed. No MATLAB
+pipeline or reboot was required for this access check; filesystem job kinds
+still require their existing per-kind validation.
+
+The protected environment backup is
+`C:\ProgramData\DetecDivHub\homes2-connection-private\worker.env.before-homes2-20261101`.
+Do not print or copy it to the repository. Detailed evidence is in
+`reports/homes2-access-audit-20261101/`. The 2023_2 catalog cutover remains pending.
+
 ## GPU activation (2026-10-16)
 
 The native target `windows-10-20-11-56` now declares `supports_gpu=true`.

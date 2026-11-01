@@ -1,0 +1,9 @@
+{
+  "process_id": 93632,
+  "instance": "windows-10-20-11-56-main",
+  "fingerprint": "b35b0444d5f0",
+  "last_seen": "2026-11-01 18:17:25.401546+00:00",
+  "active_jobs": 0,
+  "previous_drain_present": true,
+  "previous_drain_value": false
+}

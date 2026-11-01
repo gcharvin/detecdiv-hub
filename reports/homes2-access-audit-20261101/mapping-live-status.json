@@ -1,0 +1,14 @@
+{
+  "workers": [
+    {
+      "pid": 3720,
+      "fingerprint": "b35b0444d5f0",
+      "last_seen": "2026-11-01 18:21:16.150257+00:00",
+      "health": "idle",
+      "current_job": "None"
+    }
+  ],
+  "active_jobs": [],
+  "drain": false,
+  "maintenance_marker": null
+}

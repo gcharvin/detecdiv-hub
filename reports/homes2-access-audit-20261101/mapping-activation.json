@@ -1,0 +1,16 @@
+{
+  "success": true,
+  "previous_worker_pid": 93632,
+  "environment_sha256_before": "e64c834033dfa11166e6c4ca8ff99df79d245b429f1b561c91bdbd651d76c480",
+  "environment_sha256_after": "89fbd8a4d4e1c104000c925a90251b642e9b5572d9d3672467fe2fc272fab252",
+  "new_mapping": {
+    "source": "/homes2/maliavko/DetecdivHub",
+    "target": "//srv-data-pb-lan1.u-strasbg.fr/home/DetecdivHub"
+  },
+  "mapping_count": 10,
+  "other_mappings_preserved": true,
+  "backup": "C:\\ProgramData\\DetecDivHub\\homes2-connection-private\\worker.env.before-homes2-20261101",
+  "worker_restarted": true,
+  "worker_task_reconfigured": false,
+  "database_tunnel_untouched": true
+}

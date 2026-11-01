@@ -1,5 +1,31 @@
 # Current Deployment
 
+## Alexander homes2 Windows access, 2026-11-01
+
+The Windows worker now maps `/homes2/maliavko/DetecdivHub` to
+`//srv-data-pb-lan1.u-strasbg.fr/home/DetecdivHub`. That DNS name was checked
+to resolve exclusively to the secondary NAS, `10.20.8.250`. SMB authentication
+uses DSM user `maliavko`; its credential is saved in the existing worker
+account's Windows Credential Manager. The earlier IP-address SMB connections
+and all nine existing worker path mappings were preserved.
+
+At 18:17 UTC, the Windows worker was restarted only after its target admission
+lock confirmed no active jobs, a fresh idle heartbeat, and an empty scientific
+child tree. Its new PID is `3720`, with unchanged fingerprint `b35b0444d5f0`.
+Admission was restored after a fresh heartbeat and validation in the limited
+`GMGM\Charvin-Admin` token in session 1. All 21 copied 2023_2 raw directories,
+a copied PNG header, and temporary-file write/read passed. Both NAS-side probe
+owners were `maliavko`; both probes were removed. The database tunnel, original
+worker task and unlimited task duration were preserved. No API or Linux worker
+deployment accompanied this change.
+
+This completes the Windows access gate, not the raw catalog cutover. The 21
+2023_2 raws still prefer the primary NAS, and the secondary provider/account
+remain inactive/planned. Source-stability checks, project relinking and the
+catalog transaction remain separate; no scientific source was deleted.
+Evidence: `reports/homes2-access-audit-20261101/summary.json` and the detailed
+activation, session verification, and NAS ownership receipts in that directory.
+
 ## Reconciled Hub deployment, 2026-10-20
 
 At 21:07 UTC (23:07 Europe/Paris), the applicable runtime changes from Hub

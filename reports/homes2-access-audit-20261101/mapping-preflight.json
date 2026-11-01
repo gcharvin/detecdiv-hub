@@ -1,0 +1,67 @@
+{
+  "env_sha256": "e64c834033dfa11166e6c4ca8ff99df79d245b429f1b561c91bdbd651d76c480",
+  "existing_mappings": [
+    {
+      "source": "/data/matlab/ClassiRepository/latent-v54-budneck-gated-gt-bootstrap-v008-runtime",
+      "target": "C:\\ProgramData\\DetecDivHub\\m\\lm54v008"
+    },
+    {
+      "source": "X:\\matlab\\ClassiRepository\\latent-v54-budneck-gated-gt-bootstrap-v008-runtime",
+      "target": "C:\\ProgramData\\DetecDivHub\\m\\lm54v008"
+    },
+    {
+      "source": "/data/matlab/ClassiRepository/latent-v54-budneck-gated-gt-bootstrap-v007-runtime",
+      "target": "C:\\ProgramData\\DetecDivHub\\m\\lm54v007"
+    },
+    {
+      "source": "X:\\matlab\\ClassiRepository\\latent-v54-budneck-gated-gt-bootstrap-v007-runtime",
+      "target": "C:\\ProgramData\\DetecDivHub\\m\\lm54v007"
+    },
+    {
+      "source": "/data/matlab/ClassiRepository/latent-v54-budneck-gated-gt-bootstrap-v006-runtime",
+      "target": "C:\\ProgramData\\DetecDivHub\\m\\lm54v006"
+    },
+    {
+      "source": "X:\\matlab\\ClassiRepository\\latent-v54-budneck-gated-gt-bootstrap-v006-runtime",
+      "target": "C:\\ProgramData\\DetecDivHub\\m\\lm54v006"
+    },
+    {
+      "source": "/data",
+      "target": "//10.20.11.250/DATA"
+    },
+    {
+      "source": "X:\\",
+      "target": "//10.20.11.250/DATA"
+    },
+    {
+      "source": "/archive",
+      "target": "//10.20.11.251/archive"
+    }
+  ],
+  "new_mapping": {
+    "source": "/homes2/maliavko/DetecdivHub",
+    "target": "//srv-data-pb-lan1.u-strasbg.fr/home/DetecdivHub"
+  },
+  "user_connection_receipt": {
+    "request_id": "027011a7058f45aba2040edc49234e00",
+    "utc": "2026-11-01T18:13:45.9239340Z",
+    "windows_identity": "GMGM\\Charvin-Admin",
+    "session_id": 1,
+    "self_test": false,
+    "success": true,
+    "worker_configuration_changed": false,
+    "nas_host": "srv-data-pb-lan1.u-strasbg.fr",
+    "nas_address": "10.20.8.250",
+    "requested_smb_user": "maliavko",
+    "root": "\\\\srv-data-pb-lan1.u-strasbg.fr\\home\\DetecdivHub",
+    "staging_directories_readable": [
+      "2023_1",
+      "2023_2"
+    ],
+    "write_read_probe_passed": true,
+    "credentials_saved_for_worker": true,
+    "probe_name": ".detecdiv-windows-home-probe-027011a7058f45aba2040edc49234e00.tmp",
+    "probe_bytes": 34,
+    "nas_owner_verified": false
+  }
+}
