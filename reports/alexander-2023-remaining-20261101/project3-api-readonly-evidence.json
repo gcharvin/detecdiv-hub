@@ -1,0 +1,20 @@
+{
+  "checked_at": "2026-11-02T15:45:35.849295+00:00",
+  "raw_records": 24,
+  "positions": 775,
+  "api_references": 798,
+  "api_reference_kinds": {
+    "display_settings": 23,
+    "artifact": 775
+  },
+  "unique_files_in_source_manifest": 798,
+  "bytes_in_source_manifest": 12055348763,
+  "references_not_in_source_manifest": 0,
+  "catalog_private_file": "/home/charvin-admin/storage-transfers/alexander-2023-remaining-20261101/2023_3/catalog-readonly-20261102.json",
+  "catalog_sha256": "1230dd24d7708155fc54d4496aa0de5f90469e0894d11a3f32e39c2d6e49cf38",
+  "private_plan_file": "/home/charvin-admin/storage-transfers/alexander-2023-remaining-20261101/2023_3/api-media-readonly-plan-20261102.json",
+  "private_plan_sha256": "c8d832244829028562efb51f3dd80c9c3b432052029f29611662a56a178ad217",
+  "source_deleted": false,
+  "catalog_changed": false,
+  "note": "Read-only inventory plan; neither a fresh content check nor a cache/cutover gate."
+}

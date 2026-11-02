@@ -20,6 +20,21 @@ Detailed conditions and the user's instruction: `docs/alexander_2023_transfer.md
 
 ## Alexander 2023_1 retired; 2023_3 raw/project copies active, 2026-11-01
 
+Follow-up, 2026-11-02 15:38 UTC: 2023_3 raw copy reached 3,149,612,890,352
+bytes of 5,967,100,516,555 (52.78%); full SHA1/source stability still follow.
+All eleven independent project copies completed at 10:19 UTC, with full matching
+hashes for 152,277 files / 1,492,353,838,054 bytes and stable source inventories.
+Sauvegarde originals remain intact; projects are not relinked or published yet.
+A read-only preparation audit now runs in tmux
+`alex2023-3-project-inspection-20261102`, comparing ROI samples against originals
+and recording raw pixel baselines across 123 FOVs / 53,623 ROIs. Do not launch a
+duplicate. No affected job/edit lease was active at admission; unrelated jobs
+remain untouched. Source retirement is still gated on complete raw verification,
+reviewed identities, project relink/save/reopen, Linux/Windows and API checks.
+API continuity planning identified 798 referenced files / 12,055,348,763 bytes;
+no URI changed. Primary free space at this check: 5,637,885,267,968 bytes.
+Detailed evidence and live audit paths are in the continuation report README.
+
 At 22:25 UTC, the verified residual 2023_1 source was retired: exactly 87,364
 regular files / 737,182,660,223 logical bytes. Measured primary free space grew
 by **737,304,760,320 bytes**, to **5,648,026,640,384 bytes**. No scientific source

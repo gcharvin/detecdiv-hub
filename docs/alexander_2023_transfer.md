@@ -224,6 +224,19 @@ replace an entire storage-root prefix spanning unmoved years.
 
 ## Read-only status
 
+### Follow-up, 2026-11-02 afternoon UTC
+
+The raw 2023_3 copy reached 52.78% (3.150 / 5.967 TB) at 15:38 UTC; full
+checksums and source stability are still pending. All eleven project copies
+completed with full content hashes and stable source inventories: 152,277
+files / 1,492,353,838,054 bytes. A separate read-only audit is running in tmux
+`alex2023-3-project-inspection-20261102` to prepare path mapping and ROI/raw pixel
+baselines for 123 FOVs / 53,623 ROIs. Do not duplicate it; inspect its private
+progress, partial/final receipts and exit file first. Project copies have not
+been relinked or published. Originals and 2023_3 primary data remain preserved.
+The report README records the current gates, completed-copy proof and the
+798-file API continuity inventory. Six-hour autonomous follow-up is active.
+
 ### Continuation checkpoint, 2026-11-01 evening UTC
 
 The completed 2023_2 operation is unchanged. The follow-up is tracked in

@@ -1,0 +1,321 @@
+{
+  "phase": "all_project_copies_verified_raw_copy_and_relink_pending",
+  "finished_at": "2026-11-02T10:19:28.005211+00:00",
+  "project_count": 11,
+  "files": 152277,
+  "bytes": 1492353838054,
+  "projects": [
+    {
+      "project_id": "9e2f2539-7e95-4443-b3b3-650dca2db54c",
+      "name": "anof_07122023_5354_log1724",
+      "files": 13997,
+      "bytes": 159299082820,
+      "source_inventory_sha256": "e11ff2e7102123b13d03ecdc7030eaf6da693d38ae531670734dc127fc119b4c",
+      "verification_receipt_sha256": "9152c0c769bd70722a01e73e4e4503f0c2b839ddfc79c5304d84d844584a4096",
+      "content_hashes_all_match": true,
+      "source_inventory_stable": true,
+      "file_kinds": {
+        ".mat": 2,
+        "": 1,
+        ".fig": 2,
+        "im_": 6996,
+        "results_": 6996
+      },
+      "other_files": [
+        "anof_07122023_5354_log1724.mat",
+        "anof_07122023_5354_log1724/.DS_Store",
+        "anof_07122023_5354_log1724/divplot.fig",
+        "anof_07122023_5354_log1724/labeled_anof_07122023_5354_log1724.mat",
+        "anof_07122023_5354_log1724/rlsplot.fig"
+      ]
+    },
+    {
+      "project_id": "6dd570e7-668d-48d5-8586-7b3f69af5136",
+      "name": "anof_13122023_crelox_test",
+      "files": 22498,
+      "bytes": 192340663073,
+      "source_inventory_sha256": "1f5dfe5124c5ae186c0609c00eba74e2eb39952ff7531982af3d4ab65c90ae62",
+      "verification_receipt_sha256": "9bc198986c1d76d97c68f7bfa40ce8b82c504ee0b88dfe7612c4731d63fd60a6",
+      "content_hashes_all_match": true,
+      "source_inventory_stable": true,
+      "file_kinds": {
+        ".mat": 5,
+        "": 1,
+        ".mp4": 4,
+        ".png": 3,
+        ".db": 1,
+        ".fig": 2,
+        "data_": 7494,
+        "im_": 7494,
+        "results_": 7494
+      },
+      "other_files": [
+        "anof_13122023_crelox_test.mat",
+        "anof_13122023_crelox_test/.DS_Store",
+        "anof_13122023_crelox_test/13122023_crelox_test_4_Pos17_9_1.mp4",
+        "anof_13122023_crelox_test/13122023_crelox_test_4_Pos17_9_252.mp4",
+        "anof_13122023_crelox_test/13122023_crelox_test_4_Pos20_10_310.mp4",
+        "anof_13122023_crelox_test/13122023_crelox_test_4_Pos21_11_125.mp4",
+        "anof_13122023_crelox_test/1314_rls.png",
+        "anof_13122023_crelox_test/78_rls.png",
+        "anof_13122023_crelox_test/910_rls.png",
+        "anof_13122023_crelox_test/Thumbs.db",
+        "anof_13122023_crelox_test/divplot.fig",
+        "anof_13122023_crelox_test/labeled_anof_13122023_crelox_test.mat",
+        "anof_13122023_crelox_test/rlsplot.fig",
+        "anof_13122023_crelox_test/processor/ComputeAllMetrics_2/ComputeAllMetrics_2_processor.mat",
+        "anof_13122023_crelox_test/processor/ComputeRLS_3/ComputeRLS_3_processor.mat"
+      ]
+    },
+    {
+      "project_id": "6aa9c80c-ac32-41d6-a021-6f2d83e0a5bf",
+      "name": "anof_171123_apx1",
+      "files": 11569,
+      "bytes": 99323929013,
+      "source_inventory_sha256": "a1c26a1b84496e55649cf3cbf684aa355cab8697cb9f3ffaa2aba70b18d97f2b",
+      "verification_receipt_sha256": "29a4004183c4d4da513f7ae8c1ad1f7f29e7d3b9d5efaaf6212205236b787258",
+      "content_hashes_all_match": true,
+      "source_inventory_stable": true,
+      "file_kinds": {
+        ".mat": 4,
+        "": 1,
+        ".fig": 2,
+        "data_": 3854,
+        "im_": 3854,
+        "results_": 3854
+      },
+      "other_files": [
+        "anof_171123_apx1.mat",
+        "anof_171123_apx1/.DS_Store",
+        "anof_171123_apx1/divplot.fig",
+        "anof_171123_apx1/labeled_anof_171123_apx1.mat",
+        "anof_171123_apx1/rlsplot.fig",
+        "anof_171123_apx1/processor/ComputeAllMetrics_1/ComputeAllMetrics_1_processor.mat",
+        "anof_171123_apx1/processor/ComputeRLS_2/ComputeRLS_2_processor.mat"
+      ]
+    },
+    {
+      "project_id": "9d70b40a-43b2-472a-8410-b6a7965184b6",
+      "name": "anof_171123_sgfhap4",
+      "files": 5905,
+      "bytes": 50310024923,
+      "source_inventory_sha256": "95fb262e812f0265be4ad85b4b4bc9b45ab37f3a7c406b1da919572018865810",
+      "verification_receipt_sha256": "85b4e42f8eb293e87978e9f05da8bb5b6eb94295882cab789ccfcbef39abb8b0",
+      "content_hashes_all_match": true,
+      "source_inventory_stable": true,
+      "file_kinds": {
+        ".mat": 4,
+        "": 1,
+        ".fig": 2,
+        "data_": 1966,
+        "im_": 1966,
+        "results_": 1966
+      },
+      "other_files": [
+        "anof_171123_sgfhap4.mat",
+        "anof_171123_sgfhap4/.DS_Store",
+        "anof_171123_sgfhap4/divpllot.fig",
+        "anof_171123_sgfhap4/labeled_anof_171123_sgfhap4.mat",
+        "anof_171123_sgfhap4/rlsplot.fig",
+        "anof_171123_sgfhap4/processor/ComputeAllMetrics_1/ComputeAllMetrics_1_processor.mat",
+        "anof_171123_sgfhap4/processor/ComputeRLS_2/ComputeRLS_2_processor.mat"
+      ]
+    },
+    {
+      "project_id": "c1661f69-7579-473b-aa7d-f2acdb7de5bc",
+      "name": "anof_231123_nh52",
+      "files": 23421,
+      "bytes": 205240579844,
+      "source_inventory_sha256": "5d88399dc4e3ccf54347cd80bdc2de962916bb8f8b2d04ded6901aa74faa2350",
+      "verification_receipt_sha256": "7af824d7e327ebad92beb7f89de866ed82f9307b8a28b57e226602461344746c",
+      "content_hashes_all_match": true,
+      "source_inventory_stable": true,
+      "file_kinds": {
+        ".mat": 4,
+        "": 1,
+        ".mp4": 2,
+        ".fig": 2,
+        "data_": 7804,
+        "im_": 7804,
+        "results_": 7804
+      },
+      "other_files": [
+        "anof_231123_nh52.mat",
+        "anof_231123_nh52/.DS_Store",
+        "anof_231123_nh52/231123newleft_nh52_4_Pos13_5_100.mp4",
+        "anof_231123_nh52/231123newleft_nh52_4_Pos13_5_103.mp4",
+        "anof_231123_nh52/divplot.fig",
+        "anof_231123_nh52/labeled_anof_231123_nh52.mat",
+        "anof_231123_nh52/rlsplot.fig",
+        "anof_231123_nh52/processor/ComputeAllMetrics_1/ComputeAllMetrics_1_processor.mat",
+        "anof_231123_nh52/processor/ComputeRLS_2/ComputeRLS_2_processor.mat"
+      ]
+    },
+    {
+      "project_id": "6e2aa8c7-a59e-4ed7-b7e2-c48916160a02",
+      "name": "anof_291123_nh_sgf73",
+      "files": 15538,
+      "bytes": 204246928409,
+      "source_inventory_sha256": "5f157e492a26908d81028135a6a33f1ff155fb729974465e811d790c9210f301",
+      "verification_receipt_sha256": "9a2638ad1181867ad7d318d9830d123b8ce233882f89fd6f81c304f168ee1297",
+      "content_hashes_all_match": true,
+      "source_inventory_stable": true,
+      "file_kinds": {
+        ".mat": 4,
+        "": 1,
+        ".fig": 2,
+        "data_": 5177,
+        "im_": 5177,
+        "results_": 5177
+      },
+      "other_files": [
+        "anof_291123_nh_sgf73.mat",
+        "anof_291123_nh_sgf73/.DS_Store",
+        "anof_291123_nh_sgf73/divplot.fig",
+        "anof_291123_nh_sgf73/labeled_anof_291123_nh_sgf73.mat",
+        "anof_291123_nh_sgf73/rlsplot.fig",
+        "anof_291123_nh_sgf73/processor/ComputeAllMetrics_1/ComputeAllMetrics_1_processor.mat",
+        "anof_291123_nh_sgf73/processor/ComputeRLS_2/ComputeRLS_2_processor.mat"
+      ]
+    },
+    {
+      "project_id": "c00f3571-2721-4dc5-9783-2d464fbec635",
+      "name": "anof_291123_nh_wts",
+      "files": 9748,
+      "bytes": 93441844337,
+      "source_inventory_sha256": "92e00599da8800cc94d6a24fc1cba6f3b6276840a40f057d6e39d039fb4e198f",
+      "verification_receipt_sha256": "30ce79aeb6264eeacd02952b780c2cc3912364abb7fa899c578177571fdcdd1d",
+      "content_hashes_all_match": true,
+      "source_inventory_stable": true,
+      "file_kinds": {
+        ".mat": 4,
+        "": 1,
+        ".fig": 2,
+        "data_": 3247,
+        "im_": 3247,
+        "results_": 3247
+      },
+      "other_files": [
+        "anof_291123_nh_wts.mat",
+        "anof_291123_nh_wts/.DS_Store",
+        "anof_291123_nh_wts/divplot.fig",
+        "anof_291123_nh_wts/labeled_anof_291123_nh_wts.mat",
+        "anof_291123_nh_wts/rlsplot.fig",
+        "anof_291123_nh_wts/processor/ComputeAllMetrics_1/ComputeAllMetrics_1_processor.mat",
+        "anof_291123_nh_wts/processor/ComputeRLS_2/ComputeRLS_2_processor.mat"
+      ]
+    },
+    {
+      "project_id": "707acc12-89b0-4d74-a98c-d69e86b68531",
+      "name": "anof_291123_nh_sgf73hap4",
+      "files": 8420,
+      "bytes": 133255235787,
+      "source_inventory_sha256": "25c933ccb71e0e1aaf1d660dcbd791640cff48a23740cd1053a6deda2fd4e827",
+      "verification_receipt_sha256": "d790b689c2a20e3d4b6e3d85379813f780113ebf3a2c5022de1c5bfc7bc06c99",
+      "content_hashes_all_match": true,
+      "source_inventory_stable": true,
+      "file_kinds": {
+        ".mat": 5,
+        "": 1,
+        ".fig": 2,
+        "data_": 1682,
+        "im_": 3365,
+        "results_": 3365
+      },
+      "other_files": [
+        "anof_291123_nh_sgf73hap4.mat",
+        "anof_291123_nh_sgf73hap4/.DS_Store",
+        "anof_291123_nh_sgf73hap4/divplot.fig",
+        "anof_291123_nh_sgf73hap4/labeled_anof_291123_nh_sgf73hap4.mat",
+        "anof_291123_nh_sgf73hap4/rls_sgfhap_2911.mat",
+        "anof_291123_nh_sgf73hap4/rlsplot.fig",
+        "anof_291123_nh_sgf73hap4/processor/ComputeAllMetrics_1/ComputeAllMetrics_1_processor.mat",
+        "anof_291123_nh_sgf73hap4/processor/ComputeRLS_2/ComputeRLS_2_processor.mat"
+      ]
+    },
+    {
+      "project_id": "78c84671-9e8f-4ee4-bed9-d6397f86e5fd",
+      "name": "anof_231123_newleft",
+      "files": 11794,
+      "bytes": 100414120656,
+      "source_inventory_sha256": "7817c693e18ddcf40312f194393bfcff5deec23d6b6ae7805c3ae852cbabd9ff",
+      "verification_receipt_sha256": "c482e1d857cbd7891e26bf392bcecb0b67c76f9faf1a1b7a82f2247eeb6bbcfc",
+      "content_hashes_all_match": true,
+      "source_inventory_stable": true,
+      "file_kinds": {
+        ".mat": 4,
+        "": 1,
+        ".fig": 2,
+        "data_": 3929,
+        "im_": 3929,
+        "results_": 3929
+      },
+      "other_files": [
+        "anof_231123_newleft.mat",
+        "anof_231123_newleft/.DS_Store",
+        "anof_231123_newleft/divplot.fig",
+        "anof_231123_newleft/labeled_anof_231123_newleft.mat",
+        "anof_231123_newleft/rlsplot.fig",
+        "anof_231123_newleft/processor/ComputeAllMetrics_1/ComputeAllMetrics_1_processor.mat",
+        "anof_231123_newleft/processor/ComputeRLS_2/ComputeRLS_2_processor.mat"
+      ]
+    },
+    {
+      "project_id": "9f88f839-d908-44c6-8937-0b04713e36e3",
+      "name": "anof_171123_RM_NTS1NGtest",
+      "files": 5896,
+      "bytes": 52260701872,
+      "source_inventory_sha256": "a73b8f607bf3a0bd53dc5842c526250b9f56f8eb1892814354795e38e33cdb3b",
+      "verification_receipt_sha256": "75aac5aa4ff580c237542900df697bb4df65838940f1bbd65f0fd7d65745762d",
+      "content_hashes_all_match": true,
+      "source_inventory_stable": true,
+      "file_kinds": {
+        ".mat": 4,
+        "": 1,
+        ".fig": 2,
+        "data_": 1963,
+        "im_": 1963,
+        "results_": 1963
+      },
+      "other_files": [
+        "anof_171123_RM_NTS1NGtest.mat",
+        "anof_171123_RM_NTS1NGtest/.DS_Store",
+        "anof_171123_RM_NTS1NGtest/divplot.fig",
+        "anof_171123_RM_NTS1NGtest/labeled_anof_171123_RM_NTS1NGtest.mat",
+        "anof_171123_RM_NTS1NGtest/rlsplot.fig",
+        "anof_171123_RM_NTS1NGtest/processor/ComputeAllMetrics_1/ComputeAllMetrics_1_processor.mat",
+        "anof_171123_RM_NTS1NGtest/processor/ComputeRLS_2/ComputeRLS_2_processor.mat"
+      ]
+    },
+    {
+      "project_id": "de439577-471f-4eeb-afd8-3154f13732a6",
+      "name": "anof_171123_nhwt_gcn5",
+      "files": 23491,
+      "bytes": 202220727320,
+      "source_inventory_sha256": "8be7410a8349077b1d0872fab293fe6003de66cb21c0cb0b53e5869b789eb62c",
+      "verification_receipt_sha256": "195fe54ce3f37d1db7364e552ee96f6be7ffb0ac16fe8af3cdbfd774ee86b33c",
+      "content_hashes_all_match": true,
+      "source_inventory_stable": true,
+      "file_kinds": {
+        ".mat": 4,
+        "": 1,
+        ".fig": 2,
+        "data_": 7828,
+        "im_": 7828,
+        "results_": 7828
+      },
+      "other_files": [
+        "anof_171123_nhwt_gcn5.mat",
+        "anof_171123_nhwt_gcn5/.DS_Store",
+        "anof_171123_nhwt_gcn5/divplot.fig",
+        "anof_171123_nhwt_gcn5/labeled_anof_171123_nhwt_gcn5.mat",
+        "anof_171123_nhwt_gcn5/rlsplot.fig",
+        "anof_171123_nhwt_gcn5/processor/ComputeAllMetrics_1/ComputeAllMetrics_1_processor.mat",
+        "anof_171123_nhwt_gcn5/processor/ComputeRLS_2/ComputeRLS_2_processor.mat"
+      ]
+    }
+  ],
+  "originals_preserved": true,
+  "catalog_changed": false,
+  "paths_rewritten": false
+}

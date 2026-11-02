@@ -1,5 +1,56 @@
 # Alexander 2023 migration continuation — 2026-11-01
 
+## Follow-up, 2026-11-02 15:38–15:47 UTC
+
+The raw copy remains healthy and active: 3,149,612,890,352 of
+5,967,100,516,555 bytes (52.78%) had transferred at 15:38 UTC. This is copy
+progress, not the subsequent full SHA1 comparison or source-stability gate.
+Primary free space was 5,637,885,267,968 bytes; no 2023_3 source was retired.
+
+All eleven independent project copies completed at 10:19 UTC: **152,277 files /
+1,492,353,838,054 bytes**. A separate review re-read every verification receipt,
+checked its pinned digest and every file's successful source/destination hash
+and ownership result, and compared the complete source inventories before/after.
+Evidence: `project3-copy-completion-verification.json`. Sauvegarde originals
+remain intact. No project has been published or relinked by this phase.
+
+`inspect_project3_copies.m` is now running read-only in detached tmux
+`alex2023-3-project-inspection-20261102`, with the protected d83c4dbc engine,
+one MATLAB thread and low scheduling/I/O priority. It checks all 53,623 ROI
+image/results references against the verified manifests, compares representative
+copied/original ROI pixels and results in all 123 FOVs, records primary raw
+first/middle/last pixel baselines for each channel, and preserves both main
+MAT hashes. It does not save a project, mutate annotations, publish locations
+or delete sources. Exact raw/crop matches are recorded as positive identity
+evidence; an absent match remains unresolved (drift or extraction frame selection
+can affect it). This is preparation, not the final relink/reopen/Windows gate.
+The first project has no data sidecars; another has only a partial set. Preserve
+these existing layouts rather than requiring a fabricated uniform three-file
+layout for every ROI. Labeled/processor MATs also need a path audit before cutover.
+
+Private compute files: `project3-readonly-progress.json`,
+`project3-readonly-inspection.partial.json`, `project3-readonly-inspection.json`,
+`project3-readonly-inspection.log` and `.exit`. Inspect these and the tmux session
+before any new launch; **do not duplicate the running audit**. Its request and
+launcher are one-shot and fail on existing evidence files. Admission found no
+affected active jobs or leases; unrelated jobs were left running. Runtime
+assumptions from the older idle-poller checkpoint below are historical.
+
+A fresh read-only catalog inventory found 24 raw records / 775 positions, with
+775 preview and 23 display-setting URIs. All 798 referenced files occur in the
+source manifest (12,055,348,763 bytes). This is a plan for API continuity, not
+a fresh content check or URI update. Private plan:
+`2023_3/api-media-readonly-plan-20261102.json`; summary and digests:
+`project3-api-readonly-evidence.json`. Preserve these handlers before retirement.
+The API still cannot see homes2 directly.
+
+The user-requested six-hour follow-up is active in the existing Codex thread,
+automation `migration-alexander-2023-3-contr-le-6-h`. It must continue actual
+verification/cutover/retirement work when gates permit, preserving project
+originals, and stop when the approved scope is complete. Its local execution
+requires the workstation and Codex app to remain available; detached NAS-copy
+and inspection tasks continue independently of this workstation.
+
 Checkpoint: 22:34 UTC. The user authorized retiring verified Alexander 2023
 raw duplicates from /data while preserving original projects and working paths.
 
