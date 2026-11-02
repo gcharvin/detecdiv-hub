@@ -1,0 +1,12 @@
+{
+  "started": true,
+  "task": "alex2023-3-persistent-paths-20261102",
+  "read_only": true,
+  "project_count": 11,
+  "runner_sha256": "858d38653a2f052bd87d5819cfa4b4d6b6f03adb54bd3ec3dd7fb82d7977347b",
+  "input_request_sha256": "47967e77a24f302db47921ff6abab6f953dcac7ce8702f112a7a66b0f6fc1404",
+  "identity_receipt_sha256": "4e21373fee4510e94a76f722c8a8815633803f6e17b9943602782c66f553830e",
+  "source_deleted": false,
+  "catalog_changed": false,
+  "project_paths_rewritten": false
+}

@@ -1,5 +1,50 @@
 # Alexander 2023 migration continuation — 2026-11-01
 
+## Follow-up, 2026-11-02 21:33 UTC
+
+2023_3 is still copying, now **4,063,322,667,444 / 5,967,100,516,555 bytes
+(68.10%)**. No source deletion or catalog/path mutation has occurred. Primary
+free space was 5,629,685,805,056 bytes. The existing copy runner is healthy;
+do not restart it or infer completion before its full SHA1/source-stability gates.
+
+The first read-only project audit completed with exit 0. Every one of the
+**123 FOVs** has an exact first-frame raw crop equal to the representative saved
+ROI image. Representative copied ROI pixels/results also equal the Sauvegarde
+originals in every FOV. These content checks corroborate all five legacy Z:
+acquisition aliases alongside the earlier 469,830 metadata matches. The audit
+recorded 1,728 raw pixel samples, resolved all 53,623 ROI image/results references
+against verified copy manifests, and preserved all main MAT hashes. Evidence:
+`project3-identity-readonly-verification.json`; full private receipt
+`project3-readonly-inspection.json`, SHA256
+`4e21373fee4510e94a76f722c8a8815633803f6e17b9943602782c66f553830e`.
+This does not replace the complete raw source/destination checksum, save/reopen
+comparison after relink, or the actual Windows-session validation.
+
+The next read-only audit, `audit_project3_persistent_paths.m`, runs in detached
+tmux **`alex2023-3-persistent-paths-20261102`**. It scans every non-image MAT in
+the verified copies, including main, labeled, processor, data and results MATs.
+It records candidate canonical rebases and unresolved absolute path values;
+notes/history remain protected, and image MATs are not rewritten or converted.
+Inspect `project3-persistent-paths-progress.json`, `.partial.json`, `.json`,
+`.log`, `.exit` and `project3-persistent-paths-receipt.jsonl` before doing more.
+No relink/publication is performed by this audit. Review all unresolved paths
+before preparing writes, backups and canonical scientific-value comparisons.
+
+The first scanner attempt stopped before any receipt or science write because
+its nested function shared the outer `names` variable. The corrected outer
+variables are distinct (`verifiedNames`/`basename`). All failed-run evidence,
+including the original script, is preserved in private
+`project3-persistent-paths-attempt1`; the initial launch receipt is retained
+locally as `attempt1-project3-persistent-paths-launch.json`. The retry requires
+that exact failed script hash, exit 1 and a zero-byte receipt. The corrected
+script SHA256 is `6df3d7bd7ec5e50394aa6292863f24a69a3eadfdb5babce7e8286767563efd04`.
+No source/copy is recreated or overwritten by restarting this read-only audit.
+
+The existing six-hour heartbeat prompt now points at these completed and active
+audits, with its schedule/thread unchanged. Project backups/relink, scientific
+save/reopen comparisons, full homes2 raw checks, Linux/Windows reads, API
+continuity, catalog cutover and manifest-bounded retirement are still pending.
+
 ## Follow-up, 2026-11-02 15:38–15:47 UTC
 
 The raw copy remains healthy and active: 3,149,612,890,352 of

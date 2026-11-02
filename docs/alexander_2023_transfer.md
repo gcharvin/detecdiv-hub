@@ -224,6 +224,19 @@ replace an entire storage-root prefix spanning unmoved years.
 
 ## Read-only status
 
+### Follow-up, 2026-11-02 21:33 UTC
+
+Raw copy reached 68.10% (4.063 / 5.967 TB). The project preparation audit
+completed with exit 0: exact raw crop/ROI equality in all 123 FOVs corroborates
+the five legacy acquisition aliases; original/copy ROI pixels and results
+agree, and main MAT hashes are unchanged. All 53,623 ROI image/results
+references resolve against the verified copy manifests. A further read-only
+audit of all non-image MAT paths runs in tmux
+`alex2023-3-persistent-paths-20261102`. Its failed first attempt and corrected
+retry are preserved/documented in the continuation report. No relink or
+publication is done by these audits; raw checksums, save/reopen, Windows/API
+and retirement gates still remain. The six-hour follow-up is still active.
+
 ### Follow-up, 2026-11-02 afternoon UTC
 
 The raw 2023_3 copy reached 52.78% (3.150 / 5.967 TB) at 15:38 UTC; full

@@ -20,6 +20,17 @@ Detailed conditions and the user's instruction: `docs/alexander_2023_transfer.md
 
 ## Alexander 2023_1 retired; 2023_3 raw/project copies active, 2026-11-01
 
+Latest follow-up, 2026-11-02 21:33 UTC: raw copy reached 4,063,322,667,444
+of 5,967,100,516,555 bytes (68.10%). The first read-only project audit completed
+(exit 0): all 123 FOVs have exact raw-crop/ROI pixel equality corroborating
+the legacy Z: aliases; copied ROI pixels/results equal originals, 1,728 raw
+samples were recorded, 53,623 ROI image/results references resolve in the
+verified manifests, and every main MAT remains unchanged. The next read-only
+audit scans all non-image MATs in tmux `alex2023-3-persistent-paths-20261102`;
+its first failed attempt and corrected retry are documented in the report README.
+Do not duplicate either task. No 2023_3 project relink, catalog cutover or source
+retirement has occurred. The final raw, save/reopen, Windows and API gates remain.
+
 Follow-up, 2026-11-02 15:38 UTC: 2023_3 raw copy reached 3,149,612,890,352
 bytes of 5,967,100,516,555 (52.78%); full SHA1/source stability still follow.
 All eleven independent project copies completed at 10:19 UTC, with full matching

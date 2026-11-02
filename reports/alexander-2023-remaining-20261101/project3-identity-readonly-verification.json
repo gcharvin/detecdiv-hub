@@ -1,0 +1,172 @@
+{
+  "success": true,
+  "engine_release": "/home/charvin-admin/repos/DetecDiv-jobs/releases/d83c4dbc0638bc0d3f6012b4f1df5744e0c017c7",
+  "projects": [
+    {
+      "project_id": "9e2f2539-7e95-4443-b3b3-650dca2db54c",
+      "name": "anof_07122023_5354_log1724",
+      "fovs": 23,
+      "rois": 6996,
+      "mat_sha256_unchanged": "a70dd14965488f210a7353fb151aef2e04e2a4914baaa020026e16a1c1cc7e01",
+      "all_roi_im_results_references_in_verified_copy_manifest": true,
+      "existing_data_sidecars": 0,
+      "roi_samples_equal_original": true,
+      "raw_crop_matches": {
+        "exact_xywh_first_frame": 23
+      },
+      "raw_sample_count": 276
+    },
+    {
+      "project_id": "6dd570e7-668d-48d5-8586-7b3f69af5136",
+      "name": "anof_13122023_crelox_test",
+      "fovs": 16,
+      "rois": 7494,
+      "mat_sha256_unchanged": "b7246edf2ea250b54f34468a79f7375e64f01ee5adad9e5130ca692fc2a02e0d",
+      "all_roi_im_results_references_in_verified_copy_manifest": true,
+      "existing_data_sidecars": 7494,
+      "roi_samples_equal_original": true,
+      "raw_crop_matches": {
+        "exact_xywh_first_frame": 16
+      },
+      "raw_sample_count": 192
+    },
+    {
+      "project_id": "6aa9c80c-ac32-41d6-a021-6f2d83e0a5bf",
+      "name": "anof_171123_apx1",
+      "fovs": 8,
+      "rois": 3854,
+      "mat_sha256_unchanged": "a0fed459d186b1e77c168f2934003b4d17d9e9f8f3c92ceb8878cf2e86973517",
+      "all_roi_im_results_references_in_verified_copy_manifest": true,
+      "existing_data_sidecars": 3854,
+      "roi_samples_equal_original": true,
+      "raw_crop_matches": {
+        "exact_xywh_first_frame": 8
+      },
+      "raw_sample_count": 120
+    },
+    {
+      "project_id": "9d70b40a-43b2-472a-8410-b6a7965184b6",
+      "name": "anof_171123_sgfhap4",
+      "fovs": 4,
+      "rois": 1966,
+      "mat_sha256_unchanged": "86a8238d23977f226c77a367b738ca0ced19218ebd9bcdc1b3d06a386e9e2a39",
+      "all_roi_im_results_references_in_verified_copy_manifest": true,
+      "existing_data_sidecars": 1966,
+      "roi_samples_equal_original": true,
+      "raw_crop_matches": {
+        "exact_xywh_first_frame": 4
+      },
+      "raw_sample_count": 60
+    },
+    {
+      "project_id": "c1661f69-7579-473b-aa7d-f2acdb7de5bc",
+      "name": "anof_231123_nh52",
+      "fovs": 16,
+      "rois": 7804,
+      "mat_sha256_unchanged": "4072744ba281bc056d8bf08f7542b506fc876356b3b88cfd7d5e8d7871370f88",
+      "all_roi_im_results_references_in_verified_copy_manifest": true,
+      "existing_data_sidecars": 7804,
+      "roi_samples_equal_original": true,
+      "raw_crop_matches": {
+        "exact_xywh_first_frame": 16
+      },
+      "raw_sample_count": 240
+    },
+    {
+      "project_id": "6e2aa8c7-a59e-4ed7-b7e2-c48916160a02",
+      "name": "anof_291123_nh_sgf73",
+      "fovs": 12,
+      "rois": 5177,
+      "mat_sha256_unchanged": "6bab760163fc14724f94c78a4e8c252f90b5e901b1a299e33e14db921e0f1e6a",
+      "all_roi_im_results_references_in_verified_copy_manifest": true,
+      "existing_data_sidecars": 5177,
+      "roi_samples_equal_original": true,
+      "raw_crop_matches": {
+        "exact_xywh_first_frame": 12
+      },
+      "raw_sample_count": 180
+    },
+    {
+      "project_id": "c00f3571-2721-4dc5-9783-2d464fbec635",
+      "name": "anof_291123_nh_wts",
+      "fovs": 8,
+      "rois": 3247,
+      "mat_sha256_unchanged": "39cf2cc610efa87e27571a0063ee78930bf3a51e2f5980adae8b0cba413c6a19",
+      "all_roi_im_results_references_in_verified_copy_manifest": true,
+      "existing_data_sidecars": 3247,
+      "roi_samples_equal_original": true,
+      "raw_crop_matches": {
+        "exact_xywh_first_frame": 8
+      },
+      "raw_sample_count": 120
+    },
+    {
+      "project_id": "707acc12-89b0-4d74-a98c-d69e86b68531",
+      "name": "anof_291123_nh_sgf73hap4",
+      "fovs": 8,
+      "rois": 3365,
+      "mat_sha256_unchanged": "d88f91b6f29bfa2efa603d19b1c296e8a89460f0d15a41dc7e189290e7d93bcf",
+      "all_roi_im_results_references_in_verified_copy_manifest": true,
+      "existing_data_sidecars": 1682,
+      "roi_samples_equal_original": true,
+      "raw_crop_matches": {
+        "exact_xywh_first_frame": 8
+      },
+      "raw_sample_count": 120
+    },
+    {
+      "project_id": "78c84671-9e8f-4ee4-bed9-d6397f86e5fd",
+      "name": "anof_231123_newleft",
+      "fovs": 8,
+      "rois": 3929,
+      "mat_sha256_unchanged": "e2b841c497e3626362bf48718f099d154f2b5ff404c5c461a71f808bb5df93a7",
+      "all_roi_im_results_references_in_verified_copy_manifest": true,
+      "existing_data_sidecars": 3929,
+      "roi_samples_equal_original": true,
+      "raw_crop_matches": {
+        "exact_xywh_first_frame": 8
+      },
+      "raw_sample_count": 120
+    },
+    {
+      "project_id": "9f88f839-d908-44c6-8937-0b04713e36e3",
+      "name": "anof_171123_RM_NTS1NGtest",
+      "fovs": 4,
+      "rois": 1963,
+      "mat_sha256_unchanged": "dc514e4c9072afc4af4ad77400786d2e37d1cec83017bf25be93760ba900da0e",
+      "all_roi_im_results_references_in_verified_copy_manifest": true,
+      "existing_data_sidecars": 1963,
+      "roi_samples_equal_original": true,
+      "raw_crop_matches": {
+        "exact_xywh_first_frame": 4
+      },
+      "raw_sample_count": 60
+    },
+    {
+      "project_id": "de439577-471f-4eeb-afd8-3154f13732a6",
+      "name": "anof_171123_nhwt_gcn5",
+      "fovs": 16,
+      "rois": 7828,
+      "mat_sha256_unchanged": "dd02a11f9267231c6a16c44059fb82c9750d0f277c29f1798306402d7b8dd396",
+      "all_roi_im_results_references_in_verified_copy_manifest": true,
+      "existing_data_sidecars": 7828,
+      "roi_samples_equal_original": true,
+      "raw_crop_matches": {
+        "exact_xywh_first_frame": 16
+      },
+      "raw_sample_count": 240
+    }
+  ],
+  "project_count": 11,
+  "fovs": 123,
+  "rois": 53623,
+  "raw_samples": 1728,
+  "private_receipt_file": "/home/charvin-admin/storage-transfers/alexander-2023-remaining-20261101/project3-readonly-inspection.json",
+  "private_receipt_sha256": "4e21373fee4510e94a76f722c8a8815633803f6e17b9943602782c66f553830e",
+  "originals_preserved": true,
+  "projects_saved": false,
+  "project_paths_rewritten": false,
+  "catalog_changed": false,
+  "source_deleted": false,
+  "note": "123 exact first-frame crop comparisons corroborate the five legacy acquisition aliases; final copied-raw checksums, relink/reopen, sidecars and Windows remain pending."
+}
