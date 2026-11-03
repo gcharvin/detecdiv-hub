@@ -224,6 +224,19 @@ replace an entire storage-root prefix spanning unmoved years.
 
 ## Read-only status
 
+### Follow-up, 2026-11-03 13:28 UTC
+
+The raw copy completed at 10:02 UTC; full SHA1 and source stability are still
+pending. All 32 copied MATs completed relink with scientific save/reopen gates
+(524,082 path changes), all eleven own leases were released, and live catalog
+identity/metadata/location digests remain unchanged. Linux and actual limited
+Windows-session tests now verify all ROI/data paths, 123 FOVs and 1,728 raw
+sample reads using the protected engine; both passed the first six FOVs.
+An API projection prepares the 798 served assets with three-way primary/homes2/
+cache hashes, without changing URIs. The continuation README documents live
+tasks, private receipts, final-folder publication and remaining retirement gates.
+No 2023_3 source has been retired; preserve all original projects.
+
 ### Follow-up, 2026-11-03 03:37 UTC
 
 The raw copy reached 84.13% (5.020 / 5.967 TB). The completed metadata audit

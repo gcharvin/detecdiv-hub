@@ -20,6 +20,21 @@ Detailed conditions and the user's instruction: `docs/alexander_2023_transfer.md
 
 ## Alexander 2023_1 retired; 2023_3 raw/project copies active, 2026-11-01
 
+Latest follow-up, 2026-11-03 13:28 UTC: the full 2023_3 copy completed at
+10:02 UTC and is undergoing the complete SHA1 comparison, followed by source
+stability. All 32 copied MATs completed relink/save/reopen comparisons at 06:05
+(524,082 path changes); all eleven own leases were released at 06:06. Original
+projects and all catalog identity/metadata/location digests remain unchanged.
+Read-only Linux and actual limited Windows-session tests are now running across
+123 FOVs / 53,623 ROIs and 1,728 raw sample reads. Both passed the first six
+FOVs at 13:24. Linux tmux `alex2023-3-host-linux-20261103`; Windows task
+`DetecDiv Alexander Project3 Host Verify 20261103`. Incoming folders are still
+unpublished; canonical final paths are mapped in memory for these diagnostics.
+An independently three-way SHA1-verified API media cache is preparing in tmux
+`alex2023-3-api-projection-20261103` (798 files / 12.055 GB); no URI changed.
+See the continuation report for private receipt paths and guarded cleanup.
+Do not duplicate tasks or retire 2023_3 before all remaining gates complete.
+
 Latest follow-up, 2026-11-03 03:37 UTC: raw copy reached 5,019,920,590,245
 of 5,967,100,516,555 bytes (84.13%). The metadata audit completed with exit 0:
 98,611 non-image MATs, zero unresolved paths; 32 files need rebasing (11 main

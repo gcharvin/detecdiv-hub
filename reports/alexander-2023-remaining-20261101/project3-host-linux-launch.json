@@ -1,0 +1,15 @@
+{
+  "started": true,
+  "task": "alex2023-3-host-linux-20261103",
+  "projects": 11,
+  "fovs": 123,
+  "rois": 53623,
+  "raw_reads_expected": 1728,
+  "unique_raw_sample_files": 1728,
+  "data_sidecars_expected": 44944,
+  "script_sha256": "406e875491a04dfc9cd357f314073cf3a7417ecca2f1a253bf4712333218e6d9",
+  "private_request_sha256": "11d8755643c3746a1b725387266282a1f57ee1719b7041cd05072110cd01aa58",
+  "source_deleted": false,
+  "project_saved": false,
+  "catalog_changed": false
+}

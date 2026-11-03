@@ -1,5 +1,75 @@
 # Alexander 2023 migration continuation — 2026-11-01
 
+## Follow-up, 2026-11-03 09:36–13:28 UTC
+
+**Raw copy completed at 10:02 UTC.** The existing runner is now
+`verifying_full_content`, with checksum log
+`2023_3/verify-20261103T100210Z.log`. Its heartbeat is current. An empty log
+while rsync is still running is not a successful gate. Require exit 0, the
+terminal full-SHA1 flag and a complete identical fresh source inventory before
+publication/retirement. No 2023_3 payload has been deleted or made preferred.
+
+**All 32 copied MATs completed relink at 06:05:47 UTC**, with exit 0 and
+524,082 path changes. Every file passed exact audited change counts and
+canonical scientific/annotation comparisons before/after/save/reopen. All
+Sauvegarde originals and backups remain. Evidence:
+`project3-relink-completion-verification.json`. The watcher released all eleven
+own leases at 06:06:45 UTC and exited; do not restart it or the relink controller.
+Closure receipt: `project3-relink-lease-finalization.json`. A separate live
+database review confirmed unchanged identity, metadata and location digests for
+all eleven projects: `project3-relink-catalog-preservation.json`. Batch remains
+`copied_paths_relinked_pending_raw_and_host_gates`.
+
+Read-only filesystem/engine tests now run on **both hosts** using
+`verify_project3_hosts.m` and `run_project3_host_validation.py`:
+
+- Linux tmux **`alex2023-3-host-linux-20261103`**, private directory
+  **`project3-host-validation/`** under the compute work root.
+- Windows task **`DetecDiv Alexander Project3 Host Verify 20261103`**, running
+  as actual limited **`GMGM\Charvin-Admin`, session 1**. Private files:
+  `C:/ProgramData/DetecDivHub/homes2-connection-private/project3-host-validation-20261103`.
+
+At 13:24 UTC both had passed six FOVs of the first project without errors.
+They check every ROI image/results path, all **44,944 actually existing data
+sidecars**, all 21 processor paths, main/processor MAT hashes and representative
+ROI pixels against the original baseline in every one of 123 FOVs. All **1,728
+raw sample images** must match original pixel hashes; the protected engine's
+FOV reader is exercised too. Final canonical paths are translated to incoming
+folders **in memory only**, and no shared MAT is saved. Windows runs one MATLAB
+thread below normal priority after a 15.3-GB free-memory preflight. No worker
+restart/configuration/credential/default-engine change was performed.
+
+Before doing anything else, inspect `project3-host-<host>-state.json`,
+`project3-host-<host>-progress.json`, `.partial.json`, `-verification.json`,
+`-matlab.log`, and Linux `controller.exit` in the respective private directory.
+`project3_windows_host_ops.py status` retrieves Windows state into ignored local
+`runtime/project3-host-windows-status.json`; it does not re-run a test.
+Successful host state is `host_reads_verified_in_staging`. Keep full receipts,
+compare both hosts' project/FOV/ROI/raw counts, then remove only the temporary
+Windows diagnostic task/scripts with the guarded `cleanup` operation. Requests
+and full samples are private; launch summaries are committed. Do not duplicate
+these tests or change their pinned scripts while they run. Final publication
+still needs the real final-folder paths checked after the incoming-folder rename.
+
+An API continuity projection is also preparing in tmux
+**`alex2023-3-api-projection-20261103`**, private **`project3-api-projection/`**.
+It copies the 798 known preview/settings files (12,055,348,763 bytes) to
+`/data/.detecdiv-hub-api-cache/alexander-2023_3`, checking **primary source,
+homes2 and cache SHA1 equality** for every file and stable input metadata. At
+13:28 UTC it had verified 100 files; no API URI has changed. Inspect `state.json`,
+`controller.exit`, `controller.log`, and `receipt.jsonl`. Required terminal phase:
+`verified_ready_for_api_reference_update`. A partial cache must be reviewed,
+never overwritten by blindly replaying this one-shot script. Transactionally
+switch only still-matching API references and verify all real content handlers
+before source retirement. This extra cache also belongs to the eventual
+off-/data cleanup after the API can actually serve homes2 directly.
+
+Remaining gates: complete raw checksum/source stability; both host receipts;
+fresh jobs/locks and original/catalog preservation; final-folder publication
+and preferred locations on the same IDs; API continuity; a separately bounded,
+tested 2023_3 native manifest retirement and measured physical space recovery.
+Source deletion remains authorized only after all gates. Originals stay intact.
+
 ## Follow-up, 2026-11-03 03:37–03:51 UTC
 
 At 03:54 UTC both native gates had completed successfully for all 32 files,
