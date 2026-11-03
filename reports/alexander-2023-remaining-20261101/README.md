@@ -24,6 +24,9 @@ JSONL manifest. The orchestration layer must establish the raw, final-path,
 catalog, API and live lease gates before passing `mode: unlink` and
 `verified_cutover: true`. An early native preflight is read-only evidence and
 does not replace the live scan immediately before unlink.
+The early NAS preflight exceeded its 240-second SSH deadline while raw SHA1
+was running. It produced no successful receipt and used read-only mode. Run the
+full manifest preflight with durable logging and a longer runtime allowance.
 
 ## Follow-up, 2026-11-03 15:13 UTC
 
