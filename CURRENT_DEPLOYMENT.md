@@ -20,6 +20,15 @@ Detailed conditions and the user's instruction: `docs/alexander_2023_transfer.md
 
 ## Alexander 2023_1 retired; 2023_3 raw/project copies active, 2026-11-01
 
+Latest follow-up, 2026-11-03 15:13 UTC: complete Linux and actual limited
+Windows-session read tests passed for all eleven projects (123 FOVs / 53,623
+ROIs / 1,728 raw samples per host). The diagnostic Windows task/scripts were
+cleaned up; full receipts are preserved. The 798-file API projection also passed
+three-way hashes, with no URI changes. Raw full SHA1/source stability remain
+pending. Do not restart completed tasks. Final-folder checks, catalog/API cutover
+and manifest-bounded source retirement are still required; no 2023_3 source was
+deleted. Evidence: continuation README and completion-verification receipts.
+
 Latest follow-up, 2026-11-03 13:28 UTC: the full 2023_3 copy completed at
 10:02 UTC and is undergoing the complete SHA1 comparison, followed by source
 stability. All 32 copied MATs completed relink/save/reopen comparisons at 06:05

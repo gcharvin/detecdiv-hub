@@ -1,5 +1,29 @@
 # Alexander 2023 migration continuation — 2026-11-01
 
+## Follow-up, 2026-11-03 15:13 UTC
+
+Both host tests completed successfully: Linux at 14:19 UTC, actual limited
+Windows/session 1 at 14:25 UTC. Their receipts agree for all eleven projects,
+123 FOVs, 53,623 ROIs, 44,944 data sidecars, 21 processors and 1,728 raw sample
+reads per host. Original-baseline ROI/raw pixel hashes and engine FOV reads
+passed, with unchanged MAT hashes and no project saves. Evidence:
+`project3-hosts-completion-verification.json`. The temporary Windows diagnostic
+task/scripts were removed after preserving receipts; the worker was untouched.
+Do not run `status` on that removed task; use the preserved local/private reports.
+
+The API projection completed at 13:48 UTC: 798 files / 12,055,348,763 bytes,
+each with equal primary/homes2/cache SHA1 and stable input metadata. Evidence:
+`project3-api-projection-completion-verification.json`. No URI has changed.
+Do not restart either completed host test or the completed projection.
+
+The raw runner is still `verifying_full_content`, with a current heartbeat and
+an empty discrepancy log at 15:12 UTC. This remains the main pending gate, along
+with the subsequent complete source-stability inventory. After success, publish
+the final project folders, verify their real final paths, switch existing catalog
+locations/API references under fresh admission gates, then retire only the fully
+verified 2023_3 manifest and measure actual recovered space. Sources and original
+projects remain preserved at this checkpoint.
+
 ## Follow-up, 2026-11-03 09:36–13:28 UTC
 
 **Raw copy completed at 10:02 UTC.** The existing runner is now
