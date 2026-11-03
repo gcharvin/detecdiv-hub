@@ -1,14 +1,22 @@
 function verify_project3_hosts(work,release,host)
-% Read-only host tests. Translate unpublished project paths only in memory.
+% Read-only host tests for either the incoming or published project folders.
 addpath(genpath(fullfile(release,'structure')));addpath(fullfile(release,'helpers'));
 assert((strcmp(host,'windows') && ispc)||(strcmp(host,'linux') && isunix));
 request=jsondecode(fileread(fullfile(work,'project3-host-request.json')));
+namespace='incoming';
+if isfield(request,'project_namespace'),namespace=request.project_namespace;end
+assert(any(strcmp(namespace,{'incoming','final'})));
 canonical='/homes2/maliavko/DetecdivHub';
 if ispc,hostRoot='//srv-data-pb-lan1.u-strasbg.fr/home/DetecdivHub';else,hostRoot=canonical;end
 projectRoot='';incomingRoot='';projects=cell(1,numel(request.projects));
 for projectIndex=1:numel(request.projects)
     item=request.projects(projectIndex);stem=item.name;
-    projectRoot=[canonical '/projects/' stem];incomingRoot=[hostRoot '/projects/.incoming-' stem '-20261101'];
+    projectRoot=[canonical '/projects/' stem];
+    if strcmp(namespace,'final')
+        incomingRoot=[hostRoot '/projects/' stem];
+    else
+        incomingRoot=[hostRoot '/projects/.incoming-' stem '-20261101'];
+    end
     file=fullfile(incomingRoot,[stem '.mat']);assert(strcmp(fileHash(file),item.mat_sha256));
     loaded=load(file);p=loaded.shallowObj;
     assert(strcmp(strrep(p.io.path,'\','/'),projectRoot) && strcmp(p.io.file,stem));
@@ -89,7 +97,8 @@ for projectIndex=1:numel(request.projects)
 end
 writeJson(fullfile(work,['project3-host-' host '-verification.json']),struct('success',true,'host',host, ...
     'engine_release',release,'projects',{projects},'project_saved',false,'source_deleted',false,'catalog_changed',false, ...
-    'path_policy','Canonical final project paths translated to incoming folders in memory only; raw namespace unchanged.'));
+    'project_namespace',namespace, ...
+    'path_policy','Host paths resolved in memory from canonical saved paths.'));
 
     function out=mapped(value)
         normalized=strrep(char(value),'\','/');

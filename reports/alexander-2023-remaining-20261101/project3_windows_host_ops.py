@@ -11,10 +11,16 @@ PRIVATE='C:/ProgramData/DetecDivHub/homes2-connection-private/project3-host-vali
 TASK='DetecDiv Alexander Project3 Host Verify 20261103'
 
 
-def main(mode):
+def main(mode, final=False):
+    suffix = '-final' if final else ''
+    private = PRIVATE + suffix
+    task_name = TASK + (' Final' if final else '')
     files={n:base64.b64encode((HERE/n).read_bytes()).decode() for n in ['verify_project3_hosts.m','run_project3_host_validation.py']}
-    files['project3-host-request.json']=base64.b64encode((HERE/'runtime/project3-host-request.json').read_bytes()).decode()
-    code='PRIVATE='+repr(PRIVATE)+'\nTASK='+repr(TASK)+'\nMODE='+repr(mode)+'\nFILES='+repr(files)+'\n'+r'''
+    if mode == 'stage':
+        request = json.loads((HERE/f'runtime/project3-host{suffix}-request.json').read_text(encoding='utf-8'))
+        assert request.get('project_namespace', 'incoming') == ('final' if final else 'incoming')
+        files['project3-host-request.json']=base64.b64encode(json.dumps(request).encode()).decode()
+    code='PRIVATE='+repr(private)+'\nTASK='+repr(task_name)+'\nMODE='+repr(mode)+'\nFILES='+repr(files)+'\n'+r'''
 import json,base64,subprocess
 from pathlib import Path
 w=Path(PRIVATE);task=TASK
@@ -47,14 +53,20 @@ elif MODE=='status':
   if f.exists():out[name]=json.loads(f.read_text(encoding='utf-8-sig')) if name.endswith('.json') else f.read_text(errors='replace')[-4000:]
  print(json.dumps(out))
 elif MODE=='cleanup':
- data=json.loads((w/'project3-host-windows-state.json').read_text(encoding='utf-8-sig'));assert data['success'] and data['phase']=='host_reads_verified_in_staging'
+ data=json.loads((w/'project3-host-windows-state.json').read_text(encoding='utf-8-sig'))
+ expected_phase='host_reads_verified_in_final_folders' if w.name.endswith('-final') else 'host_reads_verified_in_staging'
+ assert data['success'] and data['phase']==expected_phase
  assert w.resolve()==Path('C:/ProgramData/DetecDivHub/homes2-connection-private/project3-host-validation-20261103').resolve()
  print(ps("$ErrorActionPreference='Stop';$t=Get-ScheduledTask -TaskName '"+task+"';if($t.State -eq 'Running'){throw 'Diagnostic still running'};Unregister-ScheduledTask -TaskName '"+task+"' -Confirm:$false;@{diagnosticTaskRemoved=$true;workerState=[string](Get-ScheduledTask -TaskName 'DetecDiv Hub Worker').State}|ConvertTo-Json -Compress"))
  for name in ['verify_project3_hosts.m','run_project3_host_validation.py']:(w/name).unlink()
 else:raise ValueError('Unknown diagnostic operation')
 '''
+    code=code.replace('project3-host-validation-20261103\\run_project3_host_validation.py',
+                      'project3-host-validation-20261103'+suffix+'\\run_project3_host_validation.py')
+    code=code.replace("Path('C:/ProgramData/DetecDivHub/homes2-connection-private/project3-host-validation-20261103').resolve()",
+                      f'Path({private!r}).resolve()')
     result=remote('windows',code,timeout=90)
-    f=HERE/(('runtime/project3-host-windows-status.json') if mode=='status' else 'project3-host-windows-'+mode+'.json')
+    f=HERE/(f'runtime/project3-host-windows{suffix}-status.json' if mode=='status' else f'project3-host-windows{suffix}-{mode}.json')
     f.write_text(json.dumps(result,indent=2)+'\n',encoding='utf-8')
     if mode=='status':
         report=result.get('project3-host-windows-verification.json');summary={k:v for k,v in result.items() if k not in ['project3-host-windows-verification.json']}
@@ -64,5 +76,6 @@ else:raise ValueError('Unknown diagnostic operation')
 
 
 if __name__=='__main__':
-    assert len(sys.argv)==2 and sys.argv[1] in ['stage','start','status','cleanup']
-    main(sys.argv[1])
+    assert len(sys.argv) in {2,3} and sys.argv[1] in ['stage','start','status','cleanup']
+    assert len(sys.argv)==2 or sys.argv[2]=='--final'
+    main(sys.argv[1], final=len(sys.argv)==3)

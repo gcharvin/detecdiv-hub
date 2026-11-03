@@ -1,5 +1,30 @@
 # Alexander 2023 migration continuation — 2026-11-01
 
+## Final-folder and retirement preparation, 2026-11-03
+
+After full raw SHA1 and source stability succeed, take fresh admission and
+lease receipts before publishing the eleven incoming project folders. For the
+real final-path checks, derive a fresh private request from the completed
+incoming validation request, set `project_namespace` to `final`, and pin
+`script_sha256` to the current `verify_project3_hosts.m`. Keep the incoming
+request and receipts. Run Linux in a fresh private directory. Store the Windows
+request under `runtime/project3-host-final-request.json` and run
+`project3_windows_host_ops.py stage --final`, then `start --final`. The final
+task and its directory are separate from the earlier diagnostic. Require
+`host_reads_verified_in_final_folders` from both hosts before catalog cutover.
+
+`retire_project3_manifest_native.py` is the NAS-side unlink routine for the
+exact 708,590-file manifest. Its preflight opens directories without following
+symlinks and rejects extra, changed, symlinked or hardlinked payloads. Isolated
+Linux fixtures passed those four rejection cases, read-only preflight, and an
+exact unlink preserving the snapshot directory. The routine retains directories,
+emits per-file receipts and measures free space on the source filesystem before
+and after unlink. It reads one JSON request line followed by the original
+JSONL manifest. The orchestration layer must establish the raw, final-path,
+catalog, API and live lease gates before passing `mode: unlink` and
+`verified_cutover: true`. An early native preflight is read-only evidence and
+does not replace the live scan immediately before unlink.
+
 ## Follow-up, 2026-11-03 15:13 UTC
 
 Both host tests completed successfully: Linux at 14:19 UTC, actual limited

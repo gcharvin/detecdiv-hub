@@ -25,6 +25,8 @@ def save():
 def main():
     request=json.loads((WORK/'project3-host-request.json').read_text(encoding='utf-8'))
     assert len(request['projects'])==11
+    namespace=request.get('project_namespace','incoming')
+    assert namespace in {'incoming','final'}
     assert hashlib.sha256((WORK/'verify_project3_hosts.m').read_bytes()).hexdigest()==request['script_sha256']
     assert not (WORK/('project3-host-'+HOST+'-verification.json')).exists(),'Do not duplicate host verification'
     if WINDOWS:
@@ -67,7 +69,9 @@ def main():
     assert report['success'] and not report['project_saved'] and len(report['projects'])==11
     assert sum(p['fovs'] for p in report['projects'])==123 and sum(p['rois'] for p in report['projects'])==53623
     assert sum(p['raw_sample_reads_verified'] for p in report['projects'])==1728
-    STATE.update(phase='host_reads_verified_in_staging',success=True,finished_at=datetime.now(timezone.utc).isoformat());save()
+    assert report.get('project_namespace','incoming')==namespace
+    phase='host_reads_verified_in_final_folders' if namespace=='final' else 'host_reads_verified_in_staging'
+    STATE.update(phase=phase,success=True,finished_at=datetime.now(timezone.utc).isoformat());save()
 
 
 if __name__=='__main__':
