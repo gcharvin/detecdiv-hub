@@ -1,5 +1,78 @@
 # Alexander 2023 migration continuation — 2026-11-01
 
+## Follow-up, 2026-11-03 03:37–03:51 UTC
+
+At 03:54 UTC both native gates had completed successfully for all 32 files,
+including independent maliavko-owned backups. The 21 processor MATs were already
+relinked with exact change counts and successful scientific before/after/save/
+reopen comparisons; the eleven main MATs were next. Full snapshot evidence:
+`project3-relink-preparation-verification.json`. MATLAB PID 3122948 at launch;
+inspect receipts rather than treating this interim count as terminal completion.
+
+Raw 2023_3 copy reached **5,019,920,590,245 / 5,967,100,516,555 bytes
+(84.13%)** at 03:37 UTC. Full SHA1 and source stability remain pending. No
+2023_3 source has been retired; primary free space was 5,587,621,289,984 bytes.
+
+The corrected persistent-path audit completed with exit 0: **98,611 non-image
+MATs**, no unresolved absolute path values. It excluded all 53,623 image MATs.
+Only **32 MATs** need rebasing: eleven main projects and 21 processor MATs.
+All other result/data/labeled MATs have no actionable paths and remain unchanged.
+`project3-persistent-paths-verification.json` contains the completed audit,
+receipt digest and all 32 recipes/examples. The launcher also rechecked that
+the receipt covers exactly every expected non-image MAT in the copy manifests.
+
+Unpublished-copy relinking is now running in detached tmux
+**`alex2023-3-relink-20261103`**, private subdirectory **`project3-relink/`**.
+Batch: `46b50e1d-bf24-4284-9d3d-fbe4df5de158`.
+The controller checked no affected queued/running/cancelling jobs, no active
+indexing, Alexander ownership, and acquired only its own eleven edit leases.
+They expire at **2026-11-03 07:45:18 UTC**. Project identity/metadata/location
+digests are retained in the batch and private `admission.json`. Existing preferred
+locations, owners, notes, ACLs, groups, raw links and positions are not changed.
+
+Before writing any MAT, the controller repeats every complete native Sauvegarde
+inventory and requires byte-for-byte equality with the original copy manifest.
+All eleven fresh inventories passed. Native source/copy hash, regular-file,
+independent-inode and maliavko ownership checks passed for the 32 inputs.
+It then created all 32 backups (3,350,294,871 bytes) under
+`/homes2/maliavko/DetecdivHub/.migration-backups/alexander-2023-remaining-20261101/2023_3-relink-20261103`.
+At 03:51 the native three-way source/copy/backup hash gate was still running;
+no copied MAT had yet been rewritten.
+
+`relink_project3_copies.m` uses the proven persistent-value visitor from the
+2023_1 operation, with explicit mappings for these projects/acquisitions.
+For each allowed MAT it verifies the input and backup hashes, canonicalizes
+paths for before/after scientific-value comparisons, requires the exact audited
+change count, saves to a new temporary MAT, reopens and compares every persistent
+non-path value/annotation, audits remaining old paths, then replaces only that
+copied MAT. Processor files are handled first. Every successful replacement gets
+a separate `modified-NN.json` receipt with old/new hashes. No image file is saved.
+Lease expiry is checked before every replacement. No automatic retry/rollback
+is allowed after a partial write; preserve receipts, temporary files and backups.
+
+**Important:** copies stay in `.incoming-<stem>-20261101` during this phase.
+Saved paths use the future final canonical project folders. Until validated
+filesystem publication, translate final-folder prefixes to the incoming folders
+in memory when inspecting a copied project. Do not make its catalog location
+preferred yet. Full copied-raw verification, Linux/actual Windows filesystem
+reads, API continuity, publication and source retirement remain separate gates.
+
+Inspect `project3-relink/state.json`, `controller.exit`, `controller.log`,
+`matlab.log`, `matlab.exit`, `progress.json`, `result.json`, `modified-NN.json`,
+and native input/backup receipts before doing more. Both controllers are one-shot;
+never replay them over partially relinked copies. Terminal success phase:
+`copied_paths_relinked_science_verified_raw_and_host_gates_pending`.
+
+A local hidden one-shot watcher (PID 17584 at launch) polls terminal receipts
+every minute and then releases only those eleven own leases and records the
+terminal result in the same audit batch. It changes no preferred location and
+deletes no source. Its logs and private admission/status are under local
+`runtime/project3-relink-*`; final closure receipt is
+`project3-relink-lease-finalization.json`. If the watcher stops, inspect the server
+task first, then close only its recorded own leases after terminal exit. Do not
+kill or alter an unrelated job. Admission summary, launch and watcher launch
+receipts are retained alongside this report. No worker/API/default-engine change.
+
 ## Follow-up, 2026-11-02 21:33 UTC
 
 2023_3 is still copying, now **4,063,322,667,444 / 5,967,100,516,555 bytes

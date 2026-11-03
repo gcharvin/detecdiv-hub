@@ -20,6 +20,21 @@ Detailed conditions and the user's instruction: `docs/alexander_2023_transfer.md
 
 ## Alexander 2023_1 retired; 2023_3 raw/project copies active, 2026-11-01
 
+Latest follow-up, 2026-11-03 03:37 UTC: raw copy reached 5,019,920,590,245
+of 5,967,100,516,555 bytes (84.13%). The metadata audit completed with exit 0:
+98,611 non-image MATs, zero unresolved paths; 32 files need rebasing (11 main
+projects, 21 processors). Relinking of those unpublished copies is preparing
+in tmux `alex2023-3-relink-20261103`, batch
+`46b50e1d-bf24-4284-9d3d-fbe4df5de158`. All eleven fresh original inventories
+matched; native input hashes/ownership passed and 32 backups were created.
+At 03:51 UTC the backup hash gate was still running, before any MAT rewrite.
+At 03:54 UTC that gate passed and the 21 processor MATs had been relinked with
+verified scientific save/reopen comparisons; the eleven main MATs were next.
+Eleven own leases expire 07:45 UTC; a hidden local watcher releases only those
+leases on terminal exit. Read the continuation README for receipts and recovery
+gates. Copied MATs will use final canonical paths while files remain incoming;
+they are not yet preferred/published. No 2023_3 source retirement occurred.
+
 Latest follow-up, 2026-11-02 21:33 UTC: raw copy reached 4,063,322,667,444
 of 5,967,100,516,555 bytes (68.10%). The first read-only project audit completed
 (exit 0): all 123 FOVs have exact raw-crop/ROI pixel equality corroborating

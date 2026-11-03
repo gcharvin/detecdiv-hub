@@ -1,0 +1,242 @@
+{
+  "checked_at": "2026-11-03T03:54:52.793128+00:00",
+  "fresh_original_inventories": [
+    {
+      "name": "anof_07122023_5354_log1724",
+      "inventory_sha256": "e11ff2e7102123b13d03ecdc7030eaf6da693d38ae531670734dc127fc119b4c"
+    },
+    {
+      "name": "anof_13122023_crelox_test",
+      "inventory_sha256": "1f5dfe5124c5ae186c0609c00eba74e2eb39952ff7531982af3d4ab65c90ae62"
+    },
+    {
+      "name": "anof_171123_apx1",
+      "inventory_sha256": "a1c26a1b84496e55649cf3cbf684aa355cab8697cb9f3ffaa2aba70b18d97f2b"
+    },
+    {
+      "name": "anof_171123_sgfhap4",
+      "inventory_sha256": "95fb262e812f0265be4ad85b4b4bc9b45ab37f3a7c406b1da919572018865810"
+    },
+    {
+      "name": "anof_231123_nh52",
+      "inventory_sha256": "5d88399dc4e3ccf54347cd80bdc2de962916bb8f8b2d04ded6901aa74faa2350"
+    },
+    {
+      "name": "anof_291123_nh_sgf73",
+      "inventory_sha256": "5f157e492a26908d81028135a6a33f1ff155fb729974465e811d790c9210f301"
+    },
+    {
+      "name": "anof_291123_nh_wts",
+      "inventory_sha256": "92e00599da8800cc94d6a24fc1cba6f3b6276840a40f057d6e39d039fb4e198f"
+    },
+    {
+      "name": "anof_291123_nh_sgf73hap4",
+      "inventory_sha256": "25c933ccb71e0e1aaf1d660dcbd791640cff48a23740cd1053a6deda2fd4e827"
+    },
+    {
+      "name": "anof_231123_newleft",
+      "inventory_sha256": "7817c693e18ddcf40312f194393bfcff5deec23d6b6ae7805c3ae852cbabd9ff"
+    },
+    {
+      "name": "anof_171123_RM_NTS1NGtest",
+      "inventory_sha256": "a73b8f607bf3a0bd53dc5842c526250b9f56f8eb1892814354795e38e33cdb3b"
+    },
+    {
+      "name": "anof_171123_nhwt_gcn5",
+      "inventory_sha256": "8be7410a8349077b1d0872fab293fe6003de66cb21c0cb0b53e5869b789eb62c"
+    }
+  ],
+  "native_gates": [
+    {
+      "file": "/home/charvin-admin/storage-transfers/alexander-2023-remaining-20261101/project3-relink/native-inputs.json",
+      "sha256": "a182bec0354c8753e9648a5ebc47253cafa6c264fa3a891af23d4cc6ecf2185c",
+      "files": 32,
+      "with_backups": false,
+      "native_owner": "maliavko"
+    },
+    {
+      "file": "/home/charvin-admin/storage-transfers/alexander-2023-remaining-20261101/project3-relink/native-input-and-backup-gate.json",
+      "sha256": "bb25dc27664c63205a0b0b858c58ddfb1cb1c174d381a81588098e751315dea5",
+      "files": 32,
+      "with_backups": true,
+      "native_owner": "maliavko"
+    }
+  ],
+  "backups": 32,
+  "backup_bytes": 3350294871,
+  "completed_copied_mat_rewrites_at_checkpoint": [
+    {
+      "file": "modified-01.json",
+      "relative_path": "anof_13122023_crelox_test/processor/ComputeAllMetrics_2/ComputeAllMetrics_2_processor.mat",
+      "before_sha256": "fd3620f05f80238a8471de5695999cc220951c25b4590a64c63895bb05fdb4fe",
+      "after_sha256": "4a915d0b17fb205b52f0c29c05ef9561922fb6b0dbc79d002909ea7d5791b11c",
+      "path_changes": 1,
+      "scientific_save_reopen_verified": true
+    },
+    {
+      "file": "modified-02.json",
+      "relative_path": "anof_13122023_crelox_test/processor/ComputeRLS_3/ComputeRLS_3_processor.mat",
+      "before_sha256": "3aed323180d2bfb443589837323c85816cac8a928e697de6115970312da0bfc6",
+      "after_sha256": "40ab96dd5e20f632caddb521495c1b762051479a707cc19df40cc1e438fd087b",
+      "path_changes": 1,
+      "scientific_save_reopen_verified": true
+    },
+    {
+      "file": "modified-03.json",
+      "relative_path": "anof_13122023_crelox_test/processor/combine_channels_1/combine_channels_1_processor.mat",
+      "before_sha256": "9300508b26e681d57a00bacc3c27d2bf45541e3d8389eb321bc5ce950c1aedee",
+      "after_sha256": "fd23d4d3dc38e5deceb57f4b712d291087f6ba426fe9f81d3ffacba355079de1",
+      "path_changes": 1,
+      "scientific_save_reopen_verified": true
+    },
+    {
+      "file": "modified-04.json",
+      "relative_path": "anof_171123_RM_NTS1NGtest/processor/ComputeAllMetrics_1/ComputeAllMetrics_1_processor.mat",
+      "before_sha256": "36136d4827cd27bd8b2c512dcd3a535a3ecbeea30d32b82489c4753dad9d90f6",
+      "after_sha256": "4317b9b242de21f83b0052f8a2f9c74726795c866caac0881ea7b3f291dfbf2b",
+      "path_changes": 1,
+      "scientific_save_reopen_verified": true
+    },
+    {
+      "file": "modified-05.json",
+      "relative_path": "anof_171123_RM_NTS1NGtest/processor/ComputeRLS_2/ComputeRLS_2_processor.mat",
+      "before_sha256": "a9eef303f87eb51a69f1090f69f3eb110484cc0647cf547e463e08566ffdc785",
+      "after_sha256": "f719fbc79a616d8fc645e05ac1306d8585a40ad563f5d6b83519b601c6492afb",
+      "path_changes": 1,
+      "scientific_save_reopen_verified": true
+    },
+    {
+      "file": "modified-06.json",
+      "relative_path": "anof_171123_apx1/processor/ComputeAllMetrics_1/ComputeAllMetrics_1_processor.mat",
+      "before_sha256": "8c69bdfd864c479c97a412485fe8b313d9da93239ddd10cb810e18732906304a",
+      "after_sha256": "df80eb29dc8f6d3c00aa815189ccea8bf13ef60ea5e6c13927153c4377a01daf",
+      "path_changes": 1,
+      "scientific_save_reopen_verified": true
+    },
+    {
+      "file": "modified-07.json",
+      "relative_path": "anof_171123_apx1/processor/ComputeRLS_2/ComputeRLS_2_processor.mat",
+      "before_sha256": "9d0af942674e165d646acd0ab1fcf73b4a235d2dee3a3b02d8c24bbd746482ca",
+      "after_sha256": "ddfe1e876f1c9c48d940dc1904332751a168d89fb249e9d79432609755658f1f",
+      "path_changes": 1,
+      "scientific_save_reopen_verified": true
+    },
+    {
+      "file": "modified-08.json",
+      "relative_path": "anof_171123_nhwt_gcn5/processor/ComputeAllMetrics_1/ComputeAllMetrics_1_processor.mat",
+      "before_sha256": "b696efb820431495e4b43566c38fdc7b28714d8971f710e313a621bd4944bffc",
+      "after_sha256": "310b33f2d276bfa36a3e6f5cd223a4c41b00b89d315077b31b0683a6f4be5ec0",
+      "path_changes": 1,
+      "scientific_save_reopen_verified": true
+    },
+    {
+      "file": "modified-09.json",
+      "relative_path": "anof_171123_nhwt_gcn5/processor/ComputeRLS_2/ComputeRLS_2_processor.mat",
+      "before_sha256": "a6be351cb3aba62eb0b720b268e8f20a08028b5e69b4d25328216b00ca2b9b39",
+      "after_sha256": "19b6109ce86580b5de8d3c1691dd1b721616ec919e89ad084649a01eb3d5c734",
+      "path_changes": 1,
+      "scientific_save_reopen_verified": true
+    },
+    {
+      "file": "modified-10.json",
+      "relative_path": "anof_171123_sgfhap4/processor/ComputeAllMetrics_1/ComputeAllMetrics_1_processor.mat",
+      "before_sha256": "092502fea48742c080ddda78961669ed1e9fae6da5014d027a4c991648e292c9",
+      "after_sha256": "5f7556a86aa8239b4ca7d7ccd7d4f190605ca00d96af4a3024c6f515fa50bca1",
+      "path_changes": 1,
+      "scientific_save_reopen_verified": true
+    },
+    {
+      "file": "modified-11.json",
+      "relative_path": "anof_171123_sgfhap4/processor/ComputeRLS_2/ComputeRLS_2_processor.mat",
+      "before_sha256": "647bfb5681b878e74e299691e85e3bbaa31ada10a064de78f3167531170de1af",
+      "after_sha256": "bb3a8c5dd4b8d2214ef6b416f3dfaad3b39875ab017ee0f87753ebd7aba182d4",
+      "path_changes": 1,
+      "scientific_save_reopen_verified": true
+    },
+    {
+      "file": "modified-12.json",
+      "relative_path": "anof_231123_newleft/processor/ComputeAllMetrics_1/ComputeAllMetrics_1_processor.mat",
+      "before_sha256": "0111dd73ccaadda78869a1a59717f7346ec2550e9754e3cd847ba61b555f6dde",
+      "after_sha256": "705a7f48b1e2bc81f847b961b957ab707b40b4c5dbf124488d74b1f27a0bce74",
+      "path_changes": 1,
+      "scientific_save_reopen_verified": true
+    },
+    {
+      "file": "modified-13.json",
+      "relative_path": "anof_231123_newleft/processor/ComputeRLS_2/ComputeRLS_2_processor.mat",
+      "before_sha256": "a2f573ce51ece8aa90423df986ef88e9dc7d7463ae3e1719c58f274409f70b14",
+      "after_sha256": "ff76060d652a79c8de4f0764724f28294ebff2ca546b428f0839b827b8ce01cb",
+      "path_changes": 1,
+      "scientific_save_reopen_verified": true
+    },
+    {
+      "file": "modified-14.json",
+      "relative_path": "anof_231123_nh52/processor/ComputeAllMetrics_1/ComputeAllMetrics_1_processor.mat",
+      "before_sha256": "3a6cb946b59cfa2bc645758143e21e083d28ccf511f322da9a6571900c9f5f9a",
+      "after_sha256": "4e1d4482ceacce89939691d802f5f9e00abb0e90172c34365a6087a614f8ba8b",
+      "path_changes": 1,
+      "scientific_save_reopen_verified": true
+    },
+    {
+      "file": "modified-15.json",
+      "relative_path": "anof_231123_nh52/processor/ComputeRLS_2/ComputeRLS_2_processor.mat",
+      "before_sha256": "e2da1106418301eb41b9d887d9f147b4095471290a0ca990e566efca0aea0c5d",
+      "after_sha256": "422d6e3fe6d2a1d8cd3e548a15a150966f616e14b062ea5d3b3c5419f03d3da9",
+      "path_changes": 1,
+      "scientific_save_reopen_verified": true
+    },
+    {
+      "file": "modified-16.json",
+      "relative_path": "anof_291123_nh_sgf73/processor/ComputeAllMetrics_1/ComputeAllMetrics_1_processor.mat",
+      "before_sha256": "cd1d1a794e3780e39583ec84ead992aa532834bc6f4d9619e25445e6faf85c60",
+      "after_sha256": "d6ab95ef10a1b85c4378b4b8ceb2dd50db22029fd1dd4612fafe41096fd6e7ea",
+      "path_changes": 1,
+      "scientific_save_reopen_verified": true
+    },
+    {
+      "file": "modified-17.json",
+      "relative_path": "anof_291123_nh_sgf73/processor/ComputeRLS_2/ComputeRLS_2_processor.mat",
+      "before_sha256": "f7e28c993e97156a41563c16acea11cb2840a66b1dadd3fe151f0ef84365d3b4",
+      "after_sha256": "4c10998b5775aef8600b80829e090cb1525bdf152b9896191b4205471e9d01cf",
+      "path_changes": 1,
+      "scientific_save_reopen_verified": true
+    },
+    {
+      "file": "modified-18.json",
+      "relative_path": "anof_291123_nh_sgf73hap4/processor/ComputeAllMetrics_1/ComputeAllMetrics_1_processor.mat",
+      "before_sha256": "e59f1d3208736803b5faab188dd4125e1c6da465660dabae81dd9f6b816ed61b",
+      "after_sha256": "1b33d807e7bd486695e577c0c74fcd2371f4fcb44a9994e3674b732bdbe62f5b",
+      "path_changes": 1,
+      "scientific_save_reopen_verified": true
+    },
+    {
+      "file": "modified-19.json",
+      "relative_path": "anof_291123_nh_sgf73hap4/processor/ComputeRLS_2/ComputeRLS_2_processor.mat",
+      "before_sha256": "cd07344f6b21b7733361f123e5ce50aa3acc98404cf585443fb5e7f4202f3cb3",
+      "after_sha256": "102b483f8b0492c0a0c5182dbbcbaa05378b2c3f6445ad8145fe894335f59129",
+      "path_changes": 1,
+      "scientific_save_reopen_verified": true
+    },
+    {
+      "file": "modified-20.json",
+      "relative_path": "anof_291123_nh_wts/processor/ComputeAllMetrics_1/ComputeAllMetrics_1_processor.mat",
+      "before_sha256": "941cf36e80970184f53a5a706f7a4741ec384a33252e606958f9cfc4e4013972",
+      "after_sha256": "d9c11315d8a6d55644d2684dbaaadbf6c002f9daa1e867a9b13041558620ee98",
+      "path_changes": 1,
+      "scientific_save_reopen_verified": true
+    },
+    {
+      "file": "modified-21.json",
+      "relative_path": "anof_291123_nh_wts/processor/ComputeRLS_2/ComputeRLS_2_processor.mat",
+      "before_sha256": "ad54cb7bf9eba0a2908eed3ef1b110f606fa561f35da5578b8c1b06bb83287cb",
+      "after_sha256": "5f0e5b1bddcf42979791df5445ecc497d9a166857bc9291922d21e6721030f8d",
+      "path_changes": 1,
+      "scientific_save_reopen_verified": true
+    }
+  ],
+  "batch_id": "46b50e1d-bf24-4284-9d3d-fbe4df5de158",
+  "originals_preserved": true,
+  "preferred_locations_unchanged": true,
+  "source_deleted": false,
+  "final_project_host_and_raw_gates_pending": true
+}

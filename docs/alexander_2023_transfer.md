@@ -224,6 +224,20 @@ replace an entire storage-root prefix spanning unmoved years.
 
 ## Read-only status
 
+### Follow-up, 2026-11-03 03:37 UTC
+
+The raw copy reached 84.13% (5.020 / 5.967 TB). The completed metadata audit
+covered 98,611 non-image MATs with no unresolved paths. A guarded relink task
+now prepares the 11 main MATs and 21 processor MATs in unpublished copies:
+tmux `alex2023-3-relink-20261103`, private `project3-relink/`, batch
+`46b50e1d-bf24-4284-9d3d-fbe4df5de158`. Fresh original inventories match;
+backups precede every write, with exact content/scientific save/reopen gates.
+Its eleven own leases have a four-hour bound and a terminal-receipt watcher.
+Incoming folders and final canonical saved paths must be translated in memory
+until filesystem publication. No preferred location or source data was changed
+at this checkpoint. Full raw, host/API and retirement gates remain pending;
+the continuation README documents the new receipts and one-shot recovery rules.
+
 ### Follow-up, 2026-11-02 21:33 UTC
 
 Raw copy reached 68.10% (4.063 / 5.967 TB). The project preparation audit

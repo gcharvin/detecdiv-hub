@@ -1,0 +1,12 @@
+{
+  "started": true,
+  "task": "alex2023-3-relink-20261103",
+  "batch_id": "46b50e1d-bf24-4284-9d3d-fbe4df5de158",
+  "projects": 11,
+  "files_to_relink": 32,
+  "lease_deadline_unix": 1793691918.782902,
+  "runner_sha256": "f705b511441edecc17902c78c60c4e1ac650515c8916f1e86670b0d51ca043ce",
+  "matlab_sha256": "6112759e9417cfa004c0786ef1aef96cca916e93194dc5c16563fcb5ddea51ad",
+  "preferred_locations_unchanged": true,
+  "source_deleted": false
+}

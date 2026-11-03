@@ -1,0 +1,9 @@
+{
+  "private_admission_sha256": "38f9b727f8ef3e934128f077f57f259cf623af68b90735a2d0db5b7874a724ac",
+  "private_admission_file": "/home/charvin-admin/storage-transfers/alexander-2023-remaining-20261101/project3-relink/admission.json",
+  "mat_files_to_relink": 32,
+  "input_mat_bytes": 3350294871,
+  "lease_deadline_utc": "2026-11-03T07:45:18.782902+00:00",
+  "own_project_leases": 11,
+  "batch_id": "46b50e1d-bf24-4284-9d3d-fbe4df5de158"
+}
