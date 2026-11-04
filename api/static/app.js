@@ -718,6 +718,7 @@ function initializeAppLayout() {
         label: "AI",
         items: [
           { label: "Assistant", href: "/web/assistant.html", route: "assistant" },
+          { label: "HoCT Studio", href: `${window.location.protocol}//${window.location.hostname}:8766/`, newTab: true },
         ],
       },
     ];
@@ -740,6 +741,10 @@ function initializeAppLayout() {
         link.href = item.href;
         link.textContent = item.label;
         link.className = "sidebar-link";
+        if (item.newTab) {
+          link.target = "_blank";
+          link.rel = "noopener noreferrer";
+        }
         if (item.route === activeRoute) {
           link.classList.add("active");
           link.setAttribute("aria-current", "page");
