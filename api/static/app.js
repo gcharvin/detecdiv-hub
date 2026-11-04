@@ -705,7 +705,6 @@ function initializeAppLayout() {
         label: "Account",
         items: [
           { label: "External accounts", href: "/web/external-systems.html", route: "external-systems" },
-          { label: "Yeast strains", href: "/web/yeast-strains.html", route: "yeast-strains" },
         ],
       },
       {
