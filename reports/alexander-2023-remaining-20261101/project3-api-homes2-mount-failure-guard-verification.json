@@ -1,0 +1,9 @@
+{
+  "hardened_mount_preparation_staged": true,
+  "bash_syntax_passed": true,
+  "files_sha256": {
+    "install_homes2_readonly_mount.sh": "4061d586d735ebfe2619848a5beedfadd5d7c1ca374b836c568e2a6eda6a9cd4",
+    "README.md": "7bcb01c80322a34fb5929983f34ea0e560d50da2d119113d90e56d520a260cbf"
+  },
+  "installed_by_agent": false
+}

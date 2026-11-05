@@ -1,0 +1,108 @@
+{
+  "success": true,
+  "projects": [
+    {
+      "project_id": "9e2f2539-7e95-4443-b3b3-650dca2db54c",
+      "name": "anof_07122023_5354_log1724",
+      "fovs": 23,
+      "raw_reads_verified": 23,
+      "roi_image_reads_verified": 1,
+      "main_mat_unchanged": true,
+      "project_saved": false
+    },
+    {
+      "project_id": "6dd570e7-668d-48d5-8586-7b3f69af5136",
+      "name": "anof_13122023_crelox_test",
+      "fovs": 16,
+      "raw_reads_verified": 16,
+      "roi_image_reads_verified": 1,
+      "main_mat_unchanged": true,
+      "project_saved": false
+    },
+    {
+      "project_id": "6aa9c80c-ac32-41d6-a021-6f2d83e0a5bf",
+      "name": "anof_171123_apx1",
+      "fovs": 8,
+      "raw_reads_verified": 8,
+      "roi_image_reads_verified": 1,
+      "main_mat_unchanged": true,
+      "project_saved": false
+    },
+    {
+      "project_id": "9d70b40a-43b2-472a-8410-b6a7965184b6",
+      "name": "anof_171123_sgfhap4",
+      "fovs": 4,
+      "raw_reads_verified": 4,
+      "roi_image_reads_verified": 1,
+      "main_mat_unchanged": true,
+      "project_saved": false
+    },
+    {
+      "project_id": "c1661f69-7579-473b-aa7d-f2acdb7de5bc",
+      "name": "anof_231123_nh52",
+      "fovs": 16,
+      "raw_reads_verified": 16,
+      "roi_image_reads_verified": 1,
+      "main_mat_unchanged": true,
+      "project_saved": false
+    },
+    {
+      "project_id": "6e2aa8c7-a59e-4ed7-b7e2-c48916160a02",
+      "name": "anof_291123_nh_sgf73",
+      "fovs": 12,
+      "raw_reads_verified": 12,
+      "roi_image_reads_verified": 1,
+      "main_mat_unchanged": true,
+      "project_saved": false
+    },
+    {
+      "project_id": "c00f3571-2721-4dc5-9783-2d464fbec635",
+      "name": "anof_291123_nh_wts",
+      "fovs": 8,
+      "raw_reads_verified": 8,
+      "roi_image_reads_verified": 1,
+      "main_mat_unchanged": true,
+      "project_saved": false
+    },
+    {
+      "project_id": "707acc12-89b0-4d74-a98c-d69e86b68531",
+      "name": "anof_291123_nh_sgf73hap4",
+      "fovs": 8,
+      "raw_reads_verified": 8,
+      "roi_image_reads_verified": 1,
+      "main_mat_unchanged": true,
+      "project_saved": false
+    },
+    {
+      "project_id": "78c84671-9e8f-4ee4-bed9-d6397f86e5fd",
+      "name": "anof_231123_newleft",
+      "fovs": 8,
+      "raw_reads_verified": 8,
+      "roi_image_reads_verified": 1,
+      "main_mat_unchanged": true,
+      "project_saved": false
+    },
+    {
+      "project_id": "9f88f839-d908-44c6-8937-0b04713e36e3",
+      "name": "anof_171123_RM_NTS1NGtest",
+      "fovs": 4,
+      "raw_reads_verified": 4,
+      "roi_image_reads_verified": 1,
+      "main_mat_unchanged": true,
+      "project_saved": false
+    },
+    {
+      "project_id": "de439577-471f-4eeb-afd8-3154f13732a6",
+      "name": "anof_171123_nhwt_gcn5",
+      "fovs": 16,
+      "raw_reads_verified": 16,
+      "roi_image_reads_verified": 1,
+      "main_mat_unchanged": true,
+      "project_saved": false
+    }
+  ],
+  "raw_reads_per_host": 123,
+  "roi_image_reads_per_host": 11,
+  "source_retirement_receipt_sha256": "0911eec03bc98a950d4eb587e12dbb658c88b0ada46541ff11fdd79b625f4aa8",
+  "project_saved": false
+}

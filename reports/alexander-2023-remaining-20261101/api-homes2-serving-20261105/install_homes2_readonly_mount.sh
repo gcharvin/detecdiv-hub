@@ -26,17 +26,24 @@ else
     [[ -z "$(find "${target}" -mindepth 1 -maxdepth 1 -print -quit)" ]] || { echo 'Mount target is not empty.' >&2; exit 1; }
 fi
 install -m 0644 -- "${source_dir}/detecdiv-homes2-share.service" "${unit}"
-install -D -m 0644 -- "${source_dir}/homes2.conf" "${dropin}"
 systemctl daemon-reload
-systemctl enable --now detecdiv-homes2-share.service
+if ! systemctl start detecdiv-homes2-share.service; then
+    systemctl stop detecdiv-homes2-share.service || true
+    echo 'Mount start failed; preserve API caches and inspect the new unit.' >&2
+    exit 1
+fi
 for attempt in {1..30}; do
     if mountpoint -q "${target}" && [[ -d "${target}/raw" && -d "${target}/projects" ]]; then
         [[ ",$(findmnt -rn -M "${target}" -o OPTIONS)," == *,ro,* ]] || { echo 'Expected read-only mount.' >&2; exit 1; }
+        install -D -m 0644 -- "${source_dir}/homes2.conf" "${dropin}"
+        systemctl daemon-reload
+        systemctl enable detecdiv-homes2-share.service
         findmnt -rn -M "${target}" -o SOURCE,TARGET,FSTYPE,OPTIONS
         echo 'Read-only homes2 mount is ready. API container and all cache references are unchanged.'
         exit 0
     fi
     sleep 2
 done
+systemctl stop detecdiv-homes2-share.service || true
 echo 'Mount is not ready. Preserve API caches and inspect detecdiv-homes2-share.service.' >&2
 exit 1

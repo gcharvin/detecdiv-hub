@@ -1,0 +1,31 @@
+{
+  "success": true,
+  "state": {
+    "phase": "source_manifest_retired_catalog_finalization_pending",
+    "source_deleted": true,
+    "files_unlinked": 708590,
+    "bytes_unlinked": 5967100516555,
+    "batch_id": "67c091e6-b021-4f9e-8048-33a9192e1bc7",
+    "source_manifest_sha256": "4abdfbfff41264b9bc069c3968ac742ac06fa9b7c52127bbf4369a7d95306fd3",
+    "heartbeat_at": "2026-11-05T10:41:53.895795+00:00",
+    "ssh_pid": 116942,
+    "native_preflight": {
+      "event": "preflight_passed",
+      "files": 708590,
+      "free_bytes_before": 5023690645504
+    },
+    "result": {
+      "event": "complete",
+      "files_unlinked": 708590,
+      "logical_bytes_unlinked": 5967100516555,
+      "free_bytes_before": 5023690645504,
+      "free_bytes_after": 10990913290240,
+      "measured_free_bytes_increase": 5967222644736
+    },
+    "receipt_sha256": "0911eec03bc98a950d4eb587e12dbb658c88b0ada46541ff11fdd79b625f4aa8",
+    "finished_at": "2026-11-05T10:41:53.895754+00:00"
+  },
+  "all_manifest_files_have_unique_unlink_receipts": true,
+  "source_payload_empty_after_native_scan": true,
+  "verified_at": "2026-11-05T10:42:35.783755+00:00"
+}

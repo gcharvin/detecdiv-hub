@@ -1,0 +1,20 @@
+{
+  "success": true,
+  "state": {
+    "phase": "all_real_api_content_handlers_verified",
+    "handlers_verified": 798,
+    "bytes_verified": 12055348763,
+    "source_deleted": false,
+    "verification_phase": "after_source_retirement",
+    "source_retirement_receipt_sha256": "0911eec03bc98a950d4eb587e12dbb658c88b0ada46541ff11fdd79b625f4aa8",
+    "heartbeat_at": "2026-11-05T10:46:00.379753+00:00",
+    "success": true,
+    "receipt_sha256": "dffd5663adaca24daa5e72e265a06b785425eea6c935a10761ae7a1ee4abc667",
+    "finished_at": "2026-11-05T10:46:00.379706+00:00"
+  },
+  "receipt_verified": true,
+  "actual_handlers_fully_streamed": 798,
+  "bytes_verified": 12055348763,
+  "source_retirement_receipt_sha256": "0911eec03bc98a950d4eb587e12dbb658c88b0ada46541ff11fdd79b625f4aa8",
+  "note": "The reader performs no source deletion; actual retired source state is recorded in the matching retirement receipt."
+}

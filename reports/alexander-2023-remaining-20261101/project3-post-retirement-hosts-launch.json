@@ -1,0 +1,14 @@
+{
+  "linux": {
+    "started": true,
+    "task": "alex2023-3-post-retirement-linux-20261105",
+    "private_directory": "/home/charvin-admin/storage-transfers/alexander-2023-remaining-20261101/project3-post-retirement-hosts-20261105"
+  },
+  "windows": {
+    "workerState": "Running",
+    "task": "DetecDiv Alexander 2023_3 Post Retirement 20261105",
+    "state": "Running"
+  },
+  "source_retirement_receipt_sha256": "0911eec03bc98a950d4eb587e12dbb658c88b0ada46541ff11fdd79b625f4aa8",
+  "script_sha256": "f59618acb8df580fb3fa8f17d126db49a5521f7219bcb3a4c472ee10395872af"
+}

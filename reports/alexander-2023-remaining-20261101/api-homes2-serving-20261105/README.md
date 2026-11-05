@@ -13,6 +13,9 @@ The installer reuses that existing transport and adds a separate readonly mount
 of the **single personal DetecdivHub directory**, not other users' homes. It
 also orders the existing API boot helper after the homes2 mount. It does not
 restart the API, alter current `/data`, change URIs, or remove any cache.
+The boot dependency and enablement are installed only after the readonly mount
+passes its live probes. A failed new mount is stopped and leaves the API boot
+dependencies unchanged.
 
 Files are intended for the private VM directory
 `/home/charvin-admin/storage-transfers/alexander-api-homes2-serving-20261105`.

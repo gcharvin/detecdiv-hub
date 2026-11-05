@@ -1,5 +1,25 @@
 # Alexander 2023 — approved migration, 2026-10-08
 
+## 2023_3 source retirement verified complete, 2026-11-05
+
+At 10:41 UTC the full verified 2023_3 manifest was retired: 708,590 files /
+5,967,100,516,555 logical bytes. Measured primary free space increased by
+**5,967,222,644,736 bytes** to 10,990,913,290,240 bytes. The combined measured
+deletion-stage gain across 2023_1/2/3 is **10,282,445,193,216 bytes**.
+Post-removal Linux/actual Windows project/raw readers and all 798 complete API
+response streams passed. At 10:51 UTC exactly 47 dead raw location rows were
+retired and all eleven own leases released. All original project files and
+catalog identities, annotations, ACLs/groups and relationships remain intact.
+
+No Alexander 2023 scientific source payload remains on `/data`. The broader
+final objective still includes **28,981,723,684 bytes of live API caches** for
+years 1/2/3. They remain necessary until the VM's readonly homes2 serving path
+is installed and verified. A concrete mount installer is staged and validated;
+the VM requires interactive sudo, which the agent cannot supply. Do not remove
+the caches or describe that broader objective as complete until serving and
+verified cache retirement are finished. Receipts and remaining action are in
+the continuation report README.
+
 ## 2023_3 catalog switched and bounded retirement running, 2026-11-05
 
 Both final-folder host validations passed. At 10:28 UTC the same eleven

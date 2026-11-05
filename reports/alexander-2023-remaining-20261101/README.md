@@ -1,5 +1,60 @@
 # Alexander 2023 migration continuation — 2026-11-01
 
+## 2023_3 scientific retirement completed, 2026-11-05 10:51 UTC
+
+**All 708,590 verified source files / 5,967,100,516,555 logical bytes were
+retired at 10:41 UTC.** The native scan confirmed no regular source payload
+remained outside excluded NAS metadata. Every unique unlink receipt was checked
+against the complete pinned manifest. Receipt SHA256:
+`0911eec03bc98a950d4eb587e12dbb658c88b0ada46541ff11fdd79b625f4aa8`.
+Do not rerun any source scan/retirement controller over this now-retired tree.
+
+Measured primary available space increased from **5,023,690,645,504** to
+**10,990,913,290,240 bytes**, a **5,967,222,644,736-byte increase**.
+The sum of the measured deletion-stage gains across 2023_1/2/3 is now
+**10,282,445,193,216 bytes (10.282 TB)**. This does not count the older 2023_1
+files already absent before this continuation, and does not claim the retained
+29-GB API caches have been removed.
+
+Distinct post-retirement Linux and actual limited Windows-session readers
+passed all eleven unchanged main MATs, 123 real raw reads and eleven ROI image
+reads per host. All 798 actual API content handlers were fully streamed again,
+12,055,348,763 bytes, with the same verified hashes after source removal.
+The final transaction at **10:51 UTC** removed exactly **47 dead raw source
+location rows**, preserving all 24 raw identities, 775 positions, eleven project
+identities/owners/notes/ACLs/groups/links, original readonly project locations
+and preferred homes2 locations. All eleven own retirement leases were released.
+The post-retirement Windows task/scripts were cleaned up without altering the
+worker. The local one-shot completion watcher (PID 1368 at launch) has exited
+successfully; do not restart it. Evidence:
+
+- `project3-source-retirement-receipt-verification.json`
+- `project3-source-retirement-catalog-finalization.json`
+- `project3-post-retirement-hosts-completion-verification.json`
+- `project3-post-retirement-windows-cleanup.json`
+- `project3-post-retirement-api-completion-verification.json`
+
+Batch `67c091e6-b021-4f9e-8048-33a9192e1bc7` and its private compute state are
+`source_retired_verified`. No source payload remains to retire for years 1/2/3.
+Original Sauvegarde projects, Gilles's project, snapshots, other users and other
+years are unchanged. The protected engine/defaults and polling services were
+not deployed or restarted by this migration.
+
+**Broader final scope still pending:** all three live API caches total
+28,981,723,684 bytes / 1,926 files. A fresh plan records their exact current
+references and intended homes2 paths in ignored runtime; public summary is
+`project3-api-cache-serving-plan-summary.json`. The API VM still has no homes2
+mount at the final check and requires interactive sudo. The reviewed readonly
+mount preparation is staged on the VM; the user was asked to run its exact
+sudo command, keeping the password in their terminal. Root Docker workarounds
+were not used. Preserve every cache until the mounted API serving path,
+full content hashes, matching reference updates and post-checks succeed.
+
+The existing follow-up returns to **six-hour** checks for this remaining API
+scope. Do not repeat the completed migration. Continue once the mount becomes
+available; otherwise avoid repetitive healthy/unchanged notifications. Disable
+the follow-up only after the complete cache scope is resolved and reported.
+
 ## Cutover and source retirement, 2026-11-05 10:33 UTC
 
 The final-folder Linux test completed at 10:12 UTC; Windows completed afterwards

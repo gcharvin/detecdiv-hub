@@ -20,6 +20,19 @@ Detailed conditions and the user's instruction: `docs/alexander_2023_transfer.md
 
 ## Alexander 2023_1 retired; 2023_3 raw/project copies active, 2026-11-01
 
+Latest follow-up, 2026-11-05 10:51 UTC: **2023_3 source retirement is complete
+and fully verified**. Exactly 708,590 files / 5,967,100,516,555 logical bytes were
+removed with complete receipts. Available space increased by
+5,967,222,644,736 bytes; cumulative measured deletion gains for all three years
+are 10,282,445,193,216 bytes. Post-removal Linux/actual Windows reads and all 798
+complete API content streams passed. Exactly 47 dead raw source locations were
+retired, all eleven own leases released, originals and identities preserved.
+Batch `67c091e6-b021-4f9e-8048-33a9192e1bc7` is `source_retired_verified`.
+Do not repeat any completed copy/relink/test/cutover/retirement. Remaining final
+scope is the 28,981,723,684-byte live API caches across years 1/2/3. Their
+readonly homes2 mount preparation is staged, but VM sudo requires the user;
+no mount/API deployment or cache removal has occurred. See the report README.
+
 Latest follow-up, 2026-11-05 10:33 UTC: both final-folder host validations
 passed. At 10:28 the same eleven projects and 24 raw identities/775 positions
 were switched transactionally to verified homes2 locations, with original

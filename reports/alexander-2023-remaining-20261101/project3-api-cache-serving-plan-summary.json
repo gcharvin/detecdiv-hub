@@ -1,0 +1,26 @@
+{
+  "summary": {
+    "2023_1": {
+      "references": 774,
+      "unique_files": 774,
+      "bytes": 11051646071,
+      "destination_root": "/homes2/maliavko/DetecdivHub/raw/.incoming-alexander-2023-20261008/2023_1"
+    },
+    "2023_2": {
+      "references": 354,
+      "unique_files": 354,
+      "bytes": 5874728850,
+      "destination_root": "/homes2/maliavko/DetecdivHub/raw/2023_2"
+    },
+    "2023_3": {
+      "references": 798,
+      "unique_files": 798,
+      "bytes": 12055348763,
+      "destination_root": "/homes2/maliavko/DetecdivHub/raw/.incoming-alexander-2023-20261008/2023_3"
+    }
+  },
+  "plan_sha256": "208cfb4c108aa87147717e66ee32e4c877c03f188be9971db16588c0f1d7db55",
+  "private_plan": "reports\\alexander-2023-remaining-20261101\\runtime\\api-homes2-cache-serving-plan-20261105.json",
+  "api_changed": false,
+  "cache_deleted": false
+}
