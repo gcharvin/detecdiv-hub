@@ -1,0 +1,68 @@
+{
+  "read_only": true,
+  "files": [
+    {
+      "name": "anof_130224_dfob_rep_dslog",
+      "sha256": "7ea652bc437c59c35aa20765262efca8598215cedc826ecadad40c7c9425a69a",
+      "bytes": 246,
+      "type_and_compressed_size": [
+        15,
+        79
+      ],
+      "zlib_eof": true,
+      "zlib_output_bytes": 152,
+      "zlib_unconsumed_bytes": 0,
+      "matrix_tag": [
+        14,
+        144
+      ],
+      "printable_tokens": [
+        "shallowObj",
+        "MCOS",
+        "shallow"
+      ]
+    },
+    {
+      "name": "anof_10112023_nh_dhapxs_1530",
+      "sha256": "614f529dfff27e9ca4a46528e38f99daa32ed266e695ef3bcfdc3867f5d018ca",
+      "bytes": 248,
+      "type_and_compressed_size": [
+        15,
+        79
+      ],
+      "zlib_eof": true,
+      "zlib_output_bytes": 152,
+      "zlib_unconsumed_bytes": 0,
+      "matrix_tag": [
+        14,
+        144
+      ],
+      "printable_tokens": [
+        "shallowObj",
+        "MCOS",
+        "shallow"
+      ]
+    },
+    {
+      "name": "anof_14092023_leftRDN_nhadhhap4",
+      "sha256": "8f76e347ef53f559def4588bcf9385172829c04091684e0607f1f5061cf9b480",
+      "bytes": 247,
+      "type_and_compressed_size": [
+        15,
+        79
+      ],
+      "zlib_eof": true,
+      "zlib_output_bytes": 152,
+      "zlib_unconsumed_bytes": 0,
+      "matrix_tag": [
+        14,
+        144
+      ],
+      "printable_tokens": [
+        "shallowObj",
+        "MCOS",
+        "shallow"
+      ]
+    }
+  ]
+}

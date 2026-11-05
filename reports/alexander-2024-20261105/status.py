@@ -25,6 +25,17 @@ summary={'copy_state':state,'controller_exit':tail('controller.exit'),'controlle
  'project_discovery_progress':load('project-discovery-progress.json'),'project_discovery_result':load('project-discovery-result.json'),
  'project_discovery_exit':tail('project-discovery.exit'),'project_discovery_log_tail':tail('project-discovery.log'),
  'sessions':subprocess.run(['tmux','list-sessions','-F','#{session_name}'],capture_output=True,text=True).stdout.splitlines()}
+summary['project_copy_state']=load('project-copies/state.json')
+summary['project_copy_exit']=tail('project-copies/controller.exit')
+summary['project_copy_log_tail']=tail('project-copies/controller.log')
+summary['supplemental_progress']=load('project-discovery-supplemental/project-discovery-progress.json')
+summary['supplemental_result']=load('project-discovery-supplemental/project-discovery-result.json')
+summary['supplemental_exit']=tail('project-discovery-supplemental/project-discovery.exit')
+summary['supplemental_log_tail']=tail('project-discovery-supplemental/project-discovery.log')
+summary['legacy_review_progress']=load('legacy-path-review/progress.json')
+summary['legacy_review_result']=load('legacy-path-review/result.json')
+summary['legacy_review_exit']=tail('legacy-path-review/controller.exit')
+summary['legacy_review_log_tail']=tail('legacy-path-review/controller.log')
 if state:
  year=state.get('current_year')
  if year in ['2024_1','2024_2']:

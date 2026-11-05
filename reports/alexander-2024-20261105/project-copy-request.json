@@ -1,0 +1,369 @@
+{
+  "projects": [
+    {
+      "project_id": "344c83c4-7786-4d43-a15a-3fb292990f09",
+      "name": "anof_011024_x423x426_EB_x423noebonly",
+      "owner": "alexander",
+      "source_mat": "/mnt/detecdiv-secondary-sauvegarde/Alexander/analysis/anof_011024_x423x426_EB_x423noebonly.mat",
+      "candidate_acquisitions": [
+        "2024_2/011024_x423x426_EB"
+      ],
+      "fovs": 9,
+      "rois": 59
+    },
+    {
+      "project_id": "19037bd1-e966-428f-96f8-2a7166c7bc9e",
+      "name": "anof_05012024_apx1s_dslog",
+      "owner": "alexander",
+      "source_mat": "/mnt/detecdiv-secondary-sauvegarde/Alexander/analysis/anof_05012024_apx1s_dslog.mat",
+      "candidate_acquisitions": [
+        "2024_1/05012024_apx1s_dslog"
+      ],
+      "fovs": 16,
+      "rois": 4831
+    },
+    {
+      "project_id": "864f762f-dd97-47d1-ba32-4783430fc1b9",
+      "name": "anof_050624_YPDtitr_plate_3k",
+      "owner": "alexander",
+      "source_mat": "/mnt/detecdiv-secondary-sauvegarde/Alexander/analysis/anof_050624_YPDtitr_plate_3k.mat",
+      "candidate_acquisitions": [
+        "2024_2/050624_YPDtitr_plate_3k"
+      ],
+      "fovs": 10,
+      "rois": 3955
+    },
+    {
+      "project_id": "6f6f408d-ebe7-4115-a537-f35f5cdb6ed2",
+      "name": "anof_060224_cres",
+      "owner": "alexander",
+      "source_mat": "/mnt/detecdiv-secondary-sauvegarde/Alexander/analysis/anof_060224_cres.mat",
+      "candidate_acquisitions": [
+        "2024_1/060224_cres"
+      ],
+      "fovs": 3,
+      "rois": 1188
+    },
+    {
+      "project_id": "e0d02751-28b3-4b3e-a74c-0dfd00b37803",
+      "name": "anof_060224_cres_1002",
+      "owner": "alexander",
+      "source_mat": "/mnt/detecdiv-secondary-sauvegarde/Alexander/analysis/anof_060224_cres_1002.mat",
+      "candidate_acquisitions": [
+        "2024_1/060224_cres"
+      ],
+      "fovs": 12,
+      "rois": 4821
+    },
+    {
+      "project_id": "c48f9cff-6625-4dad-9597-a8796fe2824f",
+      "name": "anof_060224_cres_ARS1",
+      "owner": "alexander",
+      "source_mat": "/mnt/detecdiv-secondary-sauvegarde/Alexander/analysis/anof_060224_cres_ARS1.mat",
+      "candidate_acquisitions": [
+        "2024_1/060224_cres"
+      ],
+      "fovs": 2,
+      "rois": 746
+    },
+    {
+      "project_id": "bec9b2cf-656d-417a-b424-2d3e7cbf316c",
+      "name": "anof_06032024_diplNTSNG_K3s",
+      "owner": "alexander",
+      "source_mat": "/mnt/detecdiv-secondary-sauvegarde/Alexander/analysis/anof_06032024_diplNTSNG_K3s.mat",
+      "candidate_acquisitions": [
+        "2024_1/06032024_diplNTSNG_K3s"
+      ],
+      "fovs": 17,
+      "rois": 3339
+    },
+    {
+      "project_id": "4ada122e-a205-493f-9885-703e788589cc",
+      "name": "anof_061224_X5152moth",
+      "owner": "alexander",
+      "source_mat": "/mnt/detecdiv-secondary-sauvegarde/Alexander/analysis/anof_061224_X5152moth.mat",
+      "candidate_acquisitions": [
+        "2024_2/061224_X5152moth"
+      ],
+      "fovs": 14,
+      "rois": 720
+    },
+    {
+      "project_id": "e6f6b263-dae2-4670-ac85-280abc4f38a2",
+      "name": "anof_070424_iRFPtest",
+      "owner": "alexander",
+      "source_mat": "/mnt/detecdiv-secondary-sauvegarde/Alexander/analysis/anof_070424_iRFPtest.mat",
+      "candidate_acquisitions": [
+        "2024_1/070424_iRFPtest"
+      ],
+      "fovs": 5,
+      "rois": 1929
+    },
+    {
+      "project_id": "3dc52b35-7254-48e4-ab04-157dce732d6e",
+      "name": "anof_100524_crelox_2full",
+      "owner": "alexander",
+      "source_mat": "/mnt/detecdiv-secondary-sauvegarde/Alexander/analysis/anof_100524_crelox_2full.mat",
+      "candidate_acquisitions": [
+        "2024_2/100524_crelox_2full"
+      ],
+      "fovs": 16,
+      "rois": 6088
+    },
+    {
+      "project_id": "8d749d6e-c3f9-46aa-9eb1-5dc34af4bc55",
+      "name": "anof_120624_DR_YPDtitr_newplate_4k",
+      "owner": "alexander",
+      "source_mat": "/mnt/detecdiv-secondary-sauvegarde/Alexander/analysis/anof_120624_DR_YPDtitr_newplate_4k.mat",
+      "candidate_acquisitions": [
+        "2024_2/120624_DR_YPDtitr_newplate_4k"
+      ],
+      "fovs": 9,
+      "rois": 3313
+    },
+    {
+      "project_id": "53a6c0c1-f887-44da-ae8c-a0018e46064e",
+      "name": "anof_130224_dfob_rep_dslog_new",
+      "owner": "alexander",
+      "source_mat": "/mnt/detecdiv-secondary-sauvegarde/Alexander/analysis/anof_130224_dfob_rep_dslog_new.mat",
+      "candidate_acquisitions": [
+        "2024_1/130224_dfob_rep_dslog"
+      ],
+      "fovs": 16,
+      "rois": 7562
+    },
+    {
+      "project_id": "73504070-1ff4-4c0d-b630-d17829ccced6",
+      "name": "anof_140524_tdh3h4_dvsge",
+      "owner": "alexander",
+      "source_mat": "/mnt/detecdiv-secondary-sauvegarde/Alexander/analysis/anof_140524_tdh3h4_dvsge.mat",
+      "candidate_acquisitions": [
+        "2024_2/140524_tdh3h4_dvsge"
+      ],
+      "fovs": 12,
+      "rois": 4512
+    },
+    {
+      "project_id": "671be8d4-b028-46c0-8730-9fca5bee8888",
+      "name": "anof_151024_x225EB_x42x435x224_noEB",
+      "owner": "alexander",
+      "source_mat": "/mnt/detecdiv-secondary-sauvegarde/Alexander/analysis/anof_151024_x225EB_x42x435x224_noEB.mat",
+      "candidate_acquisitions": [
+        "2024_2/151024_x225EB_x42x435x224"
+      ],
+      "fovs": 24,
+      "rois": 148
+    },
+    {
+      "project_id": "99c114c7-bc50-46d9-a462-251f8aeca12f",
+      "name": "anof_180624_newplate_4500",
+      "owner": "alexander",
+      "source_mat": "/mnt/detecdiv-secondary-sauvegarde/Alexander/analysis/anof_180624_newplate_4500.mat",
+      "candidate_acquisitions": [
+        "2024_2/180624_newplate_4500"
+      ],
+      "fovs": 8,
+      "rois": 3290
+    },
+    {
+      "project_id": "3b4a5dd7-6f03-43b3-bf9e-c02d7958301a",
+      "name": "anof_210524_cre16",
+      "owner": "alexander",
+      "source_mat": "/mnt/detecdiv-secondary-sauvegarde/Alexander/analysis/anof_210524_cre16.mat",
+      "candidate_acquisitions": [
+        "2024_2/210524_cre16"
+      ],
+      "fovs": 30,
+      "rois": 11083
+    },
+    {
+      "project_id": "f841b77c-6f0d-47f6-9cfb-af5ee058b8d7",
+      "name": "anof_210624_s148s_SCON",
+      "owner": "alexander",
+      "source_mat": "/mnt/detecdiv-secondary-sauvegarde/Alexander/analysis/anof_210624_s148s_SCON.mat",
+      "candidate_acquisitions": [
+        "2024_2/210624_s148s_SCON"
+      ],
+      "fovs": 28,
+      "rois": 333
+    },
+    {
+      "project_id": "f004e8df-29f0-4303-85fe-9cf50e3d4dbc",
+      "name": "anof_22032024_DHY210_nts1ng",
+      "owner": "alexander",
+      "source_mat": "/mnt/detecdiv-secondary-sauvegarde/Alexander/analysis/anof_22032024_DHY210_nts1ng.mat",
+      "candidate_acquisitions": [
+        "2024_1/22032024_DHY210_nts1ng"
+      ],
+      "fovs": 20,
+      "rois": 4487
+    },
+    {
+      "project_id": "902b3fa9-d703-49d4-92b7-bf5f75eac4ef",
+      "name": "anof_230124_RMng",
+      "owner": "alexander",
+      "source_mat": "/mnt/detecdiv-secondary-sauvegarde/Alexander/analysis/anof_230124_RMng.mat",
+      "candidate_acquisitions": [
+        "2024_1/230124_creRDNfull_RMng"
+      ],
+      "fovs": 7,
+      "rois": 3122
+    },
+    {
+      "project_id": "9f6b8ef9-f078-4ff5-b91f-7b8a25000951",
+      "name": "anof_230124_dhyD_LOG24",
+      "owner": "alexander",
+      "source_mat": "/mnt/detecdiv-secondary-sauvegarde/Alexander/analysis/anof_230124_dhyD_LOG24.mat",
+      "candidate_acquisitions": [
+        "2024_1/230124_dhyD_LOG24_nh52"
+      ],
+      "fovs": 8,
+      "rois": 2878
+    },
+    {
+      "project_id": "e98ed5ba-a40d-4abc-a1c2-441c6587cf2e",
+      "name": "anof_230124_nh52",
+      "owner": "alexander",
+      "source_mat": "/mnt/detecdiv-secondary-sauvegarde/Alexander/analysis/anof_230124_nh52.mat",
+      "candidate_acquisitions": [
+        "2024_1/230124_dhyD_LOG24_nh52"
+      ],
+      "fovs": 14,
+      "rois": 5208
+    },
+    {
+      "project_id": "2466af7d-d0b3-4ae3-8e8e-07a4ae9e7726",
+      "name": "anof_230724_HpaRDN_11429",
+      "owner": "alexander",
+      "source_mat": "/mnt/detecdiv-secondary-sauvegarde/Alexander/analysis/anof_230724_HpaRDN_11429.mat",
+      "candidate_acquisitions": [
+        "2024_2/230724_HpaRDN_SvsBScir0"
+      ],
+      "fovs": 3,
+      "rois": 1451
+    },
+    {
+      "project_id": "aa251bae-eadf-4fc1-b79e-f0b9217bd124",
+      "name": "anof_250724_dbud4stest",
+      "owner": "alexander",
+      "source_mat": "/mnt/detecdiv-secondary-sauvegarde/Alexander/analysis/anof_250724_dbud4stest.mat",
+      "candidate_acquisitions": [
+        "2024_2/250724_dbud4stest"
+      ],
+      "fovs": 32,
+      "rois": 191
+    },
+    {
+      "project_id": "8d8259a6-b0a7-4dc4-bee5-76d9e6443519",
+      "name": "anof_270624_HpaRDNtest",
+      "owner": "alexander",
+      "source_mat": "/mnt/detecdiv-secondary-sauvegarde/Alexander/analysis/anof_270624_HpaRDNtest.mat",
+      "candidate_acquisitions": [
+        "2024_2/270624_HpaRDNtest"
+      ],
+      "fovs": 10,
+      "rois": 4041
+    },
+    {
+      "project_id": "23c9f497-021f-4dbb-8e3c-5f50032096ac",
+      "name": "anof_280224_12rdnars",
+      "owner": "alexander",
+      "source_mat": "/mnt/detecdiv-secondary-sauvegarde/Alexander/analysis/anof_280224_12rdnars.mat",
+      "candidate_acquisitions": [
+        "2024_1/280224_dhytnl_12rdnars"
+      ],
+      "fovs": 8,
+      "rois": 2754
+    },
+    {
+      "project_id": "19a2a39e-e451-4d5f-8fa8-f06a7fed9f17",
+      "name": "anof_280224_dhytnl",
+      "owner": "alexander",
+      "source_mat": "/mnt/detecdiv-secondary-sauvegarde/Alexander/analysis/anof_280224_dhytnl.mat",
+      "candidate_acquisitions": [
+        "2024_1/280224_dhytnl_12rdnars"
+      ],
+      "fovs": 17,
+      "rois": 6134
+    },
+    {
+      "project_id": "175db144-f04d-42f6-a2f7-9f82ccf3efb7",
+      "name": "anof_280524_YPDtitr_plate",
+      "owner": "alexander",
+      "source_mat": "/mnt/detecdiv-secondary-sauvegarde/Alexander/analysis/anof_280524_YPDtitr_plate.mat",
+      "candidate_acquisitions": [
+        "2024_2/280524_YPDtitr_plate"
+      ],
+      "fovs": 8,
+      "rois": 3231
+    },
+    {
+      "project_id": "c3f08508-22dd-4f1a-81da-f0ac8c031a13",
+      "name": "anof_281124_X5152bud4s",
+      "owner": "alexander",
+      "source_mat": "/mnt/detecdiv-secondary-sauvegarde/Alexander/analysis/anof_281124_X5152bud4s.mat",
+      "candidate_acquisitions": [
+        "2024_2/281124_X5152bud4s"
+      ],
+      "fovs": 23,
+      "rois": 628
+    },
+    {
+      "project_id": "de636b9e-684a-4ab1-bb4a-0bc64d435020",
+      "name": "anof_290424_loxP15",
+      "owner": "alexander",
+      "source_mat": "/mnt/detecdiv-secondary-sauvegarde/Alexander/analysis/anof_290424_loxP15.mat",
+      "candidate_acquisitions": [
+        "2024_1/290424_loxP15"
+      ],
+      "fovs": 30,
+      "rois": 11703
+    },
+    {
+      "project_id": "6c46e8a4-ab0f-45ac-9aeb-ea139f252643",
+      "name": "movie_12224_w303MBsnabI_test",
+      "owner": "alexander",
+      "source_mat": "/mnt/detecdiv-secondary-sauvegarde/Alexander/analysis/movie_12224_w303MBsnabI_test.mat",
+      "candidate_acquisitions": [
+        "2024_1/12.2.24_w303MBsnabI_test"
+      ],
+      "fovs": 8,
+      "rois": 787
+    },
+    {
+      "project_id": "724afdda-24e8-42f1-b242-2b7a0e41e8b1",
+      "name": "movie_250124_diploids",
+      "owner": "alexander",
+      "source_mat": "/mnt/detecdiv-secondary-sauvegarde/Alexander/analysis/movie_250124_diploids.mat",
+      "candidate_acquisitions": [
+        "2024_1/250124_diploids"
+      ],
+      "fovs": 4,
+      "rois": 6
+    },
+    {
+      "project_id": "ae089caa-2978-4441-8308-8256905738d1",
+      "name": "qp_22032024_DHY210_nts1ng",
+      "owner": "alexander",
+      "source_mat": "/mnt/detecdiv-secondary-sauvegarde/Alexander/analysis/qp_22032024_DHY210_nts1ng.mat",
+      "candidate_acquisitions": [
+        "2024_1/22032024_DHY210_nts1ng"
+      ],
+      "fovs": 2,
+      "rois": 442
+    }
+  ],
+  "runner_sha256": "51a00d2ffd6f247141ff95594f496d3a19166c86b3cd19adff6bf7f6d3c71d6d",
+  "admission": {
+    "checked_at": "2026-11-05T20:33:14.806817+00:00",
+    "project_count": 32,
+    "affected_jobs": [],
+    "affected_locks": [],
+    "read_only": true,
+    "catalog_changed": false
+  },
+  "source_deletion_allowed": false,
+  "catalog_cutover_allowed": false,
+  "project_paths_changed": false,
+  "candidate_matches_are_not_scientific_identity_proof": true
+}

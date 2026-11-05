@@ -1,0 +1,8 @@
+{
+  "success": true,
+  "exit": "0",
+  "receipt_sha256": "1e5eb048a7af595eff6be2dce01c765bb02379d1108935bea00d58088df9fdaa",
+  "rows": 3326,
+  "candidate_projects": 34,
+  "review_required": 3056
+}

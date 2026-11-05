@@ -2,6 +2,19 @@
 
 ## Alexander 2024 migration started, 2026-11-05
 
+20:29 UTC follow-up: raw 2024_1 copy is healthy at 960.20 GB / 5,177.81 GB
+(18.54%). The main project discovery finished: 34 candidates (33 Alexander,
+one Gilles), with unresolved legacy/missing layouts requiring classification.
+Thirty-two standard-layout Alexander project copies are now being independently
+cloned/fully hashed under owned unpublished homes2 stages in tmux
+`alex2024-project-copies-20261105`, private `project-copies/`. A separate new
+read-only format review is running for unknown legacy layouts in
+`alex2024-legacy-path-review-20261105`, private `legacy-path-review/`.
+Do not replay the completed main/supplemental discovery or duplicate these
+active tasks. Two nonstandard-layout candidates need separate preparation.
+No relink, cutover or source retirement has occurred. The report README has
+the pinned hashes, receipts and remaining gates.
+
 The user authorized migration of 2024_1 then 2024_2 to homes2, associated project
 inventory/relinking, and verified `/data` duplicate retirement while preserving
 all original projects. Batch `0382c23e-ad54-4ec9-9ad8-53cc79b64d97` is

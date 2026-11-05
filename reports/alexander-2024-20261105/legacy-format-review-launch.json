@@ -1,0 +1,12 @@
+{
+  "launched": true,
+  "session": "alex2024-legacy-path-review-20261105",
+  "work": "/home/charvin-admin/storage-transfers/alexander-2024-20261105/legacy-path-review",
+  "legacy_projects": 1998,
+  "script_sha256": "e9b678a67633095234740c9e216dcfca6fa0849839afdc78adb6c90c076b7e24",
+  "read_only": true,
+  "json_alternatives_inspected": 28,
+  "json_candidate_projects": 0,
+  "json_reviews_remaining": 0,
+  "missing_main_files_still_unresolved": 1030
+}

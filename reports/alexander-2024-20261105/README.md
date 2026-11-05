@@ -8,6 +8,84 @@ year/user, original project, NAS snapshot, backup policy, quota, default engine
 or SMB credentials may be changed. The completed 2023 migration is separate;
 never replay any of its one-shot scripts.
 
+## Follow-up — 2026-11-05, starting 20:29 UTC
+
+The original raw runner is healthy and still copying 2024_1: 960.20 GB of
+5,177.81 GB (18.54%) at 20:29 UTC. No SHA1 gate or source retirement has passed.
+All original project files, source raws and catalog locations remain intact.
+
+The main read-only discovery **finished with exit 0**, 3,326 receipts, SHA256
+`1e5eb048a7af595eff6be2dce01c765bb02379d1108935bea00d58088df9fdaa`.
+It found **34 candidates**: 33 Alexander (426 FOV / 104,981 ROI) and Gilles's
+`281124_Alex` (2 FOV / 58 ROI), which also references 2024_2. There are seventeen
+candidate projects for each year. This is path evidence, not final identity.
+Do not rerun the completed main discovery.
+
+### Independent project copies running
+
+Thirty-two Alexander candidates have the reviewed Sauvegarde/analysis sibling
+MAT + same-name directory layout. After fresh read-only job/lease/indexing
+admission, their unpublished owned copies were launched in tmux
+**`alex2024-project-copies-20261105`**, private **`project-copies/`**.
+Read `state.json`, `controller.log`, `controller.exit` and per-project receipts
+there. Runner SHA256
+`51a00d2ffd6f247141ff95594f496d3a19166c86b3cd19adff6bf7f6d3c71d6d`.
+The first project reached full hash verification; do not infer terminal success
+from a phase or file counter. Each project needs complete source/copy SHA256
+receipts and native before/after inventory equality. CIFS-created placeholders
+are owned by maliavko; native same-NAS reflinks create independent files with
+distinct inodes, followed by complete content hashing. The runner never saves
+MATs, relinks paths, publishes, changes the DB or removes originals. It refuses
+existing stages and nonempty partial placeholders. Never directly rerun it or
+modify its pinned executing script; inspect a failure and prepare bounded
+recovery from preserved receipts. A conservative capacity reserve includes
+both raw years plus 2 TB. No source projects were modified.
+
+Two known candidates intentionally remain separate from that standard-layout
+copy runner: `qp_250724_dbud4stest` lives under Sauvegarde/Alexander/nobackup/qp
+and records ROI paths under `/data/Alexander/qp`; Gilles's `281124_Alex` lives
+under `/data/Gilles/analysis/projects`. Resolve their actual layouts, copy and
+relink with correct preserved ownership/access; do not squeeze them into the
+analysis-root runner or overwrite their originals.
+
+### Remaining discovery review, with new bounded tasks
+
+The main discovery recorded 3,056 unresolved rows: 1,058 missing declared main
+files and 1,998 unrecognized MAT layouts. Those are not negative matches.
+Read-only format preflight found 28 existing JSON replacements for declared
+MAT files; every JSON was parsed with stable source metadata and no 2024
+acquisition match. Full private receipt:
+`legacy-path-review/json-alternatives-receipt.json`. 1,030 declared main files
+still have no accessible MAT/JSON replacement (one Alexander:
+`anof_071026_X54445_LOGEB`, declared in `/data/Alexander/nobackup/analysis`).
+Classify these catalog issues against actual metadata/backups/locations rather
+than assuming that their names or absence prove irrelevance. Do not ask Gilles
+to resolve issues that can be investigated independently.
+
+A **new** read-only legacy variable/string review of only the 1,998 unknown
+MAT layouts is now running in tmux **`alex2024-legacy-path-review-20261105`**,
+private **`legacy-path-review/`**, with `request.json`, `progress.json`,
+`receipt.jsonl`, `result.json`, `controller.log/exit`. Script SHA256:
+`e9b678a67633095234740c9e216dcfca6fa0849839afdc78adb6c90c076b7e24`.
+It uses fresh busy-project admission, one MATLAB thread, idle I/O and no GPU.
+Only complete stable non-object layouts can finish as inspected; unreadable,
+large, occupied or class-specific layouts remain explicitly unresolved. This
+is additional format support, not a replay of the initial shallowObj audit.
+Do not duplicate it or modify the executing script.
+
+The three uncataloged main MATs received their separate read-only supplement
+in `project-discovery-supplemental/`, exit 0, all three **still unresolved**.
+They are tiny 246–248-byte MAT containers holding shallow/MCOS object metadata;
+MATLAB reports unreadable variable directories. Bounded container inspection
+and SHA256s are recorded in `supplemental-mat-container-verification.json`.
+Preserve them and their folders. Do not infer a valid empty project, recreate
+scientific data or claim absence of references from these unreadable stubs.
+Investigate available fuller counterparts/backups or sidecars without altering
+the originals before the affected raw year's retirement.
+
+No project relink or preferred-location change has occurred. The standing
+retirement gates below still apply to all relevant years and cross-user refs.
+
 ## Actual running work
 
 Private compute work:
