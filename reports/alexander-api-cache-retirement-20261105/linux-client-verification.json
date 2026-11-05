@@ -1,0 +1,43 @@
+{
+  "success": true,
+  "host": "linux",
+  "cache_retirement_receipt_sha256": "fe43825cfdbbb726a42392781cde096e7168775bf6aa7eb3b300872877f9cc83",
+  "files": [
+    {
+      "year": "2023_1",
+      "kind": "artifact",
+      "bytes": 75805424,
+      "sha1": "8cace48d062bb2a5c93bf76e610fc99029591460"
+    },
+    {
+      "year": "2023_1",
+      "kind": "display_settings",
+      "bytes": 6122,
+      "sha1": "680092722e8edfb18a94622c2f3b321471299514"
+    },
+    {
+      "year": "2023_2",
+      "kind": "artifact",
+      "bytes": 292915,
+      "sha1": "daa8a0fb743888cf323b1b97f11b4de42e3cd6ff"
+    },
+    {
+      "year": "2023_2",
+      "kind": "display_settings",
+      "bytes": 6127,
+      "sha1": "519a0ed9d5a5b13bfb975e265eba66f7c02ead50"
+    },
+    {
+      "year": "2023_3",
+      "kind": "artifact",
+      "bytes": 72189524,
+      "sha1": "e6cc43b5135d379a1e796c7996e67102fefacf3a"
+    },
+    {
+      "year": "2023_3",
+      "kind": "display_settings",
+      "bytes": 6137,
+      "sha1": "b47137c7fa09a6a6afef2d47d2ccd3f974ce31eb"
+    }
+  ]
+}

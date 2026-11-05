@@ -1,0 +1,50 @@
+{
+  "success": true,
+  "finished_at": "2026-11-05T11:54:15.057847+00:00",
+  "before": {
+    "id": "137d89e15d83b285726f9080d9c944ab544c65135d79c404c4bc5a557d09e2f5",
+    "image": "sha256:2326824f70336590f16c2256da7e213a7322d7fa626a50760be38543f2a3516b",
+    "tag": "webserver-labo_api",
+    "mounts": [
+      {
+        "Destination": "/data",
+        "Mode": "ro",
+        "Propagation": "rprivate",
+        "RW": false,
+        "Source": "/data",
+        "Type": "bind"
+      }
+    ]
+  },
+  "after": {
+    "id": "17990059953a76fa0d919b0fe9c6fc15428b035fdce399ac827e83e0c91654bf",
+    "image": "sha256:2326824f70336590f16c2256da7e213a7322d7fa626a50760be38543f2a3516b",
+    "tag": "webserver-labo_api",
+    "mounts": [
+      {
+        "Destination": "/data",
+        "Mode": "ro",
+        "Propagation": "rprivate",
+        "RW": false,
+        "Source": "/data",
+        "Type": "bind"
+      },
+      {
+        "Destination": "/homes2/maliavko/DetecdivHub",
+        "Mode": "ro",
+        "Propagation": "rprivate",
+        "RW": false,
+        "Source": "/homes2/maliavko/DetecdivHub",
+        "Type": "bind"
+      }
+    ]
+  },
+  "postgres_container_unchanged": true,
+  "worker_restart_commands_issued": false,
+  "compose_before_sha256": "a365f389a63aff80c0f3b116f6311b6cd9ae74f598028697c46b18e37fb548d8",
+  "compose_after_sha256": "c52aceba62c47fd7e7ba5d56bc1ca3cfd8668b2cf79ebff19ab5089730f76985",
+  "api_health_ok": true,
+  "prior_api_receipts_archived": true,
+  "uri_changes": 0,
+  "cache_files_deleted": 0
+}

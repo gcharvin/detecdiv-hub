@@ -1,0 +1,10 @@
+{
+  "success": true,
+  "committed_at": "2026-11-05T12:17:16.506624+00:00",
+  "batch_id": "468070ce-1489-456e-9175-27f188156e41",
+  "uri_references_changed": 1926,
+  "raws_preserved": 109,
+  "positions_notes_acl_groups_links_preserved": true,
+  "projects_unchanged": 14,
+  "cache_files_deleted": 0
+}

@@ -1,0 +1,31 @@
+{
+  "success": true,
+  "finished_at": "2026-11-05T12:39:52.661684+00:00",
+  "batch_id": "468070ce-1489-456e-9175-27f188156e41",
+  "files_unlinked": 1926,
+  "logical_bytes_unlinked": 28981723684,
+  "measured_cache_free_bytes_increase": 28880097280,
+  "free_bytes_after": 11008108974080,
+  "cumulative_2023_measured_free_bytes_increase": 10311325290496,
+  "api_handlers_served_from_homes2": 1926,
+  "linux_and_actual_windows_clients_verified": true,
+  "catalog_identity_and_relationships_preserved": true,
+  "scientific_files_changed": false,
+  "own_leases_released": [
+    "e1d4e300-40de-4b57-b9b0-42d91726e7ac",
+    "cc808055-711a-405c-90bc-ed3059d462af",
+    "39d07c47-2468-456e-9904-b5fbb1948503",
+    "e1f06b15-df8e-4e9d-8628-576662e1f57e",
+    "4f30ee8a-ceb7-4d0c-98c9-d226a53b3c59",
+    "30598d1c-3e36-4c3c-a44c-0ec2239789aa",
+    "2d462c51-4666-440d-a40b-9e32f08d5f1c",
+    "b911fcc1-49c1-41a5-b59e-35fbe4069a20",
+    "6f3779f4-ca45-4d2d-8b4a-662e6fe8c778",
+    "9bd18255-cc6f-48c5-91c7-df1640ae8769",
+    "6e0b90e3-4796-404c-a0e3-0722198e0011",
+    "e8a9251e-e970-4898-97de-5e66eb033d92",
+    "75f68238-1260-402c-b392-c2b24c3a47c7",
+    "a11123de-96d6-4752-924a-f05366e63409"
+  ],
+  "all_alexander_2023_primary_payload_retired": true
+}

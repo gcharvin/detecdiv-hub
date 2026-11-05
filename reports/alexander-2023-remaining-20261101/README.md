@@ -1,5 +1,16 @@
 # Alexander 2023 migration continuation — 2026-11-01
 
+## Full scope completed — 2026-11-05 12:39 UTC
+
+The remaining API serving/cache scope is now also finished. All 1,926 verified
+media files are served from homes2; the three caches were retired with complete
+receipts and post-removal Linux/actual Windows/API validation. All source/cache
+payloads are empty, originals remain preserved and all own leases are released.
+Final caches recovered 28,880,097,280 measured bytes; the sum of measured
+retirement-window gains is 10,311,325,290,496 bytes (10.311 TB), not a whole-NAS
+multi-day net measurement. See [the final report](../alexander-api-cache-retirement-20261105/README.md).
+Older pending/blocker entries below are historical. Do not replay controllers.
+
 ## 2023_3 scientific retirement completed, 2026-11-05 10:51 UTC
 
 **All 708,590 verified source files / 5,967,100,516,555 logical bytes were

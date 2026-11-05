@@ -1,0 +1,9 @@
+{
+  "success": true,
+  "api_http_health_status": 200,
+  "same_api_image": "sha256:2326824f70336590f16c2256da7e213a7322d7fa626a50760be38543f2a3516b",
+  "postgres_container_unchanged": true,
+  "homes2_service_active_and_enabled": true,
+  "readonly_home_and_data_binds_verified": true,
+  "all_worker_pids_and_fingerprints_preserved": true
+}

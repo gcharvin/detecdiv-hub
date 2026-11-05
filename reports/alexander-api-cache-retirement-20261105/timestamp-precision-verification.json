@@ -1,0 +1,12 @@
+{
+  "files": 1926,
+  "size_mismatch_count": 0,
+  "all_api_cache_mtimes_equal_native_floor_seconds": true,
+  "unexpected_time_examples": [],
+  "native_subsecond_timestamp_files": 1926,
+  "minimum_precision_difference_ns": 702127,
+  "maximum_precision_difference_ns": 999013204,
+  "api_transit": "SSHFS/SFTP",
+  "native_manifest_checks_remain_exact_nanoseconds": true,
+  "data_modified": false
+}

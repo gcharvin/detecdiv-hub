@@ -1,0 +1,63 @@
+{
+  "success": true,
+  "batch_status": "api_cache_retired_verified",
+  "home_media_references_verified": 1926,
+  "live_cache_references": 0,
+  "own_active_leases": 0,
+  "jobs": [
+    {
+      "id": "9a5093da-8abd-4968-b7dd-33933cd4ae58",
+      "status": "running",
+      "heartbeat_at": "2026-11-05 12:42:48.107815+00:00"
+    },
+    {
+      "id": "767b8e8f-c3ed-429f-a320-ebb92b90c386",
+      "status": "running",
+      "heartbeat_at": "2026-11-05 12:42:46.572489+00:00"
+    }
+  ],
+  "workers": [
+    {
+      "instance": "@3",
+      "pid": 911503,
+      "fingerprint": "a2649a68b316",
+      "job_id": "767b8e8f-c3ed-429f-a320-ebb92b90c386"
+    },
+    {
+      "instance": "windows-10-20-11-56-main",
+      "pid": 3720,
+      "fingerprint": "b35b0444d5f0",
+      "job_id": null
+    },
+    {
+      "instance": "@5",
+      "pid": 694307,
+      "fingerprint": "a2649a68b316",
+      "job_id": null
+    },
+    {
+      "instance": "@1",
+      "pid": 433433,
+      "fingerprint": "a2649a68b316",
+      "job_id": null
+    },
+    {
+      "instance": "@4",
+      "pid": 912963,
+      "fingerprint": "a2649a68b316",
+      "job_id": "9a5093da-8abd-4968-b7dd-33933cd4ae58"
+    },
+    {
+      "instance": "@2",
+      "pid": 433434,
+      "fingerprint": "a2649a68b316",
+      "job_id": null
+    },
+    {
+      "instance": "@6",
+      "pid": 433435,
+      "fingerprint": "a2649a68b316",
+      "job_id": null
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "success": true,
+  "isolated_cases_passed": [
+    "inventory",
+    "extra",
+    "changed",
+    "symlink_directory",
+    "symlink_root",
+    "hardlink",
+    "wrong_manifest",
+    "expired_lease",
+    "partial_deadline",
+    "valid_unlink"
+  ],
+  "native_script_sha256": "8ca66af24b3ba7cdb728f5ef4df3c43ac0b55b07dae5a1f786103dc3dcd995dd",
+  "production_files_touched": false
+}

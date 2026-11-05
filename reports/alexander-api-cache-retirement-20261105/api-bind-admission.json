@@ -1,0 +1,66 @@
+{
+  "checked_at": "2026-11-05T11:54:01.794485+00:00",
+  "affected_jobs": 0,
+  "active_indexing": 0,
+  "unrelated_jobs": [
+    {
+      "id": "9a5093da-8abd-4968-b7dd-33933cd4ae58",
+      "status": "running",
+      "project_id": "f623bfaf-b352-47f1-85ff-00d2abfdad6c"
+    },
+    {
+      "id": "0a630607-7cca-4088-82c6-a1ecf80ddbf8",
+      "status": "running",
+      "project_id": "dca7d025-6d93-4a12-9b1f-dca9b7b73c95"
+    },
+    {
+      "id": "767b8e8f-c3ed-429f-a320-ebb92b90c386",
+      "status": "running",
+      "project_id": "54f69d4c-5cc3-4b9f-b92c-c501973a185f"
+    }
+  ],
+  "workers": [
+    {
+      "instance": "@4",
+      "pid": 912963,
+      "fingerprint": "a2649a68b316",
+      "current_job_id": "9a5093da-8abd-4968-b7dd-33933cd4ae58"
+    },
+    {
+      "instance": "@6",
+      "pid": 433435,
+      "fingerprint": "a2649a68b316",
+      "current_job_id": null
+    },
+    {
+      "instance": "windows-10-20-11-56-main",
+      "pid": 3720,
+      "fingerprint": "b35b0444d5f0",
+      "current_job_id": null
+    },
+    {
+      "instance": "@3",
+      "pid": 911503,
+      "fingerprint": "a2649a68b316",
+      "current_job_id": "767b8e8f-c3ed-429f-a320-ebb92b90c386"
+    },
+    {
+      "instance": "@1",
+      "pid": 433433,
+      "fingerprint": "a2649a68b316",
+      "current_job_id": null
+    },
+    {
+      "instance": "@2",
+      "pid": 433434,
+      "fingerprint": "a2649a68b316",
+      "current_job_id": null
+    },
+    {
+      "instance": "@5",
+      "pid": 694307,
+      "fingerprint": "a2649a68b316",
+      "current_job_id": "0a630607-7cca-4088-82c6-a1ecf80ddbf8"
+    }
+  ]
+}

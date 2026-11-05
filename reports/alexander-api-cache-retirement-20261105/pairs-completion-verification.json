@@ -1,0 +1,15 @@
+{
+  "state": {
+    "phase": "all_cache_home_pairs_verified",
+    "files_verified": 1926,
+    "bytes_verified": 28981723684,
+    "filesystem_deletion_performed": false,
+    "mode": "pairs",
+    "heartbeat_at": "2026-11-05T12:14:09.364954+00:00",
+    "success": true,
+    "receipt_sha256": "ce435fea11f8370330e969eab7ddcc7f7e8013c0f42a54a2f31f7893c2c72276",
+    "finished_at": "2026-11-05T12:14:09.364917+00:00"
+  },
+  "log_tail": "",
+  "receipt_verified": true
+}

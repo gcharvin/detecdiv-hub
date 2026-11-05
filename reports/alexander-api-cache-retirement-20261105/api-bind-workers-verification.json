@@ -1,0 +1,64 @@
+{
+  "workers": [
+    {
+      "instance": "@5",
+      "pid": 694307,
+      "fingerprint": "a2649a68b316",
+      "current_job_id": "0a630607-7cca-4088-82c6-a1ecf80ddbf8"
+    },
+    {
+      "instance": "windows-10-20-11-56-main",
+      "pid": 3720,
+      "fingerprint": "b35b0444d5f0",
+      "current_job_id": null
+    },
+    {
+      "instance": "@2",
+      "pid": 433434,
+      "fingerprint": "a2649a68b316",
+      "current_job_id": null
+    },
+    {
+      "instance": "@6",
+      "pid": 433435,
+      "fingerprint": "a2649a68b316",
+      "current_job_id": null
+    },
+    {
+      "instance": "@3",
+      "pid": 911503,
+      "fingerprint": "a2649a68b316",
+      "current_job_id": "767b8e8f-c3ed-429f-a320-ebb92b90c386"
+    },
+    {
+      "instance": "@1",
+      "pid": 433433,
+      "fingerprint": "a2649a68b316",
+      "current_job_id": null
+    },
+    {
+      "instance": "@4",
+      "pid": 912963,
+      "fingerprint": "a2649a68b316",
+      "current_job_id": "9a5093da-8abd-4968-b7dd-33933cd4ae58"
+    }
+  ],
+  "jobs": [
+    {
+      "id": "9a5093da-8abd-4968-b7dd-33933cd4ae58",
+      "status": "running",
+      "heartbeat_at": "2026-11-05 11:55:49.429477+00:00"
+    },
+    {
+      "id": "0a630607-7cca-4088-82c6-a1ecf80ddbf8",
+      "status": "running",
+      "heartbeat_at": "2026-11-05 11:55:52.242860+00:00"
+    },
+    {
+      "id": "767b8e8f-c3ed-429f-a320-ebb92b90c386",
+      "status": "running",
+      "heartbeat_at": "2026-11-05 11:55:57.019811+00:00"
+    }
+  ],
+  "same_worker_pids_and_fingerprints": true
+}

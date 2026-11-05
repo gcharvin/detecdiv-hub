@@ -1,0 +1,20 @@
+{
+  "success": true,
+  "archived": [
+    {
+      "mode": "pairs",
+      "receipt_sha256": "ce435fea11f8370330e969eab7ddcc7f7e8013c0f42a54a2f31f7893c2c72276",
+      "private_directory": "/home/charvin-admin/storage-transfers/alexander-api-cache-retirement-20261105/media-receipts/pairs"
+    },
+    {
+      "mode": "handlers",
+      "receipt_sha256": "b97f1b4434975ad0f3eab3f6fad4b8b72fe935f21446edeb4d67c36c4cbcb508",
+      "private_directory": "/home/charvin-admin/storage-transfers/alexander-api-cache-retirement-20261105/media-receipts/handlers"
+    },
+    {
+      "mode": "post-retirement",
+      "receipt_sha256": "b97f1b4434975ad0f3eab3f6fad4b8b72fe935f21446edeb4d67c36c4cbcb508",
+      "private_directory": "/home/charvin-admin/storage-transfers/alexander-api-cache-retirement-20261105/media-receipts/post-retirement"
+    }
+  ]
+}

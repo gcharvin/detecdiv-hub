@@ -1,0 +1,16 @@
+{
+  "raws": 109,
+  "linked_projects": 2,
+  "jobs": [
+    {
+      "id": "9a5093da-8abd-4968-b7dd-33933cd4ae58",
+      "status": "running",
+      "affected": false,
+      "kind": "pipeline_run",
+      "project_id": "f623bfaf-b352-47f1-85ff-00d2abfdad6c",
+      "created_at": "2026-11-05 09:49:45.343934+00:00",
+      "started_at": "2026-11-05 09:49:46.174455+00:00"
+    }
+  ],
+  "indexing_active": 0
+}

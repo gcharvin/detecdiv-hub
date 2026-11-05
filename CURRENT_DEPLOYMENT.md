@@ -1,5 +1,29 @@
 # Current Deployment
 
+## Alexander 2023 migration fully completed, 2026-11-05 12:39 UTC
+
+All three scientific source manifests and all three temporary API cache payloads
+are retired from `/data`, with full per-file receipts and final native empty
+payload audits. Original projects and backups remain preserved. The readonly
+homes2 mount is installed on **webserver-labo**, persistently exposed readonly
+to the API with its unchanged image. PostgreSQL and worker PIDs/fingerprints
+are unchanged; unrelated calculations continued.
+
+All 1,926 API media references now point to homes2. Full actual response streams
+passed both before and after cache retirement; Linux and actual limited Windows
+session reads passed. The final cache retirement recovered **28,880,097,280
+measured bytes**, bringing the sum of measured deletion-window gains to
+**10,311,325,290,496 bytes (10.311 TB)**. This sum is not a multi-day net NAS
+usage measurement. Scientific files, identities, owners, notes, ACLs/groups,
+positions, relationships, original locations and raw staging namespaces remain
+preserved. All fourteen own cache-phase leases were released; batch
+`468070ce-1489-456e-9175-27f188156e41` is `api_cache_retired_verified`.
+
+Completion evidence: `reports/alexander-api-cache-retirement-20261105/README.md`.
+No live migration work remains; the six-hour follow-up has been deleted. Do not replay
+completed controllers or diagnostic tasks. Older pending/blocker entries below
+are historical and superseded by this completion record.
+
 ## Alexander 2023 final migration scope, confirmed 2026-11-01
 
 The user requires eventual retirement of all Alexander 2023 data from `/data`

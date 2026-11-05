@@ -1,0 +1,42 @@
+{
+  "success": true,
+  "source_and_cache_trees": [
+    {
+      "root": "/volume1/DATA/Alexander/data/2023_1",
+      "remaining_regular_payload_files": 0,
+      "remaining_payload_bytes": 0,
+      "unexpected_entries": 0
+    },
+    {
+      "root": "/volume1/DATA/Alexander/data/2023_2",
+      "remaining_regular_payload_files": 0,
+      "remaining_payload_bytes": 0,
+      "unexpected_entries": 0
+    },
+    {
+      "root": "/volume1/DATA/Alexander/data/2023_3",
+      "remaining_regular_payload_files": 0,
+      "remaining_payload_bytes": 0,
+      "unexpected_entries": 0
+    },
+    {
+      "root": "/volume1/DATA/.detecdiv-hub-api-cache/alexander-2023_1",
+      "remaining_regular_payload_files": 0,
+      "remaining_payload_bytes": 0,
+      "unexpected_entries": 0
+    },
+    {
+      "root": "/volume1/DATA/.detecdiv-hub-api-cache/alexander-2023_2",
+      "remaining_regular_payload_files": 0,
+      "remaining_payload_bytes": 0,
+      "unexpected_entries": 0
+    },
+    {
+      "root": "/volume1/DATA/.detecdiv-hub-api-cache/alexander-2023_3",
+      "remaining_regular_payload_files": 0,
+      "remaining_payload_bytes": 0,
+      "unexpected_entries": 0
+    }
+  ],
+  "nas_system_metadata_and_snapshots_preserved": true
+}

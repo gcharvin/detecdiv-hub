@@ -1,0 +1,29 @@
+{
+  "success": true,
+  "state": {
+    "phase": "cache_manifest_retired_post_checks_pending",
+    "files_unlinked": 1926,
+    "bytes_unlinked": 28981723684,
+    "batch_id": "468070ce-1489-456e-9175-27f188156e41",
+    "manifest_sha256": "d004542da2bd51f483bbd58c1760a24fef4e17be29eef7cc45c3c04563baf7a8",
+    "heartbeat_at": "2026-11-05T12:27:43.078196+00:00",
+    "ssh_pid": 150326,
+    "native_preflight": {
+      "event": "preflight_passed",
+      "files": 1926,
+      "free_bytes_before": 10979228876800
+    },
+    "result": {
+      "event": "complete",
+      "files_unlinked": 1926,
+      "logical_bytes_unlinked": 28981723684,
+      "free_bytes_before": 10979228876800,
+      "free_bytes_after": 11008108974080,
+      "measured_free_bytes_increase": 28880097280
+    },
+    "receipt_sha256": "fe43825cfdbbb726a42392781cde096e7168775bf6aa7eb3b300872877f9cc83",
+    "finished_at": "2026-11-05T12:27:43.078153+00:00"
+  },
+  "each_manifest_file_has_unique_unlink_receipt": true,
+  "all_three_cache_payloads_empty": true
+}
