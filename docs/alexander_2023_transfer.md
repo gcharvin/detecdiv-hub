@@ -1,5 +1,19 @@
 # Alexander 2023 — approved migration, 2026-10-08
 
+## 2023_3 catalog switched and bounded retirement running, 2026-11-05
+
+Both final-folder host validations passed. At 10:28 UTC the same eleven
+projects and 24 raws/775 positions were transactionally switched to homes2.
+Original Sauvegarde locations remain readonly; identities, owners, notes, ACLs,
+groups and links are preserved. All 798 API content responses were fully
+streamed and hashed after their references were switched to the verified cache.
+Two destination timestamp exceptions passed exact source/destination SHA1
+comparisons before metadata-only correction; the complete native recheck passed.
+The authorized exact-manifest retirement started at 10:32 UTC, with per-file
+checks/receipts and own-lease deadline enforcement. Its result, actual recovered
+space and final source-location removal still require the terminal/post checks.
+See the continuation report; never replay a partially executed retirement.
+
 ## 2023_3 raw verified and final project folders published, 2026-11-05
 
 Full raw SHA1 and source stability succeeded at 08:41 UTC for 708,590 files /

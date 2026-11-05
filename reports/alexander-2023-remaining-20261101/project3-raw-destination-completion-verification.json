@@ -1,0 +1,22 @@
+{
+  "phase": "native_destination_metadata_verified",
+  "source_deleted": false,
+  "heartbeat_at": "2026-11-05T10:31:13.356794+00:00",
+  "ssh_pid": 115402,
+  "success": true,
+  "result": {
+    "success": true,
+    "audit_completed": true,
+    "timestamp_outliers": 0,
+    "source_manifest_sha256": "4abdfbfff41264b9bc069c3968ac742ac06fa9b7c52127bbf4369a7d95306fd3",
+    "files": 708590,
+    "bytes": 5967100516555,
+    "all_owned_by_maliavko": true,
+    "all_regular_single_link_files": true,
+    "source_paths_and_sizes_match": true,
+    "max_mtime_difference_ns": 50,
+    "source_deleted": false
+  },
+  "receipt_sha256": "65ea46a29012f11f78884ec3edbba41210f981f43813421e4ad445d92edd70af",
+  "finished_at": "2026-11-05T10:31:13.356625+00:00"
+}

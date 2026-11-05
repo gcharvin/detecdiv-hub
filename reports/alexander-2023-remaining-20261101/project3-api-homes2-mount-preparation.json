@@ -1,0 +1,15 @@
+{
+  "private_directory": "/home/charvin-admin/storage-transfers/alexander-api-homes2-serving-20261105",
+  "files_sha256": {
+    "detecdiv-homes2-share.service": "6e80f61f3a35c16503f4819bd4c0ff23673319a12752880d88a3a711f9ae8a1e",
+    "homes2.conf": "1bd7a33da4cf4be536cf978f9bfa68d88ade0c8525c67e7e2d1c102b2dc74d1d",
+    "install_homes2_readonly_mount.sh": "1a97f3d1e881885b5affcbe0c30820772a52170e14afbe552af3751ef200e7cf",
+    "README.md": "e63a93d0ef4d6e72c26cffd4011c2bf2358c4042358b8719581db28d1c7b2180"
+  },
+  "bash_syntax_passed": true,
+  "unit_verify_exit": 0,
+  "unit_verify_diagnostics": "Failed to open \"/etc/systemd/system\", ignoring: Permission denied\n",
+  "installed": false,
+  "api_restarted": false,
+  "sudo_available": false
+}

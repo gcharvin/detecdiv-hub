@@ -1,0 +1,13 @@
+{
+  "success": true,
+  "verified_at": "2026-11-05T10:32:17.161201+00:00",
+  "batch_id": "67c091e6-b021-4f9e-8048-33a9192e1bc7",
+  "projects_verified": 11,
+  "raws_verified": 24,
+  "positions_preserved": 775,
+  "actual_api_handlers_fully_streamed": 798,
+  "api_content_bytes_verified": 12055348763,
+  "identity_notes_acl_groups_links_preserved": true,
+  "original_projects_preserved": true,
+  "source_deleted": false
+}

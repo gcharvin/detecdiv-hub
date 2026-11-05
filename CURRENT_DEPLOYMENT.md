@@ -20,6 +20,21 @@ Detailed conditions and the user's instruction: `docs/alexander_2023_transfer.md
 
 ## Alexander 2023_1 retired; 2023_3 raw/project copies active, 2026-11-01
 
+Latest follow-up, 2026-11-05 10:33 UTC: both final-folder host validations
+passed. At 10:28 the same eleven projects and 24 raw identities/775 positions
+were switched transactionally to verified homes2 locations, with original
+readonly project locations preserved. All 798 real API responses were fully
+streamed and hashed successfully after their URI projection update. Two raw
+destination mtime exceptions were audited, content-hash checked, corrected
+without data changes, and the complete 708,590-file native metadata check
+passed. Exact manifest retirement is now running in tmux
+`alex2023-3-source-retirement-20261105`, batch
+`67c091e6-b021-4f9e-8048-33a9192e1bc7`. Read its actual state/receipts first;
+do not replay any copy, relink, publication, cutover or completed host test.
+Own retirement leases expire 14:27 UTC. Post-retirement checks and catalog
+source-location retirement remain. API caches (~29 GB) still require a
+privileged readonly homes2 mount on the VM before their eventual removal.
+
 Latest follow-up, 2026-11-05 09:55 UTC: raw full SHA1 and exact source-stability
 inventories passed at 08:41 UTC for all 708,590 files / 5,967,100,516,555 bytes.
 All eleven project copies were published to their final filesystem folders at

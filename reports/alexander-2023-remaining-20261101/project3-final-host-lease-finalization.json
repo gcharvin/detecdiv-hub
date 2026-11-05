@@ -1,0 +1,21 @@
+{
+  "success": true,
+  "batch_id": "2f5d3025-8749-49af-9b6a-b3036d52ba44",
+  "status": "final_folders_verified_catalog_cutover_pending",
+  "own_leases_released": [
+    "10086895-4046-40d1-8b72-2babe41c16a1",
+    "f92ab099-b2a2-44a9-af2c-a353fddf6598",
+    "136975bb-0fc2-4088-91d8-9129d3589a3b",
+    "dba7cc82-23a4-476c-b2df-8b7a4f500892",
+    "22e38016-a6a8-4756-8cfc-f8d332414cbe",
+    "a2dffc47-10f5-4665-910e-24ee6c7e6460",
+    "2d9491fa-3d8e-49a8-9211-2283c57166f7",
+    "72dee10b-a6d8-4415-b094-45b273476eca",
+    "857997e7-e52b-41b1-93c8-98103fedb225",
+    "3f31e97a-8987-4046-9a0f-f6b22cfd6ebd",
+    "44fe4ccc-a69f-422b-bb60-dea8140306b6"
+  ],
+  "checked_at": "2026-11-05T10:24:35.315525+00:00",
+  "source_deleted": false,
+  "catalog_changed": false
+}

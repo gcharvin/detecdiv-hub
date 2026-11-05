@@ -1,0 +1,43 @@
+{
+  "result": {
+    "success": true,
+    "files_repaired": 2,
+    "only_destination_mtimes_changed": true,
+    "source_deleted": false,
+    "finished_at": "2026-11-05T10:26:06.838272+00:00",
+    "receipt_sha256": "970c3208e839f0ca7103b330159a1e6f365407d522aa85dd8efdf4f583625555"
+  },
+  "files": [
+    {
+      "path": "171123dhyapx1_nhgch5/171123dhyapx1_nhgch5_4/Pos11/img_channel000_position011_time000000321_z001.tif",
+      "bytes": 8411770,
+      "before_mtime_ns": 1793628371222607300,
+      "after_mtime_ns": 1700329214386878900,
+      "sha1_source_and_destination": "95ee922ef7694c2f728e1f374ae409e85b1dccec",
+      "source_unchanged": true,
+      "destination_content_unchanged": true,
+      "changed_only_destination_mtime": true
+    },
+    {
+      "path": "231123newleft_nh52/231123newleft_nh52_4/Pos20/img_channel000_position020_time000000528_z000.tif",
+      "bytes": 8411772,
+      "before_mtime_ns": 1793658664887042600,
+      "after_mtime_ns": 1700912622587956200,
+      "sha1_source_and_destination": "62db254fe2564830491d5de414711de4dfe2dd6c",
+      "source_unchanged": true,
+      "destination_content_unchanged": true,
+      "changed_only_destination_mtime": true
+    }
+  ],
+  "guard": {
+    "success": true,
+    "checked_at": "2026-11-05T10:26:02.396716+00:00",
+    "guards": {
+      "affected_jobs": 0,
+      "active_indexing": 0,
+      "own_locks": 0,
+      "linked_projects": 0
+    }
+  },
+  "private_directory": "/home/charvin-admin/storage-transfers/alexander-2023-remaining-20261101/project3-timestamp-repair-20261105"
+}

@@ -5,6 +5,7 @@ import os
 from pathlib import Path
 import stat
 import sys
+import time
 
 
 ROOT = Path("/volume1/DATA/Alexander/data/2023_3")
@@ -54,7 +55,7 @@ def scan(root_fd, expected):
         raise ValueError("Source inventory differs from manifest")
 
 
-def retire(root, rows, apply, emit):
+def retire(root, rows, apply, emit, before_unlink=None):
     expected = {}
     for row in rows:
         path = row["path"]
@@ -75,6 +76,8 @@ def retire(root, rows, apply, emit):
             return
         count = size = 0
         for relative, row in expected.items():
+            if before_unlink is not None:
+                before_unlink()
             path = Path(relative)
             fd = open_directory(root_fd, path.parent.parts)
             try:
@@ -103,13 +106,21 @@ def main():
     apply = request["mode"] == "unlink"
     if apply and request.get("verified_cutover") is not True:
         raise ValueError("Verified cutover receipt required")
+    before_unlink = None
+    if apply:
+        deadline = float(request["lease_deadline_unix"])
+        def check_deadline():
+            if not time.time() < deadline:
+                raise ValueError("Own retirement lease deadline reached")
+        check_deadline()
+        before_unlink = check_deadline
     manifest = sys.stdin.buffer.read()
     if hashlib.sha256(manifest).hexdigest() != MANIFEST_SHA:
         raise ValueError("Manifest digest mismatch")
     rows = [row for line in manifest.splitlines() if (row := json.loads(line))["kind"] == "file"]
     if len(rows) != FILES or sum(row["bytes"] for row in rows) != BYTES:
         raise ValueError("Manifest totals mismatch")
-    retire(ROOT, rows, apply, lambda event: print(json.dumps(event)))
+    retire(ROOT, rows, apply, lambda event: print(json.dumps(event)), before_unlink)
 
 
 if __name__ == "__main__":

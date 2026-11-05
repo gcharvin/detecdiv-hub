@@ -1,0 +1,23 @@
+{
+  "python_files_parsed": [
+    "project3_cutover_operations.py",
+    "project3_retirement_operations.py",
+    "retire_project3_verified_source.py",
+    "verify_project3_raw_destination_native.py",
+    "run_project3_destination_check.py",
+    "verify_project3_api_content.py",
+    "verify_project3_final_native.py",
+    "repair_project3_destination_timestamps.py",
+    "run_project3_after_retirement.py",
+    "project3_post_retirement_operations.py"
+  ],
+  "matlab": {
+    "matlab_post_script_parsed": true,
+    "exit": 0
+  },
+  "real_api_file_response_stream_fixture": {
+    "passed": true,
+    "bytes": 22
+  },
+  "retirement_guard_fixture_proof": "project3-retirement-guard-fixtures.json"
+}

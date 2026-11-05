@@ -1,0 +1,13 @@
+{
+  "success": true,
+  "isolated_cases_passed": [
+    "extra",
+    "changed",
+    "symlink",
+    "hardlink",
+    "dry_run",
+    "valid_unlink",
+    "expired_lease"
+  ],
+  "production_source_touched": false
+}

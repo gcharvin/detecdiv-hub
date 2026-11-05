@@ -1,0 +1,65 @@
+{
+  "success": true,
+  "admitted_at": "2026-11-05T10:27:10.692675+00:00",
+  "batch_id": "67c091e6-b021-4f9e-8048-33a9192e1bc7",
+  "holder": "alexander-2023-3-catalog-and-source-retirement-20261105",
+  "root_id": 84,
+  "leases": [
+    {
+      "id": "75dac048-4382-4e3a-90c1-ed2c60bedf15",
+      "project_id": "6aa9c80c-ac32-41d6-a021-6f2d83e0a5bf",
+      "expires_at": "2026-11-05T14:27:10.435746+00:00"
+    },
+    {
+      "id": "1175e820-fea4-4d53-996f-854939d3e0b7",
+      "project_id": "6dd570e7-668d-48d5-8586-7b3f69af5136",
+      "expires_at": "2026-11-05T14:27:10.455793+00:00"
+    },
+    {
+      "id": "883079d7-8dde-4dd8-b2ed-207d6d796104",
+      "project_id": "6e2aa8c7-a59e-4ed7-b7e2-c48916160a02",
+      "expires_at": "2026-11-05T14:27:10.478830+00:00"
+    },
+    {
+      "id": "5a035729-eb67-4d84-9ca6-285661621484",
+      "project_id": "707acc12-89b0-4d74-a98c-d69e86b68531",
+      "expires_at": "2026-11-05T14:27:10.500582+00:00"
+    },
+    {
+      "id": "3129b77e-54f3-40f6-9777-d2f8547a2470",
+      "project_id": "78c84671-9e8f-4ee4-bed9-d6397f86e5fd",
+      "expires_at": "2026-11-05T14:27:10.520291+00:00"
+    },
+    {
+      "id": "08247237-6e9f-463b-8b32-c9aedd792093",
+      "project_id": "9d70b40a-43b2-472a-8410-b6a7965184b6",
+      "expires_at": "2026-11-05T14:27:10.545984+00:00"
+    },
+    {
+      "id": "3981d1fa-2784-4fb6-aac9-06e578014fd6",
+      "project_id": "9e2f2539-7e95-4443-b3b3-650dca2db54c",
+      "expires_at": "2026-11-05T14:27:10.569402+00:00"
+    },
+    {
+      "id": "3f6867e5-2bc6-4f9c-be7e-aba0c2924cf6",
+      "project_id": "9f88f839-d908-44c6-8937-0b04713e36e3",
+      "expires_at": "2026-11-05T14:27:10.586770+00:00"
+    },
+    {
+      "id": "365b8486-a0a2-46ae-87fd-28ad69372b6a",
+      "project_id": "c00f3571-2721-4dc5-9783-2d464fbec635",
+      "expires_at": "2026-11-05T14:27:10.602230+00:00"
+    },
+    {
+      "id": "bb272bf4-7c74-478a-96fd-89d1ff6d3b75",
+      "project_id": "c1661f69-7579-473b-aa7d-f2acdb7de5bc",
+      "expires_at": "2026-11-05T14:27:10.616704+00:00"
+    },
+    {
+      "id": "20522aff-da7a-43b1-ba76-420f449b716c",
+      "project_id": "de439577-471f-4eeb-afd8-3154f13732a6",
+      "expires_at": "2026-11-05T14:27:10.631827+00:00"
+    }
+  ],
+  "source_deleted": false
+}

@@ -1,5 +1,92 @@
 # Alexander 2023 migration continuation — 2026-11-01
 
+## Cutover and source retirement, 2026-11-05 10:33 UTC
+
+The final-folder Linux test completed at 10:12 UTC; Windows completed afterwards
+in the actual limited GMGM\Charvin-Admin session. The matching full receipts
+cover all eleven projects, 123 FOVs, 53,623 ROIs, 44,944 data sidecars, 21
+processors and 1,728 raw reads per host. Evidence:
+`project3-final-hosts-completion-verification.json`. The publication watcher
+released its eleven leases and exited, and the final Windows diagnostic task
+was cleaned up. Do not call its status or launch it again.
+
+A fresh native check also verified all 152,277 original/copy inventory entries,
+every copy's ownership and independent inode, and original/final hashes for all
+32 relinked MATs. Original Sauvegarde inventories were unchanged. Result digest
+`d11c0cf8dbb2f1e5fa927c45212aeee68993b6f083e2334e2faa9cb09962286b`;
+evidence: `project3-final-native-completion-verification.json`.
+
+The additional full raw-destination metadata gate found two timestamps from
+the Nov2 copy instead of the expected 2023 times. This was a metadata exception,
+not a failed content checksum. The failed read-only scan is preserved in
+`project3-raw-destination-check-20261105/`. A separate complete audit in
+`project3-raw-timestamp-audit-20261105/` found exactly two exceptions, with all
+708,590 types, sizes and native maliavko ownership correct. Each exception's
+source/destination content was rehashed and required exact SHA1 equality plus
+stable source metadata before correcting only its destination mtime through
+the existing maliavko CIFS session. The destination was rehashed after repair.
+No source file or scientific value changed. Evidence:
+`project3-timestamp-repair-verification.json`.
+
+The complete native destination recheck then passed at 10:31 UTC, with zero
+exceptions and maximum timestamp precision difference 50 ns. Private directory
+`project3-raw-destination-check-after-timestamp-repair-20261105/`; evidence
+`project3-raw-destination-completion-verification.json`, receipt SHA256
+`65ea46a29012f11f78884ec3edbba41210f981f43813421e4ad445d92edd70af`.
+Do not replay the failed scan, audit, repair or completed recheck.
+
+Fresh cutover batch **`67c091e6-b021-4f9e-8048-33a9192e1bc7`**, holder
+`alexander-2023-3-catalog-and-source-retirement-20261105`, acquired eleven new
+leases until **14:27 UTC**. At **10:28 UTC** one transaction switched the same
+eleven projects to homes2 locations **4268–4278**, preserving their readonly
+original locations, and the same 24 raw identities/775 positions to homes2
+locations **5545–5568**. It changed 798 matching API references to the verified
+cache3. Full private before/after snapshots are in the batch and ignored local
+runtime; owners, notes, ACLs, groups, scientific values and links are preserved.
+The project data directory has the intentional double stem. The raw staging
+namespace remains stable because it is saved in the verified MATs.
+
+The real API FileResponse handlers were fully streamed inside the actual API
+container, including every byte, for all 798 files / 12,055,348,763 bytes.
+All SHA1 values match the original three-way primary/homes2/cache receipt.
+Finished 10:31 UTC; receipt digest
+`dffd5663adaca24daa5e72e265a06b785425eea6c935a10761ae7a1ee4abc667`.
+Evidence: `project3-catalog-cutover-verification.json`; full content receipts
+are private in `/tmp/detecdiv-alexander-2023-3-content-20261105` inside the API
+container and archived in ignored local runtime. The first staging attempt
+hit the Windows command-length limit before executing SSH; corrected staging
+sends the large request on stdin and did not repeat any data/API transaction.
+
+At **10:32 UTC** the separately gated, exact source retirement was launched in
+tmux **`alex2023-3-source-retirement-20261105`**, private directory
+**`project3-source-retirement-20261105/`**. Inspect state, exit and receipt
+before doing anything else. Never duplicate or replay this controller. The
+leaf checks the full source inventory, no-follow ancestors, type/size/mtime
+before each unlink and the own lease deadline before every unlink. Seven
+isolated fixture cases passed, including an expired-lease refusal.
+Controller SHA256 `206e27a1bf5263619d254e9f607bc175107365896476aeae864c2232147a7555`;
+leaf SHA256 `ef6f92641564d5c58e7b52d40676ea5c9061abc7df82c401ec5de88811284b3e`.
+The earlier native read-only preflight used the older leaf without the added
+deadline hook and remains valid historical evidence, not the execution script.
+
+After terminal success, `project3_retirement_operations.py receipt` checks every
+unique unlink against the complete manifest. Then run the prepared distinct
+post-retirement Linux/Windows readers and full API streams before `finish`
+retires only the 47 dead source-location rows and releases this batch's own
+leases. Do not claim a space total until the terminal native free-space receipt.
+Post host diagnostics use `project3_post_retirement_operations.py`; post API
+operations are `launch-api-post` and `api-status-post` in
+`project3_cutover_operations.py`. They must only start after the full retirement
+receipt is verified. Scientific originals, other users/years and snapshots stay.
+
+API caches 1/2/3 still contain **28,981,723,684 bytes** needed by live handlers.
+The VM has no homes2 view and requires an interactive sudo password. A concrete
+readonly mount installer has been staged and syntax/unit-checked without
+installing anything; see `api-homes2-serving-20261105/README.md` and
+`project3-api-homes2-mount-preparation.json`. Root Docker workarounds are not
+used. The root-only mount step is separate from this already authorized raw
+retirement, and does not alter SMB credentials or restart the API by itself.
+
 ## Follow-up, 2026-11-05 09:55 UTC
 
 **Full raw SHA1 and source stability completed successfully at 08:41 UTC.**

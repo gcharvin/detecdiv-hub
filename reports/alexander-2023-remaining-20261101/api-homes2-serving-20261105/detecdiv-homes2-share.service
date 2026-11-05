@@ -1,0 +1,17 @@
+[Unit]
+Description=Read-only DetecDiv personal homes2 view from compute
+Wants=network-online.target
+After=network-online.target
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+ExecStartPre=/usr/bin/test -d /homes2/maliavko/DetecdivHub
+ExecStart=/usr/bin/sshfs -f -o ro,reconnect,ServerAliveInterval=15,ServerAliveCountMax=3,IdentityFile=/root/.ssh/detecdiv_hub_data,StrictHostKeyChecking=yes,allow_other,default_permissions,uid=1000,gid=1000 charvin-admin@10.20.11.100:/homes2/maliavko/DetecdivHub /homes2/maliavko/DetecdivHub
+ExecStop=/usr/bin/fusermount3 -u /homes2/maliavko/DetecdivHub
+Restart=on-failure
+RestartSec=15
+TimeoutStartSec=90
+
+[Install]
+WantedBy=multi-user.target
