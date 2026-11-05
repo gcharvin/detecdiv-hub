@@ -1,5 +1,77 @@
 # Alexander 2023 migration continuation — 2026-11-01
 
+## Follow-up, 2026-11-05 09:55 UTC
+
+**Full raw SHA1 and source stability completed successfully at 08:41 UTC.**
+The terminal runner state has both success flags; both native manifests have
+SHA256 `4abdfbfff41264b9bc069c3968ac742ac06fa9b7c52127bbf4369a7d95306fd3`,
+708,590 files and 5,967,100,516,555 bytes. The discrepancy log is empty and the
+runner/rsync have exited. Evidence: `project3-raw-completion-verification.json`.
+Do not relaunch the raw transfer or its checksum.
+
+Fresh admission found no affected job, write lease or active indexing. All
+eleven project identity, metadata and location digests still matched the relink
+baseline. Publication batch `2f5d3025-8749-49af-9b6a-b3036d52ba44`, holder
+`alexander-2023-3-final-publication-20261105`, owns eleven leases until 13:50 UTC.
+The initial admission attempt rolled back completely because UUID values in the
+full private JSON snapshots needed serialization; the corrected transaction is
+the only committed admission. No filesystem action preceded that admission.
+
+At 09:51 UTC all eleven incoming project folders were renamed atomically with
+no replacement to their final homes2 folders. A native gate confirmed maliavko
+ownership and independent inodes for all 32 modified MATs. Sauvegarde originals
+are preserved. This publishes filesystem folders only; preferred catalog
+locations and raw/API references are still unchanged. Evidence:
+`project3-final-publication.json`, `project3-final-admission-summary.json`.
+
+Final-path tests are now running in Linux tmux
+`alex2023-3-host-final-linux-20261105`, private `project3-host-final-validation/`,
+and Windows task `DetecDiv Alexander Project3 Host Verify 20261103 Final`, private
+`C:/ProgramData/DetecDivHub/homes2-connection-private/project3-host-validation-20261103-final`.
+They use the actual final folders, request namespace `final`, and MATLAB script
+SHA256 `3678bdc550caeefb4b9f4c2111a355def0d47d99e32443e416383a5fb3ec7491`.
+Read these new tasks' receipts before any action. Do not duplicate them or rerun
+the cleaned incoming tests. Final Windows operations require `--final`.
+
+A hidden local watcher (PID 57460 at launch; verify identity before interacting)
+archives matching successful final-host receipts and releases only this batch's
+eleven leases. It cannot cut over the catalog or delete sources. Logs/request/
+full admission are under local ignored `runtime/project3-final-*` and
+`runtime/project3-host-final-*`. Expected completion files are
+`project3-final-hosts-completion-verification.json` and
+`project3-final-host-lease-finalization.json`. If the watcher stops or leases
+expire, inspect both actual host tasks and acquire fresh own leases before any
+subsequent cutover or retirement. Do not reuse the original admission as a fresh
+gate. Filesystem publication is complete and must not be replayed.
+
+A durable native **read-only** source-manifest preflight also runs in tmux
+`alex2023-3-native-preflight-20261105`, private
+`project3-native-retirement-preflight-20261105/`. No earlier matching native
+probe remained. Read `state.json`, `controller.exit`, `controller.log`,
+`native-errors.log`, and `native-receipt.jsonl`. It uses the pinned unlink leaf
+only with `mode: preflight`, never `unlink`. A successful early preflight still
+does not replace the live source scan immediately before eventual retirement.
+
+At 09:56 UTC that native preflight completed with exit 0, exactly 708,590
+manifest files and no unexpected/changed payload. The receipt SHA256 is
+`f83395545fb297a55d0052a9ea93732802c0c8e83e9073bad866336e969366ff`.
+Evidence: `project3-native-preflight-completion-verification.json`. Do not
+relaunch this completed early scan; the eventual unlink routine will perform
+its own live gate. Measured available space was 5,026,453,286,912 bytes; this
+is not reclaimed space because no payload was removed.
+
+The existing follow-up temporarily checks hourly during final-host validation
+and cutover, then must return to the requested six-hour cadence after the
+2023_3 source retirement. Do not create a second automation. The task remains
+active for eventual verified API-cache retirement if that work is still pending.
+
+Remaining work is final-host success, fresh admission/leases, transactional
+catalog/API cutover and all 798 real content-handler checks, then a separately
+gated 2023_3 manifest retirement with per-file receipts and space measurement.
+No 2023_3 source file has been deleted. Previously measured recovery remains
+4,315,222,548,480 bytes from 2023_1/2; do not count the copied 2023_3 bytes as
+recovered space. Preserve all original projects and live API caches.
+
 ## Final-folder and retirement preparation, 2026-11-03
 
 After full raw SHA1 and source stability succeed, take fresh admission and

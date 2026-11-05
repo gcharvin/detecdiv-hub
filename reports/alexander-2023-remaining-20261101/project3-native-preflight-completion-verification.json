@@ -1,0 +1,23 @@
+{
+  "success": true,
+  "state": {
+    "phase": "native_source_manifest_preflight_verified_readonly",
+    "source_deleted": false,
+    "catalog_changed": false,
+    "prior_native_processes": {
+      "matching_preflight_pids": []
+    },
+    "heartbeat_at": "2026-11-05T09:56:24.310417+00:00",
+    "ssh_pid": 108081,
+    "native_exit_code": 0,
+    "result": {
+      "event": "preflight_passed",
+      "files": 708590,
+      "free_bytes_before": 5026453286912
+    },
+    "finished_at": "2026-11-05T09:56:24.310383+00:00"
+  },
+  "receipt_sha256": "f83395545fb297a55d0052a9ea93732802c0c8e83e9073bad866336e969366ff",
+  "source_deleted": false,
+  "catalog_changed": false
+}

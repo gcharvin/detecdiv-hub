@@ -1,0 +1,38 @@
+{
+  "success": true,
+  "checked_at": "2026-11-05T09:50:29.046642+00:00",
+  "raw_state": {
+    "started_at": "2026-11-01T20:34:56.435058+00:00",
+    "year": "2023_3",
+    "phase": "verified_in_staging_project_and_catalog_gates_pending",
+    "source_deleted": false,
+    "catalog_changed": false,
+    "project_relink_required_before_retirement": true,
+    "heartbeat_at": "2026-11-05T08:41:30.702143+00:00",
+    "runner_pid": 2698047,
+    "inventory_progress": {
+      "files": 687435,
+      "bytes": 5788928067900,
+      "child_pid": 81136
+    },
+    "source_inventory": {
+      "sha256": "4abdfbfff41264b9bc069c3968ac742ac06fa9b7c52127bbf4369a7d95306fd3",
+      "bytes": 5967100516555,
+      "files": 708590
+    },
+    "staging_path": "/homes2/maliavko/DetecdivHub/raw/.incoming-alexander-2023-20261008/2023_3",
+    "bandwidth_kib": 61440,
+    "child_pid": 3261749,
+    "verification_log": "/home/charvin-admin/storage-transfers/alexander-2023-remaining-20261101/2023_3/verify-20261103T100210Z.log",
+    "full_sha1_passed": true,
+    "source_stability_verified": true,
+    "finished_at": "2026-11-05T08:41:30.702104+00:00"
+  },
+  "manifest_hashes": {
+    "source-before.jsonl": "4abdfbfff41264b9bc069c3968ac742ac06fa9b7c52127bbf4369a7d95306fd3",
+    "source-after.jsonl": "4abdfbfff41264b9bc069c3968ac742ac06fa9b7c52127bbf4369a7d95306fd3"
+  },
+  "verification_log_bytes": 0,
+  "source_deleted": false,
+  "preferred_locations_changed": false
+}

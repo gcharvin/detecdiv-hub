@@ -1,5 +1,16 @@
 # Alexander 2023 — approved migration, 2026-10-08
 
+## 2023_3 raw verified and final project folders published, 2026-11-05
+
+Full raw SHA1 and source stability succeeded at 08:41 UTC for 708,590 files /
+5,967,100,516,555 bytes. At 09:51 all eleven relinked copies were renamed to
+their final homes2 project folders under fresh admission and own leases.
+Original Sauvegarde projects remain intact. Complete final-folder Linux and
+actual Windows-session validation is running before preferred catalog/API
+cutover and manifest-driven source retirement. No 2023_3 source has yet been
+deleted. Current tasks, receipts and lease closure are documented in
+`reports/alexander-2023-remaining-20261101/README.md`.
+
 ## Final scope and standing source-retirement authorization, 2026-11-01
 
 After completion of the 2023_2 retirement, the user clarified:
