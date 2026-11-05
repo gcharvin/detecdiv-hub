@@ -1,0 +1,9 @@
+{
+  "success": true,
+  "same_size_same_mtime_corruption_detected": true,
+  "destination_extra_detected": true,
+  "verification_changes_no_files": true,
+  "equal_content_empty_diff": true,
+  "copy_has_no_deletion_flags": true,
+  "fixture": "/tmp/detecdiv-2024-copy-fixture-uvlhfurd"
+}

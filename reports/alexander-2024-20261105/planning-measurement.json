@@ -1,0 +1,14 @@
+{
+  "scope": "/data/Alexander/data/2024*",
+  "method": "Read-only native NAS lstat scan before launch; NAS system metadata excluded",
+  "folders": [
+    {"year": "2024_1", "files": 732579, "logical_bytes": 5177814875236, "allocated_bytes": 5178723237888, "directories": 1598, "symlinks": 0, "other_entries": 0},
+    {"year": "2024_2", "files": 974112, "logical_bytes": 5856516249162, "allocated_bytes": 5857555419136, "directories": 1357, "symlinks": 0, "other_entries": 0}
+  ],
+  "total_files": 1706691,
+  "total_logical_bytes": 11034331124398,
+  "total_allocated_bytes": 11036278657024,
+  "homes2_available_bytes_before_launch": 34431047131136,
+  "associated_project_copy_bytes_not_yet_measured": true,
+  "not_transfer_verification_or_guaranteed_recovery": true
+}

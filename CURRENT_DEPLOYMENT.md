@@ -1,5 +1,27 @@
 # Current Deployment
 
+## Alexander 2024 migration started, 2026-11-05
+
+The user authorized migration of 2024_1 then 2024_2 to homes2, associated project
+inventory/relinking, and verified `/data` duplicate retirement while preserving
+all original projects. Batch `0382c23e-ad54-4ec9-9ad8-53cc79b64d97` is
+`copying_and_project_discovery`. Detached compute work is under
+`/home/charvin-admin/storage-transfers/alexander-2024-20261105`.
+Tmux `alex2024-copy-20261105` started the actual 2024_1 copy at 14:27:53 UTC;
+it requires complete SHA1 and native source stability before starting 2024_2.
+The two source years total 1,706,691 files / 11,034,331,124,398 logical bytes.
+No source has been removed and no preferred location or project file changed.
+
+Independent read-only project path discovery is running in
+`alex2024-project-discovery-20261105`, covering 3,326 catalog main files,
+Alexander's 154 first. No project/raw links exist yet for the 115 selected raws;
+candidate paths require scientific identity proof. Deferred busy projects,
+unknown layouts and uncataloged main files must be resolved before retirement.
+Use `reports/alexander-2024-20261105/status.py` and read that report's README
+before taking action. Never replay a partially executed controller.
+Six-hour autonomous follow-up:
+`alexander-2024-migration-et-lib-ration-data`.
+
 ## Alexander 2023 migration fully completed, 2026-11-05 12:39 UTC
 
 All three scientific source manifests and all three temporary API cache payloads

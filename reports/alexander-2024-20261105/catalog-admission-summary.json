@@ -1,0 +1,73 @@
+{
+  "checked_at": "2026-11-05T14:21:30.988747+00:00",
+  "raws": 115,
+  "raw_owners": [
+    "alexander"
+  ],
+  "linked_projects": [],
+  "catalog_projects_to_inspect": 3328,
+  "api_preview_references": 1970,
+  "api_settings_references": 111,
+  "active_jobs": [
+    {
+      "id": "9a5093da-8abd-4968-b7dd-33933cd4ae58",
+      "status": "running",
+      "project_id": "f623bfaf-b352-47f1-85ff-00d2abfdad6c",
+      "raw_id": null,
+      "affected_raw": false
+    },
+    {
+      "id": "767b8e8f-c3ed-429f-a320-ebb92b90c386",
+      "status": "running",
+      "project_id": "54f69d4c-5cc3-4b9f-b92c-c501973a185f",
+      "raw_id": null,
+      "affected_raw": false
+    }
+  ],
+  "active_locks": [
+    {
+      "id": "5c025771-e9dc-494f-86ea-da184a5f6cd7",
+      "project_id": "42df2aa7-7ad6-4080-9c67-03230d1f29ee",
+      "holder": "gilles",
+      "expires_at": "2026-11-05 14:26:10.265788+00:00"
+    },
+    {
+      "id": "aef3536d-4eb5-4da5-a9b0-a29fe482aec2",
+      "project_id": "c34f4e90-b79f-43b5-b543-319ef8fa76c1",
+      "holder": "antoine",
+      "expires_at": "2026-11-05 14:25:16.086903+00:00"
+    },
+    {
+      "id": "19e46f95-6c6c-4613-bf1d-acac08a106de",
+      "project_id": "1bb229be-79c8-4c1c-a3a2-34f0c6848bb1",
+      "holder": "antoine",
+      "expires_at": "2026-11-05 14:24:52.751415+00:00"
+    },
+    {
+      "id": "98cc170a-88a2-41b3-be81-a3956c27e7dd",
+      "project_id": "254b24bc-2e99-4fbe-89c9-36191f66ee1c",
+      "holder": "gilles",
+      "expires_at": "2026-11-05 14:26:17.930673+00:00"
+    },
+    {
+      "id": "1979ff74-354f-41dc-9cc9-aec197df1493",
+      "project_id": "c6ef4e6d-4d09-4044-b18b-02919e8d62e2",
+      "holder": "gilles",
+      "expires_at": "2026-11-05 14:26:18.230489+00:00"
+    },
+    {
+      "id": "9900985f-9b9d-4c9a-83c3-49e5a877fc4a",
+      "project_id": "54f69d4c-5cc3-4b9f-b92c-c501973a185f",
+      "holder": "767b8e8f-c3ed-429f-a320-ebb92b90c386",
+      "expires_at": "None"
+    },
+    {
+      "id": "85a08ea8-7522-4d58-977f-8f50419063f8",
+      "project_id": "f623bfaf-b352-47f1-85ff-00d2abfdad6c",
+      "holder": "9a5093da-8abd-4968-b7dd-33933cd4ae58",
+      "expires_at": "None"
+    }
+  ],
+  "indexing": [],
+  "read_only": true
+}

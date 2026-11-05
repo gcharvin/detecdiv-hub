@@ -1,0 +1,26 @@
+{
+  "batch_name": "alexander-2024-20261105",
+  "batch_id": "0382c23e-ad54-4ec9-9ad8-53cc79b64d97",
+  "years": [
+    "2024_1",
+    "2024_2"
+  ],
+  "bandwidth_kib": 61440,
+  "estimated_total_bytes": 11034331124398,
+  "initial_measurements": {
+    "2024_1": {
+      "files": 732579,
+      "bytes": 5177814875236
+    },
+    "2024_2": {
+      "files": 974112,
+      "bytes": 5856516249162
+    }
+  },
+  "source_deletion_allowed": false,
+  "catalog_cutover_allowed": false,
+  "runner_sha256": "a0576fffa3c1d43d232f54567c6c9f7153aed40b436ace98f26079af72432b99",
+  "catalog_snapshot_sha256": "af6d645bc7889fa26ae44a44e826303dffff79455c2cf2e7121e30e6fb9240a8",
+  "approved_scope": "Copy 2024_1 then 2024_2; discover/relink associated project copies, retain originals; retire /data only after complete verification.",
+  "minimum_free_margin_bytes": 2000000000000
+}

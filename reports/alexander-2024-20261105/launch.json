@@ -1,0 +1,14 @@
+{
+  "launched": true,
+  "session": "alex2024-copy-20261105",
+  "work": "/home/charvin-admin/storage-transfers/alexander-2024-20261105",
+  "staging": "/homes2/maliavko/DetecdivHub/raw/.incoming-alexander-2024-20261105",
+  "batch_id": "0382c23e-ad54-4ec9-9ad8-53cc79b64d97",
+  "runner_sha256": "a0576fffa3c1d43d232f54567c6c9f7153aed40b436ace98f26079af72432b99",
+  "source_deleted": false,
+  "catalog_locations_changed": false,
+  "years": [
+    "2024_1",
+    "2024_2"
+  ]
+}

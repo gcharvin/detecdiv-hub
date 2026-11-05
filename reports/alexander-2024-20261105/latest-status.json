@@ -1,0 +1,158 @@
+{
+  "copy_state": {
+    "phase": "copying",
+    "started_at": "2026-11-05T14:23:58.358245+00:00",
+    "batch_id": "0382c23e-ad54-4ec9-9ad8-53cc79b64d97",
+    "years": {
+      "2024_1": {
+        "phase": "copying",
+        "source": "/data/Alexander/data/2024_1",
+        "destination": "/homes2/maliavko/DetecdivHub/raw/.incoming-alexander-2024-20261105/2024_1",
+        "source_inventory": {
+          "files": 732579,
+          "bytes": 5177814875236,
+          "sha256": "8fd64d094fe29707e0ddd0b1480e9b861786d3adde677087ca7a6e95e252f61e"
+        },
+        "copy_started_at": "2026-11-05T14:27:53.524336+00:00"
+      }
+    },
+    "source_deleted": false,
+    "catalog_changed": false,
+    "runner_pid": 187291,
+    "heartbeat_at": "2026-11-05T14:32:08.705873+00:00",
+    "current_year": "2024_1",
+    "inventory_progress": {
+      "files": 716605,
+      "bytes": 5143289233737,
+      "child_pid": 187303
+    },
+    "child_pid": 188902
+  },
+  "controller_exit": "",
+  "controller_log_tail": "",
+  "project_discovery_progress": {
+    "inspected": 27,
+    "total": 3326,
+    "matched_candidates": 10,
+    "requires_review": 1,
+    "last_project": "anof_110625_2122433",
+    "projects_saved": false
+  },
+  "project_discovery_result": null,
+  "project_discovery_exit": "",
+  "project_discovery_log_tail": "discover_projects (line 33)]\b \n[\bWarning: Unable to load gpuArray data onto a GPU. Computations cannot be\nperformed on this limited gpuArray. Use GATHER to retrieve the contents.]\b \n[\b> In discover_projects (line 33)]\b \n[\bWarning: Unable to load gpuArray data onto a GPU. Computations cannot be\nperformed on this limited gpuArray. Use GATHER to retrieve the contents.]\b \n[\b> In discover_projects (line 33)]\b \n[\bWarning: Unable to load gpuArray data onto a GPU. Computations cannot be\nperformed on this limited gpuArray. Use GATHER to retrieve the contents.]\b \n[\b> In discover_projects (line 33)]\b \n[\bWarning: Unable to load gpuArray data onto a GPU. Computations cannot be\nperformed on this limited gpuArray. Use GATHER to retrieve the contents.]\b \n[\b> In discover_projects (line 33)]\b \n[\bWarning: Unable to load gpuArray data onto a GPU. Computations cannot be\nperformed on this limited gpuArray. Use GATHER to retrieve the contents.]\b \n[\b> In discover_projects (line 33)]\b \n[\bWarning: Unable to load gpuArray data onto a GPU. Computations cannot be\nperformed on this limited gpuArray. Use GATHER to retrieve the contents.]\b \n[\b> In discover_projects (line 33)]\b \n[\bWarning: Unable to load gpuArray data onto a GPU. Computations cannot be\nperformed on this limited gpuArray. Use GATHER to retrieve the contents.]\b \n[\b> In discover_projects (line 33)]\b \n[\bWarning: Unable to load gpuArray data onto a GPU. Computations cannot be\nperformed on this limited gpuArray. Use GATHER to retrieve the contents.]\b \n[\b> In discover_projects (line 33)]\b \n[\bWarning: Unable to load gpuArray data onto a GPU. Computations cannot be\nperformed on this limited gpuArray. Use GATHER to retrieve the contents.]\b \n[\b> In discover_projects (line 33)]\b \n[\bWarning: Unable to load gpuArray data onto a GPU. Computations cannot be\nperformed on this limited gpuArray. Use GATHER to retrieve the contents.]\b \n[\b> In discover_projects (line 33)]\b \n[\bWarning: Unable to load gpuArray data onto a GPU. Computations cannot be\nperformed on this limited gpuArray. Use GATHER to retrieve the contents.]\b \n[\b> In discover_projects (line 33)]\b \n[\bWarning: Unable to load gpuArray data onto a GPU. Computations cannot be\nperformed on this limited gpuArray. Use GATHER to retrieve the contents.]\b \n[\b> In discover_projects (line 33)]\b \n[\bWarning: Unable to load gpuArray data onto a GPU. Computations cannot be\nperformed on this limited gpuArray. Use GATHER to retrieve the contents.]\b \n[\b> In discover_projects (line 33)]\b \n[\bWarning: Unable to load gpuArray data onto a GPU. Computations cannot be\nperformed on this limited gpuArray. Use GATHER to retrieve the contents.]\b \n[\b> In discover_projects (line 33)]\b \n[\bWarning: Unable to load gpuArray data onto a GPU. Computations cannot be\nperformed on this limited gpuArray. Use GATHER to retrieve the contents.]\b \n[\b> In discover_projects (line 33)]\b \n[\bWarning: Unable to load gpuArray data onto a GPU. Computations cannot be\nperformed on this limited gpuArray. Use GATHER to retrieve the contents.]\b \n[\b> In discover_projects (line 33)]\b \n[\bWarning: Unable to load gpuArray data onto a GPU. Computations cannot be\nperformed on this limited gpuArray. Use GATHER to retrieve the contents.]\b \n[\b> In discover_projects (line 33)]\b \n[\bWarning: Unable to load gpuArray data onto a GPU. Computations cannot be\nperformed on this limited gpuArray. Use GATHER to retrieve the contents.]\b \n[\b> In discover_projects (line 33)]\b \n[\bWarning: Unable to load gpuArray data onto a GPU. Computations cannot be\nperformed on this limited gpuArray. Use GATHER to retrieve the contents.]\b \n[\b> In discover_projects (line 33)]\b \n[\bWarning: Unable to load gpuArray data onto a GPU. Computations cannot be\nperformed on this limited gpuArray. Use GATHER to retrieve the contents.]\b \n[\b> In discover_projects (line 33)]\b \n[\bWarning: Unable to load gpuArray data onto a GPU. Computations cannot be\nperformed on this limited gpuArray. Use GATHER to retrieve the contents.]\b \n[\b> In discover_projects (line 33)]\b \n",
+  "sessions": [
+    "alex2024-copy-20261105",
+    "alex2024-project-discovery-20261105"
+  ],
+  "copy_progress_tail": "57, ir-chk=6597/7898)\r  9.556.293.831  14%   34,73MB/s    0:04:22 (xfr#1158, ir-chk=6596/7898)\r  9.564.705.597  14%   34,73MB/s    0:04:22 (xfr#1159, ir-chk=6595/7898)\r  9.573.117.363  14%   34,74MB/s    0:04:22 (xfr#1160, ir-chk=6594/7898)\r  9.581.529.129  14%   34,74MB/s    0:04:23 (xfr#1161, ir-chk=6593/7898)\r  9.589.940.895  14%   34,75MB/s    0:04:23 (xfr#1162, ir-chk=6592/7898)\r  9.589.973.663  14%   45,57MB/s    0:19:49  \r  9.598.352.661  14%   34,75MB/s    0:04:23 (xfr#1163, ir-chk=6591/7898)\r  9.606.764.427  14%   34,76MB/s    0:04:23 (xfr#1164, ir-chk=6590/7898)\r  9.615.176.191  14%   34,76MB/s    0:04:23 (xfr#1165, ir-chk=6589/7898)\r  9.623.587.957  14%   34,77MB/s    0:04:23 (xfr#1166, ir-chk=6588/7898)\r  9.631.999.723  14%   34,77MB/s    0:04:24 (xfr#1167, ir-chk=6587/7898)\r  9.632.130.795  14%   44,38MB/s    0:20:20  \r  9.640.411.489  14%   34,77MB/s    0:04:24 (xfr#1168, ir-chk=6586/7898)\r  9.648.823.255  14%   34,78MB/s    0:04:24 (xfr#1169, ir-chk=6585/7898)\r  9.657.235.019  14%   34,78MB/s    0:04:24 (xfr#1170, ir-chk=6584/7898)\r  9.665.646.785  14%   34,78MB/s    0:04:25 (xfr#1171, ir-chk=6583/7898)\r  9.674.058.551  14%   34,78MB/s    0:04:25 (xfr#1172, ir-chk=6582/7898)\r  9.674.091.319  14%   42,03MB/s    0:21:27  \r  9.682.470.315  14%   34,77MB/s    0:04:25 (xfr#1173, ir-chk=6581/7898)\r  9.690.882.081  14%   34,78MB/s    0:04:25 (xfr#1174, ir-chk=6580/7898)",
+  "verification_log_bytes": null,
+  "copy_processes": "187291 python              502\n 188902 rsync               267",
+  "project_receipts": 27,
+  "candidate_projects": [
+    {
+      "id": "344c83c4-7786-4d43-a15a-3fb292990f09",
+      "name": "anof_011024_x423x426_EB_x423noebonly",
+      "owner": "alexander",
+      "fovs": 9,
+      "matching_acquisitions": [
+        "2024_2/011024_x423x426_EB"
+      ]
+    },
+    {
+      "id": "19037bd1-e966-428f-96f8-2a7166c7bc9e",
+      "name": "anof_05012024_apx1s_dslog",
+      "owner": "alexander",
+      "fovs": 16,
+      "matching_acquisitions": [
+        "2024_1/05012024_apx1s_dslog"
+      ]
+    },
+    {
+      "id": "864f762f-dd97-47d1-ba32-4783430fc1b9",
+      "name": "anof_050624_YPDtitr_plate_3k",
+      "owner": "alexander",
+      "fovs": 10,
+      "matching_acquisitions": [
+        "2024_2/050624_YPDtitr_plate_3k"
+      ]
+    },
+    {
+      "id": "6f6f408d-ebe7-4115-a537-f35f5cdb6ed2",
+      "name": "anof_060224_cres",
+      "owner": "alexander",
+      "fovs": 3,
+      "matching_acquisitions": [
+        "2024_1/060224_cres"
+      ]
+    },
+    {
+      "id": "e0d02751-28b3-4b3e-a74c-0dfd00b37803",
+      "name": "anof_060224_cres_1002",
+      "owner": "alexander",
+      "fovs": 12,
+      "matching_acquisitions": [
+        "2024_1/060224_cres"
+      ]
+    },
+    {
+      "id": "c48f9cff-6625-4dad-9597-a8796fe2824f",
+      "name": "anof_060224_cres_ARS1",
+      "owner": "alexander",
+      "fovs": 2,
+      "matching_acquisitions": [
+        "2024_1/060224_cres"
+      ]
+    },
+    {
+      "id": "bec9b2cf-656d-417a-b424-2d3e7cbf316c",
+      "name": "anof_06032024_diplNTSNG_K3s",
+      "owner": "alexander",
+      "fovs": 17,
+      "matching_acquisitions": [
+        "2024_1/06032024_diplNTSNG_K3s"
+      ]
+    },
+    {
+      "id": "4ada122e-a205-493f-9885-703e788589cc",
+      "name": "anof_061224_X5152moth",
+      "owner": "alexander",
+      "fovs": 14,
+      "matching_acquisitions": [
+        "2024_2/061224_X5152moth"
+      ]
+    },
+    {
+      "id": "e6f6b263-dae2-4670-ac85-280abc4f38a2",
+      "name": "anof_070424_iRFPtest",
+      "owner": "alexander",
+      "fovs": 5,
+      "matching_acquisitions": [
+        "2024_1/070424_iRFPtest"
+      ]
+    },
+    {
+      "id": "3dc52b35-7254-48e4-ab04-157dce732d6e",
+      "name": "anof_100524_crelox_2full",
+      "owner": "alexander",
+      "fovs": 16,
+      "matching_acquisitions": [
+        "2024_2/100524_crelox_2full"
+      ]
+    }
+  ],
+  "requires_review_count": 1,
+  "review_examples": [
+    {
+      "project_id": "fd7673c1-0419-4c63-ad4b-6ed7edd2dbd6",
+      "name": "anof_071026_X54445_LOGEB",
+      "owner": "alexander",
+      "file": "",
+      "error": "No accessible project main file"
+    }
+  ],
+  "copied_bytes": 9690882081,
+  "copy_percent_of_complete_year": 0.1872,
+  "rsync_display_percent_is_incremental_file_list_not_full_year": true,
+  "checked_at": "2026-11-05T14:32:21.784219+00:00"
+}

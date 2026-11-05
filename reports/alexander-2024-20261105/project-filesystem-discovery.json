@@ -1,0 +1,23 @@
+{
+  "roots": [
+    {
+      "root": "/mnt/detecdiv-secondary-sauvegarde/Alexander/analysis",
+      "main_files": 113,
+      "uncataloged_files": [
+        "/mnt/detecdiv-secondary-sauvegarde/Alexander/analysis/anof_10112023_nh_dhapxs_1530.mat",
+        "/mnt/detecdiv-secondary-sauvegarde/Alexander/analysis/anof_14092023_leftRDN_nhadhhap4.mat",
+        "/mnt/detecdiv-secondary-sauvegarde/Alexander/analysis/anof_130224_dfob_rep_dslog.mat"
+      ]
+    }
+  ],
+  "alexander_top_dirs": [
+    "misc",
+    "WGS",
+    "code",
+    "data",
+    "classi_rep",
+    "nobackup",
+    "Touch",
+    "DetecdivHub"
+  ]
+}
