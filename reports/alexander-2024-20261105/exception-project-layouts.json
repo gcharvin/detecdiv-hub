@@ -1,0 +1,38 @@
+{
+  "read_only": true,
+  "projects": [
+    {
+      "project_id": "eb49f629-6546-4fbe-bdb7-71884e7fa69f",
+      "name": "qp_250724_dbud4stest",
+      "catalog_owner": "alexander",
+      "source_parent": "/mnt/detecdiv-secondary-sauvegarde/Alexander/nobackup/qp",
+      "mat_exists": true,
+      "directory_exists": true,
+      "json_sibling_exists": false,
+      "files": 2,
+      "bytes": 73319,
+      "symlinks": 0,
+      "other_entries": 0,
+      "main_sha256": "f12b25d7216c51809581136182fd772b745dd1f26598d5c937f5f8b4679b8cde",
+      "final_exists": false,
+      "stage_exists": false
+    },
+    {
+      "project_id": "ba44b140-ca07-4bdc-8e17-e41428dcdf51",
+      "name": "281124_Alex",
+      "catalog_owner": "gilles",
+      "source_parent": "/data/Gilles/analysis/projects",
+      "mat_exists": true,
+      "directory_exists": true,
+      "json_sibling_exists": false,
+      "files": 104,
+      "bytes": 5293599315,
+      "symlinks": 0,
+      "other_entries": 0,
+      "main_sha256": "3b3be83b9d83fc87adca63f9fa400278ac64e4db500a9dba2d9d31ac95a3364c",
+      "final_exists": false,
+      "stage_exists": false
+    }
+  ],
+  "source_changed": false
+}

@@ -1,0 +1,22 @@
+{
+  "success": true,
+  "projects": 9,
+  "files": 49612,
+  "bytes": 659755111576,
+  "project_ids": [
+    "344c83c4-7786-4d43-a15a-3fb292990f09",
+    "19037bd1-e966-428f-96f8-2a7166c7bc9e",
+    "864f762f-dd97-47d1-ba32-4783430fc1b9",
+    "6f6f408d-ebe7-4115-a537-f35f5cdb6ed2",
+    "e0d02751-28b3-4b3e-a74c-0dfd00b37803",
+    "c48f9cff-6625-4dad-9597-a8796fe2824f",
+    "bec9b2cf-656d-417a-b424-2d3e7cbf316c",
+    "4ada122e-a205-493f-9885-703e788589cc",
+    "e6f6b263-dae2-4670-ac85-280abc4f38a2"
+  ],
+  "native_source_before_after_and_full_owned_copy_receipts_verified_by": "identity-batch1-launch.json",
+  "all_source_files_preserved": true,
+  "project_paths_changed": false,
+  "catalog_changed": false,
+  "raw_sha1_still_pending": true
+}

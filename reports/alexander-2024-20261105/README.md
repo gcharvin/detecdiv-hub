@@ -8,6 +8,97 @@ year/user, original project, NAS snapshot, backup policy, quota, default engine
 or SMB credentials may be changed. The completed 2023 migration is separate;
 never replay any of its one-shot scripts.
 
+## Latest follow-up — 2026-11-06, starting 02:29 UTC
+
+2024_1 is still copying normally: **1,955,819,451,234 bytes / 37.7731%** at
+02:29 UTC, same live runner/rsync, no error. 2024_2 has not started. No complete
+raw SHA1/stability gate, project relink, publication, catalog cutover or source
+retirement has occurred. Older paragraphs below describe earlier checkpoints.
+
+Nine standard project copies have complete native source-before/after equality
+and full owned-source/copy SHA256 receipts (49,612 files / 659,755,111,576 bytes).
+`standard-project-checkpoint-verification.json` and `identity-batch1-launch.json`
+record this verified subset. The existing 32-project copy runner continues;
+do not duplicate it or equate a partial count with all 32 finished.
+
+### Read-only identity preparation now running for those nine
+
+Tmux **`alex2024-identity-audit-batch1-20261106`**, private
+**`identity-audit-20261106-batch1/`**, with `request.json`, `progress.json`,
+per-project `project-NN.partial.json`, `result.partial.json`, `result.json`,
+`controller.log/exit`. Script SHA256
+`1811321391975bc7687e5b6ea218ccfad11234e2b27a5b0b27ed1717bf775f10`.
+It inspects only the first nine verified project copies: recognized raw/ROI
+aliases, all saved srclist filename/size matches and a constant timestamp offset
+per channel, all ROI image/results references in the verified manifest,
+representative real ROI loads, raw first/middle/last frame pixel fingerprints
+and optional exact crop equality. It verifies both main MAT hashes unchanged
+before/after reading and never saves files. One MATLAB thread, no GPU.
+At 02:42 UTC it was in project 2 with no exit/error; the first project finished.
+Do not duplicate it or edit its pinned script. A crop mismatch is explicitly
+not established identity, not automatic scientific data corruption. Any failed
+path/size/time assertion must be diagnosed from retained partial receipts;
+prepare a bounded read-only continuation instead of replaying completed FOVs.
+GPU warnings do not authorize saving incomplete GPU representations.
+
+### Both nonstandard project copies verified, still unpublished
+
+The distinct one-shot `exception-copies-20261106/` controller completed with
+exit 0 in tmux `alex2024-exception-copies-20261106` (now finished). Runner SHA256
+`65bbbd8d6160107c02f9c0753a0838767ef2e2c4ad5c570d0c2b759668b95ee9`.
+Both projects have full native source/destination SHA256 equality and identical
+native source-before/after metadata/hash inventories: **106 files /
+5,293,672,634 bytes**, all originals unchanged. Native destination files are
+owned by maliavko; Hub ownership remains Alexander for the qp project and
+Gilles for `281124_Alex`. No catalog field was changed by copying. Stages:
+
+- `/homes2/maliavko/DetecdivHub/projects/.incoming-qp_250724_dbud4stest-20261106`
+- `/homes2/maliavko/DetecdivHub/projects/.incoming-281124_Alex-20261106`
+
+Evidence: `exception-copy-completion-verification.json` and
+`exception-existing-layout-verification.json`. Do not relaunch or overwrite.
+These layouts differ from standard projects: qp has a pre-existing 128-byte
+`im_` placeholder and **no results/data sidecars**. Gilles has 58 `im_` files
+and **no results/data sidecars** (104 total payload files). Preserve exactly
+those existing states; never invent missing sidecars, call the qp placeholder
+an extracted image, or impose the standard three-sidecar assumption. Their
+path-bearing metadata, scientific non-path comparisons and format-appropriate
+Linux/Windows/raw tests are still required before publication or retirement.
+
+### Legacy review completed; only explicitly classified issues remain
+
+The initial 1,998-file legacy reader finished with exit 0: **1,812 inspected,
+zero candidates**, 186 unresolved. Receipt SHA256
+`13bb535dc5de28255ef4c99ec35675cdba73e1b411110b703550cf05761adacb`.
+Its precise errors were 16 char-matrix concatenation errors, 137 graphics-Line
+objects needing a reader, and 33 unreadable MAT variable directories.
+
+The bounded v2 review in `legacy-path-review-retry-20261106/` finished, resolving
+17 and leaving 136 already-deleted graphics handles; no candidate paths found.
+It normalized multi-line character arrays and read only Line textual/UserData
+properties. Receipt SHA256
+`b11c9f9f58e6f21cd6e1599cf2097ff104a6422c5211b9f97054f35b3f89beec`.
+The bounded v3 review of those **136 only** also finished with exit 0, no
+unresolved/candidate paths. It counted and did not dereference 136 invalid GUI
+Line handles, reading all other accessible text metadata; no scientific files
+were saved. Receipt SHA256
+`7f92f85546bf7af50ec504605def6e96c7d79d97efe8ccaa09d5976bae9434fb`.
+The v3 script hash is
+`a0cbb88717e894e154faaed3b1ab13670132e0fee651f62e13335865c164c898`.
+All three legacy readers are **finished**, not running. Do not replay them.
+Thirty-three unreadable MATs, 1,030 declared missing mains and the three tiny
+uncataloged shallow/MCOS stubs still require relevance classification; do not
+describe them as negative matches. No missing-record metadata contained a
+positive 2024 acquisition lead, which is not proof of no reference.
+
+The 28 JSON alternatives were rechecked with corrected **single** Windows
+separator normalization (`chr(92)`), stable source metadata and full content
+hashes; all parsed, no candidate/explicit 2024 reference. The earlier Python
+checker normalized only double separators; its zero count was not sufficient.
+The corrected receipt supersedes it, SHA256
+`f2acf3175e674da79152be7735dd1fd9a68f39035480e0029e87064269210952`;
+see `json-alternatives-normalization-verification.json`. No data was rewritten.
+
 ## Follow-up — 2026-11-05, starting 20:29 UTC
 
 The original raw runner is healthy and still copying 2024_1: 960.20 GB of

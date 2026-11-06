@@ -1,0 +1,18 @@
+{
+  "batch_id": "0382c23e-ad54-4ec9-9ad8-53cc79b64d97",
+  "status": "copying_and_project_discovery",
+  "checkpoint": {
+    "progress_observed_at": "2026-11-06T02:42:14.347596+00:00",
+    "current_year": "2024_1",
+    "raw_phase": "copying",
+    "raw_copied_bytes": 1986577077530,
+    "raw_copy_percent_of_complete_year": 38.3671,
+    "standard_project_copies_verified": 9,
+    "exception_project_copies_verified": 2,
+    "identity_batch1_projects": 9,
+    "raw_full_sha1_passed": false,
+    "source_deleted": false,
+    "project_paths_changed": false
+  },
+  "catalog_locations_changed": false
+}

@@ -1,0 +1,10 @@
+{
+  "success": true,
+  "projects": 28,
+  "candidate_projects": [],
+  "receipt_sha256": "f2acf3175e674da79152be7735dd1fd9a68f39035480e0029e87064269210952",
+  "single_windows_separator_fixture_passed": true,
+  "source_saved": false,
+  "supersedes_initial_python_json_normalization": true,
+  "private_receipt": "/home/charvin-admin/storage-transfers/alexander-2024-20261105/legacy-path-review/json-alternatives-normalized-20261106.json"
+}

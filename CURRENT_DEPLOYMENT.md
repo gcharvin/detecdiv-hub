@@ -2,6 +2,20 @@
 
 ## Alexander 2024 migration started, 2026-11-05
 
+2026-11-06 02:29 UTC: raw 2024_1 remains healthy in copy, 1.956 TB / 5.178 TB,
+37.77%; no raw SHA1 gate or source retirement yet. Nine standard project copies
+are fully hash/ownership/stability verified, with the existing 32-project runner
+continuing. Both nonstandard copies (qp and Gilles) are now fully hash verified,
+106 files / 5,293,672,634 bytes, originals/Hub owners preserved, unpublished.
+A read-only alias/srclist/ROI/raw pixel preparation is running for the first
+nine verified copies in `identity-audit-20261106-batch1/`, tmux
+`alex2024-identity-audit-batch1-20261106`. All legacy layout reviews (initial,
+bounded v2 and v3) and the exception-copy controller are finished; do not replay.
+Remaining unreadable/missing main records still need relevance classification.
+Read the latest checkpoint in the report README for actual scripts/receipts
+and layout-specific gates (qp image placeholder, no results/data in either
+exception layout). No path relink, publication or preferred-location change.
+
 20:29 UTC follow-up: raw 2024_1 copy is healthy at 960.20 GB / 5,177.81 GB
 (18.54%). The main project discovery finished: 34 candidates (33 Alexander,
 one Gilles), with unresolved legacy/missing layouts requiring classification.

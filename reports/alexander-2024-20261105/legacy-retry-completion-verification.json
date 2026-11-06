@@ -1,0 +1,24 @@
+{
+  "success": true,
+  "rows": 153,
+  "receipt_sha256": "b11c9f9f58e6f21cd6e1599cf2097ff104a6422c5211b9f97054f35b3f89beec",
+  "errors": {
+    "Invalid or deleted object.": 136
+  },
+  "resolved": 17,
+  "still_unresolved": 136,
+  "candidates": 0,
+  "first_unresolved": [
+    {
+      "id": "1d28202a-63a3-46e4-ad6c-19c2a2feb9a9",
+      "name": "AKAR4_WT_zwf1_H2O2-project",
+      "owner": "Basile",
+      "file": "/mnt/detecdiv-secondary-sauvegarde/Alumni/basile/200728/AKAR4_WT_zwf1_H2O2/AKAR4_WT_zwf1_H2O2-project.mat",
+      "status": "requires_review",
+      "matching_acquisitions": [],
+      "matching_strings": [],
+      "saved": false,
+      "error": "Invalid or deleted object."
+    }
+  ]
+}

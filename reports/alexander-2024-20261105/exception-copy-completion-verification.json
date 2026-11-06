@@ -1,0 +1,33 @@
+{
+  "success": true,
+  "phase": "both_exception_copies_verified_remaining_gates_pending",
+  "projects": [
+    {
+      "project_id": "eb49f629-6546-4fbe-bdb7-71884e7fa69f",
+      "name": "qp_250724_dbud4stest",
+      "catalog_owner": "alexander",
+      "stage": "/homes2/maliavko/DetecdivHub/projects/.incoming-qp_250724_dbud4stest-20261106",
+      "files": 2,
+      "bytes": 73319,
+      "source_inventory_sha256": "a1ccc6a3fec8bba5b2e7af077885f504bb918200c43be215194eca3b0d8bd182",
+      "destination_receipt_sha256": "161ca95982aaa72009335dc59e098d04c47a27a2460df471298397f36de9759e",
+      "hashes_equal": true,
+      "original_unchanged": true,
+      "phase": "copy_verified_other_gates_pending"
+    },
+    {
+      "project_id": "ba44b140-ca07-4bdc-8e17-e41428dcdf51",
+      "name": "281124_Alex",
+      "catalog_owner": "gilles",
+      "stage": "/homes2/maliavko/DetecdivHub/projects/.incoming-281124_Alex-20261106",
+      "files": 104,
+      "bytes": 5293599315,
+      "source_inventory_sha256": "281e3d0aabb31238bf7df1d244245aa241a33f71df876f85248bbc707dca89f2",
+      "destination_receipt_sha256": "a00909092fd833a667800dbc37f0b5171fc8df6f8647f489bc2650bd6dd35b00",
+      "hashes_equal": true,
+      "original_unchanged": true,
+      "phase": "copy_verified_other_gates_pending"
+    }
+  ],
+  "raw_identity_relink_host_gates_still_pending": true
+}

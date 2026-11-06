@@ -1,0 +1,34 @@
+{
+  "read_only": true,
+  "payloads": [
+    {
+      "name": "qp_250724_dbud4stest",
+      "file_type_counts": {
+        "im_": 1,
+        "results_": 0,
+        "data_": 0
+      },
+      "total_files": 2,
+      "directories": 2,
+      "small_image_placeholders": [
+        {
+          "path": "qp_250724_dbud4stest/3-Pos_17_Pos1_1/im_3-Pos_17_Pos1_1_1.mat",
+          "bytes": 128,
+          "sha256": "239d020f09a8ad2cf79c4ab1a2de31d39cd41edac8823924ef1cf6e1ed749a33"
+        }
+      ]
+    },
+    {
+      "name": "281124_Alex",
+      "file_type_counts": {
+        "im_": 58,
+        "results_": 0,
+        "data_": 0
+      },
+      "total_files": 104,
+      "directories": 14,
+      "small_image_placeholders": []
+    }
+  ],
+  "extraction_completeness_not_assumed": true
+}

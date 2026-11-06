@@ -1,0 +1,9 @@
+{
+  "success": true,
+  "rows": 136,
+  "receipt_sha256": "7f92f85546bf7af50ec504605def6e96c7d79d97efe8ccaa09d5976bae9434fb",
+  "invalid_graphics_handles_ignored": 136,
+  "unresolved": 0,
+  "candidate_projects": 0,
+  "source_files_saved": false
+}
