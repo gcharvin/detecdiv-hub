@@ -79,6 +79,24 @@ receipts are in `reports/abhilasha-channels-20261106/`.
 
 ## Alexander 2024 migration started, 2026-11-05
 
+2026-11-06 14:41 UTC checkpoint: raw 2024_1 still copying normally, 70.03%,
+23 standard project copies verified; no full SHA1, relink or source retirement.
+The expanded nine-basename search is complete over 9.91 million payload names:
+no same-acquisition copy found, only unrelated 2025 namesakes. Historical
+native availability parity remains verified (15 old absences/45 old cache-size
+exceptions), not image recovery. Metadata batch2 and FIG scan are finished;
+first twelve projects now have 55,636 metadata files audited and 23 MATs planned
+for future relink. Cre16 and both special-layout identities are verified.
+Gilles has 58 HDF5 image sidecars, not missing MAT images; two real ROI/raw
+crops match and all originals/Hub owners remain preserved. Identity batch4,
+metadata batch3 and scientific type readiness audits are running. Special-layout
+metadata finished, but Gilles main and 14 pipeline execution snapshots need
+typed path classification; no blind rewrite of history or external models.
+Type readiness must cover actual GPU content before any save.
+Read the newest migration report checkpoint for all task states and gates.
+Earlier migration descriptions below are historical.
+
+
 2026-11-06 10:50 UTC: 2024_1 copy healthy at 3.169 TB / 5.178 TB (61.20%),
 16 standard project copies verified. Native readonly parity of all 13,158 saved
 references in cres/ARS1 is complete: 15 absent names (9+6) and 45 historical

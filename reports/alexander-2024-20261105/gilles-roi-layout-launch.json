@@ -1,0 +1,13 @@
+{
+  "launched": true,
+  "session": "alex2024-gilles-roi-layout-20261106",
+  "work": "/home/charvin-admin/storage-transfers/alexander-2024-20261105/gilles-roi-layout-20261106",
+  "script_sha256": "b5b30b831b9f9719376f2d02f4944190ce48391c1ddf9f157a0ab4f546bbe836",
+  "read_only": true,
+  "completed_qp_identity_not_replayed": true,
+  "sample_verified_image_paths": [
+    "281124_Alex/2-x451db4ds-5_1/im_2-x451db4ds-5_1_1.h5",
+    "281124_Alex/2-x451db4ds-5_1/im_2-x451db4ds-5_1_10.h5",
+    "281124_Alex/2-x451db4ds-5_1/im_2-x451db4ds-5_1_11.h5"
+  ]
+}

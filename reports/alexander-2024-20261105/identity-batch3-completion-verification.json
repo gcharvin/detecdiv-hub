@@ -1,0 +1,16 @@
+{
+  "controller_exit": 0,
+  "success": true,
+  "result_sha256": "b15ee80f7dd9b86af722979e0ea6b27b789256e74f91af2d53b7d8304d7feb38",
+  "project_id": "3b4a5dd7-6f03-43b3-bf9e-c02d7958301a",
+  "name": "anof_210524_cre16",
+  "fovs": 30,
+  "rois": 11083,
+  "main_hash_unchanged": "6e6bcc019ca58d97f093722b51f2ffa4266ed7bc39695fe19256dff25b80ff09",
+  "raw_pixel_samples": 360,
+  "crop_exact_fields": 30,
+  "all_roi_image_results_in_verified_manifest": true,
+  "scientific_saved": false,
+  "source_deleted": false,
+  "raw_full_checksum_gate_passed": false
+}

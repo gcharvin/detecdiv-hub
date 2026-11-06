@@ -1,0 +1,24 @@
+{
+  "read_only": true,
+  "external_dependencies": [
+    {
+      "canonical_path": "/data/Gilles/analysis/pipelines/daughter_lineage/daughter_lineage/pipeline.json",
+      "exists": true,
+      "bytes": 203331
+    },
+    {
+      "canonical_path": "/data/Gilles/analysis/pipelines/sam31_inference/sam31_inference/pipeline.json",
+      "exists": true,
+      "bytes": 793
+    },
+    {
+      "canonical_path": "/data/Gilles/sam31/sam31_1/sam31_1_classification.mat",
+      "exists": true,
+      "bytes": 117848
+    }
+  ],
+  "other_user_files_modified": false,
+  "note": "Readonly existence/size preflight only; does not prove final worker access or justify moving external pipelines/models. These roots are outside Alexander 2024 retirement.",
+  "legacy_X_paths_have_matching_server_resource_candidates": true,
+  "actual_windows_drive_mapping_tested": false
+}

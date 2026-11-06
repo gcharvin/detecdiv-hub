@@ -1,0 +1,58 @@
+{
+  "controller_exit": 0,
+  "success": true,
+  "read_only": true,
+  "result_sha256": "7215e3c355e2c60b5bfaf5717b3f4a7f7ca24cd071b96d7d264edc9d158e8f87",
+  "exact_basename_search": true,
+  "initial_missing_basenames": 9,
+  "results": [
+    {
+      "target": "primary",
+      "root": "/volume1/DATA/Alexander",
+      "candidates": [
+        {
+          "kind": "candidate",
+          "path": "/volume1/DATA/Alexander/data/2025_2/110625_2122433_h4s41_moth/110625_2122433_h4s41_moth_2/1-3119_2_LOGEB-2/img_channel001_position001_time000000795_z001.tif",
+          "bytes": 8418340,
+          "mtime_ns": 1750263471530975800
+        },
+        {
+          "kind": "candidate",
+          "path": "/volume1/DATA/Alexander/data/2025_2/180625_x53941_daught/180625_x53941_daught_2/2-X539_LOG-5/img_channel001_position005_time000000794_z001.tif",
+          "bytes": 8418324,
+          "mtime_ns": 1750676136332636800
+        },
+        {
+          "kind": "candidate",
+          "path": "/volume1/DATA/Alexander/data/2025_2/180625_x53941_daught/180625_x53941_daught_2/2-X539_LOG-8/img_channel001_position008_time000000794_z001.tif",
+          "bytes": 8418325,
+          "mtime_ns": 1750679518869607900
+        }
+      ],
+      "inventory_counts": {
+        "kind": "complete",
+        "files": 7419315,
+        "directories": 8046,
+        "skipped": 788
+      },
+      "receipt_sha256": "68a66d9233a41cdfea26d41d238a81cc9da7b45b45b59a92ed5488171a2d1b42"
+    },
+    {
+      "target": "secondary",
+      "root": "/volume1/Sauvegarde/Alexander",
+      "candidates": [],
+      "inventory_counts": {
+        "kind": "complete",
+        "files": 2488842,
+        "directories": 4070,
+        "skipped": 138
+      },
+      "receipt_sha256": "d43a70e9c8887d5961b34c7a7e7484333ed3ca2fcb12771caf6d0f0dca856b80"
+    }
+  ],
+  "same_acquisition_matches": 0,
+  "historical_images_recovered": 0,
+  "candidate_classification": "All three filename matches are unrelated 2025_2 acquisitions. No scientific identity or substitution inferred from a basename.",
+  "snapshots_hidden_recycle_excluded": true,
+  "note": "Search complete only in the stated payload roots; not a claim about unavailable NAS snapshots or all backups. Existing historical availability baseline remains unchanged."
+}

@@ -1,0 +1,11 @@
+{
+  "launched": true,
+  "session": "alex2024-gilles-hdf5-identity-20261106",
+  "work": "/home/charvin-admin/storage-transfers/alexander-2024-20261105/gilles-hdf5-identity-20261106",
+  "projects": 1,
+  "verified_hdf5_images": 58,
+  "script_sha256": "57b856591b72739ede22b0086a88ba3a099c64ca8255d2cfdebc3724406ae1d2",
+  "read_only": true,
+  "qp_success_not_replayed": true,
+  "image_files_rewritten": false
+}

@@ -1,0 +1,28 @@
+{
+  "controller_exit": 0,
+  "loop_completed": true,
+  "all_projects_verified": false,
+  "result_sha256": "6970f3d083855fca06a8a1af455e99188c4bd6ef97e350b6fc5f18ea79579298",
+  "qp": {
+    "project_id": "eb49f629-6546-4fbe-bdb7-71884e7fa69f",
+    "name": "qp_250724_dbud4stest",
+    "fovs": 1,
+    "rois": 1,
+    "mat_sha256_unchanged": "f12b25d7216c51809581136182fd772b745dd1f26598d5c937f5f8b4679b8cde",
+    "preexisting_no_results_or_data_preserved": true
+  },
+  "qp_raw_pixel_samples": 15,
+  "qp_crop_status": "not_applicable_preexisting_placeholder",
+  "qp_placeholder_hash_unchanged": "239d020f09a8ad2cf79c4ab1a2de31d39cd41edac8823924ef1cf6e1ed749a33",
+  "gilles": {
+    "project_id": "ba44b140-ca07-4bdc-8e17-e41428dcdf51",
+    "name": "281124_Alex",
+    "success": false,
+    "error": "ROI image absent from verified source/copy manifest",
+    "completed_fovs_in_partial": 0,
+    "main_original_and_copy_hashes_unchanged": true,
+    "saved": false
+  },
+  "gilles_diagnosis": "Initial validator assumed MAT image sidecars; complete verified manifest actually contains 58 HDF5 images, not absent images. Bounded HDF5-aware validation launched separately; qp success is not replayed.",
+  "scientific_saved": false
+}

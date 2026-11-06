@@ -1,0 +1,29 @@
+{
+  "batch_id": "0382c23e-ad54-4ec9-9ad8-53cc79b64d97",
+  "status": "copying_and_project_discovery",
+  "status_unchanged": true,
+  "only_own_batch_summary_updated": true,
+  "project_or_location_tables_written": false,
+  "checkpoint": {
+    "checked_at": "2026-11-06T14:41:24.922819+00:00",
+    "raw_phase": "copying",
+    "raw_year": "2024_1",
+    "raw_copied_bytes": 3625907842012,
+    "raw_copy_percent": 70.0278,
+    "standard_project_copies_verified": 23,
+    "exception_copies_verified": 2,
+    "identity_preparation_projects_verified": 16,
+    "historical_baseline_projects": 2,
+    "historical_absences_preexisting": 15,
+    "historical_size_differences_preexisting": 45,
+    "native_baseline_reference_parity_count": 13158,
+    "metadata_files_audited_first_12_projects": 55636,
+    "metadata_mats_planned_for_relink_first_12_projects": 23,
+    "raw_full_sha1_passed": false,
+    "scientific_files_relinked": false,
+    "catalog_cutover_performed": false,
+    "source_deleted": false,
+    "actual_recovered_2024_bytes": 0,
+    "report": "reports/alexander-2024-20261105/README.md"
+  }
+}

@@ -1,0 +1,52 @@
+{
+  "controller_exit": 0,
+  "read_only": true,
+  "figures_audited": 12,
+  "result_sha256": "1e920dd04aa964fcbb6be6cb6eb291dc9bd829711839520b6003670c7538ac8c",
+  "receipt_sha256": "302cbabd24ec414fd16aeef53708a37a4a12706c1264f852bb0d429293db6c55",
+  "files_with_archival_figure_filename": [
+    {
+      "project_id": "53a6c0c1-f887-44da-ae8c-a0018e46064e",
+      "relative_path": "anof_130224_dfob_rep_dslog_new/rlsbydhy0325.fig",
+      "sha256_unchanged": "39caf73d5733f837bae6dbb5076f647b7c0d7727e2c474e74a956712f04d07fe",
+      "absolute_path_values": 2,
+      "recognized_rebase_values": 0,
+      "unresolved_path_values": 2,
+      "rebase_examples": [],
+      "unresolved_examples": [
+        {
+          "field": "metadata.hgM_070000.GraphicsObjects.Format3Data.FileName_I",
+          "value": "/Volumes/Sauvegarde/Alexander/analysis/anof_130224_dfob_rep_dslog_new/rlsbydhy0325.fig"
+        },
+        {
+          "field": "metadata.hgS_070000.properties.FileName",
+          "value": "/Volumes/Sauvegarde/Alexander/analysis/anof_130224_dfob_rep_dslog_new/rlsbydhy0325.fig"
+        }
+      ],
+      "file_saved": false
+    },
+    {
+      "project_id": "53a6c0c1-f887-44da-ae8c-a0018e46064e",
+      "relative_path": "anof_130224_dfob_rep_dslog_new/rlsbydhywt0325.fig",
+      "sha256_unchanged": "bcd07eae80d53e27f251223ff7d0f2de9a7d5a964960c5a0d82aeacc0bd441d6",
+      "absolute_path_values": 2,
+      "recognized_rebase_values": 0,
+      "unresolved_path_values": 2,
+      "rebase_examples": [],
+      "unresolved_examples": [
+        {
+          "field": "metadata.hgM_070000.GraphicsObjects.Format3Data.FileName_I",
+          "value": "/Volumes/Sauvegarde/Alexander/analysis/anof_130224_dfob_rep_dslog_new/rlsbydhywt0325.fig"
+        },
+        {
+          "field": "metadata.hgS_070000.properties.FileName",
+          "value": "/Volumes/Sauvegarde/Alexander/analysis/anof_130224_dfob_rep_dslog_new/rlsbydhywt0325.fig"
+        }
+      ],
+      "file_saved": false
+    }
+  ],
+  "classification": "Four strings are the same two stored FileName properties per figure, classifiable using the installed MATLAB loader evidence in figure-filename-classification.json. They are saved figure destinations, not raw/ROI input dependencies. Preserve all FIG bytes.",
+  "openfig_executed": false,
+  "scientific_saved": false
+}

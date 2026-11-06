@@ -1,0 +1,11 @@
+{
+  "launched": true,
+  "session": "alex2024-figure-paths-batch2-20261106",
+  "work": "/home/charvin-admin/storage-transfers/alexander-2024-20261105/figure-path-audit-20261106-batch2",
+  "projects": 9,
+  "script_sha256": "976e5af84ce6a2f91e25d0dd3cc74a52dd98e88d0ce225f5415bc36dcd01d81c",
+  "read_only": true,
+  "roi_image_sidecars_not_loaded_or_written": true,
+  "figures_loaded_read_only_as_mat_including_possible_cdata": true,
+  "metadata_audit_receipt_sha256": "b50266cc462af82dc4e2fb09c35fe9c78955b9d12db2507c8e8dd02455a21471"
+}

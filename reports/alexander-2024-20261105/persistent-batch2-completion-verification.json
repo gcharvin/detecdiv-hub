@@ -1,0 +1,323 @@
+{
+  "controller_exit": 0,
+  "success": true,
+  "read_only": true,
+  "result_sha256": "b50266cc462af82dc4e2fb09c35fe9c78955b9d12db2507c8e8dd02455a21471",
+  "receipt_sha256": "e571a70a88f113003fe1e5b27dbcc0988652954955e00e4d90e04bff7f5f1f07",
+  "metadata_files_audited": 46784,
+  "image_mat_files_excluded": 35002,
+  "projects": [
+    {
+      "project_id": "e0d02751-28b3-4b3e-a74c-0dfd00b37803",
+      "name": "anof_060224_cres_1002",
+      "metadata_files_audited": 7627,
+      "image_mat_files_excluded": 4821,
+      "absolute_path_values": 49682,
+      "files_needing_rebase": 3,
+      "files_with_unresolved_paths": 0,
+      "other_files_needing_type_review": [
+        "anof_060224_cres_1002/.DS_Store",
+        "anof_060224_cres_1002/div_plot.fig",
+        "anof_060224_cres_1002/rls plot.fig"
+      ],
+      "saved": false
+    },
+    {
+      "project_id": "bec9b2cf-656d-417a-b424-2d3e7cbf316c",
+      "name": "anof_06032024_diplNTSNG_K3s",
+      "metadata_files_audited": 6213,
+      "image_mat_files_excluded": 3339,
+      "absolute_path_values": 37329,
+      "files_needing_rebase": 4,
+      "files_with_unresolved_paths": 0,
+      "other_files_needing_type_review": [
+        "anof_06032024_diplNTSNG_K3s/.DS_Store"
+      ],
+      "saved": false
+    },
+    {
+      "project_id": "e6f6b263-dae2-4670-ac85-280abc4f38a2",
+      "name": "anof_070424_iRFPtest",
+      "metadata_files_audited": 1932,
+      "image_mat_files_excluded": 1929,
+      "absolute_path_values": 22214,
+      "files_needing_rebase": 3,
+      "files_with_unresolved_paths": 0,
+      "other_files_needing_type_review": [
+        "anof_070424_iRFPtest/.DS_Store",
+        "anof_070424_iRFPtest/divplot.fig",
+        "anof_070424_iRFPtest/rlsplot.fig"
+      ],
+      "saved": false
+    },
+    {
+      "project_id": "3dc52b35-7254-48e4-ab04-157dce732d6e",
+      "name": "anof_100524_crelox_2full",
+      "metadata_files_audited": 12181,
+      "image_mat_files_excluded": 6088,
+      "absolute_path_values": 63503,
+      "files_needing_rebase": 4,
+      "files_with_unresolved_paths": 0,
+      "other_files_needing_type_review": [
+        "anof_100524_crelox_2full/.DS_Store"
+      ],
+      "saved": false
+    },
+    {
+      "project_id": "8d749d6e-c3f9-46aa-9eb1-5dc34af4bc55",
+      "name": "anof_120624_DR_YPDtitr_newplate_4k",
+      "metadata_files_audited": 3314,
+      "image_mat_files_excluded": 3313,
+      "absolute_path_values": 46154,
+      "files_needing_rebase": 1,
+      "files_with_unresolved_paths": 0,
+      "other_files_needing_type_review": [
+        "anof_120624_DR_YPDtitr_newplate_4k/.DS_Store",
+        "anof_120624_DR_YPDtitr_newplate_4k/div_plot.fig",
+        "anof_120624_DR_YPDtitr_newplate_4k/rls_plot.fig"
+      ],
+      "saved": false
+    },
+    {
+      "project_id": "53a6c0c1-f887-44da-ae8c-a0018e46064e",
+      "name": "anof_130224_dfob_rep_dslog_new",
+      "metadata_files_audited": 7564,
+      "image_mat_files_excluded": 7562,
+      "absolute_path_values": 71179,
+      "files_needing_rebase": 1,
+      "files_with_unresolved_paths": 0,
+      "other_files_needing_type_review": [
+        "anof_130224_dfob_rep_dslog_new/.DS_Store",
+        "anof_130224_dfob_rep_dslog_new/div_plot.fig",
+        "anof_130224_dfob_rep_dslog_new/rls_plot.fig",
+        "anof_130224_dfob_rep_dslog_new/rls_plotBYDSH4.png",
+        "anof_130224_dfob_rep_dslog_new/rlsbydhy0325.fig",
+        "anof_130224_dfob_rep_dslog_new/rlsbydhy0325.png",
+        "anof_130224_dfob_rep_dslog_new/rlsbydhy03252.png",
+        "anof_130224_dfob_rep_dslog_new/rlsbydhy03253.png",
+        "anof_130224_dfob_rep_dslog_new/rlsbydhywt0325.fig",
+        "anof_130224_dfob_rep_dslog_new/rlsbydhywt0325.png",
+        "anof_130224_dfob_rep_dslog_new/rlsbydhywt03252.png"
+      ],
+      "saved": false
+    },
+    {
+      "project_id": "73504070-1ff4-4c0d-b630-d17829ccced6",
+      "name": "anof_140524_tdh3h4_dvsge",
+      "metadata_files_audited": 4513,
+      "image_mat_files_excluded": 4512,
+      "absolute_path_values": 52633,
+      "files_needing_rebase": 1,
+      "files_with_unresolved_paths": 0,
+      "other_files_needing_type_review": [
+        "anof_140524_tdh3h4_dvsge/.DS_Store"
+      ],
+      "saved": false
+    },
+    {
+      "project_id": "671be8d4-b028-46c0-8730-9fca5bee8888",
+      "name": "anof_151024_x225EB_x42x435x224_noEB",
+      "metadata_files_audited": 149,
+      "image_mat_files_excluded": 148,
+      "absolute_path_values": 117989,
+      "files_needing_rebase": 1,
+      "files_with_unresolved_paths": 0,
+      "other_files_needing_type_review": [
+        "anof_151024_x225EB_x42x435x224_noEB/.DS_Store"
+      ],
+      "saved": false
+    },
+    {
+      "project_id": "99c114c7-bc50-46d9-a462-251f8aeca12f",
+      "name": "anof_180624_newplate_4500",
+      "metadata_files_audited": 3291,
+      "image_mat_files_excluded": 3290,
+      "absolute_path_values": 42651,
+      "files_needing_rebase": 1,
+      "files_with_unresolved_paths": 0,
+      "other_files_needing_type_review": [
+        "anof_180624_newplate_4500/.DS_Store",
+        "anof_180624_newplate_4500/divplot.fig",
+        "anof_180624_newplate_4500/rlsplot.fig"
+      ],
+      "saved": false
+    }
+  ],
+  "files_to_rebase": [
+    {
+      "project_id": "e0d02751-28b3-4b3e-a74c-0dfd00b37803",
+      "relative_path": "anof_060224_cres_1002.mat",
+      "sha256_unchanged": "b5e6b10ff379de214814284d13e32abae666b36bebd71d93f40e0680a08a7d82",
+      "absolute_path_values": 49680,
+      "recognized_rebase_values": 49680,
+      "unresolved_path_values": 0,
+      "file_saved": false
+    },
+    {
+      "project_id": "e0d02751-28b3-4b3e-a74c-0dfd00b37803",
+      "relative_path": "anof_060224_cres_1002/processor/ComputeAllMetrics_1/ComputeAllMetrics_1_processor.mat",
+      "sha256_unchanged": "2afe7c54ab9ff0da630c22e4a414315860cbb2895150b73affed3a4e34db2a36",
+      "absolute_path_values": 1,
+      "recognized_rebase_values": 1,
+      "unresolved_path_values": 0,
+      "file_saved": false
+    },
+    {
+      "project_id": "e0d02751-28b3-4b3e-a74c-0dfd00b37803",
+      "relative_path": "anof_060224_cres_1002/processor/ComputeRLS_2/ComputeRLS_2_processor.mat",
+      "sha256_unchanged": "c610aec6c47f159c41e49473c043e0bb770e7dd297375556a6318a4446f7428a",
+      "absolute_path_values": 1,
+      "recognized_rebase_values": 1,
+      "unresolved_path_values": 0,
+      "file_saved": false
+    },
+    {
+      "project_id": "bec9b2cf-656d-417a-b424-2d3e7cbf316c",
+      "relative_path": "anof_06032024_diplNTSNG_K3s.mat",
+      "sha256_unchanged": "7a9cca43f7ca982e0a15ff41e764982e4042bf5c631d3de0d37d0aeb5d22aa75",
+      "absolute_path_values": 37326,
+      "recognized_rebase_values": 37326,
+      "unresolved_path_values": 0,
+      "file_saved": false
+    },
+    {
+      "project_id": "bec9b2cf-656d-417a-b424-2d3e7cbf316c",
+      "relative_path": "anof_06032024_diplNTSNG_K3s/processor/ComputeAllMetrics_2/ComputeAllMetrics_2_processor.mat",
+      "sha256_unchanged": "85700b26281b60b7025d97e8cb483bc1b507c06696690cd8309714b5bfb48edf",
+      "absolute_path_values": 1,
+      "recognized_rebase_values": 1,
+      "unresolved_path_values": 0,
+      "file_saved": false
+    },
+    {
+      "project_id": "bec9b2cf-656d-417a-b424-2d3e7cbf316c",
+      "relative_path": "anof_06032024_diplNTSNG_K3s/processor/ComputeRLS_3/ComputeRLS_3_processor.mat",
+      "sha256_unchanged": "786597d02ac373a5502addb7fea93208a4e000192ce4abea4e09bdd9b07da0a3",
+      "absolute_path_values": 1,
+      "recognized_rebase_values": 1,
+      "unresolved_path_values": 0,
+      "file_saved": false
+    },
+    {
+      "project_id": "bec9b2cf-656d-417a-b424-2d3e7cbf316c",
+      "relative_path": "anof_06032024_diplNTSNG_K3s/processor/combine_channels_1/combine_channels_1_processor.mat",
+      "sha256_unchanged": "12f7ba11cb05348facc8d497eec67e342f0aff0578f63e7961e9c0725dbbea5b",
+      "absolute_path_values": 1,
+      "recognized_rebase_values": 1,
+      "unresolved_path_values": 0,
+      "file_saved": false
+    },
+    {
+      "project_id": "e6f6b263-dae2-4670-ac85-280abc4f38a2",
+      "relative_path": "anof_070424_iRFPtest.mat",
+      "sha256_unchanged": "a3b3ecffa46bb67804d9510d7bc4add42c6f27a59a03c0aab4004ca4cb9fd423",
+      "absolute_path_values": 22212,
+      "recognized_rebase_values": 22212,
+      "unresolved_path_values": 0,
+      "file_saved": false
+    },
+    {
+      "project_id": "e6f6b263-dae2-4670-ac85-280abc4f38a2",
+      "relative_path": "anof_070424_iRFPtest/processor/combine_channels_1/combine_channels_1_processor.mat",
+      "sha256_unchanged": "80e84a787454db058d7f2944989593a51d29ab808d59ce0804aa9c89df3030b4",
+      "absolute_path_values": 1,
+      "recognized_rebase_values": 1,
+      "unresolved_path_values": 0,
+      "file_saved": false
+    },
+    {
+      "project_id": "e6f6b263-dae2-4670-ac85-280abc4f38a2",
+      "relative_path": "anof_070424_iRFPtest/processor/remove_channel_2/remove_channel_2_processor.mat",
+      "sha256_unchanged": "c6c65f43ffd1e3d0e33c1d6cadf207cf0d8fcb4d86b2023cbcd3bdf0677b0e1a",
+      "absolute_path_values": 1,
+      "recognized_rebase_values": 1,
+      "unresolved_path_values": 0,
+      "file_saved": false
+    },
+    {
+      "project_id": "3dc52b35-7254-48e4-ab04-157dce732d6e",
+      "relative_path": "anof_100524_crelox_2full.mat",
+      "sha256_unchanged": "cb599ed713f757fe36bf8843c538bd006e66a117ab6d9c2cc501d21eb0a6f509",
+      "absolute_path_values": 63500,
+      "recognized_rebase_values": 63500,
+      "unresolved_path_values": 0,
+      "file_saved": false
+    },
+    {
+      "project_id": "3dc52b35-7254-48e4-ab04-157dce732d6e",
+      "relative_path": "anof_100524_crelox_2full/processor/ComputeAllMetrics_2/ComputeAllMetrics_2_processor.mat",
+      "sha256_unchanged": "14d22460d6286f69ea01b87670ebc5fa76c4187d3009060cbe466f4ddc38dc5a",
+      "absolute_path_values": 1,
+      "recognized_rebase_values": 1,
+      "unresolved_path_values": 0,
+      "file_saved": false
+    },
+    {
+      "project_id": "3dc52b35-7254-48e4-ab04-157dce732d6e",
+      "relative_path": "anof_100524_crelox_2full/processor/ComputeRLS_3/ComputeRLS_3_processor.mat",
+      "sha256_unchanged": "39d73baaa261b3c75a5d35b15b9a5768652a46782490064def3a1916adaf1b76",
+      "absolute_path_values": 1,
+      "recognized_rebase_values": 1,
+      "unresolved_path_values": 0,
+      "file_saved": false
+    },
+    {
+      "project_id": "3dc52b35-7254-48e4-ab04-157dce732d6e",
+      "relative_path": "anof_100524_crelox_2full/processor/combine_channels_1/combine_channels_1_processor.mat",
+      "sha256_unchanged": "91a7b8d979c39b44b1efb8231b21e6ad5e001f41ad3ba63d9504c9a309fffce6",
+      "absolute_path_values": 1,
+      "recognized_rebase_values": 1,
+      "unresolved_path_values": 0,
+      "file_saved": false
+    },
+    {
+      "project_id": "8d749d6e-c3f9-46aa-9eb1-5dc34af4bc55",
+      "relative_path": "anof_120624_DR_YPDtitr_newplate_4k.mat",
+      "sha256_unchanged": "8c79a033fdd0cd14b3f4f559bfcc010f903bc8f5097b717458b58790173464c3",
+      "absolute_path_values": 46154,
+      "recognized_rebase_values": 46154,
+      "unresolved_path_values": 0,
+      "file_saved": false
+    },
+    {
+      "project_id": "53a6c0c1-f887-44da-ae8c-a0018e46064e",
+      "relative_path": "anof_130224_dfob_rep_dslog_new.mat",
+      "sha256_unchanged": "58a970f52403c32506a6fd4cc72e53359c2ff112b73a8a63fe28319f14f71e20",
+      "absolute_path_values": 71179,
+      "recognized_rebase_values": 71179,
+      "unresolved_path_values": 0,
+      "file_saved": false
+    },
+    {
+      "project_id": "73504070-1ff4-4c0d-b630-d17829ccced6",
+      "relative_path": "anof_140524_tdh3h4_dvsge.mat",
+      "sha256_unchanged": "34ae5b4d8121f616d50a2638bde9e4f699dde1e20d1bc75ff268cad8a2da51fd",
+      "absolute_path_values": 52633,
+      "recognized_rebase_values": 52633,
+      "unresolved_path_values": 0,
+      "file_saved": false
+    },
+    {
+      "project_id": "671be8d4-b028-46c0-8730-9fca5bee8888",
+      "relative_path": "anof_151024_x225EB_x42x435x224_noEB.mat",
+      "sha256_unchanged": "c5090daa5fe867326186594c460b238f6052a679c4bb61892aa7267f011ae1be",
+      "absolute_path_values": 117989,
+      "recognized_rebase_values": 117989,
+      "unresolved_path_values": 0,
+      "file_saved": false
+    },
+    {
+      "project_id": "99c114c7-bc50-46d9-a462-251f8aeca12f",
+      "relative_path": "anof_180624_newplate_4500.mat",
+      "sha256_unchanged": "b48bc3dc4e1d4c1f44c42ed5f77715c4b87528d118f2169dae34eed1dc52ee80",
+      "absolute_path_values": 42651,
+      "recognized_rebase_values": 42651,
+      "unresolved_path_values": 0,
+      "file_saved": false
+    }
+  ],
+  "expected_path_changes": 503334,
+  "scientific_saved": false,
+  "source_deleted": false,
+  "note": "Metadata paths recognized; separate FIG sidecars reviewed. Scientific save/reopen, raw full checksum and final host gates remain."
+}

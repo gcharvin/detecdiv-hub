@@ -8,7 +8,143 @@ year/user, original project, NAS snapshot, backup policy, quota, default engine
 or SMB credentials may be changed. The completed 2023 migration is separate;
 never replay any of its one-shot scripts.
 
-## Latest follow-up — 2026-11-06, 10:50 UTC
+## Latest follow-up — 2026-11-06, starting 14:32 UTC
+
+**This checkpoint supersedes the earlier running states.** At 14:41 UTC,
+2024_1 is healthy in copy: **70.0278%**, same runner PID 187291 and rsync 188902.
+Twenty-three of the 32 standard project copies are fully verified; project 24
+`anof_270624_HpaRDNtest` is in verification. No terminal raw SHA1, relink,
+publication, preferred-location switch or 2024 source retirement has occurred.
+No 2024 space reclaimed. An own-batch-only database checkpoint was recorded
+without changing status or writing project/location tables; see
+`batch-checkpoint-20261106-1432.json`.
+
+### Nine-image payload search completed, no historical image recovered
+
+`historical-name-search-20261106/` finished with exit 0, success true. It read
+names of **7,419,315 primary files** and **2,488,842 secondary files** under
+the two stated Alexander payload roots. Secondary has no filename matches.
+Primary has three namesakes, all under unrelated **2025_2 acquisitions**;
+none is a copy of the 060224 acquisition. No pixels were substituted and no
+file was modified. This is not a search of inaccessible NAS snapshots or all
+possible backups. The fifteen pre-existing absences and 45 old cache-size
+exceptions remain exactly the already-proven native availability baseline.
+See `historical-name-search-completion-verification.json`.
+
+- Result SHA256: `7215e3c355e2c60b5bfaf5717b3f4a7f7ca24cd071b96d7d264edc9d158e8f87`
+- Primary receipt: `68a66d9233a41cdfea26d41d238a81cc9da7b45b45b59a92ed5488171a2d1b42`
+- Secondary receipt: `d43a70e9c8887d5961b34c7a7e7484333ed3ca2fcb12771caf6d0f0dca856b80`
+
+Do not replay this completed search. Do not claim the fifteen images recovered
+or require erasing their scientific cached references to pass migration gates.
+Final readers must enforce exact historical availability parity and reject any
+new difference, alongside all ordinary full-content and scientific gates.
+
+### Second metadata/FIG batch and identity batch3 completed
+
+`persistent-path-audit-20261106-batch2/` finished with exit 0, success true:
+**46,784 MAT/JSON metadata files**, excluding 35,002 image MATs, zero unresolved
+metadata paths. **Nineteen MATs / 503,334 exact planned path changes**. Together
+with batch1 this is **55,636 metadata files / 23 MATs / 636,618 planned changes**
+across twelve projects. Nothing was saved. See
+`persistent-batch2-completion-verification.json`, result SHA256
+`b50266cc462af82dc4e2fb09c35fe9c78955b9d12db2507c8e8dd02455a21471`.
+The complete receipt hash is in that public proof.
+
+The bounded **12 FIG** scan `figure-path-audit-20261106-batch2/` also finished,
+exit 0. Only four absolute strings, the two stored FileName properties in
+each of `rlsbydhy0325.fig` and `rlsbydhywt0325.fig`, same archival destination
+classification as the prior FIG loader proof. Preserve all FIG/PNG/DS_Store
+bytes; no callback or openfig executed. See
+`figure-batch2-completion-verification.json`, receipt SHA256
+`302cbabd24ec414fd16aeef53708a37a4a12706c1264f852bb0d429293db6c55`.
+Do not treat the scanner's loop success as automatic acceptance of unknown
+paths: the four values were explicitly classified using the loader evidence.
+
+`identity-audit-20261106-batch3/` is finished, exit 0 and success true:
+`anof_210524_cre16`, **30 FOV / 11,083 ROI / 360 raw samples**, all 30 crops exact.
+See `identity-batch3-completion-verification.json`, result SHA256
+`b15ee80f7dd9b86af722979e0ea6b27b789256e74f91af2d53b7d8304d7feb38`.
+No replay of this project or any earlier completed FOV.
+
+### Both special-layout identities now verified without changing formats
+
+`exception-identity-20261106/` completed its loop (exit 0) with **qp success**
+and a Gilles validator-format failure, not a data-copy failure. Qp's one FOV
+passes saved-name/size/constant timestamp and raw pixel reads. Its 128-byte
+empty MAT image placeholder remains byte-exact (no extracted ROI image was
+invented); no results/data added. See `exception-identity-partial-verification.json`.
+
+The Gilles failure was the reader expecting `im_*.mat`; all **58 actual verified
+images are `im_*.h5`**. A bounded readonly layout inspection is finished in
+`gilles-roi-layout-20261106/`; its original MAT-only match counts must not be
+misinterpreted as missing HDF5 images. Then the HDF5-aware
+`gilles-hdf5-identity-20261106/` finished with exit 0, success true:
+**2 FOV / 58 ROI / 36 raw samples / 2 exact crops**. Protected engine ROI.load
+read the real HDF5 data from the copied stage with paths translated only in
+memory. Source/copy main hashes unchanged, all original layouts/Hub owners
+preserved, no HDF5 image file rewritten. Qp was not replayed. See
+`gilles-hdf5-identity-completion-verification.json`, result SHA256
+`38fad3529aa509ea3598926c8737e7ac126743b9769c916e89ac9bf723ff2edf`.
+
+This brings completed identity preparation to **16 projects / 201 FOV /
+55,709 ROI**, separately from the two historical-baseline projects. Still
+required for Gilles: review HDF5 attributes and any external/virtual dataset
+references without loading or rewriting image arrays solely for path changes.
+Never impose a MAT/results sidecar assumption on this layout.
+
+### Newly launched bounded readonly preparation
+
+- **Identity batch4**, projects 17–23 only: private
+  `identity-audit-20261106-batch4/`, tmux `alex2024-identity-audit-batch4-20261106`.
+  Seven projects, script SHA256
+  `e8612456dab6354be1158c86581fe64bdd1effee96964874b3366914939166d8`.
+  Check each success/error and partial fields; exit 0 is only loop completion.
+- **Persistent metadata batch3**, four newly reviewed standard-layout copies:
+  cres, cres_ARS1 (explicit historical parity, not strict cache success),
+  X5152moth (empty-path variant) and cre16. Private
+  `persistent-path-audit-20261106-batch3/`, tmux
+  `alex2024-persistent-paths-batch3-20261106`. Script SHA256
+  `9368ceb1dfa95b76d26d429a7ef19006cfd0b426cd21915994a4b67711592b84`.
+- **Special-layout metadata audit is now finished**, private `exception-path-audit-20261106/`,
+  tmux `alex2024-exception-paths-20261106`, same persistent-reader script hash.
+  Uses actual qp/Gilles path aliases and exact verified manifests. HDF5
+  attributes/external references require separate review; do not blindly call
+  image HDF5 files irrelevant merely because this MAT/JSON reader skips them. It
+  completed exit 0, but has **15 Gilles files with unclassified paths**: the
+  main's `parsedData.folder` and 14 `run.json`/`run_params.json` execution records.
+  See `exception-path-audit-completion-review.json`; no complete path gate yet.
+  Qp's one main has no unknown path. Do not replay the scan. Inspect the actual
+  consumers before choosing a typed path policy: historical execution snapshots
+  and Hub `/data`/`X:` client mappings are not equivalent to active resource paths.
+  Keep historical provenance intact unless a reviewed consumer requires adaptation.
+  The additional `X:/Alexander/data/2024_2/281124_X5152bud4s` alias names the same
+  validated raw acquisition; it needs an explicit canonical mapping for active
+  use. Three external Gilles pipeline/model paths exist at their canonical
+  `/data/Gilles` locations (size preflight in `gilles-external-dependency-preflight.json`);
+  no external pipeline/model or other user file was moved or modified.
+- **Scientific type readiness**, private `relink-value-types-20261106/`, tmux
+  `alex2024-relink-value-types-20261106`, only the 23 path-bearing MATs from the
+  first twelve projects. Script SHA256
+  `4689cff8762f91c5aea03f187433250b86dd75b950945921de5ab61d2f3c5982`.
+  Four files in the first checkpoint, **4,258 gpuArray values successfully
+  gathered/fingerprinted**, no function handles or nonpublic persistent state
+  in that completed subset. Progress reached 19/23 files at 14:50 UTC.
+  The rest are still pending: do not equate the subset with all 23. The audit never saves a scientific file. Limited-GPU
+  warnings exist; gathering content is a readiness check, not scientific
+  save/reopen verification or permission to discard GPU class/type.
+
+Read their progress/result/partials/log tails and controller.exit before any
+new launch; never duplicate or edit these pinned running scripts. All earlier
+discovery/legacy/identity1–3/metadata1–2/FIG/search/exception-copy jobs are done.
+Next actual relink must have fresh jobs/indexing/own leases, verified backups,
+exact expected changes, full canonical scientific/type/annotation comparisons
+before/after/save/reopen, including actual GPU content. The old 2023 visitor's
+numeric/simple-cell fast paths need explicit GPU content handling if reused;
+never compare only opaque limited GPU handles, drop arrays or claim a roundtrip
+from a readonly type inventory. No relink or retirement controller was launched.
+
+## Historical follow-up — 2026-11-06, 10:50 UTC
 
 Gilles reaffirmed autonomous continuation, verification of the nine historical
 missing images, retention of original projects, and retirement only after

@@ -1,0 +1,380 @@
+{
+  "controller_exit": 0,
+  "loop_completed": true,
+  "all_paths_resolved": false,
+  "result_sha256": "8459a19b8b67209e89fd93442afd35eabf540d43ba87714a075c4400ae9faf41",
+  "receipt_sha256": "373d5b72308173c6974ff543375644cca4cdb5e45756ec2fabf6e61aba3b47b6",
+  "projects": [
+    {
+      "project_id": "eb49f629-6546-4fbe-bdb7-71884e7fa69f",
+      "name": "qp_250724_dbud4stest",
+      "metadata_files_audited": 1,
+      "image_mat_files_excluded": 1,
+      "absolute_path_values": 2121,
+      "files_needing_rebase": 1,
+      "files_with_unresolved_paths": 0,
+      "other_files_needing_type_review": [],
+      "saved": false
+    },
+    {
+      "project_id": "ba44b140-ca07-4bdc-8e17-e41428dcdf51",
+      "name": "281124_Alex",
+      "metadata_files_audited": 18,
+      "image_mat_files_excluded": 0,
+      "absolute_path_values": 16978,
+      "files_needing_rebase": 18,
+      "files_with_unresolved_paths": 15,
+      "other_files_needing_type_review": [
+        "281124_Alex/2-x451db4ds-5_1/im_2-x451db4ds-5_1_1.h5",
+        "281124_Alex/2-x451db4ds-5_1/im_2-x451db4ds-5_1_10.h5",
+        "281124_Alex/2-x451db4ds-5_1/im_2-x451db4ds-5_1_11.h5",
+        "281124_Alex/2-x451db4ds-5_1/im_2-x451db4ds-5_1_12.h5",
+        "281124_Alex/2-x451db4ds-5_1/im_2-x451db4ds-5_1_13.h5",
+        "281124_Alex/2-x451db4ds-5_1/im_2-x451db4ds-5_1_14.h5",
+        "281124_Alex/2-x451db4ds-5_1/im_2-x451db4ds-5_1_15.h5",
+        "281124_Alex/2-x451db4ds-5_1/im_2-x451db4ds-5_1_16.h5",
+        "281124_Alex/2-x451db4ds-5_1/im_2-x451db4ds-5_1_17.h5",
+        "281124_Alex/2-x451db4ds-5_1/im_2-x451db4ds-5_1_18.h5",
+        "281124_Alex/2-x451db4ds-5_1/im_2-x451db4ds-5_1_19.h5",
+        "281124_Alex/2-x451db4ds-5_1/im_2-x451db4ds-5_1_2.h5",
+        "281124_Alex/2-x451db4ds-5_1/im_2-x451db4ds-5_1_20.h5",
+        "281124_Alex/2-x451db4ds-5_1/im_2-x451db4ds-5_1_21.h5",
+        "281124_Alex/2-x451db4ds-5_1/im_2-x451db4ds-5_1_22.h5",
+        "281124_Alex/2-x451db4ds-5_1/im_2-x451db4ds-5_1_23.h5",
+        "281124_Alex/2-x451db4ds-5_1/im_2-x451db4ds-5_1_24.h5",
+        "281124_Alex/2-x451db4ds-5_1/im_2-x451db4ds-5_1_25.h5",
+        "281124_Alex/2-x451db4ds-5_1/im_2-x451db4ds-5_1_26.h5",
+        "281124_Alex/2-x451db4ds-5_1/im_2-x451db4ds-5_1_27.h5",
+        "281124_Alex/2-x451db4ds-5_1/im_2-x451db4ds-5_1_28.h5",
+        "281124_Alex/2-x451db4ds-5_1/im_2-x451db4ds-5_1_29.h5",
+        "281124_Alex/2-x451db4ds-5_1/im_2-x451db4ds-5_1_3.h5",
+        "281124_Alex/2-x451db4ds-5_1/im_2-x451db4ds-5_1_30.h5",
+        "281124_Alex/2-x451db4ds-5_1/im_2-x451db4ds-5_1_4.h5",
+        "281124_Alex/2-x451db4ds-5_1/im_2-x451db4ds-5_1_5.h5",
+        "281124_Alex/2-x451db4ds-5_1/im_2-x451db4ds-5_1_6.h5",
+        "281124_Alex/2-x451db4ds-5_1/im_2-x451db4ds-5_1_7.h5",
+        "281124_Alex/2-x451db4ds-5_1/im_2-x451db4ds-5_1_8.h5",
+        "281124_Alex/2-x451db4ds-5_1/im_2-x451db4ds-5_1_9.h5",
+        "281124_Alex/2-x451db4ds-6_2/im_2-x451db4ds-6_2_1.h5",
+        "281124_Alex/2-x451db4ds-6_2/im_2-x451db4ds-6_2_10.h5",
+        "281124_Alex/2-x451db4ds-6_2/im_2-x451db4ds-6_2_11.h5",
+        "281124_Alex/2-x451db4ds-6_2/im_2-x451db4ds-6_2_12.h5",
+        "281124_Alex/2-x451db4ds-6_2/im_2-x451db4ds-6_2_13.h5",
+        "281124_Alex/2-x451db4ds-6_2/im_2-x451db4ds-6_2_14.h5",
+        "281124_Alex/2-x451db4ds-6_2/im_2-x451db4ds-6_2_15.h5",
+        "281124_Alex/2-x451db4ds-6_2/im_2-x451db4ds-6_2_16.h5",
+        "281124_Alex/2-x451db4ds-6_2/im_2-x451db4ds-6_2_17.h5",
+        "281124_Alex/2-x451db4ds-6_2/im_2-x451db4ds-6_2_18.h5",
+        "281124_Alex/2-x451db4ds-6_2/im_2-x451db4ds-6_2_19.h5",
+        "281124_Alex/2-x451db4ds-6_2/im_2-x451db4ds-6_2_2.h5",
+        "281124_Alex/2-x451db4ds-6_2/im_2-x451db4ds-6_2_20.h5",
+        "281124_Alex/2-x451db4ds-6_2/im_2-x451db4ds-6_2_21.h5",
+        "281124_Alex/2-x451db4ds-6_2/im_2-x451db4ds-6_2_22.h5",
+        "281124_Alex/2-x451db4ds-6_2/im_2-x451db4ds-6_2_23.h5",
+        "281124_Alex/2-x451db4ds-6_2/im_2-x451db4ds-6_2_24.h5",
+        "281124_Alex/2-x451db4ds-6_2/im_2-x451db4ds-6_2_25.h5",
+        "281124_Alex/2-x451db4ds-6_2/im_2-x451db4ds-6_2_26.h5",
+        "281124_Alex/2-x451db4ds-6_2/im_2-x451db4ds-6_2_27.h5",
+        "281124_Alex/2-x451db4ds-6_2/im_2-x451db4ds-6_2_28.h5",
+        "281124_Alex/2-x451db4ds-6_2/im_2-x451db4ds-6_2_3.h5",
+        "281124_Alex/2-x451db4ds-6_2/im_2-x451db4ds-6_2_4.h5",
+        "281124_Alex/2-x451db4ds-6_2/im_2-x451db4ds-6_2_5.h5",
+        "281124_Alex/2-x451db4ds-6_2/im_2-x451db4ds-6_2_6.h5",
+        "281124_Alex/2-x451db4ds-6_2/im_2-x451db4ds-6_2_7.h5",
+        "281124_Alex/2-x451db4ds-6_2/im_2-x451db4ds-6_2_8.h5",
+        "281124_Alex/2-x451db4ds-6_2/im_2-x451db4ds-6_2_9.h5",
+        "281124_Alex/pipeline/daughter_lineage_1/run_events.jsonl",
+        "281124_Alex/pipeline/daughter_lineage_1/run_log.txt",
+        "281124_Alex/pipeline/daughter_lineage_1/run_review.txt",
+        "281124_Alex/pipeline/daughter_lineage_1/run_summary.txt",
+        "281124_Alex/pipeline/daughter_lineage_2/run_events.jsonl",
+        "281124_Alex/pipeline/daughter_lineage_2/run_log.txt",
+        "281124_Alex/pipeline/daughter_lineage_2/run_review.txt",
+        "281124_Alex/pipeline/daughter_lineage_2/run_summary.txt",
+        "281124_Alex/pipeline/daughter_lineage_3/run_events.jsonl",
+        "281124_Alex/pipeline/daughter_lineage_3/run_log.txt",
+        "281124_Alex/pipeline/daughter_lineage_3/run_review.txt",
+        "281124_Alex/pipeline/daughter_lineage_3/run_summary.txt",
+        "281124_Alex/pipeline/daughter_lineage_4/run_events.jsonl",
+        "281124_Alex/pipeline/daughter_lineage_4/run_log.txt",
+        "281124_Alex/pipeline/daughter_lineage_4/run_review.txt",
+        "281124_Alex/pipeline/daughter_lineage_4/run_summary.txt",
+        "281124_Alex/pipeline/sam31_inference_1/run_events.jsonl",
+        "281124_Alex/pipeline/sam31_inference_1/run_log.txt",
+        "281124_Alex/pipeline/sam31_inference_1/run_review.txt",
+        "281124_Alex/pipeline/sam31_inference_1/run_summary.txt",
+        "281124_Alex/pipeline/sam31_inference_2/run_events.jsonl",
+        "281124_Alex/pipeline/sam31_inference_2/run_log.txt",
+        "281124_Alex/pipeline/sam31_inference_2/run_review.txt",
+        "281124_Alex/pipeline/sam31_inference_2/run_summary.txt",
+        "281124_Alex/pipeline/sam31_inference_3/run_events.jsonl",
+        "281124_Alex/pipeline/sam31_inference_3/run_log.txt",
+        "281124_Alex/pipeline/sam31_inference_3/run_review.txt",
+        "281124_Alex/pipeline/sam31_inference_3/run_summary.txt"
+      ],
+      "saved": false
+    }
+  ],
+  "files_with_path_values": [
+    {
+      "project_id": "eb49f629-6546-4fbe-bdb7-71884e7fa69f",
+      "relative_path": "qp_250724_dbud4stest.mat",
+      "sha256_unchanged": "f12b25d7216c51809581136182fd772b745dd1f26598d5c937f5f8b4679b8cde",
+      "absolute_path_values": 2121,
+      "recognized_rebase_values": 2121,
+      "unresolved_path_values": 0,
+      "file_saved": false
+    },
+    {
+      "project_id": "ba44b140-ca07-4bdc-8e17-e41428dcdf51",
+      "relative_path": "281124_Alex.mat",
+      "sha256_unchanged": "3b3be83b9d83fc87adca63f9fa400278ac64e4db500a9dba2d9d31ac95a3364c",
+      "absolute_path_values": 8335,
+      "recognized_rebase_values": 8334,
+      "unresolved_path_values": 1,
+      "file_saved": false
+    },
+    {
+      "project_id": "ba44b140-ca07-4bdc-8e17-e41428dcdf51",
+      "relative_path": "281124_Alex/pipeline/daughter_lineage_1/run.json",
+      "sha256_unchanged": "17aea3132a3ec117aae2619084f1bdf74ff6ad2c343a22d44f411e90094f23c3",
+      "absolute_path_values": 24,
+      "recognized_rebase_values": 19,
+      "unresolved_path_values": 5,
+      "file_saved": false
+    },
+    {
+      "project_id": "ba44b140-ca07-4bdc-8e17-e41428dcdf51",
+      "relative_path": "281124_Alex/pipeline/daughter_lineage_1/run_params.json",
+      "sha256_unchanged": "3ea4f7085251f09ecf5012cb9f88c020b1a46977dd8c231ab330c8fb59167e43",
+      "absolute_path_values": 18,
+      "recognized_rebase_values": 15,
+      "unresolved_path_values": 3,
+      "file_saved": false
+    },
+    {
+      "project_id": "ba44b140-ca07-4bdc-8e17-e41428dcdf51",
+      "relative_path": "281124_Alex/pipeline/daughter_lineage_2/run.json",
+      "sha256_unchanged": "f9dd3fd066909511d7307bef788ff3f6b45fbb01cb9200d59c876664367b8cb8",
+      "absolute_path_values": 40,
+      "recognized_rebase_values": 24,
+      "unresolved_path_values": 16,
+      "file_saved": false
+    },
+    {
+      "project_id": "ba44b140-ca07-4bdc-8e17-e41428dcdf51",
+      "relative_path": "281124_Alex/pipeline/daughter_lineage_2/run_params.json",
+      "sha256_unchanged": "4454e6c62097b935b761dad808e1f843f39ca9ccf2664bfd1cad00fcbcd729b9",
+      "absolute_path_values": 29,
+      "recognized_rebase_values": 20,
+      "unresolved_path_values": 9,
+      "file_saved": false
+    },
+    {
+      "project_id": "ba44b140-ca07-4bdc-8e17-e41428dcdf51",
+      "relative_path": "281124_Alex/pipeline/daughter_lineage_3/run.json",
+      "sha256_unchanged": "a327ba279587a34515252e8fd121cda4fae74ade9151c15b7979f742d58cff05",
+      "absolute_path_values": 40,
+      "recognized_rebase_values": 24,
+      "unresolved_path_values": 16,
+      "file_saved": false
+    },
+    {
+      "project_id": "ba44b140-ca07-4bdc-8e17-e41428dcdf51",
+      "relative_path": "281124_Alex/pipeline/daughter_lineage_3/run_params.json",
+      "sha256_unchanged": "bb04deb742945e05ae6fef30fb9d04b99222815cfc6255925fdb15121d403318",
+      "absolute_path_values": 29,
+      "recognized_rebase_values": 20,
+      "unresolved_path_values": 9,
+      "file_saved": false
+    },
+    {
+      "project_id": "ba44b140-ca07-4bdc-8e17-e41428dcdf51",
+      "relative_path": "281124_Alex/pipeline/daughter_lineage_4/run.json",
+      "sha256_unchanged": "ebc16837d742d8fafc7a30186e32f5e9ab36b74da1447e51d022975c1040c7c7",
+      "absolute_path_values": 8293,
+      "recognized_rebase_values": 8288,
+      "unresolved_path_values": 5,
+      "file_saved": false
+    },
+    {
+      "project_id": "ba44b140-ca07-4bdc-8e17-e41428dcdf51",
+      "relative_path": "281124_Alex/pipeline/daughter_lineage_4/run_params.json",
+      "sha256_unchanged": "54211701e8503583e16d9cf7cc4eecff65b10a613d02b3a417f2d4a770b7e958",
+      "absolute_path_values": 18,
+      "recognized_rebase_values": 15,
+      "unresolved_path_values": 3,
+      "file_saved": false
+    },
+    {
+      "project_id": "ba44b140-ca07-4bdc-8e17-e41428dcdf51",
+      "relative_path": "281124_Alex/pipeline/sam31_inference_1/run.json",
+      "sha256_unchanged": "d504a082b48af6d054a06328416c6f003e69cb2cb054e696d246449d64edc836",
+      "absolute_path_values": 30,
+      "recognized_rebase_values": 16,
+      "unresolved_path_values": 14,
+      "file_saved": false
+    },
+    {
+      "project_id": "ba44b140-ca07-4bdc-8e17-e41428dcdf51",
+      "relative_path": "281124_Alex/pipeline/sam31_inference_1/run_params.json",
+      "sha256_unchanged": "aa84277678e59118ba33d14d2ab023d145722c4dde14000ce10dd7978cbb3a1d",
+      "absolute_path_values": 18,
+      "recognized_rebase_values": 14,
+      "unresolved_path_values": 4,
+      "file_saved": false
+    },
+    {
+      "project_id": "ba44b140-ca07-4bdc-8e17-e41428dcdf51",
+      "relative_path": "281124_Alex/pipeline/sam31_inference_2/run.json",
+      "sha256_unchanged": "d260c42290b288a480473a27484c5d869c3c3b424f9aace1046732b18797366e",
+      "absolute_path_values": 32,
+      "recognized_rebase_values": 16,
+      "unresolved_path_values": 16,
+      "file_saved": false
+    },
+    {
+      "project_id": "ba44b140-ca07-4bdc-8e17-e41428dcdf51",
+      "relative_path": "281124_Alex/pipeline/sam31_inference_2/run_params.json",
+      "sha256_unchanged": "5892878a5d6224afc69a3a777bd416d5f7fb18e758692a854b6f86bee939f754",
+      "absolute_path_values": 18,
+      "recognized_rebase_values": 14,
+      "unresolved_path_values": 4,
+      "file_saved": false
+    },
+    {
+      "project_id": "ba44b140-ca07-4bdc-8e17-e41428dcdf51",
+      "relative_path": "281124_Alex/pipeline/sam31_inference_3/run.json",
+      "sha256_unchanged": "52bb4e465e6c4fa04fa956808d4dcb8c81b1ca82dac2401ce576f65a07c46983",
+      "absolute_path_values": 32,
+      "recognized_rebase_values": 16,
+      "unresolved_path_values": 16,
+      "file_saved": false
+    },
+    {
+      "project_id": "ba44b140-ca07-4bdc-8e17-e41428dcdf51",
+      "relative_path": "281124_Alex/pipeline/sam31_inference_3/run_params.json",
+      "sha256_unchanged": "8efc9258e5743bde2f85567176c60d1d91e32d2cabc0d755be7054aa4de95b61",
+      "absolute_path_values": 18,
+      "recognized_rebase_values": 14,
+      "unresolved_path_values": 4,
+      "file_saved": false
+    },
+    {
+      "project_id": "ba44b140-ca07-4bdc-8e17-e41428dcdf51",
+      "relative_path": "281124_Alex/sam31_inference/dependency_audit.json",
+      "sha256_unchanged": "efec834d1c626f7f1788643e21cf1102b5df09b4415ce9b946ee66def1dae8b6",
+      "absolute_path_values": 2,
+      "recognized_rebase_values": 2,
+      "unresolved_path_values": 0,
+      "file_saved": false
+    },
+    {
+      "project_id": "ba44b140-ca07-4bdc-8e17-e41428dcdf51",
+      "relative_path": "281124_Alex/sam31_inference/pipeline.json",
+      "sha256_unchanged": "e15223fd078ac52aa24bb956d61dcb04ae791ec72bf76b3d109e5a9015cf2a8b",
+      "absolute_path_values": 1,
+      "recognized_rebase_values": 1,
+      "unresolved_path_values": 0,
+      "file_saved": false
+    },
+    {
+      "project_id": "ba44b140-ca07-4bdc-8e17-e41428dcdf51",
+      "relative_path": "281124_Alex/sam31_inference/modules/dataloader_1/module.json",
+      "sha256_unchanged": "4d45f210e25d9e56816f27f59bb50143a508cdaf896064fd98642652c8fd6e94",
+      "absolute_path_values": 1,
+      "recognized_rebase_values": 1,
+      "unresolved_path_values": 0,
+      "file_saved": false
+    }
+  ],
+  "unresolved_examples_by_value": {
+    "X:\\Gilles\\analysis\\projects\\": [
+      "metadata.shallowObj.parsedData.folder"
+    ],
+    "/data/Gilles/analysis/pipelines/daughter_lineage/daughter_lineage": [
+      "metadata.ctx.pipelineRef.path",
+      "metadata.pipelineRef.path"
+    ],
+    "/data": [
+      "metadata.ctx.hub.pathMappings.remoteRoot",
+      "metadata.ctx.run.paths.path_mappings.localRoot",
+      "metadata.ctx.run.paths.path_mappings.remoteRoot",
+      "metadata.hub.pathMappings.remoteRoot",
+      "metadata.run.paths.path_mappings.localRoot",
+      "metadata.run.paths.path_mappings.remoteRoot"
+    ],
+    "/data/Gilles/analysis/pipelines/daughter_lineage/daughter_lineage/pipeline.json": [
+      "metadata.templatePath"
+    ],
+    "X:\\Alexander\\data\\2024_2\\281124_X5152bud4s\\281124_X5152bud4s_2": [
+      "metadata.ctx.dataLoader.path",
+      "metadata.ctx.hub.pathPreflight.paths.localPath",
+      "metadata.ctx.io.rawDataPath",
+      "metadata.ctx.pipelineSpec.nodes.params.path",
+      "metadata.ctx.rawDataPath",
+      "metadata.ctx.run.nodeParams.dataloader_1.path",
+      "metadata.ctx.run.rawDataPath",
+      "metadata.hub.pathPreflight.paths.localPath",
+      "metadata.io.rawDataPath",
+      "metadata.outputs.dryRunReport.bindingResolution.validation.nodes.params.path",
+      "metadata.outputs.dryRunReport.nodes.params.path",
+      "metadata.run.nodeParams.dataloader_1.path",
+      "metadata.run.rawDataPath"
+    ],
+    "X:/": [
+      "metadata.ctx.hub.defaultLocalProjectRoot",
+      "metadata.hub.defaultLocalProjectRoot"
+    ],
+    "/data/": [
+      "metadata.ctx.hub.defaultRemoteProjectRoot",
+      "metadata.hub.defaultRemoteProjectRoot"
+    ],
+    "X:": [
+      "metadata.ctx.hub.pathMappings.localRoot",
+      "metadata.hub.pathMappings.localRoot"
+    ],
+    "X:\\Gilles\\analysis\\pipelines\\daughter_lineage\\daughter_lineage": [
+      "metadata.ctx.pipelineRef.path",
+      "metadata.pipelineRef.path",
+      "metadata.templatePath"
+    ],
+    "/data/Gilles/analysis/pipelines/sam31_inference/sam31_inference": [
+      "metadata.ctx.pipelineRef.path",
+      "metadata.pipelineRef.path"
+    ],
+    "/data/Gilles/sam31/sam31_1": [
+      "metadata.ctx.classifier.modulePath",
+      "metadata.ctx.params.modulePath",
+      "metadata.ctx.run.nodeParams.params.modulePath",
+      "metadata.outputs.report.bindingResolution.validation.classifierArtifacts.configuredPath",
+      "metadata.outputs.report.bindingResolution.validation.classifierArtifacts.resolvedPath",
+      "metadata.outputs.report.bindingResolution.validation.nodes.params.modulePath",
+      "metadata.outputs.report.classifierArtifacts.configuredPath",
+      "metadata.outputs.report.classifierArtifacts.resolvedPath",
+      "metadata.outputs.report.nodes.params.modulePath",
+      "metadata.run.nodeParams.params.modulePath"
+    ],
+    "X:\\Gilles\\sam31\\sam31_1\\": [
+      "metadata.outputs.dryRunReport.bindingResolution.validation.classifierArtifacts.configuredPath",
+      "metadata.outputs.dryRunReport.bindingResolution.validation.classifierArtifacts.resolvedPath",
+      "metadata.outputs.dryRunReport.bindingResolution.validation.nodes.params.modulePath",
+      "metadata.outputs.dryRunReport.classifierArtifacts.configuredPath",
+      "metadata.outputs.dryRunReport.classifierArtifacts.resolvedPath",
+      "metadata.outputs.dryRunReport.nodes.params.modulePath"
+    ],
+    "X:\\Gilles\\sam31\\sam31_1\\sam31_1_classification.mat": [
+      "metadata.outputs.dryRunReport.bindingResolution.validation.classifierArtifacts.snapshotPath",
+      "metadata.outputs.dryRunReport.classifierArtifacts.snapshotPath"
+    ],
+    "/data/Gilles/analysis/pipelines/sam31_inference/sam31_inference/pipeline.json": [
+      "metadata.templatePath"
+    ],
+    "/data/Gilles/sam31/sam31_1/sam31_1_classification.mat": [
+      "metadata.outputs.report.bindingResolution.validation.classifierArtifacts.snapshotPath",
+      "metadata.outputs.report.classifierArtifacts.snapshotPath"
+    ]
+  },
+  "scientific_saved": false,
+  "note": "QP metadata has no unknown path. Gilles main parsedData.folder and 14 pipeline execution JSON snapshots need typed classification. Do not blindly rewrite historical run records, Hub client mappings, external models or pipeline roots. Active dataloader paths and the X:/Alexander/data/2024_2 acquisition alias need canonical resource mapping. HDF5 attributes/external references remain a separate review."
+}

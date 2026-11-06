@@ -1,0 +1,20 @@
+{
+  "controller_exit": 0,
+  "success": true,
+  "result_sha256": "38fad3529aa509ea3598926c8737e7ac126743b9769c916e89ac9bf723ff2edf",
+  "project_id": "ba44b140-ca07-4bdc-8e17-e41428dcdf51",
+  "name": "281124_Alex",
+  "main_original_copy_hash_unchanged": "3b3be83b9d83fc87adca63f9fa400278ac64e4db500a9dba2d9d31ac95a3364c",
+  "fovs": 2,
+  "rois": 58,
+  "raw_pixel_samples": 36,
+  "crop_exact_fields": 2,
+  "image_format": "HDF5",
+  "existing_hdf5_image_references_in_verified_manifest": 58,
+  "existing_data_sidecars": 0,
+  "no_results_or_data_invented": true,
+  "scientific_saved": false,
+  "hdf5_files_rewritten": false,
+  "catalog_owner_changed": false,
+  "note": "Only Gilles retried after diagnosed MAT-sidecar assumption; successful qp audit not replayed. HDF5 attributes/external metadata review, scientific relink, final hosts and raw checksum gates remain."
+}

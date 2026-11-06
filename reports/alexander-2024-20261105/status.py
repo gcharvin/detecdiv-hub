@@ -65,7 +65,11 @@ summary['reference_followups']={}
 for name in ['persistent-path-audit-20261106-batch2','historical-reference-baseline-20261106',
              'blank-roi-layout-20261106','historical-reference-parity-20261106',
              'historical-name-search-20261106','blank-roi-identity-continuation-20261106',
-             'identity-audit-20261106-batch3']:
+             'identity-audit-20261106-batch3','identity-audit-20261106-batch4',
+             'persistent-path-audit-20261106-batch3','figure-path-audit-20261106-batch2',
+             'exception-identity-20261106','gilles-roi-layout-20261106',
+             'gilles-hdf5-identity-20261106','relink-value-types-20261106',
+             'exception-path-audit-20261106']:
  item={'exit':tail(name+'/controller.exit'),'progress':load(name+'/progress.json'),'log_tail':tail(name+'/controller.log',1200)}
  result=load(name+'/result.json')
  if result:
@@ -74,8 +78,16 @@ for name in ['persistent-path-audit-20261106-batch2','historical-reference-basel
   if 'projects' in result:
    item['projects']=[{k:p[k] for k in ['project_id','name','success','error','metadata_files_audited','files_needing_rebase',
        'files_with_unresolved_paths','rois','blank_roi_ids_preserved','completed_fovs_reused'] if k in p} for p in result['projects']]
+   if any('files_with_unresolved_paths' in p for p in result['projects']):
+    item['result_summary']['all_paths_resolved']=all(p.get('files_with_unresolved_paths',0)==0 for p in result['projects'])
+    item['result_summary']['unresolved_path_files']=sum(p.get('files_with_unresolved_paths',0) for p in result['projects'])
   if name=='historical-name-search-20261106':
    item['search_results']=[{'target':p['target'],'inventory_counts':p['inventory_counts'],'candidate_count':len(p['candidates'])} for p in result['results']]
+  if name=='relink-value-types-20261106':
+   item['scientific_type_files']=len(result['files'])
+   item['gpu_values']=sum(len(p['gpu_values']) for p in result['files'])
+   item['function_handles']=sum(len(p['function_handles']) for p in result['files'])
+   item['nonpublic_properties']=sum(len(p['nonpublic_persistent_properties']) for p in result['files'])
  summary['reference_followups'][name]=item
 if state:
  year=state.get('current_year')
