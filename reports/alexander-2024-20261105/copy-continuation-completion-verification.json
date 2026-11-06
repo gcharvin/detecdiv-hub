@@ -1,0 +1,89 @@
+{
+  "controller_exit": 0,
+  "success": true,
+  "state_sha256": "15634f50e88542d3d876decf87f9768b2604015dc481a54188e2823672ff4cf1",
+  "projects": [
+    {
+      "project_id": "6c46e8a4-ab0f-45ac-9aeb-ea139f252643",
+      "name": "movie_12224_w303MBsnabI_test",
+      "phase": "copy_verified_identity_relink_and_hosts_pending",
+      "source_mat": "/mnt/detecdiv-secondary-sauvegarde/Alexander/analysis/movie_12224_w303MBsnabI_test.mat",
+      "stage": "/homes2/maliavko/DetecdivHub/projects/.incoming-movie_12224_w303MBsnabI_test-20261105",
+      "files": 838,
+      "bytes": 8598003103,
+      "source_inventory": {
+        "files": 838,
+        "bytes": 8598003103,
+        "sha256": "e5780743e7722a5666390bcf9a57ef5ab92138b22dff571b4af2805f2bca23d1"
+      },
+      "clone_receipt": {
+        "files": 838,
+        "bytes": 8598003103,
+        "sha256": "7528cd9ea8bc410655e2e2b29e22f7bf213b5ad2c5e93a7411e204a32855e60f"
+      },
+      "verification_receipt": {
+        "files": 838,
+        "bytes": 8598003103,
+        "sha256": "c965dbaf0cfb1c0dc32970a8e733ce65fc910b84db53d7d6d53418d3db06d3b0"
+      },
+      "original_preserved": true
+    },
+    {
+      "project_id": "724afdda-24e8-42f1-b242-2b7a0e41e8b1",
+      "name": "movie_250124_diploids",
+      "phase": "copy_verified_identity_relink_and_hosts_pending",
+      "source_mat": "/mnt/detecdiv-secondary-sauvegarde/Alexander/analysis/movie_250124_diploids.mat",
+      "stage": "/homes2/maliavko/DetecdivHub/projects/.incoming-movie_250124_diploids-20261105",
+      "files": 6,
+      "bytes": 777085505,
+      "source_inventory": {
+        "files": 6,
+        "bytes": 777085505,
+        "sha256": "73555ba2177921b1ffaf327ea130487d895a4d1e94650ae3b43dbec27e6706aa"
+      },
+      "clone_receipt": {
+        "files": 6,
+        "bytes": 777085505,
+        "sha256": "4f21940b59e742bc4da893abce94dca026967a72ec3ec39fdc118fc4ce37c832"
+      },
+      "verification_receipt": {
+        "files": 6,
+        "bytes": 777085505,
+        "sha256": "5c9c52658296727112c3b46a74c91b0e6cdc5fc73c93d89bb7bc64949bc590e7"
+      },
+      "original_preserved": true
+    },
+    {
+      "project_id": "ae089caa-2978-4441-8308-8256905738d1",
+      "name": "qp_22032024_DHY210_nts1ng",
+      "phase": "copy_verified_identity_relink_and_hosts_pending",
+      "source_mat": "/mnt/detecdiv-secondary-sauvegarde/Alexander/analysis/qp_22032024_DHY210_nts1ng.mat",
+      "stage": "/homes2/maliavko/DetecdivHub/projects/.incoming-qp_22032024_DHY210_nts1ng-20261105",
+      "files": 886,
+      "bytes": 12819026072,
+      "source_inventory": {
+        "files": 886,
+        "bytes": 12819026072,
+        "sha256": "0101d7841432d9d928c6f1bc012c59427c1bd06378f7e938ec7feeafb985c8dc"
+      },
+      "clone_receipt": {
+        "files": 886,
+        "bytes": 12819026072,
+        "sha256": "9da0afe122d4f8fd3e4590ede1af441abdcbf5993815987006cf42bff53976e0"
+      },
+      "verification_receipt": {
+        "files": 886,
+        "bytes": 12819026072,
+        "sha256": "69fd193a8090d681e9a86a69b1feed5cf1fb4bbf7d358c1d69fc27a19c0edd23"
+      },
+      "original_preserved": true
+    }
+  ],
+  "files": 1730,
+  "bytes": 22194114680,
+  "original_28_receipts_preserved": true,
+  "missing_project29_not_replayed": true,
+  "all_available_project_data_copied": false,
+  "scientific_saved": false,
+  "source_deleted": false
+}

@@ -1,0 +1,164 @@
+{
+  "controller_exit": 0,
+  "success": true,
+  "result_sha256": "91a4ef8b030afdad786a3d45b1667c31b1d6ea553bc2f4377e568316c0194f8d",
+  "receipt_sha256": "cd1fb78a843c778d3a48577caa334d291b489a17541f27e2ba585277da128af2",
+  "projects": [
+    {
+      "project_id": "6f6f408d-ebe7-4115-a537-f35f5cdb6ed2",
+      "name": "anof_060224_cres",
+      "metadata_files_audited": 1988,
+      "image_mat_files_excluded": 1188,
+      "absolute_path_values": 8977,
+      "files_needing_rebase": 4,
+      "files_with_unresolved_paths": 0,
+      "other_files_needing_type_review": [
+        "anof_060224_cres/.DS_Store"
+      ],
+      "saved": false
+    },
+    {
+      "project_id": "c48f9cff-6625-4dad-9597-a8796fe2824f",
+      "name": "anof_060224_cres_ARS1",
+      "metadata_files_audited": 1495,
+      "image_mat_files_excluded": 746,
+      "absolute_path_values": 6147,
+      "files_needing_rebase": 3,
+      "files_with_unresolved_paths": 0,
+      "other_files_needing_type_review": [
+        "anof_060224_cres_ARS1/.DS_Store"
+      ],
+      "saved": false
+    },
+    {
+      "project_id": "4ada122e-a205-493f-9885-703e788589cc",
+      "name": "anof_061224_X5152moth",
+      "metadata_files_audited": 309,
+      "image_mat_files_excluded": 308,
+      "absolute_path_values": 43107,
+      "files_needing_rebase": 1,
+      "files_with_unresolved_paths": 0,
+      "other_files_needing_type_review": [],
+      "saved": false
+    },
+    {
+      "project_id": "3b4a5dd7-6f03-43b3-bf9e-c02d7958301a",
+      "name": "anof_210524_cre16",
+      "metadata_files_audited": 22171,
+      "image_mat_files_excluded": 11083,
+      "absolute_path_values": 110058,
+      "files_needing_rebase": 3,
+      "files_with_unresolved_paths": 0,
+      "other_files_needing_type_review": [
+        "anof_210524_cre16/.DS_Store",
+        "anof_210524_cre16/div_fit_3mut_250724.fig"
+      ],
+      "saved": false
+    }
+  ],
+  "metadata_files_audited": 25963,
+  "files_to_rebase": [
+    {
+      "project_id": "6f6f408d-ebe7-4115-a537-f35f5cdb6ed2",
+      "relative_path": "anof_060224_cres.mat",
+      "sha256_unchanged": "56939d73ef23fb2be117636189b415592a1c9bc57ad3dea6219e91cfae81b58b",
+      "absolute_path_values": 8974,
+      "recognized_rebase_values": 8974,
+      "unresolved_path_values": 0,
+      "file_saved": false
+    },
+    {
+      "project_id": "6f6f408d-ebe7-4115-a537-f35f5cdb6ed2",
+      "relative_path": "anof_060224_cres/processor/ComputeAllMetrics_2/ComputeAllMetrics_2_processor.mat",
+      "sha256_unchanged": "87dad42241bc078fb7fd4d7f4367c00e82ed461eef3d0fef70d7b8a40babf09a",
+      "absolute_path_values": 1,
+      "recognized_rebase_values": 1,
+      "unresolved_path_values": 0,
+      "file_saved": false
+    },
+    {
+      "project_id": "6f6f408d-ebe7-4115-a537-f35f5cdb6ed2",
+      "relative_path": "anof_060224_cres/processor/ComputeRLS_2/ComputeRLS_2_processor.mat",
+      "sha256_unchanged": "0e5a30f5f0c39bf60a30cd8aa1ce8fd41702d5740ef0880c7d33e9d65f4d4526",
+      "absolute_path_values": 1,
+      "recognized_rebase_values": 1,
+      "unresolved_path_values": 0,
+      "file_saved": false
+    },
+    {
+      "project_id": "6f6f408d-ebe7-4115-a537-f35f5cdb6ed2",
+      "relative_path": "anof_060224_cres/processor/computeAllMetrics_1/computeAllMetrics_1_processor.mat",
+      "sha256_unchanged": "b50f84d5210f135d81a866d5b0bd76a44adfdc4a993b7c404db977d78e77afb8",
+      "absolute_path_values": 1,
+      "recognized_rebase_values": 1,
+      "unresolved_path_values": 0,
+      "file_saved": false
+    },
+    {
+      "project_id": "c48f9cff-6625-4dad-9597-a8796fe2824f",
+      "relative_path": "anof_060224_cres_ARS1.mat",
+      "sha256_unchanged": "4484880178a9a97d909a0483c115831cd396b7b836a84cd1a8c41c1ace6dbf59",
+      "absolute_path_values": 6145,
+      "recognized_rebase_values": 6145,
+      "unresolved_path_values": 0,
+      "file_saved": false
+    },
+    {
+      "project_id": "c48f9cff-6625-4dad-9597-a8796fe2824f",
+      "relative_path": "anof_060224_cres_ARS1/processor/ComputeAllMetrics_1/ComputeAllMetrics_1_processor.mat",
+      "sha256_unchanged": "acb6dce65f52379fa5dcb4e08e8e63e9c4ba1ee7516ede7dfe82d0eeaad93b83",
+      "absolute_path_values": 1,
+      "recognized_rebase_values": 1,
+      "unresolved_path_values": 0,
+      "file_saved": false
+    },
+    {
+      "project_id": "c48f9cff-6625-4dad-9597-a8796fe2824f",
+      "relative_path": "anof_060224_cres_ARS1/processor/ComputeRLS_2/ComputeRLS_2_processor.mat",
+      "sha256_unchanged": "8cda3b03e0f12c3808c5bf4e832809d0254d239403a71cfe1a092d707b3fe863",
+      "absolute_path_values": 1,
+      "recognized_rebase_values": 1,
+      "unresolved_path_values": 0,
+      "file_saved": false
+    },
+    {
+      "project_id": "4ada122e-a205-493f-9885-703e788589cc",
+      "relative_path": "anof_061224_X5152moth.mat",
+      "sha256_unchanged": "7a54c816683c25c8e00be6c022b13c8d0b5f91d8cc5c97e50a1af908611f08c8",
+      "absolute_path_values": 43107,
+      "recognized_rebase_values": 43107,
+      "unresolved_path_values": 0,
+      "file_saved": false
+    },
+    {
+      "project_id": "3b4a5dd7-6f03-43b3-bf9e-c02d7958301a",
+      "relative_path": "anof_210524_cre16.mat",
+      "sha256_unchanged": "6e6bcc019ca58d97f093722b51f2ffa4266ed7bc39695fe19256dff25b80ff09",
+      "absolute_path_values": 110056,
+      "recognized_rebase_values": 110056,
+      "unresolved_path_values": 0,
+      "file_saved": false
+    },
+    {
+      "project_id": "3b4a5dd7-6f03-43b3-bf9e-c02d7958301a",
+      "relative_path": "anof_210524_cre16/processor/ComputeAllMetrics_1/ComputeAllMetrics_1_processor.mat",
+      "sha256_unchanged": "ce9e9065524f9602c2059c4f6401b13b5d69863f64319f70da0b7b395a0d393a",
+      "absolute_path_values": 1,
+      "recognized_rebase_values": 1,
+      "unresolved_path_values": 0,
+      "file_saved": false
+    },
+    {
+      "project_id": "3b4a5dd7-6f03-43b3-bf9e-c02d7958301a",
+      "relative_path": "anof_210524_cre16/processor/ComputeRLS_2/ComputeRLS_2_processor.mat",
+      "sha256_unchanged": "a567e7938ca872a133864a3ebd8e03ced9ccac6711a8da3fcf2a7cc49346a75b",
+      "absolute_path_values": 1,
+      "recognized_rebase_values": 1,
+      "unresolved_path_values": 0,
+      "file_saved": false
+    }
+  ],
+  "expected_path_changes": 168289,
+  "scientific_saved": false,
+  "source_deleted": false
+}

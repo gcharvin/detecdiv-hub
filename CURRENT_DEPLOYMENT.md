@@ -79,6 +79,23 @@ receipts are in `reports/abhilasha-channels-20261106/`.
 
 ## Alexander 2024 migration started, 2026-11-05
 
+2026-11-06 21:01 UTC checkpoint: 2024_1 copying at 85.16%, no raw full SHA1
+or source retirement. Original project-copy runner stopped safely before
+project29's missing associated source folder; no stage existed. Its 28 receipts
+are preserved. Bounded continuation of the final three projects completed:
+31 full standard copies plus two special copies verified. The available MAT
+of loxP15 was separately copied/hash-verified without inventing its absent
+folder; complete project access remains under explicit baseline review.
+Actual metadata relink of twelve unpublished copies is now running in
+alex2024-relink-batch1-20261106: 23 MATs / 636618 planned changes, 23 native
+verified backups (3.715 GB), twelve original inventories unchanged, twelve
+own leases until 2026-11-07 02:47 UTC. At the checkpoint 12/23 files have
+scientific/save-reopen receipts, not terminal success. Hidden watcher releases
+only those own leases after terminal completion. No preferred location or
+API reference changed. Read the newest report README before any action;
+never replay the old copy runner or the live metadata relink.
+
+
 2026-11-06 14:41 UTC checkpoint: raw 2024_1 still copying normally, 70.03%,
 23 standard project copies verified; no full SHA1, relink or source retirement.
 The expanded nine-basename search is complete over 9.91 million payload names:

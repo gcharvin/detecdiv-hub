@@ -1,0 +1,69 @@
+{
+  "controller_exit": 0,
+  "loop_completed": true,
+  "all_projects_verified": false,
+  "result_sha256": "bf0230b5523a20c9963e9e37bf59715944f4d6082e03b11685253d1bbe4aaf7a",
+  "verified_projects": [
+    {
+      "project_id": "f841b77c-6f0d-47f6-9cfb-af5ee058b8d7",
+      "name": "anof_210624_s148s_SCON",
+      "fovs": 28,
+      "rois": 333,
+      "mat_sha256_unchanged": "e139451ddfd03504f4916ed4b2e6b4df273c1e78e0a813d9bb0224f3253ca57d"
+    },
+    {
+      "project_id": "f004e8df-29f0-4303-85fe-9cf50e3d4dbc",
+      "name": "anof_22032024_DHY210_nts1ng",
+      "fovs": 20,
+      "rois": 4487,
+      "mat_sha256_unchanged": "c39389544c137c8a4f3f28a9235288f1c994652a5d3439be9db65aba8724d675"
+    },
+    {
+      "project_id": "9f6b8ef9-f078-4ff5-b91f-7b8a25000951",
+      "name": "anof_230124_dhyD_LOG24",
+      "fovs": 8,
+      "rois": 2878,
+      "mat_sha256_unchanged": "bc294b22f3cd09c8d3644137fcb653ebb7cfc8c4505812bd0bfbb1e961cabc9d"
+    },
+    {
+      "project_id": "e98ed5ba-a40d-4abc-a1c2-441c6587cf2e",
+      "name": "anof_230124_nh52",
+      "fovs": 14,
+      "rois": 5208,
+      "mat_sha256_unchanged": "8294e61e5fb674d9ab90ff56f528ae6948105d170460c7b43f7f197b9ab885a9"
+    },
+    {
+      "project_id": "2466af7d-d0b3-4ae3-8e8e-07a4ae9e7726",
+      "name": "anof_230724_HpaRDN_11429",
+      "fovs": 3,
+      "rois": 1451,
+      "mat_sha256_unchanged": "1a1f201ed1dff8418a88ecc4e3ed08d837ae247f95038379c19cf8f11e20420f"
+    }
+  ],
+  "verified_fovs": 73,
+  "verified_rois": 14357,
+  "raw_samples": 1026,
+  "exact_crop_fields": 73,
+  "failed_projects": [
+    {
+      "project_id": "902b3fa9-d703-49d4-92b7-bf5f75eac4ef",
+      "name": "anof_230124_RMng",
+      "success": false,
+      "error": "ROI image absent from verified source/copy manifest",
+      "completed_fovs_in_partial": 0,
+      "main_original_and_copy_hashes_unchanged": true,
+      "saved": false
+    },
+    {
+      "project_id": "aa251bae-eadf-4fc1-b79e-f0b9217bd124",
+      "name": "anof_250724_dbud4stest",
+      "success": false,
+      "error": "ROI results absent from verified source/copy manifest",
+      "completed_fovs_in_partial": 0,
+      "main_original_and_copy_hashes_unchanged": true,
+      "saved": false
+    }
+  ],
+  "scientific_saved": false,
+  "note": "Five successes are not replayed. Two zero-completed-FOV failures were diagnosed as source-manifest availability variants and now have a distinct bounded reader."
+}

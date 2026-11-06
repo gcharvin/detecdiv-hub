@@ -1,0 +1,142 @@
+{
+  "backup_gate_sha256": "f3de28a16ea12fa84a11204ae0e164fd10feb8fc3ced490cd362183d598ab00e",
+  "backup_gate_files": 23,
+  "all_source_copy_backup_hashes_match": true,
+  "fresh_original_inventories": 12,
+  "state": {
+    "phase": "relinking_unpublished_copies",
+    "source_deleted": false,
+    "catalog_changed": false,
+    "copies_may_have_been_relinked": true,
+    "heartbeat_at": "2026-11-06T20:55:49.826683+00:00",
+    "project": "anof_180624_newplate_4500",
+    "backups": 23,
+    "matlab_pid": 424241
+  },
+  "modified_files_checkpoint": [
+    {
+      "project_id": "864f762f-dd97-47d1-ba32-4783430fc1b9",
+      "relative_path": "anof_050624_YPDtitr_plate_3k/processor/combine_channels_1/combine_channels_1_processor.mat",
+      "before_sha256": "5f37c000c88cacd4d1d552dc9f2fbf5fb30f94a81c5d5c0b6b6ab21a018cdb74",
+      "after_sha256": "ad0d707212b7540f82908ed50fc6401c8fe2854fc7083aed5e9e90c98888023f",
+      "path_changes": 1,
+      "scientific_values_types_and_annotations_preserved": true,
+      "gpu_class_and_content_preserved": true,
+      "save_reopen_verified": true
+    },
+    {
+      "project_id": "e0d02751-28b3-4b3e-a74c-0dfd00b37803",
+      "relative_path": "anof_060224_cres_1002/processor/ComputeAllMetrics_1/ComputeAllMetrics_1_processor.mat",
+      "before_sha256": "2afe7c54ab9ff0da630c22e4a414315860cbb2895150b73affed3a4e34db2a36",
+      "after_sha256": "4e132ed8a5a2aa86fca12d76079da63caeaa799a466e589abcc301a163000112",
+      "path_changes": 1,
+      "scientific_values_types_and_annotations_preserved": true,
+      "gpu_class_and_content_preserved": true,
+      "save_reopen_verified": true
+    },
+    {
+      "project_id": "e0d02751-28b3-4b3e-a74c-0dfd00b37803",
+      "relative_path": "anof_060224_cres_1002/processor/ComputeRLS_2/ComputeRLS_2_processor.mat",
+      "before_sha256": "c610aec6c47f159c41e49473c043e0bb770e7dd297375556a6318a4446f7428a",
+      "after_sha256": "b8c83833680cd2ca27408d557c2aec935b643883627c8e7895147ee1b0a48a37",
+      "path_changes": 1,
+      "scientific_values_types_and_annotations_preserved": true,
+      "gpu_class_and_content_preserved": true,
+      "save_reopen_verified": true
+    },
+    {
+      "project_id": "bec9b2cf-656d-417a-b424-2d3e7cbf316c",
+      "relative_path": "anof_06032024_diplNTSNG_K3s/processor/ComputeAllMetrics_2/ComputeAllMetrics_2_processor.mat",
+      "before_sha256": "85700b26281b60b7025d97e8cb483bc1b507c06696690cd8309714b5bfb48edf",
+      "after_sha256": "aa0840549286c90e5243997bb654a11c6739386ac0e04a6730b4f06dc963f7da",
+      "path_changes": 1,
+      "scientific_values_types_and_annotations_preserved": true,
+      "gpu_class_and_content_preserved": true,
+      "save_reopen_verified": true
+    },
+    {
+      "project_id": "bec9b2cf-656d-417a-b424-2d3e7cbf316c",
+      "relative_path": "anof_06032024_diplNTSNG_K3s/processor/ComputeRLS_3/ComputeRLS_3_processor.mat",
+      "before_sha256": "786597d02ac373a5502addb7fea93208a4e000192ce4abea4e09bdd9b07da0a3",
+      "after_sha256": "eabc9a8db5eea2b7f1d1623101f0b1b7a59baf4abeef60b7885c08b555a1291e",
+      "path_changes": 1,
+      "scientific_values_types_and_annotations_preserved": true,
+      "gpu_class_and_content_preserved": true,
+      "save_reopen_verified": true
+    },
+    {
+      "project_id": "bec9b2cf-656d-417a-b424-2d3e7cbf316c",
+      "relative_path": "anof_06032024_diplNTSNG_K3s/processor/combine_channels_1/combine_channels_1_processor.mat",
+      "before_sha256": "12f7ba11cb05348facc8d497eec67e342f0aff0578f63e7961e9c0725dbbea5b",
+      "after_sha256": "5af44a98063144feaf483c06b13512989661886389d5eca9adb216032436b4bd",
+      "path_changes": 1,
+      "scientific_values_types_and_annotations_preserved": true,
+      "gpu_class_and_content_preserved": true,
+      "save_reopen_verified": true
+    },
+    {
+      "project_id": "e6f6b263-dae2-4670-ac85-280abc4f38a2",
+      "relative_path": "anof_070424_iRFPtest/processor/combine_channels_1/combine_channels_1_processor.mat",
+      "before_sha256": "80e84a787454db058d7f2944989593a51d29ab808d59ce0804aa9c89df3030b4",
+      "after_sha256": "8cc8b2fc7f7f2abb0dff5b6d406d6c008876ecfdc498e97b8091947085a72439",
+      "path_changes": 1,
+      "scientific_values_types_and_annotations_preserved": true,
+      "gpu_class_and_content_preserved": true,
+      "save_reopen_verified": true
+    },
+    {
+      "project_id": "e6f6b263-dae2-4670-ac85-280abc4f38a2",
+      "relative_path": "anof_070424_iRFPtest/processor/remove_channel_2/remove_channel_2_processor.mat",
+      "before_sha256": "c6c65f43ffd1e3d0e33c1d6cadf207cf0d8fcb4d86b2023cbcd3bdf0677b0e1a",
+      "after_sha256": "dd6da89e584e883801c921f3418aebdecff7701003416a24bbb2ba1e0d55edb3",
+      "path_changes": 1,
+      "scientific_values_types_and_annotations_preserved": true,
+      "gpu_class_and_content_preserved": true,
+      "save_reopen_verified": true
+    },
+    {
+      "project_id": "3dc52b35-7254-48e4-ab04-157dce732d6e",
+      "relative_path": "anof_100524_crelox_2full/processor/ComputeAllMetrics_2/ComputeAllMetrics_2_processor.mat",
+      "before_sha256": "14d22460d6286f69ea01b87670ebc5fa76c4187d3009060cbe466f4ddc38dc5a",
+      "after_sha256": "d50f54f603107875d84146d2e88bca571774529ce9e8ce10750f0627368f17ce",
+      "path_changes": 1,
+      "scientific_values_types_and_annotations_preserved": true,
+      "gpu_class_and_content_preserved": true,
+      "save_reopen_verified": true
+    },
+    {
+      "project_id": "3dc52b35-7254-48e4-ab04-157dce732d6e",
+      "relative_path": "anof_100524_crelox_2full/processor/ComputeRLS_3/ComputeRLS_3_processor.mat",
+      "before_sha256": "39d73baaa261b3c75a5d35b15b9a5768652a46782490064def3a1916adaf1b76",
+      "after_sha256": "f857a682785837884417fb6a411e6b25edaefa34b2f18e1267564975f40aba3d",
+      "path_changes": 1,
+      "scientific_values_types_and_annotations_preserved": true,
+      "gpu_class_and_content_preserved": true,
+      "save_reopen_verified": true
+    },
+    {
+      "project_id": "3dc52b35-7254-48e4-ab04-157dce732d6e",
+      "relative_path": "anof_100524_crelox_2full/processor/combine_channels_1/combine_channels_1_processor.mat",
+      "before_sha256": "91a7b8d979c39b44b1efb8231b21e6ad5e001f41ad3ba63d9504c9a309fffce6",
+      "after_sha256": "7c3f9fb92c1db3fcf2d5f477d5c60cee97c152cd3e33bba85c5291237c5f0522",
+      "path_changes": 1,
+      "scientific_values_types_and_annotations_preserved": true,
+      "gpu_class_and_content_preserved": true,
+      "save_reopen_verified": true
+    },
+    {
+      "project_id": "344c83c4-7786-4d43-a15a-3fb292990f09",
+      "relative_path": "anof_011024_x423x426_EB_x423noebonly.mat",
+      "before_sha256": "761f267e9346acc610a0c5db315ea921f94f83c397b4aa29769576b3b8f813a7",
+      "after_sha256": "bbe56e8f4f330beab5348bc616a9fb5eb464df37c44652c23a1c15c7ba444906",
+      "path_changes": 27744,
+      "scientific_values_types_and_annotations_preserved": true,
+      "gpu_class_and_content_preserved": true,
+      "save_reopen_verified": true
+    }
+  ],
+  "all_23_terminal_success": false,
+  "backup_bytes": 3715167522,
+  "source_deleted": false,
+  "preferred_locations_changed": false
+}

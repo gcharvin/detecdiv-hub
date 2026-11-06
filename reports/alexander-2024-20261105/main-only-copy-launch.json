@@ -1,0 +1,16 @@
+{
+  "launched": true,
+  "session": "alex2024-main-only-copy-20261106",
+  "work": "/home/charvin-admin/storage-transfers/alexander-2024-20261105/main-only-copy-20261106",
+  "runner_sha256": "552586aad32e90dbc8d4304db44033a7c2de7957d74f9b1316da31cb8afac287",
+  "admission": {
+    "checked_at": "2026-11-06T20:52:14.253635+00:00",
+    "affected_jobs": 0,
+    "affected_locks": 0,
+    "read_only": true
+  },
+  "available_file_only": true,
+  "missing_folder_not_invented": true,
+  "source_deleted": false,
+  "catalog_changed": false
+}

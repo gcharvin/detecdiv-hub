@@ -1,0 +1,19 @@
+{
+  "success": true,
+  "files": 1,
+  "bytes": 647439730,
+  "sha256": "c1a32a8cca1847fe72937423501a1ae8ddbb0c9d1b03460d33f081b5b6558898",
+  "target_owner": "maliavko",
+  "independent_inode": true,
+  "original_unchanged": true,
+  "associated_folder_absent_and_not_created": true,
+  "source_deleted": false,
+  "catalog_changed": false,
+  "project_id": "de636b9e-684a-4ab1-bb4a-0bc64d435020",
+  "name": "anof_290424_loxP15",
+  "stage": "/homes2/maliavko/DetecdivHub/projects/.incoming-anof_290424_loxP15-20261106",
+  "phase": "available_main_copied_missing_derived_folder_review_pending",
+  "complete_project_or_identity_gate_passed": false,
+  "result_sha256": "40d4604ccd41ce706bf2fb4398853173b6ffbc2b62566cccf04932e2d397fc57",
+  "controller_exit": 0
+}

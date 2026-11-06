@@ -1,0 +1,21 @@
+{
+  "launched": true,
+  "session": "alex2024-project-copies-continuation-20261106",
+  "work": "/home/charvin-admin/storage-transfers/alexander-2024-20261105/project-copies-continuation-20261106",
+  "projects": [
+    "movie_12224_w303MBsnabI_test",
+    "movie_250124_diploids",
+    "qp_22032024_DHY210_nts1ng"
+  ],
+  "runner_sha256": "56b466a7ab157de37464749c9973433fc12bd88628720bc612ddbcb6bd35da2c",
+  "admission": {
+    "checked_at": "2026-11-06T20:37:34.427148+00:00",
+    "affected_jobs": 0,
+    "affected_locks": 0,
+    "read_only": true
+  },
+  "old_28_verified_copies_not_replayed": true,
+  "missing_project29_stage_absent": true,
+  "source_deleted": false,
+  "catalog_changed": false
+}

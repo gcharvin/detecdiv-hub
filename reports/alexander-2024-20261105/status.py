@@ -28,6 +28,21 @@ summary={'copy_state':state,'controller_exit':tail('controller.exit'),'controlle
 summary['project_copy_state']=load('project-copies/state.json')
 summary['project_copy_exit']=tail('project-copies/controller.exit')
 summary['project_copy_log_tail']=tail('project-copies/controller.log')
+summary['project_copy_continuation_state']=load('project-copies-continuation-20261106/state.json')
+summary['project_copy_continuation_exit']=tail('project-copies-continuation-20261106/controller.exit')
+summary['project_copy_continuation_log_tail']=tail('project-copies-continuation-20261106/controller.log')
+combined=(summary['project_copy_state'] or {}).get('projects',[])+(summary['project_copy_continuation_state'] or {}).get('projects',[])
+assert len({p['project_id'] for p in combined})==len(combined),'Duplicate verified project identities need review'
+summary['combined_standard_project_copies_verified']=len(combined)
+summary['main_only_copy_result']=load('main-only-copy-20261106/result.json')
+summary['main_only_copy_exit']=tail('main-only-copy-20261106/controller.exit')
+summary['relink_batch1_state']=load('relink-batch1-20261106/state.json')
+summary['relink_batch1_exit']=tail('relink-batch1-20261106/controller.exit')
+summary['relink_batch1_progress']=load('relink-batch1-20261106/progress.json')
+summary['relink_batch1_visitor_progress']=load('relink-batch1-20261106/visitor-progress.json')
+summary['relink_batch1_modified_mat_receipts']=len(list((w/'relink-batch1-20261106').glob('modified-*.json')))
+summary['relink_batch1_log_tail']=tail('relink-batch1-20261106/controller.log',1200)
+summary['relink_batch1_matlab_log_tail']=tail('relink-batch1-20261106/matlab.log',1200)
 summary['supplemental_progress']=load('project-discovery-supplemental/project-discovery-progress.json')
 summary['supplemental_result']=load('project-discovery-supplemental/project-discovery-result.json')
 summary['supplemental_exit']=tail('project-discovery-supplemental/project-discovery.exit')
@@ -69,7 +84,9 @@ for name in ['persistent-path-audit-20261106-batch2','historical-reference-basel
              'persistent-path-audit-20261106-batch3','figure-path-audit-20261106-batch2',
              'exception-identity-20261106','gilles-roi-layout-20261106',
              'gilles-hdf5-identity-20261106','relink-value-types-20261106',
-             'exception-path-audit-20261106']:
+             'exception-path-audit-20261106','existing-layout-review-20261106',
+             'missing-project-directory-search-20261106','identity-audit-20261106-batch5',
+             'persistent-path-audit-20261106-batch4','availability-variants-identity-20261106']:
  item={'exit':tail(name+'/controller.exit'),'progress':load(name+'/progress.json'),'log_tail':tail(name+'/controller.log',1200)}
  result=load(name+'/result.json')
  if result:

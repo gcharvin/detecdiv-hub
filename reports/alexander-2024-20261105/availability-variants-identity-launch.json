@@ -1,0 +1,18 @@
+{
+  "launched": true,
+  "session": "alex2024-availability-variants-20261106",
+  "work": "/home/charvin-admin/storage-transfers/alexander-2024-20261105/availability-variants-identity-20261106",
+  "projects": [
+    "anof_230124_RMng",
+    "anof_250724_dbud4stest",
+    "movie_12224_w303MBsnabI_test",
+    "movie_250124_diploids",
+    "qp_22032024_DHY210_nts1ng",
+    "anof_290424_loxP15"
+  ],
+  "script_sha256": "9097856bd860e509c575444df40d86a818ad39b655776460b3046fcdda307cb1",
+  "read_only": true,
+  "scientific_saved": false,
+  "source_deleted": false,
+  "successful_prior_fovs_not_replayed": true
+}

@@ -1,0 +1,10 @@
+{
+  "launched": true,
+  "session": "alex2024-persistent-paths-batch4-20261106",
+  "work": "/home/charvin-admin/storage-transfers/alexander-2024-20261105/persistent-path-audit-20261106-batch4",
+  "projects": 5,
+  "script_sha256": "9368ceb1dfa95b76d26d429a7ef19006cfd0b426cd21915994a4b67711592b84",
+  "read_only": true,
+  "images_not_loaded_or_written": true,
+  "identity_receipt_sha256": "bf0230b5523a20c9963e9e37bf59715944f4d6082e03b11685253d1bbe4aaf7a"
+}

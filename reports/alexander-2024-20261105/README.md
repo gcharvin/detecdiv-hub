@@ -8,7 +8,185 @@ year/user, original project, NAS snapshot, backup policy, quota, default engine
 or SMB credentials may be changed. The completed 2023 migration is separate;
 never replay any of its one-shot scripts.
 
-## Latest follow-up — 2026-11-06, starting 14:32 UTC
+## Latest follow-up — 2026-11-06, starting 20:32 UTC
+
+**This checkpoint supersedes all earlier task states.** Raw 2024_1 is still
+copying normally: **4,409,354,641,147 bytes / 85.1586%** at 21:01 UTC, same
+runner/rsync. No terminal full raw SHA1 or source stability gate yet; 2024_2
+has not started. No preferred location/API reference changed and **zero 2024
+bytes retired from /data**. Source projects remain intact.
+
+### Original copy runner stopped safely; bounded recovery completed
+
+The first project-copy runner ended **exit 1 / failed_safe** at project 29,
+`anof_290424_loxP15`, before emitting any inventory row or creating a stage.
+Its MAT exists on Sauvegarde (647,439,730 bytes), but the same-name associated
+derived folder is absent at the expected native location. This was an incorrect
+standard-layout assumption, not a partially copied stage to overwrite. The
+original 28 receipts and state are preserved; never rerun that one-shot runner.
+The original failing folder contains only the empty source-before receipt,
+its request and the 129-byte assertion log. No original/source file was deleted.
+
+After fresh jobs/locks/indexing admission, the distinct controller
+**`project-copies-continuation-20261106/`** copied only projects 30–32:
+`movie_12224_w303MBsnabI_test`, `movie_250124_diploids`,
+`qp_22032024_DHY210_nts1ng`. It is now **finished, exit 0**, with complete owned
+native source/copy hashes and unchanged original inventories:
+**1,730 files / 22,194,114,680 bytes**. Receipts for those three are deliberately
+in the original `project-copies/<stem>/` folders; continuation state is separate.
+The original copy.lock was checked and held by the bounded continuation.
+See `copy-continuation-completion-verification.json`.
+Runner SHA256: `56b466a7ab157de37464749c9973433fc12bd88628720bc612ddbcb6bd35da2c`.
+
+There are now **31 complete standard copies**, plus the two prior special
+copies. `status.py` merges the verified counts without rewriting the original
+failed state. Do not interpret the old failed state as 28 missing copies, and
+do not add the same project twice to subsequent audits.
+
+### Missing-folder project preserved as the available MAT only
+
+A new readonly directory search finished with exit 0 in
+`missing-project-directory-search-20261106/`: only the matching **raw acquisition**
+directories occur in primary Alexander; no derived analysis folder was found
+in the stated primary/secondary payload roots. This is not an exhaustive
+snapshot/archive search and raw folders are not substitutes for derived ROIs.
+See `missing-project-directory-search-verification.json`.
+
+A separately admitted, explicitly main-only copy is **finished, exit 0** in
+`main-only-copy-20261106/`, stage
+`/homes2/maliavko/DetecdivHub/projects/.incoming-anof_290424_loxP15-20261106`.
+Only the available MAT was independently cloned, full source/target SHA256
+matched, original metadata/content unchanged, real NAS owner maliavko; no
+missing derived folder or sidecar was invented. Original MAT SHA256:
+`c1a32a8cca1847fe72937423501a1ae8ddbb0c9d1b03460d33f081b5b6558898`.
+See `main-only-copy-verification.json`. This is **not** a complete project-access
+or identity gate. All 34 candidate main files now have protected copies, but
+there is still a qualified main-only layout, not 34 fully validated projects.
+
+The readonly `existing-layout-review-20261106/` also finished, exit 0, all
+three MAT hashes unchanged, result SHA256
+`8d762c9622431f62d8155b2204ab40c37403c491baa4da453cb6f62ccedf67ee`:
+
+- `anof_230124_RMng`: 7 FOV / 3,122 ROI, no source-manifest image/results
+  sidecars and no embedded images.
+- `anof_250724_dbud4stest`: 32 FOV / 191 ROI, all 191 image MATs present,
+  only 33 result MATs, no embedded images. Preserve that exact existing subset.
+- `anof_290424_loxP15`: 30 FOV / 11,703 ROI, no associated folder currently
+  found and no embedded images. Do not call these images recovered or claim
+  they were never extracted merely because they are absent now.
+
+See `existing-layout-review-verification.json`. These are observed baseline
+limitations, not migration-created files to fabricate or scientific arrays
+to drop. Any final acceptance must explicitly preserve existing availability
+and raw access, reject new differences, and retain all original scientific
+metadata. Do not silently turn a strict old missing-sidecar assertion into a
+claim that every derived ROI is readable.
+
+### First actual metadata relink is RUNNING, never replay it
+
+All **23-file type-readiness** work is now finished, exit 0: exactly **4,258
+GPU arrays** gathered/fingerprinted, zero function handles and zero nonpublic
+persistent properties. No scientific file was saved by that audit. See
+`scientific-type-readiness-verification.json`, result SHA256
+`c521b807b7d8b3f3e8329ca4242eec1062e7f91a25e8439f8631f19399172229`.
+
+After fresh admission and own leases, a new write-bounded controller started:
+
+- Tmux **`alex2024-relink-batch1-20261106`**, private **`relink-batch1-20261106/`**.
+- Child batch **`bf1a270b-1e18-419a-b11b-b2241871f13b`**; holder
+  **`alexander-2024-unpublished-relink-batch1-20261106`**.
+- Twelve own leases expire **2026-11-07 02:47:12 UTC**. No affected job was
+  active and no other lease was acquired/released by this operation.
+- Controller SHA256 **`81a9ad2dd68dfeee0e01878f4bf8b7f1dc797ea1519a3fcc94424eaffcbf4f65`**;
+  MATLAB SHA256 **`0c744a3264431e6e195ba9da059efc0b9c750ecb28d9a525b2f7d35bb71daccd`**.
+- Only **23 metadata MATs in twelve unpublished standard project copies**,
+  exactly **636,618 planned path changes**. No image MAT/HDF5, original MAT,
+  publication, source deletion or catalog cutover permission exists.
+
+The controller has already revalidated all twelve complete native original
+inventories, and native source/copy/backup hash and real-owner checks passed
+for all 23 files. **3,715,167,522 bytes of backups** are retained under
+`/homes2/maliavko/DetecdivHub/.migration-backups/alexander-2024-20261105/relink-batch1-20261106`.
+At 21:01 UTC, **12/23 files** have per-file scientific/type/annotation and
+save/reopen receipts; this is **not** terminal success of all 23. The next
+large main includes GPU data. The scientific visitor now snapshots actual
+`gather` contents with GPU class/underlying type and excludes GPU from the
+simple-cell fast path, while leaving the saved GPU objects unchanged.
+MATLAB runs without selecting a GPU. Every expected path count, canonical
+non-path comparison, save/reopen and lease-deadline check precedes replacing
+a target. Partial results, temporary MATs and backups must survive any failure.
+See `relink-batch1-preparation-checkpoint.json`.
+
+**Inspect state.json, controller.exit/log, matlab.exit/log, progress.json,
+visitor-progress.json, result.json and modified-NN.json before any action.**
+Do not edit its pinned scripts/request, duplicate it, replay it on partially
+modified copies or infer success from one counter. Original copy hashes remain
+before-relink evidence: use after hashes in modified/result receipts for the
+changed copies. Copies stay incoming while MATs record future final container
+paths; translate final-container prefixes to incoming **in memory** for any
+prepublication inspection. Do not resave merely to inspect or try nonexistent
+final filesystem paths as though they were already published.
+
+A hidden local watcher is running (PID **95344 at launch**, identity verified;
+check identity again before any intervention), polls once per minute and
+releases **only these own leases** after a real terminal receipt. It finalizes
+only this child batch. Public launch receipt `relink-batch1-watcher-launch.json`;
+private admission/plan/status/log are `runtime/relink-batch1-*`, terminal public
+receipt `relink-batch1-lease-finalization.json`. Do not duplicate it. If it is
+not running, inspect real terminal status before manually finalizing only its
+holder/lease IDs. A failure with result.json absent can still have modified
+files: always count modified-NN.json, not just a final files_relinked=0 summary.
+On expiry/failure, preserve partials and design a bounded recovery; never
+change a running controller's deadline/request to skip its guard.
+
+After success, compare the saved GPU type/content descriptors with the
+original readiness evidence as a postflight corroboration, using after hashes
+and a new readonly request. Then raw full checksum, both actual final hosts,
+API continuity, fresh admission and publication/catalog gates are still
+required. No source copy may be removed because this child relink finished.
+
+### Other preparation finished or newly running
+
+Identity batch4 is **finished, exit 0, overall success false**: five projects
+fully pass (73 FOV / 14,357 ROI / 1,026 raw samples, all crops exact); RMng and
+anof_dbud4 fail at zero completed FOV because of the actual sidecar layouts
+above. See `identity-batch4-completion-verification.json`; do not replay its
+five successful projects or conflate loop exit 0 with all-project success.
+
+Persistent metadata batch3 is **finished, exit 0, zero unknown path**:
+25,963 MAT/JSON metadata files, eleven future MAT edits / 168,289 planned
+changes, across cres/cres_ARS1/X5152moth/cre16. This is separate from the
+23-file relink now running. See `persistent-batch3-completion-verification.json`.
+FIG/other sidecars and readiness of these future files still need review.
+
+New readonly tasks (do not duplicate):
+
+- **Identity batch5**, only original verified copies 24–28: tmux
+  `alex2024-identity-audit-batch5-20261106`, private `identity-audit-20261106-batch5/`.
+  Same per-project isolated reader SHA256
+  `e8612456dab6354be1158c86581fe64bdd1effee96964874b3366914939166d8`.
+- **Persistent metadata batch4**, five new successes from identity batch4 only:
+  tmux `alex2024-persistent-paths-batch4-20261106`, private
+  `persistent-path-audit-20261106-batch4/`, script SHA256
+  `9368ceb1dfa95b76d26d429a7ef19006cfd0b426cd21915994a4b67711592b84`.
+- **Availability-qualified identity** of six bounded variants (RMng, anof_dbud4,
+  three final normal copies and the main-only loxP15): tmux
+  `alex2024-availability-variants-20261106`, private
+  `availability-variants-identity-20261106/`, script SHA256
+  `9097856bd860e509c575444df40d86a818ad39b655776460b3046fcdda307cb1`.
+  It records exact source-manifest presence/absence for every ROI, preserves
+  image-only/partial-result/empty-placeholder states, reads raw samples and
+  compares actual available extracted crops. Missing derived files are not
+  called restored/readable. No successful prior FOV is replayed. Inspect each
+  result and exact baseline; loop success is not a waiver of further gates.
+
+Gilles HDF5 attributes/external references and typed run-snapshot path policy
+remain pending as described below. Existing original/legacy missing-main
+relevance review remains separate. Raw/source cleanup is still forbidden until
+all applicable year-specific gates are truly satisfied, using a new tested
+2024-only controller with native manifest/no-follow/per-file receipt checks.
+
+## Historical follow-up — 2026-11-06, starting 14:32 UTC
 
 **This checkpoint supersedes the earlier running states.** At 14:41 UTC,
 2024_1 is healthy in copy: **70.0278%**, same runner PID 187291 and rsync 188902.

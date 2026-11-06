@@ -1,0 +1,44 @@
+{
+  "success": true,
+  "read_only": true,
+  "results": [
+    {
+      "target": "primary",
+      "root": "/volume1/DATA/Alexander",
+      "candidates": [
+        {
+          "kind": "candidate",
+          "path": "/volume1/DATA/Alexander/data/2024_1/290424_loxP15"
+        },
+        {
+          "kind": "candidate",
+          "path": "/volume1/DATA/Alexander/data/2024_1/290424_loxP15/290424_loxP15_1"
+        },
+        {
+          "kind": "candidate",
+          "path": "/volume1/DATA/Alexander/data/2024_1/290424_loxP15/290424_loxP15_4"
+        }
+      ],
+      "summary": {
+        "kind": "complete",
+        "directories": 8046
+      },
+      "receipt_sha256": "41a877113e5224c16610227c3ece2b377f334f19e319890063426f9a0193a904"
+    },
+    {
+      "target": "secondary",
+      "root": "/volume1/Sauvegarde/Alexander",
+      "candidates": [],
+      "summary": {
+        "kind": "complete",
+        "directories": 4070
+      },
+      "receipt_sha256": "031675f7565f7164e8df8c98f1cd6e9d4d3ef05d4b5cb78a8b59184366206814"
+    }
+  ],
+  "note": "Names only, no resource identity inferred. Raw acquisition folders are not automatically the missing derived project folder. No snapshots, hidden directories or recycle traversal.",
+  "controller_exit": 0,
+  "result_sha256": "8b21cff8a1895d63017c54bd0d935fedccc85c7e3f76854bde2950086fd7b264",
+  "derived_project_folder_found": false,
+  "candidate_classification": "Only primary raw acquisition directories matched. No corresponding derived analysis folder found in the stated payload roots. Not an exhaustive backup/snapshot claim."
+}

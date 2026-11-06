@@ -1,0 +1,37 @@
+{
+  "controller_exit": 0,
+  "success": true,
+  "result_sha256": "8d762c9622431f62d8155b2204ab40c37403c491baa4da453cb6f62ccedf67ee",
+  "projects": [
+    {
+      "name": "anof_230124_RMng",
+      "main_hash_unchanged": "c7c07f18f5b5c9861cc30e398e6dee4cddb554169269b0b053d31883b3a339f3",
+      "fovs": 7,
+      "rois": 3122,
+      "embedded_images": 0,
+      "verified_images": 0,
+      "verified_results": 0
+    },
+    {
+      "name": "anof_250724_dbud4stest",
+      "main_hash_unchanged": "b42b3b085338b6bdc5b2ce14dae9c0c58439ff4acc8928f54804c4c74bd95cdb",
+      "fovs": 32,
+      "rois": 191,
+      "embedded_images": 0,
+      "verified_images": 191,
+      "verified_results": 33
+    },
+    {
+      "name": "anof_290424_loxP15",
+      "main_hash_unchanged": "c1a32a8cca1847fe72937423501a1ae8ddbb0c9d1b03460d33f081b5b6558898",
+      "fovs": 30,
+      "rois": 11703,
+      "embedded_images": 0,
+      "verified_images": 0,
+      "verified_results": 0
+    }
+  ],
+  "scientific_saved": false,
+  "source_deleted": false,
+  "note": "Counts reflect observed source/copy layout, not a claim that absent derived images have been recovered or were never extracted. Main29 source hash stayed unchanged; no original directory was created/deleted by this migration."
+}

@@ -1,0 +1,24 @@
+{
+  "launched": [
+    {
+      "session": "alex2024-existing-layout-review-20261106",
+      "work": "/home/charvin-admin/storage-transfers/alexander-2024-20261105/existing-layout-review-20261106",
+      "script_sha256": "a1133669215f497df6effdfbc77fde405cd5da83d3d0608c3a7dbff4a6fdf0ca",
+      "read_only": true
+    },
+    {
+      "session": "alex2024-missing-project-directory-search-20261106",
+      "work": "/home/charvin-admin/storage-transfers/alexander-2024-20261105/missing-project-directory-search-20261106",
+      "script_sha256": "f66f72d315c2a78a2e4703339480f17573eab44e6eb0f0f8de8fdfcd41e5aa38",
+      "read_only": true
+    }
+  ],
+  "project_names": [
+    "anof_230124_RMng",
+    "anof_250724_dbud4stest",
+    "anof_290424_loxP15"
+  ],
+  "missing_directory_original_main_sha256": "c1a32a8cca1847fe72937423501a1ae8ddbb0c9d1b03460d33f081b5b6558898",
+  "scientific_saved": false,
+  "source_deleted": false
+}
