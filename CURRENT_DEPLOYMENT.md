@@ -1,5 +1,20 @@
 # Current Deployment
 
+## ROI loading and Score compatibility release, 2026-11-06
+
+DetecDiv `140850e451d44ff2cd3243b27e08e9c30e036bd5` is pushed to GitHub and
+GitLab `unstable` and published as the default for future MATLAB jobs. Twenty
+MATLAB tests passed for the bounded HDF5 read retry, registered classifier
+plugin discovery, explicit all-zero intensity-frame notice and compatibility
+with older open Score editors. Protected release worktrees were verified at:
+
+- Linux: `/home/charvin-admin/repos/DetecDiv-jobs/releases/140850e451d44ff2cd3243b27e08e9c30e036bd5`
+- Windows: `C:\Users\Charvin-Admin\Documents\GitHub\DetecDiv-jobs\releases\140850e451d44ff2cd3243b27e08e9c30e036bd5`
+
+No worker restarted or shared source HEAD moved. Already submitted jobs,
+including Abhilasha's recovery below, retain their existing code pins. The
+preceding channel parsing fix is included in this release.
+
 ## Abhilasha Zarr channel names release, 2026-11-06
 
 **15:16 CET update, superseding the deferred-only instructions below:** Gilles
