@@ -1,0 +1,91 @@
+{
+  "checked_at": "2026-11-06T09:59:29.257558+00:00",
+  "controller_exit": 0,
+  "read_only": true,
+  "projects": [
+    {
+      "project_id": "344c83c4-7786-4d43-a15a-3fb292990f09",
+      "name": "anof_011024_x423x426_EB_x423noebonly",
+      "metadata_files_audited": 60,
+      "image_mat_files_excluded": 59,
+      "absolute_path_values": 27744,
+      "files_needing_rebase": 1,
+      "files_with_unresolved_paths": 0,
+      "other_files_needing_type_review": [
+        "anof_011024_x423x426_EB_x423noebonly/.DS_Store"
+      ],
+      "saved": false
+    },
+    {
+      "project_id": "19037bd1-e966-428f-96f8-2a7166c7bc9e",
+      "name": "anof_05012024_apx1s_dslog",
+      "metadata_files_audited": 4834,
+      "image_mat_files_excluded": 4831,
+      "absolute_path_values": 61152,
+      "files_needing_rebase": 1,
+      "files_with_unresolved_paths": 0,
+      "other_files_needing_type_review": [
+        "anof_05012024_apx1s_dslog/.DS_Store",
+        "anof_05012024_apx1s_dslog/divplot.fig",
+        "anof_05012024_apx1s_dslog/rlsplot.fig",
+        "anof_05012024_apx1s_dslog/rlsplot_select.fig",
+        "anof_05012024_apx1s_dslog/rlsplot_select.png"
+      ],
+      "saved": false
+    },
+    {
+      "project_id": "864f762f-dd97-47d1-ba32-4783430fc1b9",
+      "name": "anof_050624_YPDtitr_plate_3k",
+      "metadata_files_audited": 3958,
+      "image_mat_files_excluded": 3955,
+      "absolute_path_values": 44388,
+      "files_needing_rebase": 2,
+      "files_with_unresolved_paths": 0,
+      "other_files_needing_type_review": [
+        "anof_050624_YPDtitr_plate_3k/.DS_Store",
+        "anof_050624_YPDtitr_plate_3k/divplot_190624.fig",
+        "anof_050624_YPDtitr_plate_3k/divplot_first.fig",
+        "anof_050624_YPDtitr_plate_3k/rlsplot_190624.fig",
+        "anof_050624_YPDtitr_plate_3k/rlsplot_first.fig"
+      ],
+      "saved": false
+    }
+  ],
+  "metadata_files_audited": 8852,
+  "image_mat_files_excluded": 8845,
+  "receipt_sha256": "d464f8e99dbc24b2211f2ea218ac98031bd6ee20aaab5e7cca8fde3ee5628b03",
+  "files_needing_rebase": [
+    {
+      "project_id": "344c83c4-7786-4d43-a15a-3fb292990f09",
+      "relative_path": "anof_011024_x423x426_EB_x423noebonly.mat",
+      "sha256_unchanged": "761f267e9346acc610a0c5db315ea921f94f83c397b4aa29769576b3b8f813a7",
+      "recognized_rebase_values": 27744,
+      "unresolved_path_values": 0
+    },
+    {
+      "project_id": "19037bd1-e966-428f-96f8-2a7166c7bc9e",
+      "relative_path": "anof_05012024_apx1s_dslog.mat",
+      "sha256_unchanged": "5a4c6c125f4d02b69d9fdb557dce2350b24571ddd91c82e3944cbaf3e0a81cf0",
+      "recognized_rebase_values": 61152,
+      "unresolved_path_values": 0
+    },
+    {
+      "project_id": "864f762f-dd97-47d1-ba32-4783430fc1b9",
+      "relative_path": "anof_050624_YPDtitr_plate_3k.mat",
+      "sha256_unchanged": "de29f1be9bb8b0888aced7ba0fddcaa957de1f2fc283b00fc2ffb1cc8e4f2f40",
+      "recognized_rebase_values": 44387,
+      "unresolved_path_values": 0
+    },
+    {
+      "project_id": "864f762f-dd97-47d1-ba32-4783430fc1b9",
+      "relative_path": "anof_050624_YPDtitr_plate_3k/processor/combine_channels_1/combine_channels_1_processor.mat",
+      "sha256_unchanged": "5f37c000c88cacd4d1d552dc9f2fbf5fb30f94a81c5d5c0b6b6ab21a018cdb74",
+      "recognized_rebase_values": 1,
+      "unresolved_path_values": 0
+    }
+  ],
+  "total_expected_path_changes": 133284,
+  "project_paths_saved": false,
+  "scientific_save_reopen_gate_passed": false,
+  "note": "All metadata path values recognized. Figure sidecars are separately reviewed; no correction, publication or retirement is implied."
+}

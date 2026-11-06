@@ -1,0 +1,64 @@
+{
+  "read_only": true,
+  "roots": [
+    {
+      "root": "/mnt/detecdiv-secondary-sauvegarde/Alexander/data/nobackup",
+      "entries": 44,
+      "directory_names": [
+        "27022023_daughter_newdes_test2_1",
+        "27022023_daughter_newdes_test2_2",
+        "27062023_nts1ngs_by1to3_cp1to3_ap242ng",
+        "140423_nh_fob_sgf_bud",
+        "30.1.24_dfobs_zeisstest",
+        "dfobs16obs_140224",
+        "27022024_diploids",
+        "15042024_loxdsir2_b22",
+        "240424_dhtlox1tnl_wt_vs_X227_ns106",
+        "281024",
+        "111024_x43334c15moth",
+        "221024",
+        "241024",
+        "131124_nh_anik_tnik_rp15_2",
+        "211124_x44647rp15_dslog_mother",
+        ".DS_Store",
+        "131224_X5152moth",
+        "nobackup.txt",
+        "13032024_dipl_BFPtoCDI",
+        "05032024_diploids_K2s_test",
+        "04032024_diploids_Ktest",
+        "01032024_diploids",
+        "171224_KA++test",
+        "210125_Acps_X15763rep",
+        "300124_2plus_X530X45657",
+        "021023_fatchip_x1_ypdfvsa",
+        "260923_fatchip_fob1ah4s",
+        "04102023_fatdaughters",
+        "16102023_nh_fobs_ah4s",
+        "17102023_yam76s",
+        "090925_411SFFSLs_nf",
+        "120925_SFFSLs_nf",
+        "170925_BYtrisnew_nf",
+        "240925_2dleu_nf",
+        "031025_SF4d_nf",
+        "151025_pass_nf",
+        "211125_BYDHY_Fe005SC_nf",
+        "101225_BYDHY_fe005_nf",
+        "191225_BYDHY_mktfe005_nf",
+        "120325_rms",
+        "120225",
+        "020525_3119s",
+        "150126_BYDHY_A1H42d_nf",
+        "120226_BYDHY_DSLOG2d005_nf"
+      ]
+    },
+    {
+      "root": "/mnt/detecdiv-secondary-sauvegarde/Alexander/data/collab",
+      "entries": 2,
+      "directory_names": [
+        "250225_BL",
+        "240924_yKJ8s_tau"
+      ]
+    }
+  ],
+  "hits": []
+}

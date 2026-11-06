@@ -1,0 +1,117 @@
+{
+  "controller_exit": 0,
+  "loop_completed": true,
+  "all_projects_verified": false,
+  "result_sha256": "a78f2f75a3b59db332bea3a6347ad7cbb6c03e68a571629ba887b4b5f1d144ff",
+  "partial_sha256": "e4680584bee4f6d16f0f7d5c0614ab8687920c02eff9c88e6d5aeae43a72c175",
+  "successful_projects": [
+    {
+      "project_id": "e0d02751-28b3-4b3e-a74c-0dfd00b37803",
+      "name": "anof_060224_cres_1002",
+      "mat_sha256_unchanged": "b5e6b10ff379de214814284d13e32abae666b36bebd71d93f40e0680a08a7d82",
+      "fovs": 12,
+      "rois": 4821,
+      "existing_data_sidecars": 2800,
+      "all_roi_image_results_in_verified_manifest": true
+    },
+    {
+      "project_id": "bec9b2cf-656d-417a-b424-2d3e7cbf316c",
+      "name": "anof_06032024_diplNTSNG_K3s",
+      "mat_sha256_unchanged": "7a9cca43f7ca982e0a15ff41e764982e4042bf5c631d3de0d37d0aeb5d22aa75",
+      "fovs": 17,
+      "rois": 3339,
+      "existing_data_sidecars": 2868,
+      "all_roi_image_results_in_verified_manifest": true
+    },
+    {
+      "project_id": "e6f6b263-dae2-4670-ac85-280abc4f38a2",
+      "name": "anof_070424_iRFPtest",
+      "mat_sha256_unchanged": "a3b3ecffa46bb67804d9510d7bc4add42c6f27a59a03c0aab4004ca4cb9fd423",
+      "fovs": 5,
+      "rois": 1929,
+      "existing_data_sidecars": 0,
+      "all_roi_image_results_in_verified_manifest": true
+    },
+    {
+      "project_id": "3dc52b35-7254-48e4-ab04-157dce732d6e",
+      "name": "anof_100524_crelox_2full",
+      "mat_sha256_unchanged": "cb599ed713f757fe36bf8843c538bd006e66a117ab6d9c2cc501d21eb0a6f509",
+      "fovs": 16,
+      "rois": 6088,
+      "existing_data_sidecars": 6088,
+      "all_roi_image_results_in_verified_manifest": true
+    },
+    {
+      "project_id": "8d749d6e-c3f9-46aa-9eb1-5dc34af4bc55",
+      "name": "anof_120624_DR_YPDtitr_newplate_4k",
+      "mat_sha256_unchanged": "8c79a033fdd0cd14b3f4f559bfcc010f903bc8f5097b717458b58790173464c3",
+      "fovs": 9,
+      "rois": 3313,
+      "existing_data_sidecars": 0,
+      "all_roi_image_results_in_verified_manifest": true
+    },
+    {
+      "project_id": "53a6c0c1-f887-44da-ae8c-a0018e46064e",
+      "name": "anof_130224_dfob_rep_dslog_new",
+      "mat_sha256_unchanged": "58a970f52403c32506a6fd4cc72e53359c2ff112b73a8a63fe28319f14f71e20",
+      "fovs": 16,
+      "rois": 7562,
+      "existing_data_sidecars": 0,
+      "all_roi_image_results_in_verified_manifest": true
+    },
+    {
+      "project_id": "73504070-1ff4-4c0d-b630-d17829ccced6",
+      "name": "anof_140524_tdh3h4_dvsge",
+      "mat_sha256_unchanged": "34ae5b4d8121f616d50a2638bde9e4f699dde1e20d1bc75ff268cad8a2da51fd",
+      "fovs": 12,
+      "rois": 4512,
+      "existing_data_sidecars": 0,
+      "all_roi_image_results_in_verified_manifest": true
+    },
+    {
+      "project_id": "671be8d4-b028-46c0-8730-9fca5bee8888",
+      "name": "anof_151024_x225EB_x42x435x224_noEB",
+      "mat_sha256_unchanged": "c5090daa5fe867326186594c460b238f6052a679c4bb61892aa7267f011ae1be",
+      "fovs": 24,
+      "rois": 148,
+      "existing_data_sidecars": 0,
+      "all_roi_image_results_in_verified_manifest": true
+    },
+    {
+      "project_id": "99c114c7-bc50-46d9-a462-251f8aeca12f",
+      "name": "anof_180624_newplate_4500",
+      "mat_sha256_unchanged": "b48bc3dc4e1d4c1f44c42ed5f77715c4b87528d118f2169dae34eed1dc52ee80",
+      "fovs": 8,
+      "rois": 3290,
+      "existing_data_sidecars": 0,
+      "all_roi_image_results_in_verified_manifest": true
+    }
+  ],
+  "successful_fovs": 119,
+  "successful_rois": 35002,
+  "raw_pixel_samples": 1665,
+  "all_successful_fov_crops_exact": true,
+  "unresolved_projects": [
+    {
+      "project_id": "c48f9cff-6625-4dad-9597-a8796fe2824f",
+      "name": "anof_060224_cres_ARS1",
+      "success": false,
+      "error": "Raw size differs from saved srclist",
+      "completed_fovs_in_partial": 0,
+      "main_original_and_copy_hashes_unchanged": true,
+      "saved": false
+    },
+    {
+      "project_id": "4ada122e-a205-493f-9885-703e788589cc",
+      "name": "anof_061224_X5152moth",
+      "success": false,
+      "error": "Unreviewed ROI path prefix",
+      "completed_fovs_in_partial": 2,
+      "main_original_and_copy_hashes_unchanged": true,
+      "saved": false
+    }
+  ],
+  "saved": false,
+  "source_deleted": false,
+  "note": "Nine projects pass, two require bounded diagnosis. Exit 0 is loop completion, not acceptance of those failures. Do not replay successful projects or completed partial FOVs."
+}

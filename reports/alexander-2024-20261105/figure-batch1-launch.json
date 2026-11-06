@@ -1,0 +1,11 @@
+{
+  "launched": true,
+  "session": "alex2024-figure-paths-batch1-20261106",
+  "work": "/home/charvin-admin/storage-transfers/alexander-2024-20261105/figure-path-audit-20261106-batch1",
+  "projects": 3,
+  "script_sha256": "ebe00db747445c115fc63b0469e85faa8d2cfa48503c11a8d27f50812a2677a3",
+  "read_only": true,
+  "images_not_loaded_or_written": true,
+  "identity_receipt_sha256": "0b185958de375c30dab634a9981ea830362996f126cab5b935e5743901a5ad20",
+  "clarification": "The image-sidecar guard concerns ROI im_ files; FIG payloads, including any embedded CData, are loaded read-only."
+}

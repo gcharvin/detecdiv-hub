@@ -19,7 +19,7 @@
     "source_deleted": false,
     "catalog_changed": false,
     "runner_pid": 187291,
-    "heartbeat_at": "2026-11-06T02:42:02.471055+00:00",
+    "heartbeat_at": "2026-11-06T09:58:24.714167+00:00",
     "current_year": "2024_1",
     "inventory_progress": {
       "files": 716605,
@@ -51,8 +51,6 @@
   "project_discovery_log_tail": "33)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n",
   "sessions": [
     "alex2024-copy-20261105",
-    "alex2024-exception-copies-20261106",
-    "alex2024-identity-audit-batch1-20261106",
     "alex2024-project-copies-20261105"
   ],
   "project_copy_state": {
@@ -282,20 +280,170 @@
           "sha256": "58546943986c0cdd74b7e6fdaac4100235610ab7f3e8feb45bb4759b474e30cd"
         },
         "original_preserved": true
+      },
+      {
+        "project_id": "3dc52b35-7254-48e4-ab04-157dce732d6e",
+        "name": "anof_100524_crelox_2full",
+        "phase": "copy_verified_identity_relink_and_hosts_pending",
+        "source_mat": "/mnt/detecdiv-secondary-sauvegarde/Alexander/analysis/anof_100524_crelox_2full.mat",
+        "stage": "/homes2/maliavko/DetecdivHub/projects/.incoming-anof_100524_crelox_2full-20261105",
+        "files": 18270,
+        "bytes": 158089511707,
+        "source_inventory": {
+          "files": 18270,
+          "bytes": 158089511707,
+          "sha256": "004af59a18c51974b07f2ce5e1e088ea5d45774b557e34fc0cefa37f7a8a18ab"
+        },
+        "clone_receipt": {
+          "files": 18270,
+          "bytes": 158089511707,
+          "sha256": "06a9430a45f7aabaac7a512e3ed96ca103889905be0dbdc7781baace539ff5c2"
+        },
+        "verification_receipt": {
+          "files": 18270,
+          "bytes": 158089511707,
+          "sha256": "aee48dca5bdef78dac354e42500ffa89e12f806f3f47f0d3b161e265253200d9"
+        },
+        "original_preserved": true
+      },
+      {
+        "project_id": "8d749d6e-c3f9-46aa-9eb1-5dc34af4bc55",
+        "name": "anof_120624_DR_YPDtitr_newplate_4k",
+        "phase": "copy_verified_identity_relink_and_hosts_pending",
+        "source_mat": "/mnt/detecdiv-secondary-sauvegarde/Alexander/analysis/anof_120624_DR_YPDtitr_newplate_4k.mat",
+        "stage": "/homes2/maliavko/DetecdivHub/projects/.incoming-anof_120624_DR_YPDtitr_newplate_4k-20261105",
+        "files": 6630,
+        "bytes": 120791925585,
+        "source_inventory": {
+          "files": 6630,
+          "bytes": 120791925585,
+          "sha256": "05d5012a3ff56c123f4b7b1763dc58bc4e87e782c651ee569696431ed7f61ff0"
+        },
+        "clone_receipt": {
+          "files": 6630,
+          "bytes": 120791925585,
+          "sha256": "c82bfd4b54d02affe920dc3ecc665f3bcfac85dd23bff58f832b2e48f8ce8ee6"
+        },
+        "verification_receipt": {
+          "files": 6630,
+          "bytes": 120791925585,
+          "sha256": "fca595bf8070c3849b890b277c1a74a7250f70f2e41a8dcfc5dee784ffb195ec"
+        },
+        "original_preserved": true
+      },
+      {
+        "project_id": "53a6c0c1-f887-44da-ae8c-a0018e46064e",
+        "name": "anof_130224_dfob_rep_dslog_new",
+        "phase": "copy_verified_identity_relink_and_hosts_pending",
+        "source_mat": "/mnt/detecdiv-secondary-sauvegarde/Alexander/analysis/anof_130224_dfob_rep_dslog_new.mat",
+        "stage": "/homes2/maliavko/DetecdivHub/projects/.incoming-anof_130224_dfob_rep_dslog_new-20261105",
+        "files": 15137,
+        "bytes": 233365675484,
+        "source_inventory": {
+          "files": 15137,
+          "bytes": 233365675484,
+          "sha256": "dc4f4b2b80ed289a67ea4b0b5b2b43c0c4a825a1d1325db011fbaa6c81d52969"
+        },
+        "clone_receipt": {
+          "files": 15137,
+          "bytes": 233365675484,
+          "sha256": "93a9869fcb69acc78f273d55fe7f65745b550f42e244e665c6f11e7cfbd1f9bc"
+        },
+        "verification_receipt": {
+          "files": 15137,
+          "bytes": 233365675484,
+          "sha256": "d2b7d189f1a5075ecb2522473ebaab11c3c519d5d047c4adcfcf6b9c0dc5cfcf"
+        },
+        "original_preserved": true
+      },
+      {
+        "project_id": "73504070-1ff4-4c0d-b630-d17829ccced6",
+        "name": "anof_140524_tdh3h4_dvsge",
+        "phase": "copy_verified_identity_relink_and_hosts_pending",
+        "source_mat": "/mnt/detecdiv-secondary-sauvegarde/Alexander/analysis/anof_140524_tdh3h4_dvsge.mat",
+        "stage": "/homes2/maliavko/DetecdivHub/projects/.incoming-anof_140524_tdh3h4_dvsge-20261105",
+        "files": 9026,
+        "bytes": 144228893114,
+        "source_inventory": {
+          "files": 9026,
+          "bytes": 144228893114,
+          "sha256": "c7a26f0103d3a713678586bce97598f9fbee93abf9e9b09ab24cb57350b8e962"
+        },
+        "clone_receipt": {
+          "files": 9026,
+          "bytes": 144228893114,
+          "sha256": "e66e7da2d2eaf5ccb0026436419b527dc473f3fe2c6ad9784b483da1b406dd3a"
+        },
+        "verification_receipt": {
+          "files": 9026,
+          "bytes": 144228893114,
+          "sha256": "2babe28c63ad83412a367b89e87cd4e3069bbd53efcbb78b1f64eb7f37782c68"
+        },
+        "original_preserved": true
+      },
+      {
+        "project_id": "671be8d4-b028-46c0-8730-9fca5bee8888",
+        "name": "anof_151024_x225EB_x42x435x224_noEB",
+        "phase": "copy_verified_identity_relink_and_hosts_pending",
+        "source_mat": "/mnt/detecdiv-secondary-sauvegarde/Alexander/analysis/anof_151024_x225EB_x42x435x224_noEB.mat",
+        "stage": "/homes2/maliavko/DetecdivHub/projects/.incoming-anof_151024_x225EB_x42x435x224_noEB-20261105",
+        "files": 298,
+        "bytes": 89951081598,
+        "source_inventory": {
+          "files": 298,
+          "bytes": 89951081598,
+          "sha256": "7df25d63decdcabf4079950eaf9ec3bc4a0c986a328b03f21a1f74839a91580c"
+        },
+        "clone_receipt": {
+          "files": 298,
+          "bytes": 89951081598,
+          "sha256": "4d5a38fa829d755d92fe1ef6c351a5e9cfaedf6d4a58f25807a27b90f83631a8"
+        },
+        "verification_receipt": {
+          "files": 298,
+          "bytes": 89951081598,
+          "sha256": "2e4bb39d8e516e8f3c0ca02456fb7b84025b846d2a1c64e67ba8fddacb5f8341"
+        },
+        "original_preserved": true
+      },
+      {
+        "project_id": "99c114c7-bc50-46d9-a462-251f8aeca12f",
+        "name": "anof_180624_newplate_4500",
+        "phase": "copy_verified_identity_relink_and_hosts_pending",
+        "source_mat": "/mnt/detecdiv-secondary-sauvegarde/Alexander/analysis/anof_180624_newplate_4500.mat",
+        "stage": "/homes2/maliavko/DetecdivHub/projects/.incoming-anof_180624_newplate_4500-20261105",
+        "files": 6584,
+        "bytes": 125453717240,
+        "source_inventory": {
+          "files": 6584,
+          "bytes": 125453717240,
+          "sha256": "34c517eb9b6d6fead8343bfbc87682f45135521d2b00d34bbfd78906e39c957a"
+        },
+        "clone_receipt": {
+          "files": 6584,
+          "bytes": 125453717240,
+          "sha256": "03aefa00f0a90b96eeff13e80f27ea3d19b3d0fbea55108887bd184a90f1b4a6"
+        },
+        "verification_receipt": {
+          "files": 6584,
+          "bytes": 125453717240,
+          "sha256": "7ea1a85328acbec8c0d619cc365d506842a5b3512020e98aa219d08bd3d3f71b"
+        },
+        "original_preserved": true
       }
     ],
     "source_deleted": false,
     "project_paths_changed": false,
     "catalog_changed": false,
-    "heartbeat_at": "2026-11-06T02:42:05.427310+00:00",
+    "heartbeat_at": "2026-11-06T09:58:18.145454+00:00",
     "runner_pid": 241827,
-    "current_project": "anof_100524_crelox_2full",
-    "child_pid": 257378,
-    "expected_files": 18270,
-    "expected_bytes": 158089511707,
-    "placeholders": 18001,
-    "phase_files": 14095,
-    "phase_bytes": 119303634990
+    "current_project": "anof_210524_cre16",
+    "child_pid": 287605,
+    "expected_files": 33256,
+    "expected_bytes": 258852178667,
+    "placeholders": 33001,
+    "phase_files": 24971,
+    "phase_bytes": 194639844837
   },
   "project_copy_exit": "",
   "project_copy_log_tail": "",
@@ -370,7 +518,7 @@
   "legacy_retry2_exit": "0\n",
   "legacy_retry2_log_tail": "",
   "exception_copy_state": {
-    "phase": "hash_source_after",
+    "phase": "both_exception_copies_verified_remaining_gates_pending",
     "projects": [
       {
         "project_id": "eb49f629-6546-4fbe-bdb7-71884e7fa69f",
@@ -384,33 +532,238 @@
         "hashes_equal": true,
         "original_unchanged": true,
         "phase": "copy_verified_other_gates_pending"
+      },
+      {
+        "project_id": "ba44b140-ca07-4bdc-8e17-e41428dcdf51",
+        "name": "281124_Alex",
+        "catalog_owner": "gilles",
+        "stage": "/homes2/maliavko/DetecdivHub/projects/.incoming-281124_Alex-20261106",
+        "files": 104,
+        "bytes": 5293599315,
+        "source_inventory_sha256": "281e3d0aabb31238bf7df1d244245aa241a33f71df876f85248bbc707dca89f2",
+        "destination_receipt_sha256": "a00909092fd833a667800dbc37f0b5171fc8df6f8647f489bc2650bd6dd35b00",
+        "hashes_equal": true,
+        "original_unchanged": true,
+        "phase": "copy_verified_other_gates_pending"
       }
     ],
     "source_deleted": false,
     "catalog_changed": false,
     "paths_changed": false,
-    "heartbeat_at": "2026-11-06T02:42:12.430495+00:00",
+    "heartbeat_at": "2026-11-06T02:42:16.197303+00:00",
     "runner_pid": 261054,
     "current_project": "281124_Alex",
-    "child_pid": 262164
+    "child_pid": 262164,
+    "finished_at": "2026-11-06T02:42:16.197283+00:00"
   },
-  "exception_copy_exit": "",
+  "exception_copy_exit": "0\n",
   "exception_copy_log_tail": "",
   "identity_batch1_progress": {
-    "project": "anof_05012024_apx1s_dslog",
-    "project_index": 2,
+    "project": "anof_050624_YPDtitr_plate_3k",
+    "project_index": 3,
     "projects": 9,
-    "fov": 7,
-    "fovs": 16,
+    "fov": 10,
+    "fovs": 10,
     "saved": false
   },
-  "identity_batch1_exit": "",
-  "identity_batch1_log_tail": " inspect_verified_projects (line 24)]\b \n[\bWarning: Unable to load gpuArray data onto a GPU. Computations cannot be\nperformed on this limited gpuArray. Use GATHER to retrieve the contents.]\b \n[\b> In roi/load (line 270)\nIn inspect_verified_projects (line 24)]\b \n[\bWarning: Unable to load gpuArray data onto a GPU. Computations cannot be\nperformed on this limited gpuArray. Use GATHER to retrieve the contents.]\b \n[\b> In roi/load (line 270)\nIn inspect_verified_projects (line 24)]\b \n[\bWarning: Unable to load gpuArray data onto a GPU. Computations cannot be\nperformed on this limited gpuArray. Use GATHER to retrieve the contents.]\b \n[\b> In roi/load (line 228)\nIn inspect_verified_projects (line 24)]\b \n[\bWarning: Unable to load gpuArray data onto a GPU. Computations cannot be\nperformed on this limited gpuArray. Use GATHER to retrieve the contents.]\b \n[\b> In roi/load (line 228)\nIn inspect_verified_projects (line 24)]\b \n[\bWarning: Unable to load gpuArray data onto a GPU. Computations cannot be\nperformed on this limited gpuArray. Use GATHER to retrieve the contents.]\b \n[\b> In roi/load (line 270)\nIn inspect_verified_projects (line 24)]\b \n[\bWarning: Unable to load gpuArray data onto a GPU. Computations cannot be\nperformed on this limited gpuArray. Use GATHER to retrieve the contents.]\b \n[\b> In roi/load (line 270)\nIn inspect_verified_projects (line 24)]\b \n[\bWarning: Unable to load gpuArray data onto a GPU. Computations cannot be\nperformed on this limited gpuArray. Use GATHER to retrieve the contents.]\b \n[\b> In roi/load (line 228)\nIn inspect_verified_projects (line 24)]\b \n[\bWarning: Unable to load gpuArray data onto a GPU. Computations cannot be\nperformed on this limited gpuArray. Use GATHER to retrieve the contents.]\b \n[\b> In roi/load (line 228)\nIn inspect_verified_projects (line 24)]\b \n[\bWarning: Unable to load gpuArray data onto a GPU. Computations cannot be\nperformed on this limited gpuArray. Use GATHER to retrieve the contents.]\b \n[\b> In roi/load (line 270)\nIn inspect_verified_projects (line 24)]\b \n[\bWarning: Unable to load gpuArray data onto a GPU. Computations cannot be\nperformed on this limited gpuArray. Use GATHER to retrieve the contents.]\b \n[\b> In roi/load (line 270)\nIn inspect_verified_projects (line 24)]\b \n[\bWarning: Unable to load gpuArray data onto a GPU. Computations cannot be\nperformed on this limited gpuArray. Use GATHER to retrieve the contents.]\b \n[\b> In roi/load (line 228)\nIn inspect_verified_projects (line 24)]\b \n[\bWarning: Unable to load gpuArray data onto a GPU. Computations cannot be\nperformed on this limited gpuArray. Use GATHER to retrieve the contents.]\b \n[\b> In roi/load (line 228)\nIn inspect_verified_projects (line 24)]\b \n[\bWarning: Unable to load gpuArray data onto a GPU. Computations cannot be\nperformed on this limited gpuArray. Use GATHER to retrieve the contents.]\b \n[\b> In roi/load (line 270)\nIn inspect_verified_projects (line 24)]\b \n[\bWarning: Unable to load gpuArray data onto a GPU. Computations cannot be\nperformed on this limited gpuArray. Use GATHER to retrieve the contents.]\b \n[\b> In roi/load (line 270)\nIn inspect_verified_projects (line 24)]\b \n[\bWarning: Unable to load gpuArray data onto a GPU. Computations cannot be\nperformed on this limited gpuArray. Use GATHER to retrieve the contents.]\b \n[\b> In roi/load (line 228)\nIn inspect_verified_projects (line 24)]\b \n[\bWarning: Unable to load gpuArray data onto a GPU. Computations cannot be\nperformed on this limited gpuArray. Use GATHER to retrieve the contents.]\b \n[\b> In roi/load (line 228)\nIn inspect_verified_projects (line 24)]\b \n[\bWarning: Unable to load gpuArray data onto a GPU. Computations cannot be\nperformed on this limited gpuArray. Use GATHER to retrieve the contents.]\b \n[\b> In roi/load (line 270)\nIn inspect_verified_projects (line 24)]\b \n[\bWarning: Unable to load gpuArray data onto a GPU. Computations cannot be\nperformed on this limited gpuArray. Use GATHER to retrieve the contents.]\b \n[\b> In roi/load (line 270)\nIn inspect_verified_projects (line 24)]\b \n",
+  "identity_batch1_exit": "1\n",
+  "identity_batch1_log_tail": "this limited gpuArray. Use GATHER to retrieve the contents.]\b \n[\b> In roi/load (line 270)\nIn inspect_verified_projects (line 24)]\b \n[\bWarning: Unable to load gpuArray data onto a GPU. Computations cannot be\nperformed on this limited gpuArray. Use GATHER to retrieve the contents.]\b \n[\b> In roi/load (line 228)\nIn inspect_verified_projects (line 24)]\b \n[\bWarning: Unable to load gpuArray data onto a GPU. Computations cannot be\nperformed on this limited gpuArray. Use GATHER to retrieve the contents.]\b \n[\b> In roi/load (line 228)\nIn inspect_verified_projects (line 24)]\b \n[\bWarning: Unable to load gpuArray data onto a GPU. Computations cannot be\nperformed on this limited gpuArray. Use GATHER to retrieve the contents.]\b \n[\b> In roi/load (line 270)\nIn inspect_verified_projects (line 24)]\b \n[\bWarning: Unable to load gpuArray data onto a GPU. Computations cannot be\nperformed on this limited gpuArray. Use GATHER to retrieve the contents.]\b \n[\b> In roi/load (line 270)\nIn inspect_verified_projects (line 24)]\b \n[\bWarning: Unable to load gpuArray data onto a GPU. Computations cannot be\nperformed on this limited gpuArray. Use GATHER to retrieve the contents.]\b \n[\b> In roi/load (line 228)\nIn inspect_verified_projects (line 24)]\b \n[\bWarning: Unable to load gpuArray data onto a GPU. Computations cannot be\nperformed on this limited gpuArray. Use GATHER to retrieve the contents.]\b \n[\b> In roi/load (line 228)\nIn inspect_verified_projects (line 24)]\b \n[\bWarning: Unable to load gpuArray data onto a GPU. Computations cannot be\nperformed on this limited gpuArray. Use GATHER to retrieve the contents.]\b \n[\b> In roi/load (line 270)\nIn inspect_verified_projects (line 24)]\b \n[\bWarning: Unable to load gpuArray data onto a GPU. Computations cannot be\nperformed on this limited gpuArray. Use GATHER to retrieve the contents.]\b \n[\b> In roi/load (line 270)\nIn inspect_verified_projects (line 24)]\b \n[\bWarning: Unable to load gpuArray data onto a GPU. Computations cannot be\nperformed on this limited gpuArray. Use GATHER to retrieve the contents.]\b \n[\b> In roi/load (line 228)\nIn inspect_verified_projects (line 24)]\b \n[\bWarning: Unable to load gpuArray data onto a GPU. Computations cannot be\nperformed on this limited gpuArray. Use GATHER to retrieve the contents.]\b \n[\b> In roi/load (line 228)\nIn inspect_verified_projects (line 24)]\b \n[\bWarning: Unable to load gpuArray data onto a GPU. Computations cannot be\nperformed on this limited gpuArray. Use GATHER to retrieve the contents.]\b \n[\b> In roi/load (line 270)\nIn inspect_verified_projects (line 24)]\b \n[\bWarning: Unable to load gpuArray data onto a GPU. Computations cannot be\nperformed on this limited gpuArray. Use GATHER to retrieve the contents.]\b \n[\b> In roi/load (line 270)\nIn inspect_verified_projects (line 24)]\b \n[\bWarning: Unable to load gpuArray data onto a GPU. Computations cannot be\nperformed on this limited gpuArray. Use GATHER to retrieve the contents.]\b \n[\b> In roi/load (line 228)\nIn inspect_verified_projects (line 24)]\b \n[\bWarning: Unable to load gpuArray data onto a GPU. Computations cannot be\nperformed on this limited gpuArray. Use GATHER to retrieve the contents.]\b \n[\b> In roi/load (line 228)\nIn inspect_verified_projects (line 24)]\b \n[\bWarning: Unable to load gpuArray data onto a GPU. Computations cannot be\nperformed on this limited gpuArray. Use GATHER to retrieve the contents.]\b \n[\b> In roi/load (line 270)\nIn inspect_verified_projects (line 24)]\b \n[\bWarning: Unable to load gpuArray data onto a GPU. Computations cannot be\nperformed on this limited gpuArray. Use GATHER to retrieve the contents.]\b \n[\b> In roi/load (line 270)\nIn inspect_verified_projects (line 24)]\b \n{\bError using assert\nRaw size differs from saved srclist\n\nError in inspect_verified_projects (line 38)\n                actual=native(names(name));assert(actual.bytes==listing(t).bytes,'Raw size differs from saved srclist');\n                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n}\b \n",
   "identity_batch1_result_exists": false,
-  "copy_progress_tail": "09, ir-chk=5089/268318)\r1.986.451.031.986  97%   27,31MB/s    0:25:33  \r1.986.459.312.686  97%   43,00MB/s   12:14:14 (xfr#262510, ir-chk=5088/268318)\r1.986.467.724.460  97%   43,00MB/s   12:14:14 (xfr#262511, ir-chk=5087/268318)\r1.986.476.136.234  97%   43,00MB/s   12:14:14 (xfr#262512, ir-chk=5086/268318)\r1.986.484.548.008  97%   43,00MB/s   12:14:14 (xfr#262513, ir-chk=5085/268318)\r1.986.492.959.780  97%   43,00MB/s   12:14:15 (xfr#262514, ir-chk=5084/268318)\r1.986.492.992.548  97%   30,52MB/s    0:22:50  \r1.986.501.371.552  97%   43,00MB/s   12:14:15 (xfr#262515, ir-chk=5083/268318)\r1.986.509.783.328  97%   43,00MB/s   12:14:15 (xfr#262516, ir-chk=5082/268318)\r1.986.518.195.104  97%   43,00MB/s   12:14:16 (xfr#262517, ir-chk=5081/268318)\r1.986.526.606.878  97%   43,00MB/s   12:14:16 (xfr#262518, ir-chk=5080/268318)\r1.986.527.688.222  97%   32,04MB/s    0:21:44  \r1.986.535.018.654  97%   43,00MB/s   12:14:16 (xfr#262519, ir-chk=5079/268318)\r1.986.543.430.430  97%   43,00MB/s   12:14:16 (xfr#262520, ir-chk=5078/268318)\r1.986.551.842.204  97%   43,00MB/s   12:14:16 (xfr#262521, ir-chk=5077/268318)\r1.986.560.253.978  97%   43,00MB/s   12:14:17 (xfr#262522, ir-chk=5076/268318)\r1.986.563.432.474  97%   33,37MB/s    0:20:51  \r1.986.568.665.754  97%   43,00MB/s   12:14:17 (xfr#262523, ir-chk=5075/268318)\r1.986.577.077.530  97%   43,00MB/s   12:14:17 (xfr#262524, ir-chk=5074/268318)",
+  "identity_batch2_progress": {
+    "project": "anof_180624_newplate_4500",
+    "project_index": 11,
+    "projects": 11,
+    "fov": 8,
+    "fovs": 8,
+    "saved": false
+  },
+  "identity_batch2_result_exists": true,
+  "identity_batch2_exit": "0\n",
+  "identity_batch2_log_tail": "",
+  "persistent_batch1_progress": {
+    "project": "anof_050624_YPDtitr_plate_3k",
+    "project_index": 3,
+    "files_audited": 3900,
+    "current_relative_path": "anof_050624_YPDtitr_plate_3k/050624_YPDtitr_plate_3k_4_Pos9_5/results_050624_YPDtitr_plate_3k_4_Pos9_5_47.mat",
+    "files_needing_rebase": 1,
+    "files_with_unresolved_paths": 0,
+    "saved": false
+  },
+  "persistent_batch1_result": {
+    "success": true,
+    "projects": [
+      {
+        "project_id": "344c83c4-7786-4d43-a15a-3fb292990f09",
+        "name": "anof_011024_x423x426_EB_x423noebonly",
+        "metadata_files_audited": 60,
+        "image_mat_files_excluded": 59,
+        "absolute_path_values": 27744,
+        "files_needing_rebase": 1,
+        "files_with_unresolved_paths": 0,
+        "other_files_needing_type_review": [
+          "anof_011024_x423x426_EB_x423noebonly/.DS_Store"
+        ],
+        "saved": false
+      },
+      {
+        "project_id": "19037bd1-e966-428f-96f8-2a7166c7bc9e",
+        "name": "anof_05012024_apx1s_dslog",
+        "metadata_files_audited": 4834,
+        "image_mat_files_excluded": 4831,
+        "absolute_path_values": 61152,
+        "files_needing_rebase": 1,
+        "files_with_unresolved_paths": 0,
+        "other_files_needing_type_review": [
+          "anof_05012024_apx1s_dslog/.DS_Store",
+          "anof_05012024_apx1s_dslog/divplot.fig",
+          "anof_05012024_apx1s_dslog/rlsplot.fig",
+          "anof_05012024_apx1s_dslog/rlsplot_select.fig",
+          "anof_05012024_apx1s_dslog/rlsplot_select.png"
+        ],
+        "saved": false
+      },
+      {
+        "project_id": "864f762f-dd97-47d1-ba32-4783430fc1b9",
+        "name": "anof_050624_YPDtitr_plate_3k",
+        "metadata_files_audited": 3958,
+        "image_mat_files_excluded": 3955,
+        "absolute_path_values": 44388,
+        "files_needing_rebase": 2,
+        "files_with_unresolved_paths": 0,
+        "other_files_needing_type_review": [
+          "anof_050624_YPDtitr_plate_3k/.DS_Store",
+          "anof_050624_YPDtitr_plate_3k/divplot_190624.fig",
+          "anof_050624_YPDtitr_plate_3k/divplot_first.fig",
+          "anof_050624_YPDtitr_plate_3k/rlsplot_190624.fig",
+          "anof_050624_YPDtitr_plate_3k/rlsplot_first.fig"
+        ],
+        "saved": false
+      }
+    ],
+    "saved": false,
+    "source_deleted": false,
+    "catalog_changed": false,
+    "note": "Read-only candidate mapping plan, not approval to rebase unresolved paths or a scientific save/reopen receipt."
+  },
+  "persistent_batch1_exit": "0\n",
+  "persistent_batch1_log_tail": "\nperformed on this limited gpuArray. Use GATHER to retrieve the contents.]\b \n[\b> In audit_persistent_paths (line 19)]\b \n[\bWarning: Unable to load gpuArray data onto a GPU. Computations cannot be\nperformed on this limited gpuArray. Use GATHER to retrieve the contents.]\b \n[\b> In audit_persistent_paths (line 19)]\b \n[\bWarning: Unable to load gpuArray data onto a GPU. Computations cannot be\nperformed on this limited gpuArray. Use GATHER to retrieve the contents.]\b \n[\b> In audit_persistent_paths (line 19)]\b \n[\bWarning: Unable to load gpuArray data onto a GPU. Computations cannot be\nperformed on this limited gpuArray. Use GATHER to retrieve the contents.]\b \n[\b> In audit_persistent_paths (line 19)]\b \n[\bWarning: Unable to load gpuArray data onto a GPU. Computations cannot be\nperformed on this limited gpuArray. Use GATHER to retrieve the contents.]\b \n[\b> In audit_persistent_paths (line 19)]\b \n[\bWarning: Unable to load gpuArray data onto a GPU. Computations cannot be\nperformed on this limited gpuArray. Use GATHER to retrieve the contents.]\b \n[\b> In audit_persistent_paths (line 19)]\b \n[\bWarning: Unable to load gpuArray data onto a GPU. Computations cannot be\nperformed on this limited gpuArray. Use GATHER to retrieve the contents.]\b \n[\b> In audit_persistent_paths (line 19)]\b \n[\bWarning: Unable to load gpuArray data onto a GPU. Computations cannot be\nperformed on this limited gpuArray. Use GATHER to retrieve the contents.]\b \n[\b> In audit_persistent_paths (line 19)]\b \n[\bWarning: Unable to load gpuArray data onto a GPU. Computations cannot be\nperformed on this limited gpuArray. Use GATHER to retrieve the contents.]\b \n[\b> In audit_persistent_paths (line 19)]\b \n[\bWarning: Unable to load gpuArray data onto a GPU. Computations cannot be\nperformed on this limited gpuArray. Use GATHER to retrieve the contents.]\b \n[\b> In audit_persistent_paths (line 19)]\b \n[\bWarning: Unable to load gpuArray data onto a GPU. Computations cannot be\nperformed on this limited gpuArray. Use GATHER to retrieve the contents.]\b \n[\b> In audit_persistent_paths (line 19)]\b \n[\bWarning: Unable to load gpuArray data onto a GPU. Computations cannot be\nperformed on this limited gpuArray. Use GATHER to retrieve the contents.]\b \n[\b> In audit_persistent_paths (line 19)]\b \n[\bWarning: Unable to load gpuArray data onto a GPU. Computations cannot be\nperformed on this limited gpuArray. Use GATHER to retrieve the contents.]\b \n[\b> In audit_persistent_paths (line 19)]\b \n[\bWarning: Unable to load gpuArray data onto a GPU. Computations cannot be\nperformed on this limited gpuArray. Use GATHER to retrieve the contents.]\b \n[\b> In audit_persistent_paths (line 19)]\b \n[\bWarning: Unable to load gpuArray data onto a GPU. Computations cannot be\nperformed on this limited gpuArray. Use GATHER to retrieve the contents.]\b \n[\b> In audit_persistent_paths (line 19)]\b \n[\bWarning: Unable to load gpuArray data onto a GPU. Computations cannot be\nperformed on this limited gpuArray. Use GATHER to retrieve the contents.]\b \n[\b> In audit_persistent_paths (line 19)]\b \n[\bWarning: Unable to load gpuArray data onto a GPU. Computations cannot be\nperformed on this limited gpuArray. Use GATHER to retrieve the contents.]\b \n[\b> In audit_persistent_paths (line 19)]\b \n[\bWarning: Unable to load gpuArray data onto a GPU. Computations cannot be\nperformed on this limited gpuArray. Use GATHER to retrieve the contents.]\b \n[\b> In audit_persistent_paths (line 19)]\b \n[\bWarning: Unable to load gpuArray data onto a GPU. Computations cannot be\nperformed on this limited gpuArray. Use GATHER to retrieve the contents.]\b \n[\b> In audit_persistent_paths (line 19)]\b \n[\bWarning: Unable to load gpuArray data onto a GPU. Computations cannot be\nperformed on this limited gpuArray. Use GATHER to retrieve the contents.]\b \n[\b> In audit_persistent_paths (line 19)]\b \n[\bWarning: Unable to load gpuArray data onto a GPU. Computations cannot be\nperformed on this limited gpuArray. Use GATHER to retrieve the contents.]\b \n[\b> In audit_persistent_paths (line 19)]\b \n",
+  "size_diagnosis_v2_exit": "0\n",
+  "copy_progress_tail": "36.613.339  98%   48,38MB/s    0:15:35  \r3.024.644.894.063  98%   41,07MB/s   19:30:30 (xfr#458390, ir-chk=5503/465105)\r3.024.653.305.861  98%   41,07MB/s   19:30:30 (xfr#458391, ir-chk=5502/465105)\r3.024.661.717.659  98%   41,07MB/s   19:30:30 (xfr#458392, ir-chk=5501/465105)\r3.024.670.129.455  98%   41,07MB/s   19:30:30 (xfr#458393, ir-chk=5500/465105)\r3.024.678.541.251  98%   41,07MB/s   19:30:30 (xfr#458394, ir-chk=5499/465105)\r3.024.686.953.045  98%   41,07MB/s   19:30:31 (xfr#458395, ir-chk=5498/465105)\r3.024.687.084.117  98%   47,38MB/s    0:15:54  \r3.024.695.364.841  98%   41,07MB/s   19:30:31 (xfr#458396, ir-chk=5497/465105)\r3.024.703.776.637  98%   41,07MB/s   19:30:31 (xfr#458397, ir-chk=5496/465105)\r3.024.712.188.433  98%   41,07MB/s   19:30:31 (xfr#458398, ir-chk=5495/465105)\r3.024.720.600.227  98%   41,07MB/s   19:30:31 (xfr#458399, ir-chk=5494/465105)\r3.024.729.012.025  98%   41,07MB/s   19:30:31 (xfr#458400, ir-chk=5493/465105)\r3.024.737.423.823  98%   41,07MB/s   19:30:32 (xfr#458401, ir-chk=5492/465105)\r3.024.737.554.895  98%   47,60MB/s    0:15:48  \r3.024.745.835.619  98%   41,07MB/s   19:30:32 (xfr#458402, ir-chk=5491/465105)\r3.024.754.247.415  98%   41,07MB/s   19:30:32 (xfr#458403, ir-chk=5490/465105)\r3.024.762.659.213  98%   41,07MB/s   19:30:32 (xfr#458404, ir-chk=5489/465105)\r3.024.771.071.009  98%   41,07MB/s   19:30:32 (xfr#458405, ir-chk=5488/465105)",
   "verification_log_bytes": null,
-  "copy_processes": "187291 python            44294\n 188902 rsync             44059",
+  "copy_processes": "187291 python            70469\n 188902 rsync             70234",
   "project_receipts": 3326,
+  "identity_batch2_projects": [
+    {
+      "project_id": "e0d02751-28b3-4b3e-a74c-0dfd00b37803",
+      "name": "anof_060224_cres_1002",
+      "success": true,
+      "fovs": 12,
+      "rois": 4821,
+      "error": null,
+      "completed_fovs_in_partial": null,
+      "main_original_and_copy_hashes_unchanged": null
+    },
+    {
+      "project_id": "c48f9cff-6625-4dad-9597-a8796fe2824f",
+      "name": "anof_060224_cres_ARS1",
+      "success": false,
+      "fovs": null,
+      "rois": null,
+      "error": "Raw size differs from saved srclist",
+      "completed_fovs_in_partial": 0,
+      "main_original_and_copy_hashes_unchanged": true
+    },
+    {
+      "project_id": "bec9b2cf-656d-417a-b424-2d3e7cbf316c",
+      "name": "anof_06032024_diplNTSNG_K3s",
+      "success": true,
+      "fovs": 17,
+      "rois": 3339,
+      "error": null,
+      "completed_fovs_in_partial": null,
+      "main_original_and_copy_hashes_unchanged": null
+    },
+    {
+      "project_id": "4ada122e-a205-493f-9885-703e788589cc",
+      "name": "anof_061224_X5152moth",
+      "success": false,
+      "fovs": null,
+      "rois": null,
+      "error": "Unreviewed ROI path prefix",
+      "completed_fovs_in_partial": 2,
+      "main_original_and_copy_hashes_unchanged": true
+    },
+    {
+      "project_id": "e6f6b263-dae2-4670-ac85-280abc4f38a2",
+      "name": "anof_070424_iRFPtest",
+      "success": true,
+      "fovs": 5,
+      "rois": 1929,
+      "error": null,
+      "completed_fovs_in_partial": null,
+      "main_original_and_copy_hashes_unchanged": null
+    },
+    {
+      "project_id": "3dc52b35-7254-48e4-ab04-157dce732d6e",
+      "name": "anof_100524_crelox_2full",
+      "success": true,
+      "fovs": 16,
+      "rois": 6088,
+      "error": null,
+      "completed_fovs_in_partial": null,
+      "main_original_and_copy_hashes_unchanged": null
+    },
+    {
+      "project_id": "8d749d6e-c3f9-46aa-9eb1-5dc34af4bc55",
+      "name": "anof_120624_DR_YPDtitr_newplate_4k",
+      "success": true,
+      "fovs": 9,
+      "rois": 3313,
+      "error": null,
+      "completed_fovs_in_partial": null,
+      "main_original_and_copy_hashes_unchanged": null
+    },
+    {
+      "project_id": "53a6c0c1-f887-44da-ae8c-a0018e46064e",
+      "name": "anof_130224_dfob_rep_dslog_new",
+      "success": true,
+      "fovs": 16,
+      "rois": 7562,
+      "error": null,
+      "completed_fovs_in_partial": null,
+      "main_original_and_copy_hashes_unchanged": null
+    },
+    {
+      "project_id": "73504070-1ff4-4c0d-b630-d17829ccced6",
+      "name": "anof_140524_tdh3h4_dvsge",
+      "success": true,
+      "fovs": 12,
+      "rois": 4512,
+      "error": null,
+      "completed_fovs_in_partial": null,
+      "main_original_and_copy_hashes_unchanged": null
+    },
+    {
+      "project_id": "671be8d4-b028-46c0-8730-9fca5bee8888",
+      "name": "anof_151024_x225EB_x42x435x224_noEB",
+      "success": true,
+      "fovs": 24,
+      "rois": 148,
+      "error": null,
+      "completed_fovs_in_partial": null,
+      "main_original_and_copy_hashes_unchanged": null
+    },
+    {
+      "project_id": "99c114c7-bc50-46d9-a462-251f8aeca12f",
+      "name": "anof_180624_newplate_4500",
+      "success": true,
+      "fovs": 8,
+      "rois": 3290,
+      "error": null,
+      "completed_fovs_in_partial": null,
+      "main_original_and_copy_hashes_unchanged": null
+    }
+  ],
   "candidate_projects": [
     {
       "id": "344c83c4-7786-4d43-a15a-3fb292990f09",
@@ -750,8 +1103,8 @@
       "error": "Main MAT is not a recognized shallowObj layout"
     }
   ],
-  "copied_bytes": 1986577077530,
-  "copy_percent_of_complete_year": 38.3671,
+  "copied_bytes": 3024771071009,
+  "copy_percent_of_complete_year": 58.4179,
   "rsync_display_percent_is_incremental_file_list_not_full_year": true,
-  "checked_at": "2026-11-06T02:42:14.347596+00:00"
+  "checked_at": "2026-11-06T09:58:28.044274+00:00"
 }

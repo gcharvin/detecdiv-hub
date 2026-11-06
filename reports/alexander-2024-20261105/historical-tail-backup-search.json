@@ -1,0 +1,27 @@
+{
+  "read_only": true,
+  "backup_data_top_entries": [
+    "nobackup",
+    ".DS_Store",
+    "collab"
+  ],
+  "backup_exact_path_hits": [],
+  "primary_recycle_exact_path_search": {
+    "searched_roots": [
+      {
+        "root": "/volume1/DATA/#recycle/Alexander/data/2024_1",
+        "accessible": false
+      },
+      {
+        "root": "/volume1/DATA/#recycle/Alexander/data",
+        "accessible": false
+      },
+      {
+        "root": "/volume1/DATA/Alexander/data/2024_1/#recycle",
+        "accessible": false
+      }
+    ],
+    "hits": []
+  },
+  "snapshots_or_backup_policy_changed": false
+}

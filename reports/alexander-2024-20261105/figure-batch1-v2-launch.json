@@ -1,0 +1,11 @@
+{
+  "launched": true,
+  "session": "alex2024-figure-paths-v2-batch1-20261106",
+  "work": "/home/charvin-admin/storage-transfers/alexander-2024-20261105/figure-path-audit-v2-20261106-batch1",
+  "projects": 3,
+  "script_sha256": "976e5af84ce6a2f91e25d0dd3cc74a52dd98e88d0ce225f5415bc36dcd01d81c",
+  "read_only": true,
+  "images_not_loaded_or_written": true,
+  "identity_receipt_sha256": "0b185958de375c30dab634a9981ea830362996f126cab5b935e5743901a5ad20",
+  "image_scope_clarification": "ROI im_ sidecars were not loaded. FIG payload, potentially including plot CData, was loaded read-only as MAT metadata; no FIG or image bytes were saved."
+}

@@ -1,0 +1,53 @@
+{
+  "success": true,
+  "diagnosis_receipt_sha256": "6a8a9a48ddaa77a615507940a2443dbb17994ea6e0696d373a8e61d155ceb1d1",
+  "project": "anof_060224_cres",
+  "fovs": 3,
+  "missing_saved_references": 9,
+  "saved_size_differences": 27,
+  "all_observed_size_exceptions_present_in_original_inventory": true,
+  "all_missing_names_already_absent_in_original_inventory": true,
+  "exact_first_crop_fovs": 3,
+  "compression_types": [
+    "Uncompressed"
+  ],
+  "main_original_and_copy_hashes_unchanged": "56939d73ef23fb2be117636189b415592a1c9bc57ad3dea6219e91cfae81b58b",
+  "strict_gate_waived": false,
+  "source_deleted": false,
+  "source_or_project_files_written": false,
+  "source_inventory_sha256": "8fd64d094fe29707e0ddd0b1480e9b861786d3adde677087ca7a6e95e252f61e",
+  "missing_paths": [
+    "060224_cres/060224_cres_4/Pos1/img_channel001_position001_time000000793_z001.tif",
+    "060224_cres/060224_cres_4/Pos1/img_channel001_position001_time000000794_z001.tif",
+    "060224_cres/060224_cres_4/Pos1/img_channel001_position001_time000000795_z001.tif",
+    "060224_cres/060224_cres_4/Pos5/img_channel001_position005_time000000793_z001.tif",
+    "060224_cres/060224_cres_4/Pos5/img_channel001_position005_time000000794_z001.tif",
+    "060224_cres/060224_cres_4/Pos5/img_channel001_position005_time000000795_z001.tif",
+    "060224_cres/060224_cres_4/Pos8/img_channel001_position008_time000000793_z001.tif",
+    "060224_cres/060224_cres_4/Pos8/img_channel001_position008_time000000794_z001.tif",
+    "060224_cres/060224_cres_4/Pos8/img_channel001_position008_time000000795_z001.tif"
+  ],
+  "size_examples": [
+    {
+      "relative_path": "060224_cres/060224_cres_4/Pos1/img_channel000_position001_time000000793_z000.tif",
+      "saved_bytes": 8411748.0,
+      "actual_bytes": 8411768.0,
+      "saved_datenum": 739288.5262962963,
+      "actual_datenum": 739291.3654166666
+    },
+    {
+      "relative_path": "060224_cres/060224_cres_4/Pos1/img_channel000_position001_time000000793_z001.tif",
+      "saved_bytes": 8411748.0,
+      "actual_bytes": 8411766.0,
+      "saved_datenum": 739288.5263078704,
+      "actual_datenum": 739291.3654282407
+    },
+    {
+      "relative_path": "060224_cres/060224_cres_4/Pos1/img_channel000_position001_time000000793_z002.tif",
+      "saved_bytes": 8411748.0,
+      "actual_bytes": 8411768.0,
+      "saved_datenum": 739288.5263078704,
+      "actual_datenum": 739291.3654282407
+    }
+  ]
+}

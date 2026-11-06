@@ -8,7 +8,110 @@ year/user, original project, NAS snapshot, backup policy, quota, default engine
 or SMB credentials may be changed. The completed 2023 migration is separate;
 never replay any of its one-shot scripts.
 
-## Latest follow-up — 2026-11-06, starting 02:29 UTC
+## Latest follow-up — 2026-11-06, 09:58 UTC
+
+**This checkpoint supersedes the running/completed descriptions below.**
+2024_1 is still copying normally: **3,024,771,071,009 bytes / 58.4179%**.
+2024_2 has not started. Fifteen of 32 standard project copies have complete
+hash/ownership/native-stability receipts; project 16, `anof_210524_cre16`, is
+in verification. Both nonstandard copies were already verified. No raw full
+SHA1 terminal success, project path rewrite, publication, preference switch
+or source retirement has occurred. No 2024 space has been reclaimed.
+
+### Identity audits: retain successful work and diagnose individual failures
+
+The original `identity-audit-20261106-batch1/` ended with controller exit 1
+at project 4. Its first **three projects / 35 FOV / 8,845 ROI / 525 raw pixel
+samples** passed, with exact first-frame ROI crop equality in all 35 FOV.
+Their main files stayed unchanged. Completed partial receipt SHA256:
+`0b185958de375c30dab634a9981ea830362996f126cab5b935e5743901a5ad20`.
+Do not rerun that audit or those successful FOVs.
+
+The separate bounded `identity-audit-20261106-batch2/` examined projects 5–15
+only, using per-project isolation. It is now **finished, controller exit 0**,
+but overall success is **false**: **nine projects / 119 FOV / 35,002 ROI /
+1,665 raw samples** pass, with exact ROI/raw crop equality in all 119 FOV.
+Two rows require review. See `identity-batch2-completion-verification.json`.
+Result SHA256: `a78f2f75a3b59db332bea3a6347ad7cbb6c03e68a571629ba887b4b5f1d144ff`.
+Script SHA256: `e8612456dab6354be1158c86581fe64bdd1effee96964874b3366914939166d8`.
+The two unresolved rows are:
+
+- `anof_060224_cres_ARS1`: saved srclist size mismatch, no completed FOV.
+  Diagnose independently; do not assume the counts from the project below.
+- `anof_061224_X5152moth`: unreviewed ROI path prefix after two completed FOV.
+  The discovery receipt's unrecognized value is an **empty string**. Inspect
+  the actual blank-path/embedded/unextracted variant read-only; do not invent
+  image or result sidecars, convert blanks to paths, or replay completed FOVs.
+
+Thus twelve projects have full identity preparation, not all 34 candidates.
+Their persistent path audit and scientific save/reopen gates remain separate.
+
+### Historical 060224_cres source discrepancies, not a migration regression
+
+A corrected read-only diagnosis of `anof_060224_cres` completed with exit 0
+in `saved-size-diagnosis-v2-20261106/`. It established nine cached GFP names
+are missing and 27 BF tail-image sizes/mtimes differ from the old srclist.
+All nine absences and all 27 actual sizes were **already present in the pinned
+native source-before manifest at transfer start**. Source/copy main SHA256
+remained `56939d73ef23fb2be117636189b415592a1c9bc57ad3dea6219e91cfae81b58b`.
+All three FOV first-frame ROI crops match current raw images exactly.
+Diagnostic result SHA256:
+`6a8a9a48ddaa77a615507940a2443dbb17994ea6e0696d373a8e61d155ceb1d1`.
+See `size-mismatch-baseline-verification.json` for exact baseline evidence.
+
+The first diagnostic attempt stopped before a FOV receipt when it tried to
+sample a missing filename; its traces are preserved. Do not replay it. The v2
+script SHA256 is `6edb720fc2ebce8dee0ec1c1c60659e8d0aa1b81fb93d109e53ec5e3a7383396`.
+Scoped readonly backup lookups found no exact copies in the examined secondary
+Alexander data/nobackup/collab roots or checked primary recycle locations.
+This is not an exhaustive snapshot/backup search or proof of permanent loss.
+See `historical-tail-backup-search.json` and `historical-tail-backup-nested-search.json`.
+No snapshot, backup policy, mount or privilege was changed. Do not attribute
+the differences to compression or establish an acquisition history without evidence.
+
+The original strict saved-cache identity assertion remains failed; it has not
+been silently waived. Preserve all scientific cached entries and original
+projects. A future validator may explicitly prove **before/after availability
+parity** for a reviewed immutable baseline, while requiring the full current
+physical source SHA1/manifest and all normal relink/final-host/API gates. It
+must reject any additional missing/changed reference and record the existing
+limitation. Never fabricate nine images, drop cached entries, or describe a
+pre-existing absent image as restored. Source retirement remains pending.
+
+### First three projects: persistent metadata preparation complete
+
+`persistent-path-audit-20261106-batch1/` finished with exit 0: **8,852 metadata
+MAT/JSON files**, excluding 8,845 image MATs; no unresolved metadata path.
+Only **four MATs** need future edits: three main files and the third project's
+`combine_channels_1_processor.mat`, with **133,284** exact planned changes.
+No file was saved. Receipt SHA256:
+`d464f8e99dbc24b2211f2ea218ac98031bd6ee20aaab5e7cca8fde3ee5628b03`.
+Script SHA256: `9368ceb1dfa95b76d26d429a7ef19006cfd0b426cd21915994a4b67711592b84`.
+See `persistent-batch1-completion-verification.json`. Backups, fresh own leases
+and canonical scientific/annotation comparisons before/after/save/reopen are
+still required before changing even those four unpublished copies. GPU warning
+representations must never be saved without full content/type equivalence.
+
+Both FIG-only read-only audits also finished, exit 0, with the **same complete
+receipt SHA256** `8cf73304815b01e3b261b97c8855aec028a795d1e273387cf644b194f3154e32`.
+The second scan broadened callback literals and captured workspace strings;
+all seven FIGs have unchanged hashes. Only two absolute values occur, both
+stored FileName properties in `rlsplot_select.fig`. The installed MATLAB loader
+sets the currently opened filename; `figure-filename-classification.json`
+records its hash and classification. These are not raw/ROI input dependencies.
+Preserve all FIG, PNG and .DS_Store bytes; no `openfig` callback was executed.
+V2 script SHA256: `976e5af84ce6a2f91e25d0dd3cc74a52dd98e88d0ce225f5415bc36dcd01d81c`.
+See `figure-batch1-v2-completion-verification.json`. The MAT/FIG scans are done,
+not running: do not replay them.
+
+Next useful work: persistent metadata audits for the nine newly identity-verified
+projects, bounded format/baseline diagnosis of the three unresolved identity
+cases, identity preparation for later fully copied projects and the two special
+layouts, and relevance classification of missing/unreadable legacy mains. Never
+repeat successful FOVs, duplicate active copies, or reinterpret a loop exit as
+all-project success. All raw/final-host/API/retirement gates below still apply.
+
+## Historical follow-up — 2026-11-06, starting 02:29 UTC
 
 2024_1 is still copying normally: **1,955,819,451,234 bytes / 37.7731%** at
 02:29 UTC, same live runner/rsync, no error. 2024_2 has not started. No complete

@@ -1,0 +1,16 @@
+{
+  "read_only": true,
+  "figure": "anof_05012024_apx1s_dslog/rlsplot_select.fig",
+  "absolute_path_occurrences": 2,
+  "kind": "stored_figure_save_filename",
+  "raw_or_roi_dependency_paths_found": 0,
+  "callback_workspace_and_function_literals_inspected": true,
+  "installed_matlab_loader_file": "/usr/local/MATLAB/R2024b/toolbox/matlab/graphics/graphics/objectsystem/private/loadFigure.m",
+  "installed_loader_sha256": "dfc84bb5d5e7b2b50863205511c9bd3c965329ac0786af5437bee691d8ea165f",
+  "loader_sets_current_opened_filename": true,
+  "original_figure_bytes_will_be_preserved": true,
+  "source_and_copy_figure_hash": "ddc7367cb163eee8496eb3dd200a9968e710142ebd18b88a9bc9398b76ed1e72",
+  "figure_audit_receipt_sha256": "8cf73304815b01e3b261b97c8855aec028a795d1e273387cf644b194f3154e32",
+  "openfig_not_executed_during_audit": true,
+  "official_property_reference": "https://www.mathworks.com/help/matlab/ref/matlab.ui.figure.html"
+}

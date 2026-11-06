@@ -51,6 +51,16 @@ summary['identity_batch1_progress']=load('identity-audit-20261106-batch1/progres
 summary['identity_batch1_exit']=tail('identity-audit-20261106-batch1/controller.exit')
 summary['identity_batch1_log_tail']=tail('identity-audit-20261106-batch1/controller.log')
 summary['identity_batch1_result_exists']=(w/'identity-audit-20261106-batch1/result.json').exists()
+summary['identity_batch2_progress']=load('identity-audit-20261106-batch2/progress.json')
+summary['identity_batch2_partial']=load('identity-audit-20261106-batch2/result.partial.json')
+summary['identity_batch2_result_exists']=(w/'identity-audit-20261106-batch2/result.json').exists()
+summary['identity_batch2_exit']=tail('identity-audit-20261106-batch2/controller.exit')
+summary['identity_batch2_log_tail']=tail('identity-audit-20261106-batch2/controller.log')
+summary['persistent_batch1_progress']=load('persistent-path-audit-20261106-batch1/progress.json')
+summary['persistent_batch1_result']=load('persistent-path-audit-20261106-batch1/result.json')
+summary['persistent_batch1_exit']=tail('persistent-path-audit-20261106-batch1/controller.exit')
+summary['persistent_batch1_log_tail']=tail('persistent-path-audit-20261106-batch1/controller.log')
+summary['size_diagnosis_v2_exit']=tail('saved-size-diagnosis-v2-20261106/controller.exit')
 if state:
  year=state.get('current_year')
  if year in ['2024_1','2024_2']:
@@ -74,7 +84,9 @@ if __name__=='__main__':
     result=remote('linux',CODE,timeout=90)
     private=HERE/'runtime';private.mkdir(exist_ok=True)
     (private/'latest-status.json').write_text(json.dumps(result,indent=2)+'\n',encoding='utf-8')
-    summary={k:v for k,v in result.items() if k not in ['project_candidates','project_requires_review']}
+    summary={k:v for k,v in result.items() if k not in ['project_candidates','project_requires_review','identity_batch2_partial']}
+    partial=result.get('identity_batch2_partial') or []
+    summary['identity_batch2_projects']=[{k:p.get(k) for k in ['project_id','name','success','fovs','rois','error','completed_fovs_in_partial','main_original_and_copy_hashes_unchanged']} for p in partial]
     summary['candidate_projects']=[{'id':p['project_id'],'name':p['name'],'owner':p['owner'],'fovs':p['fovs'],'matching_acquisitions':p['matching_acquisitions']} for p in result['project_candidates']]
     summary['requires_review_count']=len(result['project_requires_review'])
     summary['review_examples']=result['project_requires_review'][:4]

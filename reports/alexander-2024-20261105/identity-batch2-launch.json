@@ -1,0 +1,25 @@
+{
+  "launched": true,
+  "session": "alex2024-identity-audit-batch2-20261106",
+  "work": "/home/charvin-admin/storage-transfers/alexander-2024-20261105/identity-audit-20261106-batch2",
+  "projects": 11,
+  "project_ids": [
+    "e0d02751-28b3-4b3e-a74c-0dfd00b37803",
+    "c48f9cff-6625-4dad-9597-a8796fe2824f",
+    "bec9b2cf-656d-417a-b424-2d3e7cbf316c",
+    "4ada122e-a205-493f-9885-703e788589cc",
+    "e6f6b263-dae2-4670-ac85-280abc4f38a2",
+    "3dc52b35-7254-48e4-ab04-157dce732d6e",
+    "8d749d6e-c3f9-46aa-9eb1-5dc34af4bc55",
+    "53a6c0c1-f887-44da-ae8c-a0018e46064e",
+    "73504070-1ff4-4c0d-b630-d17829ccced6",
+    "671be8d4-b028-46c0-8730-9fca5bee8888",
+    "99c114c7-bc50-46d9-a462-251f8aeca12f"
+  ],
+  "script_sha256": "e8612456dab6354be1158c86581fe64bdd1effee96964874b3366914939166d8",
+  "read_only": true,
+  "per_project_failures_are_explicit_and_do_not_starve_other_projects": true,
+  "completed_fovs_not_replayed": true,
+  "source_deleted": false,
+  "catalog_changed": false
+}

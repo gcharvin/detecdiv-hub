@@ -2,6 +2,19 @@
 
 ## Alexander 2024 migration started, 2026-11-05
 
+2026-11-06 09:58 UTC: 2024_1 copy healthy at 3.025 TB / 5.178 TB (58.42%).
+Fifteen standard project copies and both special-layout copies are fully hash
+verified; the standard runner continues. Twelve projects have full readonly
+identity preparation (154 FOV, 43,847 ROI). Both identity audits are finished;
+the second completed its loop with nine successes and two review rows, not
+all-project success. The first audit's fourth project has nine historical raw
+references already absent and 27 cached-size differences already in the initial
+source manifest; preserve that evidence and diagnose without inventing data.
+First-three-project persistent MAT/JSON and seven FIG audits are also finished,
+with four MATs planned for future corrections. No actual relink, raw SHA1 terminal
+success, cutover or source retirement. See the latest report README checkpoint;
+do not replay finished audits or successful FOVs. Older status below is historical.
+
 2026-11-06 02:29 UTC: raw 2024_1 remains healthy in copy, 1.956 TB / 5.178 TB,
 37.77%; no raw SHA1 gate or source retirement yet. Nine standard project copies
 are fully hash/ownership/stability verified, with the existing 32-project runner

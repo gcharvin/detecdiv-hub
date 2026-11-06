@@ -1,0 +1,13 @@
+{
+  "controller_exit": 0,
+  "figures_audited": 7,
+  "read_only": true,
+  "source_copy_hashes_unchanged": true,
+  "receipt_sha256": "8cf73304815b01e3b261b97c8855aec028a795d1e273387cf644b194f3154e32",
+  "same_receipt_as_initial_scan": true,
+  "broader_callback_literals_and_workspace_strings_scanned": true,
+  "absolute_path_occurrences": 2,
+  "classification": "Both values are stored figure FileName properties, separately classified in figure-filename-classification.json using the installed MATLAB loader. No input raw/ROI dependency was found. Preserve all FIG bytes.",
+  "openfig_executed": false,
+  "saved": false
+}

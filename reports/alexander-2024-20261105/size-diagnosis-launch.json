@@ -1,0 +1,20 @@
+{
+  "launched": true,
+  "session": "alex2024-size-diagnosis-20261106",
+  "work": "/home/charvin-admin/storage-transfers/alexander-2024-20261105/saved-size-diagnosis-20261106",
+  "project": "anof_060224_cres",
+  "script_sha256": "9d4d08183d7194bf1ef4d6bb1135e4468ccbdac2b6bb1641013370b60a3d4ca8",
+  "read_only": true,
+  "completed_subset": {
+    "projects": 3,
+    "fovs": 35,
+    "rois": 8845,
+    "raw_sample_reads": 525,
+    "crop_exact_fovs": 35,
+    "all_saved_names_sizes_constant_timestamps_match": true,
+    "all_main_hashes_unchanged": true,
+    "receipt_sha256": "0b185958de375c30dab634a9981ea830362996f126cab5b935e5743901a5ad20",
+    "complete_batch_success": false,
+    "failure": "Historical srclist size assertion in fourth project"
+  }
+}
