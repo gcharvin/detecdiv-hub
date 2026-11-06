@@ -1,0 +1,14 @@
+{
+  "source_job": "09f697c4-5a47-4932-a986-c18dba06a291",
+  "run_id": "pipelineTemplate_channels_20261106_00aaa6b4",
+  "code_commit": "00aaa6b4e016fe61301e33f51a2918778dc8c404",
+  "channel_mapping": {
+    "ch1_z1": "0 TL _z1",
+    "ch1_z2": "0 TL _z2",
+    "ch1_z3": "0 TL _z3",
+    "ch2_z2": "RoGFPlow10_z2",
+    "ch3_z2": "SB GFP10_z2"
+  },
+  "pipeline_sha256": "dacc6bfcc9a5780f6ce8c206538735137f7a2649b6a13f530781d6a3976414b7",
+  "remote_run_path": "/data/Abhilasha/Analysis/04112026_Hyper7_pulse_H2O2/pipeline/pipelineTemplate_channels_20261106_00aaa6b4"
+}

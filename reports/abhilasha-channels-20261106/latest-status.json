@@ -1,0 +1,11 @@
+{
+  "status": "running",
+  "initial_validation_passed": true,
+  "scientific_outputs_verified": false,
+  "last_notified": "MATLAB started, Python/CUDA checks passed, initial pipeline validation passed, OME-Zarr dataloader running",
+  "automation_id": "suivre-la-reprise-hyper7-d-abhilasha",
+  "code_commit": "00aaa6b4e016fe61301e33f51a2918778dc8c404",
+  "verified_matlab_pid": 328797,
+  "current_node": "dataloader_5",
+  "job_id": "4df3e2fd-c66b-4add-b1c1-8a31083696ed"
+}

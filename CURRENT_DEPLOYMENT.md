@@ -1,5 +1,67 @@
 # Current Deployment
 
+## Abhilasha Zarr channel names release, 2026-11-06
+
+**15:16 CET update, superseding the deferred-only instructions below:** Gilles
+explicitly authorized identifying the blocker, killing the old job/worker,
+submitting the corrected run and monitoring it long term. The deferred
+webserver controller PID 4137788 was stopped first. Original worker @3 PID
+911503 had no MATLAB child and was waiting on SMB with Zarr chunk files open;
+raw reingestion was enabled despite an existing indexed source link. The Hub
+cancel route recorded Gilles's request, then SIGKILL stopped only that verified
+worker PID at 14:12:19 UTC. systemd replaced it with PID 328227. Normal orphan
+recovery finalized old job `09f697c4-5a47-4932-a986-c18dba06a291` as failed and
+released its server lock. A newly acquired Abhilasha desktop edit lease was
+handed off through the normal admin release route, with audit metadata, before
+new-job preflight and creation. No other worker/job was stopped.
+
+Recovery job **`4df3e2fd-c66b-4add-b1c1-8a31083696ed`** is now running on
+Linux with the exact release and validated snapshot below. It reuses indexed
+raw dataset `3d707760-f50f-4358-892e-5dcecc99bf20` and its existing project
+link, with `ingest_raw_dataset=false`; this skips the redundant catalog scan,
+not the MATLAB dataloader. Its isolated supervisor PID is 328796; at 14:16 UTC
+MATLAB had started, loaded the lightweight project, and written real logs.
+At 14:17 UTC the runner passed initial pipeline validation and started
+`dataloader_5`, actively parsing the OME-Zarr. Scientific outputs remain to be
+verified. Local receipts
+include `request-immediate.json`, `submission.json`, `submit_immediate.py`.
+The Codex heartbeat **`suivre-la-reprise-hyper7-d-abhilasha`** checks every ten
+minutes, stays quiet during ordinary progress, diagnoses failures and verifies
+persisted outputs before reporting success. It does not authorize another
+automatic retry or killing any other job. Do not restart the old deferred
+controller or submit a duplicate recovery.
+
+DetecDiv `00aaa6b4e016fe61301e33f51a2918778dc8c404` is pushed to GitHub and
+GitLab `unstable` and published as the default MATLAB release. The deployment
+script verified protected worktrees on Linux at
+`/home/charvin-admin/repos/DetecDiv-jobs/releases/00aaa6b4e016fe61301e33f51a2918778dc8c404`
+and Windows at
+`C:\Users\Charvin-Admin\Documents\GitHub\DetecDiv-jobs\releases\00aaa6b4e016fe61301e33f51a2918778dc8c404`.
+No worker restarted and no shared source HEAD moved. Thirteen focused MATLAB
+tests passed; readonly parsing of all 32 Hyper7 positions verified channel
+names and their C/Z identities.
+
+Gilles authorized a corrected retry while explicitly preserving the running
+Abhilasha job `09f697c4-5a47-4932-a986-c18dba06a291`. At 13:56 UTC it remains
+running, pinned to `a7cf13fb25908fe45eda43be9582a481e08a1c0c`, with its lock
+untouched. Do not cancel or replace it. The corrected recovery is prepared,
+not submitted: run `pipelineTemplate_channels_20261106_00aaa6b4`, separate
+input snapshot under the project's `pipeline/<run-id>/input/pipeline.json`,
+SHA256 `dacc6bfcc9a5780f6ce8c206538735137f7a2649b6a13f530781d6a3976414b7`.
+It preserves the submitted motif, FOV 1:32, frames 1:160 and scientific settings;
+only exact generic channel references were mapped to acquisition names.
+MATLAB dry-run passes; Hub preflight reports only the original job's lock.
+
+A one-shot controller on **webserver-labo** in
+`/home/charvin-admin/ops/abhilasha-channels-20261106/` (PID 4137788 at launch)
+records `state.json`. It waits up to 24 hours, submits at most one new job via
+the existing Hub service after a failed original and all project writers exit,
+and checks the snapshot checksum and ordinary Hub preflight/locks. It never
+signals workers, cancels jobs or releases locks. Original success stops without
+repeating the analysis; cancellation stops for a new instruction. Inspect this
+controller/state before any manual retry; do not create a duplicate. Local
+receipts are in `reports/abhilasha-channels-20261106/`.
+
 ## Alexander 2024 migration started, 2026-11-05
 
 2026-11-06 10:50 UTC: 2024_1 copy healthy at 3.169 TB / 5.178 TB (61.20%),
