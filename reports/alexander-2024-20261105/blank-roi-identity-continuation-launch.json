@@ -1,0 +1,12 @@
+{
+  "launched": true,
+  "session": "alex2024-blank-roi-identity-20261106",
+  "work": "/home/charvin-admin/storage-transfers/alexander-2024-20261105/blank-roi-identity-continuation-20261106",
+  "script_sha256": "c16b2bba615b8479b3fa43d8e83dbb7d68a51474c838da08a1621e79bc249607",
+  "read_only": true,
+  "completed_fovs_reused_without_replay": 2,
+  "new_fovs": 12,
+  "unextracted_blank_path_rois_preserved": 412,
+  "layout_receipt_sha256": "9ec2c8956ce2be6ea3bb010d0be218476ef10a4c7c5b227c5c3a2b5b9db7d836",
+  "completed_fovs_sha256": "fcfc298b8f3b190aa7bff9a5347b5f1ae4a67ffd646e39da2e52e7cd18eec48e"
+}

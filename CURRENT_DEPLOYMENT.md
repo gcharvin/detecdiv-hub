@@ -2,6 +2,20 @@
 
 ## Alexander 2024 migration started, 2026-11-05
 
+2026-11-06 10:50 UTC: 2024_1 copy healthy at 3.169 TB / 5.178 TB (61.20%),
+16 standard project copies verified. Native readonly parity of all 13,158 saved
+references in cres/ARS1 is complete: 15 absent names (9+6) and 45 historical
+cached-size differences (27+18) were already in the initial source state;
+source current native metadata and homes2 presence/sizes match that state.
+This is not recovery or full raw SHA1. Empty ROI layout is now verified and
+its bounded identity continuation is finished: 412 pre-existing unextracted
+ROI preserved, 308 extracted, no metadata saved. Thirteen projects have full
+identity preparation, separate from the two historical-baseline projects.
+New persistent metadata batch2 (nine projects), identity batch3 (project16),
+and expanded filename search are running. Older completed audits must not be
+replayed. No relink, cutover, source deletion or 2024 space recovery yet.
+Read the newest report README checkpoint for exact receipts and task states.
+
 2026-11-06 09:58 UTC: 2024_1 copy healthy at 3.025 TB / 5.178 TB (58.42%).
 Fifteen standard project copies and both special-layout copies are fully hash
 verified; the standard runner continues. Twelve projects have full readonly

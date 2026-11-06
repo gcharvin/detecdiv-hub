@@ -1,0 +1,19 @@
+{
+  "controller_exit": 0,
+  "success": true,
+  "result_sha256": "2ff4bcfe55a26ef04f879aeb066869781e91cdf248627e930904a177c987df01",
+  "name": "anof_061224_X5152moth",
+  "main_original_copy_hash_unchanged": "7a54c816683c25c8e00be6c022b13c8d0b5f91d8cc5c97e50a1af908611f08c8",
+  "fovs": 14,
+  "rois": 720,
+  "completed_fovs_reused": 2,
+  "blank_unextracted_rois_preserved": 412,
+  "all_actual_roi_image_results_in_verified_manifest": true,
+  "existing_data_sidecars": 0,
+  "raw_pixel_samples_including_reused": 252,
+  "crop_exact_fields": 6,
+  "preexisting_unextracted_fields": 8,
+  "saved": false,
+  "source_deleted": false,
+  "note": "All srclist names/sizes and constant time offsets pass. Empty paths remain empty, no missing im/results are invented. Raw checksum, scientific relink save/reopen and final-host gates still required."
+}

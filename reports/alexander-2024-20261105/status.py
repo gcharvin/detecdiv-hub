@@ -61,6 +61,22 @@ summary['persistent_batch1_result']=load('persistent-path-audit-20261106-batch1/
 summary['persistent_batch1_exit']=tail('persistent-path-audit-20261106-batch1/controller.exit')
 summary['persistent_batch1_log_tail']=tail('persistent-path-audit-20261106-batch1/controller.log')
 summary['size_diagnosis_v2_exit']=tail('saved-size-diagnosis-v2-20261106/controller.exit')
+summary['reference_followups']={}
+for name in ['persistent-path-audit-20261106-batch2','historical-reference-baseline-20261106',
+             'blank-roi-layout-20261106','historical-reference-parity-20261106',
+             'historical-name-search-20261106','blank-roi-identity-continuation-20261106',
+             'identity-audit-20261106-batch3']:
+ item={'exit':tail(name+'/controller.exit'),'progress':load(name+'/progress.json'),'log_tail':tail(name+'/controller.log',1200)}
+ result=load(name+'/result.json')
+ if result:
+  item['result_summary']={k:result[k] for k in ['success','loop_completed','read_only','source_deleted','reference_count','unique_paths',
+     'availability_matches_initial_native_manifest','target_current_presence_and_sizes_match_initial_manifest'] if k in result}
+  if 'projects' in result:
+   item['projects']=[{k:p[k] for k in ['project_id','name','success','error','metadata_files_audited','files_needing_rebase',
+       'files_with_unresolved_paths','rois','blank_roi_ids_preserved','completed_fovs_reused'] if k in p} for p in result['projects']]
+  if name=='historical-name-search-20261106':
+   item['search_results']=[{'target':p['target'],'inventory_counts':p['inventory_counts'],'candidate_count':len(p['candidates'])} for p in result['results']]
+ summary['reference_followups'][name]=item
 if state:
  year=state.get('current_year')
  if year in ['2024_1','2024_2']:

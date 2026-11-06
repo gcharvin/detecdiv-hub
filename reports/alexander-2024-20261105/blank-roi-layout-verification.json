@@ -1,0 +1,126 @@
+{
+  "controller_exit": 0,
+  "read_only": true,
+  "result_sha256": "9ec2c8956ce2be6ea3bb010d0be218476ef10a4c7c5b227c5c3a2b5b9db7d836",
+  "project": "anof_061224_X5152moth",
+  "main_hash_unchanged": "7a54c816683c25c8e00be6c022b13c8d0b5f91d8cc5c97e50a1af908611f08c8",
+  "fovs": [
+    {
+      "fov": 1,
+      "rois": 51,
+      "blank_paths": 0,
+      "embedded_image_count": 0,
+      "verified_image_sidecars": 51,
+      "verified_result_sidecars": 51
+    },
+    {
+      "fov": 2,
+      "rois": 51,
+      "blank_paths": 0,
+      "embedded_image_count": 0,
+      "verified_image_sidecars": 51,
+      "verified_result_sidecars": 51
+    },
+    {
+      "fov": 3,
+      "rois": 52,
+      "blank_paths": 52,
+      "embedded_image_count": 0,
+      "verified_image_sidecars": 0,
+      "verified_result_sidecars": 0
+    },
+    {
+      "fov": 4,
+      "rois": 51,
+      "blank_paths": 51,
+      "embedded_image_count": 0,
+      "verified_image_sidecars": 0,
+      "verified_result_sidecars": 0
+    },
+    {
+      "fov": 5,
+      "rois": 52,
+      "blank_paths": 0,
+      "embedded_image_count": 0,
+      "verified_image_sidecars": 52,
+      "verified_result_sidecars": 52
+    },
+    {
+      "fov": 6,
+      "rois": 52,
+      "blank_paths": 0,
+      "embedded_image_count": 0,
+      "verified_image_sidecars": 52,
+      "verified_result_sidecars": 52
+    },
+    {
+      "fov": 7,
+      "rois": 52,
+      "blank_paths": 52,
+      "embedded_image_count": 0,
+      "verified_image_sidecars": 0,
+      "verified_result_sidecars": 0
+    },
+    {
+      "fov": 8,
+      "rois": 52,
+      "blank_paths": 52,
+      "embedded_image_count": 0,
+      "verified_image_sidecars": 0,
+      "verified_result_sidecars": 0
+    },
+    {
+      "fov": 9,
+      "rois": 50,
+      "blank_paths": 0,
+      "embedded_image_count": 0,
+      "verified_image_sidecars": 50,
+      "verified_result_sidecars": 50
+    },
+    {
+      "fov": 10,
+      "rois": 52,
+      "blank_paths": 0,
+      "embedded_image_count": 0,
+      "verified_image_sidecars": 52,
+      "verified_result_sidecars": 52
+    },
+    {
+      "fov": 11,
+      "rois": 51,
+      "blank_paths": 51,
+      "embedded_image_count": 0,
+      "verified_image_sidecars": 0,
+      "verified_result_sidecars": 0
+    },
+    {
+      "fov": 12,
+      "rois": 52,
+      "blank_paths": 52,
+      "embedded_image_count": 0,
+      "verified_image_sidecars": 0,
+      "verified_result_sidecars": 0
+    },
+    {
+      "fov": 13,
+      "rois": 51,
+      "blank_paths": 51,
+      "embedded_image_count": 0,
+      "verified_image_sidecars": 0,
+      "verified_result_sidecars": 0
+    },
+    {
+      "fov": 14,
+      "rois": 51,
+      "blank_paths": 51,
+      "embedded_image_count": 0,
+      "verified_image_sidecars": 0,
+      "verified_result_sidecars": 0
+    }
+  ],
+  "roi_count": 720,
+  "preexisting_blank_unextracted_roi_count": 412,
+  "existing_extracted_roi_count": 308,
+  "note": "Empty paths and empty embedded images with no im/results in fully verified source manifest are preserved as existing unextracted state. No image or path is fabricated. Identity continuation reuses completed first two FOVs.",
+  "scientific_saved": false
+}

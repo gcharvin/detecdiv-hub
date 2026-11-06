@@ -1,0 +1,75 @@
+{
+  "success": true,
+  "availability_matches_initial_native_manifest": true,
+  "source_current_native_metadata_matches_initial_manifest": true,
+  "target_current_presence_and_sizes_match_initial_manifest": true,
+  "manifest_sha256": "8fd64d094fe29707e0ddd0b1480e9b861786d3adde677087ca7a6e95e252f61e",
+  "references_sha256": "7c590a9c5950d711c7a517aeee28568577f150409cbccffd63f6ad07a5aff255",
+  "reference_count": 13158,
+  "unique_paths": 13158,
+  "missing_paths": [
+    "060224_cres/060224_cres_4/Pos1/img_channel001_position001_time000000793_z001.tif",
+    "060224_cres/060224_cres_4/Pos1/img_channel001_position001_time000000794_z001.tif",
+    "060224_cres/060224_cres_4/Pos1/img_channel001_position001_time000000795_z001.tif",
+    "060224_cres/060224_cres_4/Pos17/img_channel001_position017_time000000825_z001.tif",
+    "060224_cres/060224_cres_4/Pos17/img_channel001_position017_time000000826_z001.tif",
+    "060224_cres/060224_cres_4/Pos17/img_channel001_position017_time000000827_z001.tif",
+    "060224_cres/060224_cres_4/Pos21/img_channel001_position021_time000000825_z001.tif",
+    "060224_cres/060224_cres_4/Pos21/img_channel001_position021_time000000826_z001.tif",
+    "060224_cres/060224_cres_4/Pos21/img_channel001_position021_time000000827_z001.tif",
+    "060224_cres/060224_cres_4/Pos5/img_channel001_position005_time000000793_z001.tif",
+    "060224_cres/060224_cres_4/Pos5/img_channel001_position005_time000000794_z001.tif",
+    "060224_cres/060224_cres_4/Pos5/img_channel001_position005_time000000795_z001.tif",
+    "060224_cres/060224_cres_4/Pos8/img_channel001_position008_time000000793_z001.tif",
+    "060224_cres/060224_cres_4/Pos8/img_channel001_position008_time000000794_z001.tif",
+    "060224_cres/060224_cres_4/Pos8/img_channel001_position008_time000000795_z001.tif"
+  ],
+  "projects": [
+    {
+      "project_id": "6f6f408d-ebe7-4115-a537-f35f5cdb6ed2",
+      "cached_references": 7770,
+      "missing_paths": [
+        "060224_cres/060224_cres_4/Pos1/img_channel001_position001_time000000793_z001.tif",
+        "060224_cres/060224_cres_4/Pos1/img_channel001_position001_time000000794_z001.tif",
+        "060224_cres/060224_cres_4/Pos1/img_channel001_position001_time000000795_z001.tif",
+        "060224_cres/060224_cres_4/Pos5/img_channel001_position005_time000000793_z001.tif",
+        "060224_cres/060224_cres_4/Pos5/img_channel001_position005_time000000794_z001.tif",
+        "060224_cres/060224_cres_4/Pos5/img_channel001_position005_time000000795_z001.tif",
+        "060224_cres/060224_cres_4/Pos8/img_channel001_position008_time000000793_z001.tif",
+        "060224_cres/060224_cres_4/Pos8/img_channel001_position008_time000000794_z001.tif",
+        "060224_cres/060224_cres_4/Pos8/img_channel001_position008_time000000795_z001.tif"
+      ],
+      "saved_size_differences": 27
+    },
+    {
+      "project_id": "c48f9cff-6625-4dad-9597-a8796fe2824f",
+      "cached_references": 5388,
+      "missing_paths": [
+        "060224_cres/060224_cres_4/Pos17/img_channel001_position017_time000000825_z001.tif",
+        "060224_cres/060224_cres_4/Pos17/img_channel001_position017_time000000826_z001.tif",
+        "060224_cres/060224_cres_4/Pos17/img_channel001_position017_time000000827_z001.tif",
+        "060224_cres/060224_cres_4/Pos21/img_channel001_position021_time000000825_z001.tif",
+        "060224_cres/060224_cres_4/Pos21/img_channel001_position021_time000000826_z001.tif",
+        "060224_cres/060224_cres_4/Pos21/img_channel001_position021_time000000827_z001.tif"
+      ],
+      "saved_size_differences": 18
+    }
+  ],
+  "native_receipts": {
+    "source": {
+      "files": 13158,
+      "receipt_sha256": "692325e57761f4d672cb712cfa7e84b02c1f75b75530b917064453f60bb1765e"
+    },
+    "target": {
+      "files": 13158,
+      "receipt_sha256": "5681c0083bf5a0c876d9fac3eb0738ed95dd5aae5d8260f6011d46eef59177e8"
+    }
+  },
+  "read_only": true,
+  "source_deleted": false,
+  "strict_saved_cache_gate_passed": false,
+  "full_raw_checksum_gate_passed": false,
+  "note": "Explicit immutable historical absence/size baseline, not image recovery or full-content transfer validation. Final hosts must preserve availability parity and scientific metadata; any new absence/change fails.",
+  "controller_exit": 0,
+  "result_sha256": "9d4ac5089262555b46a728ad5c4bd3e071aa7a7c787a1c22f5536b0f6308a4b6"
+}

@@ -1,0 +1,30 @@
+{
+  "controller_exit": 0,
+  "read_only": true,
+  "result_sha256": "4b4832b751f5ec63938522fd60f6fdacdb568dcad4c0fa3992194a14a7b86bc5",
+  "references_sha256": "7c590a9c5950d711c7a517aeee28568577f150409cbccffd63f6ad07a5aff255",
+  "projects": [
+    {
+      "name": "anof_060224_cres",
+      "main_hash_unchanged": "56939d73ef23fb2be117636189b415592a1c9bc57ad3dea6219e91cfae81b58b",
+      "fovs": 3,
+      "cached_references": 7770,
+      "missing": 9,
+      "size_mismatches": 27,
+      "new_raw_pixel_samples": 0,
+      "new_exact_crop_fields": 0
+    },
+    {
+      "name": "anof_060224_cres_ARS1",
+      "main_hash_unchanged": "4484880178a9a97d909a0483c115831cd396b7b836a84cd1a8c41c1ace6dbf59",
+      "fovs": 2,
+      "cached_references": 5388,
+      "missing": 6,
+      "size_mismatches": 18,
+      "new_raw_pixel_samples": 22,
+      "new_exact_crop_fields": 2
+    }
+  ],
+  "strict_saved_cache_gate_passed": false,
+  "source_deleted": false
+}

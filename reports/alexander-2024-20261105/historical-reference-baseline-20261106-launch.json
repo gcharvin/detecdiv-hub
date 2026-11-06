@@ -1,0 +1,13 @@
+{
+  "launched": true,
+  "session": "alex2024-historical-refs-20261106",
+  "work": "/home/charvin-admin/storage-transfers/alexander-2024-20261105/historical-reference-baseline-20261106",
+  "projects": [
+    "anof_060224_cres",
+    "anof_060224_cres_ARS1"
+  ],
+  "script_sha256": "14b32cb8c16a3984f1455dae36ebe94e879483a0b6546761aefc31cf02603320",
+  "read_only": true,
+  "source_deleted": false,
+  "catalog_changed": false
+}

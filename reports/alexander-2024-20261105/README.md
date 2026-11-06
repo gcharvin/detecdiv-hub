@@ -8,7 +8,119 @@ year/user, original project, NAS snapshot, backup policy, quota, default engine
 or SMB credentials may be changed. The completed 2023 migration is separate;
 never replay any of its one-shot scripts.
 
-## Latest follow-up — 2026-11-06, 09:58 UTC
+## Latest follow-up — 2026-11-06, 10:50 UTC
+
+Gilles reaffirmed autonomous continuation, verification of the nine historical
+missing images, retention of original projects, and retirement only after
+verified copies/access, with final notice of actual recovered space.
+**This checkpoint supersedes the older audit states below.**
+
+2024_1 copy is healthy at **3,168,635,187,429 bytes / 61.1964%**. Sixteen
+standard project copies are fully verified; project 17 `anof_210624_s148s_SCON`
+is still in verification. Both original transfer runners continue. 2024_2 has
+not started. No raw terminal SHA1 success, scientific path write, publication,
+preferred-location change or source retirement has occurred; no 2024 space
+has been reclaimed yet.
+
+### Complete native availability baseline for the historical images
+
+`historical-reference-baseline-20261106/` completed with exit 0, writing every
+saved/current reference (not only discrepancy examples): **13,158 entries**
+across `anof_060224_cres` and `anof_060224_cres_ARS1`. It confirms the first
+project's nine absent GFP filenames and 27 cached-size differences, plus
+**six absent GFP filenames and 18 cached-size differences in ARS1**. These are
+15 distinct absent names and 45 old size differences, not new transfer loss.
+The two ARS1 fields also have exact first-frame raw/ROI crop equality; the
+three fields already sampled for the first project were not replayed.
+
+The separate readonly **native** validator `historical-reference-parity-20261106/`
+completed with exit 0: all 13,158 paths agree with the original native manifest.
+Current source presence, size, mtime_ns, inode and UID/GID match the initial
+inventory; homes2 presence/size match it and present files belong to maliavko.
+All 15 absences are identical before/current-source/current-target. No source
+or scientific project file was written. See
+`historical-reference-baseline-verification.json` and
+`historical-reference-parity-verification.json`.
+
+- Baseline result SHA256: `4b4832b751f5ec63938522fd60f6fdacdb568dcad4c0fa3992194a14a7b86bc5`
+- Complete references JSONL SHA256: `7c590a9c5950d711c7a517aeee28568577f150409cbccffd63f6ad07a5aff255`
+- Native parity result SHA256: `9d4ac5089262555b46a728ad5c4bd3e071aa7a7c787a1c22f5536b0f6308a4b6`
+- Source native stat receipt: `692325e57761f4d672cb712cfa7e84b02c1f75b75530b917064453f60bb1765e`
+- Target native stat receipt: `5681c0083bf5a0c876d9fac3eb0738ed95dd5aae5d8260f6011d46eef59177e8`
+
+These receipts establish **explicit historical availability parity**, not image
+recovery, matching the old saved cache, or a complete raw content checksum.
+Preserve every scientific cached entry and original project. Final host checks
+must enforce the frozen baseline exactly, including expected absences; any
+additional missing/changed reference fails. Do not pretend the old strict
+srclist assertion passed. The full physical raw SHA1/stability and all other
+scientific relink/final-host/catalog/API/retirement gates still apply.
+
+### Expanded filename lookup still running, do not duplicate
+
+Tmux **`alex2024-historical-name-search-20261106`**, private
+`historical-name-search-20261106/`, script SHA256
+`206031b80dc109339e781d976f81a7dcd4d6f996f95cba94cd5a48cae8126a8d`.
+It scans exact nine initial basenames in primary `/volume1/DATA/Alexander`
+and secondary `/volume1/Sauvegarde/Alexander`, readonly and no-follow, excluding
+hidden/NAS metadata, snapshots and recycle directories. Read controller exit/log,
+only tails of primary/secondary receipt JSONL, and result.partial/result JSON.
+The primary scan has found homonymous files under unrelated **2025 acquisitions**;
+those are candidates by name only, not the missing 2024 images. Never copy or
+substitute unrelated raw pixels based on a filename match. This search does
+not alter any file, snapshot, backup policy, mount or credential.
+The first launcher stopped at its Python executable preflight after preparing
+only script/request; no process/receipt existed. A bounded continuation verified
+those exact two files and script hash before the first real launch.
+
+### Empty ROI paths are a verified pre-existing unextracted layout
+
+`blank-roi-layout-20261106/` finished with exit 0: `anof_061224_X5152moth`
+has **308 extracted ROI** and **412 pre-existing unextracted ROI**, across 14
+FOV/720 ROI. Every empty-path ROI also has an empty embedded image and no
+im/results in the fully verified original/copy manifest. This is not an
+unrecognized foreign path or a missing extraction introduced by the move.
+Preserve blanks and the actual sidecar layout; do not invent files or paths.
+See `blank-roi-layout-verification.json`, result SHA256
+`9ec2c8956ce2be6ea3bb010d0be218476ef10a4c7c5b227c5c3a2b5b9db7d836`.
+
+Its bounded `blank-roi-identity-continuation-20261106/` is also **finished,
+exit 0, success true**, reusing the two already-completed fields without replay.
+All 14 fields' saved names/sizes/constant timestamp offsets pass; all real ROI
+references are verified, 252 raw pixel samples total (including reused fields),
+six exact extracted-image crops and eight fields explicitly unextracted.
+Original/copy main hashes unchanged. This brings full identity preparation to
+**13 projects / 168 FOV / 44,567 ROI**, separate from the two historical-baseline
+projects. Scientific save/reopen and final host gates remain.
+See `blank-roi-identity-completion-verification.json`, result SHA256
+`2ff4bcfe55a26ef04f879aeb066869781e91cdf248627e930904a177c987df01`.
+No saved scientific metadata or catalog changes.
+
+### Other readonly preparation continues
+
+- **Persistent metadata batch2 is running**, nine new identity successes only:
+  tmux `alex2024-persistent-paths-batch2-20261106`, private
+  `persistent-path-audit-20261106-batch2/`, script SHA256
+  `9368ceb1dfa95b76d26d429a7ef19006cfd0b426cd21915994a4b67711592b84`.
+  At 10:50 UTC, 5,500 metadata files in the first project, zero unresolved paths.
+  Read progress/result/receipt and controller exit; do not duplicate or edit.
+- **Identity batch3 is running**, only newly verified project 16,
+  `anof_210524_cre16` (30 FOV): tmux `alex2024-identity-audit-batch3-20261106`,
+  private `identity-audit-20261106-batch3/`, script SHA256
+  `e8612456dab6354be1158c86581fe64bdd1effee96964874b3366914939166d8`.
+  Six FOV complete at 10:50. It does not replay projects 1–15.
+  Loop exit 0 alone is not success: check each project receipt.
+
+The earlier identity batch1/batch2, first-three persistent metadata/FIG scans,
+legacy reviews and two exception-copy jobs are finished. Do not replay them.
+Continue remaining metadata/sidecar audits, later verified copy identities,
+format-aware special-layout tests and missing/unreadable main relevance review.
+Before any relink obtain fresh admission/own leases, back up only planned MATs,
+then prove every scientific value/type and annotation before/after/save/reopen.
+Never save an incomplete GPU representation. All continuation/retirement gates
+at the end of this report remain mandatory.
+
+## Historical follow-up — 2026-11-06, 09:58 UTC
 
 **This checkpoint supersedes the running/completed descriptions below.**
 2024_1 is still copying normally: **3,024,771,071,009 bytes / 58.4179%**.

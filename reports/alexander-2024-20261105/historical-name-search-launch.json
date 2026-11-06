@@ -1,0 +1,9 @@
+{
+  "launched": true,
+  "session": "alex2024-historical-name-search-20261106",
+  "work": "/home/charvin-admin/storage-transfers/alexander-2024-20261105/historical-name-search-20261106",
+  "script_sha256": "206031b80dc109339e781d976f81a7dcd4d6f996f95cba94cd5a48cae8126a8d",
+  "read_only": true,
+  "basenames": 9,
+  "bounded_recovery": "Prepared files only; first launcher preflight stopped before process launch. Existing request/script verified unchanged and no receipts/processes present."
+}
