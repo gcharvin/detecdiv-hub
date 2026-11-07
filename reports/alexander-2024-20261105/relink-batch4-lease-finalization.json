@@ -1,0 +1,14 @@
+{
+  "success": true,
+  "batch_id": "98f46050-bfe3-409f-a807-a2fb30c104ef",
+  "status": "copied_paths_relinked_pending_raw_and_host_gates",
+  "own_leases_released": [
+    "2c6908f5-c04c-449c-a169-bac32c23f04f",
+    "27774717-e6ef-4962-99e5-6e5dc52cc4e5",
+    "9a2b11c7-ba0a-4db8-89a9-58551ba3c023",
+    "b09c332a-b047-4cd7-b6b7-5c1955f9938a"
+  ],
+  "checked_at": "2026-11-07T09:12:56.268862+00:00",
+  "source_deleted": false,
+  "preferred_locations_unchanged": true
+}

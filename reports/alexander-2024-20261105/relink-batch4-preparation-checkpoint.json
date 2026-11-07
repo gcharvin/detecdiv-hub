@@ -1,0 +1,18 @@
+{
+  "backups_verified": 6,
+  "backup_bytes": 175175795,
+  "original_inventories_rechecked": 4,
+  "native_input_and_backup_gate_sha256": "d372e8030b85f7503f83d2bb88742398d734b60ec802f393e6cf4e53c2457b32",
+  "state": {
+    "phase": "relinking_unpublished_copies",
+    "source_deleted": false,
+    "catalog_changed": false,
+    "copies_may_have_been_relinked": true,
+    "heartbeat_at": "2026-11-07T09:05:05.367420+00:00",
+    "project": "qp_22032024_DHY210_nts1ng",
+    "backups": 6,
+    "matlab_pid": 619804
+  },
+  "modified_receipts": 2,
+  "source_deleted": false
+}

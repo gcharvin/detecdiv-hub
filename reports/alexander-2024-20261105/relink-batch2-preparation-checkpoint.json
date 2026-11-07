@@ -1,0 +1,19 @@
+{
+  "native_input_and_backup_gate_sha256": "d3b2c7b3f47c7b8cb20399103141bea139f7f1ca4fbeee9bbb2419e6f4f7e1a0",
+  "backups_verified": 18,
+  "backup_bytes": 1080274086,
+  "original_inventories_rechecked": 9,
+  "state": {
+    "phase": "relinking_unpublished_copies",
+    "source_deleted": false,
+    "catalog_changed": false,
+    "copies_may_have_been_relinked": true,
+    "heartbeat_at": "2026-11-07T08:45:54.658397+00:00",
+    "project": "anof_230724_HpaRDN_11429",
+    "backups": 18,
+    "matlab_pid": 607192
+  },
+  "modified_receipts": 12,
+  "source_deleted": false,
+  "catalog_cutover_allowed": false
+}

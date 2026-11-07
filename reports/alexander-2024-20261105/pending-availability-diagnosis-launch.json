@@ -1,0 +1,10 @@
+{
+  "launched": true,
+  "session": "alex2024-pending-availability-diagnosis-20261107",
+  "work": "/home/charvin-admin/storage-transfers/alexander-2024-20261105/pending-availability-diagnosis-20261107",
+  "projects": 2,
+  "script_sha256": "97f0e3d77f9a0da052a0720809772bdaa815a6e4462fe8b4691811e975747c2f",
+  "read_only": true,
+  "raw_pixels_not_replayed": true,
+  "scientific_files_saved": false
+}

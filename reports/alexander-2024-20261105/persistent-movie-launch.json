@@ -1,0 +1,10 @@
+{
+  "launched": true,
+  "session": "alex2024-persistent-paths-movie-20261107",
+  "work": "/home/charvin-admin/storage-transfers/alexander-2024-20261105/persistent-path-audit-movie-20261107",
+  "projects": 1,
+  "script_sha256": "9368ceb1dfa95b76d26d429a7ef19006cfd0b426cd21915994a4b67711592b84",
+  "read_only": true,
+  "images_not_loaded_or_written": true,
+  "identity_receipt_sha256": "48dda4afb2bd1a4caa57e2825cb6c5730dd99b8cf4851280c14a243c1c2dedbf"
+}

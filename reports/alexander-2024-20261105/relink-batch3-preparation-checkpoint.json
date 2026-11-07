@@ -1,0 +1,18 @@
+{
+  "backups_verified": 9,
+  "backup_bytes": 1083950122,
+  "original_inventories_rechecked": 5,
+  "native_input_and_backup_gate_sha256": "e04e123f9267791a8ce4622e2c5e8753d0fdf3ddbbf834923ea2ab66fb5cd700",
+  "state": {
+    "phase": "relinking_unpublished_copies",
+    "source_deleted": false,
+    "catalog_changed": false,
+    "copies_may_have_been_relinked": true,
+    "heartbeat_at": "2026-11-07T08:58:20.235328+00:00",
+    "project": "anof_281124_X5152bud4s",
+    "backups": 9,
+    "matlab_pid": 614639
+  },
+  "modified_receipts": 4,
+  "source_deleted": false
+}

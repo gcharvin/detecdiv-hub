@@ -1,0 +1,31 @@
+{
+  "references": 112956,
+  "unique_paths": 112956,
+  "missing_initial_paths": 53280,
+  "unique_candidate_paths": 60,
+  "ambiguous_candidates": 0,
+  "absent_candidates": 53220,
+  "candidate_roots": {
+    "290424_loxP15": 60
+  },
+  "examples": [
+    {
+      "old": "290424_loxP15/290424_loxP15_4/Pos10/img_channel000_position010_time000000000_z000.tif",
+      "candidate": []
+    },
+    {
+      "old": "290424_loxP15/290424_loxP15_4/Pos10/img_channel000_position010_time000000000_z001.tif",
+      "candidate": []
+    },
+    {
+      "old": "290424_loxP15/290424_loxP15_4/Pos10/img_channel000_position010_time000000000_z002.tif",
+      "candidate": []
+    }
+  ],
+  "source_native_initial_manifest_sha256": "8fd64d094fe29707e0ddd0b1480e9b861786d3adde677087ca7a6e95e252f61e",
+  "references_sha256": "3924c8a996832bc48b539ec80662234eb2bfb50446d64a38a85eeb07aedb217d",
+  "source_deleted": false,
+  "candidate_substitution_allowed": false,
+  "candidates_are_parent_and_basename_only": true,
+  "scientific_identity_not_proved": true
+}

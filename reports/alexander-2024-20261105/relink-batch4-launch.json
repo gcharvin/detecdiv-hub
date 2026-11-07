@@ -1,0 +1,15 @@
+{
+  "launched": true,
+  "session": "alex2024-relink-batch4-20261107",
+  "work": "/home/charvin-admin/storage-transfers/alexander-2024-20261105/relink-batch4-20261107",
+  "batch_id": "98f46050-bfe3-409f-a807-a2fb30c104ef",
+  "holder": "alexander-2024-unpublished-relink-batch4-20261107",
+  "lease_deadline_unix": 1794063885.574226,
+  "runner_sha256": "5a301492029ad27bb11d1e60c73aea38783c55e047cb92fae67e269493e69b25",
+  "matlab_sha256": "a673ca7478c501d9b196afd15e1d570e9c932ad5b45a0f1fcaa8e1f903dcb13e",
+  "projects": 4,
+  "metadata_mats": 6,
+  "expected_path_changes": 110444,
+  "source_deleted": false,
+  "catalog_cutover_allowed": false
+}

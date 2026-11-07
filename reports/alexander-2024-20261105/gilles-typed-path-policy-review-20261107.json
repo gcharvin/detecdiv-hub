@@ -1,0 +1,86 @@
+{
+  "engine_release": "d83c4dbc0638bc0d3f6012b4f1df5744e0c017c7",
+  "review_read_only": true,
+  "scientific_files_saved": false,
+  "all_typed_path_plans_complete": false,
+  "consumer_sha256": {
+    "structure/io/pipelineRunLoad.m": "bab772a80e91e72d5f22c10738d1be61508c6019e77379e281ac18731a401c37",
+    "structure/io/pipelineRunSave.m": "67e0a4c5ce74313825dd9c4b4a9a7197a33e7159e1b3d98c1688fe257074725b",
+    "structure/io/pipelineRunReview.m": "72e984813498521de5d2facbcee3eddf24e29fed7258df1aacb4b702f02874bd",
+    "structure/io/shallowLoad.m": "14eaa9422d9fa850552d0f1705473c65deb217c21ea2cecb2bdf7c3fd8ecdf8e",
+    "structure/GUI/loadData/loadData_rebuildParsedDataFromProject.m": "7eb6df92cc3bd853c22c55c27ce7d1ef59c0287588307c8b934ff840b8fe68f7",
+    "helpers/detecdiv_paths_localize_run.m": "b006e7026e79c5886a388397d6ee255795b8f3f034a819c9e6782c402db8d34c"
+  },
+  "additional_consumer_sha256": {
+    "structure/io/pipelineSave.m": "4f01f2095f28a35089f0a192257a8cb4a4cbb00d11a5323c932ef75b80b5fd17",
+    "structure/io/pipelineRunReview.m": "72e984813498521de5d2facbcee3eddf24e29fed7258df1aacb4b702f02874bd",
+    "structure/io/pipelineRunSave.m": "67e0a4c5ce74313825dd9c4b4a9a7197a33e7159e1b3d98c1688fe257074725b",
+    "structure/GUI/pipeline2_extracted.m": "930f30ab99a106ac29f0f6324b2daab5bb49f4254afc14bc7df64a2108f614b1",
+    "structure/io/tests/testRoiPatternLibrary.m": "d096c086bedd8e5e881b8982fb3cfc8bade9a2bb407f898be4a55ba66914619e",
+    "engine/classification/+sam31/displayValidationRuns.m": "c7a5fbfb0f2c8c8fc05909199c14d9e2e0d575456ae43c200f666143dab62c8d"
+  },
+  "roles": {
+    "main_mat_parsedData_folder": {
+      "active_field": "metadata.shallowObj.parsedData.folder",
+      "canonical_value": "/homes2/maliavko/DetecdivHub/projects/281124_Alex",
+      "evidence": "Protected loadData_rebuildParsedDataFromProject sets parsedOut.folder to shallowObj.io.path; exact-field adapter required."
+    },
+    "run_json_reusable_references": {
+      "active_fields": [
+        "templatePath",
+        "projectPath",
+        "pipelineRef.path",
+        "targetRef.projectPath",
+        "targetRef.classiPath"
+      ],
+      "preserve_subtrees": [
+        "ctx",
+        "outputs",
+        "progress"
+      ],
+      "evidence": "Protected detecdiv_paths_localize_run explicitly rebases these reusable refs in memory and preserves execution logs/context. pipelineRunLoad reads them and shallowLoad reloads the runs."
+    },
+    "run_params_json": {
+      "action": "preserve_bytes",
+      "evidence": "pipelineRunSave writes parameter snapshots; pipelineRunReview, the GUI and sam31 validation display consume these as historical review/settings, separately from reusable run refs."
+    },
+    "dependency_audit_json": {
+      "action": "preserve_bytes",
+      "evidence": "Protected pipelineSave generates the audit report; separately audit active pipeline.json and modules/dataloader_1/module.json."
+    },
+    "execution_logs_and_reports": {
+      "action": "preserve_bytes",
+      "files": [
+        "run_events.jsonl",
+        "run_log.txt",
+        "run_review.txt",
+        "run_summary.txt"
+      ],
+      "note": "Stored old paths are historical execution evidence, not proof that an active migrated resource still lives there."
+    },
+    "external_pipelines_and_model": {
+      "action": "keep_existing_external_resource_locations",
+      "canonical_root": "/data/Gilles",
+      "legacy_alias_root": "X:/Gilles",
+      "note": "Do not move external pipelines/models. Canonicalize only reviewed active references; actual Windows reader and exact external file hashes remain required."
+    },
+    "raw_alias": {
+      "old": "X:/Alexander/data/2024_2/281124_X5152bud4s",
+      "canonical": "/homes2/maliavko/DetecdivHub/raw/.incoming-alexander-2024-20261105/2024_2/281124_X5152bud4s",
+      "scope": "active copied project/pipeline fields only; preserve historical context snapshots"
+    },
+    "embedded_hub_client_mappings": {
+      "action": "preserve_historical_configuration",
+      "note": "Do not replace X:/data mappings blindly inside stored execution snapshots; use live runtime translation for actual host reads."
+    }
+  },
+  "remaining_gates": [
+    "Build exact-field typed MAT/JSON plan and count approved changes",
+    "Readiness and backups of files actually selected",
+    "Compare all other scientific values/types/annotations and untouched JSON subtrees before/after/save/reopen",
+    "Test actual protected Linux/limited Windows project and reusable-run readers with paths localized only in memory",
+    "Historical run resumption is not validated; do not treat frozen ctx as executable paths ready for a resumed analysis"
+  ],
+  "source_deleted": false,
+  "preferred_locations_changed": false
+}

@@ -1,0 +1,51 @@
+{
+  "success": true,
+  "updated_only_own_summary": true,
+  "batch_id": "0382c23e-ad54-4ec9-9ad8-53cc79b64d97",
+  "status_unchanged": "copying_and_project_discovery",
+  "checkpoint": {
+    "checked_at": "2026-11-07T09:15:59.179526+00:00",
+    "source_deleted": false,
+    "raw_2024_1_phase": "verifying_full_content",
+    "active_relink_projects": 14,
+    "raw_full_sha1_terminal": false,
+    "active_relink_child_batches": [
+      "90c03028-f0b9-4f86-86b6-a90912e3ef50",
+      "e72ca211-c526-4855-99ad-d2839da288a6"
+    ],
+    "actual_2024_bytes_reclaimed": 0,
+    "preferred_locations_changed": false,
+    "loxP15_full_access_gate_passed": false,
+    "movie_cache_identity_qualified": true,
+    "metadata_relink_batch1_completed_files": 23,
+    "metadata_relink_batch1_completed_projects": 12,
+    "metadata_relink_batch1_gpu_values_preserved": 4258,
+    "metadata_relink_batch1_gpu_postflight_verified": true,
+    "loxP15_missing_raw_references_in_initial_manifest": 53280,
+    "native_pending_reference_availability_parity_verified": true,
+    "metadata_completed_batches": [
+      1,
+      4
+    ],
+    "metadata_completed_project_copies": 16,
+    "metadata_completed_mats": 29,
+    "metadata_completed_path_changes": 747062
+  },
+  "child_states": [
+    {
+      "batch_id": "90c03028-f0b9-4f86-86b6-a90912e3ef50",
+      "status": "relinking_unpublished_copies",
+      "projects": 9
+    },
+    {
+      "batch_id": "e72ca211-c526-4855-99ad-d2839da288a6",
+      "status": "relinking_unpublished_copies",
+      "projects": 5
+    },
+    {
+      "batch_id": "98f46050-bfe3-409f-a807-a2fb30c104ef",
+      "status": "copied_paths_relinked_pending_raw_and_host_gates",
+      "projects": 4
+    }
+  ]
+}

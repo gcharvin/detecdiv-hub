@@ -1,0 +1,81 @@
+{
+  "loop_completed": true,
+  "all_projects_successful": false,
+  "result_sha256": "96116cbf6eb3460ee66bcd123d3c163976dfc13be3d4d4ed138493583558652d",
+  "successful_projects": [
+    {
+      "project_id": "902b3fa9-d703-49d4-92b7-bf5f75eac4ef",
+      "name": "anof_230124_RMng",
+      "fovs": 7,
+      "rois": 3122,
+      "raw_samples": 84,
+      "available_roi_images": 0,
+      "missing_roi_image_refs_in_original_manifest": 3122,
+      "available_results": 0,
+      "missing_result_refs_in_original_manifest": 3122,
+      "no_sidecars_invented": true,
+      "main_hashes_unchanged": true
+    },
+    {
+      "project_id": "aa251bae-eadf-4fc1-b79e-f0b9217bd124",
+      "name": "anof_250724_dbud4stest",
+      "fovs": 32,
+      "rois": 191,
+      "raw_samples": 480,
+      "available_roi_images": 191,
+      "missing_roi_image_refs_in_original_manifest": 0,
+      "available_results": 33,
+      "missing_result_refs_in_original_manifest": 158,
+      "no_sidecars_invented": true,
+      "main_hashes_unchanged": true
+    },
+    {
+      "project_id": "6c46e8a4-ab0f-45ac-9aeb-ea139f252643",
+      "name": "movie_12224_w303MBsnabI_test",
+      "fovs": 8,
+      "rois": 787,
+      "raw_samples": 72,
+      "available_roi_images": 787,
+      "missing_roi_image_refs_in_original_manifest": 0,
+      "available_results": 49,
+      "missing_result_refs_in_original_manifest": 738,
+      "no_sidecars_invented": true,
+      "main_hashes_unchanged": true
+    },
+    {
+      "project_id": "ae089caa-2978-4441-8308-8256905738d1",
+      "name": "qp_22032024_DHY210_nts1ng",
+      "fovs": 2,
+      "rois": 442,
+      "raw_samples": 24,
+      "available_roi_images": 442,
+      "missing_roi_image_refs_in_original_manifest": 0,
+      "available_results": 442,
+      "missing_result_refs_in_original_manifest": 0,
+      "no_sidecars_invented": true,
+      "main_hashes_unchanged": true
+    }
+  ],
+  "unresolved_projects": [
+    {
+      "project_id": "724afdda-24e8-42f1-b242-2b7a0e41e8b1",
+      "name": "movie_250124_diploids",
+      "success": false,
+      "error": "Raw size differs from saved srclist",
+      "completed_fovs_in_partial": 0,
+      "main_original_and_copy_hashes_unchanged": true,
+      "saved": false
+    },
+    {
+      "project_id": "de636b9e-684a-4ab1-bb4a-0bc64d435020",
+      "name": "anof_290424_loxP15",
+      "success": false,
+      "error": "Assertion failed.",
+      "completed_fovs_in_partial": 1,
+      "main_original_and_copy_hashes_unchanged": true,
+      "saved": false
+    }
+  ],
+  "source_deleted": false,
+  "note": "Qualified preservation of observed source availability; absent derived images/results are not restored. Native/current raw baseline and final-host gates remain."
+}

@@ -1,0 +1,10 @@
+{
+  "launched": true,
+  "session": "alex2024-pending-reference-parity-20261107",
+  "work": "/home/charvin-admin/storage-transfers/alexander-2024-20261105/pending-reference-parity-20261107",
+  "script_sha256": "1cbcdac601caf4119142ef3a9addb997c1b13fb2b19b3cd1dc1f74ce029b9a28",
+  "references": 112956,
+  "read_only": true,
+  "source_deleted": false,
+  "strict_identity_gate_waived": false
+}

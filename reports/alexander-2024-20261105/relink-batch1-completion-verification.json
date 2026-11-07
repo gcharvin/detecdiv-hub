@@ -7,11 +7,12 @@
   "path_changes": 636618,
   "result_sha256": "e2f0b82b394bb7f7355a7e0ec503bbe0ee45b5c1cae49d60db1f4892993c4cea",
   "all_scientific_values_types_annotations_and_save_reopen_verified": true,
-  "gpu_content_postflight_in_progress": true,
+  "gpu_content_postflight_in_progress": false,
   "original_projects_preserved": true,
   "image_files_rewritten": false,
   "source_deleted": false,
   "preferred_locations_changed": false,
   "own_leases_released": 12,
-  "terminal_phase": "copied_paths_relinked_science_verified_raw_and_host_gates_pending"
+  "terminal_phase": "copied_paths_relinked_science_verified_raw_and_host_gates_pending",
+  "gpu_content_postflight_verified": true
 }

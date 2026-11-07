@@ -1,0 +1,10 @@
+{
+  "success": true,
+  "controller_exit": 0,
+  "figures": 7,
+  "unresolved_path_values": 0,
+  "recognized_path_values": 0,
+  "result_sha256": "f09d64f69e222fef9cb58f20bffed8cbc6c8e82cfc95fa98b3774002d2746e61",
+  "receipt_sha256": "64b7c11a52c66f9708f53a782037eded03ce48f88bc45d9b3efebda3b7ecf18d",
+  "scientific_files_saved": false
+}

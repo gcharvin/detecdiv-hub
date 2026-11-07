@@ -1,0 +1,19 @@
+{
+  "success": true,
+  "controller_exit": 0,
+  "project": "movie_250124_diploids",
+  "fovs": 4,
+  "roi_entries": 6,
+  "raw_samples": 36,
+  "exact_representative_crops": 2,
+  "original_unextracted_empty_path_roi_slots": 2,
+  "available_roi_images": 4,
+  "all_native_reference_baselines_preserved": true,
+  "saved_cache_exceptions": 6396,
+  "strict_saved_cache_gate_passed": false,
+  "raw_full_checksum_gate_passed": false,
+  "result_sha256": "48dda4afb2bd1a4caa57e2825cb6c5730dd99b8cf4851280c14a243c1c2dedbf",
+  "main_original_and_copy_hashes_unchanged": true,
+  "scientific_files_saved": false,
+  "source_deleted": false
+}

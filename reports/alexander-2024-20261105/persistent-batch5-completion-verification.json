@@ -1,0 +1,12 @@
+{
+  "success": true,
+  "controller_exit": 0,
+  "projects": 5,
+  "metadata_files": 17581,
+  "files_requiring_rebase": 9,
+  "path_changes_planned": 268978,
+  "unresolved_values": 0,
+  "result_sha256": "751fb81d84407f8b296c50b73aed849c92f2cb239558cd9c6d21a19e139a8c3b",
+  "receipt_sha256": "74f2462e8e350cb327a63e5d0721d266f8b31c865b41d0adb8ff71e48c581fcc",
+  "scientific_files_saved": false
+}

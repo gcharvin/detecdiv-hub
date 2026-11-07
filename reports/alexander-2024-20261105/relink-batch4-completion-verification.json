@@ -1,0 +1,16 @@
+{
+  "success": true,
+  "controller_exit": 0,
+  "matlab_exit": 0,
+  "projects": 4,
+  "metadata_mats": 6,
+  "path_changes": 110444,
+  "result_sha256": "302d43985081831ff1e2b0906744463e08dee0f57dfec95fe51fc298b66d5b7b",
+  "all_scientific_values_types_annotations_and_save_reopen_verified": true,
+  "gpu_values": 0,
+  "original_projects_preserved": true,
+  "image_files_rewritten": false,
+  "source_deleted": false,
+  "preferred_locations_changed": false,
+  "finished_at": "2026-11-07T09:12:04.437976+00:00"
+}

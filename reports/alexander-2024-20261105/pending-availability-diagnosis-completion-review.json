@@ -1,0 +1,49 @@
+{
+  "diagnostic_loop_completed": true,
+  "controller_exit": 0,
+  "result_sha256": "580f1db0aefc0394b85c2157dfcc0f71b564c217bbd7a7e002e2aaa298c53305",
+  "projects": [
+    {
+      "name": "movie_250124_diploids",
+      "fovs": 4,
+      "raw_references": 6396,
+      "missing_raw_references": 0,
+      "saved_cache_size_mismatches": 6396,
+      "fovs_with_missing_raw_directories": [],
+      "fovs_with_numeric_empty_roi_paths": [
+        3,
+        4
+      ],
+      "main_original_and_copy_hashes_unchanged": true
+    },
+    {
+      "name": "anof_290424_loxP15",
+      "fovs": 30,
+      "raw_references": 106560,
+      "missing_raw_references": 53280,
+      "saved_cache_size_mismatches": 0,
+      "fovs_with_missing_raw_directories": [
+        2,
+        4,
+        6,
+        8,
+        10,
+        12,
+        14,
+        16,
+        18,
+        20,
+        22,
+        24,
+        26,
+        28,
+        30
+      ],
+      "fovs_with_numeric_empty_roi_paths": [],
+      "main_original_and_copy_hashes_unchanged": true
+    }
+  ],
+  "strict_identity_and_access_gate_passed": false,
+  "source_deleted": false,
+  "note": "Readonly metadata diagnosis. Current NAS parity and representative pixel/crop identity remain pending. Old missing fields/cache differences are not a cleanup waiver."
+}

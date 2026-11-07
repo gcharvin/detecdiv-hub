@@ -1,0 +1,19 @@
+{
+  "admitted_at": "2026-11-07T09:04:45.574226+00:00",
+  "batch_id": "98f46050-bfe3-409f-a807-a2fb30c104ef",
+  "holder": "alexander-2024-unpublished-relink-batch4-20261107",
+  "lease_ids": [
+    "2c6908f5-c04c-449c-a169-bac32c23f04f",
+    "27774717-e6ef-4962-99e5-6e5dc52cc4e5",
+    "9a2b11c7-ba0a-4db8-89a9-58551ba3c023",
+    "b09c332a-b047-4cd7-b6b7-5c1955f9938a"
+  ],
+  "lease_deadline_unix": 1794063885.574226,
+  "projects": 4,
+  "files": 6,
+  "lease_deadline_utc": "2026-11-07T15:04:45.574226+00:00",
+  "fresh_jobs_indexing_and_project_lock_admission_passed": true,
+  "original_projects_preserved": true,
+  "preferred_locations_unchanged": true,
+  "source_deleted": false
+}

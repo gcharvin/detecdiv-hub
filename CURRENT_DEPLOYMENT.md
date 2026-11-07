@@ -79,6 +79,27 @@ receipts are in `reports/abhilasha-channels-20261106/`.
 
 ## Alexander 2024 migration started, 2026-11-05
 
+2026-11-07 09:13 UTC update: metadata batch4 finished successfully (four
+projects/six MATs/110444 paths), own leases released and DB identity/metadata/
+locations independently unchanged. Completed batches1+4 now cover sixteen
+project copies,29 MATs; batches2/3 continue. Raw full SHA1 still pending;
+no preferred location/API/source retirement. Do not replay finished batch4.
+
+2026-11-07 09:01 UTC checkpoint: raw 2024_1 full SHA1 still running, no
+terminal checksum/stability or 2024 source retirement. First twelve project
+copies now also have exact post-save parity for all 4258 GPU descriptors.
+Three new disjoint unpublished metadata writers are running for 9+5+4 projects
+(18+9+6 MATs), with fresh own leases, native original/backup gates and bounded
+scientific save/reopen checks. Do not replay any live writer or its hidden
+own-lease watcher. No preferred location/API reference changed.
+New native parity proves loxP15 already lacked 53280 raw refs across fifteen
+even positions in the initial manifest; these fields remain inaccessible,
+not recovered. Gilles was asked about another archive while other work continues.
+Movie cache discrepancies were separately corroborated by 36 pixel reads and
+two exact ROI crops; its two blank ROI slots are preserved. Read the newest
+report README before any operation; zero 2024 bytes reclaimed.
+
+
 2026-11-07 02:40 UTC checkpoint: raw 2024_1 copy finished at 02:22 UTC
 (5.178 TB), full SHA1 now running; source stability and 2024_2 still pending.
 The first twelve unpublished project copies completed their metadata relink:

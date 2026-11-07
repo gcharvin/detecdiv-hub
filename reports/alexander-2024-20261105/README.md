@@ -8,7 +8,170 @@ year/user, original project, NAS snapshot, backup policy, quota, default engine
 or SMB credentials may be changed. The completed 2023 migration is separate;
 never replay any of its one-shot scripts.
 
-## Latest follow-up — 2026-11-07, starting 02:36 UTC
+## Latest follow-up — 2026-11-07, starting 08:40 UTC
+
+**This checkpoint supersedes all earlier running states.** At 09:01 UTC,
+raw 2024_1 remains **verifying_full_content**, runner187291/rsync503795 alive.
+No terminal SHA1 or source-after stability receipt yet; an empty live log is
+not success. Do not duplicate/restart it. 2024_2 starts automatically after
+both gates. No preferred location/API reference changed; **zero 2024 bytes
+reclaimed from /data**. Keep all original projects and all remaining gates.
+
+### First relink corroborated; batch4 finished and batches2/3 running
+
+The first 23-MAT/twelve-project relink is done, never replay. Its additional
+readonly postflight finished and **all 4,258 GPU content hashes, underlying
+types/sizes and every class count exactly match original readiness** across
+23 files. See `relink-batch1-gpu-postflight-verification.json`; after-result
+SHA256 `7037d92382c67ce5939d8bf1516cdf5e0c5af2e02cd6b25b1b9826356eabeb0b`.
+Its child batch and twelve leases were already finalized/released last night;
+no watcher restart or additional release is needed.
+
+Fresh jobs/indexing/lease admission launched only these disjoint unpublished
+metadata batches. Every native full original inventory was freshly identical,
+source/copy/backup full hashes matched, backups are real maliavko-owned files
+with distinct inodes, and all source originals remain untouched:
+
+| Batch/work | Projects / MATs | Planned path changes | Verified backup bytes | Own lease expiry UTC |
+| --- | ---: | ---: | ---: | --- |
+| `relink-batch2-20261107` | 9 / 18 | 394123 | 1080274086 | Nov7 14:42:26 |
+| `relink-batch3-20261107` | 5 / 9 | 268978 | 1083950122 | Nov7 14:55:52 |
+| `relink-batch4-20261107` | 4 / 6 | 110444 | 175175795 | Nov7 15:04:45 |
+
+Batches2/3 are **RUNNING**, not terminal success (checkpoint 12/18 and 4/9
+receipts). Batch4 finished at the end of this follow-up, as detailed below.
+Read current state/result first; lease expiries in the table are admission
+deadlines, not a claim that a completed batch still holds a lease.
+Each tmux is `alex2024-<work>` under the usual private compute root. Native
+backup gate hashes and snapshot states are in `relink-batchN-preparation-checkpoint.json`.
+Backups stay under homes2 `.migration-backups/alexander-2024-20261105/<work>`.
+These are new scopes of the reviewed 2024-only writer, not replays or changes
+to any executing script. They compare canonical scientific/type/annotation
+values before/after/save/reopen and enforce exact path counts and lease expiry.
+Images/HDF5/originals/catalog cutover/source retirement are outside permission.
+
+Child batches/holders (do not mix their leases):
+
+- Batch2 `90c03028-f0b9-4f86-86b6-a90912e3ef50`, holder
+  `alexander-2024-unpublished-relink-batch2-20261107`, nine leases.
+- Batch3 `e72ca211-c526-4855-99ad-d2839da288a6`, holder
+  `alexander-2024-unpublished-relink-batch3-20261107`, five leases.
+- Batch4 `98f46050-bfe3-409f-a807-a2fb30c104ef`, holder
+  `alexander-2024-unpublished-relink-batch4-20261107`, four leases.
+
+Batch2/3 hidden local watchers are alive and identity-verified (launch PIDs
+83164 / 95116; reverify before any intervention). Batch4 watcher24208 completed
+and must not be restarted. These watchers
+only finalize their own child/lease IDs after true terminal receipt. Private
+plans/admission/status/logs are `runtime/relink-batchN-*`; public launch,
+admission-summary and eventual lease-finalization receipts use the same prefix.
+Do not duplicate watchers, extend active requests/deadlines, or replay partial
+writers. On failure count modified-NN receipts even if final result is absent;
+preserve all backups/temporary MATs and design bounded recovery. After batch2
+success, schedule the same after-hash GPU corroboration against its own
+2,585-value readiness; no old before hashes may be used on modified copies.
+Batch3/4 readiness had zero GPU/function/private values; full canonical
+save/reopen checks still apply. Scientific type/FIG summaries are public.
+
+**Batch4 TERMINAL UPDATE:** controller/matlab exit0 at 09:12:04 UTC, all six
+MATs/four projects and 110444 exact path changes have science/type/annotation
+save-reopen receipts. Result SHA256
+`302d43985081831ff1e2b0906744463e08dee0f57dfec95fe51fc298b66d5b7b`;
+see `relink-batch4-completion-verification.json`. Watcher released its four
+leases and closed only its child at 09:12:56. Independent readonly DB digest
+comparison confirms all four project identities/metadata/locations unchanged;
+see `relink-batch4-catalog-preservation-verification.json`. Never replay the
+batch4 writer/watcher. There are now **sixteen projects / 29 metadata MATs**
+fully relinked in completed batches1+4, separate from live batches2+3.
+No preferred location, API reference, original or raw source was changed.
+
+### New unresolved loxP15 raw absence, proven pre-migration
+
+The availability-variant v2 loop is done, exit0 but overall **success false**.
+Four projects are availability-qualified without any invented sidecar:
+RMng, anof_dbud4, movie_12224_w303MBsnabI_test and qp_22032024_DHY210_nts1ng.
+See `availability-variants-v2-completion-review.json`; do not repeat them.
+
+The two failures received bounded metadata diagnosis. V1 stopped readonly on
+mixed char/numeric-empty ROI path cells (`uniqueCellstrHelper`), after partial
+references only. V2 preserves those traces, verifies/reuses matching prior
+rows, keeps actual path types (no fabricated empty paths) and does not replay
+raw pixels. It finished with unchanged original/copy main hashes. See
+`pending-availability-diagnosis-completion-review.json`, result SHA256
+`580f1db0aefc0394b85c2157dfcc0f71b564c217bbd7a7e002e2aaa298c53305`.
+
+**loxP15 has 53,280 raw references absent at the expected paths**, every even
+position Pos2..Pos30 (15 of its 30 fields), in addition to its already missing
+derived project folder. This absence is present in the original Nov5 native
+manifest, not created by migration. Do NOT claim these fields accessible or
+recovered. A candidate scan of the three related acquisition roots found only
+60 parent/basename candidates and no candidate for 53,220 references; no
+scientific identity was proved and no file substituted. Preserve this plan,
+not a recovery receipt (`pending-availability-candidate-plan-summary.json`).
+
+The new **native parity controller is TERMINATED exit0, success true**:
+112,956 unique references over movie+lox; initial/current source/current
+homes2 agree in availability and size; every existing source also agrees in
+exact native mtime_ns/inode/UID/GID, targets have actual maliavko ownership.
+It confirms 53,280 old absences and 6,396 old movie cache-size discrepancies.
+No cleanup/strict-access gate is waived. See
+`pending-reference-parity-completion-verification.json`, result SHA256
+`5534c9800b12487e4a58b9cf29fc36999c87e4ff8df5651069594ef4489b59b5`.
+Full per-reference/native receipts stay private in `pending-reference-parity-20261107`.
+Do not rerun this controller on its existing receipts.
+
+An optional text question is pending with Gilles about intentional deletion or
+another archive of these even lox fields/derived folder. Continue independent
+work; preserve all originals. Remaining lox fields need available-pixel reads
+and a complete explicit treatment of missing fields before any retirement.
+Do not silently accept a partial-access project as fully accessible. Its first
+FOV was already read by availability v2 and must be reused rather than replayed.
+
+### Movie cache case now corroborated with actual pixels
+
+`movie-cache-identity-20261107` is **TERMINATED exit0/success**. Its bounded
+reader requires the completed native parity gate and exact recorded metadata
+for every saved/current reference; no blanket size/date assertion was waived.
+All 6,396 historical cache sizes differ, timestamps have 533 different offsets
+per channel. The original cached values remain unchanged. Four FOV / six ROI
+entries, **36 raw samples and two exact representative saved ROI crops** pass;
+two pre-existing numeric-empty-path ROI slots stay unextracted and empty.
+See `movie-cache-identity-completion-verification.json`, result SHA256
+`48dda4afb2bd1a4caa57e2825cb6c5730dd99b8cf4851280c14a243c1c2dedbf`.
+This is qualified identity/readability, not a successful strict historical
+cache assertion or raw full checksum. Do not replay these reads.
+
+A readonly persistent metadata plan for only this movie is now running in
+`persistent-path-audit-movie-20261107`, tmux
+`alex2024-persistent-paths-movie-20261107`. Existing audit script SHA256
+`9368ceb1dfa95b76d26d429a7ef19006cfd0b426cd21915994a4b67711592b84`.
+Read result/receipt and handle FIG/types before any writer for this movie.
+
+Metadata batch5 is done: 17,581 files / nine future MATs / 268,978 path changes,
+zero unknown; its type3 and FIG4 checks finished, used by running writer3.
+Metadata batch6 is done: 533 files / six future MATs / 110,444 path changes,
+zero unknown; type4 and FIG5 finished, used by running writer4. See public
+completion receipts. Do not replay completed identity/metadata/FIG/type tasks.
+
+### Gilles field policy reviewed against the protected engine
+
+The HDF5 attribute/reference audit was already done (58 files, no unknowns);
+do not repeat. New `gilles-typed-path-policy-review-20261107.json` records
+actual consumer hashes from the protected d83c4db release. Its path-localizer
+explicitly rebases reusable top-level run refs while preserving execution
+logs/context. Proposed typed handling separates those active fields from
+ctx/outputs, run_params and text/event provenance, existing external models/
+pipelines and embedded Hub client mappings. parsedData.folder is an active
+io.path-derived project container field. No Gilles file was rewritten.
+
+An exact field-level MAT/JSON plan, readiness/backups, canonical non-path
+comparisons and actual Linux/limited-Windows reusable-run readers remain.
+Historical-run resumption has not been validated; frozen ctx is not a claim
+that an old analysis can be resumed. The unresolved legacy main/MAT/stub
+relevance review still remains; absence/old names are not negative references.
+All raw/full-final-host/catalog/API/new-tested-2024-retirement gates still apply.
+
+## Historical follow-up — 2026-11-07, starting 02:36 UTC
 
 **This checkpoint supersedes earlier running states.** The complete raw copy
 of **2024_1 finished at 02:22:00 UTC**: 732,579 files / 5,177,814,875,236

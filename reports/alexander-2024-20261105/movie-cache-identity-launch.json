@@ -1,0 +1,13 @@
+{
+  "launched": true,
+  "session": "alex2024-movie-cache-identity-20261107",
+  "work": "/home/charvin-admin/storage-transfers/alexander-2024-20261105/movie-cache-identity-20261107",
+  "script_sha256": "70a32c463d9c6d9aa80dc53f72dfdefdfbe5d632196ec278478607593f7999e6",
+  "read_only": true,
+  "scientific_files_saved": false,
+  "project": "movie_250124_diploids",
+  "fovs": 4,
+  "cached_reference_exceptions": 6396,
+  "native_parity_result_sha256": "5534c9800b12487e4a58b9cf29fc36999c87e4ff8df5651069594ef4489b59b5",
+  "source_deleted": false
+}

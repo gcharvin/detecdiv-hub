@@ -1,0 +1,59 @@
+{
+  "success": true,
+  "references": 112956,
+  "missing_initial_references": 53280,
+  "manifest_sha256": "8fd64d094fe29707e0ddd0b1480e9b861786d3adde677087ca7a6e95e252f61e",
+  "references_sha256": "3924c8a996832bc48b539ec80662234eb2bfb50446d64a38a85eeb07aedb217d",
+  "initial_current_source_and_target_availability_equal": true,
+  "native_current_source_metadata_unchanged": true,
+  "native_receipts": {
+    "source": {
+      "references": 112956,
+      "sha256": "c09220303dd5061e1de0f05e9973729eae487409a3344d20decc770ca6cd249a"
+    },
+    "target": {
+      "references": 112956,
+      "sha256": "2ddd8116620b9e8851211192c2d1500178264de9a4666904a1dc73aa493be074"
+    }
+  },
+  "projects": [
+    {
+      "project_id": "724afdda-24e8-42f1-b242-2b7a0e41e8b1",
+      "references": 6396,
+      "missing_initial_references": 0,
+      "saved_cache_size_mismatches": 6396,
+      "fovs_with_missing_references": []
+    },
+    {
+      "project_id": "de636b9e-684a-4ab1-bb4a-0bc64d435020",
+      "references": 106560,
+      "missing_initial_references": 53280,
+      "saved_cache_size_mismatches": 0,
+      "fovs_with_missing_references": [
+        2,
+        4,
+        6,
+        8,
+        10,
+        12,
+        14,
+        16,
+        18,
+        20,
+        22,
+        24,
+        26,
+        28,
+        30
+      ]
+    }
+  ],
+  "strict_identity_and_access_gate_passed": false,
+  "raw_full_checksum_gate_passed": false,
+  "candidate_substitutions": 0,
+  "read_only": true,
+  "source_deleted": false,
+  "note": "Availability diagnosis only. Missing historical raw fields remain inaccessible; size-cache differences require pixel/crop corroboration. No cleanup gate is waived.",
+  "controller_exit": 0,
+  "result_sha256": "5534c9800b12487e4a58b9cf29fc36999c87e4ff8df5651069594ef4489b59b5"
+}

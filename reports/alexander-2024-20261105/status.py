@@ -43,6 +43,23 @@ summary['relink_batch1_visitor_progress']=load('relink-batch1-20261106/visitor-p
 summary['relink_batch1_modified_mat_receipts']=len(list((w/'relink-batch1-20261106').glob('modified-*.json')))
 summary['relink_batch1_log_tail']=tail('relink-batch1-20261106/controller.log',1200)
 summary['relink_batch1_matlab_log_tail']=tail('relink-batch1-20261106/matlab.log',1200)
+summary['relink_batch2_state']=load('relink-batch2-20261107/state.json')
+summary['relink_batch2_exit']=tail('relink-batch2-20261107/controller.exit')
+summary['relink_batch2_progress']=load('relink-batch2-20261107/progress.json')
+summary['relink_batch2_visitor_progress']=load('relink-batch2-20261107/visitor-progress.json')
+summary['relink_batch2_modified_mat_receipts']=len(list((w/'relink-batch2-20261107').glob('modified-*.json')))
+summary['relink_batch2_log_tail']=tail('relink-batch2-20261107/controller.log',1200)
+summary['relink_batch2_matlab_log_tail']=tail('relink-batch2-20261107/matlab.log',1200)
+summary['relink_batch3_state']=load('relink-batch3-20261107/state.json')
+summary['relink_batch3_exit']=tail('relink-batch3-20261107/controller.exit')
+summary['relink_batch3_progress']=load('relink-batch3-20261107/progress.json')
+summary['relink_batch3_modified_mat_receipts']=len(list((w/'relink-batch3-20261107').glob('modified-*.json')))
+summary['relink_batch3_log_tail']=tail('relink-batch3-20261107/controller.log',1200)
+summary['relink_batch4_state']=load('relink-batch4-20261107/state.json')
+summary['relink_batch4_exit']=tail('relink-batch4-20261107/controller.exit')
+summary['relink_batch4_progress']=load('relink-batch4-20261107/progress.json')
+summary['relink_batch4_modified_mat_receipts']=len(list((w/'relink-batch4-20261107').glob('modified-*.json')))
+summary['relink_batch4_log_tail']=tail('relink-batch4-20261107/controller.log',1200)
 summary['supplemental_progress']=load('project-discovery-supplemental/project-discovery-progress.json')
 summary['supplemental_result']=load('project-discovery-supplemental/project-discovery-result.json')
 summary['supplemental_exit']=tail('project-discovery-supplemental/project-discovery.exit')
@@ -89,7 +106,12 @@ for name in ['persistent-path-audit-20261106-batch2','historical-reference-basel
              'persistent-path-audit-20261106-batch4','availability-variants-identity-20261106',
              'relink-batch1-gpu-postflight-20261107','availability-variants-identity-v2-20261107',
              'persistent-path-audit-20261107-batch5','figure-path-audit-20261107-batch3',
-             'relink-value-types-20261107-batch2','gilles-hdf5-metadata-20261107']:
+             'relink-value-types-20261107-batch2','gilles-hdf5-metadata-20261107',
+             'persistent-path-audit-20261107-batch6','relink-value-types-20261107-batch3',
+             'figure-path-audit-20261107-batch4','pending-availability-diagnosis-20261107',
+             'pending-availability-diagnosis-v2-20261107','pending-reference-parity-20261107',
+             'relink-value-types-20261107-batch4','figure-path-audit-20261107-batch5',
+             'movie-cache-identity-20261107','persistent-path-audit-movie-20261107']:
  item={'exit':tail(name+'/controller.exit'),'progress':load(name+'/progress.json'),'log_tail':tail(name+'/controller.log',1200)}
  result=load(name+'/result.json')
  if result:
@@ -103,7 +125,7 @@ for name in ['persistent-path-audit-20261106-batch2','historical-reference-basel
     item['result_summary']['unresolved_path_files']=sum(p.get('files_with_unresolved_paths',0) for p in result['projects'])
   if name=='historical-name-search-20261106':
    item['search_results']=[{'target':p['target'],'inventory_counts':p['inventory_counts'],'candidate_count':len(p['candidates'])} for p in result['results']]
-  if name in ['relink-value-types-20261106','relink-value-types-20261107-batch2','relink-batch1-gpu-postflight-20261107']:
+  if name in ['relink-value-types-20261106','relink-value-types-20261107-batch2','relink-batch1-gpu-postflight-20261107','relink-value-types-20261107-batch3','relink-value-types-20261107-batch4']:
    item['scientific_type_files']=len(result['files'])
    item['gpu_values']=sum(len(p['gpu_values']) for p in result['files'])
    item['function_handles']=sum(len(p['function_handles']) for p in result['files'])

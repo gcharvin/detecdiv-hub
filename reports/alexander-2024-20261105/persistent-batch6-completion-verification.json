@@ -1,0 +1,13 @@
+{
+  "success": true,
+  "controller_exit": 0,
+  "projects": 4,
+  "metadata_files": 533,
+  "files_requiring_rebase": 6,
+  "path_changes_planned": 110444,
+  "unresolved_values": 0,
+  "result_sha256": "af9ec9e5e742e897160cbc73e6d7cbb61612476adcd51ad916a1b2b066766c6a",
+  "receipt_sha256": "7d74dccdc158dffbaa4fe889df04f3e79c3f6d9b8e709f521afd642942416f1b",
+  "scientific_files_saved": false,
+  "note": "Availability-qualified source layouts preserved; no missing sidecars invented."
+}
