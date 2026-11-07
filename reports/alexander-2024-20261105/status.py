@@ -111,7 +111,8 @@ for name in ['persistent-path-audit-20261106-batch2','historical-reference-basel
              'figure-path-audit-20261107-batch4','pending-availability-diagnosis-20261107',
              'pending-availability-diagnosis-v2-20261107','pending-reference-parity-20261107',
              'relink-value-types-20261107-batch4','figure-path-audit-20261107-batch5',
-             'movie-cache-identity-20261107','persistent-path-audit-movie-20261107']:
+             'movie-cache-identity-20261107','persistent-path-audit-movie-20261107',
+             'relink-batch2-gpu-postflight-20261107']:
  item={'exit':tail(name+'/controller.exit'),'progress':load(name+'/progress.json'),'log_tail':tail(name+'/controller.log',1200)}
  result=load(name+'/result.json')
  if result:
@@ -125,7 +126,7 @@ for name in ['persistent-path-audit-20261106-batch2','historical-reference-basel
     item['result_summary']['unresolved_path_files']=sum(p.get('files_with_unresolved_paths',0) for p in result['projects'])
   if name=='historical-name-search-20261106':
    item['search_results']=[{'target':p['target'],'inventory_counts':p['inventory_counts'],'candidate_count':len(p['candidates'])} for p in result['results']]
-  if name in ['relink-value-types-20261106','relink-value-types-20261107-batch2','relink-batch1-gpu-postflight-20261107','relink-value-types-20261107-batch3','relink-value-types-20261107-batch4']:
+  if name in ['relink-value-types-20261106','relink-value-types-20261107-batch2','relink-batch1-gpu-postflight-20261107','relink-value-types-20261107-batch3','relink-value-types-20261107-batch4','relink-batch2-gpu-postflight-20261107']:
    item['scientific_type_files']=len(result['files'])
    item['gpu_values']=sum(len(p['gpu_values']) for p in result['files'])
    item['function_handles']=sum(len(p['function_handles']) for p in result['files'])

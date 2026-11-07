@@ -8,7 +8,44 @@ year/user, original project, NAS snapshot, backup policy, quota, default engine
 or SMB credentials may be changed. The completed 2023 migration is separate;
 never replay any of its one-shot scripts.
 
-## Latest follow-up — 2026-11-07, starting 08:40 UTC
+## Latest status check — 2026-11-07, 11:21 UTC
+
+**Supersedes earlier running states.** Raw 2024_1 is still in full SHA1
+verification, runner187291/rsync503795 alive at 11:21 UTC, no terminal result
+or native source-after gate. 2024_2 has not begun. No preferred location/API
+switch or 2024 source retirement; zero 2024 bytes reclaimed.
+
+All four metadata writers are now **TERMINATED successfully**: thirty copies,
+56 MATs, 1,410,163 exact path changes, scientific/type/annotation comparisons
+before/after/save/reopen passed. Batch3 finished09:33:43 UTC (nine MATs,
+result SHA256 `99f8c0d9dd7eeb7d63cb9182add2eff2c6d402da8f628a77945d3af83dab230e`),
+batch2 finished09:59:18 UTC (eighteen MATs, result SHA256
+`42637ffb72b75ed3af7cd96b97c5d16b1caeeace1137f26d4f0db19e0fc09f93`).
+Their own watchers released all five/nine leases respectively and finalized
+only their child batches. Independent readonly DB comparisons verify all
+fourteen project identities/metadata/locations remain unchanged. See batch2/3
+completion, lease-finalization and catalog-preservation receipts. **Never
+replay these completed writers/watchers.** Originals and backups stay intact.
+
+A new readonly **batch2 GPU postflight is RUNNING**, private
+`relink-batch2-gpu-postflight-20261107`, tmux
+`alex2024-relink-batch2-gpu-postflight-20261107`:18 after-hash MATs, expected
+2585 GPU descriptors, script SHA256
+`4689cff8762f91c5aea03f187433250b86dd75b950945921de5ab61d2f3c5982`.
+After controller.exit=0 run `verify_gpu_postflight_batch2.py` for exact type/
+class-count/content parity against its immutable original readiness. Do not
+infer descriptor parity merely from loop success or rerun the old before-hash
+survey. Batch1's4258-value postflight already passed; batches3/4 have zero GPU.
+
+Four candidate projects still need final path preparation (movie cache case,
+main-only loxP15, special qp and Gilles). Lox's15 absent raw fields remain
+explicitly unresolved; its old availability baseline is not an access waiver.
+The readonly movie metadata audit is done, zero unresolved paths: inspect its
+receipt/types/FIG requirements before a new writer. Final filesystem publication,
+actual Linux/limited Windows readers, API/catalog and all retirement gates
+remain pending. The existing six-hour follow-up continues.
+
+## Historical follow-up — 2026-11-07, starting 08:40 UTC
 
 **This checkpoint supersedes all earlier running states.** At 09:01 UTC,
 raw 2024_1 remains **verifying_full_content**, runner187291/rsync503795 alive.

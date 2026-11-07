@@ -1,0 +1,35 @@
+{
+  "success": true,
+  "batch_id": "e72ca211-c526-4855-99ad-d2839da288a6",
+  "projects": [
+    {
+      "project_id": "175db144-f04d-42f6-a2f7-9f82ccf3efb7",
+      "identity_and_metadata_unchanged": true,
+      "all_locations_unchanged": true
+    },
+    {
+      "project_id": "19a2a39e-e451-4d5f-8fa8-f06a7fed9f17",
+      "identity_and_metadata_unchanged": true,
+      "all_locations_unchanged": true
+    },
+    {
+      "project_id": "23c9f497-021f-4dbb-8e3c-5f50032096ac",
+      "identity_and_metadata_unchanged": true,
+      "all_locations_unchanged": true
+    },
+    {
+      "project_id": "8d8259a6-b0a7-4dc4-bee5-76d9e6443519",
+      "identity_and_metadata_unchanged": true,
+      "all_locations_unchanged": true
+    },
+    {
+      "project_id": "c3f08508-22dd-4f1a-81da-f0ac8c031a13",
+      "identity_and_metadata_unchanged": true,
+      "all_locations_unchanged": true
+    }
+  ],
+  "child_batch_status": "copied_paths_relinked_pending_raw_and_host_gates",
+  "own_leases_released": 5,
+  "catalog_read_only": true,
+  "checked_at": "2026-11-07T11:22:16.870794+00:00"
+}

@@ -1,0 +1,55 @@
+{
+  "success": true,
+  "batch_id": "90c03028-f0b9-4f86-86b6-a90912e3ef50",
+  "projects": [
+    {
+      "project_id": "2466af7d-d0b3-4ae3-8e8e-07a4ae9e7726",
+      "identity_and_metadata_unchanged": true,
+      "all_locations_unchanged": true
+    },
+    {
+      "project_id": "3b4a5dd7-6f03-43b3-bf9e-c02d7958301a",
+      "identity_and_metadata_unchanged": true,
+      "all_locations_unchanged": true
+    },
+    {
+      "project_id": "4ada122e-a205-493f-9885-703e788589cc",
+      "identity_and_metadata_unchanged": true,
+      "all_locations_unchanged": true
+    },
+    {
+      "project_id": "6f6f408d-ebe7-4115-a537-f35f5cdb6ed2",
+      "identity_and_metadata_unchanged": true,
+      "all_locations_unchanged": true
+    },
+    {
+      "project_id": "9f6b8ef9-f078-4ff5-b91f-7b8a25000951",
+      "identity_and_metadata_unchanged": true,
+      "all_locations_unchanged": true
+    },
+    {
+      "project_id": "c48f9cff-6625-4dad-9597-a8796fe2824f",
+      "identity_and_metadata_unchanged": true,
+      "all_locations_unchanged": true
+    },
+    {
+      "project_id": "e98ed5ba-a40d-4abc-a1c2-441c6587cf2e",
+      "identity_and_metadata_unchanged": true,
+      "all_locations_unchanged": true
+    },
+    {
+      "project_id": "f004e8df-29f0-4303-85fe-9cf50e3d4dbc",
+      "identity_and_metadata_unchanged": true,
+      "all_locations_unchanged": true
+    },
+    {
+      "project_id": "f841b77c-6f0d-47f6-9cfb-af5ee058b8d7",
+      "identity_and_metadata_unchanged": true,
+      "all_locations_unchanged": true
+    }
+  ],
+  "child_batch_status": "copied_paths_relinked_pending_raw_and_host_gates",
+  "own_leases_released": 9,
+  "catalog_read_only": true,
+  "checked_at": "2026-11-07T11:22:13.542916+00:00"
+}

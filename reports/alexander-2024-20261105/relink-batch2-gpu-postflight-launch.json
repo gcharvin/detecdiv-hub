@@ -1,0 +1,11 @@
+{
+  "launched": true,
+  "session": "alex2024-relink-batch2-gpu-postflight-20261107",
+  "work": "/home/charvin-admin/storage-transfers/alexander-2024-20261105/relink-batch2-gpu-postflight-20261107",
+  "script_sha256": "4689cff8762f91c5aea03f187433250b86dd75b950945921de5ab61d2f3c5982",
+  "files": 18,
+  "expected_gpu_values": 2585,
+  "read_only": true,
+  "comparison_pending": true,
+  "source_deleted": false
+}

@@ -20,7 +20,7 @@
     "source_deleted": false,
     "catalog_changed": false,
     "runner_pid": 187291,
-    "heartbeat_at": "2026-11-07T09:13:06.816327+00:00",
+    "heartbeat_at": "2026-11-07T11:20:58.604668+00:00",
     "current_year": "2024_1",
     "inventory_progress": {
       "files": 716605,
@@ -51,9 +51,7 @@
   "project_discovery_exit": "0\n",
   "project_discovery_log_tail": "33)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n",
   "sessions": [
-    "alex2024-copy-20261105",
-    "alex2024-relink-batch2-20261107",
-    "alex2024-relink-batch3-20261107"
+    "alex2024-copy-20261105"
   ],
   "project_copy_state": {
     "phase": "failed_safe",
@@ -916,49 +914,51 @@
   "relink_batch1_log_tail": "",
   "relink_batch1_matlab_log_tail": "eve the contents.]\b \n[\b> In relink_2024_batch1 (line 30)]\b \n[\bWarning: Unable to load gpuArray data onto a GPU. Computations cannot be\nperformed on this limited gpuArray. Use GATHER to retrieve the contents.]\b \n[\b> In relink_2024_batch1 (line 30)]\b \n[\bWarning: Unable to load gpuArray data onto a GPU. Computations cannot be\nperformed on this limited gpuArray. Use GATHER to retrieve the contents.]\b \n[\b> In relink_2024_batch1 (line 30)]\b \n[\bWarning: Unable to load gpuArray data onto a GPU. Computations cannot be\nperformed on this limited gpuArray. Use GATHER to retrieve the contents.]\b \n[\b> In relink_2024_batch1 (line 30)]\b \n[\bWarning: Unable to load gpuArray data onto a GPU. Computations cannot be\nperformed on this limited gpuArray. Use GATHER to retrieve the contents.]\b \n[\b> In relink_2024_batch1 (line 30)]\b \n[\bWarning: Unable to load gpuArray data onto a GPU. Computations cannot be\nperformed on this limited gpuArray. Use GATHER to retrieve the contents.]\b \n[\b> In relink_2024_batch1 (line 30)]\b \n[\bWarning: Unable to load gpuArray data onto a GPU. Computations cannot be\nperformed on this limited gpuArray. Use GATHER to retrieve the contents.]\b \n[\b> In relink_2024_batch1 (line 30)]\b \n",
   "relink_batch2_state": {
-    "phase": "relinking_unpublished_copies",
+    "phase": "copied_paths_relinked_science_verified_raw_and_host_gates_pending",
     "source_deleted": false,
     "catalog_changed": false,
     "copies_may_have_been_relinked": true,
-    "heartbeat_at": "2026-11-07T08:45:54.658397+00:00",
+    "heartbeat_at": "2026-11-07T09:59:18.223776+00:00",
     "project": "anof_230724_HpaRDN_11429",
     "backups": 18,
-    "matlab_pid": 607192
+    "matlab_pid": 607192,
+    "finished_at": "2026-11-07T09:59:18.223733+00:00"
   },
-  "relink_batch2_exit": "",
+  "relink_batch2_exit": "0\n",
   "relink_batch2_progress": {
     "phase": "copied_metadata_relinked",
-    "files_complete": 12,
+    "files_complete": 18,
     "total": 18,
-    "project": "anof_061224_X5152moth",
+    "project": "anof_230724_HpaRDN_11429",
     "source_deleted": false
   },
   "relink_batch2_visitor_progress": {
-    "phase": "compare_scientific_values_before_save",
-    "objects": 18000
+    "phase": "save_and_reopen_unpublished_metadata",
+    "objects": 2000
   },
-  "relink_batch2_modified_mat_receipts": 12,
+  "relink_batch2_modified_mat_receipts": 18,
   "relink_batch2_log_tail": "",
-  "relink_batch2_matlab_log_tail": "",
+  "relink_batch2_matlab_log_tail": "eve the contents.]\b \n[\b> In relink_2024_batch2 (line 30)]\b \n[\bWarning: Unable to load gpuArray data onto a GPU. Computations cannot be\nperformed on this limited gpuArray. Use GATHER to retrieve the contents.]\b \n[\b> In relink_2024_batch2 (line 30)]\b \n[\bWarning: Unable to load gpuArray data onto a GPU. Computations cannot be\nperformed on this limited gpuArray. Use GATHER to retrieve the contents.]\b \n[\b> In relink_2024_batch2 (line 30)]\b \n[\bWarning: Unable to load gpuArray data onto a GPU. Computations cannot be\nperformed on this limited gpuArray. Use GATHER to retrieve the contents.]\b \n[\b> In relink_2024_batch2 (line 30)]\b \n[\bWarning: Unable to load gpuArray data onto a GPU. Computations cannot be\nperformed on this limited gpuArray. Use GATHER to retrieve the contents.]\b \n[\b> In relink_2024_batch2 (line 30)]\b \n[\bWarning: Unable to load gpuArray data onto a GPU. Computations cannot be\nperformed on this limited gpuArray. Use GATHER to retrieve the contents.]\b \n[\b> In relink_2024_batch2 (line 30)]\b \n[\bWarning: Unable to load gpuArray data onto a GPU. Computations cannot be\nperformed on this limited gpuArray. Use GATHER to retrieve the contents.]\b \n[\b> In relink_2024_batch2 (line 30)]\b \n",
   "relink_batch3_state": {
-    "phase": "relinking_unpublished_copies",
+    "phase": "copied_paths_relinked_science_verified_raw_and_host_gates_pending",
     "source_deleted": false,
     "catalog_changed": false,
     "copies_may_have_been_relinked": true,
-    "heartbeat_at": "2026-11-07T08:58:20.235328+00:00",
+    "heartbeat_at": "2026-11-07T09:33:43.161264+00:00",
     "project": "anof_281124_X5152bud4s",
     "backups": 9,
-    "matlab_pid": 614639
+    "matlab_pid": 614639,
+    "finished_at": "2026-11-07T09:33:43.161229+00:00"
   },
-  "relink_batch3_exit": "",
+  "relink_batch3_exit": "0\n",
   "relink_batch3_progress": {
     "phase": "copied_metadata_relinked",
-    "files_complete": 6,
+    "files_complete": 9,
     "total": 9,
-    "project": "anof_280224_12rdnars",
+    "project": "anof_281124_X5152bud4s",
     "source_deleted": false
   },
-  "relink_batch3_modified_mat_receipts": 6,
+  "relink_batch3_modified_mat_receipts": 9,
   "relink_batch3_log_tail": "",
   "relink_batch4_state": {
     "phase": "copied_paths_relinked_science_verified_raw_and_host_gates_pending",
@@ -2372,7 +2372,7 @@
   },
   "copy_progress_tail": "814.875.236 100%   38,21MB/s   35:53:54 (xfr#732579, to-chk=0/734177)\r5.177.814.875.236 100%   38,21MB/s   35:53:54 (xfr#732579, to-chk=0/734177)\r5.177.814.875.236 100%   38,21MB/s   35:53:54 (xfr#732579, to-chk=0/734177)\r5.177.814.875.236 100%   38,21MB/s   35:53:54 (xfr#732579, to-chk=0/734177)\r5.177.814.875.236 100%   38,21MB/s   35:53:54 (xfr#732579, to-chk=0/734177)\r5.177.814.875.236 100%   38,21MB/s   35:53:54 (xfr#732579, to-chk=0/734177)\r5.177.814.875.236 100%   38,21MB/s   35:53:54 (xfr#732579, to-chk=0/734177)\r5.177.814.875.236 100%   38,21MB/s   35:53:54 (xfr#732579, to-chk=0/734177)\r5.177.814.875.236 100%   38,21MB/s   35:53:54 (xfr#732579, to-chk=0/734177)\r5.177.814.875.236 100%   38,21MB/s   35:53:54 (xfr#732579, to-chk=0/734177)\n\nNumber of files: 734.177 (reg: 732.579, dir: 1.598)\nNumber of created files: 734.176 (reg: 732.579, dir: 1.597)\nNumber of deleted files: 0\nNumber of regular files transferred: 732.579\nTotal file size: 5.177.814.875.236 bytes\nTotal transferred file size: 5.177.814.875.236 bytes\nLiteral data: 5.177.814.875.236 bytes\nMatched data: 0 bytes\nFile list size: 21.298.390\nFile list generation time: 0,118 seconds\nFile list transfer time: 0,000 seconds\nTotal bytes sent: 5.179.123.015.295\nTotal bytes received: 13.928.821\n\nsent 5.179.123.015.295 bytes  received 13.928.821 bytes  40.074.877,79 bytes/sec\ntotal size is 5.177.814.875.236  speedup is 1,00\n",
   "verification_log_bytes": 0,
-  "copy_processes": "187291 python           154161\n 503795 rsync             24678",
+  "copy_processes": "187291 python           161824\n 503795 rsync             32341",
   "project_receipts": 3326,
   "identity_batch2_projects": [
     {
@@ -2828,5 +2828,5 @@
   "copied_bytes": 5177814875236,
   "copy_percent_of_complete_year": 100.0,
   "rsync_display_percent_is_incremental_file_list_not_full_year": true,
-  "checked_at": "2026-11-07T09:13:20.675881+00:00"
+  "checked_at": "2026-11-07T11:21:03.815959+00:00"
 }

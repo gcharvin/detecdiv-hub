@@ -79,6 +79,15 @@ receipts are in `reports/abhilasha-channels-20261106/`.
 
 ## Alexander 2024 migration started, 2026-11-05
 
+2026-11-07 11:21 UTC: all four metadata batches completed successfully,
+30 unpublished project copies/56 MATs/1410163 exact path changes with scientific
+save-reopen checks. All own leases released; catalog identities/metadata/
+locations unchanged. Batch2 after-hash GPU corroboration is now running; never
+replay completed writers/watchers. Raw 2024_1 full SHA1 still active, 2024_2
+not started; no cutover/source retirement and zero 2024 bytes reclaimed.
+Read the newest report checkpoint and preserve unresolved lox raw absences.
+
+
 2026-11-07 09:13 UTC update: metadata batch4 finished successfully (four
 projects/six MATs/110444 paths), own leases released and DB identity/metadata/
 locations independently unchanged. Completed batches1+4 now cover sixteen
