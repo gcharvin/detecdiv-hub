@@ -1,0 +1,15 @@
+{
+  "success": true,
+  "controller_exit": 0,
+  "files": 58,
+  "datasets": 378,
+  "attributes": 8694,
+  "string_datasets_read": 0,
+  "external_virtual_links_and_object_references_found": 0,
+  "path_strings_requiring_review": 0,
+  "all_file_hashes_unchanged": true,
+  "numeric_image_datasets_not_loaded_or_rewritten": true,
+  "result_sha256": "dfa08d4664445b099608c8efcfa4daaf68b5c88fab4eea0565d9c29bae5a0c0b",
+  "source_deleted": false,
+  "saved": false
+}

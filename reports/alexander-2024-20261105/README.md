@@ -110,6 +110,13 @@ before any action; do not duplicate or change their pinned scripts.
   are never rewritten. External/virtual storage, object references or path
   strings remain review blockers. Require every file success, not just exit0.
 
+**HDF5 completion at the end of this follow-up:** all 58 files finished with
+exit 0 and every file successful, hashes unchanged. No external/virtual storage,
+links, object references or path-like strings require review. See
+`gilles-hdf5-metadata-completion-verification.json` for dataset/attribute counts
+and the immutable result hash. Do not replay the now-completed HDF5 audit.
+The earlier bullet records its launch, not its current state.
+
 The Gilles main/run JSON typed policy and unresolved legacy relevance review
 remain pending. Do not call run.json entirely archival: `pipelineRunLoad`
 loads project refs/ctx/outputs and `shallowLoad` reloads pipeline runs. Inspect

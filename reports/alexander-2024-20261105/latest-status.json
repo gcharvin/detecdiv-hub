@@ -20,7 +20,7 @@
     "source_deleted": false,
     "catalog_changed": false,
     "runner_pid": 187291,
-    "heartbeat_at": "2026-11-07T02:49:17.368349+00:00",
+    "heartbeat_at": "2026-11-07T02:52:32.467780+00:00",
     "current_year": "2024_1",
     "inventory_progress": {
       "files": 716605,
@@ -53,7 +53,6 @@
   "sessions": [
     "alex2024-availability-variants-identity-v2-20261107",
     "alex2024-copy-20261105",
-    "alex2024-gilles-hdf5-metadata-20261107",
     "alex2024-persistent-paths-batch5-20261107",
     "alex2024-relink-batch1-gpu-postflight-20261107",
     "alex2024-relink-value-types-20261107-batch2"
@@ -1796,7 +1795,7 @@
     "relink-batch1-gpu-postflight-20261107": {
       "exit": "",
       "progress": {
-        "files_complete": 14,
+        "files_complete": 16,
         "total": 23,
         "saved": false
       },
@@ -1805,11 +1804,11 @@
     "availability-variants-identity-v2-20261107": {
       "exit": "",
       "progress": {
-        "project": "anof_250724_dbud4stest",
-        "project_index": 2,
+        "project": "anof_290424_loxP15",
+        "project_index": 6,
         "projects": 6,
-        "fov": 26,
-        "fovs": 32,
+        "fov": 1,
+        "fovs": 30,
         "saved": false
       },
       "log_tail": ""
@@ -1819,8 +1818,8 @@
       "progress": {
         "project": "anof_270624_HpaRDNtest",
         "project_index": 1,
-        "files_audited": 600,
-        "current_relative_path": "anof_270624_HpaRDNtest/270624_HpaRDNtest_4_Pos14_4/results_270624_HpaRDNtest_4_Pos14_4_281.mat",
+        "files_audited": 1000,
+        "current_relative_path": "anof_270624_HpaRDNtest/270624_HpaRDNtest_4_Pos15_5/results_270624_HpaRDNtest_4_Pos15_5_283.mat",
         "files_needing_rebase": 1,
         "files_with_unresolved_paths": 0,
         "saved": false
@@ -1906,25 +1905,30 @@
     "relink-value-types-20261107-batch2": {
       "exit": "",
       "progress": {
-        "files_complete": 8,
+        "files_complete": 11,
         "total": 18,
         "saved": false
       },
       "log_tail": ""
     },
     "gilles-hdf5-metadata-20261107": {
-      "exit": "",
+      "exit": "0\n",
       "progress": {
-        "files_complete": 32,
+        "files_complete": 58,
         "total": 58,
         "saved": false
       },
-      "log_tail": ""
+      "log_tail": "",
+      "result_summary": {
+        "success": true,
+        "read_only": true,
+        "source_deleted": false
+      }
     }
   },
   "copy_progress_tail": "814.875.236 100%   38,21MB/s   35:53:54 (xfr#732579, to-chk=0/734177)\r5.177.814.875.236 100%   38,21MB/s   35:53:54 (xfr#732579, to-chk=0/734177)\r5.177.814.875.236 100%   38,21MB/s   35:53:54 (xfr#732579, to-chk=0/734177)\r5.177.814.875.236 100%   38,21MB/s   35:53:54 (xfr#732579, to-chk=0/734177)\r5.177.814.875.236 100%   38,21MB/s   35:53:54 (xfr#732579, to-chk=0/734177)\r5.177.814.875.236 100%   38,21MB/s   35:53:54 (xfr#732579, to-chk=0/734177)\r5.177.814.875.236 100%   38,21MB/s   35:53:54 (xfr#732579, to-chk=0/734177)\r5.177.814.875.236 100%   38,21MB/s   35:53:54 (xfr#732579, to-chk=0/734177)\r5.177.814.875.236 100%   38,21MB/s   35:53:54 (xfr#732579, to-chk=0/734177)\r5.177.814.875.236 100%   38,21MB/s   35:53:54 (xfr#732579, to-chk=0/734177)\n\nNumber of files: 734.177 (reg: 732.579, dir: 1.598)\nNumber of created files: 734.176 (reg: 732.579, dir: 1.597)\nNumber of deleted files: 0\nNumber of regular files transferred: 732.579\nTotal file size: 5.177.814.875.236 bytes\nTotal transferred file size: 5.177.814.875.236 bytes\nLiteral data: 5.177.814.875.236 bytes\nMatched data: 0 bytes\nFile list size: 21.298.390\nFile list generation time: 0,118 seconds\nFile list transfer time: 0,000 seconds\nTotal bytes sent: 5.179.123.015.295\nTotal bytes received: 13.928.821\n\nsent 5.179.123.015.295 bytes  received 13.928.821 bytes  40.074.877,79 bytes/sec\ntotal size is 5.177.814.875.236  speedup is 1,00\n",
   "verification_log_bytes": 0,
-  "copy_processes": "187291 python           131120\n 503795 rsync              1637",
+  "copy_processes": "187291 python           131322\n 503795 rsync              1839",
   "project_receipts": 3326,
   "identity_batch2_projects": [
     {
@@ -2380,5 +2384,5 @@
   "copied_bytes": 5177814875236,
   "copy_percent_of_complete_year": 100.0,
   "rsync_display_percent_is_incremental_file_list_not_full_year": true,
-  "checked_at": "2026-11-07T02:49:19.507446+00:00"
+  "checked_at": "2026-11-07T02:52:41.873848+00:00"
 }
