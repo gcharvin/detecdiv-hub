@@ -1,0 +1,15 @@
+{
+  "success": true,
+  "batch_id": "5aa13bf8-5456-4276-a27c-0a52d32b6999",
+  "projects": [
+    {
+      "project_id": "ba44b140-ca07-4bdc-8e17-e41428dcdf51",
+      "identity_and_metadata_unchanged": true,
+      "all_locations_unchanged": true
+    }
+  ],
+  "child_batch_status": "copied_paths_relinked_pending_raw_and_host_gates",
+  "own_leases_released": 1,
+  "catalog_read_only": true,
+  "checked_at": "2026-11-07T15:20:28.484920+00:00"
+}

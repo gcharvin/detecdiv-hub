@@ -1,0 +1,7 @@
+# Preserve executed script bytes for their recorded SHA256 pins.
+prepare_relink_remaining_mains.py -text whitespace=cr-at-eol
+relink_remaining_mains.m -text whitespace=cr-at-eol
+prepare_relink_gilles_recovery.py -text whitespace=cr-at-eol
+relink_gilles_recovery.m -text whitespace=cr-at-eol
+audit_gilles_main_typed.m -text whitespace=cr-at-eol
+verify_lox_available_fields.m -text whitespace=cr-at-eol

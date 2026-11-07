@@ -1,0 +1,32 @@
+{
+  "read_only": true,
+  "roots": [
+    {
+      "root": "/volume1/Sauvegarde/Alexander/data",
+      "exists": true,
+      "directory": true,
+      "symlink": false,
+      "reviewed_children": []
+    },
+    {
+      "root": "/volume1/Sauvegarde/Alexander/2024_1",
+      "exists": false,
+      "directory": false,
+      "symlink": false
+    },
+    {
+      "root": "/volume1/Sauvegarde/Alexander/2024",
+      "exists": false,
+      "directory": false,
+      "symlink": false
+    },
+    {
+      "root": "/volume1/DATA/Alexander/data/2024_1",
+      "exists": false,
+      "directory": false,
+      "symlink": false
+    }
+  ],
+  "snapshots_not_examined": true,
+  "source_deleted": false
+}

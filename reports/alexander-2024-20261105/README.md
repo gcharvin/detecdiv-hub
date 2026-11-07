@@ -8,7 +8,123 @@ year/user, original project, NAS snapshot, backup policy, quota, default engine
 or SMB credentials may be changed. The completed 2023 migration is separate;
 never replay any of its one-shot scripts.
 
-## Latest status check — 2026-11-07, 11:21 UTC
+## Latest status check — 2026-11-07, 15:24 UTC
+
+**Supersedes all running states below.** Raw 2024_1 remains
+`verifying_full_content`, runner187291/rsync503795 alive at15:24 UTC. Its
+5,177,814,875,236-byte copy is complete, but no terminal SHA1 or native
+source-after success exists. 2024_2 has not started. No filesystem publication,
+preferred location/API cutover or source retirement: **zero 2024 bytes reclaimed**.
+Do not duplicate the live raw runner or interpret its empty live log as success.
+
+**33 unpublished project copies now have verified metadata corrections:**
+59 MATs and nine JSON files, 1,427,052 exact approved path changes. All MAT
+scientific values, types and annotations passed before/after/save/reopen
+comparisons. Originals and backups remain intact. These are preparation results,
+not claims of final paths or complete project access. LoxP15 remains unresolved;
+all raw, final Linux/limited Windows, catalog/API and retirement gates remain.
+
+### All GPU postflights and three additional preparations finished
+
+Batch2's18-file GPU postflight is complete and independently compared against
+the original immutable readiness: all2,585 GPU contents/types/sizes and class
+counts agree. After-result SHA256
+`845c0f4c5b7bb5cf91e91fd6b4ea6874578cc81ba2b5947cc157f6e5b1dd82fc`;
+see `relink-batch2-gpu-postflight-verification.json`. Batch1's4,258 values were
+already corroborated; batches3/4 and the new three mains have no GPU values.
+No survey or completed writer/watcher needs replay.
+
+Readonly preparation of Movie, special qp and Gilles completed: three main
+types with zero function handles/private state/GPU, typed Gilles main audit
+with8,335 approved paths and no unknowns. See
+`remaining-main-preparation-completion-verification.json`. Movie's finished
+metadata audit requires6,413 changes; qp requires2,121. Their existing empty
+ROI slots/128-byte placeholder and layouts remain unchanged.
+
+### Preserved partial attempt and bounded Gilles recovery
+
+`relink-remaining-mains-20261107` **failed safe, exit1**, after successfully
+correcting Movie and qp only (two MATs/8,534 paths). It stopped before saving
+Gilles, with no temporary Gilles MAT and no JSON edits. Its scientific snapshot
+visitor used root `mat`, whereas the exact typed adapter recognized only root
+`metadata`: the approved parsedData.folder was not canonicalized in the before
+snapshot. The failed comparison was preserved; no scientific gate was waived.
+**Never replay this partial writer.** Its child
+`dd188133-e2b3-4279-b7ac-773a673e5d3b` stays `failed_safe_unpublished_copies`.
+All three own leases were released after terminal failure. A separate readonly
+native postflight verifies Movie/qp sources, backups and after-target hashes,
+full expected target file/directory maps, real maliavko ownership, and unchanged
+unselected files. See `remaining-partial-two-project-verification.json`;
+full-controller success is explicitly false. Its own batch summary now correctly
+records two verified partial files, rather than the missing result's zero count.
+
+A fresh **Gilles-only** scope, `relink-gilles-recovery-20261107`, completed
+15:10:56 UTC with exit0. Its adapter canonicalizes the two exact approved root
+labels; all other scientific comparisons remain strict. Movie/qp were not
+replayed. Fresh original inventory, exact unchanged Gilles/JSON before-hashes,
+existing backup hashes and one fresh own lease were required. Result SHA256
+`c3ec6316207d4fa6b70cd51da2b8fc0f4f7b5cb0e69f2bff8a20ddd669a74b72`.
+One main MAT passed8,335 changes and all science/type/annotation/save/reopen
+checks. Nine selected JSON files passed20 exact leaf changes and reopen checks.
+Seven reusable run.json top-level references and two active loader configs
+changed. Run ctx/outputs/progress and every unselected JSON value were preserved;
+eight archival run_params/dependency-audit JSONs, logs and all58 HDF5 files stayed
+byte-exact. No old-run resumption is claimed. External dependencies stay under
+/data/Gilles, with Windows access still requiring the real host gate.
+
+Its native final check covered all104 target files and directory sets, expected
+after-hashes, real maliavko owner and independent files; source/backup hashes
+remain intact. See `gilles-recovery-completion-verification.json`. All12 metadata
+backups from the original three-project attempt remain under homes2
+`.migration-backups/alexander-2024-20261105/relink-remaining-mains-20261107`;
+recovery reused and verified them without overwriting them. Child
+`5aa13bf8-5456-4276-a27c-0a52d32b6999` finalized and its sole own lease released
+15:11:47 UTC. **Both new watchers are finished; never restart/release again.**
+Independent catalog-preservation receipts verify unchanged IDs, owners, notes,
+ACL/groups, metadata, links and all locations for both scopes.
+
+Executed pins (preserve these exact scripts; changes require a new scope):
+
+| Scope | Controller SHA256 | MATLAB SHA256 |
+| --- | --- | --- |
+| Partial attempt | `7cc26d2558371791518486330ae7e341e26525fe0d21b2fb43451a6805e88e8c` | `172f6651366f501eb1b2dd750b42f8066e043d421c123d86667e15230d85d490` |
+| Gilles recovery | `42370cca453a84688bedd270887df5d94ae2e58d5c7dca72fbaa40528539fb02` | `058e5dcafa2e08aea25a42129e3db1800f926f3e74573536cf1476db1e786f7b` |
+
+### Next useful work and non-waived limitations
+
+LoxP15's15 even-position fields/53,280 raw references and derived folder were
+already absent initially. Its protected main-only copy is unchanged. The
+question about intentional removal/another archive remains pending; do not ask
+again or treat silence as approval to waive access. Native availability parity
+is not a strict access success. Reuse the successful FOV1 receipt, then verify
+pixels for the other14 genuinely available odd-position FOVs without repeating
+FOV1 source reads; keep15 absent fields explicitly unresolved. This new readonly
+scope is now **RUNNING** in `lox-available-fields-20261107`, tmux
+`alex2024-lox-available-fields-20261107`, script SHA256
+`b402c2629e1b1fc5abeaf0b65b22576f91b207cfe188d52b10fa7d678ae9a727`.
+Fresh jobs/indexing/lease admission was clear; no lease or writer was created.
+Read progress/result/controller.exit/log before any further work. It reuses
+twelve original FOV1 pixel fingerprints for target reads only, then reads168
+new source samples and compares them with homes2. Expected15 available fields
+and180 target reads do not validate the15 absent fields: its strict project
+access/cleanup gates stay false even on successful available-field verification.
+Do not duplicate this reader or confuse an empty live log with completion.
+Shallow backup
+parent probes found no exact acquisition in the inspected immediate folders;
+they do not establish absence from all archives/snapshots. See the three
+lox backup/root preflight receipts. No homonymous image was substituted.
+
+Classify the remaining legacy relevance cases without replaying completed
+audits. Once actual raw SHA1 and native stability pass, use fresh admission,
+publish without overwrite, and test true final Linux/limited Windows paths with
+the protected engine. All copies still live under incoming and store future
+final paths: translate final-to-incoming in memory only before publication.
+Then transactionally switch the same catalog identities/API references and
+stream/hash real handlers. A **new tested 2024-specific retirement orchestrator**
+with full manifests/no-follow/per-unlink guards and real receipts is still
+required. No deletion controller is authorized merely by this metadata checkpoint.
+
+## Historical status check — 2026-11-07, 11:21 UTC
 
 **Supersedes earlier running states.** Raw 2024_1 is still in full SHA1
 verification, runner187291/rsync503795 alive at 11:21 UTC, no terminal result

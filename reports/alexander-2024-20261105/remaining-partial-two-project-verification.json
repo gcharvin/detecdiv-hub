@@ -1,0 +1,550 @@
+{
+  "success": true,
+  "verified_partial_projects": 2,
+  "metadata_mats": 2,
+  "path_changes": 8534,
+  "files": [
+    {
+      "project_id": "724afdda-24e8-42f1-b242-2b7a0e41e8b1",
+      "relative_path": "movie_250124_diploids.mat",
+      "backup": "/homes2/maliavko/DetecdivHub/.migration-backups/alexander-2024-20261105/relink-remaining-mains-20261107/movie_250124_diploids.mat",
+      "before_sha256": "d01207273a3b03e1c0f04ab75eb153a9463bca4308cadc70dd00514b25f023d7",
+      "after_sha256": "e054b499b74ed4ed9151f2788034b8bff3ba7ec0be707836c86236c4b8177f05",
+      "path_changes": 6413,
+      "path_change_examples": [
+        {
+          "field": "metadata.shallowObj.fov.roi.path",
+          "before": "Z:\\Alexander\\analysis\\movie_250124_diploids\\250124_diploids_4_Pos1_1",
+          "after": "/homes2/maliavko/DetecdivHub/projects/movie_250124_diploids/movie_250124_diploids/250124_diploids_4_Pos1_1"
+        },
+        {
+          "field": "metadata.shallowObj.fov.roi.path",
+          "before": "Z:\\Alexander\\analysis\\movie_250124_diploids\\250124_diploids_4_Pos1_1",
+          "after": "/homes2/maliavko/DetecdivHub/projects/movie_250124_diploids/movie_250124_diploids/250124_diploids_4_Pos1_1"
+        },
+        {
+          "field": "metadata.shallowObj.fov.srclist.folder",
+          "before": "Z:\\Alexander\\data\\250124_diploids\\250124_diploids_4\\Pos1",
+          "after": "/homes2/maliavko/DetecdivHub/raw/.incoming-alexander-2024-20261105/2024_1/250124_diploids/250124_diploids_4/Pos1"
+        },
+        {
+          "field": "metadata.shallowObj.fov.srclist.folder",
+          "before": "Z:\\Alexander\\data\\250124_diploids\\250124_diploids_4\\Pos1",
+          "after": "/homes2/maliavko/DetecdivHub/raw/.incoming-alexander-2024-20261105/2024_1/250124_diploids/250124_diploids_4/Pos1"
+        },
+        {
+          "field": "metadata.shallowObj.fov.srclist.folder",
+          "before": "Z:\\Alexander\\data\\250124_diploids\\250124_diploids_4\\Pos1",
+          "after": "/homes2/maliavko/DetecdivHub/raw/.incoming-alexander-2024-20261105/2024_1/250124_diploids/250124_diploids_4/Pos1"
+        },
+        {
+          "field": "metadata.shallowObj.fov.srclist.folder",
+          "before": "Z:\\Alexander\\data\\250124_diploids\\250124_diploids_4\\Pos1",
+          "after": "/homes2/maliavko/DetecdivHub/raw/.incoming-alexander-2024-20261105/2024_1/250124_diploids/250124_diploids_4/Pos1"
+        },
+        {
+          "field": "metadata.shallowObj.fov.srclist.folder",
+          "before": "Z:\\Alexander\\data\\250124_diploids\\250124_diploids_4\\Pos1",
+          "after": "/homes2/maliavko/DetecdivHub/raw/.incoming-alexander-2024-20261105/2024_1/250124_diploids/250124_diploids_4/Pos1"
+        },
+        {
+          "field": "metadata.shallowObj.fov.srclist.folder",
+          "before": "Z:\\Alexander\\data\\250124_diploids\\250124_diploids_4\\Pos1",
+          "after": "/homes2/maliavko/DetecdivHub/raw/.incoming-alexander-2024-20261105/2024_1/250124_diploids/250124_diploids_4/Pos1"
+        },
+        {
+          "field": "metadata.shallowObj.fov.srclist.folder",
+          "before": "Z:\\Alexander\\data\\250124_diploids\\250124_diploids_4\\Pos1",
+          "after": "/homes2/maliavko/DetecdivHub/raw/.incoming-alexander-2024-20261105/2024_1/250124_diploids/250124_diploids_4/Pos1"
+        },
+        {
+          "field": "metadata.shallowObj.fov.srclist.folder",
+          "before": "Z:\\Alexander\\data\\250124_diploids\\250124_diploids_4\\Pos1",
+          "after": "/homes2/maliavko/DetecdivHub/raw/.incoming-alexander-2024-20261105/2024_1/250124_diploids/250124_diploids_4/Pos1"
+        },
+        {
+          "field": "metadata.shallowObj.fov.srclist.folder",
+          "before": "Z:\\Alexander\\data\\250124_diploids\\250124_diploids_4\\Pos1",
+          "after": "/homes2/maliavko/DetecdivHub/raw/.incoming-alexander-2024-20261105/2024_1/250124_diploids/250124_diploids_4/Pos1"
+        },
+        {
+          "field": "metadata.shallowObj.fov.srclist.folder",
+          "before": "Z:\\Alexander\\data\\250124_diploids\\250124_diploids_4\\Pos1",
+          "after": "/homes2/maliavko/DetecdivHub/raw/.incoming-alexander-2024-20261105/2024_1/250124_diploids/250124_diploids_4/Pos1"
+        },
+        {
+          "field": "metadata.shallowObj.fov.srclist.folder",
+          "before": "Z:\\Alexander\\data\\250124_diploids\\250124_diploids_4\\Pos1",
+          "after": "/homes2/maliavko/DetecdivHub/raw/.incoming-alexander-2024-20261105/2024_1/250124_diploids/250124_diploids_4/Pos1"
+        },
+        {
+          "field": "metadata.shallowObj.fov.srclist.folder",
+          "before": "Z:\\Alexander\\data\\250124_diploids\\250124_diploids_4\\Pos1",
+          "after": "/homes2/maliavko/DetecdivHub/raw/.incoming-alexander-2024-20261105/2024_1/250124_diploids/250124_diploids_4/Pos1"
+        },
+        {
+          "field": "metadata.shallowObj.fov.srclist.folder",
+          "before": "Z:\\Alexander\\data\\250124_diploids\\250124_diploids_4\\Pos1",
+          "after": "/homes2/maliavko/DetecdivHub/raw/.incoming-alexander-2024-20261105/2024_1/250124_diploids/250124_diploids_4/Pos1"
+        },
+        {
+          "field": "metadata.shallowObj.fov.srclist.folder",
+          "before": "Z:\\Alexander\\data\\250124_diploids\\250124_diploids_4\\Pos1",
+          "after": "/homes2/maliavko/DetecdivHub/raw/.incoming-alexander-2024-20261105/2024_1/250124_diploids/250124_diploids_4/Pos1"
+        },
+        {
+          "field": "metadata.shallowObj.fov.srclist.folder",
+          "before": "Z:\\Alexander\\data\\250124_diploids\\250124_diploids_4\\Pos1",
+          "after": "/homes2/maliavko/DetecdivHub/raw/.incoming-alexander-2024-20261105/2024_1/250124_diploids/250124_diploids_4/Pos1"
+        },
+        {
+          "field": "metadata.shallowObj.fov.srclist.folder",
+          "before": "Z:\\Alexander\\data\\250124_diploids\\250124_diploids_4\\Pos1",
+          "after": "/homes2/maliavko/DetecdivHub/raw/.incoming-alexander-2024-20261105/2024_1/250124_diploids/250124_diploids_4/Pos1"
+        },
+        {
+          "field": "metadata.shallowObj.fov.srclist.folder",
+          "before": "Z:\\Alexander\\data\\250124_diploids\\250124_diploids_4\\Pos1",
+          "after": "/homes2/maliavko/DetecdivHub/raw/.incoming-alexander-2024-20261105/2024_1/250124_diploids/250124_diploids_4/Pos1"
+        },
+        {
+          "field": "metadata.shallowObj.fov.srclist.folder",
+          "before": "Z:\\Alexander\\data\\250124_diploids\\250124_diploids_4\\Pos1",
+          "after": "/homes2/maliavko/DetecdivHub/raw/.incoming-alexander-2024-20261105/2024_1/250124_diploids/250124_diploids_4/Pos1"
+        },
+        {
+          "field": "metadata.shallowObj.fov.srclist.folder",
+          "before": "Z:\\Alexander\\data\\250124_diploids\\250124_diploids_4\\Pos1",
+          "after": "/homes2/maliavko/DetecdivHub/raw/.incoming-alexander-2024-20261105/2024_1/250124_diploids/250124_diploids_4/Pos1"
+        },
+        {
+          "field": "metadata.shallowObj.fov.srclist.folder",
+          "before": "Z:\\Alexander\\data\\250124_diploids\\250124_diploids_4\\Pos1",
+          "after": "/homes2/maliavko/DetecdivHub/raw/.incoming-alexander-2024-20261105/2024_1/250124_diploids/250124_diploids_4/Pos1"
+        },
+        {
+          "field": "metadata.shallowObj.fov.srclist.folder",
+          "before": "Z:\\Alexander\\data\\250124_diploids\\250124_diploids_4\\Pos1",
+          "after": "/homes2/maliavko/DetecdivHub/raw/.incoming-alexander-2024-20261105/2024_1/250124_diploids/250124_diploids_4/Pos1"
+        },
+        {
+          "field": "metadata.shallowObj.fov.srclist.folder",
+          "before": "Z:\\Alexander\\data\\250124_diploids\\250124_diploids_4\\Pos1",
+          "after": "/homes2/maliavko/DetecdivHub/raw/.incoming-alexander-2024-20261105/2024_1/250124_diploids/250124_diploids_4/Pos1"
+        },
+        {
+          "field": "metadata.shallowObj.fov.srclist.folder",
+          "before": "Z:\\Alexander\\data\\250124_diploids\\250124_diploids_4\\Pos1",
+          "after": "/homes2/maliavko/DetecdivHub/raw/.incoming-alexander-2024-20261105/2024_1/250124_diploids/250124_diploids_4/Pos1"
+        },
+        {
+          "field": "metadata.shallowObj.fov.srclist.folder",
+          "before": "Z:\\Alexander\\data\\250124_diploids\\250124_diploids_4\\Pos1",
+          "after": "/homes2/maliavko/DetecdivHub/raw/.incoming-alexander-2024-20261105/2024_1/250124_diploids/250124_diploids_4/Pos1"
+        },
+        {
+          "field": "metadata.shallowObj.fov.srclist.folder",
+          "before": "Z:\\Alexander\\data\\250124_diploids\\250124_diploids_4\\Pos1",
+          "after": "/homes2/maliavko/DetecdivHub/raw/.incoming-alexander-2024-20261105/2024_1/250124_diploids/250124_diploids_4/Pos1"
+        },
+        {
+          "field": "metadata.shallowObj.fov.srclist.folder",
+          "before": "Z:\\Alexander\\data\\250124_diploids\\250124_diploids_4\\Pos1",
+          "after": "/homes2/maliavko/DetecdivHub/raw/.incoming-alexander-2024-20261105/2024_1/250124_diploids/250124_diploids_4/Pos1"
+        },
+        {
+          "field": "metadata.shallowObj.fov.srclist.folder",
+          "before": "Z:\\Alexander\\data\\250124_diploids\\250124_diploids_4\\Pos1",
+          "after": "/homes2/maliavko/DetecdivHub/raw/.incoming-alexander-2024-20261105/2024_1/250124_diploids/250124_diploids_4/Pos1"
+        },
+        {
+          "field": "metadata.shallowObj.fov.srclist.folder",
+          "before": "Z:\\Alexander\\data\\250124_diploids\\250124_diploids_4\\Pos1",
+          "after": "/homes2/maliavko/DetecdivHub/raw/.incoming-alexander-2024-20261105/2024_1/250124_diploids/250124_diploids_4/Pos1"
+        },
+        {
+          "field": "metadata.shallowObj.fov.srclist.folder",
+          "before": "Z:\\Alexander\\data\\250124_diploids\\250124_diploids_4\\Pos1",
+          "after": "/homes2/maliavko/DetecdivHub/raw/.incoming-alexander-2024-20261105/2024_1/250124_diploids/250124_diploids_4/Pos1"
+        },
+        {
+          "field": "metadata.shallowObj.fov.srclist.folder",
+          "before": "Z:\\Alexander\\data\\250124_diploids\\250124_diploids_4\\Pos1",
+          "after": "/homes2/maliavko/DetecdivHub/raw/.incoming-alexander-2024-20261105/2024_1/250124_diploids/250124_diploids_4/Pos1"
+        },
+        {
+          "field": "metadata.shallowObj.fov.srclist.folder",
+          "before": "Z:\\Alexander\\data\\250124_diploids\\250124_diploids_4\\Pos1",
+          "after": "/homes2/maliavko/DetecdivHub/raw/.incoming-alexander-2024-20261105/2024_1/250124_diploids/250124_diploids_4/Pos1"
+        },
+        {
+          "field": "metadata.shallowObj.fov.srclist.folder",
+          "before": "Z:\\Alexander\\data\\250124_diploids\\250124_diploids_4\\Pos1",
+          "after": "/homes2/maliavko/DetecdivHub/raw/.incoming-alexander-2024-20261105/2024_1/250124_diploids/250124_diploids_4/Pos1"
+        },
+        {
+          "field": "metadata.shallowObj.fov.srclist.folder",
+          "before": "Z:\\Alexander\\data\\250124_diploids\\250124_diploids_4\\Pos1",
+          "after": "/homes2/maliavko/DetecdivHub/raw/.incoming-alexander-2024-20261105/2024_1/250124_diploids/250124_diploids_4/Pos1"
+        },
+        {
+          "field": "metadata.shallowObj.fov.srclist.folder",
+          "before": "Z:\\Alexander\\data\\250124_diploids\\250124_diploids_4\\Pos1",
+          "after": "/homes2/maliavko/DetecdivHub/raw/.incoming-alexander-2024-20261105/2024_1/250124_diploids/250124_diploids_4/Pos1"
+        },
+        {
+          "field": "metadata.shallowObj.fov.srclist.folder",
+          "before": "Z:\\Alexander\\data\\250124_diploids\\250124_diploids_4\\Pos1",
+          "after": "/homes2/maliavko/DetecdivHub/raw/.incoming-alexander-2024-20261105/2024_1/250124_diploids/250124_diploids_4/Pos1"
+        },
+        {
+          "field": "metadata.shallowObj.fov.srclist.folder",
+          "before": "Z:\\Alexander\\data\\250124_diploids\\250124_diploids_4\\Pos1",
+          "after": "/homes2/maliavko/DetecdivHub/raw/.incoming-alexander-2024-20261105/2024_1/250124_diploids/250124_diploids_4/Pos1"
+        },
+        {
+          "field": "metadata.shallowObj.fov.srclist.folder",
+          "before": "Z:\\Alexander\\data\\250124_diploids\\250124_diploids_4\\Pos1",
+          "after": "/homes2/maliavko/DetecdivHub/raw/.incoming-alexander-2024-20261105/2024_1/250124_diploids/250124_diploids_4/Pos1"
+        },
+        {
+          "field": "metadata.shallowObj.fov.srclist.folder",
+          "before": "Z:\\Alexander\\data\\250124_diploids\\250124_diploids_4\\Pos1",
+          "after": "/homes2/maliavko/DetecdivHub/raw/.incoming-alexander-2024-20261105/2024_1/250124_diploids/250124_diploids_4/Pos1"
+        },
+        {
+          "field": "metadata.shallowObj.fov.srclist.folder",
+          "before": "Z:\\Alexander\\data\\250124_diploids\\250124_diploids_4\\Pos1",
+          "after": "/homes2/maliavko/DetecdivHub/raw/.incoming-alexander-2024-20261105/2024_1/250124_diploids/250124_diploids_4/Pos1"
+        },
+        {
+          "field": "metadata.shallowObj.fov.srclist.folder",
+          "before": "Z:\\Alexander\\data\\250124_diploids\\250124_diploids_4\\Pos1",
+          "after": "/homes2/maliavko/DetecdivHub/raw/.incoming-alexander-2024-20261105/2024_1/250124_diploids/250124_diploids_4/Pos1"
+        },
+        {
+          "field": "metadata.shallowObj.fov.srclist.folder",
+          "before": "Z:\\Alexander\\data\\250124_diploids\\250124_diploids_4\\Pos1",
+          "after": "/homes2/maliavko/DetecdivHub/raw/.incoming-alexander-2024-20261105/2024_1/250124_diploids/250124_diploids_4/Pos1"
+        },
+        {
+          "field": "metadata.shallowObj.fov.srclist.folder",
+          "before": "Z:\\Alexander\\data\\250124_diploids\\250124_diploids_4\\Pos1",
+          "after": "/homes2/maliavko/DetecdivHub/raw/.incoming-alexander-2024-20261105/2024_1/250124_diploids/250124_diploids_4/Pos1"
+        },
+        {
+          "field": "metadata.shallowObj.fov.srclist.folder",
+          "before": "Z:\\Alexander\\data\\250124_diploids\\250124_diploids_4\\Pos1",
+          "after": "/homes2/maliavko/DetecdivHub/raw/.incoming-alexander-2024-20261105/2024_1/250124_diploids/250124_diploids_4/Pos1"
+        },
+        {
+          "field": "metadata.shallowObj.fov.srclist.folder",
+          "before": "Z:\\Alexander\\data\\250124_diploids\\250124_diploids_4\\Pos1",
+          "after": "/homes2/maliavko/DetecdivHub/raw/.incoming-alexander-2024-20261105/2024_1/250124_diploids/250124_diploids_4/Pos1"
+        },
+        {
+          "field": "metadata.shallowObj.fov.srclist.folder",
+          "before": "Z:\\Alexander\\data\\250124_diploids\\250124_diploids_4\\Pos1",
+          "after": "/homes2/maliavko/DetecdivHub/raw/.incoming-alexander-2024-20261105/2024_1/250124_diploids/250124_diploids_4/Pos1"
+        },
+        {
+          "field": "metadata.shallowObj.fov.srclist.folder",
+          "before": "Z:\\Alexander\\data\\250124_diploids\\250124_diploids_4\\Pos1",
+          "after": "/homes2/maliavko/DetecdivHub/raw/.incoming-alexander-2024-20261105/2024_1/250124_diploids/250124_diploids_4/Pos1"
+        },
+        {
+          "field": "metadata.shallowObj.fov.srclist.folder",
+          "before": "Z:\\Alexander\\data\\250124_diploids\\250124_diploids_4\\Pos1",
+          "after": "/homes2/maliavko/DetecdivHub/raw/.incoming-alexander-2024-20261105/2024_1/250124_diploids/250124_diploids_4/Pos1"
+        },
+        {
+          "field": "metadata.shallowObj.fov.srclist.folder",
+          "before": "Z:\\Alexander\\data\\250124_diploids\\250124_diploids_4\\Pos1",
+          "after": "/homes2/maliavko/DetecdivHub/raw/.incoming-alexander-2024-20261105/2024_1/250124_diploids/250124_diploids_4/Pos1"
+        }
+      ],
+      "scientific_values_types_and_annotations_preserved": true,
+      "gpu_class_and_content_preserved": true,
+      "save_reopen_verified": true,
+      "original_preserved": true,
+      "catalog_changed": false,
+      "source_deleted": false
+    },
+    {
+      "project_id": "eb49f629-6546-4fbe-bdb7-71884e7fa69f",
+      "relative_path": "qp_250724_dbud4stest.mat",
+      "backup": "/homes2/maliavko/DetecdivHub/.migration-backups/alexander-2024-20261105/relink-remaining-mains-20261107/qp_250724_dbud4stest.mat",
+      "before_sha256": "f12b25d7216c51809581136182fd772b745dd1f26598d5c937f5f8b4679b8cde",
+      "after_sha256": "a1f6db24bed6030da7ecb3b04d89fb01e43a729ccf2e4f3c1fc505d45d190b7c",
+      "path_changes": 2121,
+      "path_change_examples": [
+        {
+          "field": "metadata.shallowObj.fov.roi.path",
+          "before": "/data/Alexander/qp/qp_250724_dbud4stest/3-Pos_17_Pos1_1",
+          "after": "/homes2/maliavko/DetecdivHub/projects/qp_250724_dbud4stest/qp_250724_dbud4stest/3-Pos_17_Pos1_1"
+        },
+        {
+          "field": "metadata.shallowObj.fov.srclist.folder",
+          "before": "/Volumes/DATA/Alexander/data/250724_dbud4stest/250724_dbud4stest_4/3-Pos_17",
+          "after": "/homes2/maliavko/DetecdivHub/raw/.incoming-alexander-2024-20261105/2024_2/250724_dbud4stest/250724_dbud4stest_4/3-Pos_17"
+        },
+        {
+          "field": "metadata.shallowObj.fov.srclist.folder",
+          "before": "/Volumes/DATA/Alexander/data/250724_dbud4stest/250724_dbud4stest_4/3-Pos_17",
+          "after": "/homes2/maliavko/DetecdivHub/raw/.incoming-alexander-2024-20261105/2024_2/250724_dbud4stest/250724_dbud4stest_4/3-Pos_17"
+        },
+        {
+          "field": "metadata.shallowObj.fov.srclist.folder",
+          "before": "/Volumes/DATA/Alexander/data/250724_dbud4stest/250724_dbud4stest_4/3-Pos_17",
+          "after": "/homes2/maliavko/DetecdivHub/raw/.incoming-alexander-2024-20261105/2024_2/250724_dbud4stest/250724_dbud4stest_4/3-Pos_17"
+        },
+        {
+          "field": "metadata.shallowObj.fov.srclist.folder",
+          "before": "/Volumes/DATA/Alexander/data/250724_dbud4stest/250724_dbud4stest_4/3-Pos_17",
+          "after": "/homes2/maliavko/DetecdivHub/raw/.incoming-alexander-2024-20261105/2024_2/250724_dbud4stest/250724_dbud4stest_4/3-Pos_17"
+        },
+        {
+          "field": "metadata.shallowObj.fov.srclist.folder",
+          "before": "/Volumes/DATA/Alexander/data/250724_dbud4stest/250724_dbud4stest_4/3-Pos_17",
+          "after": "/homes2/maliavko/DetecdivHub/raw/.incoming-alexander-2024-20261105/2024_2/250724_dbud4stest/250724_dbud4stest_4/3-Pos_17"
+        },
+        {
+          "field": "metadata.shallowObj.fov.srclist.folder",
+          "before": "/Volumes/DATA/Alexander/data/250724_dbud4stest/250724_dbud4stest_4/3-Pos_17",
+          "after": "/homes2/maliavko/DetecdivHub/raw/.incoming-alexander-2024-20261105/2024_2/250724_dbud4stest/250724_dbud4stest_4/3-Pos_17"
+        },
+        {
+          "field": "metadata.shallowObj.fov.srclist.folder",
+          "before": "/Volumes/DATA/Alexander/data/250724_dbud4stest/250724_dbud4stest_4/3-Pos_17",
+          "after": "/homes2/maliavko/DetecdivHub/raw/.incoming-alexander-2024-20261105/2024_2/250724_dbud4stest/250724_dbud4stest_4/3-Pos_17"
+        },
+        {
+          "field": "metadata.shallowObj.fov.srclist.folder",
+          "before": "/Volumes/DATA/Alexander/data/250724_dbud4stest/250724_dbud4stest_4/3-Pos_17",
+          "after": "/homes2/maliavko/DetecdivHub/raw/.incoming-alexander-2024-20261105/2024_2/250724_dbud4stest/250724_dbud4stest_4/3-Pos_17"
+        },
+        {
+          "field": "metadata.shallowObj.fov.srclist.folder",
+          "before": "/Volumes/DATA/Alexander/data/250724_dbud4stest/250724_dbud4stest_4/3-Pos_17",
+          "after": "/homes2/maliavko/DetecdivHub/raw/.incoming-alexander-2024-20261105/2024_2/250724_dbud4stest/250724_dbud4stest_4/3-Pos_17"
+        },
+        {
+          "field": "metadata.shallowObj.fov.srclist.folder",
+          "before": "/Volumes/DATA/Alexander/data/250724_dbud4stest/250724_dbud4stest_4/3-Pos_17",
+          "after": "/homes2/maliavko/DetecdivHub/raw/.incoming-alexander-2024-20261105/2024_2/250724_dbud4stest/250724_dbud4stest_4/3-Pos_17"
+        },
+        {
+          "field": "metadata.shallowObj.fov.srclist.folder",
+          "before": "/Volumes/DATA/Alexander/data/250724_dbud4stest/250724_dbud4stest_4/3-Pos_17",
+          "after": "/homes2/maliavko/DetecdivHub/raw/.incoming-alexander-2024-20261105/2024_2/250724_dbud4stest/250724_dbud4stest_4/3-Pos_17"
+        },
+        {
+          "field": "metadata.shallowObj.fov.srclist.folder",
+          "before": "/Volumes/DATA/Alexander/data/250724_dbud4stest/250724_dbud4stest_4/3-Pos_17",
+          "after": "/homes2/maliavko/DetecdivHub/raw/.incoming-alexander-2024-20261105/2024_2/250724_dbud4stest/250724_dbud4stest_4/3-Pos_17"
+        },
+        {
+          "field": "metadata.shallowObj.fov.srclist.folder",
+          "before": "/Volumes/DATA/Alexander/data/250724_dbud4stest/250724_dbud4stest_4/3-Pos_17",
+          "after": "/homes2/maliavko/DetecdivHub/raw/.incoming-alexander-2024-20261105/2024_2/250724_dbud4stest/250724_dbud4stest_4/3-Pos_17"
+        },
+        {
+          "field": "metadata.shallowObj.fov.srclist.folder",
+          "before": "/Volumes/DATA/Alexander/data/250724_dbud4stest/250724_dbud4stest_4/3-Pos_17",
+          "after": "/homes2/maliavko/DetecdivHub/raw/.incoming-alexander-2024-20261105/2024_2/250724_dbud4stest/250724_dbud4stest_4/3-Pos_17"
+        },
+        {
+          "field": "metadata.shallowObj.fov.srclist.folder",
+          "before": "/Volumes/DATA/Alexander/data/250724_dbud4stest/250724_dbud4stest_4/3-Pos_17",
+          "after": "/homes2/maliavko/DetecdivHub/raw/.incoming-alexander-2024-20261105/2024_2/250724_dbud4stest/250724_dbud4stest_4/3-Pos_17"
+        },
+        {
+          "field": "metadata.shallowObj.fov.srclist.folder",
+          "before": "/Volumes/DATA/Alexander/data/250724_dbud4stest/250724_dbud4stest_4/3-Pos_17",
+          "after": "/homes2/maliavko/DetecdivHub/raw/.incoming-alexander-2024-20261105/2024_2/250724_dbud4stest/250724_dbud4stest_4/3-Pos_17"
+        },
+        {
+          "field": "metadata.shallowObj.fov.srclist.folder",
+          "before": "/Volumes/DATA/Alexander/data/250724_dbud4stest/250724_dbud4stest_4/3-Pos_17",
+          "after": "/homes2/maliavko/DetecdivHub/raw/.incoming-alexander-2024-20261105/2024_2/250724_dbud4stest/250724_dbud4stest_4/3-Pos_17"
+        },
+        {
+          "field": "metadata.shallowObj.fov.srclist.folder",
+          "before": "/Volumes/DATA/Alexander/data/250724_dbud4stest/250724_dbud4stest_4/3-Pos_17",
+          "after": "/homes2/maliavko/DetecdivHub/raw/.incoming-alexander-2024-20261105/2024_2/250724_dbud4stest/250724_dbud4stest_4/3-Pos_17"
+        },
+        {
+          "field": "metadata.shallowObj.fov.srclist.folder",
+          "before": "/Volumes/DATA/Alexander/data/250724_dbud4stest/250724_dbud4stest_4/3-Pos_17",
+          "after": "/homes2/maliavko/DetecdivHub/raw/.incoming-alexander-2024-20261105/2024_2/250724_dbud4stest/250724_dbud4stest_4/3-Pos_17"
+        },
+        {
+          "field": "metadata.shallowObj.fov.srclist.folder",
+          "before": "/Volumes/DATA/Alexander/data/250724_dbud4stest/250724_dbud4stest_4/3-Pos_17",
+          "after": "/homes2/maliavko/DetecdivHub/raw/.incoming-alexander-2024-20261105/2024_2/250724_dbud4stest/250724_dbud4stest_4/3-Pos_17"
+        },
+        {
+          "field": "metadata.shallowObj.fov.srclist.folder",
+          "before": "/Volumes/DATA/Alexander/data/250724_dbud4stest/250724_dbud4stest_4/3-Pos_17",
+          "after": "/homes2/maliavko/DetecdivHub/raw/.incoming-alexander-2024-20261105/2024_2/250724_dbud4stest/250724_dbud4stest_4/3-Pos_17"
+        },
+        {
+          "field": "metadata.shallowObj.fov.srclist.folder",
+          "before": "/Volumes/DATA/Alexander/data/250724_dbud4stest/250724_dbud4stest_4/3-Pos_17",
+          "after": "/homes2/maliavko/DetecdivHub/raw/.incoming-alexander-2024-20261105/2024_2/250724_dbud4stest/250724_dbud4stest_4/3-Pos_17"
+        },
+        {
+          "field": "metadata.shallowObj.fov.srclist.folder",
+          "before": "/Volumes/DATA/Alexander/data/250724_dbud4stest/250724_dbud4stest_4/3-Pos_17",
+          "after": "/homes2/maliavko/DetecdivHub/raw/.incoming-alexander-2024-20261105/2024_2/250724_dbud4stest/250724_dbud4stest_4/3-Pos_17"
+        },
+        {
+          "field": "metadata.shallowObj.fov.srclist.folder",
+          "before": "/Volumes/DATA/Alexander/data/250724_dbud4stest/250724_dbud4stest_4/3-Pos_17",
+          "after": "/homes2/maliavko/DetecdivHub/raw/.incoming-alexander-2024-20261105/2024_2/250724_dbud4stest/250724_dbud4stest_4/3-Pos_17"
+        },
+        {
+          "field": "metadata.shallowObj.fov.srclist.folder",
+          "before": "/Volumes/DATA/Alexander/data/250724_dbud4stest/250724_dbud4stest_4/3-Pos_17",
+          "after": "/homes2/maliavko/DetecdivHub/raw/.incoming-alexander-2024-20261105/2024_2/250724_dbud4stest/250724_dbud4stest_4/3-Pos_17"
+        },
+        {
+          "field": "metadata.shallowObj.fov.srclist.folder",
+          "before": "/Volumes/DATA/Alexander/data/250724_dbud4stest/250724_dbud4stest_4/3-Pos_17",
+          "after": "/homes2/maliavko/DetecdivHub/raw/.incoming-alexander-2024-20261105/2024_2/250724_dbud4stest/250724_dbud4stest_4/3-Pos_17"
+        },
+        {
+          "field": "metadata.shallowObj.fov.srclist.folder",
+          "before": "/Volumes/DATA/Alexander/data/250724_dbud4stest/250724_dbud4stest_4/3-Pos_17",
+          "after": "/homes2/maliavko/DetecdivHub/raw/.incoming-alexander-2024-20261105/2024_2/250724_dbud4stest/250724_dbud4stest_4/3-Pos_17"
+        },
+        {
+          "field": "metadata.shallowObj.fov.srclist.folder",
+          "before": "/Volumes/DATA/Alexander/data/250724_dbud4stest/250724_dbud4stest_4/3-Pos_17",
+          "after": "/homes2/maliavko/DetecdivHub/raw/.incoming-alexander-2024-20261105/2024_2/250724_dbud4stest/250724_dbud4stest_4/3-Pos_17"
+        },
+        {
+          "field": "metadata.shallowObj.fov.srclist.folder",
+          "before": "/Volumes/DATA/Alexander/data/250724_dbud4stest/250724_dbud4stest_4/3-Pos_17",
+          "after": "/homes2/maliavko/DetecdivHub/raw/.incoming-alexander-2024-20261105/2024_2/250724_dbud4stest/250724_dbud4stest_4/3-Pos_17"
+        },
+        {
+          "field": "metadata.shallowObj.fov.srclist.folder",
+          "before": "/Volumes/DATA/Alexander/data/250724_dbud4stest/250724_dbud4stest_4/3-Pos_17",
+          "after": "/homes2/maliavko/DetecdivHub/raw/.incoming-alexander-2024-20261105/2024_2/250724_dbud4stest/250724_dbud4stest_4/3-Pos_17"
+        },
+        {
+          "field": "metadata.shallowObj.fov.srclist.folder",
+          "before": "/Volumes/DATA/Alexander/data/250724_dbud4stest/250724_dbud4stest_4/3-Pos_17",
+          "after": "/homes2/maliavko/DetecdivHub/raw/.incoming-alexander-2024-20261105/2024_2/250724_dbud4stest/250724_dbud4stest_4/3-Pos_17"
+        },
+        {
+          "field": "metadata.shallowObj.fov.srclist.folder",
+          "before": "/Volumes/DATA/Alexander/data/250724_dbud4stest/250724_dbud4stest_4/3-Pos_17",
+          "after": "/homes2/maliavko/DetecdivHub/raw/.incoming-alexander-2024-20261105/2024_2/250724_dbud4stest/250724_dbud4stest_4/3-Pos_17"
+        },
+        {
+          "field": "metadata.shallowObj.fov.srclist.folder",
+          "before": "/Volumes/DATA/Alexander/data/250724_dbud4stest/250724_dbud4stest_4/3-Pos_17",
+          "after": "/homes2/maliavko/DetecdivHub/raw/.incoming-alexander-2024-20261105/2024_2/250724_dbud4stest/250724_dbud4stest_4/3-Pos_17"
+        },
+        {
+          "field": "metadata.shallowObj.fov.srclist.folder",
+          "before": "/Volumes/DATA/Alexander/data/250724_dbud4stest/250724_dbud4stest_4/3-Pos_17",
+          "after": "/homes2/maliavko/DetecdivHub/raw/.incoming-alexander-2024-20261105/2024_2/250724_dbud4stest/250724_dbud4stest_4/3-Pos_17"
+        },
+        {
+          "field": "metadata.shallowObj.fov.srclist.folder",
+          "before": "/Volumes/DATA/Alexander/data/250724_dbud4stest/250724_dbud4stest_4/3-Pos_17",
+          "after": "/homes2/maliavko/DetecdivHub/raw/.incoming-alexander-2024-20261105/2024_2/250724_dbud4stest/250724_dbud4stest_4/3-Pos_17"
+        },
+        {
+          "field": "metadata.shallowObj.fov.srclist.folder",
+          "before": "/Volumes/DATA/Alexander/data/250724_dbud4stest/250724_dbud4stest_4/3-Pos_17",
+          "after": "/homes2/maliavko/DetecdivHub/raw/.incoming-alexander-2024-20261105/2024_2/250724_dbud4stest/250724_dbud4stest_4/3-Pos_17"
+        },
+        {
+          "field": "metadata.shallowObj.fov.srclist.folder",
+          "before": "/Volumes/DATA/Alexander/data/250724_dbud4stest/250724_dbud4stest_4/3-Pos_17",
+          "after": "/homes2/maliavko/DetecdivHub/raw/.incoming-alexander-2024-20261105/2024_2/250724_dbud4stest/250724_dbud4stest_4/3-Pos_17"
+        },
+        {
+          "field": "metadata.shallowObj.fov.srclist.folder",
+          "before": "/Volumes/DATA/Alexander/data/250724_dbud4stest/250724_dbud4stest_4/3-Pos_17",
+          "after": "/homes2/maliavko/DetecdivHub/raw/.incoming-alexander-2024-20261105/2024_2/250724_dbud4stest/250724_dbud4stest_4/3-Pos_17"
+        },
+        {
+          "field": "metadata.shallowObj.fov.srclist.folder",
+          "before": "/Volumes/DATA/Alexander/data/250724_dbud4stest/250724_dbud4stest_4/3-Pos_17",
+          "after": "/homes2/maliavko/DetecdivHub/raw/.incoming-alexander-2024-20261105/2024_2/250724_dbud4stest/250724_dbud4stest_4/3-Pos_17"
+        },
+        {
+          "field": "metadata.shallowObj.fov.srclist.folder",
+          "before": "/Volumes/DATA/Alexander/data/250724_dbud4stest/250724_dbud4stest_4/3-Pos_17",
+          "after": "/homes2/maliavko/DetecdivHub/raw/.incoming-alexander-2024-20261105/2024_2/250724_dbud4stest/250724_dbud4stest_4/3-Pos_17"
+        },
+        {
+          "field": "metadata.shallowObj.fov.srclist.folder",
+          "before": "/Volumes/DATA/Alexander/data/250724_dbud4stest/250724_dbud4stest_4/3-Pos_17",
+          "after": "/homes2/maliavko/DetecdivHub/raw/.incoming-alexander-2024-20261105/2024_2/250724_dbud4stest/250724_dbud4stest_4/3-Pos_17"
+        },
+        {
+          "field": "metadata.shallowObj.fov.srclist.folder",
+          "before": "/Volumes/DATA/Alexander/data/250724_dbud4stest/250724_dbud4stest_4/3-Pos_17",
+          "after": "/homes2/maliavko/DetecdivHub/raw/.incoming-alexander-2024-20261105/2024_2/250724_dbud4stest/250724_dbud4stest_4/3-Pos_17"
+        },
+        {
+          "field": "metadata.shallowObj.fov.srclist.folder",
+          "before": "/Volumes/DATA/Alexander/data/250724_dbud4stest/250724_dbud4stest_4/3-Pos_17",
+          "after": "/homes2/maliavko/DetecdivHub/raw/.incoming-alexander-2024-20261105/2024_2/250724_dbud4stest/250724_dbud4stest_4/3-Pos_17"
+        },
+        {
+          "field": "metadata.shallowObj.fov.srclist.folder",
+          "before": "/Volumes/DATA/Alexander/data/250724_dbud4stest/250724_dbud4stest_4/3-Pos_17",
+          "after": "/homes2/maliavko/DetecdivHub/raw/.incoming-alexander-2024-20261105/2024_2/250724_dbud4stest/250724_dbud4stest_4/3-Pos_17"
+        },
+        {
+          "field": "metadata.shallowObj.fov.srclist.folder",
+          "before": "/Volumes/DATA/Alexander/data/250724_dbud4stest/250724_dbud4stest_4/3-Pos_17",
+          "after": "/homes2/maliavko/DetecdivHub/raw/.incoming-alexander-2024-20261105/2024_2/250724_dbud4stest/250724_dbud4stest_4/3-Pos_17"
+        },
+        {
+          "field": "metadata.shallowObj.fov.srclist.folder",
+          "before": "/Volumes/DATA/Alexander/data/250724_dbud4stest/250724_dbud4stest_4/3-Pos_17",
+          "after": "/homes2/maliavko/DetecdivHub/raw/.incoming-alexander-2024-20261105/2024_2/250724_dbud4stest/250724_dbud4stest_4/3-Pos_17"
+        },
+        {
+          "field": "metadata.shallowObj.fov.srclist.folder",
+          "before": "/Volumes/DATA/Alexander/data/250724_dbud4stest/250724_dbud4stest_4/3-Pos_17",
+          "after": "/homes2/maliavko/DetecdivHub/raw/.incoming-alexander-2024-20261105/2024_2/250724_dbud4stest/250724_dbud4stest_4/3-Pos_17"
+        },
+        {
+          "field": "metadata.shallowObj.fov.srclist.folder",
+          "before": "/Volumes/DATA/Alexander/data/250724_dbud4stest/250724_dbud4stest_4/3-Pos_17",
+          "after": "/homes2/maliavko/DetecdivHub/raw/.incoming-alexander-2024-20261105/2024_2/250724_dbud4stest/250724_dbud4stest_4/3-Pos_17"
+        },
+        {
+          "field": "metadata.shallowObj.fov.srclist.folder",
+          "before": "/Volumes/DATA/Alexander/data/250724_dbud4stest/250724_dbud4stest_4/3-Pos_17",
+          "after": "/homes2/maliavko/DetecdivHub/raw/.incoming-alexander-2024-20261105/2024_2/250724_dbud4stest/250724_dbud4stest_4/3-Pos_17"
+        }
+      ],
+      "scientific_values_types_and_annotations_preserved": true,
+      "gpu_class_and_content_preserved": true,
+      "save_reopen_verified": true,
+      "original_preserved": true,
+      "catalog_changed": false,
+      "source_deleted": false
+    }
+  ],
+  "full_controller_success": false,
+  "source_and_backups_unchanged": true,
+  "all_unselected_target_files_and_directories_unchanged": true,
+  "native_owner_verified": true,
+  "native_postflight_sha256": "6a75e7839cbf609d61ae7c315f4fab26b721b73dc200ff06ce49208e1a6f1cc0",
+  "all_target_files_receipt_sha256": "2504be66b070ea28455b11e4f0869d693f447a12d3699e9bb7353490edf07fc4",
+  "gilles_main_saved": false,
+  "json_files_saved": false,
+  "source_deleted": false,
+  "preferred_locations_changed": false
+}

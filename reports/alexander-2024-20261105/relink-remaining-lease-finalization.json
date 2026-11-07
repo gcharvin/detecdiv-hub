@@ -1,0 +1,13 @@
+{
+  "success": false,
+  "batch_id": "dd188133-e2b3-4279-b7ac-773a673e5d3b",
+  "status": "failed_safe_unpublished_copies",
+  "own_leases_released": [
+    "8b455ffa-e3c8-493f-9f0b-fc2dff57bd10",
+    "096a244c-e11b-442c-a5b0-b918faf7dca8",
+    "6d6c9c6c-7476-4d19-be78-23975c08050a"
+  ],
+  "checked_at": "2026-11-07T15:01:18.769430+00:00",
+  "source_deleted": false,
+  "preferred_locations_unchanged": true
+}

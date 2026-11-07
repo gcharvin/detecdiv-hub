@@ -1,0 +1,16 @@
+{
+  "launched": true,
+  "session": "alex2024-relink-gilles-recovery-20261107",
+  "work": "/home/charvin-admin/storage-transfers/alexander-2024-20261105/relink-gilles-recovery-20261107",
+  "batch_id": "5aa13bf8-5456-4276-a27c-0a52d32b6999",
+  "holder": "alexander-2024-unpublished-relink-gilles-recovery-20261107",
+  "lease_deadline_unix": 1794085720.640525,
+  "runner_sha256": "42370cca453a84688bedd270887df5d94ae2e58d5c7dca72fbaa40528539fb02",
+  "matlab_sha256": "058e5dcafa2e08aea25a42129e3db1800f926f3e74573536cf1476db1e786f7b",
+  "projects": 1,
+  "metadata_mats": 1,
+  "metadata_json": 9,
+  "expected_path_changes": 8355,
+  "source_deleted": false,
+  "catalog_cutover_allowed": false
+}

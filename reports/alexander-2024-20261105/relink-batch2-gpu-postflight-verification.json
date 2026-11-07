@@ -1,0 +1,12 @@
+{
+  "success": true,
+  "metadata_files": 18,
+  "gpu_values_compared": 2585,
+  "all_gpu_content_hashes_types_sizes_equal": true,
+  "all_class_counts_equal": true,
+  "read_only": true,
+  "source_deleted": false,
+  "baseline_result_sha256": "e360db59bdfe41b458d6fefe21a72731fe897a5be588552ef4048162241b410d",
+  "postflight_result_sha256": "845c0f4c5b7bb5cf91e91fd6b4ea6874578cc81ba2b5947cc157f6e5b1dd82fc",
+  "checked_at": "2026-11-07T14:41:06.766820+00:00"
+}

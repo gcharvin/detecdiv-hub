@@ -1,0 +1,41 @@
+{
+  "success": true,
+  "checked_at": "2026-11-07T15:25:23.159811+00:00",
+  "scope": "own_two_batch_summaries_only",
+  "parent_status": "copying_and_project_discovery",
+  "failed_attempt_status_preserved": "failed_safe_unpublished_copies",
+  "checkpoint": {
+    "checked_at": "2026-11-07T15:25:23.159811+00:00",
+    "source_deleted": false,
+    "raw_2024_1_phase": "verifying_full_content",
+    "active_relink_projects": 0,
+    "raw_full_sha1_terminal": false,
+    "metadata_completed_mats": 59,
+    "metadata_completed_batches": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "active_relink_child_batches": [],
+    "actual_2024_bytes_reclaimed": 0,
+    "preferred_locations_changed": false,
+    "loxP15_full_access_gate_passed": false,
+    "movie_cache_identity_qualified": true,
+    "metadata_completed_path_changes": 1427052,
+    "metadata_completed_project_copies": 33,
+    "metadata_relink_batch1_completed_files": 23,
+    "metadata_relink_batch1_completed_projects": 12,
+    "metadata_relink_batch1_gpu_values_preserved": 4258,
+    "metadata_relink_batch1_gpu_postflight_verified": true,
+    "loxP15_missing_raw_references_in_initial_manifest": 53280,
+    "native_pending_reference_availability_parity_verified": true,
+    "metadata_completed_json_files": 9,
+    "metadata_relink_batch2_gpu_values_preserved": 2585,
+    "metadata_relink_batch2_gpu_postflight_verified": true,
+    "remaining_partial_verified_mats": 2,
+    "gilles_bounded_recovery_completed": true
+  },
+  "source_deleted": false,
+  "preferred_locations_changed": false
+}

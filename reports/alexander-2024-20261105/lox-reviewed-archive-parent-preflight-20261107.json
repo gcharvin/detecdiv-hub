@@ -1,0 +1,37 @@
+{
+  "read_only": true,
+  "source_deleted": false,
+  "snapshots_not_examined": true,
+  "parents": [
+    {
+      "parent": "/volume1/Sauvegarde/Alexander/data/nobackup",
+      "directory_exists": true,
+      "matches": []
+    },
+    {
+      "parent": "/volume1/Sauvegarde/Alexander/data/@eaDir",
+      "directory_exists": true,
+      "matches": []
+    },
+    {
+      "parent": "/volume1/Sauvegarde/Alexander/data/collab",
+      "directory_exists": true,
+      "matches": []
+    },
+    {
+      "parent": "/volume1/homes/maliavko/DetecdivHub/raw/.incoming-alexander-2023-20261008/2023_1",
+      "directory_exists": true,
+      "matches": []
+    },
+    {
+      "parent": "/volume1/homes/maliavko/DetecdivHub/raw/.incoming-alexander-2023-20261008/2023_2",
+      "directory_exists": false,
+      "matches": []
+    },
+    {
+      "parent": "/volume1/homes/maliavko/DetecdivHub/raw/.incoming-alexander-2023-20261008/2023_3",
+      "directory_exists": true,
+      "matches": []
+    }
+  ]
+}

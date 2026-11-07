@@ -20,7 +20,7 @@
     "source_deleted": false,
     "catalog_changed": false,
     "runner_pid": 187291,
-    "heartbeat_at": "2026-11-07T11:20:58.604668+00:00",
+    "heartbeat_at": "2026-11-07T15:32:12.305354+00:00",
     "current_year": "2024_1",
     "inventory_progress": {
       "files": 716605,
@@ -51,7 +51,8 @@
   "project_discovery_exit": "0\n",
   "project_discovery_log_tail": "33)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n",
   "sessions": [
-    "alex2024-copy-20261105"
+    "alex2024-copy-20261105",
+    "alex2024-lox-available-fields-20261107"
   ],
   "project_copy_state": {
     "phase": "failed_safe",
@@ -981,6 +982,57 @@
   },
   "relink_batch4_modified_mat_receipts": 6,
   "relink_batch4_log_tail": "",
+  "relink_remaining": {
+    "state": {
+      "phase": "failed_safe_unpublished_copies",
+      "copies_may_have_been_relinked": true,
+      "source_deleted": false,
+      "catalog_changed": false,
+      "heartbeat_at": "2026-11-07T15:01:11.056786+00:00",
+      "project": "281124_Alex",
+      "backups": 12,
+      "matlab_pid": 794314,
+      "error": "AssertionError: "
+    },
+    "exit": "1\n",
+    "progress": {
+      "phase": "copied_metadata_relinked",
+      "files_complete": 2,
+      "total": 3,
+      "project": "qp_250724_dbud4stest",
+      "source_deleted": false
+    },
+    "matlab_exit": "1\n",
+    "modified_mat_receipts": 2,
+    "modified_json_receipts": 0,
+    "log_tail": "Traceback (most recent call last):\n  File \"/home/charvin-admin/storage-transfers/alexander-2024-20261105/relink-remaining-mains-20261107/prepare_relink_remaining_mains.py\", line 199, in <module>\n    try:main()\n        ^^^^^^\n  File \"/home/charvin-admin/storage-transfers/alexander-2024-20261105/relink-remaining-mains-20261107/prepare_relink_remaining_mains.py\", line 169, in main\n    (WORK/'matlab.exit').write_text(str(code)+'\\n');assert code==0\n                                                           ^^^^^^^\nAssertionError\n"
+  },
+  "relink_gilles_recovery": {
+    "state": {
+      "phase": "copied_paths_relinked_science_verified_raw_and_host_gates_pending",
+      "copies_may_have_been_relinked": true,
+      "source_deleted": false,
+      "catalog_changed": false,
+      "heartbeat_at": "2026-11-07T15:10:56.353364+00:00",
+      "project": "281124_Alex",
+      "backups": 10,
+      "matlab_pid": 800710,
+      "json_files_complete": 9,
+      "finished_at": "2026-11-07T15:10:56.353324+00:00"
+    },
+    "exit": "0\n",
+    "progress": {
+      "phase": "copied_metadata_relinked",
+      "files_complete": 1,
+      "total": 1,
+      "project": "281124_Alex",
+      "source_deleted": false
+    },
+    "matlab_exit": "0\n",
+    "modified_mat_receipts": 1,
+    "modified_json_receipts": 9,
+    "log_tail": ""
+  },
   "supplemental_progress": {
     "inspected": 3,
     "total": 3,
@@ -2368,11 +2420,74 @@
           "files_with_unresolved_paths": 0
         }
       ]
+    },
+    "relink-batch2-gpu-postflight-20261107": {
+      "exit": "0\n",
+      "progress": {
+        "files_complete": 18,
+        "total": 18,
+        "saved": false
+      },
+      "log_tail": "elink_value_types (line 8)]\b \n[\bWarning: Unable to load gpuArray data onto a GPU. Computations cannot be\nperformed on this limited gpuArray. Use GATHER to retrieve the contents.]\b \n[\b> In audit_relink_value_types (line 8)]\b \n[\bWarning: Unable to load gpuArray data onto a GPU. Computations cannot be\nperformed on this limited gpuArray. Use GATHER to retrieve the contents.]\b \n[\b> In audit_relink_value_types (line 8)]\b \n[\bWarning: Unable to load gpuArray data onto a GPU. Computations cannot be\nperformed on this limited gpuArray. Use GATHER to retrieve the contents.]\b \n[\b> In audit_relink_value_types (line 8)]\b \n[\bWarning: Unable to load gpuArray data onto a GPU. Computations cannot be\nperformed on this limited gpuArray. Use GATHER to retrieve the contents.]\b \n[\b> In audit_relink_value_types (line 8)]\b \n[\bWarning: Unable to load gpuArray data onto a GPU. Computations cannot be\nperformed on this limited gpuArray. Use GATHER to retrieve the contents.]\b \n[\b> In audit_relink_value_types (line 8)]\b \n[\bWarning: Unable to load gpuArray data onto a GPU. Computations cannot be\nperformed on this limited gpuArray. Use GATHER to retrieve the contents.]\b \n[\b> In audit_relink_value_types (line 8)]\b \n",
+      "result_summary": {
+        "success": true,
+        "read_only": true,
+        "source_deleted": false
+      },
+      "scientific_type_files": 18,
+      "gpu_values": 2585,
+      "function_handles": 0,
+      "nonpublic_properties": 0
+    },
+    "relink-value-types-remaining-mains-20261107": {
+      "exit": "0\n",
+      "progress": {
+        "files_complete": 3,
+        "total": 3,
+        "saved": false
+      },
+      "log_tail": "",
+      "result_summary": {
+        "success": true,
+        "read_only": true,
+        "source_deleted": false
+      }
+    },
+    "gilles-main-typed-paths-20261107": {
+      "exit": "0\n",
+      "progress": null,
+      "log_tail": "",
+      "result_summary": {
+        "success": true,
+        "source_deleted": false,
+        "all_paths_resolved": true,
+        "unresolved_path_files": 0
+      },
+      "projects": [
+        {
+          "project_id": "ba44b140-ca07-4bdc-8e17-e41428dcdf51",
+          "name": "281124_Alex",
+          "metadata_files_audited": 1,
+          "files_needing_rebase": 1,
+          "files_with_unresolved_paths": 0
+        }
+      ]
+    },
+    "lox-available-fields-20261107": {
+      "exit": "",
+      "progress": {
+        "available_fovs_complete": 11,
+        "available_fovs": 15,
+        "new_source_samples": 120,
+        "target_samples": 132,
+        "saved": false
+      },
+      "log_tail": ""
     }
   },
   "copy_progress_tail": "814.875.236 100%   38,21MB/s   35:53:54 (xfr#732579, to-chk=0/734177)\r5.177.814.875.236 100%   38,21MB/s   35:53:54 (xfr#732579, to-chk=0/734177)\r5.177.814.875.236 100%   38,21MB/s   35:53:54 (xfr#732579, to-chk=0/734177)\r5.177.814.875.236 100%   38,21MB/s   35:53:54 (xfr#732579, to-chk=0/734177)\r5.177.814.875.236 100%   38,21MB/s   35:53:54 (xfr#732579, to-chk=0/734177)\r5.177.814.875.236 100%   38,21MB/s   35:53:54 (xfr#732579, to-chk=0/734177)\r5.177.814.875.236 100%   38,21MB/s   35:53:54 (xfr#732579, to-chk=0/734177)\r5.177.814.875.236 100%   38,21MB/s   35:53:54 (xfr#732579, to-chk=0/734177)\r5.177.814.875.236 100%   38,21MB/s   35:53:54 (xfr#732579, to-chk=0/734177)\r5.177.814.875.236 100%   38,21MB/s   35:53:54 (xfr#732579, to-chk=0/734177)\n\nNumber of files: 734.177 (reg: 732.579, dir: 1.598)\nNumber of created files: 734.176 (reg: 732.579, dir: 1.597)\nNumber of deleted files: 0\nNumber of regular files transferred: 732.579\nTotal file size: 5.177.814.875.236 bytes\nTotal transferred file size: 5.177.814.875.236 bytes\nLiteral data: 5.177.814.875.236 bytes\nMatched data: 0 bytes\nFile list size: 21.298.390\nFile list generation time: 0,118 seconds\nFile list transfer time: 0,000 seconds\nTotal bytes sent: 5.179.123.015.295\nTotal bytes received: 13.928.821\n\nsent 5.179.123.015.295 bytes  received 13.928.821 bytes  40.074.877,79 bytes/sec\ntotal size is 5.177.814.875.236  speedup is 1,00\n",
   "verification_log_bytes": 0,
-  "copy_processes": "187291 python           161824\n 503795 rsync             32341",
+  "copy_processes": "187291 python           176898\n 503795 rsync             47415",
   "project_receipts": 3326,
   "identity_batch2_projects": [
     {
@@ -2828,5 +2943,5 @@
   "copied_bytes": 5177814875236,
   "copy_percent_of_complete_year": 100.0,
   "rsync_display_percent_is_incremental_file_list_not_full_year": true,
-  "checked_at": "2026-11-07T11:21:03.815959+00:00"
+  "checked_at": "2026-11-07T15:32:18.076487+00:00"
 }

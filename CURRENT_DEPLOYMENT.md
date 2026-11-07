@@ -79,6 +79,19 @@ receipts are in `reports/abhilasha-channels-20261106/`.
 
 ## Alexander 2024 migration started, 2026-11-05
 
+2026-11-07 15:24 UTC: 33 unpublished project copies have verified path
+corrections (59 MATs plus9 active-reference JSONs,1,427,052 exact changes).
+Scientific/type/annotation/save/reopen comparisons passed; GPU postflights
+for both GPU-bearing batches match original contents and classes. Movie/qp
+completed in a preserved partial attempt; a separate bounded Gilles-only
+recovery completed after correcting its scientific snapshot root adapter.
+All own relink leases are released; originals/backups, HDF5 images, archival
+JSON/logs and all catalog identities/locations remain preserved. See the latest
+report checkpoint and partial/recovery receipts; do not replay either writer.
+LoxP15's15 initially absent raw fields remain unresolved. Raw 2024_1 SHA1 is
+still active;2024_2 has not begun. No filesystem publication, preferred
+location/API cutover or2024 source retirement, zero2024 bytes reclaimed.
+
 2026-11-07 11:21 UTC: all four metadata batches completed successfully,
 30 unpublished project copies/56 MATs/1410163 exact path changes with scientific
 save-reopen checks. All own leases released; catalog identities/metadata/

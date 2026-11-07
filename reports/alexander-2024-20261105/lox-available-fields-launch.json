@@ -1,0 +1,11 @@
+{
+  "launched": true,
+  "session": "alex2024-lox-available-fields-20261107",
+  "work": "/home/charvin-admin/storage-transfers/alexander-2024-20261105/lox-available-fields-20261107",
+  "script_sha256": "b402c2629e1b1fc5abeaf0b65b22576f91b207cfe188d52b10fa7d678ae9a727",
+  "read_only": true,
+  "new_source_fovs": 14,
+  "prior_fov1_source_reads_reused": true,
+  "strict_project_access_gate_passed": false,
+  "scientific_files_saved": false
+}

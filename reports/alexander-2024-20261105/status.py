@@ -60,6 +60,12 @@ summary['relink_batch4_exit']=tail('relink-batch4-20261107/controller.exit')
 summary['relink_batch4_progress']=load('relink-batch4-20261107/progress.json')
 summary['relink_batch4_modified_mat_receipts']=len(list((w/'relink-batch4-20261107').glob('modified-*.json')))
 summary['relink_batch4_log_tail']=tail('relink-batch4-20261107/controller.log',1200)
+for label,name in [('remaining','relink-remaining-mains-20261107'),('gilles_recovery','relink-gilles-recovery-20261107')]:
+ summary['relink_'+label]={'state':load(name+'/state.json'),'exit':tail(name+'/controller.exit'),
+  'progress':load(name+'/progress.json'),'matlab_exit':tail(name+'/matlab.exit'),
+  'modified_mat_receipts':len(list((w/name).glob('modified-[0-9]*.json'))),
+  'modified_json_receipts':len(list((w/name).glob('modified-json-*.json'))),
+  'log_tail':tail(name+'/controller.log',1200)}
 summary['supplemental_progress']=load('project-discovery-supplemental/project-discovery-progress.json')
 summary['supplemental_result']=load('project-discovery-supplemental/project-discovery-result.json')
 summary['supplemental_exit']=tail('project-discovery-supplemental/project-discovery.exit')
@@ -112,12 +118,15 @@ for name in ['persistent-path-audit-20261106-batch2','historical-reference-basel
              'pending-availability-diagnosis-v2-20261107','pending-reference-parity-20261107',
              'relink-value-types-20261107-batch4','figure-path-audit-20261107-batch5',
              'movie-cache-identity-20261107','persistent-path-audit-movie-20261107',
-             'relink-batch2-gpu-postflight-20261107']:
+             'relink-batch2-gpu-postflight-20261107','relink-value-types-remaining-mains-20261107',
+             'gilles-main-typed-paths-20261107','lox-available-fields-20261107']:
  item={'exit':tail(name+'/controller.exit'),'progress':load(name+'/progress.json'),'log_tail':tail(name+'/controller.log',1200)}
  result=load(name+'/result.json')
  if result:
   item['result_summary']={k:result[k] for k in ['success','loop_completed','read_only','source_deleted','reference_count','unique_paths',
-     'availability_matches_initial_native_manifest','target_current_presence_and_sizes_match_initial_manifest'] if k in result}
+     'availability_matches_initial_native_manifest','target_current_presence_and_sizes_match_initial_manifest',
+     'available_fields_verification_success','available_fovs','missing_fovs_unresolved',
+     'new_source_samples','target_samples','strict_project_access_gate_passed','cleanup_gate_passed'] if k in result}
   if 'projects' in result:
    item['projects']=[{k:p[k] for k in ['project_id','name','success','error','metadata_files_audited','files_needing_rebase',
        'files_with_unresolved_paths','rois','blank_roi_ids_preserved','completed_fovs_reused'] if k in p} for p in result['projects']]

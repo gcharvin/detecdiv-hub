@@ -1,0 +1,11 @@
+{
+  "success": true,
+  "batch_id": "5aa13bf8-5456-4276-a27c-0a52d32b6999",
+  "status": "copied_paths_relinked_pending_raw_and_host_gates",
+  "own_leases_released": [
+    "8aada7c5-8321-468a-82e5-e8742ee076f9"
+  ],
+  "checked_at": "2026-11-07T15:11:47.768206+00:00",
+  "source_deleted": false,
+  "preferred_locations_unchanged": true
+}

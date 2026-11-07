@@ -1,0 +1,19 @@
+{
+  "success": true,
+  "controller_exit": 0,
+  "matlab_exit": 0,
+  "projects": 1,
+  "metadata_mats": 1,
+  "metadata_json": 9,
+  "path_changes": 8355,
+  "scientific_values_types_annotations_and_json_frozen_contexts_preserved": true,
+  "all_104_target_file_hashes_and_directories_verified": true,
+  "native_owner_verified": true,
+  "existing_backups_reused_verified": true,
+  "images_hdf5_and_archival_json_unchanged": true,
+  "result_sha256": "c3ec6316207d4fa6b70cd51da2b8fc0f4f7b5cb0e69f2bff8a20ddd669a74b72",
+  "full_target_inventory_receipt_sha256": "c61782ea61c468f6fbbcf6f888f73c4f31e0eb19e45762a49e7136cf35aba3cc",
+  "finished_at": "2026-11-07T15:10:56.353324+00:00",
+  "source_deleted": false,
+  "preferred_locations_changed": false
+}

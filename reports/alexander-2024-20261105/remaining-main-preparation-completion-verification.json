@@ -1,0 +1,13 @@
+{
+  "success": true,
+  "read_only": true,
+  "metadata_mats": 3,
+  "gpu_values": 0,
+  "function_handles": 0,
+  "nonpublic_persistent_properties": 0,
+  "main_hashes_unchanged": true,
+  "type_readiness_result_sha256": "001348ca40142debe68bc2398d7d8c4d37452b2a78410050b04a322bbf28eb0b",
+  "gilles_typed_path_result_sha256": "ade7e14289df37111b822839a4886e1eb84dd68b053d52cfbe5b7d62dbf1f1d8",
+  "gilles_expected_path_changes": 8335,
+  "science_save_reopen_gate_required_separately": true
+}

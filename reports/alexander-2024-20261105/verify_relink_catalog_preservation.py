@@ -27,15 +27,20 @@ with SessionLocal() as db:
  for lease_id in v['lease_ids']:
   l=db.get(ProjectLock,uuid.UUID(lease_id));assert l.holder_key==v['holder'] and l.status!='active'
  b=db.get(StorageMigrationBatch,uuid.UUID(v['batch_id']));assert b.metadata_json['holder']==v['holder']
- assert b.status=='copied_paths_relinked_pending_raw_and_host_gates'
+ assert b.status==v.get('expected_status','copied_paths_relinked_pending_raw_and_host_gates')
  print(json.dumps({'success':True,'batch_id':str(b.id),'projects':rows,'child_batch_status':b.status,'own_leases_released':len(v['lease_ids']),
   'catalog_read_only':True,'checked_at':datetime.now(timezone.utc).isoformat()}))
 '''
 
 if __name__=='__main__':
-    number=int(sys.argv[1]);assert number in [1,2,3,4]
-    admission=json.loads((HERE/f'runtime/relink-batch{number}-admission.json').read_text())
-    final=json.loads((HERE/f'relink-batch{number}-lease-finalization.json').read_text());assert final['success'] and final['batch_id']==admission['batch_id']
+    choice=sys.argv[1]
+    if choice in ['1','2','3','4']:prefix='relink-batch'+choice;expected=True
+    elif choice=='remaining_partial':prefix='relink-remaining';expected=False
+    elif choice=='gilles_recovery':prefix='relink-gilles-recovery';expected=True
+    else:raise AssertionError('Unknown bounded relink verification')
+    admission=json.loads((HERE/f'runtime/{prefix}-admission.json').read_text())
+    final=json.loads((HERE/f'{prefix}-lease-finalization.json').read_text());assert final['success']==expected and final['batch_id']==admission['batch_id']
+    admission['expected_status']='copied_paths_relinked_pending_raw_and_host_gates' if expected else 'failed_safe_unpublished_copies'
     result=remote_json(SSH,'webserver-labo',CODE,admission,container=True)
-    (HERE/f'relink-batch{number}-catalog-preservation-verification.json').write_text(json.dumps(result,indent=2)+'\n')
+    (HERE/f'{prefix}-catalog-preservation-verification.json').write_text(json.dumps(result,indent=2)+'\n')
     print(json.dumps({'success':True,'projects':len(result['projects']),'own_leases_released':result['own_leases_released']}))
