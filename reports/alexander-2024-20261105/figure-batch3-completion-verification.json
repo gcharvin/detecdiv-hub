@@ -1,0 +1,13 @@
+{
+  "success": true,
+  "controller_exit": 0,
+  "result_sha256": "379e7214983876a6b8b1919b9791df5a39e25b8bbabaafd5438bb8a38a7a87ae",
+  "receipt_sha256": "231ddae2d05d681dfc679bd0bcd55d938be838e74a8d1bfe8a7299633d791d8f",
+  "projects": 9,
+  "metadata_files": 5,
+  "files_requiring_rebase": 0,
+  "path_changes_planned": 0,
+  "unresolved_values": 0,
+  "scientific_files_saved": false,
+  "source_deleted": false
+}

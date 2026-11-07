@@ -1,0 +1,13 @@
+{
+  "success": true,
+  "controller_exit": 0,
+  "result_sha256": "3c4b5944cc235b29e88aa3ccc23837f9142679fbf574cd0ccd20edca35f7beac",
+  "projects": 5,
+  "fovs": 66,
+  "rois": 16788,
+  "raw_samples": 954,
+  "all_crops_exact": true,
+  "main_files_unchanged": true,
+  "saved": false,
+  "source_deleted": false
+}

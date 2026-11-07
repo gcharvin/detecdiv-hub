@@ -8,7 +8,116 @@ year/user, original project, NAS snapshot, backup policy, quota, default engine
 or SMB credentials may be changed. The completed 2023 migration is separate;
 never replay any of its one-shot scripts.
 
-## Latest follow-up — 2026-11-06, starting 20:32 UTC
+## Latest follow-up — 2026-11-07, starting 02:36 UTC
+
+**This checkpoint supersedes earlier running states.** The complete raw copy
+of **2024_1 finished at 02:22:00 UTC**: 732,579 files / 5,177,814,875,236
+bytes. Its runner is now **verifying_full_content**, child rsync 503795 at
+02:40 UTC (check current process identity before any intervention). No terminal
+full SHA1 or subsequent native stability receipt yet. An empty differences
+log while the process runs is not success. Do not restart the copy/checksum;
+2024_2 starts automatically only after both gates. No preferred location or API
+reference changed and **zero 2024 bytes have been reclaimed from /data**.
+
+### First metadata relink completed, own leases released
+
+`relink-batch1-20261106/` finished **2026-11-06 23:04:57 UTC**, controller
+and MATLAB exit 0, all **23/23 metadata MATs**, exactly **636,618 path changes**
+in twelve unpublished copies. Every file has canonical scientific/type/
+annotation equivalence before/after/save/reopen and before/after hashes.
+All 23 modified-NN receipts match the terminal result, SHA256
+`e2f0b82b394bb7f7355a7e0ec503bbe0ee45b5c1cae49d60db1f4892993c4cea`.
+The 23 backups (3,715,167,522 bytes), originals and image files are preserved.
+See `relink-batch1-completion-verification.json`. **Never replay this writer.**
+
+The hidden watcher finalized only child batch
+`bf1a270b-1e18-419a-b11b-b2241871f13b` and released its twelve leases at
+23:05:51 UTC, before expiry. It is done; do not restart it or release again.
+See `relink-batch1-lease-finalization.json`. A fresh readonly DB comparison
+verified identity/owner/ACL/groups/notes/links, metadata and all locations still
+match admission for all twelve projects; see
+`relink-batch1-catalog-preservation-verification.json`.
+
+Copies remain incoming; their MAT paths target future final containers. Use
+**after** hashes for changed MATs and final-to-incoming translation **only in
+memory** before publication. Raw full checksum/stability, actual final host
+readers, API continuity and fresh publication/cutover admission remain required.
+
+A new readonly corroboration of all saved scientific type/GPU descriptors is
+running in **`relink-batch1-gpu-postflight-20261107/`**, tmux
+`alex2024-relink-batch1-gpu-postflight-20261107`. It uses after hashes, not the
+old copy hashes, with `audit_relink_value_types.m` SHA256
+`4689cff8762f91c5aea03f187433250b86dd75b950945921de5ab61d2f3c5982`.
+After controller.exit=0, run `verify_gpu_postflight_20261107.py` to compare
+all 23 class/count/GPU descriptors against the immutable original readiness
+result (4,258 GPU arrays). A completed loop alone does not prove descriptor
+parity. Do not duplicate the scan; preserve any discrepancy for diagnosis.
+
+### More identity and metadata work completed
+
+Identity batch5 is **finished, exit 0, all five projects successful**:
+66 FOV / 16,788 ROI / 954 raw samples, all representative crops exact,
+main files unchanged. Result SHA256
+`3c4b5944cc235b29e88aa3ccc23837f9142679fbf574cd0ccd20edca35f7beac`.
+See `identity-batch5-completion-verification.json`; do not replay.
+
+Persistent metadata batch4 is **finished, exit 0, zero unresolved paths**:
+18,856 metadata files, seven future MAT edits / 225,834 planned changes.
+Result SHA256 `16204a8dca332677a6ac46dd9ae22ad814924acee3d120f94b325256f0909169`;
+receipt SHA256 `9ddec690c3db3e8685f757ef7ac143b9a9bd586faa4d0c038e0cbf69b1d20e4e`.
+See `persistent-batch4-completion-verification.json`. These files have NOT been
+relinked; they are separate from the completed 23-file writer.
+
+FIG batch3 is also **finished, exit 0**: five FIGs across the nine projects
+from metadata batches3/4, no path edits or unresolved values, byte hashes
+unchanged. Result SHA256
+`379e7214983876a6b8b1919b9791df5a39e25b8bbabaafd5438bb8a38a7a87ae`;
+receipt SHA256 `231ddae2d05d681dfc679bd0bcd55d938be838e74a8d1bfe8a7299633d791d8f`.
+See `figure-batch3-completion-verification.json`. Preserve FIG/DS_Store bytes.
+
+### Bounded readonly continuations now running
+
+Inspect real result/partial/progress, controller.exit and bounded log tails
+before any action; do not duplicate or change their pinned scripts.
+
+- **Availability variants v2**, private
+  `availability-variants-identity-v2-20261107/`, tmux
+  `alex2024-availability-variants-identity-v2-20261107`, six reviewed variants.
+  The first attempt is preserved, **exit 1 before any project/FOV receipt**:
+  heterogeneous JSON project records decode to a MATLAB cell array. V2 only
+  fixes that container access and keeps all identity/availability guards;
+  SHA256 `e4c7db11bff3ad137a21a28dcb1675b7d4445ffd6de3ae404f036324a3b283eb`.
+  It had completed RMng and reached FOV5 of anof_dbud4 at the lightweight
+  check; examine every project success and exact missing-sidecar baseline.
+  No missing image or derived folder is fabricated or called restored.
+- **Persistent metadata batch5**, private
+  `persistent-path-audit-20261107-batch5/`, tmux
+  `alex2024-persistent-paths-batch5-20261107`, only five new identity successes.
+  Script SHA256 `9368ceb1dfa95b76d26d429a7ef19006cfd0b426cd21915994a4b67711592b84`.
+- **Scientific readiness batch2**, private
+  `relink-value-types-20261107-batch2/`, tmux
+  `alex2024-relink-value-types-20261107-batch2`, only eighteen proposed MATs
+  from metadata batches3/4 (nine projects, 394,123 planned path changes).
+  Same readonly type script SHA above; 8/18 files were complete at the early
+  check. No writer or leases for this next batch have been launched. Require
+  full types/contents, fresh admission, backups and scientific save/reopen
+  before any future relink; preserve historical raw/empty-ROI baselines.
+- **Gilles HDF5 metadata**, private `gilles-hdf5-metadata-20261107/`, tmux
+  `alex2024-gilles-hdf5-metadata-20261107`, all 58 fully hash-verified HDF5s.
+  `audit_gilles_hdf5_metadata.m` SHA256
+  `626edf64301a499ea4a12f7ae0a0ce9e3d2256e246dd02f44a7830d51f863c77`.
+  Reads attributes, layout, links and bounded strings; numeric image datasets
+  are never rewritten. External/virtual storage, object references or path
+  strings remain review blockers. Require every file success, not just exit0.
+
+The Gilles main/run JSON typed policy and unresolved legacy relevance review
+remain pending. Do not call run.json entirely archival: `pipelineRunLoad`
+loads project refs/ctx/outputs and `shallowLoad` reloads pipeline runs. Inspect
+these consumers in the protected migration release before choosing field-level
+changes; run_params snapshots and Hub client mappings need separate policy.
+No second writer/publication/catalog/API switch or source removal is launched.
+
+## Historical follow-up — 2026-11-06, starting 20:32 UTC
 
 **This checkpoint supersedes all earlier task states.** Raw 2024_1 is still
 copying normally: **4,409,354,641,147 bytes / 85.1586%** at 21:01 UTC, same

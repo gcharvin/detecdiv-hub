@@ -79,6 +79,19 @@ receipts are in `reports/abhilasha-channels-20261106/`.
 
 ## Alexander 2024 migration started, 2026-11-05
 
+2026-11-07 02:40 UTC checkpoint: raw 2024_1 copy finished at 02:22 UTC
+(5.178 TB), full SHA1 now running; source stability and 2024_2 still pending.
+The first twelve unpublished project copies completed their metadata relink:
+23 MATs / 636618 exact changes, scientific/save-reopen equivalence passed,
+backups/originals preserved. All twelve own leases released and DB identity,
+metadata and locations independently confirmed unchanged. Saved GPU descriptor
+corroboration is running readonly; do not replay the completed writer/watcher.
+Identity batch5 and metadata batch4 are complete; next bounded metadata/type/
+HDF5 and availability-variant audits are running. No preferred location/API
+switch or 2024 source retirement; zero 2024 bytes reclaimed. Read the newest
+report README for authoritative receipts and remaining gates.
+
+
 2026-11-06 21:01 UTC checkpoint: 2024_1 copying at 85.16%, no raw full SHA1
 or source retirement. Original project-copy runner stopped safely before
 project29's missing associated source folder; no stage existed. Its 28 receipts

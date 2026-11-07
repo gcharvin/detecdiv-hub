@@ -1,0 +1,22 @@
+{
+  "success": true,
+  "batch_id": "bf1a270b-1e18-419a-b11b-b2241871f13b",
+  "status": "copied_paths_relinked_pending_raw_and_host_gates",
+  "own_leases_released": [
+    "9e6aefca-d068-4cbd-90a1-0e1774937183",
+    "e36f9243-0b2c-4aa7-a2f9-c9ee5c757461",
+    "9576daa4-2e01-4dee-af9f-9b3d4a026c20",
+    "08a8bbde-0afe-450c-8e6f-4ad10d077784",
+    "9d091f2e-7a83-4cfa-8ae4-20014dff750a",
+    "5fe972c7-d83f-41d0-8e93-4f85534050c4",
+    "e32187ef-174b-4bb1-b93b-eac973eb9ec9",
+    "a9446ff3-f890-4c01-aafd-74338df85cfe",
+    "c3fba011-838b-4af6-9565-1f0469d98809",
+    "1a1feb72-6746-41e2-b7ef-43957a3e67b8",
+    "042818ad-43ea-4ffa-9a13-5dc37fdf0cb7",
+    "8390280e-95b2-409b-bd8c-f28799d8753e"
+  ],
+  "checked_at": "2026-11-06T23:05:51.186910+00:00",
+  "source_deleted": false,
+  "preferred_locations_unchanged": true
+}

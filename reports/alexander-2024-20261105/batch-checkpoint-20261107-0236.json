@@ -1,0 +1,23 @@
+{
+  "success": true,
+  "batch_id": "0382c23e-ad54-4ec9-9ad8-53cc79b64d97",
+  "status_unchanged": "copying_and_project_discovery",
+  "updated_only_own_summary": true,
+  "checkpoint": {
+    "checked_at": "2026-11-07T02:50:05.923300+00:00",
+    "raw_2024_1_phase": "verifying_full_content",
+    "copy_finished_at": "2026-11-07T02:22:00.984848+00:00",
+    "full_raw_sha1_terminal": false,
+    "complete_standard_project_copies": 31,
+    "complete_special_project_copies": 2,
+    "available_main_only_copies": 1,
+    "metadata_copies_relinked_projects": 12,
+    "metadata_mats_relinked": 23,
+    "path_changes": 636618,
+    "child_leases_released": 12,
+    "saved_gpu_descriptor_postflight_pending": true,
+    "preferred_locations_changed": false,
+    "source_deleted": false,
+    "actual_2024_bytes_reclaimed": 0
+  }
+}

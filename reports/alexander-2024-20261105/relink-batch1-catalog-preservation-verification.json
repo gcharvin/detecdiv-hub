@@ -1,0 +1,69 @@
+{
+  "success": true,
+  "projects": [
+    {
+      "project_id": "19037bd1-e966-428f-96f8-2a7166c7bc9e",
+      "identity_and_scientific_metadata_unchanged": true,
+      "all_locations_unchanged": true
+    },
+    {
+      "project_id": "344c83c4-7786-4d43-a15a-3fb292990f09",
+      "identity_and_scientific_metadata_unchanged": true,
+      "all_locations_unchanged": true
+    },
+    {
+      "project_id": "3dc52b35-7254-48e4-ab04-157dce732d6e",
+      "identity_and_scientific_metadata_unchanged": true,
+      "all_locations_unchanged": true
+    },
+    {
+      "project_id": "53a6c0c1-f887-44da-ae8c-a0018e46064e",
+      "identity_and_scientific_metadata_unchanged": true,
+      "all_locations_unchanged": true
+    },
+    {
+      "project_id": "671be8d4-b028-46c0-8730-9fca5bee8888",
+      "identity_and_scientific_metadata_unchanged": true,
+      "all_locations_unchanged": true
+    },
+    {
+      "project_id": "73504070-1ff4-4c0d-b630-d17829ccced6",
+      "identity_and_scientific_metadata_unchanged": true,
+      "all_locations_unchanged": true
+    },
+    {
+      "project_id": "864f762f-dd97-47d1-ba32-4783430fc1b9",
+      "identity_and_scientific_metadata_unchanged": true,
+      "all_locations_unchanged": true
+    },
+    {
+      "project_id": "8d749d6e-c3f9-46aa-9eb1-5dc34af4bc55",
+      "identity_and_scientific_metadata_unchanged": true,
+      "all_locations_unchanged": true
+    },
+    {
+      "project_id": "99c114c7-bc50-46d9-a462-251f8aeca12f",
+      "identity_and_scientific_metadata_unchanged": true,
+      "all_locations_unchanged": true
+    },
+    {
+      "project_id": "bec9b2cf-656d-417a-b424-2d3e7cbf316c",
+      "identity_and_scientific_metadata_unchanged": true,
+      "all_locations_unchanged": true
+    },
+    {
+      "project_id": "e0d02751-28b3-4b3e-a74c-0dfd00b37803",
+      "identity_and_scientific_metadata_unchanged": true,
+      "all_locations_unchanged": true
+    },
+    {
+      "project_id": "e6f6b263-dae2-4670-ac85-280abc4f38a2",
+      "identity_and_scientific_metadata_unchanged": true,
+      "all_locations_unchanged": true
+    }
+  ],
+  "child_batch_status": "copied_paths_relinked_pending_raw_and_host_gates",
+  "own_leases_released": 12,
+  "catalog_read_only": true,
+  "checked_at": "2026-11-07T02:46:31.836695+00:00"
+}
