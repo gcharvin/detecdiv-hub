@@ -60,6 +60,16 @@ summary['relink_batch4_exit']=tail('relink-batch4-20261107/controller.exit')
 summary['relink_batch4_progress']=load('relink-batch4-20261107/progress.json')
 summary['relink_batch4_modified_mat_receipts']=len(list((w/'relink-batch4-20261107').glob('modified-*.json')))
 summary['relink_batch4_log_tail']=tail('relink-batch4-20261107/controller.log',1200)
+lox_work='lox-metadata-preparation-20261107'
+summary['lox_metadata_preparation']={'exit':tail(lox_work+'/controller.exit'),
+ 'path_progress':load(lox_work+'/paths/progress.json'),'path_result':load(lox_work+'/paths/result.json'),
+ 'type_progress':load(lox_work+'/types/progress.json'),'log_tail':tail(lox_work+'/controller.log',1200)}
+lox_types=load(lox_work+'/types/result.json')
+if lox_types:
+ summary['lox_metadata_preparation']['type_summary']={'success':lox_types.get('success'),
+  'files':len(lox_types['files']),'gpu_values':sum(len(f['gpu_values']) for f in lox_types['files']),
+  'function_handles':sum(len(f['function_handles']) for f in lox_types['files']),
+  'nonpublic_properties':sum(len(f['nonpublic_persistent_properties']) for f in lox_types['files'])}
 for label,name in [('remaining','relink-remaining-mains-20261107'),('gilles_recovery','relink-gilles-recovery-20261107')]:
  summary['relink_'+label]={'state':load(name+'/state.json'),'exit':tail(name+'/controller.exit'),
   'progress':load(name+'/progress.json'),'matlab_exit':tail(name+'/matlab.exit'),

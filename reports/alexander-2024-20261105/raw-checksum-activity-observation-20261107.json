@@ -1,0 +1,19 @@
+{
+  "checked_at": "2026-11-07T20:48:54.415145+00:00",
+  "first_checked_at": "2026-11-07T20:47:39.626790+00:00",
+  "rsync_io_deltas": [
+    {
+      "pid": 503795,
+      "rchar_increase": 3475105985,
+      "syscr_increase": 13634
+    },
+    {
+      "pid": 503796,
+      "rchar_increase": 1964154394,
+      "syscr_increase": 7701
+    }
+  ],
+  "full_sha1_terminal": false,
+  "io_counters_are_not_checksum_percent": true,
+  "source_deleted": false
+}

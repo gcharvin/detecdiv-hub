@@ -8,7 +8,41 @@ year/user, original project, NAS snapshot, backup policy, quota, default engine
 or SMB credentials may be changed. The completed 2023 migration is separate;
 never replay any of its one-shot scripts.
 
-## Latest status check — 2026-11-07, 15:34 UTC
+## Latest status check — 2026-11-07, 20:49 UTC
+
+Raw 2024_1 still has no terminal SHA1 or native source-after result. The existing
+runner187291 and rsync503795 are alive. A second lightweight observation confirms
+active checksum reads on503795/503796 (both read-character and read-call counters
+increase; a target raw image was open). These IO counters are **not a verified
+checksum percentage or terminal result**. See
+`raw-checksum-activity-observation-20261107.json`; do not restart the transfer or
+checksum. 2024_2 remains queued behind this runner. No publication, preferred
+location/API cutover or2024 source retirement: zero2024 bytes reclaimed.
+
+The33 relinked unpublished copies and completed available-field Lox verification
+remain as below; no writer/watcher or successful pixel survey was replayed.
+Independent preparation continues on Lox's **unchanged main-only copy**, without
+waiving its15 absent fields or missing derived folder:
+
+- New readonly scope `lox-metadata-preparation-20261107`, tmux
+  `alex2024-lox-metadata-preparation-20261107`, is RUNNING. It performs the first
+  persistent path audit and scientific-type survey of this remaining main,
+  sequentially in one MATLAB process, one thread, no GPU or scientific saves.
+- Fresh readonly jobs/indexing/lease admission was clear. No lease, writer,
+  backup, publication or catalog mutation was created.
+- Scripts are the unchanged `audit_persistent_paths.m` SHA256
+  `9368ceb1dfa95b76d26d429a7ef19006cfd0b426cd21915994a4b67711592b84`
+  and `audit_relink_value_types.m` SHA256
+  `4689cff8762f91c5aea03f187433250b86dd75b950945921de5ab61d2f3c5982`.
+- Read root `controller.exit`/`controller.log`, `paths/result.json` and
+  `paths/receipt.jsonl`, then `types/progress.json`/`types/result.json`. A success
+  loop alone does not resolve unknown paths, closures/private state or scientific
+  equivalence. The missing-field strict access and cleanup gates remain false.
+  Do not duplicate this scope or turn its candidate mappings into a writer
+  without the remaining independent gates. Launch proof:
+  `lox-metadata-preparation-launch.json`.
+
+## Historical status check — 2026-11-07, 15:34 UTC
 
 **Supersedes all running states below.** Raw 2024_1 remains
 `verifying_full_content`, runner187291/rsync503795 alive at15:34 UTC. Its
