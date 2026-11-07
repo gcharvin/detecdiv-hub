@@ -1,0 +1,33 @@
+{
+  "available_fields_verification_success": true,
+  "read_only": true,
+  "available_fovs": 15,
+  "missing_fovs_unresolved": [
+    2,
+    4,
+    6,
+    8,
+    10,
+    12,
+    14,
+    16,
+    18,
+    20,
+    22,
+    24,
+    26,
+    28,
+    30
+  ],
+  "new_source_samples": 168,
+  "target_samples": 180,
+  "prior_fov1_source_samples_reused": 12,
+  "main_hashes_unchanged": true,
+  "strict_project_access_gate_passed": false,
+  "cleanup_gate_passed": false,
+  "source_deleted": false,
+  "scientific_files_saved": false,
+  "controller_exit": 0,
+  "result_sha256": "a745d623392c399830379ffc3665c960dca665762758dbb0cb1897eab2c07f41",
+  "new_fields_checked": 14
+}

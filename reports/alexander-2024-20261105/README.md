@@ -8,10 +8,10 @@ year/user, original project, NAS snapshot, backup policy, quota, default engine
 or SMB credentials may be changed. The completed 2023 migration is separate;
 never replay any of its one-shot scripts.
 
-## Latest status check — 2026-11-07, 15:24 UTC
+## Latest status check — 2026-11-07, 15:34 UTC
 
 **Supersedes all running states below.** Raw 2024_1 remains
-`verifying_full_content`, runner187291/rsync503795 alive at15:24 UTC. Its
+`verifying_full_content`, runner187291/rsync503795 alive at15:34 UTC. Its
 5,177,814,875,236-byte copy is complete, but no terminal SHA1 or native
 source-after success exists. 2024_2 has not started. No filesystem publication,
 preferred location/API cutover or source retirement: **zero 2024 bytes reclaimed**.
@@ -99,16 +99,17 @@ again or treat silence as approval to waive access. Native availability parity
 is not a strict access success. Reuse the successful FOV1 receipt, then verify
 pixels for the other14 genuinely available odd-position FOVs without repeating
 FOV1 source reads; keep15 absent fields explicitly unresolved. This new readonly
-scope is now **RUNNING** in `lox-available-fields-20261107`, tmux
+scope is now **TERMINATED, exit0**, in `lox-available-fields-20261107`, tmux
 `alex2024-lox-available-fields-20261107`, script SHA256
 `b402c2629e1b1fc5abeaf0b65b22576f91b207cfe188d52b10fa7d678ae9a727`.
 Fresh jobs/indexing/lease admission was clear; no lease or writer was created.
-Read progress/result/controller.exit/log before any further work. It reuses
-twelve original FOV1 pixel fingerprints for target reads only, then reads168
-new source samples and compares them with homes2. Expected15 available fields
-and180 target reads do not validate the15 absent fields: its strict project
-access/cleanup gates stay false even on successful available-field verification.
-Do not duplicate this reader or confuse an empty live log with completion.
+All15 available odd-position fields passed,180 target reads/168 new source
+reads. Twelve original FOV1 source fingerprints were reused without replaying
+those source reads. Original/copy main hashes remain unchanged. See
+`lox-available-fields-completion-verification.json` and readonly verifier
+`verify_lox_available_completion.py`. These available-field results do not
+validate the15 absent fields: strict project access/cleanup gates remain false.
+Do not replay this completed reader; no source deletion or scientific save occurred.
 Shallow backup
 parent probes found no exact acquisition in the inspected immediate folders;
 they do not establish absence from all archives/snapshots. See the three
