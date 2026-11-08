@@ -1,0 +1,35 @@
+{
+  "checked_at": "2026-11-08T08:50:28.793053+00:00",
+  "current_migration_state_verified": false,
+  "failure": "SSH connection to compute timed out",
+  "ssh_client": "C:/Windows/System32/OpenSSH/ssh.exe",
+  "ssh_alias": "detecdiv-server",
+  "independent_tcp_checks": [
+    {
+      "endpoint": "compute SSH",
+      "connected": false,
+      "error": "timeout"
+    },
+    {
+      "endpoint": "primary NAS SMB",
+      "connected": false,
+      "error": "timeout"
+    },
+    {
+      "endpoint": "homes2 NAS SSH",
+      "connected": false,
+      "error": "timeout"
+    }
+  ],
+  "existing_tailscale_backend": "Running",
+  "existing_tailscale_matching_lab_peers_or_routes_found": false,
+  "last_successful_status_checked_at": "2026-11-08T02:43:24.766214+00:00",
+  "last_verified_raw_phase": "verifying_full_content",
+  "last_successful_io_observation": "2026-11-08T02:49:42.923444+00:00",
+  "last_known_2024_reclaimed_bytes": 0,
+  "network_or_ssh_configuration_changed": false,
+  "remote_processes_stopped_or_restarted": false,
+  "new_transfer_started": false,
+  "source_deletion_performed_by_this_control": false,
+  "required_condition": "Restore existing access to the lab network; then inspect existing state before any further action"
+}

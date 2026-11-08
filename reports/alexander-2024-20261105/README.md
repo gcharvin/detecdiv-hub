@@ -8,7 +8,32 @@ year/user, original project, NAS snapshot, backup policy, quota, default engine
 or SMB credentials may be changed. The completed 2023 migration is separate;
 never replay any of its one-shot scripts.
 
-## Latest status check — 2026-11-08, 02:49 UTC
+## Latest control — 2026-11-08, 08:47 UTC: lab network unreachable
+
+**No fresh remote migration state could be established.** The required
+`status.py` attempt failed with Windows OpenSSH connection timeout to compute.
+Independent TCP checks also timed out for compute SSH, primary NAS SMB and
+homes2 NAS SSH. The workstation is outside its lab LAN; its existing Tailscale
+backend is online but exposes no matching lab peer/subnet route. No network,
+VPN, SSH, key or server configuration was changed. See
+`network-access-check-20261108.json`.
+
+The unchanged `latest-status.json` is the **last successful observation at
+02:43 UTC**, not a fresh08:47 status. Last successful IO observation was02:49 UTC.
+Full SHA1 was still running then, with no verified terminal result,2024_2 start
+or source retirement. The remote runner may continue independently; a connection
+failure is not proof of process failure or completion. No process was stopped,
+restarted or duplicated, and this control deleted no source.
+
+The existing six-hour follow-up remains active. After access to the lab network
+returns, run `status.py` first and read real existing state/receipts before any
+action; never replay a raw runner, writer, watcher or finished audit. If the
+status command exits nonzero, do not treat its older JSON file as current.
+Restore ordinary lab/VPN access rather than changing unrelated personal network
+settings or inventing an alternate tunnel. All original project protections and
+remaining migration gates below still apply.
+
+## Last successful remote status — 2026-11-08, 02:49 UTC
 
 Raw 2024_1 remains `verifying_full_content`, runner187291/rsync503795 alive;
 IO counters on503795/503796 increased again since the previous observation.
