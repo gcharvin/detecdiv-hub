@@ -1,0 +1,21 @@
+{
+  "read_only_preparation_success": true,
+  "controller_exit": 0,
+  "metadata_mats": 1,
+  "planned_path_changes": 118384,
+  "unknown_path_values": 0,
+  "gpu_values": 0,
+  "function_handles": 0,
+  "nonpublic_persistent_properties": 0,
+  "copy_main_hash_unchanged": true,
+  "result_sha256": {
+    "paths/result.json": "f7a0427e4410a0a2ad079d36569ff5260e3d770deb2a59f339dd189102d0fca1",
+    "paths/receipt.jsonl": "d086b3a351ca5009d541394f0f01eff530cdd1ab4ed17037b4f2b02e49bab845",
+    "types/result.json": "923aca44532ca5218ecc21c7b1891606f8f21c09185080a99b0f61b342cdf033"
+  },
+  "scientific_save_reopen_verified": false,
+  "strict_project_access_gate_passed": false,
+  "cleanup_gate_passed": false,
+  "source_deleted": false,
+  "scientific_files_saved": false
+}

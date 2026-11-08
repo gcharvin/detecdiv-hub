@@ -1,0 +1,17 @@
+{
+  "files": 33,
+  "mime_counts": {
+    "application/octet-stream": 33
+  },
+  "marker_counts": {
+    "jpeg": 0,
+    "tiff": 0,
+    "png": 0,
+    "zip": 0,
+    "hdf5_userblock": 0,
+    "matlab_marker": 0
+  },
+  "receipt_sha256": "8ed1ee0a63da8a7b2b1eea8813904f2cad20482a197043546f1e16b13fd9ee24",
+  "read_only": true,
+  "reference_relevance_resolved": false
+}

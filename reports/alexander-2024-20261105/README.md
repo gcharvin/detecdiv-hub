@@ -8,7 +8,48 @@ year/user, original project, NAS snapshot, backup policy, quota, default engine
 or SMB credentials may be changed. The completed 2023 migration is separate;
 never replay any of its one-shot scripts.
 
-## Latest status check — 2026-11-07, 20:49 UTC
+## Latest status check — 2026-11-08, 02:49 UTC
+
+Raw 2024_1 remains `verifying_full_content`, runner187291/rsync503795 alive;
+IO counters on503795/503796 increased again since the previous observation.
+This corroborates active reads, **not a checksum percentage or terminal success**.
+No SHA1/native source-after gate,2024_2 start, publication, preferred location/API
+cutover or source retirement has occurred. Zero2024 bytes reclaimed. Keep the
+existing raw runner intact; see `raw-checksum-activity-observation-20261108.json`.
+
+Lox readonly metadata preparation is now **TERMINATED, exit0**. Its one protected
+main has118,384 recognized candidate path values, zero unknown paths and zero
+GPU/function/private persistent values; the copied main hash remains unchanged.
+See `lox-metadata-preparation-completion-verification.json` and its verifier.
+Path result SHA256 `f7a0427e4410a0a2ad079d36569ff5260e3d770deb2a59f339dd189102d0fca1`,
+path receipt `d086b3a351ca5009d541394f0f01eff530cdd1ab4ed17037b4f2b02e49bab845`,
+types result `923aca44532ca5218ecc21c7b1891606f8f21c09185080a99b0f61b342cdf033`.
+No writer, backup or lease was created and no scientific file was saved. These
+are plans/readiness only:15 absent fields, the missing derived folder, strict
+project access/cleanup and scientific save/reopen gates remain unresolved/false.
+Do not replay the completed metadata/type or available-field readers.
+
+A new **bounded container classification**, not a replay of the completed
+MATLAB legacy readers, examined exactly the33 old unreadable catalog MATs.
+All33 belong to Gilles (distinct from the33 prepared migration copies).
+Their first4,096 bytes are currently zero; this header digest was rechecked,
+with stable source metadata, and MIME identifies only application/octet-stream.
+No MATLAB/HDF5/common image/archive signature was recognized in that header.
+This establishes neither whole-file contents nor when the header damage arose,
+nor whether they reference2024 raws. No negative-reference or cleanup gate is
+granted. Sources are preserved; no recovery/substitution was attempted. See
+`unreadable-header-final-classification-verification.json` and private
+`unreadable-header-classification-20261108/` receipts. Header receipt SHA256
+`18b995243f3189e62768c89f3f79c40d76af62a89d3bfaf1a33da9b0de8f3155`;
+MIME followup `8ed1ee0a63da8a7b2b1eea8813904f2cad20482a197043546f1e16b13fd9ee24`.
+Fresh readonly jobs/indexing/lease admission preceded the classification; no
+third-party work was interrupted. All33 rows remain reference-relevance unresolved,
+along with the1,030 missing declared mains and three uncataloged MCOS stubs.
+
+The next raw terminal gate and remaining independent access/relevance work are
+still required. No existing writer/watcher or completed pixel survey needs replay.
+
+## Historical status check — 2026-11-07, 20:49 UTC
 
 Raw 2024_1 still has no terminal SHA1 or native source-after result. The existing
 runner187291 and rsync503795 are alive. A second lightweight observation confirms

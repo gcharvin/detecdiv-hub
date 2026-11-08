@@ -1,0 +1,16 @@
+{
+  "read_only_classification_verified": true,
+  "files": 33,
+  "owner": "gilles",
+  "zero_first_4096_bytes": 33,
+  "headers_rechecked_unchanged": true,
+  "mime": "application/octet-stream",
+  "whole_file_contents_verified": false,
+  "timing_of_header_damage_established": false,
+  "reference_relevance_resolved": false,
+  "old_matlab_audits_replayed": false,
+  "scientific_files_saved": false,
+  "source_deleted": false,
+  "header_receipt_sha256": "18b995243f3189e62768c89f3f79c40d76af62a89d3bfaf1a33da9b0de8f3155",
+  "mime_receipt_sha256": "8ed1ee0a63da8a7b2b1eea8813904f2cad20482a197043546f1e16b13fd9ee24"
+}
