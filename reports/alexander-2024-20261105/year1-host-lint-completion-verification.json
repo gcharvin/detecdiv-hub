@@ -1,0 +1,13 @@
+{
+  "success": true,
+  "controller_exit": 0,
+  "script_sha256": "2ca5f1177e4eb2edd2552255104c7ce72428880448fb3c7a9d2e0e1695a38d84",
+  "syntax_errors": 0,
+  "style_warning_ids": [
+    "NASGU",
+    "ISCL"
+  ],
+  "scientific_files_loaded": false,
+  "scientific_files_saved": false,
+  "earlier_syntax_lint_preserved": true
+}

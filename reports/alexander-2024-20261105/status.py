@@ -67,6 +67,13 @@ publication_result=load(publication_work+'/result.json')
 if publication_result:
  summary['year1_prepublication_audit']['result_summary']={k:publication_result[k] for k in ['success','read_only','source_deleted','published','catalog_changed','fresh_publication_admission_and_host_catalog_api_gates_still_required']}
  summary['year1_prepublication_audit']['result_summary']['projects']=len(publication_result['projects'])
+summary['year1_final_publication']={'state':load('year1-final-publication-20261109/state.json'),
+ 'exit':tail('year1-final-publication-20261109/controller.exit'),
+ 'log_tail':tail('year1-final-publication-20261109/controller.log',1200)}
+summary['year1_final_linux_hosts']={'state':load('year1-final-hosts-20261109/host-linux-state.json'),
+ 'progress':load('year1-final-hosts-20261109/host-linux-progress.json'),
+ 'exit':tail('year1-final-hosts-20261109/controller.exit'),
+ 'log_tail':tail('year1-final-hosts-20261109/controller.log',1200)}
 lox_work='lox-metadata-preparation-20261107'
 summary['lox_metadata_preparation']={'exit':tail(lox_work+'/controller.exit'),
  'path_progress':load(lox_work+'/paths/progress.json'),'path_result':load(lox_work+'/paths/result.json'),
@@ -180,6 +187,16 @@ print(json.dumps(summary))
 if __name__=='__main__':
     result=remote('linux',CODE,timeout=90)
     private=HERE/'runtime';private.mkdir(exist_ok=True)
+    local_state=private/'year1-advance-state.json'
+    if local_state.exists():
+        result['year1_local_continuation']=json.loads(local_state.read_text(encoding='utf-8'))
+    # Archived reports only: never query a diagnostic task after its cleanup.
+    windows_status=private/'year1-windows-status.json'
+    if windows_status.exists():
+        archived=json.loads(windows_status.read_text(encoding='utf-8'))
+        result['year1_final_windows_hosts_archived']={k:v for k,v in archived.items()
+          if k in ['task','host-windows-state.json','host-windows-progress.json']}
+        result['year1_final_windows_hosts_archived']['cleanup_receipt_exists']=(HERE/'year1-windows-cleanup.json').exists()
     (private/'latest-status.json').write_text(json.dumps(result,indent=2)+'\n',encoding='utf-8')
     summary={k:v for k,v in result.items() if k not in ['project_candidates','project_requires_review','identity_batch2_partial']}
     partial=result.get('identity_batch2_partial') or []

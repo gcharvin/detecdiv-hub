@@ -8,7 +8,92 @@ year/user, original project, NAS snapshot, backup policy, quota, default engine
 or SMB credentials may be changed. The completed 2023 migration is separate;
 never replay any of its one-shot scripts.
 
-## Latest action — 2026-11-09: first-year publication integrity review launched
+## Latest checkpoint — 2026-11-09, 09:44 UTC: bounded continuation armed
+
+The user reaffirmed autonomous publication of the16 prepared copies and verified
+reclamation, preserving originals. A single hidden local controller is now
+running, PID92688 at launch (verify its command line before intervention):
+`advance_year1_after_integrity.py`. It waits for the EXISTING integrity audit;
+at09:43 UTC four of16 projects had full successful receipts. It does not start
+a second audit or repeat any prior scientific relink or pixel baseline.
+
+The pinned continuation performs these steps only after all16 integrity receipts:
+
+1. Recheck raw2024_1 SHA1/stability evidence and collect the terminal full-copy
+   receipts. Fresh jobs, indexing and leases must pass; acquire only16 own leases,
+   holder `alexander-2024-year1-final-publication-20261109`, six-hour deadline.
+2. Publish incoming project directories with atomic RENAME_NOREPLACE, no overwrite.
+   Fresh original inventories and exact current target metadata must still match.
+   Each rename has a durable receipt; any partial failure requires review,
+   never replay. `publish_year1_folders.py` has no original/raw source deletion.
+3. Test actual final paths on Linux and in the real limited Windows
+   GMGM\Charvin-Admin/session1 using protected engine d83c4dbc0638bc0d3f6012b4f1df5744e0c017c7.
+   The immutable inputs reuse successful prior scientific baselines for16 projects,
+   159 FOV,50,234 ROI and2,059 raw sample reads PER HOST, plus151 native raw
+   directories/458,680 files and actual ROI sidecar availability. Preserve the
+   explicitly frozen old absences, cache differences and layouts; absent data
+   is never declared accessible. No project MAT is saved by these readers.
+4. Compare both host receipts, then change only the SAME16 projects' preferred
+   locations in one fresh transaction. Preserve identities, owners, scientific
+   metadata, annotations, ACLs, groups and links. Keep original locations.
+   Verify actual project API routes and homes2 visibility, release only own16
+   leases, then clean only the dedicated Windows diagnostic task/scripts.
+
+New task: `DetecDiv Alexander 2024 Year1 Final Hosts 20261109`; private Windows
+folder `C:/ProgramData/DetecDivHub/homes2-connection-private/year1-final-hosts-20261109`.
+Compute publication and host folders are `year1-final-publication-20261109`
+and `year1-final-hosts-20261109`, with matching alex2024-* tmux names.
+Do not touch workers, defaults, earlier diagnostic tasks or another thread.
+
+Read FIRST `runtime/year1-advance-state.json` and its actual local PID, then
+`status.py` and existing remote receipts. While this continuation is active,
+DO NOT independently admit/publish/start readers/cut over/release its leases.
+Its six source pins are recorded in `year1-continuation-launch-verification.json`;
+do not edit those live files. A terminal failure records its phase/frames and
+preserves receipts; inspect the exact partial state before a bounded recovery.
+After successful Windows cleanup, use archived reports, not status on a removed
+scheduled task. Local continuation state in latest-status is timestamped; an old
+heartbeat is not proof that the process is alive.
+
+Publication guards passed isolated Linux fixtures and a tiny private fixture on
+the actual maliavko CIFS share: successful inode-preserving rename and refusal
+to overwrite directories, files or broken symlinks; fixture-only cleanup complete.
+The final MATLAB reader passed syntax lint (two style warnings). No scientific
+files were loaded by lint. See the host-input, lint, rename/CIFS and continuation
+launch verification JSONs. Python sources and embedded remote code parsed.
+
+At this checkpoint the continuation is WAITING; no final directory publication
+or preferred location change is claimed. **2024 reclaimed space remains0 bytes.**
+2024_2 was28.9281% copied at09:10 UTC and continues in the original raw runner.
+This continuation implements no raw URI cutover or source retirement. The new
+2024-specific retirement controller, actual media-handler streaming/hashes,
+fresh whole manifest, all relevant project/access gates and measured NAS space
+remain mandatory. Lox and legacy relevance limitations remain unwaived.
+
+## API preparation — 2026-11-09, 09:52 UTC
+
+Readonly year1 media inventory v2 completed successfully:64 raw datasets,
+1,204 actual file references (1,142 preview Artifacts and62 display settings),
+1,204 unique files /10,858,665,796 bytes. Every path belongs to the verified
+initial native year1 manifest and has matching source/homes2 presence and size
+on compute. Private plan: `year1-api-media-inventory-v2-20261109/plan.json`,
+SHA256 `5eca1863ef4b0b6909bdca1409fd360a1aea3f8032eaa69ac4344a99a706bf9a`.
+See `year1-api-media-inventory-verification.json` and the v2 preparation source.
+
+This is an inventory, NOT completed handler streaming or media-content hashing.
+No URI/catalog/source changed; API per-file mount reads and full real-handler
+stream/hash tests remain required before/after media cutover and source retirement.
+Recheck exact database references before any later transaction.
+
+The initial readonly snapshot exceeded its60-second transport deadline; no
+success receipt was produced. Its exact matching API-container process was
+subsequently absent before retry; no process was terminated and no third-party
+work touched. The original source and timeout proof remain. V2 uses eager ORM
+queries and defers per-file API SSHFS reads to a durable content verifier.
+Compute membership/availability result is durable in its private work folder.
+Do not rerun either inventory after success without a new reason and scope.
+
+## Previous action — 2026-11-09: first-year publication integrity review launched
 
 The user asked whether the verified2024_1 space had already been reclaimed:
 **not yet; zero2024 bytes reclaimed**. At08:17 UTC, the live runner still reports

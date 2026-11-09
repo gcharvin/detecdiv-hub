@@ -35,7 +35,7 @@
     "source_deleted": false,
     "catalog_changed": false,
     "runner_pid": 187291,
-    "heartbeat_at": "2026-11-09T08:23:18.324130+00:00",
+    "heartbeat_at": "2026-11-09T09:47:07.568862+00:00",
     "current_year": "2024_2",
     "inventory_progress": {
       "files": 966284,
@@ -1001,17 +1001,77 @@
     "state": {
       "phase": "target_full_after_hash_verification",
       "read_only": true,
-      "projects": [],
+      "projects": [
+        {
+          "project_id": "19037bd1-e966-428f-96f8-2a7166c7bc9e",
+          "name": "anof_05012024_apx1s_dslog",
+          "source_before_after_unchanged": true,
+          "target_full_after_hashes_verified": true,
+          "target_native_owner": "maliavko",
+          "target_files": 9670,
+          "target_bytes": 130568734993,
+          "source_manifest_sha256": "6724f570b8f329a98fbc6e7f61782f44854840e44f6301e5f1548c058867762b",
+          "target_receipt_sha256": "d44094122b41ead8fb71ecace7c252976692dee4c5116dbad9053e3a5cd048ec",
+          "published": false
+        },
+        {
+          "project_id": "6f6f408d-ebe7-4115-a537-f35f5cdb6ed2",
+          "name": "anof_060224_cres",
+          "source_before_after_unchanged": true,
+          "target_full_after_hashes_verified": true,
+          "target_native_owner": "maliavko",
+          "target_files": 3177,
+          "target_bytes": 21981802661,
+          "source_manifest_sha256": "dec6051cc6ecbb142a91198a37b7d8e4a4d477fff979309a562d19c64f99ced0",
+          "target_receipt_sha256": "470d4818b738cfa01c2085d359898a04cb9e890a08f67c6f63cf4caadf6eb2b2",
+          "published": false
+        },
+        {
+          "project_id": "e0d02751-28b3-4b3e-a74c-0dfd00b37803",
+          "name": "anof_060224_cres_1002",
+          "source_before_after_unchanged": true,
+          "target_full_after_hashes_verified": true,
+          "target_native_owner": "maliavko",
+          "target_files": 12451,
+          "target_bytes": 130075097894,
+          "source_manifest_sha256": "275f52a21c5673d4dba9818519a2e6880e33b46c9bd269b0ad78745b948814aa",
+          "target_receipt_sha256": "c76d38a7d3062b5e20727a6cdeb9f29b89585a06770aa016c27064d2a5e586bb",
+          "published": false
+        },
+        {
+          "project_id": "c48f9cff-6625-4dad-9597-a8796fe2824f",
+          "name": "anof_060224_cres_ARS1",
+          "source_before_after_unchanged": true,
+          "target_full_after_hashes_verified": true,
+          "target_native_owner": "maliavko",
+          "target_files": 2242,
+          "target_bytes": 14362831070,
+          "source_manifest_sha256": "04ff36b319411c567f11aa8375f6d3e05627502c7c4f75be4f1b066c2efc27f3",
+          "target_receipt_sha256": "2391d1c7515935846cbc280ad073b34ad1aaf4a9940d52a78e46075ab7ddbcc3",
+          "published": false
+        }
+      ],
       "source_deleted": false,
       "published": false,
       "catalog_changed": false,
-      "heartbeat_at": "2026-11-09T08:23:05.233519+00:00",
-      "project_index": 1,
-      "project": "anof_05012024_apx1s_dslog",
-      "phase_files": 14,
-      "phase_bytes": 1042148765,
-      "child_pid": 1752013
+      "heartbeat_at": "2026-11-09T09:47:16.240364+00:00",
+      "project_index": 5,
+      "project": "anof_06032024_diplNTSNG_K3s",
+      "phase_files": 8267,
+      "phase_bytes": 73779599318,
+      "child_pid": 1779835
     },
+    "exit": "",
+    "log_tail": ""
+  },
+  "year1_final_publication": {
+    "state": null,
+    "exit": "",
+    "log_tail": ""
+  },
+  "year1_final_linux_hosts": {
+    "state": null,
+    "progress": null,
     "exit": "",
     "log_tail": ""
   },
@@ -2582,10 +2642,23 @@
       }
     }
   },
-  "copy_progress_tail": "61.737.950  97%   46,37MB/s    9:04:57 (xfr#261357, ir-chk=4802/266570)\r1.589.961.869.022  97%   32,66MB/s    0:20:10  \r1.589.970.150.079  97%   46,37MB/s    9:04:58 (xfr#261358, ir-chk=4801/266570)\r1.589.978.562.208  97%   46,37MB/s    9:04:58 (xfr#261359, ir-chk=4800/266570)\r1.589.986.974.337  97%   46,37MB/s    9:04:58 (xfr#261360, ir-chk=4799/266570)\r1.589.995.386.466  97%   46,37MB/s    9:04:58 (xfr#261361, ir-chk=4798/266570)\r1.590.003.798.595  97%   46,37MB/s    9:04:58 (xfr#261362, ir-chk=4797/266570)\r1.590.012.210.724  97%   46,37MB/s    9:04:59 (xfr#261363, ir-chk=4796/266570)\r1.590.013.292.068  97%   37,66MB/s    0:17:28  \r1.590.020.622.853  97%   46,37MB/s    9:04:59 (xfr#261364, ir-chk=4795/266570)\r1.590.029.034.980  97%   46,37MB/s    9:04:59 (xfr#261365, ir-chk=4794/266570)\r1.590.037.447.109  97%   46,37MB/s    9:04:59 (xfr#261366, ir-chk=4793/266570)\r1.590.045.859.238  97%   46,37MB/s    9:04:59 (xfr#261367, ir-chk=4792/266570)\r1.590.053.232.038  97%   36,82MB/s    0:17:51  \r1.590.054.271.367  97%   46,37MB/s    9:05:00 (xfr#261368, ir-chk=4791/266570)\r1.590.062.683.496  97%   46,37MB/s    9:05:00 (xfr#261369, ir-chk=4790/266570)\r1.590.071.095.625  97%   46,37MB/s    9:05:00 (xfr#261370, ir-chk=4789/266570)\r1.590.079.507.754  97%   46,37MB/s    9:05:00 (xfr#261371, ir-chk=4788/266570)\r1.590.087.919.881  97%   46,37MB/s    9:05:01 (xfr#261372, ir-chk=4787/266570)",
+  "copy_progress_tail": "19.414.085  97%   44,85MB/s   10:28:56 (xfr#283274, ir-chk=5528/289289)\r1.774.527.825.849  97%   44,85MB/s   10:28:56 (xfr#283275, ir-chk=5527/289289)\r1.774.536.237.617  97%   44,85MB/s   10:28:56 (xfr#283276, ir-chk=5526/289289)\r1.774.544.649.385  97%   44,85MB/s   10:28:56 (xfr#283277, ir-chk=5525/289289)\r1.774.544.780.457  97%   37,43MB/s    0:20:14  \r1.774.553.061.151  97%   44,85MB/s   10:28:56 (xfr#283278, ir-chk=5524/289289)\r1.774.561.472.915  97%   44,85MB/s   10:28:57 (xfr#283279, ir-chk=5523/289289)\r1.774.569.884.681  97%   44,85MB/s   10:28:57 (xfr#283280, ir-chk=5522/289289)\r1.774.578.296.449  97%   44,85MB/s   10:28:57 (xfr#283281, ir-chk=5521/289289)\r1.774.586.708.213  97%   44,85MB/s   10:28:57 (xfr#283282, ir-chk=5520/289289)\r1.774.595.119.979  97%   44,85MB/s   10:28:57 (xfr#283283, ir-chk=5519/289289)\r1.774.595.152.747  97%   40,59MB/s    0:18:38  \r1.774.603.531.747  97%   44,85MB/s   10:28:57 (xfr#283284, ir-chk=5518/289289)\r1.774.611.943.515  97%   44,85MB/s   10:28:58 (xfr#283285, ir-chk=5517/289289)\r1.774.620.355.281  97%   44,85MB/s   10:28:58 (xfr#283286, ir-chk=5516/289289)\r1.774.628.767.047  97%   44,85MB/s   10:28:58 (xfr#283287, ir-chk=5515/289289)\r1.774.637.178.815  97%   44,85MB/s   10:28:58 (xfr#283288, ir-chk=5514/289289)\r1.774.637.309.887  97%   41,06MB/s    0:18:25  \r1.774.645.590.583  97%   44,85MB/s   10:28:58 (xfr#283289, ir-chk=5513/289289)",
   "verification_log_bytes": null,
-  "copy_processes": "187291 python           323961\n1545674 rsync             32702",
+  "copy_processes": "187291 python           328999\n1545674 rsync             37740",
   "project_receipts": 3326,
+  "year1_local_continuation": {
+    "phase": "waiting_existing_integrity_audit",
+    "source_deleted": false,
+    "catalog_cutover_complete": false,
+    "own_leases_finalized": false,
+    "pid": 92688,
+    "heartbeat_at": "2026-11-09T09:46:33.857307+00:00",
+    "integrity": {
+      "exit": null,
+      "phase": "target_full_after_hash_verification",
+      "verified_projects": 4
+    }
+  },
   "identity_batch2_projects": [
     {
       "project_id": "e0d02751-28b3-4b3e-a74c-0dfd00b37803",
@@ -3037,8 +3110,8 @@
       "error": "Main MAT is not a recognized shallowObj layout"
     }
   ],
-  "copied_bytes": 1590087919881,
-  "copy_percent_of_complete_year": 27.1507,
+  "copied_bytes": 1774645590583,
+  "copy_percent_of_complete_year": 30.3021,
   "rsync_display_percent_is_incremental_file_list_not_full_year": true,
-  "checked_at": "2026-11-09T08:23:20.763284+00:00"
+  "checked_at": "2026-11-09T09:47:18.547264+00:00"
 }

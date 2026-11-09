@@ -1,0 +1,22 @@
+{
+  "success": true,
+  "read_only": true,
+  "catalog_changed": false,
+  "uri_changed": false,
+  "source_deleted": false,
+  "raw_datasets": 64,
+  "references": 1204,
+  "artifact_references": 1142,
+  "display_settings_references": 62,
+  "unique_files": 1204,
+  "unique_bytes": 10858665796,
+  "all_references_in_verified_native_manifest": true,
+  "compute_source_and_homes2_presence_and_sizes_match": true,
+  "api_mount_per_file_reads_deferred": true,
+  "handlers_streamed": false,
+  "media_content_hashed": false,
+  "fresh_reference_review_required_before_cutover": true,
+  "plan_sha256": "5eca1863ef4b0b6909bdca1409fd360a1aea3f8032eaa69ac4344a99a706bf9a",
+  "checked_at": "2026-11-09T09:52:14.041497+00:00",
+  "script_sha256": "0372a701adf02f6d1c41864be27e1de42135431ff402a9b816a44f25cd020cc5"
+}

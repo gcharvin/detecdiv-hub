@@ -1,0 +1,23 @@
+{
+  "launched": true,
+  "verified_at": "2026-11-09T09:45:45.111170+00:00",
+  "pid": 92688,
+  "started_at": "2026-11-09T09:40:31.094105+00:00",
+  "hidden": true,
+  "process_commandline_verified": true,
+  "phase_at_verification": "waiting_existing_integrity_audit",
+  "integrity_projects_verified": 4,
+  "projects": 16,
+  "source_deletion_allowed": false,
+  "source_pins": {
+    "advance_year1_after_integrity.py": "a3181d0aac332252fbc905e39707102a86f53375f56cc53f0e67166b4fde5993",
+    "year1_publication_operations.py": "49e3f23109a031c8fa308470798017633609143dda6731c2882611865a7e1724",
+    "year1_windows_host_operations.py": "ea643f660aef5905f0d016377d4f87213fea16f8ee2f33e6987a7dcc656472ff",
+    "run_year1_final_hosts.py": "5b66b77513086002728a83f9bda6baf11d8e44cdeb77f59576bc293b881c7792",
+    "verify_year1_final_hosts.m": "2ca5f1177e4eb2edd2552255104c7ce72428880448fb3c7a9d2e0e1695a38d84",
+    "publish_year1_folders.py": "83ec15eb66b867cf3b72a14d3e558e39623e12cec575e5867526449f1a5e18c6"
+  },
+  "protected_engine": "d83c4dbc0638bc0d3f6012b4f1df5744e0c017c7",
+  "scope": "16 year1 project publication and catalog preference only; preserve original projects and all raw sources",
+  "no_duplicate_tasks_started": true
+}

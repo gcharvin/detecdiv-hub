@@ -1,0 +1,16 @@
+{
+  "success": true,
+  "request_sha256": "2f67b2a29ab80d7059f036a137e1c5b18a9a067614c0f629542fbe4aa21a6b2d",
+  "compressed_request_sha256": "fb249185b43cd55c06ae881dafdc975800d1ec2c27862d659f2dd810819c7752",
+  "projects": 16,
+  "fovs": 159,
+  "rois": 50234,
+  "raw_samples": 2059,
+  "raw_directories": 151,
+  "raw_expected_files": 458680,
+  "request_bytes": 59821939,
+  "compressed_request_bytes": 6601646,
+  "publication_performed": false,
+  "host_tests_started": false,
+  "source_deleted": false
+}

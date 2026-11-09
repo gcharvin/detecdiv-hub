@@ -1,0 +1,10 @@
+{
+  "success": true,
+  "actual_maliavko_cifs_share_verified": true,
+  "rename_preserves_payload_and_inode": true,
+  "existing_destination_not_overwritten": true,
+  "only_new_fixture_files_removed": true,
+  "fixture_root_removed": true,
+  "scientific_files_modified": false,
+  "publisher_sha256": "83ec15eb66b867cf3b72a14d3e558e39623e12cec575e5867526449f1a5e18c6"
+}

@@ -1,0 +1,13 @@
+{
+  "success": true,
+  "tests": [
+    "success_preserves_payload_and_inode",
+    "refuses_existing_directory",
+    "refuses_existing_file",
+    "refuses_existing_broken_symlink",
+    "refuses_source_symlink",
+    "refuses_scope_escape"
+  ],
+  "production_paths_used": false,
+  "publisher_sha256": "83ec15eb66b867cf3b72a14d3e558e39623e12cec575e5867526449f1a5e18c6"
+}

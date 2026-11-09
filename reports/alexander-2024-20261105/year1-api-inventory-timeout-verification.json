@@ -1,0 +1,12 @@
+{
+  "own_readonly_inventory_pid": 8365,
+  "was_active": false,
+  "termination_requested": false,
+  "catalog_changed": false,
+  "source_deleted": false,
+  "third_party_processes_touched": false,
+  "failed_script_sha256": "962a1f9a582d03d1c85f83a22899900f3feae5aa263e47f308467fb41bc6b529",
+  "reason": "Snapshot exceeded 60-second transport timeout; no durable success receipt. Targeted process absent before bounded retry.",
+  "retry_scope": "Same readonly year1 inventory, eager ORM queries, defer API per-file IO to durable handler verifier",
+  "failed_attempt_not_success": true
+}
