@@ -1,4 +1,15 @@
 # Current Deployment
+## Resolved-resource execution preflight, 2026-11-09
+
+DetecDiv `b9e1a650df3ef87626403b880c104fac9b479646` extends the binding repair:
+both pipeline runners check every enabled selected node for unresolved resource
+inputs before the first node executes. Dry-run performs the same check and
+returns actionable validation errors. The structured runner also retains its
+per-node guard. Regression tests cover whole-graph checks, disabled nodes,
+struct/cell run overrides and producer output-name changes. Twenty-three tests
+passed, one platform-specific alias test skipped. Already submitted recovery
+job `8aa837fd-b962-47b5-bc5d-199ff656df53` retains its `0cab1d9c` pin. The new SHA is pushed to both remotes, verified in protected releases on both compute hosts and published as the default; no worker restarted.
+
 ## Abhilasha resource-binding recovery, 2026-11-09
 
 The channel recovery job `4df3e2fd-c66b-4add-b1c1-8a31083696ed` failed on
@@ -1746,5 +1757,7 @@ Future agents should assume:
 Rollback is possible by removing the worker systemd override and restarting the
 old local services on `detecdiv-server`, but that should be treated as an
 explicit incident/rollback action, not as the default development target.
+
+
 
 
