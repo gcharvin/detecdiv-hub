@@ -190,6 +190,15 @@ if __name__=='__main__':
     local_state=private/'year1-advance-state.json'
     if local_state.exists():
         result['year1_local_continuation']=json.loads(local_state.read_text(encoding='utf-8'))
+    recovery_state=private/'year1-advance-recovery-state.json'
+    if recovery_state.exists():
+        result['year1_local_recovery_continuation']=json.loads(recovery_state.read_text(encoding='utf-8'))
+    if (HERE/'year1-api-media-readonly-launch-verification.json').exists():
+        try:
+            from status_year1_api_media import status as api_media_status
+            result['year1_api_media_readonly']=api_media_status()
+        except Exception as error:
+            result['year1_api_media_readonly']={'available':False,'error_type':type(error).__name__}
     # Archived reports only: never query a diagnostic task after its cleanup.
     windows_status=private/'year1-windows-status.json'
     if windows_status.exists():

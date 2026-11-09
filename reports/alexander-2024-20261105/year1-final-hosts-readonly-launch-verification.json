@@ -1,0 +1,30 @@
+{
+  "readers_started": true,
+  "checked_at": "2026-11-09T16:10:14.064607+00:00",
+  "protected_engine": "d83c4dbc0638bc0d3f6012b4f1df5744e0c017c7",
+  "windows_identity": "gmgm\\charvin-admin",
+  "windows_session": 1,
+  "windows_task_state": "Running",
+  "linux_progress": {
+    "project": "anof_05012024_apx1s_dslog",
+    "project_index": 1,
+    "fov": 9,
+    "fovs": 16,
+    "rois_checked": 2711,
+    "raw_reads": 135,
+    "project_saved": false
+  },
+  "windows_progress": {
+    "project": "anof_05012024_apx1s_dslog",
+    "project_index": 1,
+    "fov": 14,
+    "fovs": 16,
+    "rois_checked": 4224,
+    "raw_reads": 210,
+    "project_saved": false
+  },
+  "source_deleted": false,
+  "project_saved": false,
+  "host_tests_terminal": false,
+  "catalog_cutover_complete": false
+}

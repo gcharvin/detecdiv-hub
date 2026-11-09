@@ -1,0 +1,18 @@
+{
+  "launched": true,
+  "pid": 1268298,
+  "work": "/home/charvin-admin/storage-transfers/alexander-2024-20261105/year1-api-media-readonly-20261109",
+  "container_work": "/tmp/alexander-year1-api-readonly-20261109",
+  "read_only": true,
+  "source_deleted": false,
+  "uri_changed": false,
+  "durable_per_file_receipts_in_host_log": true,
+  "runner_sha256": "a5123389b46ef0643c613fb07ecbd12ea7f2c90defb49b3c95babdcf814b8412",
+  "plan_sha256": "5eca1863ef4b0b6909bdca1409fd360a1aea3f8032eaa69ac4344a99a706bf9a",
+  "deadline_unix": 1794247456.6689959,
+  "source_deletion_allowed": false,
+  "uri_changes_allowed": false,
+  "launched_at": "2026-11-09T16:04:30.302962+00:00",
+  "expected_handlers": 1204,
+  "expected_bytes": 10858665796
+}

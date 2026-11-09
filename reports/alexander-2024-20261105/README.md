@@ -8,7 +8,110 @@ year/user, original project, NAS snapshot, backup policy, quota, default engine
 or SMB credentials may be changed. The completed 2023 migration is separate;
 never replay any of its one-shot scripts.
 
-## Latest checkpoint — 2026-11-09, 09:44 UTC: bounded continuation armed
+## Latest checkpoint — 2026-11-09, 16:00 UTC: integrity passed, publication recovery active
+
+All16 fresh full-copy integrity checks TERMINATED successfully (105,263 files),
+exit0, native originals unchanged, exact target full after-hashes and ownership.
+Result SHA256 `fcfc0b38e0a74815e80f97eef3cb401b58f135e59886a578b2c65d8db3c665a3`.
+See `year1-prepublication-integrity-completion-verification.json`. DO NOT repeat
+this audit, any copy, metadata relink or previously successful identity baseline.
+
+The original local continuation PID92688 stopped safe at13:09 UTC during lease
+admission, before publication or catalog changes. A bounded admission diagnostic
+identified a reproducible defect: the audit snapshot contained native UUID/datetime objects,
+which PostgreSQL's JSON encoder rejects. Both transactions rolled back. Readonly
+DB checks proved no own migration batch/leases remained and all16 identity,
+metadata and location digests still matched the earlier verified snapshots.
+No original/source file, project location or third-party process was changed.
+The original controller retained its RuntimeError type/frames; the bounded
+reproduction retains the detailed UUID serialization exception privately. Original
+executed sources and both attempts remain preserved.
+
+A DISTINCT bounded recovery uses `year1_publication_operations_v2.py` with only
+JSON-native encoding of before-project evidence; its canonical digest is proven
+unchanged on the16 real snapshots. No scientific/admission safety condition was
+weakened. Readiness proof: `year1-admission-json-recovery-readiness.json`.
+The new controller `advance_year1_recovery_20261109.py` reuses completed receipts,
+then starts from a fresh write admission, never replaying the failed controller.
+
+ACTIVE local recovery PID61276 at launch; verify command line before intervention.
+State: `runtime/year1-advance-recovery-state.json`, separate plan/start/stdout/stderr.
+It must be inspected BEFORE the historical stopped `year1-advance-state.json`.
+Eight source hashes, including the unchanged six original pins, are recorded in
+`year1-continuation-recovery-launch-verification.json`. Do not edit these actors.
+No duplicate publication/readers/catalog action or independent lease finalization.
+
+Fresh admission SUCCEEDED at15:58 UTC: child
+`d1d7eff0-bd42-4b50-899f-0c0c9a83e71f`, holder
+`alexander-2024-year1-final-publication-20261109`, exactly16 own leases, deadline
+**21:58:35 UTC Nov9** (minimum). Read `year1-final-admission-summary.json`.
+The publisher is now engaged in `year1-final-publication-20261109`, tmux
+`alex2024-year1-final-publication-20261109`, using the already tested unchanged
+publisher. It performs fresh native guards before any rename; only its durable
+rename/native-after receipts can establish which folders are actually published.
+Do not infer all16 final roots from the local controller's phase alone.
+
+After native publication, the SAME recovery launches the existing pinned final
+Linux/limited Windows tests,159FOV/50,234ROI/2,059raw samples per host, then the
+same16-project preferred-location transaction. All old missing-data baselines,
+protected engine d83c4dbc0638bc0d3f6012b4f1df5744e0c017c7, original preservation,
+API continuity and own-lease-only cleanup rules below remain mandatory.
+
+2024_2 continues in the original runner (45.387% at15:55 UTC). No source retirement,
+raw URI switch or source-location removal has happened: **2024 space reclaimed0**.
+Lox/legacy relevance gates are unwaived. Continue the media verification and new
+2024-specific retirement controller independently when safe; never delete based
+on project publication alone. Keep the six-hour follow-up active.
+
+## Terminal filesystem publication — 2026-11-09, 16:07 UTC
+
+Publisher TERMINATED exit0/success after all16 atomic no-overwrite renames and
+native FINAL guards.105,263 files, exact metadata/inode preservation, true
+maliavko ownership and fresh original inventories unchanged. See
+`year1-filesystem-publication-completion-verification.json` for result and rename
+receipt hashes. All16 selected copies now occupy FINAL folders; their MAT paths
+already match. Do not replay publication or the earlier incoming-only audit.
+No project preferred location or raw/source URI has changed yet.
+
+The recovery has launched BOTH final-path readers and is waiting for them.
+Windows actual identity gmgm\charvin-admin, session1, protected d83c4dbc engine
+are positively recorded. At16:10 UTC the first project had9FOV checked on Linux and6FOV on Windows
+(2,711/1,822ROI and135/90raw samples); the Windows task remains Running. This is progress, not159FOV completion.
+Linux and Windows must both finish and compare before the SAME controller can
+commit preferred locations. Keep its16 own leases until its real terminal.
+The source/API reclamation gates remain separate and zero2024 bytes reclaimed.
+
+## Independent readonly API content verification — 2026-11-09, 16:05 UTC
+
+A NEW detached readonly verifier is running on webserver-labo. It streams every
+one of the1,204 actual existing API handlers, computes full SHA256 of the served
+body, reads the entire matching homes2 file through the API container's actual
+readonly mount and requires identical bytes/hash and stable inputs. It checks
+exact database reference sets before/after and hashes the deployed route source
+before/after. No URI, catalog or scientific file is changed. This BEFORE-media-
+cutover/source-retirement evidence does not replace full post-cutover and
+post-retirement handlers, native source revalidation or any unresolved project gate.
+
+Work: `/home/charvin-admin/storage-transfers/alexander-2024-20261105/year1-api-media-readonly-20261109`
+on WEB VM (not compute). Container work: `/tmp/alexander-year1-api-readonly-20261109`.
+Launcher PID1268298 at launch; verify exact command line. Source
+`verify_year1_api_media_readonly.py` SHA256
+`a5123389b46ef0643c613fb07ecbd12ea7f2c90defb49b3c95babdcf814b8412`.
+Deadline18:04 UTC; no replay while actor exists. Plan SHA remains
+`5eca1863ef4b0b6909bdca1409fd360a1aea3f8032eaa69ac4344a99a706bf9a`.
+Host controller.log contains a flushed durable receipt PER FILE, even if the
+container is lost. controller.exit is followed by container-reports copy on
+exit; require terminal result AND exact receipt count/hash before success.
+Use `status_year1_api_media.py`, also included in `status.py`, to inspect the
+existing actor only. At16:05 UTC111 handlers/675,965,281 bytes had passed.
+Do not infer all1,204 success from a live empty log or partial sample.
+
+At16:05 UTC all16 project folders had atomic rename receipts (16:02 UTC), and
+the publisher was checking native FINAL folders. Catalog preference had NOT yet
+changed; final native and Linux/Windows tests remain mandatory. Do not rename,
+relink or copy those published roots again. All original projects are intact.
+
+## Historical checkpoint — 2026-11-09, 09:44 UTC: bounded continuation armed
 
 The user reaffirmed autonomous publication of the16 prepared copies and verified
 reclamation, preserving originals. A single hidden local controller is now

@@ -1,0 +1,16 @@
+{
+  "success": true,
+  "controller_exit": 0,
+  "projects": 16,
+  "files": 105263,
+  "total_bytes": 1266085132936,
+  "source_inventories_unchanged": true,
+  "native_maliavko_ownership_verified": true,
+  "native_final_folder_guards_passed": true,
+  "result_sha256": "58a51eaa83eab73b3d15133e55b86b1a68e7712db907c74635e60392f903bc42",
+  "renames_sha256": "3327a9effe0413eb9810a5ebacb3d1bdef50f97949f5eb5f0c30f7c17cad9b2a",
+  "source_deleted": false,
+  "catalog_changed": false,
+  "final_host_tests_pending": true,
+  "original_projects_preserved": true
+}

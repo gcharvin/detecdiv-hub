@@ -1,0 +1,87 @@
+{
+  "batch_id": "d1d7eff0-bd42-4b50-899f-0c0c9a83e71f",
+  "holder": "alexander-2024-year1-final-publication-20261109",
+  "leases": [
+    {
+      "id": "3a058744-19a8-4bab-a23d-5f9d5132a450",
+      "project_id": "19037bd1-e966-428f-96f8-2a7166c7bc9e",
+      "expires_at": "2026-11-09T21:58:35.423527+00:00"
+    },
+    {
+      "id": "3053324b-1466-4595-830f-c39c1afc3473",
+      "project_id": "19a2a39e-e451-4d5f-8fa8-f06a7fed9f17",
+      "expires_at": "2026-11-09T21:58:35.447973+00:00"
+    },
+    {
+      "id": "7c7c3b06-1633-48a2-a773-fc499e076888",
+      "project_id": "23c9f497-021f-4dbb-8e3c-5f50032096ac",
+      "expires_at": "2026-11-09T21:58:35.471493+00:00"
+    },
+    {
+      "id": "d11cec88-498f-4e03-b7ab-c95443729b7b",
+      "project_id": "53a6c0c1-f887-44da-ae8c-a0018e46064e",
+      "expires_at": "2026-11-09T21:58:35.497664+00:00"
+    },
+    {
+      "id": "a8557c76-54e7-49a9-8aee-09bef5b6828b",
+      "project_id": "6c46e8a4-ab0f-45ac-9aeb-ea139f252643",
+      "expires_at": "2026-11-09T21:58:35.520363+00:00"
+    },
+    {
+      "id": "77e5d694-c0dd-4f76-af7a-cbedada4be7e",
+      "project_id": "6f6f408d-ebe7-4115-a537-f35f5cdb6ed2",
+      "expires_at": "2026-11-09T21:58:35.549600+00:00"
+    },
+    {
+      "id": "41fddbcb-8c64-4cfc-95af-97e665b8db20",
+      "project_id": "724afdda-24e8-42f1-b242-2b7a0e41e8b1",
+      "expires_at": "2026-11-09T21:58:35.573778+00:00"
+    },
+    {
+      "id": "6e008c70-5814-4c3f-bd2e-dbf419408c83",
+      "project_id": "902b3fa9-d703-49d4-92b7-bf5f75eac4ef",
+      "expires_at": "2026-11-09T21:58:35.593073+00:00"
+    },
+    {
+      "id": "056a585d-4fec-40e5-83f1-916bd583b558",
+      "project_id": "9f6b8ef9-f078-4ff5-b91f-7b8a25000951",
+      "expires_at": "2026-11-09T21:58:35.616318+00:00"
+    },
+    {
+      "id": "3a6e48bf-c835-4afe-b29e-524da120916a",
+      "project_id": "ae089caa-2978-4441-8308-8256905738d1",
+      "expires_at": "2026-11-09T21:58:35.639056+00:00"
+    },
+    {
+      "id": "dbfe1552-8e44-4d40-8a54-d2b834036864",
+      "project_id": "bec9b2cf-656d-417a-b424-2d3e7cbf316c",
+      "expires_at": "2026-11-09T21:58:35.661328+00:00"
+    },
+    {
+      "id": "ca04d876-f509-4163-bcfa-1f53ce9bdd95",
+      "project_id": "c48f9cff-6625-4dad-9597-a8796fe2824f",
+      "expires_at": "2026-11-09T21:58:35.678313+00:00"
+    },
+    {
+      "id": "91729e6a-1eb6-46a8-b77b-0abc7cab28e3",
+      "project_id": "e0d02751-28b3-4b3e-a74c-0dfd00b37803",
+      "expires_at": "2026-11-09T21:58:35.696561+00:00"
+    },
+    {
+      "id": "e3bdcd09-a41e-40df-8862-cfb8ffd70dcc",
+      "project_id": "e6f6b263-dae2-4670-ac85-280abc4f38a2",
+      "expires_at": "2026-11-09T21:58:35.716637+00:00"
+    },
+    {
+      "id": "40212323-9fcb-4e21-b5e2-faa446e1b5fe",
+      "project_id": "e98ed5ba-a40d-4abc-a1c2-441c6587cf2e",
+      "expires_at": "2026-11-09T21:58:35.731209+00:00"
+    },
+    {
+      "id": "a038c636-4398-4991-9a60-40012e33d43a",
+      "project_id": "f004e8df-29f0-4303-85fe-9cf50e3d4dbc",
+      "expires_at": "2026-11-09T21:58:35.743597+00:00"
+    }
+  ],
+  "admitted_at": "2026-11-09T15:58:35.754929+00:00"
+}

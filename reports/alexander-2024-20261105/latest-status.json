@@ -35,7 +35,7 @@
     "source_deleted": false,
     "catalog_changed": false,
     "runner_pid": 187291,
-    "heartbeat_at": "2026-11-09T09:47:07.568862+00:00",
+    "heartbeat_at": "2026-11-09T16:09:57.928658+00:00",
     "current_year": "2024_2",
     "inventory_progress": {
       "files": 966284,
@@ -67,7 +67,7 @@
   "project_discovery_log_tail": "33)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n",
   "sessions": [
     "alex2024-copy-20261105",
-    "alex2024-year1-prepublication-audit-20261109"
+    "alex2024-year1-final-hosts-20261109"
   ],
   "project_copy_state": {
     "phase": "failed_safe",
@@ -999,7 +999,7 @@
   "relink_batch4_log_tail": "",
   "year1_prepublication_audit": {
     "state": {
-      "phase": "target_full_after_hash_verification",
+      "phase": "readonly_prepublication_integrity_verified",
       "read_only": true,
       "projects": [
         {
@@ -1049,29 +1049,359 @@
           "source_manifest_sha256": "04ff36b319411c567f11aa8375f6d3e05627502c7c4f75be4f1b066c2efc27f3",
           "target_receipt_sha256": "2391d1c7515935846cbc280ad073b34ad1aaf4a9940d52a78e46075ab7ddbcc3",
           "published": false
+        },
+        {
+          "project_id": "bec9b2cf-656d-417a-b424-2d3e7cbf316c",
+          "name": "anof_06032024_diplNTSNG_K3s",
+          "source_before_after_unchanged": true,
+          "target_full_after_hashes_verified": true,
+          "target_native_owner": "maliavko",
+          "target_files": 9553,
+          "target_bytes": 85212740884,
+          "source_manifest_sha256": "c39aba4da0fba46531dad86f078ac0e8724546dfcec6c418cc9a53798278fd8c",
+          "target_receipt_sha256": "90fbcd8529b5c32c48bf23d3fdfbeec160e7830e5f05b941bb0274a07a9fb2e7",
+          "published": false
+        },
+        {
+          "project_id": "e6f6b263-dae2-4670-ac85-280abc4f38a2",
+          "name": "anof_070424_iRFPtest",
+          "source_before_after_unchanged": true,
+          "target_full_after_hashes_verified": true,
+          "target_native_owner": "maliavko",
+          "target_files": 3864,
+          "target_bytes": 65934705882,
+          "source_manifest_sha256": "da4d5ff768833818fd1289cd65d842c1382725b730713b711d02b7336952bc21",
+          "target_receipt_sha256": "885e5d115fd78cd0e6588385b19b9a3abf32badb0fa267a0c7bd7f9bc1981964",
+          "published": false
+        },
+        {
+          "project_id": "53a6c0c1-f887-44da-ae8c-a0018e46064e",
+          "name": "anof_130224_dfob_rep_dslog_new",
+          "source_before_after_unchanged": true,
+          "target_full_after_hashes_verified": true,
+          "target_native_owner": "maliavko",
+          "target_files": 15137,
+          "target_bytes": 233366206557,
+          "source_manifest_sha256": "dc4f4b2b80ed289a67ea4b0b5b2b43c0c4a825a1d1325db011fbaa6c81d52969",
+          "target_receipt_sha256": "18702b908c115eeb423214ad3214fa47d7a66f0494dc5ae44112318fd8ddb891",
+          "published": false
+        },
+        {
+          "project_id": "f004e8df-29f0-4303-85fe-9cf50e3d4dbc",
+          "name": "anof_22032024_DHY210_nts1ng",
+          "source_before_after_unchanged": true,
+          "target_full_after_hashes_verified": true,
+          "target_native_owner": "maliavko",
+          "target_files": 13467,
+          "target_bytes": 108090646084,
+          "source_manifest_sha256": "e3a73aa78419620454f92c2049288f112924ccb537ccc6d7ca730e607a37fe92",
+          "target_receipt_sha256": "4f736bf95594592913f503195358860a953cbe3952530ab1b9996e7a55933aef",
+          "published": false
+        },
+        {
+          "project_id": "902b3fa9-d703-49d4-92b7-bf5f75eac4ef",
+          "name": "anof_230124_RMng",
+          "source_before_after_unchanged": true,
+          "target_full_after_hashes_verified": true,
+          "target_native_owner": "maliavko",
+          "target_files": 6,
+          "target_bytes": 316361039,
+          "source_manifest_sha256": "ffafebb706f4f3bed8fbba7c4f49be5f7e79901f4a9e8945cb09a52b881378c0",
+          "target_receipt_sha256": "ce8b4a6e93acc8ad6e36e9816e1c61c7b8f8163c0ea042ee58f1c51411cebf90",
+          "published": false
+        },
+        {
+          "project_id": "9f6b8ef9-f078-4ff5-b91f-7b8a25000951",
+          "name": "anof_230124_dhyD_LOG24",
+          "source_before_after_unchanged": true,
+          "target_full_after_hashes_verified": true,
+          "target_native_owner": "maliavko",
+          "target_files": 5760,
+          "target_bytes": 77521855917,
+          "source_manifest_sha256": "81f8331cac334275875a35c8331695632f486ed21de90ac30e75cc6753a92386",
+          "target_receipt_sha256": "5aa8d815fe0f35e8c7c380732f4685c200ae0c801479e025531b33572cb7a2a8",
+          "published": false
+        },
+        {
+          "project_id": "e98ed5ba-a40d-4abc-a1c2-441c6587cf2e",
+          "name": "anof_230124_nh52",
+          "source_before_after_unchanged": true,
+          "target_full_after_hashes_verified": true,
+          "target_native_owner": "maliavko",
+          "target_files": 10422,
+          "target_bytes": 146117395795,
+          "source_manifest_sha256": "424df53a632d2c2b56edc1e4588361bc21332ecf4698de9516702d806d2447e5",
+          "target_receipt_sha256": "5a3b556732e97b6251410efc9673971890e8b0e1245524f36818dc9dd7ca23ab",
+          "published": false
+        },
+        {
+          "project_id": "23c9f497-021f-4dbb-8e3c-5f50032096ac",
+          "name": "anof_280224_12rdnars",
+          "source_before_after_unchanged": true,
+          "target_full_after_hashes_verified": true,
+          "target_native_owner": "maliavko",
+          "target_files": 5511,
+          "target_bytes": 72949532452,
+          "source_manifest_sha256": "99b51411ae7d567a9403969deb215a1f023e5d89a0380c3198b55b4a993941c9",
+          "target_receipt_sha256": "6ffa363fff545963dc30426812c76ac97bb2044641b53d95533456fcc7170a52",
+          "published": false
+        },
+        {
+          "project_id": "19a2a39e-e451-4d5f-8fa8-f06a7fed9f17",
+          "name": "anof_280224_dhytnl",
+          "source_before_after_unchanged": true,
+          "target_full_after_hashes_verified": true,
+          "target_native_owner": "maliavko",
+          "target_files": 12273,
+          "target_bytes": 157392962694,
+          "source_manifest_sha256": "57d7c5c7174fae8f263bc4d974cdaa7eccec9cb94826aad9825b1a566fe97634",
+          "target_receipt_sha256": "f3435c68a8f889f40183bd19395e7448b586bc01e7264a5e8d290a3f38aa0717",
+          "published": false
+        },
+        {
+          "project_id": "6c46e8a4-ab0f-45ac-9aeb-ea139f252643",
+          "name": "movie_12224_w303MBsnabI_test",
+          "source_before_after_unchanged": true,
+          "target_full_after_hashes_verified": true,
+          "target_native_owner": "maliavko",
+          "target_files": 838,
+          "target_bytes": 8598078440,
+          "source_manifest_sha256": "e5780743e7722a5666390bcf9a57ef5ab92138b22dff571b4af2805f2bca23d1",
+          "target_receipt_sha256": "cbf8b822001ca81f22256a53e3080a1d22f6ddb7cb2f7646662e3fdea5fb7cf7",
+          "published": false
+        },
+        {
+          "project_id": "724afdda-24e8-42f1-b242-2b7a0e41e8b1",
+          "name": "movie_250124_diploids",
+          "source_before_after_unchanged": true,
+          "target_full_after_hashes_verified": true,
+          "target_native_owner": "maliavko",
+          "target_files": 6,
+          "target_bytes": 777118710,
+          "source_manifest_sha256": "73555ba2177921b1ffaf327ea130487d895a4d1e94650ae3b43dbec27e6706aa",
+          "target_receipt_sha256": "cfd17078ccc14f6dbb810e60645c694d173ddc9d723eaea9ab58d7c3a50eda36",
+          "published": false
+        },
+        {
+          "project_id": "ae089caa-2978-4441-8308-8256905738d1",
+          "name": "qp_22032024_DHY210_nts1ng",
+          "source_before_after_unchanged": true,
+          "target_full_after_hashes_verified": true,
+          "target_native_owner": "maliavko",
+          "target_files": 886,
+          "target_bytes": 12819061864,
+          "source_manifest_sha256": "0101d7841432d9d928c6f1bc012c59427c1bd06378f7e938ec7feeafb985c8dc",
+          "target_receipt_sha256": "77ce6944086f9259359810a93ab1a770bad22d84d2353910a4254191ba82b168",
+          "published": false
         }
       ],
       "source_deleted": false,
       "published": false,
       "catalog_changed": false,
-      "heartbeat_at": "2026-11-09T09:47:16.240364+00:00",
-      "project_index": 5,
-      "project": "anof_06032024_diplNTSNG_K3s",
-      "phase_files": 8267,
-      "phase_bytes": 73779599318,
-      "child_pid": 1779835
+      "heartbeat_at": "2026-11-09T13:09:40.776214+00:00",
+      "project_index": 16,
+      "project": "qp_22032024_DHY210_nts1ng",
+      "phase_files": 620,
+      "phase_bytes": 12320203439,
+      "child_pid": 1812556,
+      "finished_at": "2026-11-09T13:09:40.776190+00:00"
     },
-    "exit": "",
-    "log_tail": ""
+    "exit": "0\n",
+    "log_tail": "",
+    "result_summary": {
+      "success": true,
+      "read_only": true,
+      "source_deleted": false,
+      "published": false,
+      "catalog_changed": false,
+      "fresh_publication_admission_and_host_catalog_api_gates_still_required": true,
+      "projects": 16
+    }
   },
   "year1_final_publication": {
-    "state": null,
-    "exit": "",
+    "state": {
+      "phase": "filesystem_published_final_host_gates_pending",
+      "published_projects": [
+        {
+          "source_inode": 228250981,
+          "destination_inode": 228250981,
+          "no_overwrite": true,
+          "directory_no_follow": true,
+          "project_id": "19037bd1-e966-428f-96f8-2a7166c7bc9e",
+          "name": "anof_05012024_apx1s_dslog",
+          "utc": "2026-11-09T16:02:38.984422+00:00"
+        },
+        {
+          "source_inode": 228250982,
+          "destination_inode": 228250982,
+          "no_overwrite": true,
+          "directory_no_follow": true,
+          "project_id": "6f6f408d-ebe7-4115-a537-f35f5cdb6ed2",
+          "name": "anof_060224_cres",
+          "utc": "2026-11-09T16:02:38.999427+00:00"
+        },
+        {
+          "source_inode": 228250983,
+          "destination_inode": 228250983,
+          "no_overwrite": true,
+          "directory_no_follow": true,
+          "project_id": "e0d02751-28b3-4b3e-a74c-0dfd00b37803",
+          "name": "anof_060224_cres_1002",
+          "utc": "2026-11-09T16:02:39.006582+00:00"
+        },
+        {
+          "source_inode": 228250984,
+          "destination_inode": 228250984,
+          "no_overwrite": true,
+          "directory_no_follow": true,
+          "project_id": "c48f9cff-6625-4dad-9597-a8796fe2824f",
+          "name": "anof_060224_cres_ARS1",
+          "utc": "2026-11-09T16:02:39.014404+00:00"
+        },
+        {
+          "source_inode": 228250986,
+          "destination_inode": 228250986,
+          "no_overwrite": true,
+          "directory_no_follow": true,
+          "project_id": "bec9b2cf-656d-417a-b424-2d3e7cbf316c",
+          "name": "anof_06032024_diplNTSNG_K3s",
+          "utc": "2026-11-09T16:02:39.023209+00:00"
+        },
+        {
+          "source_inode": 228250987,
+          "destination_inode": 228250987,
+          "no_overwrite": true,
+          "directory_no_follow": true,
+          "project_id": "e6f6b263-dae2-4670-ac85-280abc4f38a2",
+          "name": "anof_070424_iRFPtest",
+          "utc": "2026-11-09T16:02:39.028674+00:00"
+        },
+        {
+          "source_inode": 228250988,
+          "destination_inode": 228250988,
+          "no_overwrite": true,
+          "directory_no_follow": true,
+          "project_id": "53a6c0c1-f887-44da-ae8c-a0018e46064e",
+          "name": "anof_130224_dfob_rep_dslog_new",
+          "utc": "2026-11-09T16:02:39.034191+00:00"
+        },
+        {
+          "source_inode": 228250989,
+          "destination_inode": 228250989,
+          "no_overwrite": true,
+          "directory_no_follow": true,
+          "project_id": "f004e8df-29f0-4303-85fe-9cf50e3d4dbc",
+          "name": "anof_22032024_DHY210_nts1ng",
+          "utc": "2026-11-09T16:02:39.040614+00:00"
+        },
+        {
+          "source_inode": 228250992,
+          "destination_inode": 228250992,
+          "no_overwrite": true,
+          "directory_no_follow": true,
+          "project_id": "902b3fa9-d703-49d4-92b7-bf5f75eac4ef",
+          "name": "anof_230124_RMng",
+          "utc": "2026-11-09T16:02:39.115361+00:00"
+        },
+        {
+          "source_inode": 228250993,
+          "destination_inode": 228250993,
+          "no_overwrite": true,
+          "directory_no_follow": true,
+          "project_id": "9f6b8ef9-f078-4ff5-b91f-7b8a25000951",
+          "name": "anof_230124_dhyD_LOG24",
+          "utc": "2026-11-09T16:02:39.122723+00:00"
+        },
+        {
+          "source_inode": 228250995,
+          "destination_inode": 228250995,
+          "no_overwrite": true,
+          "directory_no_follow": true,
+          "project_id": "e98ed5ba-a40d-4abc-a1c2-441c6587cf2e",
+          "name": "anof_230124_nh52",
+          "utc": "2026-11-09T16:02:39.128762+00:00"
+        },
+        {
+          "source_inode": 228250996,
+          "destination_inode": 228250996,
+          "no_overwrite": true,
+          "directory_no_follow": true,
+          "project_id": "23c9f497-021f-4dbb-8e3c-5f50032096ac",
+          "name": "anof_280224_12rdnars",
+          "utc": "2026-11-09T16:02:39.146689+00:00"
+        },
+        {
+          "source_inode": 228250997,
+          "destination_inode": 228250997,
+          "no_overwrite": true,
+          "directory_no_follow": true,
+          "project_id": "19a2a39e-e451-4d5f-8fa8-f06a7fed9f17",
+          "name": "anof_280224_dhytnl",
+          "utc": "2026-11-09T16:02:39.154283+00:00"
+        },
+        {
+          "source_inode": 228250998,
+          "destination_inode": 228250998,
+          "no_overwrite": true,
+          "directory_no_follow": true,
+          "project_id": "6c46e8a4-ab0f-45ac-9aeb-ea139f252643",
+          "name": "movie_12224_w303MBsnabI_test",
+          "utc": "2026-11-09T16:02:39.161220+00:00"
+        },
+        {
+          "source_inode": 228250999,
+          "destination_inode": 228250999,
+          "no_overwrite": true,
+          "directory_no_follow": true,
+          "project_id": "724afdda-24e8-42f1-b242-2b7a0e41e8b1",
+          "name": "movie_250124_diploids",
+          "utc": "2026-11-09T16:02:39.168839+00:00"
+        },
+        {
+          "source_inode": 228251000,
+          "destination_inode": 228251000,
+          "no_overwrite": true,
+          "directory_no_follow": true,
+          "project_id": "ae089caa-2978-4441-8308-8256905738d1",
+          "name": "qp_22032024_DHY210_nts1ng",
+          "utc": "2026-11-09T16:02:39.176608+00:00"
+        }
+      ],
+      "source_deleted": false,
+      "catalog_changed": false,
+      "heartbeat_at": "2026-11-09T16:06:13.168021+00:00",
+      "success": true,
+      "finished_at": "2026-11-09T16:06:13.167985+00:00"
+    },
+    "exit": "0\n",
     "log_tail": ""
   },
   "year1_final_linux_hosts": {
-    "state": null,
-    "progress": null,
+    "state": {
+      "phase": "validating_final_project_reads",
+      "host": "linux",
+      "success": false,
+      "project_saved": false,
+      "source_deleted": false,
+      "heartbeat_at": "2026-11-09T16:06:29.213771+00:00",
+      "engine_sha": "d83c4dbc0638bc0d3f6012b4f1df5744e0c017c7",
+      "engine_release": "/home/charvin-admin/repos/DetecDiv-jobs/releases/d83c4dbc0638bc0d3f6012b4f1df5744e0c017c7",
+      "expected": {
+        "expected_projects": 16,
+        "expected_fovs": 159,
+        "expected_rois": 50234,
+        "expected_raw_samples": 2059
+      }
+    },
+    "progress": {
+      "project": "anof_05012024_apx1s_dslog",
+      "project_index": 1,
+      "fov": 9,
+      "fovs": 16,
+      "rois_checked": 2711,
+      "raw_reads": 135,
+      "project_saved": false
+    },
     "exit": "",
     "log_tail": ""
   },
@@ -2642,22 +2972,107 @@
       }
     }
   },
-  "copy_progress_tail": "19.414.085  97%   44,85MB/s   10:28:56 (xfr#283274, ir-chk=5528/289289)\r1.774.527.825.849  97%   44,85MB/s   10:28:56 (xfr#283275, ir-chk=5527/289289)\r1.774.536.237.617  97%   44,85MB/s   10:28:56 (xfr#283276, ir-chk=5526/289289)\r1.774.544.649.385  97%   44,85MB/s   10:28:56 (xfr#283277, ir-chk=5525/289289)\r1.774.544.780.457  97%   37,43MB/s    0:20:14  \r1.774.553.061.151  97%   44,85MB/s   10:28:56 (xfr#283278, ir-chk=5524/289289)\r1.774.561.472.915  97%   44,85MB/s   10:28:57 (xfr#283279, ir-chk=5523/289289)\r1.774.569.884.681  97%   44,85MB/s   10:28:57 (xfr#283280, ir-chk=5522/289289)\r1.774.578.296.449  97%   44,85MB/s   10:28:57 (xfr#283281, ir-chk=5521/289289)\r1.774.586.708.213  97%   44,85MB/s   10:28:57 (xfr#283282, ir-chk=5520/289289)\r1.774.595.119.979  97%   44,85MB/s   10:28:57 (xfr#283283, ir-chk=5519/289289)\r1.774.595.152.747  97%   40,59MB/s    0:18:38  \r1.774.603.531.747  97%   44,85MB/s   10:28:57 (xfr#283284, ir-chk=5518/289289)\r1.774.611.943.515  97%   44,85MB/s   10:28:58 (xfr#283285, ir-chk=5517/289289)\r1.774.620.355.281  97%   44,85MB/s   10:28:58 (xfr#283286, ir-chk=5516/289289)\r1.774.628.767.047  97%   44,85MB/s   10:28:58 (xfr#283287, ir-chk=5515/289289)\r1.774.637.178.815  97%   44,85MB/s   10:28:58 (xfr#283288, ir-chk=5514/289289)\r1.774.637.309.887  97%   41,06MB/s    0:18:25  \r1.774.645.590.583  97%   44,85MB/s   10:28:58 (xfr#283289, ir-chk=5513/289289)",
+  "copy_progress_tail": "53, ir-chk=6610/488603)\r2.689.138.151.092  97%   42,25MB/s   16:51:43 (xfr#481354, ir-chk=6609/488603)\r2.689.146.563.200  97%   42,25MB/s   16:51:44 (xfr#481355, ir-chk=6608/488603)\r2.689.146.694.272  97%   24,84MB/s    0:36:29  \r2.689.154.975.308  97%   42,25MB/s   16:51:44 (xfr#481356, ir-chk=6607/488603)\r2.689.163.387.414  97%   42,25MB/s   16:51:45 (xfr#481357, ir-chk=6606/488603)\r2.689.171.799.520  97%   42,25MB/s   16:51:45 (xfr#481358, ir-chk=6605/488603)\r2.689.171.930.592  97%   23,83MB/s    0:38:00  \r2.689.180.211.626  97%   42,25MB/s   16:51:45 (xfr#481359, ir-chk=6604/488603)\r2.689.188.623.732  97%   42,25MB/s   16:51:46 (xfr#481360, ir-chk=6603/488603)\r2.689.197.035.838  97%   42,25MB/s   16:51:46 (xfr#481361, ir-chk=6602/488603)\r2.689.200.214.334  97%   25,55MB/s    0:35:26  \r2.689.205.447.942  97%   42,25MB/s   16:51:46 (xfr#481362, ir-chk=6601/488603)\r2.689.213.860.048  97%   42,25MB/s   16:51:47 (xfr#481363, ir-chk=6600/488603)\r2.689.222.272.156  97%   42,25MB/s   16:51:47 (xfr#481364, ir-chk=6599/488603)\r2.689.223.943.324  97%   22,58MB/s    0:40:04  \r2.689.230.684.264  97%   42,25MB/s   16:51:47 (xfr#481365, ir-chk=6598/488603)\r2.689.239.096.370  97%   42,25MB/s   16:51:48 (xfr#481366, ir-chk=6597/488603)\r2.689.247.508.478  97%   42,25MB/s   16:51:48 (xfr#481367, ir-chk=6596/488603)\r2.689.255.920.586  97%   42,25MB/s   16:51:48 (xfr#481368, ir-chk=6595/488603)",
   "verification_log_bytes": null,
-  "copy_processes": "187291 python           328999\n1545674 rsync             37740",
+  "copy_processes": "187291 python           351968\n1545674 rsync             60710",
   "project_receipts": 3326,
   "year1_local_continuation": {
-    "phase": "waiting_existing_integrity_audit",
+    "phase": "stopped_safe_requires_review",
     "source_deleted": false,
     "catalog_cutover_complete": false,
     "own_leases_finalized": false,
     "pid": 92688,
-    "heartbeat_at": "2026-11-09T09:46:33.857307+00:00",
+    "heartbeat_at": "2026-11-09T13:09:59.686517+00:00",
     "integrity": {
-      "exit": null,
-      "phase": "target_full_after_hash_verification",
-      "verified_projects": 4
-    }
+      "exit": "0",
+      "phase": "readonly_prepublication_integrity_verified",
+      "verified_projects": 16
+    },
+    "success": false,
+    "error_type": "RuntimeError",
+    "error_frames": [
+      {
+        "file": "C:\\Users\\Gilles\\Documents\\MATLAB\\detecdiv-hub\\reports\\alexander-2024-20261105\\advance_year1_after_integrity.py",
+        "line": 70,
+        "function": "main"
+      },
+      {
+        "file": "C:\\Users\\Gilles\\Documents\\MATLAB\\detecdiv-hub\\reports\\alexander-2024-20261105\\year1_publication_operations.py",
+        "line": 108,
+        "function": "admit"
+      },
+      {
+        "file": "C:\\Users\\Gilles\\Documents\\MATLAB\\detecdiv-hub\\reports\\homes2-access-audit-20261101\\audit.py",
+        "line": 25,
+        "function": "remote_json"
+      }
+    ]
+  },
+  "year1_local_recovery_continuation": {
+    "phase": "waiting_final_linux_windows_readers",
+    "source_deleted": false,
+    "catalog_cutover_complete": false,
+    "own_leases_finalized": false,
+    "pid": 61276,
+    "heartbeat_at": "2026-11-09T16:07:02.608156+00:00",
+    "integrity": {
+      "exit": "0",
+      "phase": "readonly_prepublication_integrity_verified",
+      "verified_projects": 16
+    },
+    "batch_id": "d1d7eff0-bd42-4b50-899f-0c0c9a83e71f"
+  },
+  "year1_api_media_readonly": {
+    "exists": true,
+    "launcher_pid": 1268298,
+    "launcher_process_exists": true,
+    "launcher_command_matches": true,
+    "state_read_exit": 0,
+    "state": {
+      "phase": "streaming_real_source_handlers_and_homes2_files",
+      "success": false,
+      "handlers_verified": 544,
+      "source_deleted": false,
+      "uri_changed": false,
+      "heartbeat_at": "2026-11-09T16:10:12.401771+00:00",
+      "bytes_verified": 4822450646
+    },
+    "durable_log_bytes": 215610,
+    "log_tail": "pi_homes2_full_content_verified\": true, \"inputs_stable\": true}\n{\"kind\": \"artifact\", \"id\": \"6a267d63-1aa1-4f09-ac93-742584b24c45\", \"relative_path\": \"05012024_apx1s_dslog/05012024_apx1s_dslog_1/.detecdiv-previews/raw_05012024_apx1s_dslog_1_2e32cfd329/pos22.mp4\", \"bytes\": 253810, \"sha256\": \"b2dcd457373301d363c5d01fb4cad8444f78170a5acbb65e9f4fe7895b4bf850\", \"real_source_handler_stream_verified\": true, \"api_homes2_full_content_verified\": true, \"inputs_stable\": true}\n{\"kind\": \"artifact\", \"id\": \"6a64239b-a599-41df-9c68-0b0846aa01b7\", \"relative_path\": \"09042024_rms/09042024_rms_1/.detecdiv-previews/raw_09042024_rms_1_af3fe5bf3d/pos29.mp4\", \"bytes\": 393844, \"sha256\": \"06a230c0287a01dbab88490f1768b6560ed02f834a2dbe5f65762da3bf424d1b\", \"real_source_handler_stream_verified\": true, \"api_homes2_full_content_verified\": true, \"inputs_stable\": true}\n{\"kind\": \"artifact\", \"id\": \"6a8abc91-9362-4d36-aa6a-ce7fbb2cc3b8\", \"relative_path\": \"09042024_rms/09042024_rms_1/.detecdiv-previews/raw_09042024_rms_1_af3fe5bf3d/pos28.mp4\", \"bytes\": 395622, \"sha256\": \"7bd96061fb7e15c8f7abccf7b6522d575f9a8f37bf9c180498c9115d3625ac72\", \"real_source_handler_stream_verified\": true, \"api_homes2_full_content_verified\": true, \"inputs_stable\": true}\n{\"kind\": \"artifact\", \"id\": \"6ab06006-8514-4184-af66-befd07eb7570\", \"relative_path\": \"060224_cres/060224_cres_1/.detecdiv-previews/raw_060224_cres_1_448e48f46a/pos31.mp4\", \"bytes\": 404502, \"sha256\": \"9d5c341ac99153eea86f5e913c9a1563ec9b659d32066bfadeb41ec98694fc74\", \"real_source_handler_stream_verified\": true, \"api_homes2_full_content_verified\": true, \"inputs_stable\": true}\n"
+  },
+  "year1_final_windows_hosts_archived": {
+    "task": {
+      "state": "Running",
+      "result": 267009
+    },
+    "host-windows-state.json": {
+      "phase": "validating_final_project_reads",
+      "host": "windows",
+      "success": false,
+      "project_saved": false,
+      "source_deleted": false,
+      "heartbeat_at": "2026-11-09T16:07:01.869557+00:00",
+      "windows_identity": "gmgm\\charvin-admin",
+      "session_id": 1,
+      "engine_sha": "d83c4dbc0638bc0d3f6012b4f1df5744e0c017c7",
+      "engine_release": "C:/Users/Charvin-Admin/Documents/GitHub/DetecDiv-jobs/releases/d83c4dbc0638bc0d3f6012b4f1df5744e0c017c7",
+      "expected": {
+        "expected_projects": 16,
+        "expected_fovs": 159,
+        "expected_rois": 50234,
+        "expected_raw_samples": 2059
+      }
+    },
+    "host-windows-progress.json": {
+      "project": "anof_05012024_apx1s_dslog",
+      "project_index": 1,
+      "fov": 6,
+      "fovs": 16,
+      "rois_checked": 1822,
+      "raw_reads": 90,
+      "project_saved": false
+    },
+    "cleanup_receipt_exists": false
   },
   "identity_batch2_projects": [
     {
@@ -3110,8 +3525,8 @@
       "error": "Main MAT is not a recognized shallowObj layout"
     }
   ],
-  "copied_bytes": 1774645590583,
-  "copy_percent_of_complete_year": 30.3021,
+  "copied_bytes": 2689255920586,
+  "copy_percent_of_complete_year": 45.919,
   "rsync_display_percent_is_incremental_file_list_not_full_year": true,
-  "checked_at": "2026-11-09T09:47:18.547264+00:00"
+  "checked_at": "2026-11-09T16:10:14.064607+00:00"
 }

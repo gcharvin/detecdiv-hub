@@ -1,0 +1,29 @@
+{
+  "launched": true,
+  "checked_at": "2026-11-09T16:00:08.413009+00:00",
+  "pid": 61276,
+  "prior_controller_pid": 92688,
+  "prior_controller_stopped": true,
+  "prior_transaction_rolled_back": true,
+  "bounded_recovery": "JSON-native audit snapshot with unchanged canonical digest; reuse all16 terminal integrity receipts, fresh own leases, no publication replay",
+  "phase_at_observation": "publishing_final_folders",
+  "batch_id": "d1d7eff0-bd42-4b50-899f-0c0c9a83e71f",
+  "holder": "alexander-2024-year1-final-publication-20261109",
+  "own_leases": 16,
+  "own_lease_deadline": "2026-11-09T21:58:35.423527+00:00",
+  "source_deleted": false,
+  "catalog_cutover_complete": false,
+  "original_sources_and_executed_scripts_preserved": true,
+  "source_pins": {
+    "advance_year1_after_integrity.py": "a3181d0aac332252fbc905e39707102a86f53375f56cc53f0e67166b4fde5993",
+    "year1_publication_operations.py": "49e3f23109a031c8fa308470798017633609143dda6731c2882611865a7e1724",
+    "year1_windows_host_operations.py": "ea643f660aef5905f0d016377d4f87213fea16f8ee2f33e6987a7dcc656472ff",
+    "run_year1_final_hosts.py": "5b66b77513086002728a83f9bda6baf11d8e44cdeb77f59576bc293b881c7792",
+    "verify_year1_final_hosts.m": "2ca5f1177e4eb2edd2552255104c7ce72428880448fb3c7a9d2e0e1695a38d84",
+    "publish_year1_folders.py": "83ec15eb66b867cf3b72a14d3e558e39623e12cec575e5867526449f1a5e18c6",
+    "advance_year1_recovery_20261109.py": "95e0f469d546cc44be312ae64ea76abcbe23df4c1fcd81edac3890d927e391ba",
+    "year1_publication_operations_v2.py": "22a37ceecf4761b9899694937a0069d445604819a137bd9b1b36f92f83ac1d87"
+  },
+  "reproduced_admission_failure": "Before-project snapshot contained UUID/datetime objects not serializable by PostgreSQL JSONB encoder",
+  "original_failure_detail": "Original controller recorded RuntimeError and frames; detailed UUID serialization failure established by bounded reproduction"
+}

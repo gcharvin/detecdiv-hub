@@ -1,0 +1,12 @@
+{
+  "success": true,
+  "readonly": true,
+  "projects": 16,
+  "native_json_serialization_passed": true,
+  "canonical_snapshot_digest_unchanged": true,
+  "own_batch_absent": true,
+  "fresh_safety_passed": true,
+  "catalog_changed": false,
+  "lease_acquired": false,
+  "operations_v2_sha256": "22a37ceecf4761b9899694937a0069d445604819a137bd9b1b36f92f83ac1d87"
+}
