@@ -1,4 +1,45 @@
 # Current Deployment
+## ROI frame-completeness repair, 2026-11-09
+
+DetecDiv `4f6e06c111763ee49a96a50ee87d60286697571d` is pushed to GitHub/GitLab,
+prepared and SHA-verified on both Linux and Windows protected release roots,
+and published as the default. No worker was restarted; running Hyper7 recovery
+`8aa837fd-b962-47b5-bc5d-199ff656df53` remains pinned to `0cab1d9c` and continues
+normally (metrics processing observed during deployment).
+
+The new preflight checks actual persisted H5 input-channel time extents against
+requested frames. Both runners and dry-run use it; each processor/classifier is
+checked before processing, and extraction completion checks raw-channel extents
+before marking progress complete. Planned extraction/producers defer their
+checks until execution. Legacy frames attributes may describe one write block;
+they are not mistaken for the full physical time extent. Direct Viterbi calls
+also reject out-of-range frames with an actionable error. Tests: 38 distinct
+checks passed across coverage, extraction/parallel/geometry, bindings/runtime
+and lineage suites; one Windows alias test skipped.
+
+Two surgical recoveries preserve all ROI geometry and scientific settings:
+- Diamide project `54f69d4c-5cc3-4b9f-b92c-c501973a185f`: FOV45/46 only,
+  109ROI, job `880ec9af-7717-42dd-957f-31a4d6f81adb`, running extraction.
+- Older Hyper7 Pulse project `d2cab04e-e4e2-474c-93fd-244da6b8a863`: FOV15
+  (raw position19) only, 59ROI. Prepared but waiting for Abhilasha's active
+  desktop edit lease; the lease is never forcibly released.
+Both run IDs are `pipelineTemplate_complete_20261109` within their own projects,
+frames1:220, extraction plus six dependent processing/classifier nodes only.
+Positive fresh MATLAB dry-runs have no errors/warnings. Negative dry-runs reject
+the old short masks (70/144frames) before execution. Existing target stores and
+MAT data were copied to `recovery_backup_20261109_completeness` under each
+project:336files,11985413801bytes; manifest retained in local receipts.
+
+Pulse one-shot submission controller: webserver-labo
+`/home/charvin-admin/ops/abhilasha-completeness-20261109/controller.py`, PID1148932.
+It checks normal Hub preflight, waits for project unlock, checks unchanged ROI
+geometry and target files against backup, submits one idempotent pinned job,
+then exits. Read `controller-status.json` before any action. Do not force locks,
+create a duplicate, or restart an erroring controller without diagnosis. The
+older controller under `ops/abhilasha-channels-20261106` stays stopped.
+A separate four-hour heartbeat monitors both recoveries; original Hyper7 monitor
+is preserved. Receipts: `reports/abhilasha-completeness-20261109`.
+
 ## Resolved-resource execution preflight, 2026-11-09
 
 DetecDiv `b9e1a650df3ef87626403b880c104fac9b479646` extends the binding repair:
@@ -1757,6 +1798,7 @@ Future agents should assume:
 Rollback is possible by removing the worker systemd override and restarting the
 old local services on `detecdiv-server`, but that should be treated as an
 explicit incident/rollback action, not as the default development target.
+
 
 
 
