@@ -1,0 +1,12 @@
+{
+  "launched": true,
+  "work": "/home/charvin-admin/storage-transfers/alexander-2024-20261105/year1-prepublication-audit-20261109",
+  "session": "alex2024-year1-prepublication-audit-20261109",
+  "runner_sha256": "1e7b8955265c644c5c925b2282b8ec42f4279688cd568febcba6f73a8fdc78f0",
+  "projects": 16,
+  "files": 105263,
+  "read_only": true,
+  "leases_acquired": 0,
+  "publication_allowed": false,
+  "source_deletion_allowed": false
+}

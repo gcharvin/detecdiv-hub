@@ -8,7 +8,40 @@ year/user, original project, NAS snapshot, backup policy, quota, default engine
 or SMB credentials may be changed. The completed 2023 migration is separate;
 never replay any of its one-shot scripts.
 
-## Latest control — 2026-11-09, 08:13 UTC: access restored, raw2024_1 verified
+## Latest action — 2026-11-09: first-year publication integrity review launched
+
+The user asked whether the verified2024_1 space had already been reclaimed:
+**not yet; zero2024 bytes reclaimed**. At08:17 UTC, the live runner still reports
+source_deleted=false/catalog_changed=false;2024_2 is copying at26.9127%.
+Originals remain protected. The concrete next integrity gate is now running,
+not merely scheduled:
+
+- Private work `year1-prepublication-audit-20261109`, tmux
+  `alex2024-year1-prepublication-audit-20261109`.
+-16 relinked Alexander copies associated only with2024_1;105,263 payload files.
+  It checks each original native inventory fresh before/after, then every target
+  full SHA256 against the initial copied hashes plus the exact after-hashes of
+  successful metadata relinks. It also checks actual maliavko ownership,
+  independent regular files and exact file/directory sets. No missing sidecars
+  are invented. All selected copies must still be incoming and final roots absent.
+- Fresh readonly admission found no affected jobs/leases or indexing; no leases
+  were acquired. This controller has no publication, catalog-cutover or source
+  deletion permission. It does not replay any copy/relink or raw verification.
+- Executed controller SHA256
+  `1e7b8955265c644c5c925b2282b8ec42f4279688cd568febcba6f73a8fdc78f0`.
+  See `year1-prepublication-audit-launch.json` and the pinned scripts.
+  Read state.json, controller.exit/log and per-project source-fresh-before/after
+  and target-full-hashes receipts. No duplicate audit or active script edits.
+  Source/target drift must stop safely and preserve all partial evidence.
+
+After all16 terminal integrity receipts agree, prepare **fresh publication
+admission/own leases** and final filesystem/host/Linux/limited Windows tests,
+then catalog/API continuity. The readonly admission here expires as evidence;
+it is not a write lease. Lox missing-field and legacy relevance gates remain
+unwaived. Whole-year retirement still needs its new tested2024-specific controller
+and complete fresh manifest/receipts; no source location may be removed early.
+
+## Previous control — 2026-11-09, 08:13 UTC: access restored, raw2024_1 verified
 
 Ordinary lab access is restored; no VPN/SSH configuration change was required.
 `status.py` succeeded at08:10 UTC. The original sequential runner was never

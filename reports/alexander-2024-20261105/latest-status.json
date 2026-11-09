@@ -35,7 +35,7 @@
     "source_deleted": false,
     "catalog_changed": false,
     "runner_pid": 187291,
-    "heartbeat_at": "2026-11-09T08:10:47.649874+00:00",
+    "heartbeat_at": "2026-11-09T08:23:18.324130+00:00",
     "current_year": "2024_2",
     "inventory_progress": {
       "files": 966284,
@@ -66,7 +66,8 @@
   "project_discovery_exit": "0\n",
   "project_discovery_log_tail": "33)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n",
   "sessions": [
-    "alex2024-copy-20261105"
+    "alex2024-copy-20261105",
+    "alex2024-year1-prepublication-audit-20261109"
   ],
   "project_copy_state": {
     "phase": "failed_safe",
@@ -996,6 +997,24 @@
   },
   "relink_batch4_modified_mat_receipts": 6,
   "relink_batch4_log_tail": "",
+  "year1_prepublication_audit": {
+    "state": {
+      "phase": "target_full_after_hash_verification",
+      "read_only": true,
+      "projects": [],
+      "source_deleted": false,
+      "published": false,
+      "catalog_changed": false,
+      "heartbeat_at": "2026-11-09T08:23:05.233519+00:00",
+      "project_index": 1,
+      "project": "anof_05012024_apx1s_dslog",
+      "phase_files": 14,
+      "phase_bytes": 1042148765,
+      "child_pid": 1752013
+    },
+    "exit": "",
+    "log_tail": ""
+  },
   "lox_metadata_preparation": {
     "exit": "0\n",
     "path_progress": null,
@@ -2563,9 +2582,9 @@
       }
     }
   },
-  "copy_progress_tail": "49, ir-chk=8110/266570)\r1.562.134.603.516  95%   36,82MB/s    0:30:12  \r1.562.142.884.552  95%   46,63MB/s    8:52:30 (xfr#258050, ir-chk=8109/266570)\r1.562.151.296.660  95%   46,63MB/s    8:52:30 (xfr#258051, ir-chk=8108/266570)\r1.562.159.708.766  95%   46,63MB/s    8:52:31 (xfr#258052, ir-chk=8107/266570)\r1.562.168.120.874  95%   46,63MB/s    8:52:31 (xfr#258053, ir-chk=8106/266570)\r1.562.168.251.946  95%   35,00MB/s    0:31:45  \r1.562.176.532.982  95%   46,63MB/s    8:52:31 (xfr#258054, ir-chk=8105/266570)\r1.562.184.945.088  95%   46,63MB/s    8:52:32 (xfr#258055, ir-chk=8104/266570)\r1.562.193.357.196  95%   46,63MB/s    8:52:32 (xfr#258056, ir-chk=8103/266570)\r1.562.201.769.304  95%   46,63MB/s    8:52:32 (xfr#258057, ir-chk=8102/266570)\r1.562.210.181.412  95%   46,63MB/s    8:52:32 (xfr#258058, ir-chk=8101/266570)\r1.562.210.312.484  95%   37,08MB/s    0:29:57  \r1.562.218.593.520  95%   46,63MB/s    8:52:32 (xfr#258059, ir-chk=8100/266570)\r1.562.227.005.628  95%   46,63MB/s    8:52:32 (xfr#258060, ir-chk=8099/266570)\r1.562.235.417.736  95%   46,63MB/s    8:52:33 (xfr#258061, ir-chk=8098/266570)\r1.562.243.829.844  95%   46,63MB/s    8:52:33 (xfr#258062, ir-chk=8097/266570)\r1.562.252.241.950  95%   46,63MB/s    8:52:33 (xfr#258063, ir-chk=8096/266570)\r1.562.254.634.014  95%   37,96MB/s    0:29:14  \r1.562.260.654.058  95%   46,63MB/s    8:52:33 (xfr#258064, ir-chk=8095/266570)",
+  "copy_progress_tail": "61.737.950  97%   46,37MB/s    9:04:57 (xfr#261357, ir-chk=4802/266570)\r1.589.961.869.022  97%   32,66MB/s    0:20:10  \r1.589.970.150.079  97%   46,37MB/s    9:04:58 (xfr#261358, ir-chk=4801/266570)\r1.589.978.562.208  97%   46,37MB/s    9:04:58 (xfr#261359, ir-chk=4800/266570)\r1.589.986.974.337  97%   46,37MB/s    9:04:58 (xfr#261360, ir-chk=4799/266570)\r1.589.995.386.466  97%   46,37MB/s    9:04:58 (xfr#261361, ir-chk=4798/266570)\r1.590.003.798.595  97%   46,37MB/s    9:04:58 (xfr#261362, ir-chk=4797/266570)\r1.590.012.210.724  97%   46,37MB/s    9:04:59 (xfr#261363, ir-chk=4796/266570)\r1.590.013.292.068  97%   37,66MB/s    0:17:28  \r1.590.020.622.853  97%   46,37MB/s    9:04:59 (xfr#261364, ir-chk=4795/266570)\r1.590.029.034.980  97%   46,37MB/s    9:04:59 (xfr#261365, ir-chk=4794/266570)\r1.590.037.447.109  97%   46,37MB/s    9:04:59 (xfr#261366, ir-chk=4793/266570)\r1.590.045.859.238  97%   46,37MB/s    9:04:59 (xfr#261367, ir-chk=4792/266570)\r1.590.053.232.038  97%   36,82MB/s    0:17:51  \r1.590.054.271.367  97%   46,37MB/s    9:05:00 (xfr#261368, ir-chk=4791/266570)\r1.590.062.683.496  97%   46,37MB/s    9:05:00 (xfr#261369, ir-chk=4790/266570)\r1.590.071.095.625  97%   46,37MB/s    9:05:00 (xfr#261370, ir-chk=4789/266570)\r1.590.079.507.754  97%   46,37MB/s    9:05:00 (xfr#261371, ir-chk=4788/266570)\r1.590.087.919.881  97%   46,37MB/s    9:05:01 (xfr#261372, ir-chk=4787/266570)",
   "verification_log_bytes": null,
-  "copy_processes": "187291 python           323214\n1545674 rsync             31955",
+  "copy_processes": "187291 python           323961\n1545674 rsync             32702",
   "project_receipts": 3326,
   "identity_batch2_projects": [
     {
@@ -3018,8 +3037,8 @@
       "error": "Main MAT is not a recognized shallowObj layout"
     }
   ],
-  "copied_bytes": 1562260654058,
-  "copy_percent_of_complete_year": 26.6756,
+  "copied_bytes": 1590087919881,
+  "copy_percent_of_complete_year": 27.1507,
   "rsync_display_percent_is_incremental_file_list_not_full_year": true,
-  "checked_at": "2026-11-09T08:10:53.347682+00:00"
+  "checked_at": "2026-11-09T08:23:20.763284+00:00"
 }

@@ -60,6 +60,13 @@ summary['relink_batch4_exit']=tail('relink-batch4-20261107/controller.exit')
 summary['relink_batch4_progress']=load('relink-batch4-20261107/progress.json')
 summary['relink_batch4_modified_mat_receipts']=len(list((w/'relink-batch4-20261107').glob('modified-*.json')))
 summary['relink_batch4_log_tail']=tail('relink-batch4-20261107/controller.log',1200)
+publication_work='year1-prepublication-audit-20261109'
+summary['year1_prepublication_audit']={'state':load(publication_work+'/state.json'),
+ 'exit':tail(publication_work+'/controller.exit'),'log_tail':tail(publication_work+'/controller.log',1200)}
+publication_result=load(publication_work+'/result.json')
+if publication_result:
+ summary['year1_prepublication_audit']['result_summary']={k:publication_result[k] for k in ['success','read_only','source_deleted','published','catalog_changed','fresh_publication_admission_and_host_catalog_api_gates_still_required']}
+ summary['year1_prepublication_audit']['result_summary']['projects']=len(publication_result['projects'])
 lox_work='lox-metadata-preparation-20261107'
 summary['lox_metadata_preparation']={'exit':tail(lox_work+'/controller.exit'),
  'path_progress':load(lox_work+'/paths/progress.json'),'path_result':load(lox_work+'/paths/result.json'),
