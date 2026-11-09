@@ -1,0 +1,10 @@
+{
+  "success": true,
+  "scope": "own_parent_batch_summary_only",
+  "checked_at": "2026-11-09T08:10:53.347682+00:00",
+  "year1_sha1_and_source_stability_verified": true,
+  "year2_copied_bytes": 1562260654058,
+  "year2_percent": 26.6756,
+  "source_deleted": false,
+  "preferred_locations_changed": false
+}

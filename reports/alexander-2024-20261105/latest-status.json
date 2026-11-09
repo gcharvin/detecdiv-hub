@@ -1,11 +1,11 @@
 {
   "copy_state": {
-    "phase": "verifying_full_content",
+    "phase": "copying",
     "started_at": "2026-11-05T14:23:58.358245+00:00",
     "batch_id": "0382c23e-ad54-4ec9-9ad8-53cc79b64d97",
     "years": {
       "2024_1": {
-        "phase": "verifying_full_content",
+        "phase": "verified_in_staging_project_host_catalog_gates_pending",
         "source": "/data/Alexander/data/2024_1",
         "destination": "/homes2/maliavko/DetecdivHub/raw/.incoming-alexander-2024-20261105/2024_1",
         "source_inventory": {
@@ -14,20 +14,35 @@
           "sha256": "8fd64d094fe29707e0ddd0b1480e9b861786d3adde677087ca7a6e95e252f61e"
         },
         "copy_started_at": "2026-11-05T14:27:53.524336+00:00",
-        "copy_finished_at": "2026-11-07T02:22:00.984848+00:00"
+        "copy_finished_at": "2026-11-07T02:22:00.984848+00:00",
+        "full_sha1_passed": true,
+        "sha1_finished_at": "2026-11-08T23:09:23.850445+00:00",
+        "source_stability_verified": true,
+        "finished_at": "2026-11-08T23:12:58.893593+00:00"
+      },
+      "2024_2": {
+        "phase": "copying",
+        "source": "/data/Alexander/data/2024_2",
+        "destination": "/homes2/maliavko/DetecdivHub/raw/.incoming-alexander-2024-20261105/2024_2",
+        "source_inventory": {
+          "files": 974112,
+          "bytes": 5856516249162,
+          "sha256": "004fb3404b4af8fe09b6063a09e3a162488f689499ddb51087513daf3d9f4fad"
+        },
+        "copy_started_at": "2026-11-08T23:18:17.000871+00:00"
       }
     },
     "source_deleted": false,
     "catalog_changed": false,
     "runner_pid": 187291,
-    "heartbeat_at": "2026-11-08T02:43:16.899550+00:00",
-    "current_year": "2024_1",
+    "heartbeat_at": "2026-11-09T08:10:47.649874+00:00",
+    "current_year": "2024_2",
     "inventory_progress": {
-      "files": 716605,
-      "bytes": 5143289233737,
-      "child_pid": 187303
+      "files": 966284,
+      "bytes": 5790510344211,
+      "child_pid": 1543938
     },
-    "child_pid": 503795
+    "child_pid": 1545674
   },
   "controller_exit": "",
   "controller_log_tail": "",
@@ -2548,9 +2563,9 @@
       }
     }
   },
-  "copy_progress_tail": "814.875.236 100%   38,21MB/s   35:53:54 (xfr#732579, to-chk=0/734177)\r5.177.814.875.236 100%   38,21MB/s   35:53:54 (xfr#732579, to-chk=0/734177)\r5.177.814.875.236 100%   38,21MB/s   35:53:54 (xfr#732579, to-chk=0/734177)\r5.177.814.875.236 100%   38,21MB/s   35:53:54 (xfr#732579, to-chk=0/734177)\r5.177.814.875.236 100%   38,21MB/s   35:53:54 (xfr#732579, to-chk=0/734177)\r5.177.814.875.236 100%   38,21MB/s   35:53:54 (xfr#732579, to-chk=0/734177)\r5.177.814.875.236 100%   38,21MB/s   35:53:54 (xfr#732579, to-chk=0/734177)\r5.177.814.875.236 100%   38,21MB/s   35:53:54 (xfr#732579, to-chk=0/734177)\r5.177.814.875.236 100%   38,21MB/s   35:53:54 (xfr#732579, to-chk=0/734177)\r5.177.814.875.236 100%   38,21MB/s   35:53:54 (xfr#732579, to-chk=0/734177)\n\nNumber of files: 734.177 (reg: 732.579, dir: 1.598)\nNumber of created files: 734.176 (reg: 732.579, dir: 1.597)\nNumber of deleted files: 0\nNumber of regular files transferred: 732.579\nTotal file size: 5.177.814.875.236 bytes\nTotal transferred file size: 5.177.814.875.236 bytes\nLiteral data: 5.177.814.875.236 bytes\nMatched data: 0 bytes\nFile list size: 21.298.390\nFile list generation time: 0,118 seconds\nFile list transfer time: 0,000 seconds\nTotal bytes sent: 5.179.123.015.295\nTotal bytes received: 13.928.821\n\nsent 5.179.123.015.295 bytes  received 13.928.821 bytes  40.074.877,79 bytes/sec\ntotal size is 5.177.814.875.236  speedup is 1,00\n",
-  "verification_log_bytes": 0,
-  "copy_processes": "187291 python           217164\n 503795 rsync             87681",
+  "copy_progress_tail": "49, ir-chk=8110/266570)\r1.562.134.603.516  95%   36,82MB/s    0:30:12  \r1.562.142.884.552  95%   46,63MB/s    8:52:30 (xfr#258050, ir-chk=8109/266570)\r1.562.151.296.660  95%   46,63MB/s    8:52:30 (xfr#258051, ir-chk=8108/266570)\r1.562.159.708.766  95%   46,63MB/s    8:52:31 (xfr#258052, ir-chk=8107/266570)\r1.562.168.120.874  95%   46,63MB/s    8:52:31 (xfr#258053, ir-chk=8106/266570)\r1.562.168.251.946  95%   35,00MB/s    0:31:45  \r1.562.176.532.982  95%   46,63MB/s    8:52:31 (xfr#258054, ir-chk=8105/266570)\r1.562.184.945.088  95%   46,63MB/s    8:52:32 (xfr#258055, ir-chk=8104/266570)\r1.562.193.357.196  95%   46,63MB/s    8:52:32 (xfr#258056, ir-chk=8103/266570)\r1.562.201.769.304  95%   46,63MB/s    8:52:32 (xfr#258057, ir-chk=8102/266570)\r1.562.210.181.412  95%   46,63MB/s    8:52:32 (xfr#258058, ir-chk=8101/266570)\r1.562.210.312.484  95%   37,08MB/s    0:29:57  \r1.562.218.593.520  95%   46,63MB/s    8:52:32 (xfr#258059, ir-chk=8100/266570)\r1.562.227.005.628  95%   46,63MB/s    8:52:32 (xfr#258060, ir-chk=8099/266570)\r1.562.235.417.736  95%   46,63MB/s    8:52:33 (xfr#258061, ir-chk=8098/266570)\r1.562.243.829.844  95%   46,63MB/s    8:52:33 (xfr#258062, ir-chk=8097/266570)\r1.562.252.241.950  95%   46,63MB/s    8:52:33 (xfr#258063, ir-chk=8096/266570)\r1.562.254.634.014  95%   37,96MB/s    0:29:14  \r1.562.260.654.058  95%   46,63MB/s    8:52:33 (xfr#258064, ir-chk=8095/266570)",
+  "verification_log_bytes": null,
+  "copy_processes": "187291 python           323214\n1545674 rsync             31955",
   "project_receipts": 3326,
   "identity_batch2_projects": [
     {
@@ -3003,8 +3018,8 @@
       "error": "Main MAT is not a recognized shallowObj layout"
     }
   ],
-  "copied_bytes": 5177814875236,
-  "copy_percent_of_complete_year": 100.0,
+  "copied_bytes": 1562260654058,
+  "copy_percent_of_complete_year": 26.6756,
   "rsync_display_percent_is_incremental_file_list_not_full_year": true,
-  "checked_at": "2026-11-08T02:43:24.766214+00:00"
+  "checked_at": "2026-11-09T08:10:53.347682+00:00"
 }

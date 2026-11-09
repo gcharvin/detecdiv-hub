@@ -1,0 +1,385 @@
+{
+  "read_only_plan": true,
+  "basis": "Previously discovered acquisition relationships and completed relink/catalog receipts; not a fresh publication admission or identity audit",
+  "projects": [
+    {
+      "project_id": "344c83c4-7786-4d43-a15a-3fb292990f09",
+      "name": "anof_011024_x423x426_EB_x423noebonly",
+      "candidate_raw_years": [
+        "2024_2"
+      ],
+      "metadata_relink_completed": true,
+      "all_candidate_raw_years_checksum_verified": false,
+      "final_paths_hosts_catalog_api_gates_passed": false,
+      "publication_or_retirement_allowed_by_this_plan": false
+    },
+    {
+      "project_id": "19037bd1-e966-428f-96f8-2a7166c7bc9e",
+      "name": "anof_05012024_apx1s_dslog",
+      "candidate_raw_years": [
+        "2024_1"
+      ],
+      "metadata_relink_completed": true,
+      "all_candidate_raw_years_checksum_verified": true,
+      "final_paths_hosts_catalog_api_gates_passed": false,
+      "publication_or_retirement_allowed_by_this_plan": false
+    },
+    {
+      "project_id": "864f762f-dd97-47d1-ba32-4783430fc1b9",
+      "name": "anof_050624_YPDtitr_plate_3k",
+      "candidate_raw_years": [
+        "2024_2"
+      ],
+      "metadata_relink_completed": true,
+      "all_candidate_raw_years_checksum_verified": false,
+      "final_paths_hosts_catalog_api_gates_passed": false,
+      "publication_or_retirement_allowed_by_this_plan": false
+    },
+    {
+      "project_id": "6f6f408d-ebe7-4115-a537-f35f5cdb6ed2",
+      "name": "anof_060224_cres",
+      "candidate_raw_years": [
+        "2024_1"
+      ],
+      "metadata_relink_completed": true,
+      "all_candidate_raw_years_checksum_verified": true,
+      "final_paths_hosts_catalog_api_gates_passed": false,
+      "publication_or_retirement_allowed_by_this_plan": false
+    },
+    {
+      "project_id": "e0d02751-28b3-4b3e-a74c-0dfd00b37803",
+      "name": "anof_060224_cres_1002",
+      "candidate_raw_years": [
+        "2024_1"
+      ],
+      "metadata_relink_completed": true,
+      "all_candidate_raw_years_checksum_verified": true,
+      "final_paths_hosts_catalog_api_gates_passed": false,
+      "publication_or_retirement_allowed_by_this_plan": false
+    },
+    {
+      "project_id": "c48f9cff-6625-4dad-9597-a8796fe2824f",
+      "name": "anof_060224_cres_ARS1",
+      "candidate_raw_years": [
+        "2024_1"
+      ],
+      "metadata_relink_completed": true,
+      "all_candidate_raw_years_checksum_verified": true,
+      "final_paths_hosts_catalog_api_gates_passed": false,
+      "publication_or_retirement_allowed_by_this_plan": false
+    },
+    {
+      "project_id": "bec9b2cf-656d-417a-b424-2d3e7cbf316c",
+      "name": "anof_06032024_diplNTSNG_K3s",
+      "candidate_raw_years": [
+        "2024_1"
+      ],
+      "metadata_relink_completed": true,
+      "all_candidate_raw_years_checksum_verified": true,
+      "final_paths_hosts_catalog_api_gates_passed": false,
+      "publication_or_retirement_allowed_by_this_plan": false
+    },
+    {
+      "project_id": "4ada122e-a205-493f-9885-703e788589cc",
+      "name": "anof_061224_X5152moth",
+      "candidate_raw_years": [
+        "2024_2"
+      ],
+      "metadata_relink_completed": true,
+      "all_candidate_raw_years_checksum_verified": false,
+      "final_paths_hosts_catalog_api_gates_passed": false,
+      "publication_or_retirement_allowed_by_this_plan": false
+    },
+    {
+      "project_id": "e6f6b263-dae2-4670-ac85-280abc4f38a2",
+      "name": "anof_070424_iRFPtest",
+      "candidate_raw_years": [
+        "2024_1"
+      ],
+      "metadata_relink_completed": true,
+      "all_candidate_raw_years_checksum_verified": true,
+      "final_paths_hosts_catalog_api_gates_passed": false,
+      "publication_or_retirement_allowed_by_this_plan": false
+    },
+    {
+      "project_id": "3dc52b35-7254-48e4-ab04-157dce732d6e",
+      "name": "anof_100524_crelox_2full",
+      "candidate_raw_years": [
+        "2024_2"
+      ],
+      "metadata_relink_completed": true,
+      "all_candidate_raw_years_checksum_verified": false,
+      "final_paths_hosts_catalog_api_gates_passed": false,
+      "publication_or_retirement_allowed_by_this_plan": false
+    },
+    {
+      "project_id": "8d749d6e-c3f9-46aa-9eb1-5dc34af4bc55",
+      "name": "anof_120624_DR_YPDtitr_newplate_4k",
+      "candidate_raw_years": [
+        "2024_2"
+      ],
+      "metadata_relink_completed": true,
+      "all_candidate_raw_years_checksum_verified": false,
+      "final_paths_hosts_catalog_api_gates_passed": false,
+      "publication_or_retirement_allowed_by_this_plan": false
+    },
+    {
+      "project_id": "53a6c0c1-f887-44da-ae8c-a0018e46064e",
+      "name": "anof_130224_dfob_rep_dslog_new",
+      "candidate_raw_years": [
+        "2024_1"
+      ],
+      "metadata_relink_completed": true,
+      "all_candidate_raw_years_checksum_verified": true,
+      "final_paths_hosts_catalog_api_gates_passed": false,
+      "publication_or_retirement_allowed_by_this_plan": false
+    },
+    {
+      "project_id": "73504070-1ff4-4c0d-b630-d17829ccced6",
+      "name": "anof_140524_tdh3h4_dvsge",
+      "candidate_raw_years": [
+        "2024_2"
+      ],
+      "metadata_relink_completed": true,
+      "all_candidate_raw_years_checksum_verified": false,
+      "final_paths_hosts_catalog_api_gates_passed": false,
+      "publication_or_retirement_allowed_by_this_plan": false
+    },
+    {
+      "project_id": "671be8d4-b028-46c0-8730-9fca5bee8888",
+      "name": "anof_151024_x225EB_x42x435x224_noEB",
+      "candidate_raw_years": [
+        "2024_2"
+      ],
+      "metadata_relink_completed": true,
+      "all_candidate_raw_years_checksum_verified": false,
+      "final_paths_hosts_catalog_api_gates_passed": false,
+      "publication_or_retirement_allowed_by_this_plan": false
+    },
+    {
+      "project_id": "99c114c7-bc50-46d9-a462-251f8aeca12f",
+      "name": "anof_180624_newplate_4500",
+      "candidate_raw_years": [
+        "2024_2"
+      ],
+      "metadata_relink_completed": true,
+      "all_candidate_raw_years_checksum_verified": false,
+      "final_paths_hosts_catalog_api_gates_passed": false,
+      "publication_or_retirement_allowed_by_this_plan": false
+    },
+    {
+      "project_id": "3b4a5dd7-6f03-43b3-bf9e-c02d7958301a",
+      "name": "anof_210524_cre16",
+      "candidate_raw_years": [
+        "2024_2"
+      ],
+      "metadata_relink_completed": true,
+      "all_candidate_raw_years_checksum_verified": false,
+      "final_paths_hosts_catalog_api_gates_passed": false,
+      "publication_or_retirement_allowed_by_this_plan": false
+    },
+    {
+      "project_id": "f841b77c-6f0d-47f6-9cfb-af5ee058b8d7",
+      "name": "anof_210624_s148s_SCON",
+      "candidate_raw_years": [
+        "2024_2"
+      ],
+      "metadata_relink_completed": true,
+      "all_candidate_raw_years_checksum_verified": false,
+      "final_paths_hosts_catalog_api_gates_passed": false,
+      "publication_or_retirement_allowed_by_this_plan": false
+    },
+    {
+      "project_id": "f004e8df-29f0-4303-85fe-9cf50e3d4dbc",
+      "name": "anof_22032024_DHY210_nts1ng",
+      "candidate_raw_years": [
+        "2024_1"
+      ],
+      "metadata_relink_completed": true,
+      "all_candidate_raw_years_checksum_verified": true,
+      "final_paths_hosts_catalog_api_gates_passed": false,
+      "publication_or_retirement_allowed_by_this_plan": false
+    },
+    {
+      "project_id": "902b3fa9-d703-49d4-92b7-bf5f75eac4ef",
+      "name": "anof_230124_RMng",
+      "candidate_raw_years": [
+        "2024_1"
+      ],
+      "metadata_relink_completed": true,
+      "all_candidate_raw_years_checksum_verified": true,
+      "final_paths_hosts_catalog_api_gates_passed": false,
+      "publication_or_retirement_allowed_by_this_plan": false
+    },
+    {
+      "project_id": "9f6b8ef9-f078-4ff5-b91f-7b8a25000951",
+      "name": "anof_230124_dhyD_LOG24",
+      "candidate_raw_years": [
+        "2024_1"
+      ],
+      "metadata_relink_completed": true,
+      "all_candidate_raw_years_checksum_verified": true,
+      "final_paths_hosts_catalog_api_gates_passed": false,
+      "publication_or_retirement_allowed_by_this_plan": false
+    },
+    {
+      "project_id": "e98ed5ba-a40d-4abc-a1c2-441c6587cf2e",
+      "name": "anof_230124_nh52",
+      "candidate_raw_years": [
+        "2024_1"
+      ],
+      "metadata_relink_completed": true,
+      "all_candidate_raw_years_checksum_verified": true,
+      "final_paths_hosts_catalog_api_gates_passed": false,
+      "publication_or_retirement_allowed_by_this_plan": false
+    },
+    {
+      "project_id": "2466af7d-d0b3-4ae3-8e8e-07a4ae9e7726",
+      "name": "anof_230724_HpaRDN_11429",
+      "candidate_raw_years": [
+        "2024_2"
+      ],
+      "metadata_relink_completed": true,
+      "all_candidate_raw_years_checksum_verified": false,
+      "final_paths_hosts_catalog_api_gates_passed": false,
+      "publication_or_retirement_allowed_by_this_plan": false
+    },
+    {
+      "project_id": "aa251bae-eadf-4fc1-b79e-f0b9217bd124",
+      "name": "anof_250724_dbud4stest",
+      "candidate_raw_years": [
+        "2024_2"
+      ],
+      "metadata_relink_completed": true,
+      "all_candidate_raw_years_checksum_verified": false,
+      "final_paths_hosts_catalog_api_gates_passed": false,
+      "publication_or_retirement_allowed_by_this_plan": false
+    },
+    {
+      "project_id": "8d8259a6-b0a7-4dc4-bee5-76d9e6443519",
+      "name": "anof_270624_HpaRDNtest",
+      "candidate_raw_years": [
+        "2024_2"
+      ],
+      "metadata_relink_completed": true,
+      "all_candidate_raw_years_checksum_verified": false,
+      "final_paths_hosts_catalog_api_gates_passed": false,
+      "publication_or_retirement_allowed_by_this_plan": false
+    },
+    {
+      "project_id": "23c9f497-021f-4dbb-8e3c-5f50032096ac",
+      "name": "anof_280224_12rdnars",
+      "candidate_raw_years": [
+        "2024_1"
+      ],
+      "metadata_relink_completed": true,
+      "all_candidate_raw_years_checksum_verified": true,
+      "final_paths_hosts_catalog_api_gates_passed": false,
+      "publication_or_retirement_allowed_by_this_plan": false
+    },
+    {
+      "project_id": "19a2a39e-e451-4d5f-8fa8-f06a7fed9f17",
+      "name": "anof_280224_dhytnl",
+      "candidate_raw_years": [
+        "2024_1"
+      ],
+      "metadata_relink_completed": true,
+      "all_candidate_raw_years_checksum_verified": true,
+      "final_paths_hosts_catalog_api_gates_passed": false,
+      "publication_or_retirement_allowed_by_this_plan": false
+    },
+    {
+      "project_id": "175db144-f04d-42f6-a2f7-9f82ccf3efb7",
+      "name": "anof_280524_YPDtitr_plate",
+      "candidate_raw_years": [
+        "2024_2"
+      ],
+      "metadata_relink_completed": true,
+      "all_candidate_raw_years_checksum_verified": false,
+      "final_paths_hosts_catalog_api_gates_passed": false,
+      "publication_or_retirement_allowed_by_this_plan": false
+    },
+    {
+      "project_id": "c3f08508-22dd-4f1a-81da-f0ac8c031a13",
+      "name": "anof_281124_X5152bud4s",
+      "candidate_raw_years": [
+        "2024_2"
+      ],
+      "metadata_relink_completed": true,
+      "all_candidate_raw_years_checksum_verified": false,
+      "final_paths_hosts_catalog_api_gates_passed": false,
+      "publication_or_retirement_allowed_by_this_plan": false
+    },
+    {
+      "project_id": "de636b9e-684a-4ab1-bb4a-0bc64d435020",
+      "name": "anof_290424_loxP15",
+      "candidate_raw_years": [
+        "2024_1"
+      ],
+      "metadata_relink_completed": false,
+      "all_candidate_raw_years_checksum_verified": true,
+      "final_paths_hosts_catalog_api_gates_passed": false,
+      "publication_or_retirement_allowed_by_this_plan": false
+    },
+    {
+      "project_id": "6c46e8a4-ab0f-45ac-9aeb-ea139f252643",
+      "name": "movie_12224_w303MBsnabI_test",
+      "candidate_raw_years": [
+        "2024_1"
+      ],
+      "metadata_relink_completed": true,
+      "all_candidate_raw_years_checksum_verified": true,
+      "final_paths_hosts_catalog_api_gates_passed": false,
+      "publication_or_retirement_allowed_by_this_plan": false
+    },
+    {
+      "project_id": "724afdda-24e8-42f1-b242-2b7a0e41e8b1",
+      "name": "movie_250124_diploids",
+      "candidate_raw_years": [
+        "2024_1"
+      ],
+      "metadata_relink_completed": true,
+      "all_candidate_raw_years_checksum_verified": true,
+      "final_paths_hosts_catalog_api_gates_passed": false,
+      "publication_or_retirement_allowed_by_this_plan": false
+    },
+    {
+      "project_id": "ae089caa-2978-4441-8308-8256905738d1",
+      "name": "qp_22032024_DHY210_nts1ng",
+      "candidate_raw_years": [
+        "2024_1"
+      ],
+      "metadata_relink_completed": true,
+      "all_candidate_raw_years_checksum_verified": true,
+      "final_paths_hosts_catalog_api_gates_passed": false,
+      "publication_or_retirement_allowed_by_this_plan": false
+    },
+    {
+      "project_id": "eb49f629-6546-4fbe-bdb7-71884e7fa69f",
+      "name": "qp_250724_dbud4stest",
+      "candidate_raw_years": [
+        "2024_2"
+      ],
+      "metadata_relink_completed": true,
+      "all_candidate_raw_years_checksum_verified": false,
+      "final_paths_hosts_catalog_api_gates_passed": false,
+      "publication_or_retirement_allowed_by_this_plan": false
+    },
+    {
+      "project_id": "ba44b140-ca07-4bdc-8e17-e41428dcdf51",
+      "name": "281124_Alex",
+      "candidate_raw_years": [
+        "2024_2"
+      ],
+      "metadata_relink_completed": true,
+      "all_candidate_raw_years_checksum_verified": false,
+      "final_paths_hosts_catalog_api_gates_passed": false,
+      "publication_or_retirement_allowed_by_this_plan": false
+    }
+  ],
+  "metadata_relinked_with_candidate_year1_only": 16,
+  "metadata_relinked_involving_year2": 17,
+  "all_host_catalog_api_and_lease_gates_still_required": true,
+  "lox_missing_field_and_legacy_relevance_gates_not_waived": true,
+  "source_deleted": false
+}

@@ -1,0 +1,20 @@
+{
+  "success": true,
+  "year": "2024_1",
+  "files": 732579,
+  "logical_bytes": 5177814875236,
+  "full_sha1_passed": true,
+  "sha1_finished_at": "2026-11-08T23:09:23.850445+00:00",
+  "verification_log_bytes": 0,
+  "source_stability_verified": true,
+  "source_stability_finished_at": "2026-11-08T23:12:58.893593+00:00",
+  "native_before_after_manifest_sha256": "8fd64d094fe29707e0ddd0b1480e9b861786d3adde677087ca7a6e95e252f61e",
+  "pinned_runner_sha256": "a0576fffa3c1d43d232f54567c6c9f7153aed40b436ace98f26079af72432b99",
+  "rsync_zero_exit_established_by_pinned_runner_control_flow": true,
+  "separate_rsync_exit_receipt_present": false,
+  "verified_in_staging_only": true,
+  "project_final_host_catalog_api_retirement_gates_pending": true,
+  "source_deleted": false,
+  "catalog_changed": false,
+  "checked_at": "2026-11-09T08:12:57.460981+00:00"
+}

@@ -8,7 +8,44 @@ year/user, original project, NAS snapshot, backup policy, quota, default engine
 or SMB credentials may be changed. The completed 2023 migration is separate;
 never replay any of its one-shot scripts.
 
-## Latest control — 2026-11-08, 08:47 UTC: lab network unreachable
+## Latest control — 2026-11-09, 08:13 UTC: access restored, raw2024_1 verified
+
+Ordinary lab access is restored; no VPN/SSH configuration change was required.
+`status.py` succeeded at08:10 UTC. The original sequential runner was never
+restarted and advanced automatically: **2024_1 full SHA1 passed23:09 UTC Nov8**,
+then native source stability passed23:12 UTC. This is corroborated independently
+by `verify_raw_year1_completion.py` and `raw-year1-completion-verification.json`:
+pinned runner unchanged, terminal verification log empty, no active year1 SHA1
+process, and both native manifests share the exact initial SHA256
+`8fd64d094fe29707e0ddd0b1480e9b861786d3adde677087ca7a6e95e252f61e`,
+732,579 files /5,177,814,875,236 bytes. The zero rsync exit follows the pinned
+runner's successful control flow; no separate rsync exit receipt is invented.
+
+2024_2 copying began23:18 UTC Nov8. At08:10 UTC Nov9 it reached
+1,562,260,654,058 /5,856,516,249,162 bytes (**26.6756%**). Its fresh initial
+native manifest has974,112 files, SHA256
+`004fb3404b4af8fe09b6063a09e3a162488f689499ddb51087513daf3d9f4fad`.
+The displayed rsync95% is incremental-list progress, not the full year's progress.
+Do not duplicate the runner or its future year2 checksum/stability checks.
+
+No filesystem publication, preferred location/API cutover or source retirement:
+**zero2024 bytes reclaimed**. The33 relinked unpublished copies and all backups/
+originals stay protected. A readonly candidate split from discovery relationships
+and completed relink receipts identifies16 prepared copies involving only2024_1,
+17 involving2024_2, plus the unmodified main-only Lox case. See
+`year1-next-stage-candidate-plan-20261109.json`: this is a scheduling candidate
+plan, not fresh identity/admission or permission to publish/delete. Prepare the
+year1 subset's fresh jobs/indexing/own leases, exact copies and full final Linux/
+limited Windows/host/catalog/API gates without waiting unnecessarily for unrelated
+year2 projects. Preserve Lox's missing-field and all legacy relevance gates;
+no whole-year source retirement can skip those unresolved cases.
+
+The own parent batch summary now reflects year1's completed gates and year2's
+actual progress; no project or location row changed. All older network-outage
+and year1-verifying statements below are historical. Keep the six-hour follow-up
+active and notify on actual checksum/stability milestones and completed reclamation.
+
+## Historical control — 2026-11-08, 08:47 UTC: lab network unreachable
 
 **No fresh remote migration state could be established.** The required
 `status.py` attempt failed with Windows OpenSSH connection timeout to compute.
