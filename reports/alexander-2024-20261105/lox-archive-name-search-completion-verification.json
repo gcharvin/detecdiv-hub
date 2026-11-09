@@ -1,0 +1,36 @@
+{
+  "success": true,
+  "controller_exit": 0,
+  "read_only": true,
+  "finished_at": "2026-11-09T22:17:29.794168+00:00",
+  "roots": [
+    {
+      "root": "/volume1/DATA/Alexander",
+      "directories": 8006,
+      "entries": 7427793,
+      "candidates": 3,
+      "errors": 0,
+      "receipt_sha256": "249594e5ddf1c228615cd7c6a2691a1cc940b752f97b682bac3addbc2d76b05e"
+    },
+    {
+      "root": "/volume1/Sauvegarde/Alexander",
+      "directories": 4070,
+      "entries": 2493049,
+      "candidates": 1,
+      "errors": 0,
+      "receipt_sha256": "0315adfa8dfdcbf49382bfc5ae1a7741c54360d566072e539e9f6117aaeaa225"
+    }
+  ],
+  "entries_examined": 9920842,
+  "all_name_candidates_already_known": true,
+  "primary_known_acquisition_directories": 3,
+  "secondary_known_original_main": 1,
+  "new_matching_archive_or_derived_directories_found": 0,
+  "missing_fields_recovered": false,
+  "strict_project_access_gate_passed": false,
+  "cleanup_gate_passed": false,
+  "scientific_files_loaded": false,
+  "scientific_files_saved": false,
+  "source_deleted": false,
+  "scope_limit": "Directory/main-MAT basenames under the two stated Alexander roots only; hidden metadata, symlinks and snapshots skipped; no search inside compressed archives or differently named scientific projects."
+}

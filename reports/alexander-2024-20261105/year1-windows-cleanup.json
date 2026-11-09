@@ -1,0 +1,15 @@
+{
+  "diagnosticTaskRemoved": true,
+  "workerStateBefore": "Running",
+  "workerStateAfter": "Running",
+  "success": true,
+  "diagnostic_scripts_removed": [
+    "verify_year1_final_hosts.m",
+    "run_year1_final_hosts.py"
+  ],
+  "requests_and_reports_preserved": true,
+  "worker_modified": false,
+  "project_saved": false,
+  "source_deleted": false,
+  "report_sha256": "8b44ea7fa7544681781c1b4cf15e8a0030efb2c04681db6efd8f30b0245b018b"
+}

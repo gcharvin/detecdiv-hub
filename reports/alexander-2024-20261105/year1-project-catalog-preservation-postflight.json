@@ -1,0 +1,15 @@
+{
+  "success": true,
+  "projects": 16,
+  "project_api_routes_verified": 16,
+  "identity_owner_notes_acl_groups_links_preserved": true,
+  "nonpath_metadata_preserved": true,
+  "original_locations_retained": true,
+  "preferred_locations_on_homes2": 16,
+  "own_leases_released": 16,
+  "raw_media_uris_preserved": 1204,
+  "batch_status": "projects_preferred_on_homes2_sources_retained",
+  "source_deleted": false,
+  "actual_2024_bytes_reclaimed": 0,
+  "checked_at": "2026-11-09T22:00:55.996105+00:00"
+}

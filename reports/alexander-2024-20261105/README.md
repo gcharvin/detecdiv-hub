@@ -8,7 +8,98 @@ year/user, original project, NAS snapshot, backup policy, quota, default engine
 or SMB credentials may be changed. The completed 2023 migration is separate;
 never replay any of its one-shot scripts.
 
-## Latest checkpoint — 2026-11-09, 16:00 UTC: integrity passed, publication recovery active
+## Latest checkpoint — 2026-11-09, 22:03 UTC: 16 projects preferred on homes2
+
+The16-project publication and catalog cutover are COMPLETE. Both final host
+validators terminated successfully: Linux16:48:46 UTC and real limited Windows
+GMGM\Charvin-Admin/session1 at16:52:35 UTC. EACH HOST verified16 projects,
+159FOV/50,234ROI/2,059 raw sample reads, all reference/layout baselines, protected
+engine d83c4dbc0638bc0d3f6012b4f1df5744e0c017c7 and unchanged main hashes.
+Public proof: `year1-final-hosts-completion-verification.json`. Linux report SHA
+`d5be16b5f3f6815fcc530f8f21e3d7a918fef6b5ed0cc5953bc472856a5eac56`, Windows
+`8b44ea7fa7544681781c1b4cf15e8a0030efb2c04681db6efd8f30b0245b018b`.
+Do not repeat these successful readers or any copy/relink/publication.
+
+The recovery controller PID61276 stopped at16:15 UTC in its status transport,
+but BOTH already-launched readers continued independently and passed. The
+original error type/frames remain in runtime/year1-advance-recovery-state.json;
+that historical failure is NOT the current migration outcome. No controller was
+restarted and no reader was replayed. Fresh terminal Windows/ASGI reports were
+retrieved and compared exactly. A bounded CATALOG-ONLY continuation reused those
+receipts and fresh admission checks under the STILL VALID original own leases.
+
+At**21:54:18 UTC** the same16 project IDs switched preferred locations to their
+verified homes2 final folders. Original project locations are retained. Child
+`d1d7eff0-bd42-4b50-899f-0c0c9a83e71f` is now
+`projects_preferred_on_homes2_sources_retained`. All16 own leases were released,
+without renewal or touching another holder. Independent readonly postflight at
+22:00 UTC verified all16 API project-detail handlers, preferred paths, original
+locations retained, identity/owner/notes/ACL/groups/links/nonpath metadata
+preserved and all1,204 RAW MEDIA URIs still unchanged. Proofs:
+`year1-project-catalog-cutover-result.json`,
+`year1-project-catalog-preservation-postflight.json`,
+`year1-publication-lease-finalization.json`.
+
+Windows diagnostic cleanup is COMPLETE: only its own task and two pinned scripts
+were removed; requests/results remain, full reports archived in
+runtime/year1-windows-status.json. Worker remained Running and was not modified.
+DO NOT call status on the removed diagnostic task or relaunch it. First cleanup
+refused before mutation because Task Scheduler presents principal as short alias
+Charvin-Admin; distinct v2 required the EXPORTED principal SID to equal explicit
+GMGM\Charvin-Admin, plus Limited/Interactive, correct action, terminal success
+and script hashes, before removal. See `year1-windows-cleanup.json` and
+`year1-windows-cleanup-principal-review.json`. Original refused cleanup preserved.
+
+All1,204 real SOURCE API handlers and full matching homes2 files also verified
+successfully16:18:09 UTC:10,858,665,796 bytes, receipt SHA
+`888be8ae3e5e163887ba196c84655dd929d9b3c0e53c1575310bcd9f9d412722`.
+Independent complete receipt/count/hash check passed; proof
+`year1-api-media-readonly-completion-verification.json`. This is BEFORE media URI
+cutover/source retirement only, not permission to skip their later handler tests.
+Do not replay the completed media actor. Its durable host receipts/results stay.
+
+**No2024 source unlink or raw URI switch has occurred; actual2024 reclaimed0 bytes.**
+2024_2 remains copying in the original runner (61.0693% at21:52 UTC). All original
+projects remain intact. The new explicitly2024-bound tested source-retirement
+controller, fresh complete native manifest, URI continuity and all relevant
+project/access/relevance gates remain required. In particular Lox's15 missing
+fields and legacy33 unreadable/1030 missing/3stubs are not waived by16-project
+success. No place may be claimed from logical migrated byte counts.
+
+Historical launch (now completed as recorded below): NEW bounded readonly Lox archive NAME search:
+`lox-archive-name-search-20261109`, tmux
+`alex2024-lox-archive-name-search-20261109`, source SHA256
+`516b15e7c804d627392b0fc73130b257ea6b921343a6ec22b70ea5aa672f7653`.
+Fresh Lox jobs/indexing/leases admission clear; no lease or scientific writer.
+It scans ONLY Alexander primary and Sauvegarde roots, sequentially, ignoring
+hidden/@/# metadata, snapshots and symlinks, for290424/20240429/LoxP15 directories
+and main MAT names. It reads names/stat only, no MAT/image/secret contents.
+Each root bounded2h; durable primary/secondary receipts/state/controller.exit.
+Do not duplicate or modify its pinned source/request. Inspect each root's errors
+and counters: candidates are NAMES ONLY, never identity/recovery/cleanup proof.
+This is new scope, not a replay of old9-basename searches or shallow parent probes.
+Keep strict_project_access/cleanup gates FALSE for Lox until genuinely qualified.
+
+## Terminal bounded Lox name search — 2026-11-09, 22:17 UTC
+
+The NEW Lox archive directory/main-MAT name scan is now TERMINATED exit0/success,
+not active. It examined9,920,842 entries in12,076 directories across the two stated
+Alexander roots, with zero traversal errors. Its four matches are ONLY the three
+already-known acquisition directories (all present in the initial2024_1 native
+manifest) and the original647,439,730-byte main MAT. No new matching archive or
+derived directory was found. No scientific content was read or recovered.
+See `lox-archive-name-search-completion-verification.json`; both durable receipts
+and counters were independently checked. No duplicate/replay of this scan.
+
+This bounds a name search, not all possible archive contents or renamed projects:
+hidden metadata, symlinks and snapshots were skipped; compressed archives were
+not opened.15 missing even-position fields remain UNRESOLVED, strict access and
+cleanup FALSE. The optional question to Gilles remains unanswered; do not repeat
+it or infer a waiver. Keep source duplicates while those required gates remain
+unqualified, and continue independent year2 preparation/transfers and actual
+retirement-controller work. No2024 bytes have been reclaimed.
+
+## Historical checkpoint — 2026-11-09, 16:00 UTC: integrity passed, publication recovery active
 
 All16 fresh full-copy integrity checks TERMINATED successfully (105,263 files),
 exit0, native originals unchanged, exact target full after-hashes and ownership.

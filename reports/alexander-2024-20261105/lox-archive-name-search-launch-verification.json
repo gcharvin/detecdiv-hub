@@ -1,0 +1,18 @@
+{
+  "launched": true,
+  "work": "/home/charvin-admin/storage-transfers/alexander-2024-20261105/lox-archive-name-search-20261109",
+  "read_only": true,
+  "source_deleted": false,
+  "project_saved": false,
+  "cleanup_gate_passed": false,
+  "source_deletion_allowed": false,
+  "matlab_loading_allowed": false,
+  "runner_sha256": "516b15e7c804d627392b0fc73130b257ea6b921343a6ec22b70ea5aa672f7653",
+  "admission": {
+    "read_only": true,
+    "jobs_leases_indexing_clear": true,
+    "checked_at": "2026-11-09T22:02:28.945944+00:00",
+    "lease_acquired": false
+  },
+  "scope": "New directory/main-file name search for Lox archives only; no content recovery or identity claim"
+}

@@ -1,0 +1,25 @@
+{
+  "success": true,
+  "batch_id": "d1d7eff0-bd42-4b50-899f-0c0c9a83e71f",
+  "own_leases_released": [
+    "3a058744-19a8-4bab-a23d-5f9d5132a450",
+    "3053324b-1466-4595-830f-c39c1afc3473",
+    "7c7c3b06-1633-48a2-a773-fc499e076888",
+    "d11cec88-498f-4e03-b7ab-c95443729b7b",
+    "a8557c76-54e7-49a9-8aee-09bef5b6828b",
+    "77e5d694-c0dd-4f76-af7a-cbedada4be7e",
+    "41fddbcb-8c64-4cfc-95af-97e665b8db20",
+    "6e008c70-5814-4c3f-bd2e-dbf419408c83",
+    "056a585d-4fec-40e5-83f1-916bd583b558",
+    "3a6e48bf-c835-4afe-b29e-524da120916a",
+    "dbfe1552-8e44-4d40-8a54-d2b834036864",
+    "ca04d876-f509-4163-bcfa-1f53ce9bdd95",
+    "91729e6a-1eb6-46a8-b77b-0abc7cab28e3",
+    "e3bdcd09-a41e-40df-8862-cfb8ffd70dcc",
+    "40212323-9fcb-4e21-b5e2-faa446e1b5fe",
+    "a038c636-4398-4991-9a60-40012e33d43a"
+  ],
+  "terminal_batch_status": "projects_preferred_on_homes2_sources_retained",
+  "source_deleted": false,
+  "checked_at": "2026-11-09T21:54:21.977903+00:00"
+}

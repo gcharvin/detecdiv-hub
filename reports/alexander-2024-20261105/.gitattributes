@@ -20,3 +20,7 @@ year1_publication_operations_v2.py -text whitespace=cr-at-eol
 advance_year1_recovery_20261109.py -text whitespace=cr-at-eol
 verify_year1_api_media_readonly.py -text whitespace=cr-at-eol
 launch_year1_api_media_readonly.py -text whitespace=cr-at-eol
+cleanup_year1_final_windows.py -text whitespace=cr-at-eol
+cleanup_year1_final_windows_v2.py -text whitespace=cr-at-eol
+search_lox_archive_names_20261109.py -text whitespace=cr-at-eol
+launch_lox_archive_name_search_20261109.py -text whitespace=cr-at-eol

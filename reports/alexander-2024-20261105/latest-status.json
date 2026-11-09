@@ -35,7 +35,7 @@
     "source_deleted": false,
     "catalog_changed": false,
     "runner_pid": 187291,
-    "heartbeat_at": "2026-11-09T16:09:57.928658+00:00",
+    "heartbeat_at": "2026-11-09T22:32:33.835180+00:00",
     "current_year": "2024_2",
     "inventory_progress": {
       "files": 966284,
@@ -66,8 +66,7 @@
   "project_discovery_exit": "0\n",
   "project_discovery_log_tail": "33)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n[\bWarning: Unable to read some of the variables due to unknown MAT-file error.\n]\b \n[\b> In discover_projects (line 30)]\b \n",
   "sessions": [
-    "alex2024-copy-20261105",
-    "alex2024-year1-final-hosts-20261109"
+    "alex2024-copy-20261105"
   ],
   "project_copy_state": {
     "phase": "failed_safe",
@@ -1378,12 +1377,12 @@
   },
   "year1_final_linux_hosts": {
     "state": {
-      "phase": "validating_final_project_reads",
+      "phase": "final_available_data_reads_and_baselines_verified",
       "host": "linux",
-      "success": false,
+      "success": true,
       "project_saved": false,
       "source_deleted": false,
-      "heartbeat_at": "2026-11-09T16:06:29.213771+00:00",
+      "heartbeat_at": "2026-11-09T16:48:46.743767+00:00",
       "engine_sha": "d83c4dbc0638bc0d3f6012b4f1df5744e0c017c7",
       "engine_release": "/home/charvin-admin/repos/DetecDiv-jobs/releases/d83c4dbc0638bc0d3f6012b4f1df5744e0c017c7",
       "expected": {
@@ -1391,18 +1390,74 @@
         "expected_fovs": 159,
         "expected_rois": 50234,
         "expected_raw_samples": 2059
-      }
+      },
+      "matlab_exit_code": 0,
+      "finished_at": "2026-11-09T16:48:46.742912+00:00",
+      "report_sha256": "d5be16b5f3f6815fcc530f8f21e3d7a918fef6b5ed0cc5953bc472856a5eac56"
     },
     "progress": {
-      "project": "anof_05012024_apx1s_dslog",
-      "project_index": 1,
-      "fov": 9,
-      "fovs": 16,
-      "rois_checked": 2711,
-      "raw_reads": 135,
+      "project": "qp_22032024_DHY210_nts1ng",
+      "project_index": 16,
+      "fov": 2,
+      "fovs": 2,
+      "rois_checked": 442,
+      "raw_reads": 24,
       "project_saved": false
     },
-    "exit": "",
+    "exit": "0\n",
+    "log_tail": ""
+  },
+  "lox_archive_name_search": {
+    "state": {
+      "phase": "readonly_archive_name_search_completed_not_identity_or_cleanup_approval",
+      "read_only": true,
+      "source_deleted": false,
+      "project_saved": false,
+      "cleanup_gate_passed": false,
+      "roots": [
+        {
+          "kind": "complete",
+          "root": "/volume1/DATA/Alexander",
+          "directories": 8006,
+          "entries": 7427793,
+          "candidates": 3,
+          "errors": 0,
+          "hidden_metadata_and_symlinks_skipped": true,
+          "scientific_identity_verified": false,
+          "cleanup_gate_passed": false,
+          "receipt_sha256": "249594e5ddf1c228615cd7c6a2691a1cc940b752f97b682bac3addbc2d76b05e"
+        },
+        {
+          "kind": "complete",
+          "root": "/volume1/Sauvegarde/Alexander",
+          "directories": 4070,
+          "entries": 2493049,
+          "candidates": 1,
+          "errors": 0,
+          "hidden_metadata_and_symlinks_skipped": true,
+          "scientific_identity_verified": false,
+          "cleanup_gate_passed": false,
+          "receipt_sha256": "0315adfa8dfdcbf49382bfc5ae1a7741c54360d566072e539e9f6117aaeaa225"
+        }
+      ],
+      "heartbeat_at": "2026-11-09T22:17:29.794191+00:00",
+      "current_root": "secondary",
+      "child_pid": 1891519,
+      "root_progress": {
+        "kind": "complete",
+        "root": "/volume1/Sauvegarde/Alexander",
+        "directories": 4070,
+        "entries": 2493049,
+        "candidates": 1,
+        "errors": 0,
+        "hidden_metadata_and_symlinks_skipped": true,
+        "scientific_identity_verified": false,
+        "cleanup_gate_passed": false
+      },
+      "success": true,
+      "finished_at": "2026-11-09T22:17:29.794168+00:00"
+    },
+    "exit": "0\n",
     "log_tail": ""
   },
   "lox_metadata_preparation": {
@@ -2972,9 +3027,9 @@
       }
     }
   },
-  "copy_progress_tail": "53, ir-chk=6610/488603)\r2.689.138.151.092  97%   42,25MB/s   16:51:43 (xfr#481354, ir-chk=6609/488603)\r2.689.146.563.200  97%   42,25MB/s   16:51:44 (xfr#481355, ir-chk=6608/488603)\r2.689.146.694.272  97%   24,84MB/s    0:36:29  \r2.689.154.975.308  97%   42,25MB/s   16:51:44 (xfr#481356, ir-chk=6607/488603)\r2.689.163.387.414  97%   42,25MB/s   16:51:45 (xfr#481357, ir-chk=6606/488603)\r2.689.171.799.520  97%   42,25MB/s   16:51:45 (xfr#481358, ir-chk=6605/488603)\r2.689.171.930.592  97%   23,83MB/s    0:38:00  \r2.689.180.211.626  97%   42,25MB/s   16:51:45 (xfr#481359, ir-chk=6604/488603)\r2.689.188.623.732  97%   42,25MB/s   16:51:46 (xfr#481360, ir-chk=6603/488603)\r2.689.197.035.838  97%   42,25MB/s   16:51:46 (xfr#481361, ir-chk=6602/488603)\r2.689.200.214.334  97%   25,55MB/s    0:35:26  \r2.689.205.447.942  97%   42,25MB/s   16:51:46 (xfr#481362, ir-chk=6601/488603)\r2.689.213.860.048  97%   42,25MB/s   16:51:47 (xfr#481363, ir-chk=6600/488603)\r2.689.222.272.156  97%   42,25MB/s   16:51:47 (xfr#481364, ir-chk=6599/488603)\r2.689.223.943.324  97%   22,58MB/s    0:40:04  \r2.689.230.684.264  97%   42,25MB/s   16:51:47 (xfr#481365, ir-chk=6598/488603)\r2.689.239.096.370  97%   42,25MB/s   16:51:48 (xfr#481366, ir-chk=6597/488603)\r2.689.247.508.478  97%   42,25MB/s   16:51:48 (xfr#481367, ir-chk=6596/488603)\r2.689.255.920.586  97%   42,25MB/s   16:51:48 (xfr#481368, ir-chk=6595/488603)",
+  "copy_progress_tail": "29.663.310  99%   48,03MB/s    0:06:49  \r3.693.434.896.582  99%   42,10MB/s   23:14:26 (xfr#600608, ir-chk=5212/606593)\r3.693.443.308.350  99%   42,10MB/s   23:14:26 (xfr#600609, ir-chk=5211/606593)\r3.693.451.720.116  99%   42,10MB/s   23:14:26 (xfr#600610, ir-chk=5210/606593)\r3.693.460.131.884  99%   42,10MB/s   23:14:26 (xfr#600611, ir-chk=5209/606593)\r3.693.468.543.648  99%   42,10MB/s   23:14:26 (xfr#600612, ir-chk=5208/606593)\r3.693.476.955.412  99%   42,10MB/s   23:14:27 (xfr#600613, ir-chk=5207/606593)\r3.693.478.036.756  99%   47,27MB/s    0:06:54  \r3.693.485.367.176  99%   42,10MB/s   23:14:27 (xfr#600614, ir-chk=5206/606593)\r3.693.493.778.944  99%   42,10MB/s   23:14:27 (xfr#600615, ir-chk=5205/606593)\r3.693.502.190.712  99%   42,10MB/s   23:14:27 (xfr#600616, ir-chk=5204/606593)\r3.693.510.602.480  99%   42,10MB/s   23:14:27 (xfr#600617, ir-chk=5203/606593)\r3.693.519.014.248  99%   42,10MB/s   23:14:28 (xfr#600618, ir-chk=5202/606593)\r3.693.527.426.016  99%   42,10MB/s   23:14:28 (xfr#600619, ir-chk=5201/606593)\r3.693.527.458.784  99%   45,91MB/s    0:07:06  \r3.693.535.837.784  99%   42,10MB/s   23:14:28 (xfr#600620, ir-chk=5200/606593)\r3.693.544.249.552  99%   42,10MB/s   23:14:28 (xfr#600621, ir-chk=5199/606593)\r3.693.552.661.318  99%   42,10MB/s   23:14:28 (xfr#600622, ir-chk=5198/606593)\r3.693.561.073.086  99%   42,10MB/s   23:14:28 (xfr#600623, ir-chk=5197/606593)",
   "verification_log_bytes": null,
-  "copy_processes": "187291 python           351968\n1545674 rsync             60710",
+  "copy_processes": "187291 python           374929\n1545674 rsync             83670",
   "project_receipts": 3326,
   "year1_local_continuation": {
     "phase": "stopped_safe_requires_review",
@@ -3009,49 +3064,97 @@
     ]
   },
   "year1_local_recovery_continuation": {
-    "phase": "waiting_final_linux_windows_readers",
+    "phase": "stopped_safe_requires_review",
     "source_deleted": false,
     "catalog_cutover_complete": false,
     "own_leases_finalized": false,
     "pid": 61276,
-    "heartbeat_at": "2026-11-09T16:07:02.608156+00:00",
+    "heartbeat_at": "2026-11-09T16:15:01.427632+00:00",
     "integrity": {
       "exit": "0",
       "phase": "readonly_prepublication_integrity_verified",
       "verified_projects": 16
     },
-    "batch_id": "d1d7eff0-bd42-4b50-899f-0c0c9a83e71f"
+    "batch_id": "d1d7eff0-bd42-4b50-899f-0c0c9a83e71f",
+    "success": false,
+    "error_type": "RuntimeError",
+    "error_frames": [
+      {
+        "file": "C:\\Users\\Gilles\\Documents\\MATLAB\\detecdiv-hub\\reports\\alexander-2024-20261105\\advance_year1_recovery_20261109.py",
+        "line": 80,
+        "function": "main"
+      },
+      {
+        "file": "C:\\Users\\Gilles\\Documents\\MATLAB\\detecdiv-hub\\reports\\alexander-2024-20261105\\year1_publication_operations_v2.py",
+        "line": 189,
+        "function": "hosts_status"
+      },
+      {
+        "file": "C:\\Users\\Gilles\\Documents\\MATLAB\\detecdiv-hub\\reports\\job-force-stop-deployment-20261020\\ops.py",
+        "line": 36,
+        "function": "remote"
+      }
+    ]
+  },
+  "year1_project_publication_completion": {
+    "success": true,
+    "projects": 16,
+    "project_api_routes_verified": 16,
+    "identity_owner_notes_acl_groups_links_preserved": true,
+    "nonpath_metadata_preserved": true,
+    "original_locations_retained": true,
+    "preferred_locations_on_homes2": 16,
+    "own_leases_released": 16,
+    "raw_media_uris_preserved": 1204,
+    "batch_status": "projects_preferred_on_homes2_sources_retained",
+    "source_deleted": false,
+    "actual_2024_bytes_reclaimed": 0,
+    "checked_at": "2026-11-09T22:00:55.996105+00:00"
   },
   "year1_api_media_readonly": {
     "exists": true,
+    "controller_exit": "0",
     "launcher_pid": 1268298,
-    "launcher_process_exists": true,
-    "launcher_command_matches": true,
-    "state_read_exit": 0,
+    "launcher_process_exists": false,
     "state": {
-      "phase": "streaming_real_source_handlers_and_homes2_files",
-      "success": false,
-      "handlers_verified": 544,
+      "phase": "source_api_handlers_and_homes2_content_verified_no_uri_update",
+      "success": true,
+      "handlers_verified": 1204,
       "source_deleted": false,
       "uri_changed": false,
-      "heartbeat_at": "2026-11-09T16:10:12.401771+00:00",
-      "bytes_verified": 4822450646
+      "heartbeat_at": "2026-11-09T16:18:09.604252+00:00",
+      "bytes_verified": 10858665796,
+      "receipt_sha256": "888be8ae3e5e163887ba196c84655dd929d9b3c0e53c1575310bcd9f9d412722",
+      "route_source_sha256": "d9049ec15138947335590f130e7854431ee8322be63f6f87d01162662133b3f1",
+      "finished_at": "2026-11-09T16:18:09.604182+00:00"
     },
-    "durable_log_bytes": 215610,
-    "log_tail": "pi_homes2_full_content_verified\": true, \"inputs_stable\": true}\n{\"kind\": \"artifact\", \"id\": \"6a267d63-1aa1-4f09-ac93-742584b24c45\", \"relative_path\": \"05012024_apx1s_dslog/05012024_apx1s_dslog_1/.detecdiv-previews/raw_05012024_apx1s_dslog_1_2e32cfd329/pos22.mp4\", \"bytes\": 253810, \"sha256\": \"b2dcd457373301d363c5d01fb4cad8444f78170a5acbb65e9f4fe7895b4bf850\", \"real_source_handler_stream_verified\": true, \"api_homes2_full_content_verified\": true, \"inputs_stable\": true}\n{\"kind\": \"artifact\", \"id\": \"6a64239b-a599-41df-9c68-0b0846aa01b7\", \"relative_path\": \"09042024_rms/09042024_rms_1/.detecdiv-previews/raw_09042024_rms_1_af3fe5bf3d/pos29.mp4\", \"bytes\": 393844, \"sha256\": \"06a230c0287a01dbab88490f1768b6560ed02f834a2dbe5f65762da3bf424d1b\", \"real_source_handler_stream_verified\": true, \"api_homes2_full_content_verified\": true, \"inputs_stable\": true}\n{\"kind\": \"artifact\", \"id\": \"6a8abc91-9362-4d36-aa6a-ce7fbb2cc3b8\", \"relative_path\": \"09042024_rms/09042024_rms_1/.detecdiv-previews/raw_09042024_rms_1_af3fe5bf3d/pos28.mp4\", \"bytes\": 395622, \"sha256\": \"7bd96061fb7e15c8f7abccf7b6522d575f9a8f37bf9c180498c9115d3625ac72\", \"real_source_handler_stream_verified\": true, \"api_homes2_full_content_verified\": true, \"inputs_stable\": true}\n{\"kind\": \"artifact\", \"id\": \"6ab06006-8514-4184-af66-befd07eb7570\", \"relative_path\": \"060224_cres/060224_cres_1/.detecdiv-previews/raw_060224_cres_1_448e48f46a/pos31.mp4\", \"bytes\": 404502, \"sha256\": \"9d5c341ac99153eea86f5e913c9a1563ec9b659d32066bfadeb41ec98694fc74\", \"real_source_handler_stream_verified\": true, \"api_homes2_full_content_verified\": true, \"inputs_stable\": true}\n"
+    "result": {
+      "phase": "source_api_handlers_and_homes2_content_verified_no_uri_update",
+      "success": true,
+      "handlers_verified": 1204,
+      "source_deleted": false,
+      "uri_changed": false,
+      "heartbeat_at": "2026-11-09T16:18:09.604252+00:00",
+      "bytes_verified": 10858665796,
+      "receipt_sha256": "888be8ae3e5e163887ba196c84655dd929d9b3c0e53c1575310bcd9f9d412722",
+      "route_source_sha256": "d9049ec15138947335590f130e7854431ee8322be63f6f87d01162662133b3f1",
+      "finished_at": "2026-11-09T16:18:09.604182+00:00"
+    },
+    "durable_log_bytes": 480458,
+    "log_tail": "1\", \"relative_path\": \"060224_cres/060224_cres_3/.detecdiv-previews/raw_060224_cres_3_2af25d625e/pos29.mp4\", \"bytes\": 326811, \"sha256\": \"82ea1bc68c8f9ea3ecb751586f9e128e75907c930acb4a07647d9c5a6f2d5565\", \"real_source_handler_stream_verified\": true, \"api_homes2_full_content_verified\": true, \"inputs_stable\": true}\n{\"kind\": \"artifact\", \"id\": \"ffb2c133-fa5e-4762-adcd-f83d853f7470\", \"relative_path\": \"280224_dhytnl_12rdnars/280224_dhytnl_12rdnars_1/.detecdiv-previews/raw_280224_dhytnl_12rdnars_1_222fab3677/pos6.mp4\", \"bytes\": 402159, \"sha256\": \"e9f18bb1e553cfcb9d6b99d6fd1d13237c0d4beddc4c1b648a773a1095dd05a2\", \"real_source_handler_stream_verified\": true, \"api_homes2_full_content_verified\": true, \"inputs_stable\": true}\n{\"kind\": \"artifact\", \"id\": \"ffeb50bc-1b6c-42d6-ad91-f861235c668b\", \"relative_path\": \"060224_cres/060224_cres_3/.detecdiv-previews/raw_060224_cres_3_2af25d625e/pos6.mp4\", \"bytes\": 379234, \"sha256\": \"3beeb5aeea91724c879980cdc889ac0cc901a9df58a3912b455c8367dcdfac0e\", \"real_source_handler_stream_verified\": true, \"api_homes2_full_content_verified\": true, \"inputs_stable\": true}\n{\"kind\": \"terminal_result\", \"phase\": \"source_api_handlers_and_homes2_content_verified_no_uri_update\", \"success\": true, \"handlers_verified\": 1204, \"source_deleted\": false, \"uri_changed\": false, \"heartbeat_at\": \"2026-11-09T16:18:09.604252+00:00\", \"bytes_verified\": 10858665796, \"receipt_sha256\": \"888be8ae3e5e163887ba196c84655dd929d9b3c0e53c1575310bcd9f9d412722\", \"route_source_sha256\": \"d9049ec15138947335590f130e7854431ee8322be63f6f87d01162662133b3f1\", \"finished_at\": \"2026-11-09T16:18:09.604182+00:00\"}\n"
   },
   "year1_final_windows_hosts_archived": {
     "task": {
-      "state": "Running",
-      "result": 267009
+      "state": "Ready",
+      "result": 0
     },
     "host-windows-state.json": {
-      "phase": "validating_final_project_reads",
+      "phase": "final_available_data_reads_and_baselines_verified",
       "host": "windows",
-      "success": false,
+      "success": true,
       "project_saved": false,
       "source_deleted": false,
-      "heartbeat_at": "2026-11-09T16:07:01.869557+00:00",
+      "heartbeat_at": "2026-11-09T16:52:35.720240+00:00",
       "windows_identity": "gmgm\\charvin-admin",
       "session_id": 1,
       "engine_sha": "d83c4dbc0638bc0d3f6012b4f1df5744e0c017c7",
@@ -3061,18 +3164,21 @@
         "expected_fovs": 159,
         "expected_rois": 50234,
         "expected_raw_samples": 2059
-      }
+      },
+      "matlab_exit_code": 0,
+      "finished_at": "2026-11-09T16:52:35.718838+00:00",
+      "report_sha256": "8b44ea7fa7544681781c1b4cf15e8a0030efb2c04681db6efd8f30b0245b018b"
     },
     "host-windows-progress.json": {
-      "project": "anof_05012024_apx1s_dslog",
-      "project_index": 1,
-      "fov": 6,
-      "fovs": 16,
-      "rois_checked": 1822,
-      "raw_reads": 90,
+      "project": "qp_22032024_DHY210_nts1ng",
+      "project_index": 16,
+      "fov": 2,
+      "fovs": 2,
+      "rois_checked": 442,
+      "raw_reads": 24,
       "project_saved": false
     },
-    "cleanup_receipt_exists": false
+    "cleanup_receipt_exists": true
   },
   "identity_batch2_projects": [
     {
@@ -3525,8 +3631,8 @@
       "error": "Main MAT is not a recognized shallowObj layout"
     }
   ],
-  "copied_bytes": 2689255920586,
-  "copy_percent_of_complete_year": 45.919,
+  "copied_bytes": 3693561073086,
+  "copy_percent_of_complete_year": 63.0675,
   "rsync_display_percent_is_incremental_file_list_not_full_year": true,
-  "checked_at": "2026-11-09T16:10:14.064607+00:00"
+  "checked_at": "2026-11-09T22:32:50.576186+00:00"
 }

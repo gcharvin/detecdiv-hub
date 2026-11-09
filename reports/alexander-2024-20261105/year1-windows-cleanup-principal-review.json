@@ -1,0 +1,10 @@
+{
+  "read_only_diagnosis": true,
+  "first_cleanup_refused_before_mutation": true,
+  "observed_principal_alias": "Charvin-Admin",
+  "run_level": "Limited",
+  "logon_type": "Interactive",
+  "worker_modified": false,
+  "recovery_requires_exported_task_principal_sid_equals_explicit_domain_account": true,
+  "first_cleanup_source_sha256": "66ef058d39f6bef994357de3af77c71831c90850fbeaa07f89ea11c4d0fc2a3b"
+}

@@ -74,6 +74,9 @@ summary['year1_final_linux_hosts']={'state':load('year1-final-hosts-20261109/hos
  'progress':load('year1-final-hosts-20261109/host-linux-progress.json'),
  'exit':tail('year1-final-hosts-20261109/controller.exit'),
  'log_tail':tail('year1-final-hosts-20261109/controller.log',1200)}
+summary['lox_archive_name_search']={'state':load('lox-archive-name-search-20261109/state.json'),
+ 'exit':tail('lox-archive-name-search-20261109/controller.exit'),
+ 'log_tail':tail('lox-archive-name-search-20261109/controller.log',1200)}
 lox_work='lox-metadata-preparation-20261107'
 summary['lox_metadata_preparation']={'exit':tail(lox_work+'/controller.exit'),
  'path_progress':load(lox_work+'/paths/progress.json'),'path_result':load(lox_work+'/paths/result.json'),
@@ -193,6 +196,9 @@ if __name__=='__main__':
     recovery_state=private/'year1-advance-recovery-state.json'
     if recovery_state.exists():
         result['year1_local_recovery_continuation']=json.loads(recovery_state.read_text(encoding='utf-8'))
+    completed=HERE/'year1-project-catalog-preservation-postflight.json'
+    if completed.exists():
+        result['year1_project_publication_completion']=json.loads(completed.read_text(encoding='utf-8'))
     if (HERE/'year1-api-media-readonly-launch-verification.json').exists():
         try:
             from status_year1_api_media import status as api_media_status

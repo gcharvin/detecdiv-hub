@@ -1,0 +1,18 @@
+{
+  "success": true,
+  "scope": "Catalog-only bounded continuation after status transport failure; no reader or scientific writer replay",
+  "prior_controller_pid": 61276,
+  "prior_controller_stopped": true,
+  "both_detached_readers_completed_independently": true,
+  "cross_host_comparison_passed": true,
+  "fresh_admission_rechecked_under_existing_valid_own_leases": true,
+  "lease_deadline_changed": false,
+  "batch_id": "d1d7eff0-bd42-4b50-899f-0c0c9a83e71f",
+  "catalog_committed_at": "2026-11-09T21:54:18.774172+00:00",
+  "projects_preferred_on_homes2": 16,
+  "own_leases_released": 16,
+  "independent_catalog_postflight_passed": true,
+  "diagnostic_cleanup_complete": true,
+  "source_deleted": false,
+  "actual_2024_bytes_reclaimed": 0
+}

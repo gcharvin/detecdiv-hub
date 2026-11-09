@@ -1,0 +1,1461 @@
+{
+  "success": true,
+  "projects": 16,
+  "fovs": 159,
+  "rois": 50234,
+  "raw_sample_reads_per_host": 2059,
+  "linux_windows_available_data_and_baselines_equal": true,
+  "project_saved": false,
+  "source_deleted": false,
+  "project_reports": [
+    {
+      "project_id": "19037bd1-e966-428f-96f8-2a7166c7bc9e",
+      "name": "anof_05012024_apx1s_dslog",
+      "fovs": 16,
+      "rois": 4831,
+      "raw_sample_reads": 240,
+      "roi_representative_reads": 16,
+      "images_present": 4831,
+      "images_previously_absent": 0,
+      "results_present": 4831,
+      "data_present": 0,
+      "blank_paths_preserved": 0,
+      "historical_missing_raw_paths_preserved": 0,
+      "historical_cache_size_mismatches_preserved": 0,
+      "processors_verified": 0,
+      "main_sha256_unchanged": "d248c9bbb2838753dfab6cfae7feea9db79ea77e7d379f86fcc48f71354cd195",
+      "field_results": [
+        {
+          "fov": 1,
+          "roi_representative_read": true,
+          "raw_sample_reads": 15,
+          "engine_reader_verified": true,
+          "availability_baseline_preserved": true
+        },
+        {
+          "fov": 2,
+          "roi_representative_read": true,
+          "raw_sample_reads": 15,
+          "engine_reader_verified": true,
+          "availability_baseline_preserved": true
+        },
+        {
+          "fov": 3,
+          "roi_representative_read": true,
+          "raw_sample_reads": 15,
+          "engine_reader_verified": true,
+          "availability_baseline_preserved": true
+        },
+        {
+          "fov": 4,
+          "roi_representative_read": true,
+          "raw_sample_reads": 15,
+          "engine_reader_verified": true,
+          "availability_baseline_preserved": true
+        },
+        {
+          "fov": 5,
+          "roi_representative_read": true,
+          "raw_sample_reads": 15,
+          "engine_reader_verified": true,
+          "availability_baseline_preserved": true
+        },
+        {
+          "fov": 6,
+          "roi_representative_read": true,
+          "raw_sample_reads": 15,
+          "engine_reader_verified": true,
+          "availability_baseline_preserved": true
+        },
+        {
+          "fov": 7,
+          "roi_representative_read": true,
+          "raw_sample_reads": 15,
+          "engine_reader_verified": true,
+          "availability_baseline_preserved": true
+        },
+        {
+          "fov": 8,
+          "roi_representative_read": true,
+          "raw_sample_reads": 15,
+          "engine_reader_verified": true,
+          "availability_baseline_preserved": true
+        },
+        {
+          "fov": 9,
+          "roi_representative_read": true,
+          "raw_sample_reads": 15,
+          "engine_reader_verified": true,
+          "availability_baseline_preserved": true
+        },
+        {
+          "fov": 10,
+          "roi_representative_read": true,
+          "raw_sample_reads": 15,
+          "engine_reader_verified": true,
+          "availability_baseline_preserved": true
+        },
+        {
+          "fov": 11,
+          "roi_representative_read": true,
+          "raw_sample_reads": 15,
+          "engine_reader_verified": true,
+          "availability_baseline_preserved": true
+        },
+        {
+          "fov": 12,
+          "roi_representative_read": true,
+          "raw_sample_reads": 15,
+          "engine_reader_verified": true,
+          "availability_baseline_preserved": true
+        },
+        {
+          "fov": 13,
+          "roi_representative_read": true,
+          "raw_sample_reads": 15,
+          "engine_reader_verified": true,
+          "availability_baseline_preserved": true
+        },
+        {
+          "fov": 14,
+          "roi_representative_read": true,
+          "raw_sample_reads": 15,
+          "engine_reader_verified": true,
+          "availability_baseline_preserved": true
+        },
+        {
+          "fov": 15,
+          "roi_representative_read": true,
+          "raw_sample_reads": 15,
+          "engine_reader_verified": true,
+          "availability_baseline_preserved": true
+        },
+        {
+          "fov": 16,
+          "roi_representative_read": true,
+          "raw_sample_reads": 15,
+          "engine_reader_verified": true,
+          "availability_baseline_preserved": true
+        }
+      ],
+      "availability_baseline_preserved": true,
+      "project_saved": false
+    },
+    {
+      "project_id": "6f6f408d-ebe7-4115-a537-f35f5cdb6ed2",
+      "name": "anof_060224_cres",
+      "fovs": 3,
+      "rois": 1188,
+      "raw_sample_reads": 33,
+      "roi_representative_reads": 3,
+      "images_present": 1188,
+      "images_previously_absent": 0,
+      "results_present": 1188,
+      "data_present": 796,
+      "blank_paths_preserved": 0,
+      "historical_missing_raw_paths_preserved": 9,
+      "historical_cache_size_mismatches_preserved": 27,
+      "processors_verified": 3,
+      "main_sha256_unchanged": "b692c45f364247cffaf6dd4b967cedf2d85e714db77ec61fcd84e8b924b707c1",
+      "field_results": [
+        {
+          "fov": 1,
+          "roi_representative_read": true,
+          "raw_sample_reads": 11,
+          "engine_reader_verified": true,
+          "availability_baseline_preserved": true
+        },
+        {
+          "fov": 2,
+          "roi_representative_read": true,
+          "raw_sample_reads": 11,
+          "engine_reader_verified": true,
+          "availability_baseline_preserved": true
+        },
+        {
+          "fov": 3,
+          "roi_representative_read": true,
+          "raw_sample_reads": 11,
+          "engine_reader_verified": true,
+          "availability_baseline_preserved": true
+        }
+      ],
+      "availability_baseline_preserved": true,
+      "project_saved": false
+    },
+    {
+      "project_id": "e0d02751-28b3-4b3e-a74c-0dfd00b37803",
+      "name": "anof_060224_cres_1002",
+      "fovs": 12,
+      "rois": 4821,
+      "raw_sample_reads": 144,
+      "roi_representative_reads": 12,
+      "images_present": 4821,
+      "images_previously_absent": 0,
+      "results_present": 4821,
+      "data_present": 2800,
+      "blank_paths_preserved": 0,
+      "historical_missing_raw_paths_preserved": 0,
+      "historical_cache_size_mismatches_preserved": 0,
+      "processors_verified": 2,
+      "main_sha256_unchanged": "8a6d58ec22adb60ac0d0e4dffbebb2ba825a12e2c42f088bc07def14d699755a",
+      "field_results": [
+        {
+          "fov": 1,
+          "roi_representative_read": true,
+          "raw_sample_reads": 12,
+          "engine_reader_verified": true,
+          "availability_baseline_preserved": true
+        },
+        {
+          "fov": 2,
+          "roi_representative_read": true,
+          "raw_sample_reads": 12,
+          "engine_reader_verified": true,
+          "availability_baseline_preserved": true
+        },
+        {
+          "fov": 3,
+          "roi_representative_read": true,
+          "raw_sample_reads": 12,
+          "engine_reader_verified": true,
+          "availability_baseline_preserved": true
+        },
+        {
+          "fov": 4,
+          "roi_representative_read": true,
+          "raw_sample_reads": 12,
+          "engine_reader_verified": true,
+          "availability_baseline_preserved": true
+        },
+        {
+          "fov": 5,
+          "roi_representative_read": true,
+          "raw_sample_reads": 12,
+          "engine_reader_verified": true,
+          "availability_baseline_preserved": true
+        },
+        {
+          "fov": 6,
+          "roi_representative_read": true,
+          "raw_sample_reads": 12,
+          "engine_reader_verified": true,
+          "availability_baseline_preserved": true
+        },
+        {
+          "fov": 7,
+          "roi_representative_read": true,
+          "raw_sample_reads": 12,
+          "engine_reader_verified": true,
+          "availability_baseline_preserved": true
+        },
+        {
+          "fov": 8,
+          "roi_representative_read": true,
+          "raw_sample_reads": 12,
+          "engine_reader_verified": true,
+          "availability_baseline_preserved": true
+        },
+        {
+          "fov": 9,
+          "roi_representative_read": true,
+          "raw_sample_reads": 12,
+          "engine_reader_verified": true,
+          "availability_baseline_preserved": true
+        },
+        {
+          "fov": 10,
+          "roi_representative_read": true,
+          "raw_sample_reads": 12,
+          "engine_reader_verified": true,
+          "availability_baseline_preserved": true
+        },
+        {
+          "fov": 11,
+          "roi_representative_read": true,
+          "raw_sample_reads": 12,
+          "engine_reader_verified": true,
+          "availability_baseline_preserved": true
+        },
+        {
+          "fov": 12,
+          "roi_representative_read": true,
+          "raw_sample_reads": 12,
+          "engine_reader_verified": true,
+          "availability_baseline_preserved": true
+        }
+      ],
+      "availability_baseline_preserved": true,
+      "project_saved": false
+    },
+    {
+      "project_id": "c48f9cff-6625-4dad-9597-a8796fe2824f",
+      "name": "anof_060224_cres_ARS1",
+      "fovs": 2,
+      "rois": 746,
+      "raw_sample_reads": 22,
+      "roi_representative_reads": 2,
+      "images_present": 746,
+      "images_previously_absent": 0,
+      "results_present": 746,
+      "data_present": 746,
+      "blank_paths_preserved": 0,
+      "historical_missing_raw_paths_preserved": 6,
+      "historical_cache_size_mismatches_preserved": 18,
+      "processors_verified": 2,
+      "main_sha256_unchanged": "b038ed7e4b1ec3c6db2b27085620e9d63ff44a498e673dbc12831991d79838e8",
+      "field_results": [
+        {
+          "fov": 1,
+          "roi_representative_read": true,
+          "raw_sample_reads": 11,
+          "engine_reader_verified": true,
+          "availability_baseline_preserved": true
+        },
+        {
+          "fov": 2,
+          "roi_representative_read": true,
+          "raw_sample_reads": 11,
+          "engine_reader_verified": true,
+          "availability_baseline_preserved": true
+        }
+      ],
+      "availability_baseline_preserved": true,
+      "project_saved": false
+    },
+    {
+      "project_id": "bec9b2cf-656d-417a-b424-2d3e7cbf316c",
+      "name": "anof_06032024_diplNTSNG_K3s",
+      "fovs": 17,
+      "rois": 3339,
+      "raw_sample_reads": 204,
+      "roi_representative_reads": 17,
+      "images_present": 3339,
+      "images_previously_absent": 0,
+      "results_present": 3339,
+      "data_present": 2868,
+      "blank_paths_preserved": 0,
+      "historical_missing_raw_paths_preserved": 0,
+      "historical_cache_size_mismatches_preserved": 0,
+      "processors_verified": 3,
+      "main_sha256_unchanged": "97e2757c9b972fed11daebc38a88bd0e205ddc3be43423c513bc13806969eeb6",
+      "field_results": [
+        {
+          "fov": 1,
+          "roi_representative_read": true,
+          "raw_sample_reads": 12,
+          "engine_reader_verified": true,
+          "availability_baseline_preserved": true
+        },
+        {
+          "fov": 2,
+          "roi_representative_read": true,
+          "raw_sample_reads": 12,
+          "engine_reader_verified": true,
+          "availability_baseline_preserved": true
+        },
+        {
+          "fov": 3,
+          "roi_representative_read": true,
+          "raw_sample_reads": 12,
+          "engine_reader_verified": true,
+          "availability_baseline_preserved": true
+        },
+        {
+          "fov": 4,
+          "roi_representative_read": true,
+          "raw_sample_reads": 12,
+          "engine_reader_verified": true,
+          "availability_baseline_preserved": true
+        },
+        {
+          "fov": 5,
+          "roi_representative_read": true,
+          "raw_sample_reads": 12,
+          "engine_reader_verified": true,
+          "availability_baseline_preserved": true
+        },
+        {
+          "fov": 6,
+          "roi_representative_read": true,
+          "raw_sample_reads": 12,
+          "engine_reader_verified": true,
+          "availability_baseline_preserved": true
+        },
+        {
+          "fov": 7,
+          "roi_representative_read": true,
+          "raw_sample_reads": 12,
+          "engine_reader_verified": true,
+          "availability_baseline_preserved": true
+        },
+        {
+          "fov": 8,
+          "roi_representative_read": true,
+          "raw_sample_reads": 12,
+          "engine_reader_verified": true,
+          "availability_baseline_preserved": true
+        },
+        {
+          "fov": 9,
+          "roi_representative_read": true,
+          "raw_sample_reads": 12,
+          "engine_reader_verified": true,
+          "availability_baseline_preserved": true
+        },
+        {
+          "fov": 10,
+          "roi_representative_read": true,
+          "raw_sample_reads": 12,
+          "engine_reader_verified": true,
+          "availability_baseline_preserved": true
+        },
+        {
+          "fov": 11,
+          "roi_representative_read": true,
+          "raw_sample_reads": 12,
+          "engine_reader_verified": true,
+          "availability_baseline_preserved": true
+        },
+        {
+          "fov": 12,
+          "roi_representative_read": true,
+          "raw_sample_reads": 12,
+          "engine_reader_verified": true,
+          "availability_baseline_preserved": true
+        },
+        {
+          "fov": 13,
+          "roi_representative_read": true,
+          "raw_sample_reads": 12,
+          "engine_reader_verified": true,
+          "availability_baseline_preserved": true
+        },
+        {
+          "fov": 14,
+          "roi_representative_read": true,
+          "raw_sample_reads": 12,
+          "engine_reader_verified": true,
+          "availability_baseline_preserved": true
+        },
+        {
+          "fov": 15,
+          "roi_representative_read": true,
+          "raw_sample_reads": 12,
+          "engine_reader_verified": true,
+          "availability_baseline_preserved": true
+        },
+        {
+          "fov": 16,
+          "roi_representative_read": true,
+          "raw_sample_reads": 12,
+          "engine_reader_verified": true,
+          "availability_baseline_preserved": true
+        },
+        {
+          "fov": 17,
+          "roi_representative_read": true,
+          "raw_sample_reads": 12,
+          "engine_reader_verified": true,
+          "availability_baseline_preserved": true
+        }
+      ],
+      "availability_baseline_preserved": true,
+      "project_saved": false
+    },
+    {
+      "project_id": "e6f6b263-dae2-4670-ac85-280abc4f38a2",
+      "name": "anof_070424_iRFPtest",
+      "fovs": 5,
+      "rois": 1929,
+      "raw_sample_reads": 90,
+      "roi_representative_reads": 5,
+      "images_present": 1929,
+      "images_previously_absent": 0,
+      "results_present": 1929,
+      "data_present": 0,
+      "blank_paths_preserved": 0,
+      "historical_missing_raw_paths_preserved": 0,
+      "historical_cache_size_mismatches_preserved": 0,
+      "processors_verified": 2,
+      "main_sha256_unchanged": "812180824826616a2493ef7ab2203c83bdb3aa2e788fd943a998e433391856ad",
+      "field_results": [
+        {
+          "fov": 1,
+          "roi_representative_read": true,
+          "raw_sample_reads": 18,
+          "engine_reader_verified": true,
+          "availability_baseline_preserved": true
+        },
+        {
+          "fov": 2,
+          "roi_representative_read": true,
+          "raw_sample_reads": 18,
+          "engine_reader_verified": true,
+          "availability_baseline_preserved": true
+        },
+        {
+          "fov": 3,
+          "roi_representative_read": true,
+          "raw_sample_reads": 18,
+          "engine_reader_verified": true,
+          "availability_baseline_preserved": true
+        },
+        {
+          "fov": 4,
+          "roi_representative_read": true,
+          "raw_sample_reads": 18,
+          "engine_reader_verified": true,
+          "availability_baseline_preserved": true
+        },
+        {
+          "fov": 5,
+          "roi_representative_read": true,
+          "raw_sample_reads": 18,
+          "engine_reader_verified": true,
+          "availability_baseline_preserved": true
+        }
+      ],
+      "availability_baseline_preserved": true,
+      "project_saved": false
+    },
+    {
+      "project_id": "53a6c0c1-f887-44da-ae8c-a0018e46064e",
+      "name": "anof_130224_dfob_rep_dslog_new",
+      "fovs": 16,
+      "rois": 7562,
+      "raw_sample_reads": 240,
+      "roi_representative_reads": 16,
+      "images_present": 7562,
+      "images_previously_absent": 0,
+      "results_present": 7562,
+      "data_present": 0,
+      "blank_paths_preserved": 0,
+      "historical_missing_raw_paths_preserved": 0,
+      "historical_cache_size_mismatches_preserved": 0,
+      "processors_verified": 0,
+      "main_sha256_unchanged": "0b83bf4ad74134fdc98c753325736e3782561a4b28800e8ce58c2a39bc970d35",
+      "field_results": [
+        {
+          "fov": 1,
+          "roi_representative_read": true,
+          "raw_sample_reads": 15,
+          "engine_reader_verified": true,
+          "availability_baseline_preserved": true
+        },
+        {
+          "fov": 2,
+          "roi_representative_read": true,
+          "raw_sample_reads": 15,
+          "engine_reader_verified": true,
+          "availability_baseline_preserved": true
+        },
+        {
+          "fov": 3,
+          "roi_representative_read": true,
+          "raw_sample_reads": 15,
+          "engine_reader_verified": true,
+          "availability_baseline_preserved": true
+        },
+        {
+          "fov": 4,
+          "roi_representative_read": true,
+          "raw_sample_reads": 15,
+          "engine_reader_verified": true,
+          "availability_baseline_preserved": true
+        },
+        {
+          "fov": 5,
+          "roi_representative_read": true,
+          "raw_sample_reads": 15,
+          "engine_reader_verified": true,
+          "availability_baseline_preserved": true
+        },
+        {
+          "fov": 6,
+          "roi_representative_read": true,
+          "raw_sample_reads": 15,
+          "engine_reader_verified": true,
+          "availability_baseline_preserved": true
+        },
+        {
+          "fov": 7,
+          "roi_representative_read": true,
+          "raw_sample_reads": 15,
+          "engine_reader_verified": true,
+          "availability_baseline_preserved": true
+        },
+        {
+          "fov": 8,
+          "roi_representative_read": true,
+          "raw_sample_reads": 15,
+          "engine_reader_verified": true,
+          "availability_baseline_preserved": true
+        },
+        {
+          "fov": 9,
+          "roi_representative_read": true,
+          "raw_sample_reads": 15,
+          "engine_reader_verified": true,
+          "availability_baseline_preserved": true
+        },
+        {
+          "fov": 10,
+          "roi_representative_read": true,
+          "raw_sample_reads": 15,
+          "engine_reader_verified": true,
+          "availability_baseline_preserved": true
+        },
+        {
+          "fov": 11,
+          "roi_representative_read": true,
+          "raw_sample_reads": 15,
+          "engine_reader_verified": true,
+          "availability_baseline_preserved": true
+        },
+        {
+          "fov": 12,
+          "roi_representative_read": true,
+          "raw_sample_reads": 15,
+          "engine_reader_verified": true,
+          "availability_baseline_preserved": true
+        },
+        {
+          "fov": 13,
+          "roi_representative_read": true,
+          "raw_sample_reads": 15,
+          "engine_reader_verified": true,
+          "availability_baseline_preserved": true
+        },
+        {
+          "fov": 14,
+          "roi_representative_read": true,
+          "raw_sample_reads": 15,
+          "engine_reader_verified": true,
+          "availability_baseline_preserved": true
+        },
+        {
+          "fov": 15,
+          "roi_representative_read": true,
+          "raw_sample_reads": 15,
+          "engine_reader_verified": true,
+          "availability_baseline_preserved": true
+        },
+        {
+          "fov": 16,
+          "roi_representative_read": true,
+          "raw_sample_reads": 15,
+          "engine_reader_verified": true,
+          "availability_baseline_preserved": true
+        }
+      ],
+      "availability_baseline_preserved": true,
+      "project_saved": false
+    },
+    {
+      "project_id": "f004e8df-29f0-4303-85fe-9cf50e3d4dbc",
+      "name": "anof_22032024_DHY210_nts1ng",
+      "fovs": 20,
+      "rois": 4487,
+      "raw_sample_reads": 240,
+      "roi_representative_reads": 20,
+      "images_present": 4487,
+      "images_previously_absent": 0,
+      "results_present": 4487,
+      "data_present": 4487,
+      "blank_paths_preserved": 0,
+      "historical_missing_raw_paths_preserved": 0,
+      "historical_cache_size_mismatches_preserved": 0,
+      "processors_verified": 2,
+      "main_sha256_unchanged": "0e8c60cca840b67d3d6fb94f033424d745d0de234dd50ea16bc09ed1f2208a1f",
+      "field_results": [
+        {
+          "fov": 1,
+          "roi_representative_read": true,
+          "raw_sample_reads": 12,
+          "engine_reader_verified": true,
+          "availability_baseline_preserved": true
+        },
+        {
+          "fov": 2,
+          "roi_representative_read": true,
+          "raw_sample_reads": 12,
+          "engine_reader_verified": true,
+          "availability_baseline_preserved": true
+        },
+        {
+          "fov": 3,
+          "roi_representative_read": true,
+          "raw_sample_reads": 12,
+          "engine_reader_verified": true,
+          "availability_baseline_preserved": true
+        },
+        {
+          "fov": 4,
+          "roi_representative_read": true,
+          "raw_sample_reads": 12,
+          "engine_reader_verified": true,
+          "availability_baseline_preserved": true
+        },
+        {
+          "fov": 5,
+          "roi_representative_read": true,
+          "raw_sample_reads": 12,
+          "engine_reader_verified": true,
+          "availability_baseline_preserved": true
+        },
+        {
+          "fov": 6,
+          "roi_representative_read": true,
+          "raw_sample_reads": 12,
+          "engine_reader_verified": true,
+          "availability_baseline_preserved": true
+        },
+        {
+          "fov": 7,
+          "roi_representative_read": true,
+          "raw_sample_reads": 12,
+          "engine_reader_verified": true,
+          "availability_baseline_preserved": true
+        },
+        {
+          "fov": 8,
+          "roi_representative_read": true,
+          "raw_sample_reads": 12,
+          "engine_reader_verified": true,
+          "availability_baseline_preserved": true
+        },
+        {
+          "fov": 9,
+          "roi_representative_read": true,
+          "raw_sample_reads": 12,
+          "engine_reader_verified": true,
+          "availability_baseline_preserved": true
+        },
+        {
+          "fov": 10,
+          "roi_representative_read": true,
+          "raw_sample_reads": 12,
+          "engine_reader_verified": true,
+          "availability_baseline_preserved": true
+        },
+        {
+          "fov": 11,
+          "roi_representative_read": true,
+          "raw_sample_reads": 12,
+          "engine_reader_verified": true,
+          "availability_baseline_preserved": true
+        },
+        {
+          "fov": 12,
+          "roi_representative_read": true,
+          "raw_sample_reads": 12,
+          "engine_reader_verified": true,
+          "availability_baseline_preserved": true
+        },
+        {
+          "fov": 13,
+          "roi_representative_read": true,
+          "raw_sample_reads": 12,
+          "engine_reader_verified": true,
+          "availability_baseline_preserved": true
+        },
+        {
+          "fov": 14,
+          "roi_representative_read": true,
+          "raw_sample_reads": 12,
+          "engine_reader_verified": true,
+          "availability_baseline_preserved": true
+        },
+        {
+          "fov": 15,
+          "roi_representative_read": true,
+          "raw_sample_reads": 12,
+          "engine_reader_verified": true,
+          "availability_baseline_preserved": true
+        },
+        {
+          "fov": 16,
+          "roi_representative_read": true,
+          "raw_sample_reads": 12,
+          "engine_reader_verified": true,
+          "availability_baseline_preserved": true
+        },
+        {
+          "fov": 17,
+          "roi_representative_read": true,
+          "raw_sample_reads": 12,
+          "engine_reader_verified": true,
+          "availability_baseline_preserved": true
+        },
+        {
+          "fov": 18,
+          "roi_representative_read": true,
+          "raw_sample_reads": 12,
+          "engine_reader_verified": true,
+          "availability_baseline_preserved": true
+        },
+        {
+          "fov": 19,
+          "roi_representative_read": true,
+          "raw_sample_reads": 12,
+          "engine_reader_verified": true,
+          "availability_baseline_preserved": true
+        },
+        {
+          "fov": 20,
+          "roi_representative_read": true,
+          "raw_sample_reads": 12,
+          "engine_reader_verified": true,
+          "availability_baseline_preserved": true
+        }
+      ],
+      "availability_baseline_preserved": true,
+      "project_saved": false
+    },
+    {
+      "project_id": "902b3fa9-d703-49d4-92b7-bf5f75eac4ef",
+      "name": "anof_230124_RMng",
+      "fovs": 7,
+      "rois": 3122,
+      "raw_sample_reads": 84,
+      "roi_representative_reads": 0,
+      "images_present": 0,
+      "images_previously_absent": 3122,
+      "results_present": 0,
+      "data_present": 0,
+      "blank_paths_preserved": 0,
+      "historical_missing_raw_paths_preserved": 0,
+      "historical_cache_size_mismatches_preserved": 0,
+      "processors_verified": 0,
+      "main_sha256_unchanged": "68684e3d051071dfdd7b45515a07a5a8add94792422c50d6374b741e56f18911",
+      "field_results": [
+        {
+          "fov": 1,
+          "roi_representative_read": false,
+          "raw_sample_reads": 12,
+          "engine_reader_verified": true,
+          "availability_baseline_preserved": true
+        },
+        {
+          "fov": 2,
+          "roi_representative_read": false,
+          "raw_sample_reads": 12,
+          "engine_reader_verified": true,
+          "availability_baseline_preserved": true
+        },
+        {
+          "fov": 3,
+          "roi_representative_read": false,
+          "raw_sample_reads": 12,
+          "engine_reader_verified": true,
+          "availability_baseline_preserved": true
+        },
+        {
+          "fov": 4,
+          "roi_representative_read": false,
+          "raw_sample_reads": 12,
+          "engine_reader_verified": true,
+          "availability_baseline_preserved": true
+        },
+        {
+          "fov": 5,
+          "roi_representative_read": false,
+          "raw_sample_reads": 12,
+          "engine_reader_verified": true,
+          "availability_baseline_preserved": true
+        },
+        {
+          "fov": 6,
+          "roi_representative_read": false,
+          "raw_sample_reads": 12,
+          "engine_reader_verified": true,
+          "availability_baseline_preserved": true
+        },
+        {
+          "fov": 7,
+          "roi_representative_read": false,
+          "raw_sample_reads": 12,
+          "engine_reader_verified": true,
+          "availability_baseline_preserved": true
+        }
+      ],
+      "availability_baseline_preserved": true,
+      "project_saved": false
+    },
+    {
+      "project_id": "9f6b8ef9-f078-4ff5-b91f-7b8a25000951",
+      "name": "anof_230124_dhyD_LOG24",
+      "fovs": 8,
+      "rois": 2878,
+      "raw_sample_reads": 120,
+      "roi_representative_reads": 8,
+      "images_present": 2878,
+      "images_previously_absent": 0,
+      "results_present": 2878,
+      "data_present": 0,
+      "blank_paths_preserved": 0,
+      "historical_missing_raw_paths_preserved": 0,
+      "historical_cache_size_mismatches_preserved": 0,
+      "processors_verified": 0,
+      "main_sha256_unchanged": "ba04c8de02cb4b470055aa5e8a88b6707f6acb09b5a619e4b28ab1de1b21c4d8",
+      "field_results": [
+        {
+          "fov": 1,
+          "roi_representative_read": true,
+          "raw_sample_reads": 15,
+          "engine_reader_verified": true,
+          "availability_baseline_preserved": true
+        },
+        {
+          "fov": 2,
+          "roi_representative_read": true,
+          "raw_sample_reads": 15,
+          "engine_reader_verified": true,
+          "availability_baseline_preserved": true
+        },
+        {
+          "fov": 3,
+          "roi_representative_read": true,
+          "raw_sample_reads": 15,
+          "engine_reader_verified": true,
+          "availability_baseline_preserved": true
+        },
+        {
+          "fov": 4,
+          "roi_representative_read": true,
+          "raw_sample_reads": 15,
+          "engine_reader_verified": true,
+          "availability_baseline_preserved": true
+        },
+        {
+          "fov": 5,
+          "roi_representative_read": true,
+          "raw_sample_reads": 15,
+          "engine_reader_verified": true,
+          "availability_baseline_preserved": true
+        },
+        {
+          "fov": 6,
+          "roi_representative_read": true,
+          "raw_sample_reads": 15,
+          "engine_reader_verified": true,
+          "availability_baseline_preserved": true
+        },
+        {
+          "fov": 7,
+          "roi_representative_read": true,
+          "raw_sample_reads": 15,
+          "engine_reader_verified": true,
+          "availability_baseline_preserved": true
+        },
+        {
+          "fov": 8,
+          "roi_representative_read": true,
+          "raw_sample_reads": 15,
+          "engine_reader_verified": true,
+          "availability_baseline_preserved": true
+        }
+      ],
+      "availability_baseline_preserved": true,
+      "project_saved": false
+    },
+    {
+      "project_id": "e98ed5ba-a40d-4abc-a1c2-441c6587cf2e",
+      "name": "anof_230124_nh52",
+      "fovs": 14,
+      "rois": 5208,
+      "raw_sample_reads": 210,
+      "roi_representative_reads": 14,
+      "images_present": 5208,
+      "images_previously_absent": 0,
+      "results_present": 5208,
+      "data_present": 0,
+      "blank_paths_preserved": 0,
+      "historical_missing_raw_paths_preserved": 0,
+      "historical_cache_size_mismatches_preserved": 0,
+      "processors_verified": 0,
+      "main_sha256_unchanged": "17c5ac327e9b4e08c9bbdd1aa265620ec81fdd303e19f828f23a86d01811b763",
+      "field_results": [
+        {
+          "fov": 1,
+          "roi_representative_read": true,
+          "raw_sample_reads": 15,
+          "engine_reader_verified": true,
+          "availability_baseline_preserved": true
+        },
+        {
+          "fov": 2,
+          "roi_representative_read": true,
+          "raw_sample_reads": 15,
+          "engine_reader_verified": true,
+          "availability_baseline_preserved": true
+        },
+        {
+          "fov": 3,
+          "roi_representative_read": true,
+          "raw_sample_reads": 15,
+          "engine_reader_verified": true,
+          "availability_baseline_preserved": true
+        },
+        {
+          "fov": 4,
+          "roi_representative_read": true,
+          "raw_sample_reads": 15,
+          "engine_reader_verified": true,
+          "availability_baseline_preserved": true
+        },
+        {
+          "fov": 5,
+          "roi_representative_read": true,
+          "raw_sample_reads": 15,
+          "engine_reader_verified": true,
+          "availability_baseline_preserved": true
+        },
+        {
+          "fov": 6,
+          "roi_representative_read": true,
+          "raw_sample_reads": 15,
+          "engine_reader_verified": true,
+          "availability_baseline_preserved": true
+        },
+        {
+          "fov": 7,
+          "roi_representative_read": true,
+          "raw_sample_reads": 15,
+          "engine_reader_verified": true,
+          "availability_baseline_preserved": true
+        },
+        {
+          "fov": 8,
+          "roi_representative_read": true,
+          "raw_sample_reads": 15,
+          "engine_reader_verified": true,
+          "availability_baseline_preserved": true
+        },
+        {
+          "fov": 9,
+          "roi_representative_read": true,
+          "raw_sample_reads": 15,
+          "engine_reader_verified": true,
+          "availability_baseline_preserved": true
+        },
+        {
+          "fov": 10,
+          "roi_representative_read": true,
+          "raw_sample_reads": 15,
+          "engine_reader_verified": true,
+          "availability_baseline_preserved": true
+        },
+        {
+          "fov": 11,
+          "roi_representative_read": true,
+          "raw_sample_reads": 15,
+          "engine_reader_verified": true,
+          "availability_baseline_preserved": true
+        },
+        {
+          "fov": 12,
+          "roi_representative_read": true,
+          "raw_sample_reads": 15,
+          "engine_reader_verified": true,
+          "availability_baseline_preserved": true
+        },
+        {
+          "fov": 13,
+          "roi_representative_read": true,
+          "raw_sample_reads": 15,
+          "engine_reader_verified": true,
+          "availability_baseline_preserved": true
+        },
+        {
+          "fov": 14,
+          "roi_representative_read": true,
+          "raw_sample_reads": 15,
+          "engine_reader_verified": true,
+          "availability_baseline_preserved": true
+        }
+      ],
+      "availability_baseline_preserved": true,
+      "project_saved": false
+    },
+    {
+      "project_id": "23c9f497-021f-4dbb-8e3c-5f50032096ac",
+      "name": "anof_280224_12rdnars",
+      "fovs": 8,
+      "rois": 2754,
+      "raw_sample_reads": 96,
+      "roi_representative_reads": 8,
+      "images_present": 2754,
+      "images_previously_absent": 0,
+      "results_present": 2754,
+      "data_present": 0,
+      "blank_paths_preserved": 0,
+      "historical_missing_raw_paths_preserved": 0,
+      "historical_cache_size_mismatches_preserved": 0,
+      "processors_verified": 1,
+      "main_sha256_unchanged": "bdf5a9effcabf9a5e4261bf061260f181cbeee7fcdc9529dc40ae3ea742f735f",
+      "field_results": [
+        {
+          "fov": 1,
+          "roi_representative_read": true,
+          "raw_sample_reads": 12,
+          "engine_reader_verified": true,
+          "availability_baseline_preserved": true
+        },
+        {
+          "fov": 2,
+          "roi_representative_read": true,
+          "raw_sample_reads": 12,
+          "engine_reader_verified": true,
+          "availability_baseline_preserved": true
+        },
+        {
+          "fov": 3,
+          "roi_representative_read": true,
+          "raw_sample_reads": 12,
+          "engine_reader_verified": true,
+          "availability_baseline_preserved": true
+        },
+        {
+          "fov": 4,
+          "roi_representative_read": true,
+          "raw_sample_reads": 12,
+          "engine_reader_verified": true,
+          "availability_baseline_preserved": true
+        },
+        {
+          "fov": 5,
+          "roi_representative_read": true,
+          "raw_sample_reads": 12,
+          "engine_reader_verified": true,
+          "availability_baseline_preserved": true
+        },
+        {
+          "fov": 6,
+          "roi_representative_read": true,
+          "raw_sample_reads": 12,
+          "engine_reader_verified": true,
+          "availability_baseline_preserved": true
+        },
+        {
+          "fov": 7,
+          "roi_representative_read": true,
+          "raw_sample_reads": 12,
+          "engine_reader_verified": true,
+          "availability_baseline_preserved": true
+        },
+        {
+          "fov": 8,
+          "roi_representative_read": true,
+          "raw_sample_reads": 12,
+          "engine_reader_verified": true,
+          "availability_baseline_preserved": true
+        }
+      ],
+      "availability_baseline_preserved": true,
+      "project_saved": false
+    },
+    {
+      "project_id": "19a2a39e-e451-4d5f-8fa8-f06a7fed9f17",
+      "name": "anof_280224_dhytnl",
+      "fovs": 17,
+      "rois": 6134,
+      "raw_sample_reads": 204,
+      "roi_representative_reads": 17,
+      "images_present": 6134,
+      "images_previously_absent": 0,
+      "results_present": 6134,
+      "data_present": 0,
+      "blank_paths_preserved": 0,
+      "historical_missing_raw_paths_preserved": 0,
+      "historical_cache_size_mismatches_preserved": 0,
+      "processors_verified": 0,
+      "main_sha256_unchanged": "0c2dd261f621c4aa31f581d53a9c9e1f0f2a764d52c25eb99973572d215a1374",
+      "field_results": [
+        {
+          "fov": 1,
+          "roi_representative_read": true,
+          "raw_sample_reads": 12,
+          "engine_reader_verified": true,
+          "availability_baseline_preserved": true
+        },
+        {
+          "fov": 2,
+          "roi_representative_read": true,
+          "raw_sample_reads": 12,
+          "engine_reader_verified": true,
+          "availability_baseline_preserved": true
+        },
+        {
+          "fov": 3,
+          "roi_representative_read": true,
+          "raw_sample_reads": 12,
+          "engine_reader_verified": true,
+          "availability_baseline_preserved": true
+        },
+        {
+          "fov": 4,
+          "roi_representative_read": true,
+          "raw_sample_reads": 12,
+          "engine_reader_verified": true,
+          "availability_baseline_preserved": true
+        },
+        {
+          "fov": 5,
+          "roi_representative_read": true,
+          "raw_sample_reads": 12,
+          "engine_reader_verified": true,
+          "availability_baseline_preserved": true
+        },
+        {
+          "fov": 6,
+          "roi_representative_read": true,
+          "raw_sample_reads": 12,
+          "engine_reader_verified": true,
+          "availability_baseline_preserved": true
+        },
+        {
+          "fov": 7,
+          "roi_representative_read": true,
+          "raw_sample_reads": 12,
+          "engine_reader_verified": true,
+          "availability_baseline_preserved": true
+        },
+        {
+          "fov": 8,
+          "roi_representative_read": true,
+          "raw_sample_reads": 12,
+          "engine_reader_verified": true,
+          "availability_baseline_preserved": true
+        },
+        {
+          "fov": 9,
+          "roi_representative_read": true,
+          "raw_sample_reads": 12,
+          "engine_reader_verified": true,
+          "availability_baseline_preserved": true
+        },
+        {
+          "fov": 10,
+          "roi_representative_read": true,
+          "raw_sample_reads": 12,
+          "engine_reader_verified": true,
+          "availability_baseline_preserved": true
+        },
+        {
+          "fov": 11,
+          "roi_representative_read": true,
+          "raw_sample_reads": 12,
+          "engine_reader_verified": true,
+          "availability_baseline_preserved": true
+        },
+        {
+          "fov": 12,
+          "roi_representative_read": true,
+          "raw_sample_reads": 12,
+          "engine_reader_verified": true,
+          "availability_baseline_preserved": true
+        },
+        {
+          "fov": 13,
+          "roi_representative_read": true,
+          "raw_sample_reads": 12,
+          "engine_reader_verified": true,
+          "availability_baseline_preserved": true
+        },
+        {
+          "fov": 14,
+          "roi_representative_read": true,
+          "raw_sample_reads": 12,
+          "engine_reader_verified": true,
+          "availability_baseline_preserved": true
+        },
+        {
+          "fov": 15,
+          "roi_representative_read": true,
+          "raw_sample_reads": 12,
+          "engine_reader_verified": true,
+          "availability_baseline_preserved": true
+        },
+        {
+          "fov": 16,
+          "roi_representative_read": true,
+          "raw_sample_reads": 12,
+          "engine_reader_verified": true,
+          "availability_baseline_preserved": true
+        },
+        {
+          "fov": 17,
+          "roi_representative_read": true,
+          "raw_sample_reads": 12,
+          "engine_reader_verified": true,
+          "availability_baseline_preserved": true
+        }
+      ],
+      "availability_baseline_preserved": true,
+      "project_saved": false
+    },
+    {
+      "project_id": "6c46e8a4-ab0f-45ac-9aeb-ea139f252643",
+      "name": "movie_12224_w303MBsnabI_test",
+      "fovs": 8,
+      "rois": 787,
+      "raw_sample_reads": 72,
+      "roi_representative_reads": 8,
+      "images_present": 787,
+      "images_previously_absent": 0,
+      "results_present": 49,
+      "data_present": 0,
+      "blank_paths_preserved": 0,
+      "historical_missing_raw_paths_preserved": 0,
+      "historical_cache_size_mismatches_preserved": 0,
+      "processors_verified": 0,
+      "main_sha256_unchanged": "532cff3cb3ebdadbad9145e03bba64d9e362a9f23ed4602c6ee9fce84693a3d9",
+      "field_results": [
+        {
+          "fov": 1,
+          "roi_representative_read": true,
+          "raw_sample_reads": 9,
+          "engine_reader_verified": true,
+          "availability_baseline_preserved": true
+        },
+        {
+          "fov": 2,
+          "roi_representative_read": true,
+          "raw_sample_reads": 9,
+          "engine_reader_verified": true,
+          "availability_baseline_preserved": true
+        },
+        {
+          "fov": 3,
+          "roi_representative_read": true,
+          "raw_sample_reads": 9,
+          "engine_reader_verified": true,
+          "availability_baseline_preserved": true
+        },
+        {
+          "fov": 4,
+          "roi_representative_read": true,
+          "raw_sample_reads": 9,
+          "engine_reader_verified": true,
+          "availability_baseline_preserved": true
+        },
+        {
+          "fov": 5,
+          "roi_representative_read": true,
+          "raw_sample_reads": 9,
+          "engine_reader_verified": true,
+          "availability_baseline_preserved": true
+        },
+        {
+          "fov": 6,
+          "roi_representative_read": true,
+          "raw_sample_reads": 9,
+          "engine_reader_verified": true,
+          "availability_baseline_preserved": true
+        },
+        {
+          "fov": 7,
+          "roi_representative_read": true,
+          "raw_sample_reads": 9,
+          "engine_reader_verified": true,
+          "availability_baseline_preserved": true
+        },
+        {
+          "fov": 8,
+          "roi_representative_read": true,
+          "raw_sample_reads": 9,
+          "engine_reader_verified": true,
+          "availability_baseline_preserved": true
+        }
+      ],
+      "availability_baseline_preserved": true,
+      "project_saved": false
+    },
+    {
+      "project_id": "724afdda-24e8-42f1-b242-2b7a0e41e8b1",
+      "name": "movie_250124_diploids",
+      "fovs": 4,
+      "rois": 6,
+      "raw_sample_reads": 36,
+      "roi_representative_reads": 2,
+      "images_present": 4,
+      "images_previously_absent": 0,
+      "results_present": 0,
+      "data_present": 0,
+      "blank_paths_preserved": 2,
+      "historical_missing_raw_paths_preserved": 0,
+      "historical_cache_size_mismatches_preserved": 6396,
+      "processors_verified": 0,
+      "main_sha256_unchanged": "e054b499b74ed4ed9151f2788034b8bff3ba7ec0be707836c86236c4b8177f05",
+      "field_results": [
+        {
+          "fov": 1,
+          "roi_representative_read": true,
+          "raw_sample_reads": 9,
+          "engine_reader_verified": true,
+          "availability_baseline_preserved": true
+        },
+        {
+          "fov": 2,
+          "roi_representative_read": true,
+          "raw_sample_reads": 9,
+          "engine_reader_verified": true,
+          "availability_baseline_preserved": true
+        },
+        {
+          "fov": 3,
+          "roi_representative_read": false,
+          "raw_sample_reads": 9,
+          "engine_reader_verified": true,
+          "availability_baseline_preserved": true
+        },
+        {
+          "fov": 4,
+          "roi_representative_read": false,
+          "raw_sample_reads": 9,
+          "engine_reader_verified": true,
+          "availability_baseline_preserved": true
+        }
+      ],
+      "availability_baseline_preserved": true,
+      "project_saved": false
+    },
+    {
+      "project_id": "ae089caa-2978-4441-8308-8256905738d1",
+      "name": "qp_22032024_DHY210_nts1ng",
+      "fovs": 2,
+      "rois": 442,
+      "raw_sample_reads": 24,
+      "roi_representative_reads": 2,
+      "images_present": 442,
+      "images_previously_absent": 0,
+      "results_present": 442,
+      "data_present": 0,
+      "blank_paths_preserved": 0,
+      "historical_missing_raw_paths_preserved": 0,
+      "historical_cache_size_mismatches_preserved": 0,
+      "processors_verified": 0,
+      "main_sha256_unchanged": "3fb1d5f6be4fe44abad3193b6b38ac44f3cb5b6caa9b579a849359078432a29b",
+      "field_results": [
+        {
+          "fov": 1,
+          "roi_representative_read": true,
+          "raw_sample_reads": 12,
+          "engine_reader_verified": true,
+          "availability_baseline_preserved": true
+        },
+        {
+          "fov": 2,
+          "roi_representative_read": true,
+          "raw_sample_reads": 12,
+          "engine_reader_verified": true,
+          "availability_baseline_preserved": true
+        }
+      ],
+      "availability_baseline_preserved": true,
+      "project_saved": false
+    }
+  ]
+}

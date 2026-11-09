@@ -1,0 +1,170 @@
+{
+  "success": true,
+  "batch_id": "d1d7eff0-bd42-4b50-899f-0c0c9a83e71f",
+  "committed_at": "2026-11-09T21:54:18.774172+00:00",
+  "project_changes": [
+    {
+      "project_id": "19037bd1-e966-428f-96f8-2a7166c7bc9e",
+      "name": "anof_05012024_apx1s_dslog",
+      "original_location_ids": [
+        4187
+      ],
+      "new_location_id": 4282,
+      "preferred_mat_path": "/homes2/maliavko/DetecdivHub/projects/anof_05012024_apx1s_dslog/anof_05012024_apx1s_dslog.mat",
+      "originals_preserved": true
+    },
+    {
+      "project_id": "19a2a39e-e451-4d5f-8fa8-f06a7fed9f17",
+      "name": "anof_280224_dhytnl",
+      "original_location_ids": [
+        4190
+      ],
+      "new_location_id": 4283,
+      "preferred_mat_path": "/homes2/maliavko/DetecdivHub/projects/anof_280224_dhytnl/anof_280224_dhytnl.mat",
+      "originals_preserved": true
+    },
+    {
+      "project_id": "23c9f497-021f-4dbb-8e3c-5f50032096ac",
+      "name": "anof_280224_12rdnars",
+      "original_location_ids": [
+        4189
+      ],
+      "new_location_id": 4284,
+      "preferred_mat_path": "/homes2/maliavko/DetecdivHub/projects/anof_280224_12rdnars/anof_280224_12rdnars.mat",
+      "originals_preserved": true
+    },
+    {
+      "project_id": "53a6c0c1-f887-44da-ae8c-a0018e46064e",
+      "name": "anof_130224_dfob_rep_dslog_new",
+      "original_location_ids": [
+        4202
+      ],
+      "new_location_id": 4285,
+      "preferred_mat_path": "/homes2/maliavko/DetecdivHub/projects/anof_130224_dfob_rep_dslog_new/anof_130224_dfob_rep_dslog_new.mat",
+      "originals_preserved": true
+    },
+    {
+      "project_id": "6c46e8a4-ab0f-45ac-9aeb-ea139f252643",
+      "name": "movie_12224_w303MBsnabI_test",
+      "original_location_ids": [
+        2785
+      ],
+      "new_location_id": 4286,
+      "preferred_mat_path": "/homes2/maliavko/DetecdivHub/projects/movie_12224_w303MBsnabI_test/movie_12224_w303MBsnabI_test.mat",
+      "originals_preserved": true
+    },
+    {
+      "project_id": "6f6f408d-ebe7-4115-a537-f35f5cdb6ed2",
+      "name": "anof_060224_cres",
+      "original_location_ids": [
+        2792
+      ],
+      "new_location_id": 4287,
+      "preferred_mat_path": "/homes2/maliavko/DetecdivHub/projects/anof_060224_cres/anof_060224_cres.mat",
+      "originals_preserved": true
+    },
+    {
+      "project_id": "724afdda-24e8-42f1-b242-2b7a0e41e8b1",
+      "name": "movie_250124_diploids",
+      "original_location_ids": [
+        2771
+      ],
+      "new_location_id": 4288,
+      "preferred_mat_path": "/homes2/maliavko/DetecdivHub/projects/movie_250124_diploids/movie_250124_diploids.mat",
+      "originals_preserved": true
+    },
+    {
+      "project_id": "902b3fa9-d703-49d4-92b7-bf5f75eac4ef",
+      "name": "anof_230124_RMng",
+      "original_location_ids": [
+        4195
+      ],
+      "new_location_id": 4289,
+      "preferred_mat_path": "/homes2/maliavko/DetecdivHub/projects/anof_230124_RMng/anof_230124_RMng.mat",
+      "originals_preserved": true
+    },
+    {
+      "project_id": "9f6b8ef9-f078-4ff5-b91f-7b8a25000951",
+      "name": "anof_230124_dhyD_LOG24",
+      "original_location_ids": [
+        4194
+      ],
+      "new_location_id": 4290,
+      "preferred_mat_path": "/homes2/maliavko/DetecdivHub/projects/anof_230124_dhyD_LOG24/anof_230124_dhyD_LOG24.mat",
+      "originals_preserved": true
+    },
+    {
+      "project_id": "ae089caa-2978-4441-8308-8256905738d1",
+      "name": "qp_22032024_DHY210_nts1ng",
+      "original_location_ids": [
+        2770
+      ],
+      "new_location_id": 4291,
+      "preferred_mat_path": "/homes2/maliavko/DetecdivHub/projects/qp_22032024_DHY210_nts1ng/qp_22032024_DHY210_nts1ng.mat",
+      "originals_preserved": true
+    },
+    {
+      "project_id": "bec9b2cf-656d-417a-b424-2d3e7cbf316c",
+      "name": "anof_06032024_diplNTSNG_K3s",
+      "original_location_ids": [
+        4183
+      ],
+      "new_location_id": 4292,
+      "preferred_mat_path": "/homes2/maliavko/DetecdivHub/projects/anof_06032024_diplNTSNG_K3s/anof_06032024_diplNTSNG_K3s.mat",
+      "originals_preserved": true
+    },
+    {
+      "project_id": "c48f9cff-6625-4dad-9597-a8796fe2824f",
+      "name": "anof_060224_cres_ARS1",
+      "original_location_ids": [
+        2793
+      ],
+      "new_location_id": 4293,
+      "preferred_mat_path": "/homes2/maliavko/DetecdivHub/projects/anof_060224_cres_ARS1/anof_060224_cres_ARS1.mat",
+      "originals_preserved": true
+    },
+    {
+      "project_id": "e0d02751-28b3-4b3e-a74c-0dfd00b37803",
+      "name": "anof_060224_cres_1002",
+      "original_location_ids": [
+        4198
+      ],
+      "new_location_id": 4294,
+      "preferred_mat_path": "/homes2/maliavko/DetecdivHub/projects/anof_060224_cres_1002/anof_060224_cres_1002.mat",
+      "originals_preserved": true
+    },
+    {
+      "project_id": "e6f6b263-dae2-4670-ac85-280abc4f38a2",
+      "name": "anof_070424_iRFPtest",
+      "original_location_ids": [
+        4199
+      ],
+      "new_location_id": 4295,
+      "preferred_mat_path": "/homes2/maliavko/DetecdivHub/projects/anof_070424_iRFPtest/anof_070424_iRFPtest.mat",
+      "originals_preserved": true
+    },
+    {
+      "project_id": "e98ed5ba-a40d-4abc-a1c2-441c6587cf2e",
+      "name": "anof_230124_nh52",
+      "original_location_ids": [
+        2788
+      ],
+      "new_location_id": 4296,
+      "preferred_mat_path": "/homes2/maliavko/DetecdivHub/projects/anof_230124_nh52/anof_230124_nh52.mat",
+      "originals_preserved": true
+    },
+    {
+      "project_id": "f004e8df-29f0-4303-85fe-9cf50e3d4dbc",
+      "name": "anof_22032024_DHY210_nts1ng",
+      "original_location_ids": [
+        4184
+      ],
+      "new_location_id": 4297,
+      "preferred_mat_path": "/homes2/maliavko/DetecdivHub/projects/anof_22032024_DHY210_nts1ng/anof_22032024_DHY210_nts1ng.mat",
+      "originals_preserved": true
+    }
+  ],
+  "source_deleted": false,
+  "original_projects_preserved": true,
+  "raw_catalog_or_api_uris_changed": false
+}

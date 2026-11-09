@@ -1,0 +1,13 @@
+{
+  "success": true,
+  "controller_exit": 0,
+  "handlers_verified": 1204,
+  "bytes_verified": 10858665796,
+  "receipt_sha256": "888be8ae3e5e163887ba196c84655dd929d9b3c0e53c1575310bcd9f9d412722",
+  "finished_at": "2026-11-09T16:18:09.604182+00:00",
+  "route_source_sha256": "d9049ec15138947335590f130e7854431ee8322be63f6f87d01162662133b3f1",
+  "source_deleted": false,
+  "uri_changed": false,
+  "before_media_uri_cutover_only": true,
+  "post_cutover_and_retirement_verification_still_required": true
+}
