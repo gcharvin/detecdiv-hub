@@ -1,5 +1,35 @@
 # Current Deployment
+## Abhilasha resource-binding recovery, 2026-11-09
 
+The channel recovery job `4df3e2fd-c66b-4add-b1c1-8a31083696ed` failed on
+2026-11-08 at 12:23 CET in computeRLS. Submitted `node_params` were applied again
+after symbolic binding resolution and restored literal `@resource:` tokens.
+The CNN fallback used the intended CombinedChannel and persisted div_1;
+lineage skipped its missing mask and metrics lacked the lineage mask despite
+node_done events. Fresh MATLAB inspection confirms 160-frame extracted images,
+Cellpose masks and div_1 on sample positions 1, 13, 27 and 32. Preserve these
+outputs. Recovery is limited to lineage, metrics and RLS with explicit existing
+segmentation/classification inputs; no raw extraction or segmentation restart.
+The former four-hour monitor was removed after diagnosing the failed job.
+
+
+Recovery job `8aa837fd-b962-47b5-bc5d-199ff656df53`, run
+`pipelineTemplate_bindings_20261109_5ca7bf5f`, was submitted with only the
+three missing processors selected. It is pinned to DetecDiv
+`0cab1d9cc6f4f4eb679529e9210f75988773819c`, pushed to both remotes, protected
+on both hosts and published as the default without worker restart. This includes
+`5ca7bf5f` (apply run overrides before resolving once, runtime unresolved-input
+guard and active metric-channel preload limits) and the same override fix in
+the legacy runner. Twenty-three targeted tests passed; one Windows alias test
+was skipped. The broad contract smoke suite has two pre-existing channel-count
+failures, reproduced on the unchanged baseline. Actual partial-run validation
+and Hub preflight both passed with no warnings/errors. A fresh MATLAB inventory
+verified div_1 with160rows in all1488extractedROIs. Input SHA256:
+`ae4eb0993d4af96986bd13bfadfb4919af41e95f05dec7d5c6b8871bc4f46159`.
+External inputs are explicitly bound to results_cellposeSAM_cell and div_1;
+internal bindings resolve to MotherLineageViterbi_cell and channel_quantification.
+A new four-hour heartbeat monitors this job and verifies persisted outputs before
+reporting success. Receipts: `reports/abhilasha-bindings-20261109`.
 ## ROI loading and Score compatibility release, 2026-11-06
 
 DetecDiv `140850e451d44ff2cd3243b27e08e9c30e036bd5` is pushed to GitHub and
@@ -1716,3 +1746,5 @@ Future agents should assume:
 Rollback is possible by removing the worker systemd override and restarting the
 old local services on `detecdiv-server`, but that should be treated as an
 explicit incident/rollback action, not as the default development target.
+
+
