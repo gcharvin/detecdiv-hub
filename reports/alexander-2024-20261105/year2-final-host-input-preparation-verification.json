@@ -1,0 +1,18 @@
+{
+  "success": true,
+  "request_sha256": "4824f2b1a22e26d048f4614077aee7843483d261d116e69956a74eb7e3e7b7fa",
+  "request_bytes": 100083082,
+  "projects": 17,
+  "fovs": 239,
+  "rois": 43102,
+  "raw_samples": 3525,
+  "blank_roi_paths": 412,
+  "gilles_typed_json_files": 9,
+  "external_dependencies_fingerprinted": 3,
+  "host_execution_allowed": false,
+  "host_tests_started": false,
+  "publication_performed": false,
+  "scientific_files_saved": false,
+  "source_deleted": false,
+  "raw_year2_sha1_stability_publication_and_fresh_own_leases_still_required": true
+}

@@ -1,0 +1,37 @@
+{
+  "success": true,
+  "read_only": true,
+  "checked_at": "2026-11-10T13:56:20.836043+00:00",
+  "matched_path_values": 1679,
+  "counts_by_table": {
+    "raw_dataset_locations": 94,
+    "raw_datasets": 87,
+    "artifacts": 1485,
+    "detecdiv_projects": 13
+  },
+  "counts_by_year": {
+    "2023_1": 846,
+    "2023_3": 833
+  },
+  "preferred_raw_locations": {
+    "2023_1": 70,
+    "2023_3": 24
+  },
+  "unclassified_path_values": 0,
+  "active_referencing_jobs": 0,
+  "active_indexing_jobs": 0,
+  "scanned_rows": {
+    "raw_dataset_locations": 2553,
+    "project_locations": 3409,
+    "raw_datasets": 2452,
+    "raw_dataset_positions": 39018,
+    "artifacts": 34782,
+    "detecdiv_projects": 3331,
+    "active_jobs": 1
+  },
+  "snapshot_sha256": "645a4e971784ebf55190f13b4eb384f6a46a207e5de512e6009d214f67f7c527",
+  "live_renames_allowed": false,
+  "database_changed": false,
+  "scientific_files_read_or_saved": false,
+  "on_disk_and_historical_consumers_still_require_coverage": true
+}

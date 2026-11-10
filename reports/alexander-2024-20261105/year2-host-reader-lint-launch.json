@@ -1,0 +1,10 @@
+{
+  "launched": true,
+  "script_sha256": "76379c4ab7a121f432d9ef6908ac4ecbf8184a9ffece3501417c9d94cd86c0ff",
+  "work": "/home/charvin-admin/storage-transfers/alexander-2024-20261105/year2-host-reader-lint-20261110",
+  "task": "alex2024-year2-host-reader-lint-20261110",
+  "scope": "MATLAB checkcode only",
+  "scientific_files_loaded": false,
+  "scientific_files_saved": false,
+  "final_readers_started": false
+}

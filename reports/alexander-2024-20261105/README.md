@@ -37,7 +37,85 @@ No filesystem rename, database or scientific-file change was performed while
 recording this requirement. Keep the follow-up until this naming requirement
 and the original two-year migration/reclamation scope are verified complete.
 
-## Latest checkpoint — 2026-11-10, 10:01 UTC: year2 baseline inputs prepared
+## Latest checkpoint — 2026-11-10, 14:05 UTC: raw2 checksum active, 17 copies verified
+
+The user reaffirmed autonomous migration AND readable final names, all Hub/project
+links checked, originals retained, and final notification with actual `/data`
+space recovered. No further permission question is required for that scope.
+
+The ORIGINAL runner completed the2024_2 copy at**12:37:37 UTC**:974,112 files /
+5,856,516,249,162 bytes. It is now verifying_full_content; runner187291 and
+rsync2087795 alive at13:53 UTC only. SHA1 terminal success and native source
+stability are NOT yet established. Do not replay the copy, start a second
+checksum, rename its active namespace or interpret an empty active log as success.
+
+The EXISTING17-project readonly integrity audit finished**10:56:27 UTC**, exit0.
+A separate complete receipt verifier compared every project/result, exact original
+fresh-before/after inventory bytes, all103,243 target receipt rows/full after-hashes,
+actual NAS UID1031, counts/sets and pinned source. Target logical bytes:
+1,831,201,635,230, not reclaimed space. Result SHA256
+`3d619d2a8c6bad75ec3118e333cbafd87550b0e8f5fa16326cf21c09c9a2ee29`;
+request SHA256 `f4573231522cdf88b0624ea635ffae314ea744d0f9e1d44903a136b6d19b4c63`.
+Proof `year2-incoming-integrity-completion-verification.json`. DO NOT replay this
+audit or its already successful copies/relinks. No pending/deferred project.
+All17 remain incoming, not published/preferred. Year1's16 remain final/preferred.
+
+NEW readonly catalog inventory for readable names examined current location rows,
+raw/project metadata, display settings, artifact URIs/metadata and active job
+params under a repeatable-read READ ONLY transaction.1,679 old-namespace path
+values found:94 raw locations,87 raw fields,1,485 artifact fields and13 project
+metadata fields.846 values concern2023_1 and833 concern2023_3;70/24 preferred raw
+locations respectively. No unclassified namespace value, referencing active job
+or indexing job at this observation. Snapshot SHA256
+`645a4e971784ebf55190f13b4eb384f6a46a207e5de512e6009d214f67f7c527`.
+Public proof `readable-raw-names-catalog-inventory-verification.json`, full paths
+ONLY under ignored runtime. This is NOT full consumer coverage: historical jobs,
+on-disk MAT/JSON/processors/HDF5 and external consumers still require the planned
+coverage/compatibility. No URI, path or DB field was modified. Do not blindly
+rewrite metadata/history from string matches. No2024 staging path is yet in the
+catalog because raw preferred locations/URIs still reference primary `/data`.
+
+Prepared future year2 final reader inputs, NOT reader execution:
+`year2-final-host-inputs-20261110/request.json`, SHA256
+`4824f2b1a22e26d048f4614077aee7843483d261d116e69956a74eb7e3e7b7fa`.
+17projects/239FOV/43,102ROI/3,525 sample fingerprints; exact current file sizes
+come from the terminal integrity receipts, not obsolete pre-relink MAT sizes.
+412 blank ROI indices, Qp empty128B MAT placeholder and Gilles HDF5 policy fixed.
+Gilles's9 typed JSON after-hashes/approved leaves and3 external dependency file
+fingerprints included. External files were read/hash-fingerprinted only, unchanged.
+Public proof `year2-final-host-input-preparation-verification.json`.
+
+NEW `verify_year2_final_hosts.m` and `run_year2_final_hosts.py` are prepared for
+future final paths. MATLAB checkcode TERMINATED exit0, zero syntax errors (style
+warnings only), script SHA256
+`76379c4ab7a121f432d9ef6908ac4ecbf8184a9ffece3501417c9d94cd86c0ff`.
+Only script TEXT was linted; no scientific MAT/image read or final reader launched.
+Proof `year2-host-reader-lint-completion-verification.json`. The lint tmux/task
+has finished; do not replay it as a scientific validation. These reader sources
+have NOT yet passed the actual239FOV host tests. They require real raw2 full
+SHA1/stability, fresh admission/own leases and terminal no-overwrite publication.
+The Python runner explicitly requires those controls and limited Windows token.
+The future year2 publisher/admission/catalog continuation must be newly scoped
+to17 projects, BOTH actual stage suffixes and preserved Gilles Hub ownership;
+do not reuse the completed16-project year1 controller or diagnostic task.
+
+The new reader checks all raw filename-size sets/sample pixels, sidecar/layout
+availability, blank indices and empty-MAT placeholder without inventing extracted
+pixels. It reads Gilles's HDF5 using the engine ROI loader; typed JSON refs, actual
+protected pipelineRunLoad/localize_run consumers and3 external files have explicit
+final-host checks. Source review of protected pipelineRun constructor/log confirms
+empty-path construction and in-memory logging; no run save/processing is called.
+Persisted JSON hashes must stay exact despite normal in-memory event reconciliation;
+old execution ctx/outputs are NOT claimed ready for resumption. No Hub settings,
+worker, release/default, SMB/VPN/mount or credentials changed.
+
+**Actual2024 reclaimed0 bytes.** No2024 raw/source unlink, raw URI cutover or
+readable namespace rename yet. Lox15 missing fields/derived folder and legacy
+relevance remain unresolved/unwaived. Continue the actual checksum, prepare the
+bounded naming/retirement orchestration, and retain all originals/sources until
+the complete required gates pass.
+
+## Previous checkpoint — 2026-11-10, 10:01 UTC: year2 baseline inputs prepared
 
 Raw2024_2 remains copying in the ORIGINAL runner:93.4052% at10:01 UTC,
 not a terminal full SHA1/stability result. The existing17-project readonly

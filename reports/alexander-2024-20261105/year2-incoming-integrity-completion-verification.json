@@ -1,0 +1,17 @@
+{
+  "success": true,
+  "controller_exit": 0,
+  "projects": 17,
+  "files": 103243,
+  "target_logical_bytes": 1831201635230,
+  "integrity_result_sha256": "3d619d2a8c6bad75ec3118e333cbafd87550b0e8f5fa16326cf21c09c9a2ee29",
+  "integrity_request_sha256": "f4573231522cdf88b0624ea635ffae314ea744d0f9e1d44903a136b6d19b4c63",
+  "finished_at": "2026-11-10T10:56:27.892833+00:00",
+  "all_original_inventories_exact_before_after": true,
+  "all_target_full_after_hashes_verified": true,
+  "native_owner_maliavko": true,
+  "source_deleted": false,
+  "published": false,
+  "catalog_changed": false,
+  "raw_year2_sha1_stability_and_final_host_catalog_api_gates_still_required": true
+}

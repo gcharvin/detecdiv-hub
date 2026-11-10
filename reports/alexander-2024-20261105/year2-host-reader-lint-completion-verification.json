@@ -1,0 +1,15 @@
+{
+  "success": true,
+  "controller_exit": 0,
+  "script_sha256": "76379c4ab7a121f432d9ef6908ac4ecbf8184a9ffece3501417c9d94cd86c0ff",
+  "syntax_errors": 0,
+  "style_warning_ids": [
+    "ALIGN",
+    "ISCL",
+    "NASGU"
+  ],
+  "scientific_files_loaded": false,
+  "scientific_files_saved": false,
+  "final_host_readers_started": false,
+  "raw_year2_full_sha1_stability_and_publication_still_required": true
+}
