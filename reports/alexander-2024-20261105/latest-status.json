@@ -36,7 +36,7 @@
     "source_deleted": false,
     "catalog_changed": false,
     "runner_pid": 187291,
-    "heartbeat_at": "2026-11-10T17:49:55.321002+00:00",
+    "heartbeat_at": "2026-11-10T21:59:39.534232+00:00",
     "current_year": "2024_2",
     "inventory_progress": {
       "files": 966284,
@@ -3275,7 +3275,7 @@
   },
   "copy_progress_tail": "1,57MB/s   37:19:02 (xfr#974105, to-chk=7/975469)\r5.856.412.307.284  99%   41,57MB/s   37:19:03 (xfr#974106, to-chk=6/975469)\r5.856.415.485.780  99%   48,06MB/s    0:00:02  \r5.856.420.725.651  99%   41,57MB/s   37:19:03 (xfr#974107, to-chk=5/975469)\r5.856.429.144.020  99%   41,57MB/s   37:19:03 (xfr#974108, to-chk=4/975469)\r5.856.437.562.389  99%   41,57MB/s   37:19:03 (xfr#974109, to-chk=3/975469)\r5.856.445.980.754  99%   41,57MB/s   37:19:03 (xfr#974110, to-chk=2/975469)\r5.856.454.399.102  99%   41,57MB/s   37:19:03 (xfr#974111, to-chk=1/975469)\r5.856.469.013.630  99%   48,37MB/s    0:00:00  \r5.856.516.249.162 100%   41,57MB/s   37:19:04 (xfr#974112, to-chk=0/975469)\r5.856.516.249.162 100%   41,57MB/s   37:19:05 (xfr#974112, to-chk=0/975469)\n\nNumber of files: 975.469 (reg: 974.112, dir: 1.357)\nNumber of created files: 975.468 (reg: 974.112, dir: 1.356)\nNumber of deleted files: 0\nNumber of regular files transferred: 974.112\nTotal file size: 5.856.516.249.162 bytes\nTotal transferred file size: 5.856.516.249.162 bytes\nLiteral data: 5.856.516.249.162 bytes\nMatched data: 0 bytes\nFile list size: 27.327.418\nFile list generation time: 0,050 seconds\nFile list transfer time: 0,000 seconds\nTotal bytes sent: 5.858.003.432.340\nTotal bytes received: 18.516.196\n\nsent 5.858.003.432.340 bytes  received 18.516.196 bytes  43.603.830,01 bytes/sec\ntotal size is 5.856.516.249.162  speedup is 1,00\n",
   "verification_log_bytes": 0,
-  "copy_processes": "187291 python           444369\n2087795 rsync             18750",
+  "copy_processes": "187291 python           459350\n2087795 rsync             33731",
   "project_receipts": 3326,
   "year1_local_continuation": {
     "phase": "stopped_safe_requires_review",
@@ -3880,5 +3880,5 @@
   "copied_bytes": 5856516249162,
   "copy_percent_of_complete_year": 100.0,
   "rsync_display_percent_is_incremental_file_list_not_full_year": true,
-  "checked_at": "2026-11-10T17:50:12.953858+00:00"
+  "checked_at": "2026-11-10T21:59:51.115559+00:00"
 }

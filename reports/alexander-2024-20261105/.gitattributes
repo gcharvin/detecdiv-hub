@@ -40,3 +40,4 @@ probe_raw_namespace_windows.py -text whitespace=cr-at-eol
 raw_namespace_windows_fixture_ops.py -text whitespace=cr-at-eol
 cleanup_raw_namespace_fixture_20261110.py -text whitespace=cr-at-eol
 verify_raw_year2_completion.py -text whitespace=cr-at-eol
+review_year2_catalog_prepublication.py -text whitespace=cr-at-eol

@@ -37,7 +37,36 @@ No filesystem rename, database or scientific-file change was performed while
 recording this requirement. Keep the follow-up until this naming requirement
 and the original two-year migration/reclamation scope are verified complete.
 
-## Latest checkpoint — 2026-11-10, 17:50 UTC: reconnected, fixtures complete
+## Latest checkpoint — 2026-11-10, 22:02 UTC: checksum active, catalog continuity checked
+
+Fresh status at21:59:51 UTC still shows the ORIGINAL runner187291 and
+rsync2087795 alive in verifying_full_content, with its active differences log
+empty. No terminal SHA1/stability2 result. Only the raw tmux is active. Preserve
+that runner/namespace and all previously completed proofs; no copy/checksum or
+successful scientific/host/fixture audit was replayed.
+
+NEW bounded READONLY17-project catalog continuity review completed22:01:58 UTC,
+proof `year2-catalog-prepublication-review-verification.json`. All17 current
+identity/owner/visibility/notes/ACL/group/note/raw-link digests, metadata digests
+and location digests match the preserved pre-relink snapshots from the existing
+child batches. Owners remain16 Alexander plus1 Gilles; zero differences.
+No affected active job/lease or indexing job at that observation, with51 raw
+datasets in job-safety scope. User credentials/password columns were not selected.
+Full before-project columns and locations stay ONLY in ignored
+runtime/year2-catalog-prepublication-review.json, SHA pinned in public summary.
+This provides a prepared continuity baseline, NOT write admission; fresh checks
+and only own leases are still mandatory before any publication/cutover. Do not
+replay this completed review without a new freshness/admission purpose.
+
+No production publisher/admission/lease/reader/URI/name cutover or source unlink
+was started. All originals/source duplicates retained,2024 reclaimed0 bytes.
+The existing raw checksum is the outstanding current transfer gate. The new
+17-project orchestration and actual final readers/catalog/API steps remain
+required after it passes, followed by the bounded naming/retirement work and
+unresolved Lox/legacy qualifications. This ordinary progress needs no new user
+action and the autonomous six-hour follow-up stays active.
+
+## Previous checkpoint — 2026-11-10, 17:50 UTC: reconnected, fixtures complete
 
 Gilles restored ordinary lab connectivity and reaffirmed autonomous continuation
 through readable names and the actual `/data` recovery report. A fresh status

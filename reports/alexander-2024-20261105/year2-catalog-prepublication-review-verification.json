@@ -1,0 +1,22 @@
+{
+  "review_complete": true,
+  "checked_at": "2026-11-10T22:01:58.604194+00:00",
+  "projects": 17,
+  "owners": {
+    "alexander": 16,
+    "gilles": 1
+  },
+  "all_catalog_identity_metadata_locations_unchanged": true,
+  "projects_with_differences": 0,
+  "affected_active_jobs": 0,
+  "affected_active_project_leases": 0,
+  "active_indexing_jobs": 0,
+  "raw_datasets_in_job_safety_scope": 51,
+  "read_only": true,
+  "leases_acquired": 0,
+  "database_changed": false,
+  "source_deleted": false,
+  "fresh_write_admission_still_required": true,
+  "raw_year2_integrity_and_final_host_catalog_api_retirement_gates_not_waived": true,
+  "private_snapshot_sha256": "14b62e33a559330ea2b5d089e0d440b4887670397527779036c5b6fde8cf2d18"
+}
