@@ -24,3 +24,5 @@ cleanup_year1_final_windows.py -text whitespace=cr-at-eol
 cleanup_year1_final_windows_v2.py -text whitespace=cr-at-eol
 search_lox_archive_names_20261109.py -text whitespace=cr-at-eol
 launch_lox_archive_name_search_20261109.py -text whitespace=cr-at-eol
+audit_year2_incoming_integrity_20261110.py -text whitespace=cr-at-eol
+launch_year2_incoming_integrity_20261110.py -text whitespace=cr-at-eol

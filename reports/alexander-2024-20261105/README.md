@@ -8,7 +8,61 @@ year/user, original project, NAS snapshot, backup policy, quota, default engine
 or SMB credentials may be changed. The completed 2023 migration is separate;
 never replay any of its one-shot scripts.
 
-## Latest checkpoint — 2026-11-09, 22:03 UTC: 16 projects preferred on homes2
+## Latest checkpoint — 2026-11-10, 04:10 UTC: year2 copy preparation advancing
+
+The existing raw2024_2 runner remains healthy and copying:75.6842% at03:55 UTC,
+runner187291/rsync1545674 alive at that observation. No year2 full checksum or
+source-stability terminal result yet; never infer success from its active log.
+The16 year1 projects remain fully preferred/verified on homes2. All original
+projects and all2024 source duplicates are retained; actual2024 reclaimed0 bytes.
+Old Lox/legacy qualifications remain unwaived and previously completed actors
+are not work to replay.
+
+A NEW readonly full-copy integrity review of ALL17 remaining relinked incoming
+copies is now running, independently of the raw copy/checksum:
+
+- Private compute `year2-incoming-integrity-20261110`, tmux
+  `alex2024-year2-incoming-integrity-20261110`.
+-17 projects /103,243 files, zero deferred at fresh readonly jobs/indexing/leases
+  admission. No leases, clone, MAT save, publication, URI or catalog write.
+- Controller `audit_year2_incoming_integrity_20261110.py` SHA256
+  `05639082a0b5400f5ad25d88b62303c60624de757fc918908b2098622ebc9045`.
+  Request and executed source are pinned. Do not duplicate or edit them.
+- Every current target full SHA256 must equal the original clone receipt or
+  exact successful relink after-hash; actual NAS UID maliavko, regular files,
+  nlink1, exact file/directory sets and absence of final roots required.
+- Fresh original inventories before/after must match initial source receipts.
+  Fifteen standard copies use native metadata inventory. The two special
+  layouts reuse the original readonly native inventory, which also hashes all
+  source contents; Qp source is its real nobackup root, Gilles source primary
+  /DATA/Gilles/analysis/projects. No HDF5 or image array is rewritten.
+- .incoming suffix20261105 for15 standards,20261106 for Qp and Gilles. Hub owners
+  remain unchanged. Source/target inventory variants and missing sidecars stay
+  exact, not invented. Metadata changed by previous relinks uses AFTER hashes.
+- At04:10 UTC the first project anof_011024_x423x426_EB_x423noebonly passed its
+  fresh SOURCE inventory and was hashing the target (59files/11,625,992,203bytes
+  checkpoint). Actual native SSH child alive, no terminal result. Read state,
+  controller.exit/log and per-project source-fresh-before/after.jsonl,
+  target-full-hashes.jsonl and result.json, not entire large logs.
+
+This is COPY integrity only. Even a successful17-project loop does NOT authorize
+publication before actual raw2024_2 full SHA1 AND source stability, fresh write
+admission/own leases and final Linux/limited Windows readers/catalog/API gates.
+Gilles external dependency reads/typed run-loader tests and adapted Qp placeholder
+policy still need their real final-host checks. No old run resumption is claimed.
+Any source drift must stop safely and preserve part receipts; review and prepare
+a bounded reconciliation, never overwrite a partially processed copy blindly.
+
+The launcher first stopped BEFORE any work folder/process existed because the
+pinned Gilles successful result already includes its nine JSON after-hashes.
+The redundant per-JSON receipts must CORROBORATE those same hashes, not be treated
+as duplicate modifications. This setup check was corrected after proving no
+folder/session/actor existed; all strict scientific/frozen-context flags and
+root result SHA still match. First source retained privately; public proof
+`year2-integrity-prelaunch-corroboration-correction.json`. No scientific audit,
+writer, raw copy, completed FOV or transfer was restarted by that correction.
+
+## Previous checkpoint — 2026-11-09, 22:03 UTC: 16 projects preferred on homes2
 
 The16-project publication and catalog cutover are COMPLETE. Both final host
 validators terminated successfully: Linux16:48:46 UTC and real limited Windows

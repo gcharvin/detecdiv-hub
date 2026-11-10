@@ -1,0 +1,10 @@
+{
+  "work_absent": true,
+  "session_absent": true,
+  "scientific_files_modified": false,
+  "initial_launcher_sha256": "190f3e2013d8c323e35379d827d9a4cbd1ffb0a7977c658977e1715e9470bc24",
+  "reason": "Successful Gilles result already includes JSON after-hashes; redundant per-JSON receipts must corroborate the same digest instead of rejecting duplicate evidence",
+  "native_audit_not_started": true,
+  "raw_runner_restarted": false,
+  "source_deleted": false
+}

@@ -1,0 +1,14 @@
+{
+  "launched": true,
+  "work": "/home/charvin-admin/storage-transfers/alexander-2024-20261105/year2-incoming-integrity-20261110",
+  "session": "alex2024-year2-incoming-integrity-20261110",
+  "runner_sha256": "05639082a0b5400f5ad25d88b62303c60624de757fc918908b2098622ebc9045",
+  "projects": 17,
+  "files": 103243,
+  "deferred_projects": [],
+  "read_only": true,
+  "leases_acquired": 0,
+  "publication_allowed": false,
+  "source_deletion_allowed": false,
+  "raw_year2_sha1_and_stability_not_replaced": true
+}

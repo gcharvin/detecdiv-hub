@@ -77,6 +77,9 @@ summary['year1_final_linux_hosts']={'state':load('year1-final-hosts-20261109/hos
 summary['lox_archive_name_search']={'state':load('lox-archive-name-search-20261109/state.json'),
  'exit':tail('lox-archive-name-search-20261109/controller.exit'),
  'log_tail':tail('lox-archive-name-search-20261109/controller.log',1200)}
+summary['year2_incoming_integrity']={'state':load('year2-incoming-integrity-20261110/state.json'),
+ 'exit':tail('year2-incoming-integrity-20261110/controller.exit'),
+ 'log_tail':tail('year2-incoming-integrity-20261110/controller.log',1200)}
 lox_work='lox-metadata-preparation-20261107'
 summary['lox_metadata_preparation']={'exit':tail(lox_work+'/controller.exit'),
  'path_progress':load(lox_work+'/paths/progress.json'),'path_result':load(lox_work+'/paths/result.json'),
