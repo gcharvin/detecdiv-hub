@@ -1,0 +1,23 @@
+{
+  "success": true,
+  "baseline_preparation_only": true,
+  "projects": 17,
+  "fovs": 239,
+  "rois": 43102,
+  "raw_samples": 3525,
+  "raw_directories": 236,
+  "raw_expected_files": 841559,
+  "blank_roi_paths_preserved": 412,
+  "placeholder_projects": 1,
+  "hdf5_projects": 1,
+  "request_sha256": "d75d3505121fc321d9e4727e18ce129e576f1cb9fb7f6e0967e613c643c61a43",
+  "request_bytes": 90626776,
+  "scientific_files_read_or_saved": false,
+  "host_tests_started": false,
+  "leases_acquired": 0,
+  "publication_performed": false,
+  "catalog_changed": false,
+  "source_deleted": false,
+  "raw_year2_sha1_and_stability_not_replaced": true,
+  "gilles_additional_final_reader_checks_required": true
+}

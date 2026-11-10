@@ -8,7 +8,47 @@ year/user, original project, NAS snapshot, backup policy, quota, default engine
 or SMB credentials may be changed. The completed 2023 migration is separate;
 never replay any of its one-shot scripts.
 
-## Latest checkpoint — 2026-11-10, 04:10 UTC: year2 copy preparation advancing
+## Latest checkpoint — 2026-11-10, 10:01 UTC: year2 baseline inputs prepared
+
+Raw2024_2 remains copying in the ORIGINAL runner:93.4052% at10:01 UTC,
+not a terminal full SHA1/stability result. The existing17-project readonly
+incoming integrity audit has completed14 projects and is hashing project15,
+anof_281124_X5152bud4s. No error or terminal exit; do not duplicate it or edit
+its pinned source/request. All16 year1 projects remain final/preferred and
+verified; all2024 sources and original projects are retained, reclaimed0 bytes.
+
+New preparation ONLY: `prepare_year2_host_baselines_20261110.py` assembled
+private `year2-host-baselines-20261110/baseline-request.json` from the exact
+SHA256-pinned successful identity receipts, pre-relink original main hashes,
+original source inventories and the existing integrity request's after-hashes.
+No MAT/image/HDF5 was loaded or saved, no scientific reader replayed, no lease
+or publication/cutover/deletion performed. Public proof:
+`year2-host-baseline-preparation-verification.json`.
+
+-17 projects,239FOV/43,102ROI/3,525 original raw pixel sample fingerprints.
+-236 raw directories/841,559 native filename-size entries, read from pinned
+  original manifests. These are baseline input counts, NOT new reader successes.
+-412 original blank ROI paths are fixed by the separate immutable X5152moth
+  layout receipt, with empty embedded data and no im/results at those indices.
+-Qp's empty MAT placeholder stays a placeholder; Gilles's58 HDF5 images stay
+  HDF5. Reusable typed-run refs/external dependency Linux and limited-Windows
+  checks remain explicitly required; no old run resumption is claimed.
+-Request SHA256 `d75d3505121fc321d9e4727e18ce129e576f1cb9fb7f6e0967e613c643c61a43`.
+  This is deliberately a NONEXECUTABLE baseline pack: host_execution_allowed,
+  publication_allowed and source_deletion_allowed are all FALSE. Adapt/validate
+  actual final readers, require terminal incoming integrity and actual raw2
+  SHA1/stability, fresh admission/own leases and publication before using them.
+
+The preparer's first schema check stopped BEFORE creating its private output
+folder: the frozen blank-layout crop label is
+`not_applicable_preexisting_unextracted`, rather than the year1 no-image label.
+The exact label is now accepted ONLY for X5152moth fields with every ROI in the
+immutable blank index set. All initial receipt pins remain exact. The standard
+anof_dbud4 baseline comes from the separately successful availability-v2 receipt;
+its earlier failed layout audit is not treated as a success. No scientific audit
+or transfer was replayed. Lox/legacy qualifications remain unresolved/unwaived.
+
+## Previous checkpoint — 2026-11-10, 04:10 UTC: year2 copy preparation advancing
 
 The existing raw2024_2 runner remains healthy and copying:75.6842% at03:55 UTC,
 runner187291/rsync1545674 alive at that observation. No year2 full checksum or
