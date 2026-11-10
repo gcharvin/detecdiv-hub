@@ -8,6 +8,35 @@ year/user, original project, NAS snapshot, backup policy, quota, default engine
 or SMB credentials may be changed. The completed 2023 migration is separate;
 never replay any of its one-shot scripts.
 
+## Final readable raw names — user clarification, 2026-11-10
+
+The user requested comprehensible year folders in Windows and explicitly
+required that Hub/file linking survive any rename. Include readable direct
+`DetecdivHub/raw/2023_1`, `2023_2`, `2023_3`, `2024_1`, `2024_2` paths in the
+final organization. This is a NEW naming follow-up, not permission to replay
+any completed 2023 migration, checksum, retirement or diagnostic task.
+
+Do not rename any live raw runner namespace or edit its pinned requests/scripts.
+The current `.incoming` paths are already active references in Hub locations,
+API media URIs AND saved MAT srcpath/srclist/processor or JSON metadata. Hub's
+stable IDs do not automatically repair a filesystem rename or those saved
+absolute paths. In particular the completed 2023_1 namespace serves70 locations.
+
+Prepare a separate controlled naming plan after active transfers/verification:
+enumerate ALL live references and readers; choose either proven old-path
+compatibility plus readable entries or a complete metadata/catalog/URI cutover.
+Do not assume NAS symbolic links work through SMB/SSHFS/API; test compatibility
+first. Keep scientific arrays/annotations, original projects, IDs/owners/ACLs and
+history unchanged. Any metadata correction applies only to migration copies,
+with backups and strict non-path/type/save-reopen comparisons as before.
+Require fresh job/indexing/own-lease admission, no overwrite and rollback evidence,
+then real Linux, limited Windows and all affected API handler reads/hashes.
+Remove old namespace compatibility only after every actual consumer has moved
+and passed. Existing Lox/legacy access restrictions and deletion gates remain.
+No filesystem rename, database or scientific-file change was performed while
+recording this requirement. Keep the follow-up until this naming requirement
+and the original two-year migration/reclamation scope are verified complete.
+
 ## Latest checkpoint — 2026-11-10, 10:01 UTC: year2 baseline inputs prepared
 
 Raw2024_2 remains copying in the ORIGINAL runner:93.4052% at10:01 UTC,
