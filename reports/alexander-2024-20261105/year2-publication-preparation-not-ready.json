@@ -1,0 +1,14 @@
+{
+  "prepared_only": true,
+  "syntax_parsed_locally": true,
+  "isolated_fixtures_executed": false,
+  "production_publication_started": false,
+  "blocked_by": "Ordinary lab network access unavailable; SSH connection failed before command execution",
+  "publisher_sha256": "b44f97ccba7736a85e61d1f9d745d8c27d8a2e1abb41c2a857c28497f2de8e44",
+  "fixture_script_sha256": "9fda02bd625f0f5659b6765e275cb79de143eba9c31dad839a7a09e57a14081f",
+  "fixture_work_expected_absent_until_reconnection_check": true,
+  "exact_source_fixture_success_required_by_publisher": true,
+  "raw_year2_sha1_stability_and_fresh_admission_own_leases_still_required": true,
+  "catalog_changed": false,
+  "source_deleted": false
+}

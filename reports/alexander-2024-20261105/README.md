@@ -37,7 +37,58 @@ No filesystem rename, database or scientific-file change was performed while
 recording this requirement. Keep the follow-up until this naming requirement
 and the original two-year migration/reclamation scope are verified complete.
 
-## Latest checkpoint — 2026-11-10, 14:05 UTC: raw2 checksum active, 17 copies verified
+## Latest checkpoint — 2026-11-10, 16:22 UTC: lab network access unavailable
+
+The initial status check at**15:58:21 UTC** succeeded: the ORIGINAL raw2 runner
+187291 and checksum rsync2087795 were alive, phase verifying_full_content. Its
+empty log was NONTERMINAL, not proof of success. All17-copy integrity and year1
+completion results below remain terminal and must not be replayed.
+
+During independent local preparation, Windows OpenSSH subsequently timed out
+connecting to compute10.20.11.100 BEFORE SSH command execution. Four bounded TCP
+probes at16:22 UTC also timed out for compute SSH, primary SMB, homes2 SSH and
+the VM direct address. No network/VPN/SSH/credential change was attempted. No
+remote process was interrupted/restarted and no raw namespace was renamed.
+Public proof `network-access-check-20261110.json`. The remote raw runner may
+continue independently: its CURRENT state is now UNKNOWN, not failed/successful
+by inference. The15:58 latest-status JSON is the last successful observation,
+not a current post-timeout state. Restore ordinary lab network access; the
+six-hour follow-up remains active and should retry status.py first on reconnection.
+Do not repeat the network notification for unchanged inaccessibility.
+
+New LOCAL preparation, explicitly **NOT READY / NOT LAUNCHED**:
+`publish_year2_folders.py` SHA256
+`b44f97ccba7736a85e61d1f9d745d8c27d8a2e1abb41c2a857c28497f2de8e44`
+and `test_year2_publication_rename.py` SHA256
+`9fda02bd625f0f5659b6765e275cb79de143eba9c31dad839a7a09e57a14081f`.
+Local Python and embedded native-guard syntax parsed successfully. The attempted
+ISOLATED fixture launch never reached SSH, so NO fixture test or production
+publication passed or started. Proof `year2-publication-preparation-not-ready.json`.
+The fixture work path `year2-publication-fixtures-20261110` is expected absent;
+confirm real state after reconnection before any bounded launch. No replay of
+any older fixture, publisher, copy or scientific audit is required.
+
+The candidate publisher handles the17 pinned IDs/file receipts, actual suffixes
+20261105 versus special20261106, source metadata guards for15 standard originals,
+and full original inventory/hash guards on Qp's secondary nobackup root and
+Gilles's PRIMARY /DATA/Gilles/analysis/projects. It never changes a Hub owner,
+catalog entry, scientific metadata, original or raw source. Target inode/size/
+mtime/actual-Maliavko/nlink/file-directory sets are guarded before and after;
+previously relinked metadata are rehashed. No-overwrite renameat2 and no-follow
+source-directory checks have separate fixtures for standard/Qp/Gilles suffixes,
+collisions, symlinks and traversal. The code itself REFUSES execution without
+the exact publisher SHA in a successful21-case isolated fixture result.
+
+Those fixtures have NOT RUN. Native/CIFS behavior and the full new orchestration
+still require review/validation before deployment. It also refuses missing raw2
+fullSHA1/source stability, altered source manifests/runner, missing fresh17 own
+leases or expired deadline. No request/admission/lease/actor for production
+year2 publication has been created. Do not mistake prepared code for tested
+or executed work. Old year1 controllers stay completed/stopped, no replay.
+Actual2024 reclaimed0 bytes by this migration; all originals/sources retained,
+Lox/legacy gates unchanged and naming still pending the required validations.
+
+## Previous checkpoint — 2026-11-10, 14:05 UTC: raw2 checksum active, 17 copies verified
 
 The user reaffirmed autonomous migration AND readable final names, all Hub/project
 links checked, originals retained, and final notification with actual `/data`

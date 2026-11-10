@@ -32,3 +32,5 @@ inventory_readable_raw_names_20261110.py -text whitespace=cr-at-eol
 prepare_year2_final_host_inputs.py -text whitespace=cr-at-eol
 verify_year2_final_hosts.m -text whitespace=cr-at-eol
 run_year2_final_hosts.py -text whitespace=cr-at-eol
+publish_year2_folders.py -text whitespace=cr-at-eol
+test_year2_publication_rename.py -text whitespace=cr-at-eol

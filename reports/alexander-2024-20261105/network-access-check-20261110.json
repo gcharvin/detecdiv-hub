@@ -1,0 +1,34 @@
+{
+  "checked_at": "2026-11-10T16:22:31.124285+00:00",
+  "tcp_probes": [
+    {
+      "service": "compute_ssh",
+      "reachable": false,
+      "error_type": "TimeoutError"
+    },
+    {
+      "service": "web_vm_ssh",
+      "reachable": false,
+      "error_type": "TimeoutError"
+    },
+    {
+      "service": "primary_smb",
+      "reachable": false,
+      "error_type": "TimeoutError"
+    },
+    {
+      "service": "homes2_ssh",
+      "reachable": false,
+      "error_type": "TimeoutError"
+    }
+  ],
+  "network_configuration_changed": false,
+  "remote_runner_state_inferred_from_timeout": false,
+  "last_successful_remote_status_at": "2026-11-10T15:58:21.061027+00:00",
+  "last_known_raw2_phase": "verifying_full_content",
+  "current_raw2_state_unknown": true,
+  "fixture_launcher_failed_before_ssh_connection": true,
+  "remote_fixture_process_started": false,
+  "source_deleted": false,
+  "actual_reclaimed_bytes_2024": 0
+}
