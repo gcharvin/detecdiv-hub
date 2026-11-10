@@ -1,0 +1,10 @@
+{
+  "workerStateBefore": "Running",
+  "workerStateAfter": "Running",
+  "fixtureTaskRemoved": true,
+  "success": true,
+  "fixture_script_removed": true,
+  "requests_and_reports_preserved": true,
+  "worker_modified": false,
+  "dataset_paths_changed": false
+}

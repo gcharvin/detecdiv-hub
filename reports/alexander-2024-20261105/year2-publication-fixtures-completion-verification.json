@@ -1,0 +1,14 @@
+{
+  "prepared_only": true,
+  "publisher_sha256": "b44f97ccba7736a85e61d1f9d745d8c27d8a2e1abb41c2a857c28497f2de8e44",
+  "isolated_fixture_cases_passed": 21,
+  "traversal_rejections": 63,
+  "real_cifs_cases_passed": 9,
+  "cifs_fixture_cleaned": true,
+  "production_publication_started": false,
+  "full_17_project_publication_guards_executed": false,
+  "fresh_admission_and_new_17_project_orchestration_still_required": true,
+  "raw_year2_sha1_and_source_stability_still_required": true,
+  "source_deleted": false,
+  "catalog_changed": false
+}

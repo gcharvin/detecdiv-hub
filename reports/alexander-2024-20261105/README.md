@@ -37,7 +37,83 @@ No filesystem rename, database or scientific-file change was performed while
 recording this requirement. Keep the follow-up until this naming requirement
 and the original two-year migration/reclamation scope are verified complete.
 
-## Latest checkpoint — 2026-11-10, 16:22 UTC: lab network access unavailable
+## Latest checkpoint — 2026-11-10, 17:50 UTC: reconnected, fixtures complete
+
+Gilles restored ordinary lab connectivity and reaffirmed autonomous continuation
+through readable names and the actual `/data` recovery report. A fresh status
+succeeded at16:31 UTC. Runner identity/pin and actual dry-run SHA1 command were
+checked; rsync2087795 IO counters increased across two observations (real reads,
+not a percentage or terminal result). Proof
+`network-reconnection-raw2-observation-20261110.json`. At**17:50:12 UTC** the
+ORIGINAL runner187291/rsync2087795 are still verifying_full_content, empty active
+log NONTERMINAL. Do not rerun copy/checksum or rename the active raw namespace.
+The network-loss checkpoint below is now historical. Only the raw runner remains
+active; every fixture/probe below has terminated and been cleaned.
+
+Publisher fixtures for the EXACT existing source SHA
+`b44f97ccba7736a85e61d1f9d745d8c27d8a2e1abb41c2a857c28497f2de8e44`
+are now successful:21 isolated cases plus63 traversal refusals, and9 tiny fixture
+cases on the REAL authenticated Maliavko CIFS mount. Standard/Qp/Gilles suffixes,
+payload/inode preservation and file/directory collision refusal passed. Symlink
+refusals were tested in the isolated filesystem, not claimed on CIFS. The tiny
+CIFS fixture was strictly enumerated/byte-checked and cleaned, no project/raw
+payload touched. Proofs `year2-publication-rename-fixture-verification.json`,
+`year2-publication-cifs-fixture-verification.json`, and combined
+`year2-publication-fixtures-completion-verification.json`. DO NOT rerun these
+completed fixtures. First transport retrieval printed pretty JSON and the helper
+rejected its final line; exit0/result were fetched READONLY in compact JSON,
+without replaying tests. The prior not-ready proof remains historical.
+
+Production publication has NOT started. Actual17-project native before/after
+guards and full orchestration remain unexecuted. Still require raw2 fullSHA1 AND
+source stability, NEW17-project fresh admission/own leases, mixed Hub ownership,
+two stage suffixes, final Linux/limited Windows readers and catalog/API gates.
+The publisher code was not edited after these exact-source fixture tests.
+
+NEW naming compatibility fixture is fully TERMINATED and cleaned:
+`raw-namespace-alias-probe-20261110`. A tiny50-byte fake payload was moved inside
+its OWN dedicated hidden fixture and a relative NAS alias restored the old
+fixture path. Linux, the actual API container's full FileResponse body, and
+the real LIMITED Windows GMGM\Charvin-Admin/session1 all read the old AND readable
+fixture paths with SHA256
+`c07e6b069c27aeedb043432590c3a45913fd3bec83b16ca632756f3d2f1c3256`.
+NAS payload owner stayed Maliavko; the fixture link owner was1032, explicitly
+recorded, with no chown/ACL/SMB/mount/credential change. This establishes the
+tested relative-link pattern's cross-host compatibility, NOT a production
+namespace cutover, all real catalog handler tests, or source-retirement waiver.
+Public proof `raw-namespace-alias-fixture-completion-verification.json` plus
+separate Linux/API proofs. Saved absolute paths were not rewritten.
+
+Dedicated Windows task `DetecDiv Raw Namespace Alias Probe 20261110` has ALREADY
+been removed after archiving success/result0, exact exported SID/Interactive/
+Limited/action/hash checks. Only its pinned probe script was removed; request
+and report remain. Worker was Running before/after and untouched. Receipt
+`raw-namespace-windows-cleanup.json`; full report archived ONLY in
+runtime/raw-namespace-windows-status.json. NEVER query or relaunch this removed
+task. The separate year1 diagnostic task also remains removed, no status query.
+The native fixture link and50-byte fake file/directories were guarded and removed;
+no scientific reclaimed bytes are attributed to fixture cleanup.
+
+For the real naming step, preserve every old path until all consumers have
+working new paths; avoid a gap in served old URIs. The successful fixture proves
+relative alias compatibility only; it does not prove atomic directory/link
+exchange support on NAS/CIFS. Test any chosen atomic/cutover/rollback primitive
+on a NEW isolated scope before touching actual names. Keep existing completed
+checks and namespace references intact meanwhile. Real raw/project/API final
+reads and current Windows homes-share view still require actual cutover checks.
+
+New `verify_raw_year2_completion.py` is prepared, syntax parsed, NOT run against
+the active checksum. Once raw2 actually terminates, it corroborates pinned runner,
+root controller.exit0, terminal empty differences log, no live SHA1 rsync,
+and identical complete native source manifests (974112files/5856516249162bytes).
+It runs NO new checksum. Publish its proof only after all assertions pass; notify
+true SHA1 completion as soon as observed, distinguishing pending stability.
+
+All2024 scientific originals and source duplicates retained; actual reclaimed0.
+No new production lease/admission/rename/URI cutover/unlink happened. Lox15 missing
+fields/derived folder and legacy relevance remain unresolved and unwaived.
+
+## Previous checkpoint — 2026-11-10, 16:22 UTC: lab network access unavailable
 
 The initial status check at**15:58:21 UTC** succeeded: the ORIGINAL raw2 runner
 187291 and checksum rsync2087795 were alive, phase verifying_full_content. Its

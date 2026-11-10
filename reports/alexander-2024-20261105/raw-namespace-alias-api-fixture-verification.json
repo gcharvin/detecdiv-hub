@@ -1,0 +1,10 @@
+{
+  "success": true,
+  "api_container_old_and_readable_paths_verified": true,
+  "file_response_full_body_verified": true,
+  "expected_sha256": "c07e6b069c27aeedb043432590c3a45913fd3bec83b16ca632756f3d2f1c3256",
+  "actual_catalog_handlers_checked": false,
+  "database_changed": false,
+  "dataset_paths_changed": false,
+  "fixture_only": true
+}

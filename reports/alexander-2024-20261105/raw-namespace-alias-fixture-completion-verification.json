@@ -1,0 +1,15 @@
+{
+  "success": true,
+  "fixture_removed": true,
+  "fixture_bytes_removed": 50,
+  "actual_scientific_space_reclaimed_2024": 0,
+  "dataset_paths_changed": false,
+  "scientific_files_modified": false,
+  "requests_and_reports_preserved": true,
+  "compatibility_fixture_verified_linux_windows_api": true,
+  "actual_windows_identity": "gmgm\\charvin-admin",
+  "limited_windows_session": 1,
+  "expected_sha256": "c07e6b069c27aeedb043432590c3a45913fd3bec83b16ca632756f3d2f1c3256",
+  "actual_dataset_namespace_cutover_performed": false,
+  "actual_catalog_handlers_checked": false
+}

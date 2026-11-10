@@ -1,0 +1,23 @@
+{
+  "success": true,
+  "publisher_sha256": "b44f97ccba7736a85e61d1f9d745d8c27d8a2e1abb41c2a857c28497f2de8e44",
+  "tests": [
+    "anof_050624_YPDtitr_plate_3k:success",
+    "anof_050624_YPDtitr_plate_3k:directory_collision",
+    "anof_050624_YPDtitr_plate_3k:file_collision",
+    "qp_250724_dbud4stest:success",
+    "qp_250724_dbud4stest:directory_collision",
+    "qp_250724_dbud4stest:file_collision",
+    "281124_Alex:success",
+    "281124_Alex:directory_collision",
+    "281124_Alex:file_collision"
+  ],
+  "real_cifs_mount_verified": true,
+  "authenticated_mount_user_maliavko": true,
+  "isolated_symlink_and_traversal_cases_previously_passed": true,
+  "cifs_symlink_cases_not_claimed": true,
+  "fixture_cleaned": true,
+  "project_or_raw_data_changed": false,
+  "publication_started": false,
+  "source_deleted": false
+}

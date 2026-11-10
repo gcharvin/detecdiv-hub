@@ -1,0 +1,54 @@
+{
+  "checked_at": "2026-11-10T16:32:29.440822+00:00",
+  "lab_ssh_access_restored": true,
+  "raw2_phase": "verifying_full_content",
+  "runner_identity_and_pin_verified": true,
+  "sha1_dry_run_identity_verified": true,
+  "io_observations": [
+    {
+      "pid": 187291,
+      "before": {
+        "rchar": 32428590658824,
+        "wchar": 22073033888342,
+        "syscr": 825028775,
+        "syscw": 384789505,
+        "read_bytes": 84783104,
+        "write_bytes": 11037190819840,
+        "cancelled_write_bytes": 24576
+      },
+      "after": {
+        "rchar": 32428590658824,
+        "wchar": 22073033888342,
+        "syscr": 825028775,
+        "syscw": 384789505,
+        "read_bytes": 84783104,
+        "write_bytes": 11037190819840,
+        "cancelled_write_bytes": 24576
+      }
+    },
+    {
+      "pid": 2087795,
+      "before": {
+        "rchar": 505090319224,
+        "wchar": 5586589,
+        "syscr": 1984355,
+        "syscw": 93,
+        "read_bytes": 200704,
+        "write_bytes": 0,
+        "cancelled_write_bytes": 0
+      },
+      "after": {
+        "rchar": 505282748770,
+        "wchar": 5586589,
+        "syscr": 1985110,
+        "syscw": 93,
+        "read_bytes": 200704,
+        "write_bytes": 0,
+        "cancelled_write_bytes": 0
+      }
+    }
+  ],
+  "fixture_work_exists": false,
+  "fixture_exit": null,
+  "source_deleted": false
+}

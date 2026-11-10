@@ -1,0 +1,13 @@
+{
+  "success": true,
+  "fixture_path": "/homes2/maliavko/DetecdivHub/.raw-namespace-alias-fixture-20261110",
+  "expected_sha256": "c07e6b069c27aeedb043432590c3a45913fd3bec83b16ca632756f3d2f1c3256",
+  "bytes": 50,
+  "linux_old_and_readable_paths_verified": true,
+  "native_relative_symlink_verified": true,
+  "payload_owner_maliavko": true,
+  "fixture_link_uid": 1032,
+  "dataset_paths_changed": false,
+  "scientific_files_read_or_saved": false,
+  "windows_and_api_checks_pending": true
+}

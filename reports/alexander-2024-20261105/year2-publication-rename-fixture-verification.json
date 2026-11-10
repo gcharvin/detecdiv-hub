@@ -1,0 +1,32 @@
+{
+  "success": true,
+  "tests": [
+    "anof_050624_YPDtitr_plate_3k:success",
+    "anof_050624_YPDtitr_plate_3k:directory",
+    "anof_050624_YPDtitr_plate_3k:file",
+    "anof_050624_YPDtitr_plate_3k:broken_symlink",
+    "anof_050624_YPDtitr_plate_3k:source_symlink",
+    "anof_050624_YPDtitr_plate_3k:source_file",
+    "anof_050624_YPDtitr_plate_3k:wrong_suffix",
+    "qp_250724_dbud4stest:success",
+    "qp_250724_dbud4stest:directory",
+    "qp_250724_dbud4stest:file",
+    "qp_250724_dbud4stest:broken_symlink",
+    "qp_250724_dbud4stest:source_symlink",
+    "qp_250724_dbud4stest:source_file",
+    "qp_250724_dbud4stest:wrong_suffix",
+    "281124_Alex:success",
+    "281124_Alex:directory",
+    "281124_Alex:file",
+    "281124_Alex:broken_symlink",
+    "281124_Alex:source_symlink",
+    "281124_Alex:source_file",
+    "281124_Alex:wrong_suffix"
+  ],
+  "traversal_rejections": 63,
+  "publisher_sha256": "b44f97ccba7736a85e61d1f9d745d8c27d8a2e1abb41c2a857c28497f2de8e44",
+  "production_paths_used": false,
+  "publication_started": false,
+  "source_deleted": false,
+  "raw_year2_integrity_and_fresh_own_lease_gates_still_required": true
+}
