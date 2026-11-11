@@ -37,7 +37,32 @@ No filesystem rename, database or scientific-file change was performed while
 recording this requirement. Keep the follow-up until this naming requirement
 and the original two-year migration/reclamation scope are verified complete.
 
-## Latest checkpoint — 2026-11-11, 16:05 UTC: checksum active, year2 publication launcher prepared
+## Latest checkpoint — 2026-11-11, 22:05 UTC: checksum active, final host operations prepared
+
+The 22:01 UTC status showed the original runner and SHA1 rsync still active.
+A process check confirmed the exact SHA1 dry-run arguments. The process read
+counter increased from 3.95 TB at the previous checkpoint to 4.81 TB. These
+are process I/O counters. Terminal SHA1 and source-stability receipts are
+still pending, and actual 2024 space reclaimed remains zero.
+
+`year2_final_host_operations.py` is ready to stage, start, observe and
+compare the pinned final readers after successful 17-project publication.
+The Python payloads and both PowerShell task scripts parsed. Its `status`
+operation ran on the actual Linux and Windows hosts and confirmed that the
+dedicated work directories and the Windows task do not exist yet. Production
+publication, reader staging and reader execution have not started.
+
+After terminal publication, run `stage`, then `start-linux` and
+`start-windows`. Each start rechecks the same 17 admitted leases. Monitor
+`status` and use `verify` when both readers finish. The Windows task is
+`DetecDiv Alexander 2024 Year2 Final Hosts 20261111`, limited interactive under
+the expected domain user. Verification requires both complete per-project
+reports, 239 FOV, 43,102 ROI, 3,525 raw samples per host and the protected
+engine. On a partial transport failure inspect each named directory and task
+before continuing. The catalog cutover and cleanup of the new Windows task
+remain separate operations.
+
+## Previous checkpoint — 2026-11-11, 16:05 UTC: checksum active, year2 publication launcher prepared
 
 The 16:03 UTC status showed the original raw runner 187291 and SHA1 rsync
 2087795 still active. A subsequent process check confirmed the exact SHA1
