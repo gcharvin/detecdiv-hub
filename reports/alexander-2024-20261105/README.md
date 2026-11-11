@@ -37,7 +37,28 @@ No filesystem rename, database or scientific-file change was performed while
 recording this requirement. Keep the follow-up until this naming requirement
 and the original two-year migration/reclamation scope are verified complete.
 
-## Latest checkpoint — 2026-11-10, 22:02 UTC: checksum active, catalog continuity checked
+## Latest checkpoint — 2026-11-11, 04:01 UTC: checksum active, year2 media inventoried
+
+At 03:59:10 UTC the original runner 187291 and SHA1 rsync 2087795 were
+alive in `verifying_full_content`. The difference log was empty while the
+process was still running. There was no terminal SHA1 or source-stability
+result. No runner, dataset path or source file was changed. Reclaimed 2024
+space remains zero.
+
+The year2 API catalog inventory at 04:00:50 UTC found 51 raw datasets with
+year2 source locations and 877 media references (828 artifacts, 49 display
+settings). All 877 unique file paths, totaling 4,982,573,526 bytes in the
+initial native manifest, were matched to that pinned manifest and to an
+in-scope raw location. No unsafe relative paths or missing manifest entries
+were found. Proof `year2-api-media-inventory-preparation-verification.json`.
+The private plan is `year2-api-media-inventory-20261111/plan.json` on compute,
+with the exact plan digest in the proof. The query used a repeatable read-only
+transaction. No media handler was streamed, no target file was read, and no
+catalog or URI was modified. Use the plan to prepare real handler verification
+after the raw SHA1 and native source stability pass, and recheck catalog
+references before any cutover.
+
+## Previous checkpoint — 2026-11-10, 22:02 UTC: checksum active, catalog continuity checked
 
 Fresh status at21:59:51 UTC still shows the ORIGINAL runner187291 and
 rsync2087795 alive in verifying_full_content, with its active differences log

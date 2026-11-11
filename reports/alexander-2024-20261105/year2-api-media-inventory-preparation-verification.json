@@ -1,0 +1,19 @@
+{
+  "read_only": true,
+  "checked_at": "2026-11-11T04:00:50.572267+00:00",
+  "raw_datasets_with_source_locations": 51,
+  "artifacts": 828,
+  "display_settings": 49,
+  "references_without_safe_relative_path": 0,
+  "valid_references_missing_from_initial_manifest": 0,
+  "references_without_in_scope_raw_location": 0,
+  "unique_files_in_initial_manifest": 877,
+  "unique_bytes_in_initial_manifest": 4982573526,
+  "initial_manifest_sha256": "004fb3404b4af8fe09b6063a09e3a162488f689499ddb51087513daf3d9f4fad",
+  "route_sha256": "d9049ec15138947335590f130e7854431ee8322be63f6f87d01162662133b3f1",
+  "plan_sha256": "36329bad1371cf9d95251eab52033ccc8e78eb79ca56a95468cf53bdae53125d",
+  "handlers_streamed": false,
+  "uri_changed": false,
+  "source_deleted": false,
+  "script_sha256": "d93ed4972076b6cf96eca07147b325868f5abc85b6feb43bdbcd3bc7616a05b5"
+}
