@@ -37,7 +37,33 @@ No filesystem rename, database or scientific-file change was performed while
 recording this requirement. Keep the follow-up until this naming requirement
 and the original two-year migration/reclamation scope are verified complete.
 
-## Latest checkpoint — 2026-11-11, 04:01 UTC: checksum active, year2 media inventoried
+## Latest checkpoint — 2026-11-11, 10:00 UTC: checksum active, year2 media verifier prepared
+
+The 10:00 UTC status still showed the original raw runner 187291 and
+rsync 2087795 active in `verifying_full_content`. The empty difference log
+was nonterminal. No terminal checksum or native stability result, no raw
+publication or URI changes, and zero reclaimed 2024 bytes.
+
+`verify_year2_api_media_readonly.py` and `launch_year2_api_media_readonly.py`
+are prepared. The verifier's exact source was loaded in the deployed API
+container without running its entrypoint. Its read-only catalog query matched
+all 877 planned reference tuples, and its ASGI stream matched the full
+on-disk digest of an API code file served as a test response. See
+`year2-api-media-verifier-preparation-verification.json`. The full verifier
+has not streamed any dataset handler or compared any target media.
+
+Run the launcher only after the terminal raw2 checksum and native stability
+proof. It pins the plan and runner, checks the original runner's completed
+state on compute, then starts a single detached read-only verifier on
+webserver-labo. Check its host `controller.log`, `controller.exit`,
+`archive.exit` and archived `result.json` and `receipt.jsonl` under
+`year2-api-media-readonly-20261111`. Require both zero exits, a successful
+terminal result, 877 receipts and 4,982,573,526 bytes, and match the receipt
+digest. A supervisor timeout requires inspecting the container actor and
+partial reports before any retry. This is a pre-cutover comparison. Actual
+URI cutover and subsequent real handler verification remain separate.
+
+## Previous checkpoint — 2026-11-11, 04:01 UTC: checksum active, year2 media inventoried
 
 At 03:59:10 UTC the original runner 187291 and SHA1 rsync 2087795 were
 alive in `verifying_full_content`. The difference log was empty while the

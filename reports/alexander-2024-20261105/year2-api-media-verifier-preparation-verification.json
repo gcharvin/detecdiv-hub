@@ -1,0 +1,10 @@
+{
+  "exact_current_reference_set_matches_plan": true,
+  "references": 877,
+  "actual_starlette_full_stream_fixture_passed": true,
+  "dataset_handlers_streamed": false,
+  "read_only": true,
+  "uri_changed": false,
+  "source_deleted": false,
+  "runner_sha256": "584d29a81717fa3d1632ec65b7ae092b9356dae953627373d2e2f398a91e8b50"
+}
