@@ -37,7 +37,32 @@ No filesystem rename, database or scientific-file change was performed while
 recording this requirement. Keep the follow-up until this naming requirement
 and the original two-year migration/reclamation scope are verified complete.
 
-## Latest checkpoint — 2026-11-11, 10:00 UTC: checksum active, year2 media verifier prepared
+## Latest checkpoint — 2026-11-11, 16:05 UTC: checksum active, year2 publication launcher prepared
+
+The 16:03 UTC status showed the original raw runner 187291 and SHA1 rsync
+2087795 still active. A subsequent process check confirmed the exact SHA1
+dry-run arguments. The terminal checksum and source-stability receipts remain
+pending. Actual 2024 space reclaimed is zero.
+
+`launch_year2_project_publication.py` now prepares the exact 17-project scope
+from the pinned native inventory receipts and starts the previously tested
+publisher after terminal raw proof and fresh lease admission. Its
+`--check` ran read-only at 16:05:31 UTC against the live catalog and passed
+all 17 identity, ownership, metadata and location comparisons. No affected
+job, active lease or indexing was found across 51 raw datasets in scope.
+Both remote payloads parsed and compute Python is 3.12.3. Production
+admission, staging of publisher inputs, filesystem publication, final
+readers and catalog cutover are still pending.
+
+Once raw2 checksum and source stability are terminal and corroborated, run the
+launcher without `--check`. If transport fails, inspect the exact batch and
+the remote `year2-final-publication-20261110` directory before taking any
+action. The launcher records private preparation, admission and launch
+receipts. It admits a single six-hour lease window for the 17 projects and
+does not cut over the catalog. Continue with final host checks under those
+same active leases. The approved publication scope preserves all originals.
+
+## Previous checkpoint — 2026-11-11, 10:00 UTC: checksum active, year2 media verifier prepared
 
 The 10:00 UTC status still showed the original raw runner 187291 and
 rsync 2087795 active in `verifying_full_content`. The empty difference log
