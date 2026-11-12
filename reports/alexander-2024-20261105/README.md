@@ -37,7 +37,25 @@ No filesystem rename, database or scientific-file change was performed while
 recording this requirement. Keep the follow-up until this naming requirement
 and the original two-year migration/reclamation scope are verified complete.
 
-## Latest checkpoint — 2026-11-12: final 192 archived-main reviews finished
+## Latest checkpoint — 2026-11-12: archive bundle path evidence
+
+A new bounded read-only comparison checked the 679 staged archived-main
+members against their Hub `archive_bundle_root_path` metadata. It rechecked
+each staged SHA256 and decoded the MAT v5 envelopes. Path strings in 661
+members contain the final component or final two components of their
+associated bundle root. The other 18 have no such string match. The private
+compute receipt is `legacy-archived-main-bundle-path-evidence-20261112/receipt.json`,
+SHA256 `76871b44c683c5607e6c0ed707d1157523b5b088a3222c481167a70bcaebaf47`.
+The 679 projects reference 667 distinct bundle raw IDs in Hub metadata, and
+none is among the 115 2024 raw dataset IDs in the cutover preflight.
+
+Component matches provide evidence for the recorded bundle association. They
+do not establish project identity or inspect all external sidecars. The 18
+without a match, including the zero-byte member, remain unqualified. LoxP15
+still has 15 missing long-series fields. No source was removed and the actual
+2024 space reclaimed from `/data` remains zero bytes.
+
+## Previous checkpoint — 2026-11-12: final 192 archived-main reviews finished
 
 `legacy-bundle-main-path-review-continuation-20261112` ended with exit 0.
 It inspected all 192 staged MAT members and found no stored path strings
