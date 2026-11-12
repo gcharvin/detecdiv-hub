@@ -60,6 +60,8 @@ windows = os.name == 'nt'
 host = 'windows' if windows else 'linux'
 if windows:
     work = Path('C:/ProgramData/DetecDivHub/homes2-connection-private/year2-final-hosts-20261111')
+    if arguments.get('rdp2'):
+        work = work.with_name(work.name + '-rdp2')
 else:
     work = Path('/home/charvin-admin/storage-transfers/alexander-2024-20261105/year2-final-hosts-20261111')
 
@@ -237,7 +239,8 @@ def start(host):
 
 
 def status():
-    reports = {host: operate(host, "status") for host in ("linux", "windows")}
+    rdp2 = (PRIVATE / "year2-final-host-windows-rdp2-launch.json").is_file()
+    reports = {host: operate(host, "status", rdp2=rdp2) for host in ("linux", "windows")}
     path = PRIVATE / "year2-final-host-status.json"
     temporary = path.with_suffix(".tmp")
     temporary.write_text(json.dumps(reports, indent=2) + "\n", encoding="utf-8")
@@ -263,7 +266,9 @@ def verify(reports):
                                "runLevel": "Limited", "logonType": "Interactive"}
     state = windows["state"]
     assert state["windows_identity"].casefold() == "gmgm\\charvin-admin"
-    assert state["session_id"] == 1 and state["limited_token_verified"] is True
+    rdp_receipt = PRIVATE / "year2-final-host-windows-rdp2-launch.json"
+    expected_session = read_json(rdp_receipt)["session_id"] if rdp_receipt.is_file() else 1
+    assert state["session_id"] == expected_session and state["limited_token_verified"] is True
     by_host = {}
     for host, receipt in reports.items():
         state, report = receipt["state"], receipt["verification"]
@@ -289,7 +294,7 @@ def verify(reports):
     assert gilles["typed_paths"] == {"typed_json_verified": 9, "run_loaders_verified": 7,
                                     "external_files_verified": 3, "historical_run_resumption_validated": False}
     result = {"success": True, "projects": 17, "fovs": 239, "rois": 43102, "raw_samples_per_host": 3525,
-              "engine_sha": ENGINE_SHA, "limited_windows_token_verified": True,
+              "engine_sha": ENGINE_SHA, "limited_windows_token_verified": True, "windows_session_id": expected_session,
               "report_sha256_by_host": {host: receipt["report_sha256"] for host, receipt in reports.items()},
               "project_saved": False, "catalog_changed": False, "source_deleted": False}
     with (HERE / "year2-final-hosts-completion-verification.json").open("x", encoding="utf-8") as output:

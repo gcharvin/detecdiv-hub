@@ -37,7 +37,33 @@ No filesystem rename, database or scientific-file change was performed while
 recording this requirement. Keep the follow-up until this naming requirement
 and the original two-year migration/reclamation scope are verified complete.
 
-## Latest checkpoint — 2026-11-12, 06:31 UTC: publication verified, Windows session needed
+## Latest checkpoint — 2026-11-12, 07:22 UTC: Linux passed, Windows SMB access missing
+
+Linux passed the final reads for all 17 projects at 07:05 UTC with exit 0,
+239 FOV, 43,102 ROI and 3,525 samples. Preserve its terminal report and do
+not run Linux again. Gilles's active desktop on CG-PCDELL01-306 is
+`GMGM\Charvin-Admin` in RDP session 2.
+
+The existing never-run Windows task was retargeted to a distinct `-rdp2`
+work directory. The original staging was preserved. The request, MATLAB
+reader and protected engine are identical. The Windows Python runner now
+checks the observed session ID in its control file. It proved the expected
+domain identity, session 2 and limited token, then exited 1 before MATLAB
+because the final MAT files were unavailable. The private launch receipt is
+`runtime/year2-final-host-windows-rdp2-launch.json`. Do not run that failed
+attempt again. A read-only probe under the same token reached the NAS's
+`home` share, but `DetecdivHub/projects` and all 17 MAT paths failed with
+Windows error 3. The probe task was unregistered. No SMB settings or
+credentials were changed.
+
+The existing canonical SMB endpoint must be reachable as the NAS user
+`maliavko` from Gilles's RDP desktop. Once access is restored, use a new
+private work directory for the Windows-only retry. Preserve prior results,
+reuse the pinned input, verify the active limited interactive token, and
+refresh the exact admission. Earliest current lease expiry remains 12:19:27
+UTC. The project catalog cutover and source retirement are pending.
+
+## Previous checkpoint — 2026-11-12, 06:31 UTC: publication verified, Windows session needed
 
 The 17 filesystem publications finished with exit 0. Native final folders
 and original inventories passed, with 103,243 files and 1,831,201,635,230
