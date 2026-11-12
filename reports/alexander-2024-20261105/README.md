@@ -1,4 +1,22 @@
-## Latest checkpoint — 2026-11-12: additional raw archive history
+## Latest checkpoint — 2026-11-12: targeted unresolved archive names
+
+A new read-only filename check covered immediate entries in the 11 real child
+directories of `/archive`, matching the complete UUIDs of the three raw IDs
+whose selected job/event metadata had no ZIP path. It examined 1,308 entries,
+zero directory-read errors, and found one regular ZIP name containing one UUID.
+This is filename evidence only; its identity is not established. The private
+receipt is `runtime/legacy-unresolved-raw-archive-uuid-names-20261112.json`,
+SHA256 `2b220f6134ff24a5eecbe71299d887496b16395ffc06554aebf056b67e4508ce`.
+The other two UUIDs had no matching immediate entry within this limited scope;
+no conclusion follows for deeper, renamed, hidden or other storage.
+
+A separate bounded central-directory read of the one candidate ended exit 0:
+100 entries, no declared project-main or known 2024 acquisition name candidate,
+no member payload read. See `legacy-uuid-linked-raw-index-completion-verification.json`.
+This does not qualify the project, sidecars or source removal. Lox and other
+legacy references remain unresolved; 2024 space reclaimed is zero bytes.
+
+## Previous checkpoint — 2026-11-12: additional raw archive history
 
 A fresh read-only query of archive job and lifecycle history covered the five
 raw IDs behind 13 missing-main projects whose raw URI was only `/archive`.

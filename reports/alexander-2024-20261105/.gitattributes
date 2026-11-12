@@ -85,3 +85,5 @@ launch_unspecified_raw_archive_indexes_recovery.py -text whitespace=cr-at-eol
 scan_unspecified_raw_archive_indexes.py -text whitespace=cr-at-eol
 inspect_unspecified_raw_archive_mains.py -text whitespace=cr-at-eol
 launch_unspecified_raw_archive_mains.py -text whitespace=cr-at-eol
+scan_uuid_linked_raw_archive_index.py -text whitespace=cr-at-eol
+launch_uuid_linked_raw_archive_index.py -text whitespace=cr-at-eol

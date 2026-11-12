@@ -1,0 +1,14 @@
+{
+  "success": true,
+  "controller_exit": 0,
+  "archives": 1,
+  "projects": 1,
+  "entries": 100,
+  "exact_name_or_acquisition_candidates": 0,
+  "request_sha256": "349c4a84cf6a62b85d08f28128a6de1da9978dafc54a2e33830b35eb4b8cb999",
+  "receipt_sha256": "876e6452e65dd8c27bf271d768d9be63ffb35751cebdabfccf24e479ca42c8a8",
+  "member_payload_reads": 0,
+  "archive_identity_confirmed": false,
+  "project_identity_confirmed": false,
+  "read_only": true
+}

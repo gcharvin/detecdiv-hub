@@ -1,0 +1,11 @@
+{
+  "read_only": true,
+  "raw_ids": 3,
+  "archive_child_directories": 11,
+  "immediate_entries": 1308,
+  "directory_errors": 0,
+  "matching_regular_zip_filenames": 1,
+  "uuid_match_is_identity_proof": false,
+  "private_receipt_sha256": "2b220f6134ff24a5eecbe71299d887496b16395ffc06554aebf056b67e4508ce",
+  "scope": "Immediate /archive child directories only; no symlink traversal."
+}
