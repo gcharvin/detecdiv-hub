@@ -37,7 +37,44 @@ No filesystem rename, database or scientific-file change was performed while
 recording this requirement. Keep the follow-up until this naming requirement
 and the original two-year migration/reclamation scope are verified complete.
 
-## Latest checkpoint — 2026-11-11, 22:05 UTC: checksum active, final host operations prepared
+## Latest checkpoint — 2026-11-12, 06:24 UTC: raw2 and media verified, project publication running
+
+The original raw runner finished the SHA1 of 974,112 files (5,856,516,249,162
+bytes) at 04:57:14 UTC. Source stability passed at 05:01:33 UTC. The
+independent `raw-year2-completion-verification.json` confirms controller
+exit 0, an empty terminal difference log, no live checksum and matching full
+native manifests. Both raw years are verified in staging. Preserve this
+evidence and do not replay the transfer or checksum.
+
+The year2 media actor finished at 06:23:09 UTC with both controller and
+archive exit 0. It read all 877 real source API responses and matched
+4,982,573,526 bytes and their SHA256 digests to the homes2 copies. The
+independent verifier matched every receipt to the pinned plan and the host
+log to the archive. See `year2-api-media-readonly-completion-verification.json`.
+This validates the responses before URI cutover. The catalog URIs still need
+their exact transaction and subsequent handler checks.
+
+The 17-project publisher is running in compute tmux
+`alex2024-year2-final-publication-20261110`, batch
+`ee11789c-4a26-448a-a020-123eed5f5e9a`. Private admission and launch receipts
+are under `runtime/`. The earliest of its 17 leases expires at 12:19:27 UTC
+on November 12. Follow `controller.exit`, `result.json`, `renames.jsonl`
+and native inventories in `year2-final-publication-20261110`. The schedule
+temporarily checks hourly to keep work within this lease window. Do not
+replay the admission or publisher. On successful publication continue with
+`year2_final_host_operations.py stage`, `start-linux`, `start-windows`
+and later `verify`.
+
+`cutover_year2_project_catalog.py` is prepared. Its Python and remote
+transaction code parsed and all 17 destination layouts match its directory
+requirements. Use it only after both final host proofs and while the exact
+leases are live. It rechecks catalog identity, leases and jobs inside the
+transaction, validates the project API's new preferred locations and
+releases only this batch's leases on commit. If the client loses the
+response, inspect the recorded batch outcome before acting. No cutover or
+source deletion has occurred. Actual 2024 space reclaimed remains zero.
+
+## Previous checkpoint — 2026-11-11, 22:05 UTC: checksum active, final host operations prepared
 
 The 22:01 UTC status showed the original runner and SHA1 rsync still active.
 A process check confirmed the exact SHA1 dry-run arguments. The process read

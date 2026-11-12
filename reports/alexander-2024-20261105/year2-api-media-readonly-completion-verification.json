@@ -1,0 +1,17 @@
+{
+  "phase": "verified_before_uri_cutover",
+  "success": true,
+  "handlers_verified": 877,
+  "bytes_verified": 4982573526,
+  "read_only": true,
+  "source_deleted": false,
+  "uri_changed": false,
+  "route_sha256": "d9049ec15138947335590f130e7854431ee8322be63f6f87d01162662133b3f1",
+  "receipt_sha256": "1ba1dc03dd216d2cb1ae5172945bf0ef01b0d1812f3b22aa8fd3d86d5d4d7839",
+  "finished_at": "2026-11-12T06:23:09.226292+00:00",
+  "plan_sha256": "36329bad1371cf9d95251eab52033ccc8e78eb79ca56a95468cf53bdae53125d",
+  "controller_exit": 0,
+  "archive_exit": 0,
+  "all_receipts_match_pinned_plan": true,
+  "durable_host_log_matches_archive": true
+}
