@@ -1,0 +1,13 @@
+{
+  "success": true,
+  "projects": 17,
+  "files": 103243,
+  "logical_bytes": 1831201635230,
+  "publication_result_sha256": "df55a3d96be86ea4b8aea6d5727e984e5fad7a8e05bdb8c2555ad2356b11bb7b",
+  "renames_sha256": "563b765b9b7316e94de957a9b36637bad952e70cb074384ed9008adf548d95d9",
+  "controller_exit": 0,
+  "no_overwrite": true,
+  "original_inventories_unchanged": true,
+  "catalog_cutover_pending": true,
+  "source_deleted": false
+}

@@ -37,7 +37,38 @@ No filesystem rename, database or scientific-file change was performed while
 recording this requirement. Keep the follow-up until this naming requirement
 and the original two-year migration/reclamation scope are verified complete.
 
-## Latest checkpoint — 2026-11-12, 06:24 UTC: raw2 and media verified, project publication running
+## Latest checkpoint — 2026-11-12, 06:31 UTC: publication verified, Windows session needed
+
+The 17 filesystem publications finished with exit 0. Native final folders
+and original inventories passed, with 103,243 files and 1,831,201,635,230
+logical bytes on homes2. The independent publication receipt pins the
+result and 17 no-overwrite rename records. See
+`year2-filesystem-publication-completion-verification.json`. Do not replay
+the publisher. Project catalog preferences have yet to be switched.
+
+The final readers are staged on both hosts. The original Linux final reader
+is running in `alex2024-year2-final-hosts-20261111` with the protected engine.
+The dedicated Windows task exists and a start was requested. Task Scheduler
+reports Ready with result 267011, which is the never-run state. The compute
+workstation has no interactive session. The request, MATLAB reader and runner
+are staged and pinned. Ask Gilles to open his normal
+`GMGM\Charvin-Admin` desktop session on the Windows compute workstation.
+
+Use `year2_final_host_operations.py status` to observe Linux and Windows.
+With that desktop available in session 1, use `resume-windows` to start
+the existing never-run task. The command checks the exact SID, limited
+interactive principal, action, inputs and all own leases. Its check without
+a desktop returned `started: false` and left the task staged. Do not register
+a second task. Earliest lease expiry is 12:19:27 UTC (13:19 Paris). If the
+window expires, inspect the completed work and prepare a bounded continuation
+for the missing step only. A new lease window must preserve the evidence and
+the existing pinned inputs. Hourly follow-up is active.
+
+Raw SHA1 and source stability are complete for both years. All 877 year2
+media responses matched their homes2 copies before URI cutover. No raw URI
+or raw source changed. Actual 2024 space reclaimed remains zero.
+
+## Previous checkpoint — 2026-11-12, 06:24 UTC: raw2 and media verified, project publication running
 
 The original raw runner finished the SHA1 of 974,112 files (5,856,516,249,162
 bytes) at 04:57:14 UTC. Source stability passed at 05:01:33 UTC. The

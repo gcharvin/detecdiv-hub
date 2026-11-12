@@ -121,6 +121,39 @@ Start-ScheduledTask -TaskName $name
         session = 'alex2024-year2-final-hosts-20261111'
         subprocess.run(['tmux', 'new-session', '-d', '-s', session, 'bash', '-c', command], check=True)
         result = {'host': host, 'session': session, 'started': True}
+elif mode == 'resume-never-run':
+    assert windows
+    control = check_inputs()
+    assert control['batch_id'] == arguments['batch_id']
+    assert not (work / 'host-windows-state.json').exists() and not (work / 'host-windows-matlab.log').exists()
+    result = powershell(r"""
+$ErrorActionPreference = 'Stop'
+$name = 'DetecDiv Alexander 2024 Year2 Final Hosts 20261111'
+$task = Get-ScheduledTask -TaskName $name
+$info = Get-ScheduledTaskInfo -TaskName $name
+if ($task.State -ne 'Ready' -or $info.LastTaskResult -ne 267011) { throw 'Diagnostic has already run or started' }
+$expected = ([Security.Principal.NTAccount]::new('GMGM\Charvin-Admin')).Translate([Security.Principal.SecurityIdentifier]).Value
+$xml = [xml](Export-ScheduledTask -TaskName $name)
+$user = [string]$xml.Task.Principals.Principal.UserId
+if ($user -match '^S-1-') { $sid = $user } else {
+    $sid = ([Security.Principal.NTAccount]::new($user)).Translate([Security.Principal.SecurityIdentifier]).Value
+}
+if ($sid -ne $expected -or $task.Principal.RunLevel -ne 'Limited' -or $task.Principal.LogonType -ne 'Interactive') {
+    throw 'Unexpected diagnostic principal'
+}
+if ($task.Actions.Count -ne 1 -or $task.Actions[0].Execute -ne 'C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe' -or
+    $task.Actions[0].Arguments -notlike '*homes2-connection-private\year2-final-hosts-20261111\run_year2_final_hosts.py*') {
+    throw 'Unexpected diagnostic action'
+}
+$desktop = @(Get-Process -Name explorer -IncludeUserName -ErrorAction SilentlyContinue |
+    Where-Object { $_.SessionId -eq 1 -and $_.UserName -ieq 'GMGM\Charvin-Admin' })
+if ($desktop.Count -eq 0) {
+    @{task=$name;started=$false;interactiveSession1Available=$false} | ConvertTo-Json -Compress
+} else {
+    Start-ScheduledTask -TaskName $name
+    @{task=$name;started=$true;interactiveSession1Available=$true} | ConvertTo-Json -Compress
+}
+""")
 else:
     assert mode == 'status'
     result = {'host': host, 'work': str(work), 'work_exists': work.is_dir()}
@@ -212,6 +245,17 @@ def status():
     return reports
 
 
+def resume_windows():
+    control = read_json(PRIVATE / "year2-final-host-control.json")
+    receipt = "year2-final-host-windows-resume.json"
+    assert not (PRIVATE / receipt).exists()
+    assert fresh_admission()["batch_id"] == control["batch_id"]
+    result = operate("windows", "resume-never-run", batch_id=control["batch_id"])
+    if result["started"]:
+        write_receipt(receipt, result)
+    print(json.dumps(result))
+
+
 def verify(reports):
     linux, windows = reports["linux"], reports["windows"]
     assert linux["controller_exit"] == "0"
@@ -256,12 +300,14 @@ def verify(reports):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("action", choices=("stage", "start-linux", "start-windows", "status", "verify"))
+    parser.add_argument("action", choices=("stage", "start-linux", "start-windows", "resume-windows", "status", "verify"))
     action = parser.parse_args().action
     if action == "stage":
         stage()
     elif action.startswith("start-"):
         start(action.removeprefix("start-"))
+    elif action == "resume-windows":
+        resume_windows()
     elif action == "verify":
         verify(status())
     else:
