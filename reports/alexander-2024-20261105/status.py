@@ -81,6 +81,11 @@ summary['legacy_bundle_zip_indexes']={'progress':load('legacy-bundle-zip-indexes
  'result':load('legacy-bundle-zip-indexes-20261112/result.json'),
  'exit':tail('legacy-bundle-zip-indexes-20261112/controller.exit'),
  'log_tail':tail('legacy-bundle-zip-indexes-20261112/controller.log',1200)}
+summary['legacy_bundle_main_path_review']={'stage':load('legacy-bundle-main-path-review-20261112/stage-result.json'),
+ 'progress':load('legacy-bundle-main-path-review-20261112/progress.json'),
+ 'result':load('legacy-bundle-main-path-review-20261112/result.json'),
+ 'exit':tail('legacy-bundle-main-path-review-20261112/controller.exit'),
+ 'log_tail':tail('legacy-bundle-main-path-review-20261112/controller.log',1200)}
 summary['year2_incoming_integrity']={'state':load('year2-incoming-integrity-20261110/state.json'),
  'exit':tail('year2-incoming-integrity-20261110/controller.exit'),
  'log_tail':tail('year2-incoming-integrity-20261110/controller.log',1200)}

@@ -37,7 +37,27 @@ No filesystem rename, database or scientific-file change was performed while
 recording this requirement. Keep the follow-up until this naming requirement
 and the original two-year migration/reclamation scope are verified complete.
 
-## Latest checkpoint — 2026-11-12: additional legacy ZIP index results
+## Latest checkpoint — 2026-11-12: 487 archived-main path review running
+
+`legacy-bundle-main-path-review-20261112` is running in tmux
+`alex2024-legacy-bundle-main-path-review-20261112`. It stages the 487 small
+MAT candidates from the 476 completed ZIP indexes into its private compute
+work directory, checking member length, CRC and stable archive metadata.
+After staging, the protected MATLAB reader inspects saved path strings.
+Fresh jobs, leases and indexing admission runs before launch and occupied
+projects are deferred. All archive and project sources remain read-only.
+
+Use `status.py` and inspect `stage-result.json`, `progress.json`,
+`controller.exit`, the per-project receipts and input hashes before declaring
+completion. The Python runner SHA256 is
+`933c8d723cabf63e58d0ff09f50e7e95dd58049d38de1d2a540408fec5ab1898`.
+The reader SHA256 is
+`a0cbb88717e894e154faaed3b1ab13670132e0fee651f62e13335865c164c898`.
+Do not edit or duplicate this scope while active. Its results require separate
+identity and external-sidecar qualification. The 191 over-budget ZIP indexes,
+LoxP15 and other legacy issues remain open. No source was removed.
+
+## Previous checkpoint — 2026-11-12: additional legacy ZIP index results
 
 The new `legacy-bundle-zip-indexes-20261112` controller ended with exit 0.
 Its 667-archive loop completed. Indexes were fully read for 476 ZIPs,
