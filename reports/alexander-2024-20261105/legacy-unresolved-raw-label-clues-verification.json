@@ -1,0 +1,15 @@
+{
+  "read_only": true,
+  "raw_ids": 3,
+  "recorded_locations": 3,
+  "archive_metadata_paths": 0,
+  "label_search_archive_child_directories": 11,
+  "label_search_entries": 1308,
+  "directory_errors": 0,
+  "name_candidates": 3,
+  "candidates_previously_indexed_for_other_projects": 3,
+  "scientific_identity_confirmed": false,
+  "scope": "Immediate archive child entries; selected catalog fields; no symlink traversal",
+  "private_raw_locations_sha256": "9a55832557e4f8ec60ec08515b725a37a6ef8a5ec443f1a08b36f14a94654a8d",
+  "private_name_receipt_sha256": "5608be86f5cda908b67137dd7dc0cfe036db40ded27a92123c866bf5b709607f"
+}

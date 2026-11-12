@@ -1,4 +1,24 @@
-## Latest checkpoint — 2026-11-12: targeted unresolved archive names
+## Latest checkpoint — 2026-11-12: further legacy archive clues
+
+A read-only catalog query of the three raw IDs lacking concrete archive history
+found three recorded locations and no `/archive/` path in their raw metadata.
+The private receipt is `runtime/legacy-unresolved-raw-locations-20261112.json`,
+SHA256 `9a55832557e4f8ec60ec08515b725a37a6ef8a5ec443f1a08b36f14a94654a8d`.
+An initial query used the wrong storage-root field and failed before returning
+results; the corrected read-only query used `path_prefix`.
+
+A new bounded name comparison for the two still-unmatched acquisition labels
+examined 1,308 immediate entries across 11 `/archive` child directories, with
+no directory errors, and found three name candidates. All three ZIPs were
+already in earlier completed index scopes for other projects, so none was
+replayed. Their association with the remaining 11 projects is unconfirmed.
+The private names receipt is `runtime/legacy-unresolved-raw-label-archive-names-20261112.json`,
+SHA256 `5608be86f5cda908b67137dd7dc0cfe036db40ded27a92123c866bf5b709607f`.
+Name similarity is not scientific identity or access validation. Lox and
+legacy dependencies remain unqualified; no 2024 source was removed and actual
+space reclaimed remains zero bytes.
+
+## Previous checkpoint — 2026-11-12: targeted unresolved archive names
 
 A new read-only filename check covered immediate entries in the 11 real child
 directories of `/archive`, matching the complete UUIDs of the three raw IDs
