@@ -1,0 +1,15 @@
+{
+  "success": true,
+  "controller_exit": 0,
+  "projects": 37,
+  "unresolved": 0,
+  "candidates": 0,
+  "source_inputs_sha256_checked": 37,
+  "class_counts": {
+    "struct": 42
+  },
+  "receipt_sha256": "30c480993c7f52d9def5d9704546c39231457083f1f4fe45afdc67334bab153d",
+  "source_saved": false,
+  "archived_candidates_identity_confirmed": false,
+  "limitation": "No 2024 strings in inspected stored fields; project identity and external sidecars require separate evidence"
+}

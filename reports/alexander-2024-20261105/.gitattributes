@@ -59,3 +59,6 @@ prepare_raw_api_cutover.py -text whitespace=cr-at-eol
 cutover_raw_api.py -text whitespace=cr-at-eol
 raw_api_media_operations.py -text whitespace=cr-at-eol
 verify_raw_api_cutover_media.py -text whitespace=cr-at-eol
+verify_retirement_manifest.py -text whitespace=cr-at-eol
+withdraw_retirement_manifest.py -text whitespace=cr-at-eol
+launch_archived_legacy_readonly.py -text whitespace=cr-at-eol

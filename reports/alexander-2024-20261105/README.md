@@ -37,7 +37,162 @@ No filesystem rename, database or scientific-file change was performed while
 recording this requirement. Keep the follow-up until this naming requirement
 and the original two-year migration/reclamation scope are verified complete.
 
-## Latest checkpoint — 2026-11-12: readable names and raw catalog cutover
+## Latest checkpoint — 2026-11-12: 37 archived MAT path reviews
+
+The new read-only `legacy-archived-main-path-review-20261112` scope finished
+with controller exit 0. It inspected 37 MAT members from the 36 registered
+ZIPs after checking their CRC, previously recorded SHA256, archive stability
+and one matching declared project stem per member. No project was deferred at
+fresh admission. The protected MATLAB reader loaded 42 struct variables,
+found no 2024 acquisition paths, and reported no unresolved variables. All
+37 private inspection copies were independently rehashed after completion.
+See `archived-legacy-readonly-completion-verification.json` and the private
+compute work directory for the per-project receipts and archive provenance.
+These are archived candidates, so their identity as replacements for the
+missing catalog mains and their external sidecars remain to be established.
+Neither source projects nor archive files were saved. The Lox and legacy
+retirement qualifications remain open, and space reclaimed from `/data` for
+2024 remains zero bytes. Do not replay this completed scope.
+
+## Previous checkpoint — 2026-11-12: registered archive leads
+
+A read-only Hub metadata query found 716 archive URIs among the 1,030
+missing-main projects. Of these, 679 name the `/archive` root and 37 point
+to 36 distinct ZIPs readable on the compute host. One more project has only
+snapshot metadata. The two LoxP15 raw catalog rows cover the known 15-position
+and 30-position series and have no archive URI. The LoxP15 project and the 33
+unreadable legacy projects yielded no archive or snapshot metadata lead.
+
+The ZIP central directories contain 37 members matching their associated
+declared MAT stems and no member path matching a known 2024 acquisition
+segment. All 37 members are small MAT v5 files. A full stable read verified
+the ZIP CRCs and decoded every top-level MAT envelope. The bounded ASCII and
+UTF-16 string scan found 2,683 path-like strings with no canonical 2024 path
+or known acquisition segment. This establishes a path discovery lead for 37
+projects. The MAT object references and each project's relationship to its
+archived candidate still need qualification. No archive contents were
+changed and no members were extracted. The local metadata receipt is
+`runtime/legacy-lox-archive-metadata-leads-20261112.json`. Compute receipts
+are under `legacy-registered-zip-index-only-20261112`,
+`legacy-registered-zip-main-header-scope-20261112` and
+`legacy-registered-zip-main-bounded-reference-scan-20261112`. Actual space
+reclaimed from `/data` for 2024 remains zero bytes.
+
+## Previous checkpoint — 2026-11-12: sibling candidates and native unlink fixtures
+
+The bounded same-parent filename comparison covered the list of 1,030 missing
+mains. It found one project with two candidates after normalizing the declared
+stem and project name. The candidate JSON lists 60 raw paths, all with a 2026
+date segment. Its normalized project name matches the Hub row, while its
+project ID and FOV count differ. The candidates provide no established
+replacement for the declared main. The private compute receipts are
+`legacy-missing-main-normalized-sibling-matches-20261112/result.json` and
+`candidate-reference-metadata.json` in that same directory.
+
+`withdraw_retirement_manifest.py` adds the native unlink step for a future
+admitted 2024 controller. It verifies the full manifest, checks each path and
+admission immediately before removal, syncs intent and unlink receipts,
+checks the remaining directory layout and records native available bytes.
+Five isolated Linux fixtures passed, covering the successful path, inode
+replacement, expired admission, journal replay and a symlink payload. Both
+archived production manifests list only single-link files. The unlink step
+still requires a controller with verified reference evidence and live
+admission. Production source files were untouched and actual reclaimed
+space remains zero bytes.
+
+## Previous checkpoint — 2026-11-12: remaining link checks and native manifest guard
+
+The long LoxP15 series still has 15 even positions absent at both source and
+homes2. Position file names and sizes agree across both hosts. The shorter
+series has four TIFFs per position across 30 positions. Its acquisition
+metadata records a different start time from the long series, so it cannot
+supply the missing long-series fields. Three accessible immediate parents
+contained no matching compressed archive candidate. The private compute
+receipts are `lox-current-position-and-short-run-identity-20261112.json`
+and `lox-exact-sibling-archive-name-leads-20261112.json`.
+
+A read-only Hub history audit covered LoxP15 and the 1,063 legacy catalog
+projects. It found no 2024 matches among 969 registered project/raw links or
+290 job records checked for raw IDs and acquisition paths. The private local
+receipt is `runtime/legacy-lox-hub-job-history-links-20261112.json`. That
+catalog check leaves on-disk project references outside its scope.
+
+A full stable read verified that all 33 unreadable MATs contain only zero
+bytes, totaling 640,716,778 bytes. The existing files contain no acquisition
+path. Earlier versions of those files and their associated project data
+remain unqualified. An exact candidate search within sibling same-stem
+directories for all 1,030 missing mains found no counterpart. A further
+inspection of the three pinned tiny stubs found a 24-byte decompressed tail
+in each, with no printable path. The stubs still do not expose a readable
+project reference set. Private compute receipts are
+`legacy-unreadable-complete-logical-content-20261112/result.json`,
+`legacy-missing-main-exact-derived-counterparts-20261112/result.json` and
+`legacy-stub-trailing-compressed-streams-20261112.json`.
+
+`verify_retirement_manifest.py` implements the read-only native manifest
+check for exactly `2024_1` and `2024_2`, pinned to the verified raw counts,
+byte totals and manifest digests. Eleven isolated Linux fixture checks passed,
+including rejection of extra paths, changed sizes or mtime, and symlinks.
+The withdrawal admission and unlink controller still require completion
+after the remaining reference gates. Space reclaimed from `/data` for 2024
+remains zero bytes.
+
+## Previous checkpoint — 2026-11-12: labeled sidecar ROI metadata
+
+The read-only HDF5 inspection resolved all 72 ROI object references across
+the three labeled sidecars. The three arrays contain 32, 16 and 24 ROIs,
+respectively. Every ROI has a single `results` field stored as an array of
+object references. The first result object of each ROI has the fields `RLS`,
+`div_1` and `signal`. The 16-ROI file for the February 2024 stem also has
+`div_1_10x`, `div_1_10x3`, `mess_1` and `modes` in those sampled objects.
+
+The successful direct dereference read HDF5 field names with stable source
+metadata. Resolving reference names via HDF5 timed out, so later checks
+opened the objects directly. The private compute receipts are `layout.json`
+in `legacy-stub-sidecar-hdf5-all-roi-field-names-20261112`,
+`legacy-stub-sidecar-hdf5-result-dataset-types-20261112` and
+`legacy-stub-sidecar-hdf5-first-result-schema-20261112`. The sampled schemas
+contain no acquisition path values and leave the original stub references
+unverified. Lox and legacy retirement gates remain open. Space reclaimed
+from `/data` for 2024 remains zero bytes.
+
+## Previous checkpoint — 2026-11-12: legacy sidecar leads
+
+A fresh read-only Hub comparison found all 1,063 catalog projects from the
+missing-main and unreadable-MAT scopes. None has a newly registered POSIX
+main path compared with its original discovery request. The private local
+receipt is `runtime/legacy-new-registered-location-audit-20261112.json`.
+
+A bounded same-stem search in the recorded parent directories of the three
+uncataloged stubs and the missing Alexander main found eight sibling paths.
+Two larger sibling MATs are already represented in the original path receipts.
+The `anof_130224_dfob_rep_dslog_new.mat` receipt points to the 2024_1 acquisition
+`130224_dfob_rep_dslog`. The `anof_071026_X54445_LOGEB_2.mat` receipt had no
+2024 matches, and its same-stem JSON likewise had none. A sibling alone does
+not establish the identity or full reference set of the missing project.
+
+All three stub stems have a same-name derived directory and a large labeled
+MAT v7.3. The initial bounded MATLAB variable inventory stopped without a
+receipt while MATLAB was loading object metadata. The separate read-only HDF5
+root inspection completed with stable source metadata and found a matching
+labeled variable, `#refs#` and `#subsystem#` in each file. It did not read
+scientific arrays or qualify the stubs. Reuse private compute receipts
+`legacy-alexander-stub-lead-details-20261112.json` and
+`legacy-stub-sidecar-hdf5-roots-20261112/result.json`.
+
+The next bounded HDF5 inspection completed with stable source metadata. In
+all three files the labeled variable contains `fov` and `nameonRLSplot`.
+The `fov` group contains only `roi`, which did not open as a group. The
+receipts are `layout.json` in `legacy-stub-sidecar-hdf5-labeled-variable-layout-20261112`,
+`legacy-stub-sidecar-hdf5-fov-layout-20261112` and
+`legacy-stub-sidecar-hdf5-roi-layout-20261112`. Whole-group inspection timed
+out when including the internal HDF5 groups. For a further targeted read,
+identify the datatype and dimensions of the `roi` dataset before following
+any object references. The root and group receipts contain no acquisition
+path values. Lox and legacy retirement gates remain open, with zero bytes
+reclaimed from `/data` for 2024.
+
+## Previous checkpoint — 2026-11-12: readable names and raw catalog cutover
 
 The NAS exposes `raw/2023_1`, `raw/2023_2`, `raw/2023_3`, `raw/2024_1` and
 `raw/2024_2`. `2023_2` was already direct. The four new relative aliases
