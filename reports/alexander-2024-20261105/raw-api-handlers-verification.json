@@ -1,0 +1,16 @@
+{
+  "success": true,
+  "mode": "handlers",
+  "verified": 2081,
+  "bytes": 15841239322,
+  "plan_sha256": "b2a1ad8433d1daba7579d4b51081eeb31aa51a90ab3e3697b18c2b1ddef721a5",
+  "receipt_sha256": "6a8d6cdfd898b57ec74bd8bf380e7521527281f537a9e5a71905d9ccc58dca3e",
+  "finished_at": "2026-11-12T10:56:20.773929+00:00",
+  "source_deleted": false,
+  "phase": "complete",
+  "exit_codes": [
+    0,
+    0
+  ],
+  "durable_receipts_verified": true
+}

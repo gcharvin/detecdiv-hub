@@ -202,6 +202,16 @@ if __name__=='__main__':
     completed=HERE/'year1-project-catalog-preservation-postflight.json'
     if completed.exists():
         result['year1_project_publication_completion']=json.loads(completed.read_text(encoding='utf-8'))
+    for key, filename in (
+        ('year2_project_publication_completion', 'year2-project-catalog-preservation-postflight.json'),
+        ('readable_raw_paths', 'readable-raw-paths-verification.json'),
+        ('raw_api_cutover', 'raw-api-cutover-result.json'),
+        ('raw_api_catalog_verification', 'raw-api-cutover-catalog-verification.json'),
+        ('raw_api_handler_verification', 'raw-api-handlers-verification.json'),
+    ):
+        proof=HERE/filename
+        if proof.exists():
+            result[key]=json.loads(proof.read_text(encoding='utf-8'))
     if (HERE/'year1-api-media-readonly-launch-verification.json').exists():
         try:
             from status_year1_api_media import status as api_media_status

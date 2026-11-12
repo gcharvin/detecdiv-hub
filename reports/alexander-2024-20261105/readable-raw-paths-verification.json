@@ -1,0 +1,25 @@
+{
+  "success": true,
+  "readable_paths": [
+    "2023_1",
+    "2023_2",
+    "2023_3",
+    "2024_1",
+    "2024_2"
+  ],
+  "created_aliases": [
+    "2023_1",
+    "2023_3",
+    "2024_1",
+    "2024_2"
+  ],
+  "samples_per_host": 5,
+  "original_and_readable_payloads_match": [
+    "Linux",
+    "API container",
+    "Windows UNC"
+  ],
+  "original_paths_retained": true,
+  "catalog_changed": false,
+  "source_deleted": false
+}

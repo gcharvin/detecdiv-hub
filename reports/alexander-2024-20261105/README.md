@@ -37,7 +37,44 @@ No filesystem rename, database or scientific-file change was performed while
 recording this requirement. Keep the follow-up until this naming requirement
 and the original two-year migration/reclamation scope are verified complete.
 
-## Latest checkpoint — 2026-11-12: year2 project catalog cutover verified
+## Latest checkpoint — 2026-11-12: readable names and raw catalog cutover
+
+The NAS exposes `raw/2023_1`, `raw/2023_2`, `raw/2023_3`, `raw/2024_1` and
+`raw/2024_2`. `2023_2` was already direct. The four new relative aliases
+leave the original directories and all legacy paths in place. The native
+NAS guard checked that each alias resolves to the original directory. Linux,
+the API container and Windows UNC all read the same sampled bytes from the
+original and readable paths for each year. See
+`readable-raw-paths-verification.json`.
+
+At 10:50 UTC the 2024 raw catalog and media transaction committed. It set
+115 preferred locations on the readable homes2 paths, switched 2,081 exact
+media URIs and updated 2,085 matching path fields in raw and artifact
+metadata. The non-path metadata digests and all existing location rows were
+preserved. The new locations were checked on Linux and Windows. Independent
+postflight verified all 115 raw detail routes and the complete set of media
+URIs. A canonical source-path audit found only the 195 retained nonpreferred
+raw locations in its scope. It does not cover historical jobs or on-disk
+legacy project content. See `raw-api-cutover-result.json`,
+`raw-api-cutover-catalog-verification.json` and
+`raw-api-canonical-source-reference-verification.json`.
+
+Before commit all 2,081 files (15,841,239,322 bytes) were hashed from the
+readable paths and matched the archived pre-cutover real handler responses.
+At 10:56 UTC the post-cutover verifier finished streaming the same 2,081 real
+handlers with exact content and length equality. Both controller and archive
+exited 0, and the durable host log and container receipt match. Its work is
+`raw-api-cutover-handlers-20261112` on `webserver-labo`. Do not relaunch either
+verifier or repeat the catalog transaction. See `raw-api-targets-verification.json`
+and `raw-api-handlers-verification.json`.
+
+No primary payload or source location has been removed. Actual 2024 reclaim
+is zero bytes. LoxP15 has 15 unverified missing fields and a missing derived
+directory. The legacy reference exceptions remain unresolved. Retirement
+still requires those access qualifications and the new bounded 2024
+manifest-driven removal with native free-space measurements.
+
+## Previous checkpoint — 2026-11-12: year2 project catalog cutover verified
 
 Both MATLAB host reports passed for all 17 projects. The catalog cutover
 committed at 09:55 UTC. The independent postflight verified all 17 preferred

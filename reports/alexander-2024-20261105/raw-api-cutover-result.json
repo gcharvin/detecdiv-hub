@@ -1,0 +1,18 @@
+{
+  "success": true,
+  "mode": "apply",
+  "plan_sha256": "b2a1ad8433d1daba7579d4b51081eeb31aa51a90ab3e3697b18c2b1ddef721a5",
+  "source_deleted": false,
+  "raw_datasets": 115,
+  "media_uris": 2081,
+  "raw_api_routes": 0,
+  "path_metadata_fields": 2085,
+  "nonpath_metadata_preserved": true,
+  "admission": {
+    "affected_projects": 33,
+    "active_jobs": 0,
+    "active_leases": 0,
+    "active_indexing": 0
+  },
+  "committed_at": "2026-11-12T10:50:28.625276+00:00"
+}

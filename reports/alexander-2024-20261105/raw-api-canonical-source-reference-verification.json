@@ -1,0 +1,22 @@
+{
+  "success": true,
+  "read_only": true,
+  "checked_at": "2026-11-12T10:52:26.273506+00:00",
+  "remaining_primary_source_locations": {
+    "2024_1": 110,
+    "2024_2": 85
+  },
+  "remaining_preferred_primary_source_locations": 0,
+  "remaining_source_media_and_other_path_fields_in_scope": 0,
+  "unclassified_in_scope": 0,
+  "scanned_rows": {
+    "raw_dataset_locations": 2668,
+    "project_locations": 3426,
+    "raw_datasets": 2452,
+    "raw_dataset_positions": 39018,
+    "artifacts": 34788,
+    "detecdiv_projects": 3331
+  },
+  "scope": "canonical primary source prefix in current catalog locations, raw/project/artifact/position metadata, active job params",
+  "historical_jobs_and_on_disk_legacy_projects_qualified": false
+}

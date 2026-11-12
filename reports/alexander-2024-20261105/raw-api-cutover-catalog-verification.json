@@ -1,0 +1,11 @@
+{
+  "success": true,
+  "mode": "postflight",
+  "plan_sha256": "b2a1ad8433d1daba7579d4b51081eeb31aa51a90ab3e3697b18c2b1ddef721a5",
+  "source_deleted": false,
+  "raw_datasets": 115,
+  "media_uris": 2081,
+  "raw_api_routes": 115,
+  "path_metadata_fields": 2085,
+  "nonpath_metadata_preserved": true
+}
