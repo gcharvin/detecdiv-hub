@@ -37,7 +37,25 @@ No filesystem rename, database or scientific-file change was performed while
 recording this requirement. Keep the follow-up until this naming requirement
 and the original two-year migration/reclamation scope are verified complete.
 
-## Latest checkpoint — 2026-11-12, 07:36 UTC: Windows worker paths verified
+## Latest checkpoint — 2026-11-12, 07:44 UTC: automatic project cutover continuation
+
+Gilles requested that the running MATLAB test finish and that the project
+catalog cutover proceed if both host reports pass. The dedicated
+`complete_year2_cutover_when_ready.py` controller started at 07:44 UTC.
+Its private launch and state are `runtime/year2-cutover-watch-launch.json`
+and `runtime/year2-cutover-watch-state.json`. At launch the reader was
+working on project 3 of 17. The controller waits within the existing lease
+window, compares both reports, checks fresh admission and the live worker
+path proof, and then runs the catalog transaction. It checks the committed
+result before cleaning up the dedicated Windows reader task.
+
+The scheduled follow-up reports the terminal result to Gilles. Do not
+start another verifier or catalog transaction while this controller is
+active. If it reports `requires_review`, inspect the terminal receipts and
+the real database outcome before any retry. The controller handles only
+project catalog preferences and does not retire data.
+
+## Previous checkpoint — 2026-11-12, 07:36 UTC: Windows worker paths verified
 
 Gilles authorized changing the one Windows mapping for
 `/homes2/maliavko/DetecdivHub` to

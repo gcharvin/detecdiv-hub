@@ -27,6 +27,7 @@ verify_year2_project_catalog_completion.py -text whitespace=cr-at-eol
 cleanup_year2_final_windows.py -text whitespace=cr-at-eol
 activate_year2_windows_homes_mapping.py -text whitespace=cr-at-eol
 verify_year2_windows_worker_paths.py -text whitespace=cr-at-eol
+complete_year2_cutover_when_ready.py -text whitespace=cr-at-eol
 verify_year2_api_media_completion.py -text whitespace=cr-at-eol
 year1_publication_operations_v2.py -text whitespace=cr-at-eol
 advance_year1_recovery_20261109.py -text whitespace=cr-at-eol
