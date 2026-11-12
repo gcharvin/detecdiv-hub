@@ -65,14 +65,25 @@ replay the admission or publisher. On successful publication continue with
 `year2_final_host_operations.py stage`, `start-linux`, `start-windows`
 and later `verify`.
 
+All 17 no-overwrite renames were recorded during the 06:24 UTC observation.
+The publisher was still verifying the native final folders. Wait for both
+its successful terminal result and exit 0 before staging the readers.
+
 `cutover_year2_project_catalog.py` is prepared. Its Python and remote
 transaction code parsed and all 17 destination layouts match its directory
 requirements. Use it only after both final host proofs and while the exact
 leases are live. It rechecks catalog identity, leases and jobs inside the
 transaction, validates the project API's new preferred locations and
 releases only this batch's leases on commit. If the client loses the
-response, inspect the recorded batch outcome before acting. No cutover or
-source deletion has occurred. Actual 2024 space reclaimed remains zero.
+response, inspect the recorded batch outcome before acting.
+`verify_year2_project_catalog_completion.py` checks that committed outcome in
+a read-only transaction, including original location rows, metadata outside
+the three path fields, API preferences and release of the exact 17 leases.
+`cleanup_year2_final_windows.py` removes the successful year2 diagnostic
+task and its two pinned scripts only after the Windows report is archived
+and the task's domain SID, interactive limited token and action match.
+No cutover or source deletion has occurred. Actual 2024 space reclaimed
+remains zero.
 
 ## Previous checkpoint — 2026-11-11, 22:05 UTC: checksum active, final host operations prepared
 
