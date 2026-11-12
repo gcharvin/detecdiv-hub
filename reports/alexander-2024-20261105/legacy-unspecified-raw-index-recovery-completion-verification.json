@@ -1,0 +1,13 @@
+{
+  "success": true,
+  "controller_exit": 0,
+  "archives": 2,
+  "projects": 2,
+  "entries": 3894,
+  "candidate_mats": 2,
+  "max_candidate_bytes": 4747,
+  "request_sha256": "07e2d9f10578cb2548646c59f1398a7d3abbf5956399cf3f4465d545862f2ae7",
+  "receipt_sha256": "3907868f85326790e990da3436a6ca9b6fe5bfdd462c7e285e0b808515c989bc",
+  "member_payload_reads": 0,
+  "read_only": true
+}

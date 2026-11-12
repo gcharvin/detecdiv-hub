@@ -1,0 +1,12 @@
+{
+  "read_only": true,
+  "raw_ids": 5,
+  "linked_projects": 13,
+  "job_rows": 14,
+  "lifecycle_events": 14,
+  "raw_ids_with_same_concrete_zip_in_job_and_event": 2,
+  "projects_with_concrete_zip": 2,
+  "remaining_projects_without_concrete_zip": 11,
+  "private_receipt_sha256": "55ca4508f53fa4d699f8bec5ace8874d5bf770baa227d87c116d6c6614b827f2",
+  "note": "Selected job and event metadata fields only; does not establish project identity or absent references."
+}

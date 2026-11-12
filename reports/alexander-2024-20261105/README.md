@@ -1,4 +1,26 @@
-## Latest checkpoint — 2026-11-12: linked-raw archive review completed
+## Latest checkpoint — 2026-11-12: additional raw archive history
+
+A fresh read-only query of archive job and lifecycle history covered the five
+raw IDs behind 13 missing-main projects whose raw URI was only `/archive`.
+Two IDs, each linked to one project, have one identical concrete ZIP path in
+both job and event history; the other three IDs cover 11 projects and have no
+concrete ZIP path in those selected fields. The private receipt is
+`runtime/legacy-unspecified-linked-raw-archive-history-20261112.json`, SHA256
+`55ca4508f53fa4d699f8bec5ace8874d5bf770baa227d87c116d6c6614b827f2`.
+
+A bounded index of the two newly identified ZIPs completed: 3,894 entries,
+two exact-stem MAT candidates, no 2024 acquisition path segment. The first
+attempt stopped before archive reads because its runner still asserted the old
+66-archive scope; the separately named recovery used explicit two-archive
+guards. See `legacy-unspecified-raw-index-recovery-completion-verification.json`.
+The read-only MATLAB review of the two candidates completed with exit 0; both
+staged hashes match, zero 2024 matches and zero unresolved reader results. See
+`legacy-unspecified-raw-main-review-completion-verification.json`; do not replay.
+Candidate identity, sidecars, 11 other projects,
+Lox and other legacy scope remain unqualified. No 2024 source was removed;
+actual 2024 space reclaimed remains zero bytes.
+
+## Previous checkpoint — 2026-11-12: linked-raw archive review completed
 
 The separate linked-raw index and its two-ZIP continuation completed with
 exit 0. All 66 ZIP indexes were read within their explicit bounds. Their 197

@@ -1,0 +1,13 @@
+{
+  "success": true,
+  "controller_exit": 0,
+  "projects": 2,
+  "candidate_projects": 0,
+  "unresolved": 0,
+  "all_input_hashes_verified": true,
+  "input_receipt_sha256": "cfcd49c7f72d08ad0124487b2f67d3068c26377199afc81174a1ea566c2a82b5",
+  "receipt_sha256": "30ac821ae92b5563c38b33e884ffadc72d46cb57549df06eaafec3192bfe213f",
+  "source_saved": false,
+  "archive_candidates_identity_confirmed": false,
+  "on_disk_sidecars_qualified": false
+}
