@@ -1,0 +1,10 @@
+{
+  "started": true,
+  "work": "legacy-bundle-zip-indexes-continuation-20261112",
+  "archives": 191,
+  "projects": 192,
+  "script_sha256": "b15768cf96fd2dc09e5c677f6dd0ac904d1948dd11260b68af68cf9d986d2524",
+  "read_only": true,
+  "member_payload_reads": 0,
+  "started_at": "2026-11-12T18:37:12.268943+00:00"
+}

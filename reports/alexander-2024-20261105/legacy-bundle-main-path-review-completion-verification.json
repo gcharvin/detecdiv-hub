@@ -1,0 +1,20 @@
+{
+  "success": true,
+  "controller_exit": 0,
+  "projects": 487,
+  "candidate_projects": 0,
+  "unresolved": 1,
+  "statuses": {
+    "legacy_strings_inspected": 486,
+    "requires_review": 1
+  },
+  "errors": {
+    "Could not open /home/charvin-admin/storage-transfers/alexander-2024-20261105/legacy-bundle-main-path-review-20261112/inputs/3b04c53a-63b5-47bc-82d5-0c0684df0b3c.mat as a valid MAT-file.": 1
+  },
+  "all_input_hashes_verified": true,
+  "input_receipt_sha256": "6f6afa727b3ac261cda5558db51e55ebbc3abacf075c017e1c89ffb5f0173596",
+  "receipt_sha256": "15a6677e124d5b61761c0fab2ef49bd919ce3288e0524d7c1d7582e68b83e946",
+  "source_saved": false,
+  "archive_candidates_identity_confirmed": false,
+  "on_disk_sidecars_qualified": false
+}

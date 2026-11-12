@@ -37,7 +37,62 @@ No filesystem rename, database or scientific-file change was performed while
 recording this requirement. Keep the follow-up until this naming requirement
 and the original two-year migration/reclamation scope are verified complete.
 
-## Latest checkpoint — 2026-11-12: 487 archived-main path review running
+## Latest checkpoint — 2026-11-12: final 192 archived-main reviews finished
+
+`legacy-bundle-main-path-review-continuation-20261112` ended with exit 0.
+It inspected all 192 staged MAT members and found no stored path strings
+matching 2024 acquisitions. All 192 staged hashes match their input receipts,
+and no projects were deferred or reported unresolved. See
+`legacy-bundle-main-path-review-continuation-completion-verification.json`.
+Together with the prior batch, 678 of 679 archived candidates were inspected
+successfully and one is a zero-byte MAT. These findings leave candidate
+identity, external sidecars and the missing LoxP15 fields unqualified. No
+source was removed and space reclaimed from `/data` for 2024 is zero bytes.
+
+## Previous checkpoint — 2026-11-12: final 192 archived-main reviews running
+
+All 191 deferred ZIP indexes completed successfully with exit 0. They cover
+192 projects and contain 192 exact-stem MAT candidates, totaling 1,653,126
+bytes. No indexed member path contains a known 2024 acquisition segment.
+See `legacy-bundle-index-continuation-completion-verification.json`.
+
+The new `legacy-bundle-main-path-review-continuation-20261112` scope is
+running in tmux `alex2024-legacy-bundle-main-path-review-continuation-20261112`.
+It stages only those 192 candidates after fresh admission, checks member CRC
+and archive stability, then uses the protected MATLAB path reader. The runner
+SHA256 is `6404bf35ee99fe9a7c2d863fc5c55ae5e268a2747a17cade3d4334d1f3ae984d`.
+Use `status.py`, then verify controller exit, per-project receipts and all
+staged hashes. Do not relaunch an active or completed scope. Lox and legacy
+identity and sidecar qualifications remain open. No source was removed.
+
+## Previous checkpoint — 2026-11-12: 191 deferred ZIP indexes running
+
+The new read-only `legacy-bundle-zip-indexes-continuation-20261112` scope
+is running in tmux `alex2024-legacy-bundle-zip-indexes-continuation-20261112`.
+Its request contains only the 191 ZIPs deferred by the earlier index budget,
+covering 192 project IDs. It raises the per-archive index budget to 32 MiB
+and keeps a 512 MiB total limit. It reads ZIP central directories without
+extracting members. The runner SHA256 is
+`b15768cf96fd2dc09e5c677f6dd0ac904d1948dd11260b68af68cf9d986d2524`.
+Use `status.py` for progress and independently check the terminal receipt,
+exit and any remaining budget exceptions. Do not duplicate the active scope.
+See `legacy-bundle-index-continuation-launch-verification.json`.
+
+## Previous checkpoint — 2026-11-12: 487 archived-main path review finished
+
+`legacy-bundle-main-path-review-20261112` ended with exit 0. All 487 candidate
+members were staged read-only and independently rehashed against their
+per-member receipts. The protected MATLAB reader inspected stored strings in
+486 MATs and found no 2024 acquisition paths. One candidate requires review
+because the archived member is a zero-byte file, which an independent read
+confirmed. The completed loop does not establish the candidates' identity or
+qualify external sidecars. See
+`legacy-bundle-main-path-review-completion-verification.json` and the private
+compute work directory. Do not replay this completed scope. The 191 ZIPs
+whose central directories exceeded the previous budgets remain to inspect.
+Lox and other legacy qualifications remain open. No source was removed.
+
+## Previous checkpoint — 2026-11-12: 487 archived-main path review running
 
 `legacy-bundle-main-path-review-20261112` is running in tmux
 `alex2024-legacy-bundle-main-path-review-20261112`. It stages the 487 small
