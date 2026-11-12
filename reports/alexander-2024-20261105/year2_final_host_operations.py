@@ -60,8 +60,9 @@ windows = os.name == 'nt'
 host = 'windows' if windows else 'linux'
 if windows:
     work = Path('C:/ProgramData/DetecDivHub/homes2-connection-private/year2-final-hosts-20261111')
-    if arguments.get('rdp2'):
-        work = work.with_name(work.name + '-rdp2')
+    suffix = arguments.get('windows_attempt', '')
+    assert suffix in ('', '-rdp2', '-rdp2-homes')
+    work = work.with_name(work.name + suffix)
 else:
     work = Path('/home/charvin-admin/storage-transfers/alexander-2024-20261105/year2-final-hosts-20261111')
 
@@ -238,9 +239,17 @@ def start(host):
     print(json.dumps(result))
 
 
+def windows_attempt():
+    for suffix in ("-rdp2-homes", "-rdp2"):
+        receipt = PRIVATE / f"year2-final-host-windows{suffix}-launch.json"
+        if receipt.is_file():
+            return suffix, read_json(receipt)
+    return "", None
+
+
 def status():
-    rdp2 = (PRIVATE / "year2-final-host-windows-rdp2-launch.json").is_file()
-    reports = {host: operate(host, "status", rdp2=rdp2) for host in ("linux", "windows")}
+    suffix, _ = windows_attempt()
+    reports = {host: operate(host, "status", windows_attempt=suffix) for host in ("linux", "windows")}
     path = PRIVATE / "year2-final-host-status.json"
     temporary = path.with_suffix(".tmp")
     temporary.write_text(json.dumps(reports, indent=2) + "\n", encoding="utf-8")
@@ -266,8 +275,8 @@ def verify(reports):
                                "runLevel": "Limited", "logonType": "Interactive"}
     state = windows["state"]
     assert state["windows_identity"].casefold() == "gmgm\\charvin-admin"
-    rdp_receipt = PRIVATE / "year2-final-host-windows-rdp2-launch.json"
-    expected_session = read_json(rdp_receipt)["session_id"] if rdp_receipt.is_file() else 1
+    suffix, launch = windows_attempt()
+    expected_session = launch["session_id"] if launch else 1
     assert state["session_id"] == expected_session and state["limited_token_verified"] is True
     by_host = {}
     for host, receipt in reports.items():
@@ -295,6 +304,7 @@ def verify(reports):
                                     "external_files_verified": 3, "historical_run_resumption_validated": False}
     result = {"success": True, "projects": 17, "fovs": 239, "rois": 43102, "raw_samples_per_host": 3525,
               "engine_sha": ENGINE_SHA, "limited_windows_token_verified": True, "windows_session_id": expected_session,
+              "windows_alternate_homes_path": suffix == "-rdp2-homes",
               "report_sha256_by_host": {host: receipt["report_sha256"] for host, receipt in reports.items()},
               "project_saved": False, "catalog_changed": False, "source_deleted": False}
     with (HERE / "year2-final-hosts-completion-verification.json").open("x", encoding="utf-8") as output:

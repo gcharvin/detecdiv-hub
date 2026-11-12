@@ -37,7 +37,27 @@ No filesystem rename, database or scientific-file change was performed while
 recording this requirement. Keep the follow-up until this naming requirement
 and the original two-year migration/reclamation scope are verified complete.
 
-## Latest checkpoint — 2026-11-12, 07:22 UTC: Linux passed, Windows SMB access missing
+## Latest checkpoint — 2026-11-12, 07:28 UTC: Windows reads through the homes share
+
+Gilles opened the NAS `homes` share in his limited RDP desktop. The
+existing dedicated Windows task started the Windows-only retry in session 2
+and passed the preflight for all 17 MAT paths. MATLAB final reads are now
+running. The retry uses `//10.20.8.250/homes/maliavko/DetecdivHub` as its
+Windows read path. Its exact request and protected engine are unchanged.
+The session ID check and Windows homes2 path are the only runner/reader
+changes. The earlier reports and the successful Linux report are retained.
+The private launch receipt is
+`runtime/year2-final-host-windows-rdp2-homes-launch.json`. Use
+`year2_final_host_operations.py status` and then `verify` at terminal success.
+Do not replay the launcher or Linux. Keep the RDP desktop open during reads.
+
+The retry validates project content through the alternate SMB path. The Hub
+worker's configured Windows path still points at the NAS DNS `home` share.
+Before catalog cutover, confirm that normal Windows Hub jobs can resolve the
+preferred locations with their actual worker credentials and mapping. Any
+live mapping change needs its own scoped validation and authorization.
+
+## Previous checkpoint — 2026-11-12, 07:22 UTC: Linux passed, Windows SMB access missing
 
 Linux passed the final reads for all 17 projects at 07:05 UTC with exit 0,
 239 FOV, 43,102 ROI and 3,525 samples. Preserve its terminal report and do
