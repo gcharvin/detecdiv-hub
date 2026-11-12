@@ -1,0 +1,12 @@
+{
+  "success": true,
+  "projects": 17,
+  "project_api_routes_verified": 17,
+  "identity_and_nonpath_metadata_preserved": true,
+  "original_locations_preserved": true,
+  "own_leases_released": 17,
+  "batch_id": "ee11789c-4a26-448a-a020-123eed5f5e9a",
+  "checked_at": "2026-11-12T09:55:10.000090+00:00",
+  "read_only": true,
+  "source_deleted_by_project_cutover": false
+}

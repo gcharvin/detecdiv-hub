@@ -37,7 +37,28 @@ No filesystem rename, database or scientific-file change was performed while
 recording this requirement. Keep the follow-up until this naming requirement
 and the original two-year migration/reclamation scope are verified complete.
 
-## Latest checkpoint — 2026-11-12, 07:44 UTC: automatic project cutover continuation
+## Latest checkpoint — 2026-11-12: year2 project catalog cutover verified
+
+Both MATLAB host reports passed for all 17 projects. The catalog cutover
+committed at 09:55 UTC. The independent postflight verified all 17 preferred
+locations through the Hub project API, preserved project identities, non-path
+metadata and original locations, and confirmed release of the 17 owned leases.
+See `year2-final-hosts-completion-verification.json`,
+`year2-project-catalog-cutover-result.json` and
+`year2-project-catalog-preservation-postflight.json`.
+
+The watcher stopped after verifying the catalog because its cleanup still
+expected Windows session 1. Cleanup was resumed alone with the session ID
+verified against the launch and archived host reports. The dedicated Windows
+task and its two scripts were removed. The reports and request remain archived
+and the worker was untouched. See `year2-windows-cleanup.json`. Do not query
+the removed task or replay the watcher, either host reader or the cutover.
+
+Both project catalog cutovers are complete. Raw catalog and media references,
+readable year paths and verified source retirement are separate remaining work.
+The project cutovers recovered zero bytes on `/data`.
+
+## Previous checkpoint — 2026-11-12, 07:44 UTC: automatic project cutover continuation
 
 Gilles requested that the running MATLAB test finish and that the project
 catalog cutover proceed if both host reports pass. The dedicated

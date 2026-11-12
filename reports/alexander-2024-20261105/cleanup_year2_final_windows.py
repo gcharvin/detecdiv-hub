@@ -13,7 +13,7 @@ assert attempt in ('', '-rdp2', '-rdp2-homes')
 work = work.with_name(work.name + attempt)
 state = json.loads((work / 'host-windows-state.json').read_bytes())
 report = work / 'host-windows-verification.json'
-assert state['success'] and state['matlab_exit_code'] == 0 and state['session_id'] == 1
+assert state['success'] and state['matlab_exit_code'] == 0 and state['session_id'] == expected_session
 assert state['windows_identity'].casefold() == 'gmgm\\charvin-admin' and state['limited_token_verified']
 assert hashlib.sha256(report.read_bytes()).hexdigest() == state['report_sha256'] == expected_report
 for name, sha in pins.items():
@@ -65,9 +65,12 @@ def main():
     expected = proof["report_sha256_by_host"]["windows"]
     assert proof["success"] is True and archived["report_sha256"] == expected
     attempt, launch = windows_attempt()
+    expected_session = launch["session_id"] if launch else 1
+    assert proof["windows_session_id"] == archived["state"]["session_id"] == expected_session
     pins = {"verify_year2_final_hosts.m": launch.get("script_sha256", SCRIPT_SHA) if launch else SCRIPT_SHA,
             "run_year2_final_hosts.py": launch["runner_sha256"] if launch else RUNNER_SHA}
-    prefix = f"expected_report={expected!r}\npins={pins!r}\nattempt={attempt!r}\n"
+    prefix = (f"expected_report={expected!r}\nexpected_session={expected_session!r}\n"
+              f"pins={pins!r}\nattempt={attempt!r}\n")
     result = remote("windows", prefix + CODE, timeout=60)
     with output.open("x", encoding="utf-8") as stream:
         json.dump(result, stream, indent=2)

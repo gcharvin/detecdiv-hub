@@ -1,0 +1,11 @@
+{
+  "diagnosticTaskRemoved": true,
+  "success": true,
+  "report_sha256": "4b04556d65750cffb5589c288e82c8573f13c2c7b35369ac9bce4a463acc08f8",
+  "diagnostic_scripts_removed": [
+    "verify_year2_final_hosts.m",
+    "run_year2_final_hosts.py"
+  ],
+  "reports_and_request_retained": true,
+  "worker_modified": false
+}

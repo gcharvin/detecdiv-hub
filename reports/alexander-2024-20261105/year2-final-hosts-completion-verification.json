@@ -1,0 +1,18 @@
+{
+  "success": true,
+  "projects": 17,
+  "fovs": 239,
+  "rois": 43102,
+  "raw_samples_per_host": 3525,
+  "engine_sha": "d83c4dbc0638bc0d3f6012b4f1df5744e0c017c7",
+  "limited_windows_token_verified": true,
+  "windows_session_id": 2,
+  "windows_alternate_homes_path": true,
+  "report_sha256_by_host": {
+    "linux": "8d2535c47f9a742ec2828f31a59f2a2470c37f689080706062bf1087ff066df5",
+    "windows": "4b04556d65750cffb5589c288e82c8573f13c2c7b35369ac9bce4a463acc08f8"
+  },
+  "project_saved": false,
+  "catalog_changed": false,
+  "source_deleted": false
+}
