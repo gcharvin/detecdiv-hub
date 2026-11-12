@@ -37,7 +37,32 @@ No filesystem rename, database or scientific-file change was performed while
 recording this requirement. Keep the follow-up until this naming requirement
 and the original two-year migration/reclamation scope are verified complete.
 
-## Latest checkpoint — 2026-11-12, 07:30 UTC: Windows worker path confirmed inaccessible
+## Latest checkpoint — 2026-11-12, 07:36 UTC: Windows worker paths verified
+
+Gilles authorized changing the one Windows mapping for
+`/homes2/maliavko/DetecdivHub` to
+`//10.20.8.250/homes/maliavko/DetecdivHub` and restarting the idle worker.
+The activation verified zero running or cancelling jobs, a fresh idle
+heartbeat and the managed Python process tree. It temporarily drained only
+the Windows target. The worker restarted with the same code fingerprint and
+a fresh heartbeat. The drain was restored. The protected configuration
+backup and activation receipts remain private. Only the target bytes of the
+one mapping changed.
+
+The dedicated read-only Hub check exited 0. Using the live worker's
+Windows authentication session and Hub path resolver, it opened all 17
+proposed preferred MAT paths and matched their SHA256 digests to the pinned
+project request. The private proof is
+`runtime/year2-windows-worker-path-verification.json`. The probe task was
+removed after archiving the receipt. Do not run it again.
+
+The Windows-only MATLAB reader is still running. Follow it with
+`year2_final_host_operations.py status`, then `verify` at successful
+terminal status. Run the catalog cutover after matching both host reports
+and confirming fresh admission. The cutover also checks the Hub path proof
+against the live worker. No source was retired.
+
+## Previous checkpoint — 2026-11-12, 07:30 UTC: Windows worker path confirmed inaccessible
 
 The Windows content test is running through the alternate homes share.
 A separate read-only probe compared its Windows authentication session

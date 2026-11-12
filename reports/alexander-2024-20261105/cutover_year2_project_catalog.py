@@ -148,6 +148,16 @@ def main():
     assert not output.exists()
     hosts = read_json(HERE / "year2-final-hosts-completion-verification.json")
     assert hosts["success"] is True and hosts["projects"] == 17 and hosts["limited_windows_token_verified"] is True
+    if hosts.get("windows_alternate_homes_path"):
+        from activate_year2_windows_homes_mapping import NEW, database
+
+        worker_proof = read_json(PRIVATE / "year2-windows-worker-path-verification.json")
+        assert worker_proof["success"] and worker_proof["worker_logon_matches"] and worker_proof["limited"]
+        assert worker_proof["windows_path"] == NEW and worker_proof["projects"] == len(worker_proof["rows"]) == 17
+        assert {row["project_id"] for row in worker_proof["rows"]} == {
+            row["project_id"] for row in scope_from_baseline()}
+        live_worker = database("status")
+        assert live_worker["pid"] == worker_proof["worker_pid"] and live_worker["age_seconds"] < 30
     control = read_json(PRIVATE / "year2-final-host-control.json")
     report = remote("linux", "request_sha=" + repr(REQUEST_SHA) + "\n" + PUBLICATION, timeout=60)
     assert report["result_sha256"] == control["publication_result_sha256"]
