@@ -37,7 +37,25 @@ No filesystem rename, database or scientific-file change was performed while
 recording this requirement. Keep the follow-up until this naming requirement
 and the original two-year migration/reclamation scope are verified complete.
 
-## Latest checkpoint — 2026-11-12, 07:28 UTC: Windows reads through the homes share
+## Latest checkpoint — 2026-11-12, 07:30 UTC: Windows worker path confirmed inaccessible
+
+The Windows content test is running through the alternate homes share.
+A separate read-only probe compared its Windows authentication session
+with both active Hub worker processes. Both matches passed under the
+limited token in RDP session 2. Using the worker checkout's existing
+configuration and path resolver, the probe could open zero of the 17 MAT
+files through the configured NAS DNS path. It opened all 17 through
+`//10.20.8.250/homes/maliavko/DetecdivHub`. The probe task exited 0 and was
+unregistered. The private receipt is
+`runtime/year2-worker-token-mapping-observation.json`.
+
+Before project catalog cutover, restore the existing path or obtain
+authorization to change the Windows worker's mapping for this one
+canonical prefix and apply the change while the worker is idle. Verify
+access with the running worker's logon and resolver after the change.
+The current worker configuration and source data have not been changed.
+
+## Previous checkpoint — 2026-11-12, 07:28 UTC: Windows reads through the homes share
 
 Gilles opened the NAS `homes` share in his limited RDP desktop. The
 existing dedicated Windows task started the Windows-only retry in session 2
