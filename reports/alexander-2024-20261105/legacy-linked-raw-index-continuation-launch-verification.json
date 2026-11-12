@@ -1,0 +1,10 @@
+{
+  "started": true,
+  "work": "legacy-linked-raw-zip-indexes-continuation-20261112",
+  "archives": 2,
+  "projects": 2,
+  "script_sha256": "199341118fe4c5adb734929586c57ebc89415f623fe39be5c42a46d47e48d1df",
+  "read_only": true,
+  "member_payload_reads": 0,
+  "started_at": "2026-11-12T20:37:51.650358+00:00"
+}

@@ -1,3 +1,22 @@
+## Latest checkpoint — 2026-11-12: linked-raw archive review completed
+
+The separate linked-raw index and its two-ZIP continuation completed with
+exit 0. All 66 ZIP indexes were read within their explicit bounds. Their 197
+candidate MATs were privately staged, their hashes checked, and inspected by
+the protected MATLAB reader: 197 inspected, zero 2024 acquisition string
+matches, zero reader exceptions. The first attempt stopped safely before
+staging due to a wrong request hash pin; a separately admitted recovery with
+the corrected pin succeeded. No original archive or project was modified.
+See `legacy-linked-raw-zip-indexes-completion-verification.json`,
+`legacy-linked-raw-index-continuation-completion-verification.json`,
+`legacy-linked-raw-main-review-recovery-completion-verification.json` and
+`legacy-linked-raw-main-review-continuation-completion-verification.json`.
+
+These archived MATs are candidates: their identity as the missing originals
+and their sidecars are not established. They do not settle the missing LoxP15
+positions or all legacy links. Retain all 2024 sources; zero bytes of 2024
+storage have been reclaimed. Do not replay these completed actors.
+
 # Alexander 2024 migration — started 2026-11-05
 
 The user explicitly authorized copying **2024_1 then 2024_2** to homes2,
@@ -37,7 +56,49 @@ No filesystem rename, database or scientific-file change was performed while
 recording this requirement. Keep the follow-up until this naming requirement
 and the original two-year migration/reclamation scope are verified complete.
 
-## Latest checkpoint — 2026-11-12: archive bundle path evidence
+## Historical checkpoint — 2026-11-12: linked raw archive main review
+
+The linked-raw index loop finished with exit 0. It fully inspected 64 ZIP
+central directories covering 195 projects and identified 195 MAT candidates.
+It found no known 2024 acquisition path segments. Two ZIP indexes, covering
+two projects, exceeded the 16 MiB per-archive budget and remain unresolved.
+See `legacy-linked-raw-zip-indexes-completion-verification.json`.
+
+The first main-review launch stopped with exit 1 before creating an inputs
+directory or starting MATLAB because its index-request hash was copied from
+the earlier scope. That partial work directory is preserved. A new bounded
+recovery, `legacy-linked-raw-main-path-review-recovery-20261112`, has fresh
+admission and the correct request hash. It runs in tmux
+`alex2024-legacy-linked-raw-main-path-review-recovery-20261112` with runner
+SHA256 `e5328fa306921734b2d4654a572149f900430c484bf530f3c4a09dcaaa723c0e`.
+It stages and inspects only the 195 candidates from the completed indexes.
+Use `status.py`, then verify the terminal result, receipts and staged hashes.
+Do not replay the failed launch or duplicate the active recovery. Project
+identity and sidecar qualifications remain open. No source was removed.
+
+## Previous checkpoint — 2026-11-12: ZIPs linked through raw catalog records
+
+A new read-only Hub query covered the 313 missing-main projects without a
+project archive URI or snapshot metadata. It found 219 project/raw links;
+210 projects link to raw records with archive URIs. Of those links, 197
+point to 66 distinct ZIPs under `/archive/theo` or `/archive/audrey` and 13
+only identify `/archive`. The private local receipt is
+`runtime/legacy-no-project-archive-linked-raws-20261112.json`, SHA256
+`d5c0e0ab9d3c6dac381553cd10c83fa35438d4b2af489ffa31639ea5a04d4e1c`.
+
+The new read-only `legacy-linked-raw-zip-indexes-20261112` scope is running
+in tmux `alex2024-legacy-linked-raw-zip-indexes-20261112`. It examines only
+the 66 concrete linked ZIP central directories for declared MAT/JSON stems and
+known 2024 acquisition path segments, under a 16 MiB per-archive and 256 MiB
+total index budget. The runner SHA256 is
+`fa0dec5dac4a837163376b300c62bb8c0a824d9475712aced64394ebd9e54777`.
+Use `status.py`, inspect the terminal receipt and exit, and retain any failed
+or over-budget archives as unresolved. Do not duplicate the active scope.
+See `legacy-linked-raw-zip-indexes-launch-verification.json`. This is a new
+candidate search and does not establish project identity or permit removal.
+No source was removed and 2024 reclaimed space remains zero bytes.
+
+## Previous checkpoint — 2026-11-12: archive bundle path evidence
 
 A new bounded read-only comparison checked the 679 staged archived-main
 members against their Hub `archive_bundle_root_path` metadata. It rechecked

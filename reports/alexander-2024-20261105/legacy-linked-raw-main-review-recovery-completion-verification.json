@@ -1,0 +1,16 @@
+{
+  "success": true,
+  "controller_exit": 0,
+  "projects": 195,
+  "candidate_projects": 0,
+  "unresolved": 0,
+  "statuses": {
+    "legacy_strings_inspected": 195
+  },
+  "all_input_hashes_verified": true,
+  "input_receipt_sha256": "856287fac8f4210e4e939b3a9bd39b4cb881cd4d7a82572b5a6ea37dec659053",
+  "receipt_sha256": "45224ddb6dd050ac07c7d3bc632172d601a4e2c4ff3d15d4498857bf184cd849",
+  "source_saved": false,
+  "archive_candidates_identity_confirmed": false,
+  "on_disk_sidecars_qualified": false
+}

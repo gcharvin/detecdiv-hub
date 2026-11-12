@@ -1,0 +1,22 @@
+{
+  "success": true,
+  "controller_exit": 0,
+  "archives": 66,
+  "complete_archives": 64,
+  "incomplete_archives": 2,
+  "projects_in_complete_archives": 195,
+  "projects_in_incomplete_archives": 2,
+  "complete_entries": 732112,
+  "matching_mains": 195,
+  "acquisition_segment_hits": 0,
+  "candidate_suffixes": {
+    ".mat": 195
+  },
+  "candidate_bytes": 542834,
+  "max_candidate_bytes": 13874,
+  "request_sha256": "c433fea5fdfe3bb7a9b75b79498f4ca526db7a0c10824cf763f85bf6e546f2fe",
+  "receipt_sha256": "9a0374bc56c80af6774689e84c369fd6bc7c80e2844a3da2203910900ff7ac0d",
+  "member_payload_reads": 0,
+  "source_deleted": false,
+  "project_identity_established": false
+}

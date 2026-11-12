@@ -85,6 +85,15 @@ summary['legacy_bundle_zip_index_continuation']={'progress':load('legacy-bundle-
  'result':load('legacy-bundle-zip-indexes-continuation-20261112/result.json'),
  'exit':tail('legacy-bundle-zip-indexes-continuation-20261112/controller.exit'),
  'log_tail':tail('legacy-bundle-zip-indexes-continuation-20261112/controller.log',1200)}
+summary['legacy_linked_raw_zip_indexes']={'progress':load('legacy-linked-raw-zip-indexes-20261112/progress.json'),
+ 'result':load('legacy-linked-raw-zip-indexes-20261112/result.json'),
+ 'exit':tail('legacy-linked-raw-zip-indexes-20261112/controller.exit'),
+ 'log_tail':tail('legacy-linked-raw-zip-indexes-20261112/controller.log',1200)}
+summary['legacy_linked_raw_main_recovery']={'stage':load('legacy-linked-raw-main-path-review-recovery-20261112/stage-result.json'),
+ 'progress':load('legacy-linked-raw-main-path-review-recovery-20261112/progress.json'),
+ 'result':load('legacy-linked-raw-main-path-review-recovery-20261112/result.json'),
+ 'exit':tail('legacy-linked-raw-main-path-review-recovery-20261112/controller.exit'),
+ 'log_tail':tail('legacy-linked-raw-main-path-review-recovery-20261112/controller.log',1200)}
 summary['legacy_bundle_main_path_review']={'stage':load('legacy-bundle-main-path-review-20261112/stage-result.json'),
  'progress':load('legacy-bundle-main-path-review-20261112/progress.json'),
  'result':load('legacy-bundle-main-path-review-20261112/result.json'),
