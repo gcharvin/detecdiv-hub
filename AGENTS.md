@@ -115,6 +115,12 @@ Jobs should carry:
 - resolved execution target
 - enough metadata to reconstruct what happened later
 
+For routine Hub processing, submit in `server` mode and leave
+`execution_target_id` unset in both the request and its `execution` block.
+The Hub assigns the job to a compatible Linux or Windows worker according to
+availability and resource requirements. Specify a worker only when the user
+requests that machine or the run has a verified host-specific dependency.
+
 Server paths and client paths must remain separate concerns:
 
 - the hub stores canonical server-visible locations
