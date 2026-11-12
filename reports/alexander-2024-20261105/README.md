@@ -37,7 +37,46 @@ No filesystem rename, database or scientific-file change was performed while
 recording this requirement. Keep the follow-up until this naming requirement
 and the original two-year migration/reclamation scope are verified complete.
 
-## Latest checkpoint — 2026-11-12: 37 archived MAT path reviews
+## Latest checkpoint — 2026-11-12: additional legacy ZIP index results
+
+The new `legacy-bundle-zip-indexes-20261112` controller ended with exit 0.
+Its 667-archive loop completed. Indexes were fully read for 476 ZIPs,
+covering 487 project IDs and identifying exactly one matching MAT per
+project. These 487 member names total 4,364,685 uncompressed bytes, with a
+maximum of 31,674 bytes. No complete index contained a path segment matching
+a known 2024 acquisition. The 191 other ZIPs, covering 192 project IDs, were
+not fully inspected because of the declared index-read budgets. A successful
+loop does not qualify those 191 indexes or any archived project identity.
+
+See `legacy-bundle-zip-indexes-completion-verification.json` and the private
+compute request and receipt. A next new read-only scope can follow the 487
+small MAT members after fresh admission, archive stability and CRC checks,
+then inspect their actual saved path fields. Do not replay the completed
+index loop. The 191 over-budget ZIPs need their own bounded continuation.
+Lox and legacy retirement qualifications remain open and 2024 space reclaimed
+from `/data` remains zero bytes.
+
+## Previous checkpoint — 2026-11-12: additional legacy ZIP index inventory
+
+Hub project metadata for 679 missing mains points to raw archive bundles.
+Although their current catalog archive URI is only `/archive`, the associated
+raw archive jobs and lifecycle events independently identify 667 ZIP paths
+under `/archive/Basile`. A new bounded read-only ZIP central-directory scan is
+running in `legacy-bundle-zip-indexes-20261112`, tmux
+`alex2024-legacy-bundle-zip-indexes-20261112`. It records candidate MAT/JSON
+stems and 2024 acquisition path segments without extracting member payloads.
+Each archive has an 8 MiB index-read cap and the total cap is 512 MiB.
+
+Use `status.py` for progress and inspect the terminal receipt and controller
+exit before following candidates. An index budget or archive error remains an
+explicitly unreviewed scope. Do not relaunch the active scan or infer that a
+filename match establishes scientific identity. The request, per-archive
+receipt, controller log and source stay in the private compute work directory.
+The launcher receipt is `legacy-bundle-zip-indexes-launch-verification.json`.
+The runner SHA256 is `22e1ab6b7816fa97157aee84f7e2a61a23fa9e1df9d1c53ddd356a47ea86ff82`.
+Lox and legacy retirement gates remain open, with no source removed.
+
+## Previous checkpoint — 2026-11-12: 37 archived MAT path reviews
 
 The new read-only `legacy-archived-main-path-review-20261112` scope finished
 with controller exit 0. It inspected 37 MAT members from the 36 registered

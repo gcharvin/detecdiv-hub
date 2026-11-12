@@ -62,3 +62,5 @@ verify_raw_api_cutover_media.py -text whitespace=cr-at-eol
 verify_retirement_manifest.py -text whitespace=cr-at-eol
 withdraw_retirement_manifest.py -text whitespace=cr-at-eol
 launch_archived_legacy_readonly.py -text whitespace=cr-at-eol
+scan_legacy_bundle_indexes.py -text whitespace=cr-at-eol
+launch_legacy_bundle_indexes.py -text whitespace=cr-at-eol

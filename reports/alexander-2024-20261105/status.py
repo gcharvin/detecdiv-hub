@@ -77,6 +77,10 @@ summary['year1_final_linux_hosts']={'state':load('year1-final-hosts-20261109/hos
 summary['lox_archive_name_search']={'state':load('lox-archive-name-search-20261109/state.json'),
  'exit':tail('lox-archive-name-search-20261109/controller.exit'),
  'log_tail':tail('lox-archive-name-search-20261109/controller.log',1200)}
+summary['legacy_bundle_zip_indexes']={'progress':load('legacy-bundle-zip-indexes-20261112/progress.json'),
+ 'result':load('legacy-bundle-zip-indexes-20261112/result.json'),
+ 'exit':tail('legacy-bundle-zip-indexes-20261112/controller.exit'),
+ 'log_tail':tail('legacy-bundle-zip-indexes-20261112/controller.log',1200)}
 summary['year2_incoming_integrity']={'state':load('year2-incoming-integrity-20261110/state.json'),
  'exit':tail('year2-incoming-integrity-20261110/controller.exit'),
  'log_tail':tail('year2-incoming-integrity-20261110/controller.log',1200)}
