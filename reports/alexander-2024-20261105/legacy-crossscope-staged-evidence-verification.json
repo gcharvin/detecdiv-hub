@@ -1,0 +1,15 @@
+{
+  "read_only": true,
+  "target_projects": 10,
+  "archive_member_project_stem_matches": 15,
+  "projects_with_staged_candidate": 10,
+  "staged_rows_rehashed": 15,
+  "previous_reader_statuses": [
+    "legacy_strings_inspected"
+  ],
+  "rows_with_2024_match": 0,
+  "project_identity_confirmed": false,
+  "external_sidecars_qualified": false,
+  "private_evidence_sha256": "652b3266399cea7b57d7aa4e7ff99b73a3085073dd25325e1813cb3a28ceec96",
+  "scope": "Previously indexed candidate members only; exact normalized stems can be generic."
+}

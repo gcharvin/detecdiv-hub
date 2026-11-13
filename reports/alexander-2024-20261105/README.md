@@ -1,4 +1,23 @@
-## Latest checkpoint — 2026-11-12: further legacy archive clues
+## Latest checkpoint — 2026-11-13: cross-scope legacy candidate evidence
+
+A new comparison used existing completed index receipts for the three archive
+name candidates and the declared missing main names for ten linked projects.
+It found 15 archive/member-to-project exact normalized stem matches across all
+ten projects. All 15 correspond to existing staged candidate receipts; each
+staged file was independently rehashed to its input receipt, and its previous
+reader status was inspected with no 2024 acquisition match. No archive index,
+MAT reader, or scientific save was replayed.
+
+The private comparison and evidence are
+`runtime/legacy-crossscope-existing-candidates-20261113.json` and
+`runtime/legacy-crossscope-staged-evidence-20261113.json`, with the latter
+SHA256 `652b3266399cea7b57d7aa4e7ff99b73a3085073dd25325e1813cb3a28ceec96`.
+Exact stems, including possible generic names, do not establish these are the
+missing originals, their scientific identity or external sidecar coverage.
+Lox and legacy dependencies remain unqualified. No 2024 source was removed;
+actual 2024 space reclaimed remains zero bytes.
+
+## Previous checkpoint — 2026-11-12: further legacy archive clues
 
 A read-only catalog query of the three raw IDs lacking concrete archive history
 found three recorded locations and no `/archive/` path in their raw metadata.
