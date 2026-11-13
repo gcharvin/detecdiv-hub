@@ -1,0 +1,12 @@
+{
+  "exit": 0,
+  "output": "test_changed_directory_digest_rejected (test_retirement_baseline_pin.BaselinePinTests.test_changed_directory_digest_rejected) ... ok\ntest_changed_manifest_evidence_rejected (test_retirement_baseline_pin.BaselinePinTests.test_changed_manifest_evidence_rejected) ... ok\ntest_other_year_rejected (test_retirement_baseline_pin.BaselinePinTests.test_other_year_rejected) ... ok\ntest_symlink_baseline_rejected (test_retirement_baseline_pin.BaselinePinTests.test_symlink_baseline_rejected) ... ok\ntest_valid_external_pin (test_retirement_baseline_pin.BaselinePinTests.test_valid_external_pin) ... ok\ntest_wrong_pin_rejected (test_retirement_baseline_pin.BaselinePinTests.test_wrong_pin_rejected) ... ok\ntest_wrong_source_rejected (test_retirement_baseline_pin.BaselinePinTests.test_wrong_source_rejected) ... ok\ntest_wrong_year_rejected (test_retirement_baseline_pin.BaselinePinTests.test_wrong_year_rejected) ... ok\n\n----------------------------------------------------------------------\nRan 8 tests in 0.014s\n\nOK\n",
+  "scope": "temporary fixture tree only",
+  "scripts_sha256": {
+    "verify_retirement_manifest.py": "12ea4f19dcc264c319c9ea77fbbd88d4c044c9d23c7399900bfcfef316c55f6e",
+    "retirement_baseline_pin.py": "e975cef3cf2d24dc2b18482ea8316d095f7c99c3badeb0f5d16bec471f21439a",
+    "test_retirement_baseline_pin.py": "b9326c3008d103ef28b481fdcf9f865f6d61116d22d40a2691df1310259ac3f7"
+  },
+  "production_scanned": false,
+  "production_unlinked": false
+}

@@ -1,4 +1,20 @@
-## Latest checkpoint — 2026-11-13: directory baseline v2 fixtures
+## Latest checkpoint — 2026-11-13: external baseline pin fixtures
+
+`retirement_baseline_pin.py` adds a read-only loader for a future directory
+baseline. It requires an externally supplied SHA256, opens the file without
+following symlinks, checks a stable bounded regular-file read, validates the
+2024 year and exact source root, matches the verified manifest facts and
+checks the directory-row digest and structure. Eight isolated Linux tests
+passed; see `retirement-baseline-pin-fixture-verification.json`. No production
+baseline was created or opened, and no source was removed.
+
+The hash is useful only if its provenance is independently authenticated;
+this loader does not acquire leases, authorize retirement, implement mutable
+directory transitions or recover a partial unlink. It is not integrated with
+any production controller. Lox, historic references and remaining retirement
+gates remain unresolved; actual 2024 space reclaimed remains zero bytes.
+
+## Previous checkpoint — 2026-11-13: directory baseline v2 fixtures
 
 The separate read-only directory baseline v2 checks the full file manifest
 again after collecting directory signatures, then opens and checks every
