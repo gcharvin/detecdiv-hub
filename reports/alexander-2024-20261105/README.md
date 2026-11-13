@@ -1,4 +1,17 @@
-## Latest checkpoint — 2026-11-13: receipt integration fixtures
+## Latest checkpoint — 2026-11-13: directory guard integration fixtures
+
+Three new isolated Linux fixtures exercised the two existing directory-guard
+prototypes together. They cover two temporary file removals in the same parent,
+a modified ancestor before the first removal, and an unexpected new file before
+the second. See `directory-guards-integration-fixture-verification.json`. Only
+temporary fixture files were touched; no production data were scanned or removed.
+
+This is test code, not a production controller. In particular it does not
+provide atomic mutation protection, authenticated changing baselines, durable
+per-file receipts, admission/leases or crash recovery. Lox and legacy links
+remain unqualified. Actual 2024 space reclaimed remains zero bytes.
+
+## Previous checkpoint — 2026-11-13: receipt integration fixtures
 
 A separate temporary Linux fixture exercised the existing withdrawal leaf and
 the new receipt verifier together. A complete two-file fixture withdrawal

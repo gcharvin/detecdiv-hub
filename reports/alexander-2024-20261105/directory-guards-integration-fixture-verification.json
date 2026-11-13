@@ -1,0 +1,13 @@
+{
+  "exit": 0,
+  "output": "test_changed_ancestor_stops_before_first_removal (test_directory_guards_integration.DirectoryGuardIntegrationTests.test_changed_ancestor_stops_before_first_removal) ... ok\ntest_two_same_parent_fixture_removals (test_directory_guards_integration.DirectoryGuardIntegrationTests.test_two_same_parent_fixture_removals) ... ok\ntest_unexplained_parent_change_stops_before_second_removal (test_directory_guards_integration.DirectoryGuardIntegrationTests.test_unexplained_parent_change_stops_before_second_removal) ... ok\n\n----------------------------------------------------------------------\nRan 3 tests in 0.010s\n\nOK\n",
+  "scope": "temporary fixture tree only",
+  "scripts_sha256": {
+    "verify_retirement_manifest.py": "12ea4f19dcc264c319c9ea77fbbd88d4c044c9d23c7399900bfcfef316c55f6e",
+    "retirement_directory_inventory_v2.py": "d5d0e699846676bdee2ee83ca27e53d97bc01e42b4cbd6589cef49b61a5d11fe",
+    "retirement_directory_transition.py": "3043690629a84b9ae8923cde0f7216d8ffa7d579d5a8ef8542b79404aa7a42db",
+    "test_directory_guards_integration.py": "b38f48b3cb3cc93f46033ae141aba09d5eaf0ff2838eb996778533a9569a4b46"
+  },
+  "production_scanned": false,
+  "production_unlinked": false
+}
