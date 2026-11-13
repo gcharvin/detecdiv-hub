@@ -1,4 +1,21 @@
-## Latest checkpoint — 2026-11-13: retirement ancestor guard gap
+## Latest checkpoint — 2026-11-13: read-only ancestor baseline fixture
+
+`retirement_directory_inventory.py` adds a read-only prototype: after checking
+the full file manifest, it captures directory device, inode, mode, ownership,
+link count, size, mtime and ctime; it can compare an unchanged no-follow chain
+to that pinned snapshot. Seven isolated Linux tests passed, including metadata
+change, added file, replaced symlink, tampered baseline and changed file. See
+`retirement-directory-inventory-fixture-verification.json`. No production
+inventory or source unlink was performed.
+
+This prototype is not a retirement controller. It does not account for the
+metadata changes caused by its own unlinks, and is not connected to admission,
+leases, per-file deletion or recovery. Concurrent mutations and crash recovery
+need a separately designed and tested transition protocol before production use.
+Lox, historical references and other retirement gates remain unresolved; 2024
+space reclaimed is zero bytes.
+
+## Previous checkpoint — 2026-11-13: retirement ancestor guard gap
 
 A read-only code review identified an additional unmet retirement gate. The
 verified native manifests encode directories by path alone. The withdrawal

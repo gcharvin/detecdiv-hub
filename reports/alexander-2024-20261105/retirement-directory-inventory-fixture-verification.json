@@ -1,0 +1,12 @@
+{
+  "exit": 0,
+  "output": "test_changed_payload_rejected_before_inventory (test_retirement_directory_inventory.DirectoryInventoryTests.test_changed_payload_rejected_before_inventory) ... ok\ntest_directory_metadata_change_rejected (test_retirement_directory_inventory.DirectoryInventoryTests.test_directory_metadata_change_rejected) ... ok\ntest_file_added_after_capture_rejected (test_retirement_directory_inventory.DirectoryInventoryTests.test_file_added_after_capture_rejected) ... ok\ntest_parent_traversal_rejected (test_retirement_directory_inventory.DirectoryInventoryTests.test_parent_traversal_rejected) ... ok\ntest_symlink_ancestor_rejected (test_retirement_directory_inventory.DirectoryInventoryTests.test_symlink_ancestor_rejected) ... ok\ntest_tampered_baseline_rejected (test_retirement_directory_inventory.DirectoryInventoryTests.test_tampered_baseline_rejected) ... ok\ntest_valid_unchanged_chain (test_retirement_directory_inventory.DirectoryInventoryTests.test_valid_unchanged_chain) ... ok\n\n----------------------------------------------------------------------\nRan 7 tests in 0.016s\n\nOK\n",
+  "scope": "temporary fixture tree only",
+  "scripts_sha256": {
+    "verify_retirement_manifest.py": "12ea4f19dcc264c319c9ea77fbbd88d4c044c9d23c7399900bfcfef316c55f6e",
+    "retirement_directory_inventory.py": "7b20ce8bfba0e0a8ac9ab0fcb4b46e097af82559181e24474cacf4ed1ca61614",
+    "test_retirement_directory_inventory.py": "781710e8a36484fcef817002e747de7b43778a320354c6a1ccd93e03c104b608"
+  },
+  "production_scanned": false,
+  "production_unlinked": false
+}
