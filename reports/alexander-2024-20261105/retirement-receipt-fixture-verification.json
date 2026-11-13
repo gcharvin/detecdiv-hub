@@ -1,0 +1,12 @@
+{
+  "exit": 0,
+  "output": "test_duplicate_record_rejected (test_verify_retirement_receipt.ReceiptTests.test_duplicate_record_rejected) ... ok\ntest_extra_record_rejected (test_verify_retirement_receipt.ReceiptTests.test_extra_record_rejected) ... ok\ntest_missing_unlinked_rejected (test_verify_retirement_receipt.ReceiptTests.test_missing_unlinked_rejected) ... ok\ntest_other_year_rejected (test_verify_retirement_receipt.ReceiptTests.test_other_year_rejected) ... ok\ntest_valid_complete (test_verify_retirement_receipt.ReceiptTests.test_valid_complete) ... ok\ntest_wrong_file_rejected (test_verify_retirement_receipt.ReceiptTests.test_wrong_file_rejected) ... ok\ntest_wrong_manifest_digest_rejected (test_verify_retirement_receipt.ReceiptTests.test_wrong_manifest_digest_rejected) ... ok\ntest_wrong_measured_delta_rejected (test_verify_retirement_receipt.ReceiptTests.test_wrong_measured_delta_rejected) ... ok\n\n----------------------------------------------------------------------\nRan 8 tests in 0.012s\n\nOK\n",
+  "scope": "temporary fixture tree only",
+  "scripts_sha256": {
+    "verify_retirement_manifest.py": "12ea4f19dcc264c319c9ea77fbbd88d4c044c9d23c7399900bfcfef316c55f6e",
+    "verify_retirement_receipt.py": "973cba61f4ac7c2ea13ddfe675859be1a9876c5a1a909f9174f4c3e8cc722ffc",
+    "test_verify_retirement_receipt.py": "a3224eceb80344072653fd97ac156c8f75d03d5e18ad47f35007d8ada58d43e6"
+  },
+  "production_scanned": false,
+  "production_unlinked": false
+}

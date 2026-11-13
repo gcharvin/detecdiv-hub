@@ -1,4 +1,19 @@
-## Latest checkpoint — 2026-11-13: directory transition fixture
+## Latest checkpoint — 2026-11-13: per-file receipt verifier fixture
+
+`verify_retirement_receipt.py` is a read-only building block that checks an
+ordered complete intent/unlinked receipt against the pinned 2024 manifest,
+including per-file rows, totals, stable evidence files and arithmetic of the
+recorded available-space measurements. Eight isolated Linux fixtures passed;
+see `retirement-receipt-fixture-verification.json`. Only temporary files were
+used; no production receipt exists and no source data was removed.
+
+This verifier does not prove an unlink actually occurred, ensure the source
+tree is empty, acquire leases, validate project references or implement a
+controller. A free-space delta can also include concurrent unrelated changes;
+it is not by itself proof of causation. All retirement gates remain open and
+actual 2024 space reclaimed remains zero bytes.
+
+## Previous checkpoint — 2026-11-13: directory transition fixture
 
 `retirement_directory_transition.py` is a read-only fixture prototype that
 compares a parent directory and its direct children before and after one

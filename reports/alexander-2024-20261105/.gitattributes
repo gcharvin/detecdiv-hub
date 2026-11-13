@@ -95,3 +95,5 @@ retirement_baseline_pin.py -text whitespace=cr-at-eol
 test_retirement_baseline_pin.py -text whitespace=cr-at-eol
 retirement_directory_transition.py -text whitespace=cr-at-eol
 test_retirement_directory_transition.py -text whitespace=cr-at-eol
+verify_retirement_receipt.py -text whitespace=cr-at-eol
+test_verify_retirement_receipt.py -text whitespace=cr-at-eol
