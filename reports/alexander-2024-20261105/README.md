@@ -1,4 +1,18 @@
-## Latest checkpoint — 2026-11-13: per-file receipt verifier fixture
+## Latest checkpoint — 2026-11-13: receipt integration fixtures
+
+A separate temporary Linux fixture exercised the existing withdrawal leaf and
+the new receipt verifier together. A complete two-file fixture withdrawal
+produced a receipt accepted by the verifier; a fixture with expired admission
+after one file left an incomplete receipt that the verifier rejected. See
+`retirement-receipt-integration-fixture-verification.json`. Fixture files only
+were unlinked; no production source was scanned or removed.
+
+These tests do not cure the previously documented ancestor-guard gap, establish
+trusted admission, qualify Lox/legacy links, or create a production retirement
+controller. The existing withdrawal leaf remains unsafe for production as-is.
+Actual 2024 space reclaimed from `/data` remains zero bytes.
+
+## Previous checkpoint — 2026-11-13: per-file receipt verifier fixture
 
 `verify_retirement_receipt.py` is a read-only building block that checks an
 ordered complete intent/unlinked receipt against the pinned 2024 manifest,

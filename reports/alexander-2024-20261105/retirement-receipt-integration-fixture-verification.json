@@ -1,0 +1,13 @@
+{
+  "exit": 0,
+  "output": "test_completed_fixture_receipt_matches (test_retirement_receipt_integration.ReceiptIntegrationTests.test_completed_fixture_receipt_matches) ... ok\ntest_expired_fixture_admission_remains_incomplete (test_retirement_receipt_integration.ReceiptIntegrationTests.test_expired_fixture_admission_remains_incomplete) ... ok\n\n----------------------------------------------------------------------\nRan 2 tests in 0.024s\n\nOK\n",
+  "scope": "temporary fixture tree only",
+  "scripts_sha256": {
+    "verify_retirement_manifest.py": "12ea4f19dcc264c319c9ea77fbbd88d4c044c9d23c7399900bfcfef316c55f6e",
+    "withdraw_retirement_manifest.py": "6349128a572862eb33b9f4bac32a682dfa3c8bff512792d1a600dd586d71a813",
+    "verify_retirement_receipt.py": "973cba61f4ac7c2ea13ddfe675859be1a9876c5a1a909f9174f4c3e8cc722ffc",
+    "test_retirement_receipt_integration.py": "075035ab7006dc0f08291c14063556c0c312294549589bcb8bb3562781be0912"
+  },
+  "production_scanned": false,
+  "production_unlinked": false
+}
