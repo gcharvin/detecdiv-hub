@@ -1,0 +1,16 @@
+{
+  "read_only": true,
+  "candidate_associations": 15,
+  "target_projects": 10,
+  "target_size_recorded": 15,
+  "associations_matching_recorded_mat_size": 10,
+  "target_projects_with_matching_size": 5,
+  "target_projects_with_size_difference": 5,
+  "fov_count_matches_between_catalog_records": 0,
+  "roi_count_matches": 15,
+  "hdf5_count_matches": 15,
+  "run_json_count_matches": 15,
+  "project_identity_confirmed": false,
+  "scope": "Existing staged candidate size and selected Hub record counts; counts can be stale",
+  "private_receipt_sha256": "56c12b30660a415ac335776391561eebd6e025a971c13d15895e98c3bdfc1444"
+}

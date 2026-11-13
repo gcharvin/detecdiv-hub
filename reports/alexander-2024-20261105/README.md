@@ -1,4 +1,21 @@
-## Latest checkpoint — 2026-11-13: cross-scope legacy candidate evidence
+## Latest checkpoint — 2026-11-13: cross-scope catalog comparison
+
+A fresh read-only query compared recorded MAT sizes and four count fields for
+15 cross-project candidate associations from the prior evidence. All target
+records had nonzero recorded MAT sizes; ten associations, covering five target
+projects, match candidate member size, while five associations for the other
+five projects differ. FOV counts differ between the target and candidate-source
+Hub records in all 15 associations; ROI, HDF5 and run-JSON counts agree.
+Catalog counts and sizes may be stale or describe different project records;
+neither matches nor differences prove file identity or scientific equivalence.
+
+The private receipt is `runtime/legacy-crossscope-catalog-comparison-20261113.json`,
+SHA256 `56c12b30660a415ac335776391561eebd6e025a971c13d15895e98c3bdfc1444`.
+No original or archive was modified and no completed actor replayed. Lox,
+legacy identity and sidecars remain unresolved. Retain all 2024 sources;
+actual 2024 space reclaimed remains zero bytes.
+
+## Previous checkpoint — 2026-11-13: cross-scope legacy candidate evidence
 
 A new comparison used existing completed index receipts for the three archive
 name candidates and the declared missing main names for ten linked projects.
