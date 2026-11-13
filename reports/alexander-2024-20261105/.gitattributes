@@ -89,3 +89,5 @@ scan_uuid_linked_raw_archive_index.py -text whitespace=cr-at-eol
 launch_uuid_linked_raw_archive_index.py -text whitespace=cr-at-eol
 retirement_directory_inventory.py -text whitespace=cr-at-eol
 test_retirement_directory_inventory.py -text whitespace=cr-at-eol
+retirement_directory_inventory_v2.py -text whitespace=cr-at-eol
+test_retirement_directory_inventory_v2.py -text whitespace=cr-at-eol

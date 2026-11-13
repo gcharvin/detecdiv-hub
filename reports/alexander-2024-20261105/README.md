@@ -1,4 +1,21 @@
-## Latest checkpoint — 2026-11-13: read-only ancestor baseline fixture
+## Latest checkpoint — 2026-11-13: directory baseline v2 fixtures
+
+The separate read-only directory baseline v2 checks the full file manifest
+again after collecting directory signatures, then opens and checks every
+recorded directory signature once more. Nine isolated Linux fixture tests
+passed, including changes injected after the first and second manifest checks;
+see `retirement-directory-inventory-v2-fixture-verification.json`. The earlier
+prototype and its pinned proof were preserved. No production data were scanned
+or removed.
+
+This is still only a read-only prototype: a controller must pin and authenticate
+its baseline externally, address concurrent changes after validation, account
+for metadata transitions caused by its own unlinks, and handle crashes and
+admission/leases with independent tests. The two manifest scans are not an
+atomic filesystem snapshot. Lox and historical references remain unqualified;
+2024 actual space reclaimed remains zero bytes.
+
+## Previous checkpoint — 2026-11-13: read-only ancestor baseline fixture
 
 `retirement_directory_inventory.py` adds a read-only prototype: after checking
 the full file manifest, it captures directory device, inode, mode, ownership,

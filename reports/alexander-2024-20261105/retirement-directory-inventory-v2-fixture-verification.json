@@ -1,0 +1,12 @@
+{
+  "exit": 0,
+  "output": "test_changed_payload_rejected_before_inventory (test_retirement_directory_inventory_v2.DirectoryInventoryTests.test_changed_payload_rejected_before_inventory) ... ok\ntest_directory_metadata_change_after_second_check_rejected (test_retirement_directory_inventory_v2.DirectoryInventoryTests.test_directory_metadata_change_after_second_check_rejected) ... ok\ntest_directory_metadata_change_rejected (test_retirement_directory_inventory_v2.DirectoryInventoryTests.test_directory_metadata_change_rejected) ... ok\ntest_file_added_after_capture_rejected (test_retirement_directory_inventory_v2.DirectoryInventoryTests.test_file_added_after_capture_rejected) ... ok\ntest_file_added_after_first_manifest_check_rejected (test_retirement_directory_inventory_v2.DirectoryInventoryTests.test_file_added_after_first_manifest_check_rejected) ... ok\ntest_parent_traversal_rejected (test_retirement_directory_inventory_v2.DirectoryInventoryTests.test_parent_traversal_rejected) ... ok\ntest_symlink_ancestor_rejected (test_retirement_directory_inventory_v2.DirectoryInventoryTests.test_symlink_ancestor_rejected) ... ok\ntest_tampered_baseline_rejected (test_retirement_directory_inventory_v2.DirectoryInventoryTests.test_tampered_baseline_rejected) ... ok\ntest_valid_unchanged_chain (test_retirement_directory_inventory_v2.DirectoryInventoryTests.test_valid_unchanged_chain) ... ok\n\n----------------------------------------------------------------------\nRan 9 tests in 0.011s\n\nOK\n",
+  "scope": "temporary fixture tree only",
+  "scripts_sha256": {
+    "verify_retirement_manifest.py": "12ea4f19dcc264c319c9ea77fbbd88d4c044c9d23c7399900bfcfef316c55f6e",
+    "retirement_directory_inventory_v2.py": "d5d0e699846676bdee2ee83ca27e53d97bc01e42b4cbd6589cef49b61a5d11fe",
+    "test_retirement_directory_inventory_v2.py": "20207ed248dd477a1d0e307686c5de2d06c2990cf52fe47b48b699e7b44a1a8d"
+  },
+  "production_scanned": false,
+  "production_unlinked": false
+}
