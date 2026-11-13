@@ -1,0 +1,11 @@
+{
+  "exit": 0,
+  "output": "test_additional_file_rejected (test_retirement_directory_transition.TransitionTests.test_additional_file_rejected) ... ok\ntest_additional_removal_rejected (test_retirement_directory_transition.TransitionTests.test_additional_removal_rejected) ... ok\ntest_changed_other_file_rejected (test_retirement_directory_transition.TransitionTests.test_changed_other_file_rejected) ... ok\ntest_exact_removal (test_retirement_directory_transition.TransitionTests.test_exact_removal) ... ok\ntest_parent_permissions_changed_rejected (test_retirement_directory_transition.TransitionTests.test_parent_permissions_changed_rejected) ... ok\ntest_symlink_rejected (test_retirement_directory_transition.TransitionTests.test_symlink_rejected) ... ok\ntest_wrong_expected_file_rejected (test_retirement_directory_transition.TransitionTests.test_wrong_expected_file_rejected) ... ok\n\n----------------------------------------------------------------------\nRan 7 tests in 0.012s\n\nOK\n",
+  "scope": "temporary fixture tree only",
+  "scripts_sha256": {
+    "retirement_directory_transition.py": "3043690629a84b9ae8923cde0f7216d8ffa7d579d5a8ef8542b79404aa7a42db",
+    "test_retirement_directory_transition.py": "7b71de54bbdb0e8000a8604999fd34bd1b098c16fa1ae51da11256b93026f3d9"
+  },
+  "production_scanned": false,
+  "production_unlinked": false
+}

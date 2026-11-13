@@ -1,4 +1,19 @@
-## Latest checkpoint — 2026-11-13: external baseline pin fixtures
+## Latest checkpoint — 2026-11-13: directory transition fixture
+
+`retirement_directory_transition.py` is a read-only fixture prototype that
+compares a parent directory and its direct children before and after one
+intended file removal. It rejects unexpected added, removed or changed entries,
+changed parent identity/permissions, mismatched file evidence and symlinks.
+Seven Linux tests passed on temporary fixture files only; see
+`retirement-directory-transition-fixture-verification.json`.
+
+This prototype performs no unlink and is not a production controller. Its
+checks are not atomic with filesystem operations, it does not validate the
+full ancestor chain, authenticate evidence, manage leases or recover crashes;
+all those requirements and Lox/legacy qualifications remain open. No 2024
+source was removed and actual space reclaimed remains zero bytes.
+
+## Previous checkpoint — 2026-11-13: external baseline pin fixtures
 
 `retirement_baseline_pin.py` adds a read-only loader for a future directory
 baseline. It requires an externally supplied SHA256, opens the file without
