@@ -1,0 +1,11 @@
+{
+  "read_only": true,
+  "manifest_directory_rows_have_path_only": true,
+  "directory_ancestors_opened_nofollow": true,
+  "retirement_root_inode_checked": true,
+  "non_root_ancestor_original_identity_or_mtime_recorded_in_verified_manifest": false,
+  "per_file_inode_size_mtime_checked": true,
+  "conclusion": "Existing scripts do not alone satisfy the requirement to check recorded non-root ancestor identity and metadata before every unlink. No retirement admission or unlink attempted.",
+  "verifier_sha256": "12ea4f19dcc264c319c9ea77fbbd88d4c044c9d23c7399900bfcfef316c55f6e",
+  "withdrawal_sha256": "6349128a572862eb33b9f4bac32a682dfa3c8bff512792d1a600dd586d71a813"
+}

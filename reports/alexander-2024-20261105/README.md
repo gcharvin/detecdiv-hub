@@ -1,4 +1,22 @@
-## Latest checkpoint — 2026-11-13: cross-scope catalog comparison
+## Latest checkpoint — 2026-11-13: retirement ancestor guard gap
+
+A read-only code review identified an additional unmet retirement gate. The
+verified native manifests encode directories by path alone. The withdrawal
+leaf opens each ancestor with no-follow and checks the root inode and each
+file's metadata, but does not compare recorded identity and metadata of each
+non-root ancestor before every unlink. Thus the existing leaf and its fixture
+results alone do not satisfy the requested ancestor checks; it must not be used
+for production withdrawal as-is. See
+`retirement-ancestor-guard-gap-verification.json` for exact script hashes.
+
+A future new 2024 controller must collect and pin a fresh complete native
+directory inventory, check the open ancestor chain against it, and account for
+only the exact directory metadata transitions caused by its own prior unlinks;
+reject unexplained changes. It must also meet all existing gates, receipt,
+admission and postflight requirements. Lox and legacy identity remain
+unresolved. No source was removed; 2024 space reclaimed remains zero bytes.
+
+## Previous checkpoint — 2026-11-13: cross-scope catalog comparison
 
 A fresh read-only query compared recorded MAT sizes and four count fields for
 15 cross-project candidate associations from the prior evidence. All target
