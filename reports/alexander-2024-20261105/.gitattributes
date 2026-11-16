@@ -99,3 +99,5 @@ verify_retirement_receipt.py -text whitespace=cr-at-eol
 test_verify_retirement_receipt.py -text whitespace=cr-at-eol
 test_retirement_receipt_integration.py -text whitespace=cr-at-eol
 test_directory_guards_integration.py -text whitespace=cr-at-eol
+plan_partial_retirement_manifest.py -text whitespace=cr-at-eol
+test_plan_partial_retirement_manifest.py -text whitespace=cr-at-eol

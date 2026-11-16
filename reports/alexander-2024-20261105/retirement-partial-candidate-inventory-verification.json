@@ -1,0 +1,21 @@
+{
+  "read_only": true,
+  "initial_manifest_acquisition_roots": 31,
+  "excluded_lox_roots": 1,
+  "preliminary_candidate_roots": 25,
+  "preliminary_candidate_files": 1487153,
+  "preliminary_candidate_logical_bytes": 10116899421146,
+  "known_uncatalogued_stub_acquisition_to_exclude": "2024_1/130224_dfob_rep_dslog",
+  "known_project_discovery_without_raw_catalog_root": 1,
+  "roots_without_known_discovery_candidates": 4,
+  "current_raw_ids": 115,
+  "current_project_raw_links": 0,
+  "eligible_for_unlink": 0,
+  "physical_space_recovered_bytes": 0,
+  "notes": "Preliminary candidate counts include the known stub acquisition, which must be excluded before any retirement; logical bytes are not recovered space. Unknown historical project dependencies remain unqualified.",
+  "private_matrix_sha256": "9337a6b38feab45a48cdfebd46dbb40df3cdeb697a84f65d5370c313908bef5b",
+  "narrowed_preliminary_roots": 17,
+  "narrowed_preliminary_files": 1040648,
+  "narrowed_preliminary_logical_bytes": 6846297111278,
+  "narrowed_private_sha256": "39b1ed145363a5568e1057c53926c5e2a4a7acae89925b7d4f43cdf3f29b4ac7"
+}

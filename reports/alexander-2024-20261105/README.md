@@ -1,4 +1,62 @@
-## Latest checkpoint — 2026-11-13: directory guard integration fixtures
+## Latest checkpoint — 2026-11-16: partial retirement authorized
+
+Gilles explicitly authorized a bounded partial retirement: preserve LoxP15 and
+all uncertain projects/datasets and remove only independently verified
+duplicates. This does not establish that missing historical references are
+irrelevant. The existing full-year withdrawal leaf must not be used on a subset.
+
+A new read-only grouping of the two original verified SHA1/stability manifests
+covers 31 acquisition roots. One root is LoxP15 and is explicitly excluded.
+Twenty-five non-Lox roots have both prior matching project-discovery candidates
+within the 33 final-host-tested projects and at least one raw catalog row;
+their initial manifest contains 1,487,153 files and 10,116,899,421,146 logical
+bytes. These are preliminary candidates, NOT approved for deletion and NOT a
+measurement of recoverable physical space. One additional matched root lacks
+raw catalog rows, and four roots lack matching discovery candidates; preserve
+these pending qualification. A known uncatalogued stub also names the
+`130224_dfob_rep_dslog` acquisition; retain that root while the stub remains
+uncertain. Current DB inspection found zero registered project/raw links for
+the 115 raw IDs, so absence of such links must not be treated as proof of no
+dependencies. All candidates still require explicit cross-project/legacy
+qualification, fresh native full and subset manifests, properly scoped admission
+and own leases, a newly designed and tested 2024 partial-retirement controller,
+postflight and real NAS free-space measurement. No data was removed.
+
+The private manifest aggregation, DB-link snapshot and conservative matrix are
+`runtime/retirement-partial-manifest-top-level-20261116.json`,
+`runtime/retirement-partial-catalog-links-20261116.json` and
+`runtime/retirement-partial-candidate-matrix-20261116.json`; their SHA256 values
+are `60ef3930b64ee46b1b94f426c07061829e1976c28d358929936a2f47a1cd5c80`,
+`99b0c490f2646c6425d4bc604ed9ec69eb6c7666202e449ff0693564ba2f34c4`, and
+`9337a6b38feab45a48cdfebd46dbb40df3cdeb697a84f65d5370c313908bef5b`.
+No acquisition is yet marked eligible for unlink; 2024 actual reclaimed space
+remains zero bytes.
+
+A second conservative screen retains LoxP15, the stub-linked acquisition,
+Cres/ARS1 and Movie historical mismatches, RMng's unresolved derived-data
+history, X5152moth's unextracted subset, QP-special acquisitions, the Gilles
+external-dependency acquisition, all roots without project candidates, and the
+one root without a scoped raw catalog row. Seventeen roots remain preliminary
+candidates (1,040,648 files; 6,846,297,111,278 logical bytes in the original
+manifest). Their historical cross-project dependency coverage is still not
+complete, so eligible-for-unlink is zero. The private screen is
+`runtime/retirement-partial-conservative-candidates-20261116.json`, SHA256
+`39b1ed145363a5568e1057c53926c5e2a4a7acae89925b7d4f43cdf3f29b4ac7`.
+No number here is a measured physical space gain.
+
+`plan_partial_retirement_manifest.py` is a new read-only 2024-bound planner.
+Eight isolated fixtures passed, including rejecting Lox, the known stub,
+traversal, unknown roots and a wrong full-manifest digest. It then computed
+per-root subset digests for the 17 preliminary candidates from the original
+pinned manifests; all per-root counts and byte totals match the independent
+aggregation. The private output is
+`runtime/retirement-partial-subset-digests-20261116.json`, SHA256
+`55c98657fa6c97399228afbb9d4192bc030ef5e5e554612b59ed4ad3e5059163`.
+These are derived from historical manifests; they do not inspect current NAS
+state, qualify dependencies, authorize unlink or establish physical recovery.
+
+
+## Previous checkpoint — 2026-11-13: directory guard integration fixtures
 
 Three new isolated Linux fixtures exercised the two existing directory-guard
 prototypes together. They cover two temporary file removals in the same parent,

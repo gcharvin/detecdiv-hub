@@ -1,0 +1,12 @@
+{
+  "exit": 0,
+  "output": "test_multiple_roots (test_plan_partial_retirement_manifest.PartialManifestTests.test_multiple_roots) ... ok\ntest_other_year_rejected (test_plan_partial_retirement_manifest.PartialManifestTests.test_other_year_rejected) ... ok\ntest_retained_lox_rejected (test_plan_partial_retirement_manifest.PartialManifestTests.test_retained_lox_rejected) ... ok\ntest_selected_root_only (test_plan_partial_retirement_manifest.PartialManifestTests.test_selected_root_only) ... ok\ntest_traversal_rejected (test_plan_partial_retirement_manifest.PartialManifestTests.test_traversal_rejected) ... ok\ntest_uncertain_stub_rejected (test_plan_partial_retirement_manifest.PartialManifestTests.test_uncertain_stub_rejected) ... ok\ntest_unknown_root_rejected (test_plan_partial_retirement_manifest.PartialManifestTests.test_unknown_root_rejected) ... ok\ntest_wrong_full_digest_rejected (test_plan_partial_retirement_manifest.PartialManifestTests.test_wrong_full_digest_rejected) ... ok\n\n----------------------------------------------------------------------\nRan 8 tests in 0.003s\n\nOK\n",
+  "scope": "temporary fixture tree only",
+  "scripts_sha256": {
+    "verify_retirement_manifest.py": "12ea4f19dcc264c319c9ea77fbbd88d4c044c9d23c7399900bfcfef316c55f6e",
+    "plan_partial_retirement_manifest.py": "25cab922644e1e4e1c60042648c301bf4e56afce1af2f521b346bee946ead124",
+    "test_plan_partial_retirement_manifest.py": "788acda1ae2eea0ab8755774ec006b8f37f823c85535f0ed4ed4120ac5c73835"
+  },
+  "production_scanned": false,
+  "production_unlinked": false
+}

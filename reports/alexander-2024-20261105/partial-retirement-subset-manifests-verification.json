@@ -1,0 +1,16 @@
+{
+  "read_only": true,
+  "years": [
+    "2024_1",
+    "2024_2"
+  ],
+  "preliminary_roots": 17,
+  "root_counts_reconciled": true,
+  "fixture_tests_passed": 8,
+  "eligible_for_unlink": 0,
+  "current_source_checked": false,
+  "historical_references_qualified": false,
+  "physical_space_recovered_bytes": 0,
+  "private_result_sha256": "55c98657fa6c97399228afbb9d4192bc030ef5e5e554612b59ed4ad3e5059163",
+  "planner_sha256": "25cab922644e1e4e1c60042648c301bf4e56afce1af2f521b346bee946ead124"
+}
