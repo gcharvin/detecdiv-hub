@@ -1,0 +1,12 @@
+{
+  "exit": 0,
+  "output": "test_extra_target_detected_but_not_deleted (test_partial_target_sha1_readonly.PartialTargetTests.test_extra_target_detected_but_not_deleted) ... ok\ntest_identical_files_produce_no_changes (test_partial_target_sha1_readonly.PartialTargetTests.test_identical_files_produce_no_changes) ... ok\ntest_inventory_detects_metadata_change (test_partial_target_sha1_readonly.PartialTargetTests.test_inventory_detects_metadata_change) ... ok\ntest_retained_and_traversal_roots_rejected (test_partial_target_sha1_readonly.PartialTargetTests.test_retained_and_traversal_roots_rejected) ... ok\ntest_same_size_changed_content_detected_without_writes (test_partial_target_sha1_readonly.PartialTargetTests.test_same_size_changed_content_detected_without_writes) ... ok\ntest_symlink_is_rejected (test_partial_target_sha1_readonly.PartialTargetTests.test_symlink_is_rejected) ... ok\ntest_symlink_year_root_rejected (test_partial_target_sha1_readonly.PartialTargetTests.test_symlink_year_root_rejected) ... ok\n\n----------------------------------------------------------------------\nRan 7 tests in 0.185s\n\nOK\n",
+  "scope": "temporary fixture files only",
+  "scripts_sha256": {
+    "copy_raws.py": "a0576fffa3c1d43d232f54567c6c9f7153aed40b436ace98f26079af72432b99",
+    "partial_target_sha1_readonly.py": "9c3bb0b8924c2bca61ababa425ac8ba157bd0a6b7e01cbc081ea0717e5ae60d3",
+    "test_partial_target_sha1_readonly.py": "aebfdc3c0f05eaa19a45e08dbebf4879e1a846c788ba1fe64f46e985319bc3c2"
+  },
+  "production_scanned": false,
+  "production_changed": false
+}

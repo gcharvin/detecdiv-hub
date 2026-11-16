@@ -1,0 +1,11 @@
+{
+  "exit": 0,
+  "output": "test_difference_stops_and_preserves_partial_log (test_partial_target_sha1_actor.TargetActorTests.test_difference_stops_and_preserves_partial_log) ... ok\ntest_seventeen_fake_roots_complete_without_mutation (test_partial_target_sha1_actor.TargetActorTests.test_seventeen_fake_roots_complete_without_mutation) ... ok\n\n----------------------------------------------------------------------\nRan 2 tests in 0.239s\n\nOK\n",
+  "scope": "fake rsync and temporary fixture files only",
+  "scripts_sha256": {
+    "partial_target_sha1_readonly.py": "9c3bb0b8924c2bca61ababa425ac8ba157bd0a6b7e01cbc081ea0717e5ae60d3",
+    "test_partial_target_sha1_actor.py": "8b745b8f1414b9246dfb19a7e90894b71054f363341e8f35e65199750a6ea75c"
+  },
+  "production_scanned": false,
+  "production_changed": false
+}

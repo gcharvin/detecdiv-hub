@@ -30,6 +30,11 @@ summary['partial_fresh_source']={'state':load(fresh_work+'/state.json'),
  'exit':tail(fresh_work+'/controller.exit'),
  'log_tail':tail(fresh_work+'/controller.log',1200),
  'result_exists':(w/fresh_work/'result.json').is_file()}
+target_work='partial-target-sha1-20261116'
+summary['partial_target_sha1']={'state':load(target_work+'/state.json'),
+ 'exit':tail(target_work+'/controller.exit'),
+ 'log_tail':tail(target_work+'/controller.log',1200),
+ 'result_exists':(w/target_work/'result.json').is_file()}
 summary['project_copy_state']=load('project-copies/state.json')
 summary['project_copy_exit']=tail('project-copies/controller.exit')
 summary['project_copy_log_tail']=tail('project-copies/controller.log')

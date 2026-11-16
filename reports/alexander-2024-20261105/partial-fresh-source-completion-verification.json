@@ -1,0 +1,28 @@
+{
+  "success": true,
+  "controller_exit": 0,
+  "read_only": true,
+  "source_deleted": false,
+  "eligible_for_unlink": false,
+  "request_sha256": "2fdd173defbee2c067e9cb6e9c114733e3eab2e63b8eb661d17291630bd60d37",
+  "script_sha256": "6cf019906c2382789d0ff09abb6caab75de956987c6d641c58030c7e6a66fc4a",
+  "finished_at": "2026-11-16T17:24:03.122086+00:00",
+  "years": {
+    "2024_1": {
+      "files": 732579,
+      "bytes": 5177814875236,
+      "manifest_sha256": "8fd64d094fe29707e0ddd0b1480e9b861786d3adde677087ca7a6e95e252f61e",
+      "roots": 5,
+      "finished_at": "2026-11-16T17:19:37.208831+00:00",
+      "ssh_error_log_bytes": 0
+    },
+    "2024_2": {
+      "files": 974112,
+      "bytes": 5856516249162,
+      "manifest_sha256": "004fb3404b4af8fe09b6063a09e3a162488f689499ddb51087513daf3d9f4fad",
+      "roots": 12,
+      "finished_at": "2026-11-16T17:24:03.103332+00:00",
+      "ssh_error_log_bytes": 0
+    }
+  }
+}

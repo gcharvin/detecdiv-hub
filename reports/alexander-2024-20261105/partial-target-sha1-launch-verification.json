@@ -1,0 +1,10 @@
+{
+  "launched": true,
+  "work": "partial-target-sha1-20261116",
+  "session": "alex2024-partial-target-sha1-20261116",
+  "request_sha256": "da850c45a5610927a4fcaaa51dd63874b8ef2c69a9439376a90d19eba90573ee",
+  "script_sha256": "9c3bb0b8924c2bca61ababa425ac8ba157bd0a6b7e01cbc081ea0717e5ae60d3",
+  "read_only": true,
+  "eligible_for_unlink": false,
+  "started_at": "2026-11-16T17:24:35.356195+00:00"
+}

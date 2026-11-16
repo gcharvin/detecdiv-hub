@@ -1,4 +1,37 @@
-## Latest checkpoint — 2026-11-16: fresh native source comparison active
+## Latest checkpoint — 2026-11-16: selected-root SHA1 comparison active
+
+The one-shot fresh native comparison completed at 17:24:03 UTC, exit 0:
+732,579 files for 2024_1 and 974,112 for 2024_2 exactly match their pinned
+native manifests; all 17 selected subset digests match. The independent
+terminal corroboration is `partial-fresh-source-completion-verification.json`.
+It is read-only, is not an atomic snapshot and does not authorize unlink.
+
+A new, narrower SHA1 comparison is now running for the 17 preliminary roots,
+not a replay of either old whole-year transfer. It uses the pinned original
+`rsync --checksum-choice=sha1 --dry-run --delete` command, without writes,
+and captures source and destination metadata before and after each root.
+Compute work is `partial-target-sha1-20261116`, tmux
+`alex2024-partial-target-sha1-20261116`; actor PID 854860 and rsync PID 855211
+were observed at 17:26 UTC only. Request SHA256 is
+`da850c45a5610927a4fcaaa51dd63874b8ef2c69a9439376a90d19eba90573ee`, actor
+SHA256 `9c3bb0b8924c2bca61ababa425ac8ba157bd0a6b7e01cbc081ea0717e5ae60d3`.
+Admission immediately before launch found no active jobs, locks or indexing
+for the 19 projects and 64 raws. At 17:26, root 1 was in SHA1, 0 of 17 had
+finished. Its state byte/file counts came from the metadata pass, not checksum
+progress; an empty active log is not success. See the launch and fixture proofs.
+
+Use `status.py` field `partial_target_sha1` plus real tmux, PID/command and
+heartbeat. Never duplicate or modify the active actor/request. On failure
+preserve and inspect the exact per-root log, state and actual processes; no
+blind replay. On terminal success, independently verify exit 0, all 17 exact
+roots, per-root SHA1 exit 0, empty terminal logs, matching before/after
+metadata, request/script pins and selected manifest counts. A fresh native
+source check is still required after the whole SHA1 run and immediately before
+any later unlink. Historical references and the production partial-retirement
+controller remain unqualified. All sources remain intact; actual 2024 space
+reclaimed is zero bytes.
+
+## Previous checkpoint — 2026-11-16: fresh native source comparison
 
 A new one-shot read-only actor is comparing fresh native source inventories of
 both complete 2024 years against their original pinned manifests and the 17
