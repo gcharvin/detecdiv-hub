@@ -103,3 +103,5 @@ plan_partial_retirement_manifest.py -text whitespace=cr-at-eol
 test_plan_partial_retirement_manifest.py -text whitespace=cr-at-eol
 verify_partial_retirement_source.py -text whitespace=cr-at-eol
 test_verify_partial_retirement_source.py -text whitespace=cr-at-eol
+partial_retirement_fixture.py -text whitespace=cr-at-eol
+test_partial_retirement_fixture.py -text whitespace=cr-at-eol

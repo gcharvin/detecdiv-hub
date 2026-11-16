@@ -1,4 +1,22 @@
-## Latest checkpoint — 2026-11-16: per-root historical proof matrix
+## Latest checkpoint — 2026-11-16: partial withdrawal fixture integration
+
+`partial_retirement_fixture.py` combines full-manifest checks, selected-root
+planning, no-follow ancestor signatures, before/after parent-entry comparison,
+per-file intent/unlinked records and available-space measurements on a dedicated
+temporary fixture only. Five Linux fixture tests passed: selected files only,
+expired admission after one file, an unexpected file between unlinks, a new
+file before inventory, and refusal of a real `/volume1/DATA` root. See
+`partial-retirement-integration-fixture-verification.json`. Only temporary
+fixture data was touched; no production data was scanned or removed.
+
+This is NOT a production retirement controller. It cannot access a real NAS
+root, its admission callback is simulated, it does not qualify legacy links or
+handle authenticated admission, writer exclusion or crash recovery, and its
+filesystem checks are not an atomic snapshot. Keep all source data until a new
+production controller and its complete gates pass. Seventeen roots remain
+preliminary candidates and actual 2024 space reclaimed remains zero bytes.
+
+## Previous checkpoint — 2026-11-16: per-root historical proof matrix
 
 A read-only reconciliation of already completed evidence mapped each of the
 17 preliminary roots to its matching project-discovery entries and historical

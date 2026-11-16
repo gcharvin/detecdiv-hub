@@ -1,0 +1,16 @@
+{
+  "exit": 0,
+  "output": "test_expired_admission_stops_after_first_file (test_partial_retirement_fixture.PartialWithdrawalFixtureTests.test_expired_admission_stops_after_first_file) ... ok\ntest_new_file_between_unlinks_stops (test_partial_retirement_fixture.PartialWithdrawalFixtureTests.test_new_file_between_unlinks_stops) ... ok\ntest_non_fixture_root_rejected_before_access (test_partial_retirement_fixture.PartialWithdrawalFixtureTests.test_non_fixture_root_rejected_before_access) ... ok\ntest_selected_files_removed_and_other_root_preserved (test_partial_retirement_fixture.PartialWithdrawalFixtureTests.test_selected_files_removed_and_other_root_preserved) ... ok\ntest_unexpected_file_before_snapshot_stops_without_receipt (test_partial_retirement_fixture.PartialWithdrawalFixtureTests.test_unexpected_file_before_snapshot_stops_without_receipt) ... ok\n\n----------------------------------------------------------------------\nRan 5 tests in 0.020s\n\nOK\n",
+  "scope": "temporary fixture tree only",
+  "scripts_sha256": {
+    "verify_retirement_manifest.py": "12ea4f19dcc264c319c9ea77fbbd88d4c044c9d23c7399900bfcfef316c55f6e",
+    "withdraw_retirement_manifest.py": "6349128a572862eb33b9f4bac32a682dfa3c8bff512792d1a600dd586d71a813",
+    "plan_partial_retirement_manifest.py": "25cab922644e1e4e1c60042648c301bf4e56afce1af2f521b346bee946ead124",
+    "retirement_directory_inventory_v2.py": "d5d0e699846676bdee2ee83ca27e53d97bc01e42b4cbd6589cef49b61a5d11fe",
+    "retirement_directory_transition.py": "3043690629a84b9ae8923cde0f7216d8ffa7d579d5a8ef8542b79404aa7a42db",
+    "partial_retirement_fixture.py": "c93828d551d690d839496502dc94fe53615256e5d0df6a4ffb6d8857d048a880",
+    "test_partial_retirement_fixture.py": "73205ea94cba7b7f7d99ff1dfd89c309f6804149b967f200460a19b818ec9b44"
+  },
+  "production_scanned": false,
+  "production_unlinked": false
+}
