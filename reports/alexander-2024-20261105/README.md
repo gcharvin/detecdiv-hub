@@ -1,4 +1,22 @@
-## Latest checkpoint — 2026-11-16: partial retirement authorized
+## Latest checkpoint — 2026-11-16: partial source verification fixture
+
+`verify_partial_retirement_source.py` is a new read-only building block for
+selected 2024 roots: it checks the complete native source tree against the
+pinned full-year manifest, reconciles selected subset digests against supplied
+evidence and checks root/manifest stability. Seven isolated Linux fixtures
+passed, including a new file outside the selection, changed file, symlink,
+subset digest mismatch and unsupported year. See
+`partial-retirement-source-fixture-verification.json`. No production source
+scan or deletion was performed for this fixture.
+
+This does not establish historical dependency coverage, trust the supplied
+subset evidence automatically, freeze concurrent writers, manage admission or
+leases, or implement deletion or recovery. Full-tree verification is not an
+atomic snapshot and must be part of a separately guarded controller. The 17
+roots remain preliminary candidates, no unlink is authorized, and actual 2024
+space recovered remains zero bytes.
+
+## Previous checkpoint — 2026-11-16: partial retirement authorized
 
 Gilles explicitly authorized a bounded partial retirement: preserve LoxP15 and
 all uncertain projects/datasets and remove only independently verified

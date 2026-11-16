@@ -1,0 +1,13 @@
+{
+  "exit": 0,
+  "output": "test_added_file_outside_selected_root_rejected (test_verify_partial_retirement_source.PartialSourceTests.test_added_file_outside_selected_root_rejected) ... ok\ntest_changed_selected_file_rejected (test_verify_partial_retirement_source.PartialSourceTests.test_changed_selected_file_rejected) ... ok\ntest_empty_subset_rejected (test_verify_partial_retirement_source.PartialSourceTests.test_empty_subset_rejected) ... ok\ntest_exact_tree_and_selected_evidence (test_verify_partial_retirement_source.PartialSourceTests.test_exact_tree_and_selected_evidence) ... ok\ntest_other_year_rejected_before_open (test_verify_partial_retirement_source.PartialSourceTests.test_other_year_rejected_before_open) ... ok\ntest_subset_digest_mismatch_rejected (test_verify_partial_retirement_source.PartialSourceTests.test_subset_digest_mismatch_rejected) ... ok\ntest_symlink_ancestor_rejected (test_verify_partial_retirement_source.PartialSourceTests.test_symlink_ancestor_rejected) ... ok\n\n----------------------------------------------------------------------\nRan 7 tests in 0.008s\n\nOK\n",
+  "scope": "temporary fixture tree only",
+  "scripts_sha256": {
+    "verify_retirement_manifest.py": "12ea4f19dcc264c319c9ea77fbbd88d4c044c9d23c7399900bfcfef316c55f6e",
+    "plan_partial_retirement_manifest.py": "25cab922644e1e4e1c60042648c301bf4e56afce1af2f521b346bee946ead124",
+    "verify_partial_retirement_source.py": "224d896cdd4c80fe0c3c684ebf745472d41d7f65c0d6e46a0600897188d98e87",
+    "test_verify_partial_retirement_source.py": "605127f6def2445e1765cee58d72f2b55db2838935b8631339e58cb43a176d61"
+  },
+  "production_scanned": false,
+  "production_unlinked": false
+}
