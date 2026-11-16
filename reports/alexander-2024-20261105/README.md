@@ -1,3 +1,32 @@
+## Latest checkpoint — 2026-11-16: fresh native source comparison active
+
+A new one-shot read-only actor is comparing fresh native source inventories of
+both complete 2024 years against their original pinned manifests and the 17
+selected subset digests. It uses the original pinned native inventory code,
+without copying, saving or deleting source data. Admission immediately before
+launch found zero active jobs, locks or indexing for the 19 discovered projects
+and 64 raw datasets. It does not acquire leases or make any root eligible for
+unlink. See `partial-source-freshness-launch-verification.json` and
+`partial-fresh-source-v2-fixture-verification.json`.
+
+Compute work is `partial-source-freshness-20261116`, tmux session
+`alex2024-partial-source-freshness-20261116`. Request SHA256 is
+`2fdd173defbee2c067e9cb6e9c114733e3eab2e63b8eb661d17291630bd60d37` and
+actor SHA256 is `6cf019906c2382789d0ff09abb6caab75de956987c6d641c58030c7e6a66fc4a`.
+At 17:16:45 UTC on 16 November its 2024_1 state reported 176,265 files;
+PID 851068 and child PID 851071 were observed earlier only. Use `status.py`
+field `partial_fresh_source`, tmux, real PID/command and timestamps. A running
+or empty log is not success. Do not launch a duplicate or modify the active
+script/request. If it stops, inspect the exact exit, state, error logs and
+first mismatch; do not replay blindly. A terminal exit 0 requires independent
+comparison of both complete results and request, script, manifest and subset
+hashes before recording success. A successful fresh comparison is still not an
+atomic snapshot and must be repeated at the time of any later unlink.
+
+Lox and uncertain acquisitions are retained; all 17 roots remain preliminary,
+the production partial-retirement controller and legacy-reference gates are
+still incomplete, and 2024 actual space reclaimed remains zero bytes.
+
 ## Latest checkpoint — 2026-11-16: partial withdrawal fixture integration
 
 `partial_retirement_fixture.py` combines full-manifest checks, selected-root

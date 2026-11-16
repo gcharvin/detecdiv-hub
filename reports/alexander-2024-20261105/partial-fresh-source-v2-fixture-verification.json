@@ -1,0 +1,11 @@
+{
+  "exit": 0,
+  "output": "test_changed_inventory_stops_and_preserves_mismatch (test_partial_fresh_source_readonly.FreshSourceTests.test_changed_inventory_stops_and_preserves_mismatch) ... ok\ntest_exact_inventory_completes_read_only (test_partial_fresh_source_readonly.FreshSourceTests.test_exact_inventory_completes_read_only) ... ok\ntest_request_hash_mismatch_rejected (test_partial_fresh_source_readonly.FreshSourceTests.test_request_hash_mismatch_rejected) ... ok\ntest_retained_lox_is_rejected (test_partial_fresh_source_readonly.FreshSourceTests.test_retained_lox_is_rejected) ... ok\ntest_truncated_inventory_stops (test_partial_fresh_source_readonly.FreshSourceTests.test_truncated_inventory_stops) ... ok\n\n----------------------------------------------------------------------\nRan 5 tests in 0.049s\n\nOK\n",
+  "scope": "fake SSH and temporary fixtures only",
+  "scripts_sha256": {
+    "partial_fresh_source_readonly.py": "6cf019906c2382789d0ff09abb6caab75de956987c6d641c58030c7e6a66fc4a",
+    "test_partial_fresh_source_readonly.py": "31c5040c802bd3acb64b2a541d3475016842281d7d54e0bb7c3f02b1a22db81c"
+  },
+  "production_scanned": false,
+  "production_unlinked": false
+}

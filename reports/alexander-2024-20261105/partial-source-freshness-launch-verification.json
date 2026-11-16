@@ -1,0 +1,10 @@
+{
+  "launched": true,
+  "work": "partial-source-freshness-20261116",
+  "session": "alex2024-partial-source-freshness-20261116",
+  "request_sha256": "2fdd173defbee2c067e9cb6e9c114733e3eab2e63b8eb661d17291630bd60d37",
+  "script_sha256": "6cf019906c2382789d0ff09abb6caab75de956987c6d641c58030c7e6a66fc4a",
+  "read_only": true,
+  "eligible_for_unlink": false,
+  "started_at": "2026-11-16T17:15:45.490092+00:00"
+}

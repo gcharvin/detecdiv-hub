@@ -105,3 +105,6 @@ verify_partial_retirement_source.py -text whitespace=cr-at-eol
 test_verify_partial_retirement_source.py -text whitespace=cr-at-eol
 partial_retirement_fixture.py -text whitespace=cr-at-eol
 test_partial_retirement_fixture.py -text whitespace=cr-at-eol
+partial_fresh_source_readonly.py -text whitespace=cr-at-eol
+test_partial_fresh_source_readonly.py -text whitespace=cr-at-eol
+launch_partial_fresh_source_readonly.py -text whitespace=cr-at-eol

@@ -25,6 +25,11 @@ summary={'copy_state':state,'controller_exit':tail('controller.exit'),'controlle
  'project_discovery_progress':load('project-discovery-progress.json'),'project_discovery_result':load('project-discovery-result.json'),
  'project_discovery_exit':tail('project-discovery.exit'),'project_discovery_log_tail':tail('project-discovery.log'),
  'sessions':subprocess.run(['tmux','list-sessions','-F','#{session_name}'],capture_output=True,text=True).stdout.splitlines()}
+fresh_work='partial-source-freshness-20261116'
+summary['partial_fresh_source']={'state':load(fresh_work+'/state.json'),
+ 'exit':tail(fresh_work+'/controller.exit'),
+ 'log_tail':tail(fresh_work+'/controller.log',1200),
+ 'result_exists':(w/fresh_work/'result.json').is_file()}
 summary['project_copy_state']=load('project-copies/state.json')
 summary['project_copy_exit']=tail('project-copies/controller.exit')
 summary['project_copy_log_tail']=tail('project-copies/controller.log')
