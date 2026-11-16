@@ -27,7 +27,13 @@ blind replay. On terminal success, independently verify exit 0, all 17 exact
 roots, per-root SHA1 exit 0, empty terminal logs, matching before/after
 metadata, request/script pins and selected manifest counts. A fresh native
 source check is still required after the whole SHA1 run and immediately before
-any later unlink. Historical references and the production partial-retirement
+any later unlink. `verify_partial_target_sha1_completion.py` is
+prepared for terminal-only corroboration; four isolated receipt fixtures passed,
+including rejecting an active actor, nonempty terminal log and wrong prior
+source proof (`partial-target-sha1-completion-fixture-verification.json`). It
+must not be run before the actor terminates and must never relaunch the actor.
+Before/after metadata equality is established by the pinned actor's control
+flow; separate after-metadata receipts are not present. Historical references and the production partial-retirement
 controller remain unqualified. All sources remain intact; actual 2024 space
 reclaimed is zero bytes.
 

@@ -1,0 +1,11 @@
+{
+  "exit": 0,
+  "output": "test_active_actor_rejected (test_verify_partial_target_completion.CompletionTests.test_active_actor_rejected) ... ok\ntest_nonempty_terminal_log_rejected (test_verify_partial_target_completion.CompletionTests.test_nonempty_terminal_log_rejected) ... ok\ntest_successful_terminal_receipts (test_verify_partial_target_completion.CompletionTests.test_successful_terminal_receipts) ... ok\ntest_wrong_prior_source_proof_rejected (test_verify_partial_target_completion.CompletionTests.test_wrong_prior_source_proof_rejected) ... ok\n\n----------------------------------------------------------------------\nRan 4 tests in 0.012s\n\nOK\n",
+  "scope": "temporary fixture receipts and fake process checks only",
+  "scripts_sha256": {
+    "verify_partial_target_sha1_completion.py": "c06834408f58e8e728699e269629c69fb95d9eed6f4cac4403f547705d2e1395",
+    "test_verify_partial_target_completion.py": "a588414e157ab01afd519598434c160bc71876db7d7d3221f9daabb8e1fb4fa9"
+  },
+  "production_scanned": false,
+  "production_changed": false
+}

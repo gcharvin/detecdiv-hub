@@ -113,3 +113,5 @@ partial_target_sha1_readonly.py -text whitespace=cr-at-eol
 test_partial_target_sha1_readonly.py -text whitespace=cr-at-eol
 test_partial_target_sha1_actor.py -text whitespace=cr-at-eol
 launch_partial_target_sha1_readonly.py -text whitespace=cr-at-eol
+verify_partial_target_sha1_completion.py -text whitespace=cr-at-eol
+test_verify_partial_target_completion.py -text whitespace=cr-at-eol
