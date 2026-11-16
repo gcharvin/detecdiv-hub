@@ -1,0 +1,16 @@
+{
+  "read_only": true,
+  "preliminary_roots": 17,
+  "distinct_discovered_projects": 19,
+  "raw_ids": 64,
+  "media_handlers": 1379,
+  "media_bytes": 10405545034,
+  "targets_and_handlers_historical_receipts_rehashed": true,
+  "year2_archived_linux_windows_report_hashes_matched": true,
+  "historical_dependencies_qualified": false,
+  "fresh_source_checked": false,
+  "eligible_for_unlink": 0,
+  "physical_space_recovered_bytes": 0,
+  "private_evidence_sha256": "95698aa0df74341569718db789813a785d9df25aebedbd3de6338a7c2f2c5fd1",
+  "private_media_sha256": "e674ff86e7803d9b643e872c7bced6255edcfbdb0d6e52f9de83b4e2847e32aa"
+}

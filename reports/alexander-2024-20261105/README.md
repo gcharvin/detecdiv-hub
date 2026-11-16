@@ -1,4 +1,24 @@
-## Latest checkpoint — 2026-11-16: partial source verification fixture
+## Latest checkpoint — 2026-11-16: per-root historical proof matrix
+
+A read-only reconciliation of already completed evidence mapped each of the
+17 preliminary roots to its matching project-discovery entries and historical
+final-host and API receipts. The matrix covers 19 distinct previously tested
+projects, 64 raw IDs and 1,379 media handlers (10,405,545,034 bytes). Both
+archived target-read and handler receipts were independently rehashed and
+reconciled to the original 2,081-row plan. For year 2, Linux and archived
+Windows status records name the same report hashes as the existing proof;
+the deleted Windows task was not queried. The private maps are
+`runtime/retirement-partial-media-proof-map-20261116.json`, SHA256
+`e674ff86e7803d9b643e872c7bced6255edcfbdb0d6e52f9de83b4e2847e32aa`, and
+`runtime/retirement-partial-evidence-matrix-20261116.json`, SHA256
+`95698aa0df74341569718db789813a785d9df25aebedbd3de6338a7c2f2c5fd1`.
+
+These are historical receipts, not fresh reads and not proof that unrelated
+legacy references are absent. The 17 roots remain unqualified for unlink.
+Lox and uncertain datasets remain excluded. No source was removed; the real
+2024 space reclaimed remains zero bytes.
+
+## Previous checkpoint — 2026-11-16: partial source verification fixture
 
 `verify_partial_retirement_source.py` is a new read-only building block for
 selected 2024 roots: it checks the complete native source tree against the
