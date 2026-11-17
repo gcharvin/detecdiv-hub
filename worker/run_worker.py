@@ -449,7 +449,7 @@ def mark_job_done(job_id, result_json: dict) -> None:
             last_job_status="done",
             last_job=job,
         )
-        resume_qwen_if_gpu_is_idle(session, settings=settings)
+        resume_qwen_if_gpu_is_idle(session, settings=settings, target=target)
 
 
 def requeue_job(job_id, result_json: dict) -> None:
@@ -527,7 +527,7 @@ def mark_job_failed(job_id, error_text: str, *, cpu_usage: dict | None = None) -
             last_job=job,
             error_text=error_text,
         )
-        resume_qwen_if_gpu_is_idle(session, settings=settings)
+        resume_qwen_if_gpu_is_idle(session, settings=settings, target=target)
 
 
 def mark_job_cancelled(job_id, message: str, *, cpu_usage: dict | None = None) -> None:
@@ -570,7 +570,7 @@ def mark_job_cancelled(job_id, message: str, *, cpu_usage: dict | None = None) -
             last_job_status="cancelled",
             last_job=job,
         )
-        resume_qwen_if_gpu_is_idle(session, settings=settings)
+        resume_qwen_if_gpu_is_idle(session, settings=settings, target=target)
 
 
 def execute_job(job: Job) -> dict:

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import logging
 import subprocess
+from uuid import UUID
 
 from sqlalchemy import select
 from sqlalchemy.orm import Session
@@ -40,15 +41,27 @@ def pause_qwen_for_gpu_job(*, settings: Settings) -> None:
     _run_systemctl(settings=settings, action="stop")
 
 
-def resume_qwen_if_gpu_is_idle(session: Session, *, settings: Settings) -> None:
-    if not settings.assistant_gpu_arbitration_enabled:
+def _target_has_active_gpu_job(session: Session, *, target_id: UUID) -> bool:
+    active_jobs = session.scalars(
+        select(Job).where(
+            Job.execution_target_id == target_id,
+            Job.status.in_(("running", "cancelling")),
+        )
+    )
+    return any(job_requires_gpu(session, job=job) for job in active_jobs)
+
+
+def resume_qwen_if_gpu_is_idle(
+    session: Session, *, settings: Settings, target: ExecutionTarget | None
+) -> None:
+    if not settings.assistant_gpu_arbitration_enabled or target is None:
         return
     if get_assistant_desired_state(session) != "running":
         return
-    active_jobs = session.scalars(
-        select(Job).where(Job.status.in_(("running", "cancelling")))
-    ).all()
-    if any(job_requires_gpu(session, job=job) for job in active_jobs):
+    # Worker sessions disable autoflush. Publish the just-completed job's state
+    # before querying the remaining reservations inside this transaction.
+    session.flush()
+    if _target_has_active_gpu_job(session, target_id=target.id):
         return
     try:
         _run_systemctl(settings=settings, action="start")
@@ -66,14 +79,14 @@ def execute_assistant_control_job(session: Session, *, job: Job, settings: Setti
     if action not in {"start", "stop"}:
         raise GpuArbitrationError("Invalid Qwen control action.")
     if action == "start":
-        active_jobs = session.scalars(
-            select(Job).where(
-                Job.id != job.id,
-                Job.status.in_(("running", "cancelling")),
-            )
-        ).all()
-        if any(job_requires_gpu(session, job=active_job) for active_job in active_jobs):
-            raise GpuArbitrationError("Qwen cannot start while a Hub GPU job is running.")
+        # The scheduler locks the same target before claiming jobs for this GPU.
+        target = None
+        if job.execution_target_id is not None:
+            target = session.get(ExecutionTarget, job.execution_target_id, with_for_update=True)
+        if target is None:
+            raise GpuArbitrationError("Qwen start requires an assigned execution target.")
+        if _target_has_active_gpu_job(session, target_id=target.id):
+            raise GpuArbitrationError(f"Qwen cannot start while a GPU job is active on {target.display_name}.")
     _run_systemctl(settings=settings, action=action)
     return {
         "job_kind": ASSISTANT_CONTROL_JOB_KIND,

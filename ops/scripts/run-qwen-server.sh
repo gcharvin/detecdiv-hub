@@ -10,7 +10,17 @@ set -euo pipefail
 export PATH="$(dirname "${DETECDIV_QWEN_VLLM_BIN}"):${PATH}"
 export VLLM_USE_FLASHINFER_SAMPLER="${VLLM_USE_FLASHINFER_SAMPLER:-0}"
 
-exec "${DETECDIV_QWEN_VLLM_BIN}" serve "${DETECDIV_QWEN_MODEL}" \
+# Use the same driver-matched library selection as the Linux MATLAB workers.
+repo_root="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../.." && pwd)"
+exec python -c '
+import os
+import sys
+
+sys.path.insert(0, sys.argv[1])
+from worker.nvidia_runtime import matching_nvidia_environment
+
+os.execvpe(sys.argv[2], sys.argv[2:], matching_nvidia_environment(dict(os.environ)))
+' "$repo_root" "${DETECDIV_QWEN_VLLM_BIN}" serve "${DETECDIV_QWEN_MODEL}" \
   --host "${DETECDIV_QWEN_HOST:-127.0.0.1}" \
   --port "${DETECDIV_QWEN_PORT:-8001}" \
   --max-model-len "${DETECDIV_QWEN_MAX_MODEL_LEN:-8192}" \

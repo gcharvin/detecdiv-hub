@@ -21,10 +21,10 @@ will be separate, audited tools added later.
 
 Administrators can start or stop Qwen from the Assistant page. The request is
 stored as the desired state and queued as a Hub job for the configured GPU
-worker target; the API VM never runs `systemctl` on the compute host. Starting
-is refused while a Hub GPU pipeline job is active. When GPU arbitration is
-enabled, pipeline completion only restarts Qwen if its desired state is still
-`running`.
+worker target; the API VM never runs `systemctl` on the compute host. An active
+GPU pipeline job blocks startup when it is assigned to Qwen's worker target.
+When GPU arbitration is enabled, Qwen resumes after the last GPU pipeline job
+on that target finishes, provided the desired state is still `running`.
 
 The same API can be controlled from a shell with `ops/scripts/qwen-control.sh`.
 Set `DETECDIV_HUB_URL` to the Hub API base URL and `DETECDIV_HUB_TOKEN` to an
@@ -70,6 +70,12 @@ from `webserver-labo` (`192.168.122.185`), before starting Qwen.
 On the current compute host, keep `VLLM_USE_FLASHINFER_SAMPLER=0`: its CUDA
 12.0 toolkit cannot compile the optional FlashInfer sampler shipped with the
 tested vLLM release. vLLM's normal sampler remains available.
+
+The launcher uses the same driver-matched library selection as the Linux
+worker. When the installed NVIDIA userspace libraries are newer than the
+loaded driver, it uses the compatible runtime staged under
+`.nvidia-runtime/<driver-version>` until the system driver is synchronized
+during maintenance.
 
 ## Initial GPU policy
 
